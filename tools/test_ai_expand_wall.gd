@@ -8,6 +8,7 @@ extends SceneTree
 ##  2. SEALED by SEAL_BY s after the hall stood: no enemy walk from the enemy's main (open ground and its own gates; our
 ##     buildings, palisade and gates block) reaches the expansion's core (CORE tiles round the hall's middle)
 ##  3. buildings are part of the wall (at least one slot holds a building), and the gate is there
+##  5. by the main's ramp: the ramp comes down inside the wall, nothing of the wall within RAMP_FREE tiles of its foot
 ##  4. the workers still reach their farms: every Farm and Mill of the expansion is walked to from the hall (our gates
 ##     open), it has a Farm, and the hall is walked to from the main
 ## Pictures: run under xvfb with `shots:1` (each walled expansion into docs/shots/crown_wall_expand/).
@@ -18,6 +19,7 @@ const SEAL_BY := 240.0
 const LIMIT := 1000.0
 const CORE := 6.0
 const MIN_SHUT := 0.8
+const RAMP_FREE := 3.0
 const OUT := "res://docs/shots/crown_wall_expand"
 var maps: Array = ["ashford_crossing", "kestrel_rise", "cinder_steps"]
 var seed_ := 7
@@ -173,6 +175,40 @@ func _judge(g: Game, ai, hall: Building, map: String) -> void:
 	# 2. sealed: the enemy's walk from its main
 	var leak := _leak(ai, hall)
 	check(sealed_t >= 0.0, "[%s] no enemy walk into the expansion's core by %.0f s after it stood (sealed at %.0f s; %d core cells reached now)" % [map, SEAL_BY, sealed_t, leak])
+	# 5. THE MAIN'S RAMP (the owner, 2026-10-31: "they should wrap around the ramp from the other side"): when the
+	# expansion is by the main's ramp, the ramp comes down INSIDE its wall: every foot cell is in the walled area, and no
+	# palisade, gate or wall building of the expansion lies within RAMP_FREE tiles of the foot
+	var mz: Dictionary = ai.xw.main_zone()
+	var foot: Dictionary = mz["foot"]
+	var near_ramp := false
+	for c in foot:
+		if (Vector2(c) + Vector2(0.5, 0.5)).distance_to(hall.center() / Defs.TILE) < 22.0:
+			near_ramp = true
+	if near_ramp:
+		var outside := 0
+		for c in foot:
+			if ai.xw._walk(c) and not (p["inside"] as Dictionary).has(c):
+				outside += 1
+		check(outside == 0 and p.get("ramp_in", false), "[%s] the main's ramp comes down inside the expansion's wall (%d foot cells outside)" % [map, outside])
+		var close: Array = []
+		var cells: Array = []
+		for e in p["pieces"]:
+			if g._own_gate_at(0, e[1]) != null or g._own_wall_at(0, e[1]) != null:
+				cells.append([e[0], e[1]])
+		for s in p["slots"]:
+			var b = s.get("b")
+			if b != null and is_instance_valid(b) and not b.dead:
+				for y in b.size.y:
+					for x in b.size.x:
+						cells.append([b.kind, b.cell + Vector2i(x, y)])
+		for e in cells:
+			for c in foot:
+				if Vector2(e[1]).distance_to(Vector2(c)) < RAMP_FREE:
+					close.append("%s %s" % [e[0], str(e[1])])
+					break
+		check(close.is_empty(), "[%s] no wall piece, gate or wall building within %.0f tiles of the main ramp's foot %s" % [map, RAMP_FREE, str(close)])
+	else:
+		print("  %s: the expansion is not by the main's ramp" % map)
 	# 3. buildings in the wall, a gate
 	var kinds: Array = []
 	for s in p["slots"]:
@@ -247,7 +283,10 @@ func _shot(g: Game, hall: Building, map: String) -> void:
 	over.z_index = 100
 	g.add_child(over)
 	var T := float(Defs.TILE)
+	var zone: Dictionary = ai.xw.main_zone()["zone"]
 	over.draw.connect(func() -> void:
+		for c in zone:
+			over.draw_rect(Rect2(Vector2(c) * T, Vector2(T, T)), Color(0.8, 0.3, 1.0, 0.25), true)
 		for c in p["exposed"]:
 			over.draw_rect(Rect2(Vector2(c) * T, Vector2(T, T)), Color(1.0, 0.55, 0.1, 0.9), false, 3.0)
 		for e in p["pieces"]:

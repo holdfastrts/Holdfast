@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.25.23": ["O MURO DA EXPANSÃO DO COMPUTADOR DA COROA CONTORNA A RAMPA: quando ele expande abaixo da rampa da base principal, o muro não tapa mais o pé da rampa. Ele passa em volta do pé da rampa e da nova base juntos, pelo lado de fora, então a base principal e a expansão são um só espaço murado; a rampa desce por dentro, e o portão fica virado para fora, para o inimigo."],
 	"0.25.22": ["A PALIÇADA ESTÁ MAIS FRACA, PARA ACOMPANHAR O PREÇO MENOR: 200 de vida por peça (eram 300), armadura 2 como antes."],
 	"0.25.21": ["A PALIÇADA ESTÁ MAIS BARATA: 15 de ouro por peça (eram 25). Murar uma base (a sua ou a do computador, que agora mura as expansões) custa uns 40% menos; os prédios que ficam no muro não custam nada a mais, pois seriam construídos de qualquer jeito."],
 	"0.25.20": ["O COMPUTADOR DA COROA MURA AS SUAS EXPANSÕES (Normal e Difícil): toda nova Prefeitura ganha um muro nas suas entradas, o chão por onde um inimigo chega. Os próprios prédios fazem o muro primeiro: Quartéis, Casebres, uma Igreja (e depois Fundições, Criadores de Cavalos) vão nas brechas, a paliçada fecha o que sobra e um portão fica virado para o caminho da base principal. A primeira paliçada é posta enquanto a Prefeitura sobe; as Fazendas e o Moinho de Pólvora ficam dentro do muro, e parte do exército fica na nova base até o muro estar quase pronto."],

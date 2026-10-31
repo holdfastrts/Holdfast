@@ -1,4 +1,4 @@
-# Crown wall expand (0.25.20, branch crown-wall-expand)
+# Crown wall expand (0.25.20, branch crown-wall-expand; the ramp fix 0.25.22, crown-wall-ramp)
 
 The owner, 2026-10-31: "currently crown ai should attempt to expand making walls, not only palisade but all buildings
 that are not in the main base like churches, barracks, foundries, cottages, buildings that have full sprite colliders,
@@ -18,7 +18,16 @@ Every Town Hall of the Crown computer that is not its main gets a wall plan the 
    from its own base without crossing the area; cells reached only through our own walls and gates need nothing.
    The radius with the fewest ways-in cells wins, as long as the hall's two Farms and its Mill fit inside (packed when
    the plan is made, and kept free).
-2. **A gate** (two cells where it can) on the ways-in cell nearest the main by land: workers and the army pass it.
+   **The main's ramp** (0.25.22; the owner, 2026-10-31, on a wall built across the foot of the main's ramp: "This wall
+   is not good, walling the low entrance of the ramp like that, instead they should wrap around the ramp from the other
+   side"): the main's ramps and the low ground within 4 tiles of them (`xw.main_zone`, the RAMP ZONE) are inside the
+   area as soon as the area reaches them, however far that is, so the wall goes round the ramp's foot and the new base
+   together, on the far side: the main and the natural are one walled space and the ramp comes down inside. The main's
+   plateau is never part of the area and no expansion piece goes up there; the main's own ramp wall at the top (the
+   anti-rush Cottage wall) stays as it is.
+2. **A gate** (two cells where it can): when the main's ramp comes down inside, on the ways-in cell nearest the enemy
+   by land (where the expansion's men leave; the main is reached through the area); otherwise on the ways-in cell
+   nearest the main by land. Workers and the army pass it.
 3. **Building slots** over the rest of the ways in: 4x3 (Barracks, Foundry, Horse Breeder, Armoury), 3x3 (Church, only
    while it has none) and 2x2 (Cottage) footprints, each covering at least 2-3 ways-in cells, most cells first (up to 3
    + 1 + 4 slots). When the computer builds one of those kinds anyway (supply, more production, the Church), the slot is
@@ -41,23 +50,26 @@ with the second hall).
 
 ## What it builds where (test_ai_expand_wall, seed 7, Hard Balanced, Powder Mill opening, a Brood that stands still)
 
-On all three maps the first expansion is the natural just below the main's ramp, against the map's west edge, so the
-wall is one line: from the foot of the main's ramp (where the gate is, toward the main) down and round to the map's
-edge, the side facing the rest of the map.
+On all three maps the first expansion is the natural just below the main's ramp, against the map's west edge. Since
+0.25.22 the wall starts at the main's cliff on the far side of the ramp (Cottages against the cliff), runs down past
+the ramp's foot at 4 tiles or more, and round to the map's edge; the ramp comes down inside and the gate faces out
+toward the enemy. (0.25.20 laid the gate and a Barracks across the ramp's foot.)
 
 | Map | Hall stood | Ring | Ways-in cells | In the wall | Shut at +3:00 | Farms / Mill |
 |---|---|---|---|---|---|---|
-| Ashford Crossing | 8:14 | 11 tiles | 38 | Barracks, 2 Cottages + 28 palisade + 2-cell gate | 100% (sealed) | 2 Farms + Mill inside |
-| Kestrel Rise | 8:03 | 12 tiles | 36 | Barracks, Cottage + 28 palisade + 2-cell gate | 100% (sealed) | 2 Farms + Mill inside |
-| Cinder Steps | 8:27 | 13 tiles | 33 | Barracks, Cottage + 26 palisade + 1-cell gate | 100% (sealed) | 2 Farms + Mill inside |
+| Ashford Crossing | 8:16 | 12 tiles | 38 | Barracks, 2 Cottages + 28 palisade + 2-cell gate | 100% (sealed) | 2 Farms + Mill inside |
+| Kestrel Rise | 8:49 | 12 tiles | 36 | Barracks, 2 Cottages + 26 palisade + 2-cell gate | 100% (sealed) | 2 Farms + Mill inside |
+| Cinder Steps | 8:01 | 13 tiles | 33 | Barracks, 2 Cottages + 23 palisade + 2-cell gate | 96% (sealed at +3:05) | 2 Farms + Mill inside |
 
-Earlier runs (the games are not the same twice) had 2 Barracks + 2 Cottages (Ashford) or 2 Barracks + 3 Cottages
-(Kestrel) in the wall. The first pieces go down with the hall; the hall's Farm comes, then the empty slots turn to
+On all three the main's ramp comes down inside the wall (every foot cell inside) and nothing of the expansion's wall
+stands within 3 tiles of the foot (test_ai_expand_wall checks both). The games are not the same twice: other runs
+had 2 Barracks in the wall. The first pieces go down with the hall; the hall's Farm comes, then the empty slots turn to
 palisade at +1:00 and the wall is closed between +2:00 and +3:00 (the Crown's gold comes in harvest lumps at that
 time of the game). The guards (two thirds of the army) stand there until 85% is closed.
 
 Pictures: `docs/shots/crown_wall_expand/<map>.png` (the base as it stands) and `<map>_plan.png` (the plan drawn over
-it: ways-in cells orange, gate cyan, building slots white, the room kept for the Farms and Mill green).
+it: ways-in cells orange, gate cyan, building slots white, the room kept for the Farms and Mill green, the main's
+ramp zone purple).
 
 ## Numbers checked
 
