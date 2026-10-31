@@ -648,7 +648,12 @@ func _orient_gates(around: Vector2i) -> void:
 ## across a gate the line just ends (the stakes would stand in its gateway or in front of
 ## its doors; its posts take their place). A ghost site joins only in its own side's (and
 ## allies') eyes. plan: cells -> kind of pieces about to be laid (the placement preview).
+## DIAGONAL links (bits 16 NE, 32 SE, 64 SW, 128 NW; docs/wall_diag.md): a wall or gate on
+## a diagonal cell joins too when neither of the two cells between them is a wall or gate
+## (the pieces would only touch at their corners: the stakes are drawn along the diagonal,
+## Building.wall_piece / wall_extras). The four low bits stay as they were.
 const LINK_DIRS := [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
+const LINK_DIAG := [Vector2i(1, -1), Vector2i(1, 1), Vector2i(-1, 1), Vector2i(-1, -1)]
 
 
 func _links_from(c: Vector2i, kinds: Dictionary) -> int:
@@ -657,11 +662,17 @@ func _links_from(c: Vector2i, kinds: Dictionary) -> int:
 		var k: String = kinds.get(c + LINK_DIRS[i], "")
 		if k == "wall" or (k == "gate" and i % 2 == 1) or (k == "gate_v" and i % 2 == 0):
 			m |= 1 << i
+	for i in 4:
+		var d: Vector2i = LINK_DIAG[i]
+		if kinds.get(c + d, "") == "" or kinds.get(c + Vector2i(d.x, 0), "") != "" \
+				or kinds.get(c + Vector2i(0, d.y), "") != "":
+			continue
+		m |= 16 << i
 	return m
 
 
-## The kinds of side t's wall and gate pieces within `r` cells (Manhattan) of c, as seen
-## by whoever is watching.
+## The kinds of side t's wall and gate pieces within `r` cells (either way: a square, the
+## diagonals too) of c, as seen by whoever is watching.
 func _line_kinds(t: int, c: Vector2i, r: int) -> Dictionary:
 	var out := {}
 	var ft := fog_team()
@@ -669,7 +680,7 @@ func _line_kinds(t: int, c: Vector2i, r: int) -> Dictionary:
 		if b.team != t or b.dead or not (b.kind == "wall" or b.kind == "gate"):
 			continue
 		var dc: Vector2i = b.cell - c
-		if absi(dc.x) + absi(dc.y) > r or (b.ghost and hidden_ghost(b, ft)):
+		if maxi(absi(dc.x), absi(dc.y)) > r or (b.ghost and hidden_ghost(b, ft)):
 			continue
 		out[b.cell] = "gate_v" if b.kind == "gate" and b.vertical else b.kind
 	return out
@@ -691,7 +702,7 @@ func relink_walls(c: Vector2i) -> void:
 		if kinds.is_empty():
 			continue
 		for b in buildings:
-			if b.kind == "wall" and b.team == t and not b.dead and absi(b.cell.x - c.x) + absi(b.cell.y - c.y) <= 1:
+			if b.kind == "wall" and b.team == t and not b.dead and absi(b.cell.x - c.x) <= 1 and absi(b.cell.y - c.y) <= 1:
 				b.set_links(_links_from(b.cell, kinds))
 
 
@@ -5597,7 +5608,7 @@ func resolve_terrain(pos: Vector2, before: Vector2, radius: float, team := -1) -
 
 func _resolve_terrain(pos: Vector2, before: Vector2, radius: float, team := -1) -> Vector2:
 	pos = pos.clamp(Vector2(radius, radius), Vector2(W * T, H * T) - Vector2(radius, radius))
-	if _clear_at(pos, radius, team):
+	if _clear_at(pos, radius, team) and not _wall_corner(before, pos, team):
 		return pos
 	var a := Vector2(pos.x, before.y)
 	if _clear_at(a, radius, team):
@@ -5614,9 +5625,27 @@ func _resolve_terrain(pos: Vector2, before: Vector2, radius: float, team := -1) 
 	if mv.length_squared() > 0.01:
 		for ang: float in CORNER_SLIP:
 			var q := before + mv.rotated(ang) * 0.8
-			if _clear_at(q, radius, team):
+			if _clear_at(q, radius, team) and not _wall_corner(before, q, team):
 				return q
 	return before
+
+
+## A step from one cell to its diagonal neighbour through the corner between two palisade
+## or gate pieces that touch only there (a diagonal wall, docs/wall_diag.md): never, however
+## small the unit or long the step (the pathfinder doesn't cut such corners either).
+func _wall_corner(a: Vector2, b: Vector2, team := -1) -> bool:
+	var ax := int(a.x / T)
+	var ay := int(a.y / T)
+	var bx := int(b.x / T)
+	var by := int(b.y / T)
+	if ax == bx or ay == by or not in_map(Vector2i(ax, by)) or not in_map(Vector2i(bx, ay)):
+		return false
+	var i := ay * W + bx
+	var j := by * W + ax
+	var v := solid[i]
+	var u := solid[j]
+	return (v == 4 or (v == 3 and not _gate_lets(i, v, team))) \
+			and (u == 4 or (u == 3 and not _gate_lets(j, u, team)))
 
 
 ## (every moving unit asks this a few times a tick: the cells are worked out here, without

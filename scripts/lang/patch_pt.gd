@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.25.23": ["PALIÇADA NA DIAGONAL: peças de paliçada que só se tocam pelos cantos agora se juntam pela diagonal, com estacas desenhadas de canto a canto, e um muro na diagonal não parece mais cheio de buracos (arte nova a partir do desenho do dono). Uma peça que junta um trecho reto e um diagonal mostra os dois. Ninguém passa nem se espreme pelo canto entre duas peças diagonais (como antes), e portões numa linha diagonal ainda deixam passar o próprio lado."],
 	"0.25.22": ["A PALIÇADA ESTÁ MAIS FRACA, PARA ACOMPANHAR O PREÇO MENOR: 200 de vida por peça (eram 300), armadura 2 como antes."],
 	"0.25.21": ["A PALIÇADA ESTÁ MAIS BARATA: 15 de ouro por peça (eram 25). Murar uma base (a sua ou a do computador, que agora mura as expansões) custa uns 40% menos; os prédios que ficam no muro não custam nada a mais, pois seriam construídos de qualquer jeito."],
 	"0.25.20": ["O COMPUTADOR DA COROA MURA AS SUAS EXPANSÕES (Normal e Difícil): toda nova Prefeitura ganha um muro nas suas entradas, o chão por onde um inimigo chega. Os próprios prédios fazem o muro primeiro: Quartéis, Casebres, uma Igreja (e depois Fundições, Criadores de Cavalos) vão nas brechas, a paliçada fecha o que sobra e um portão fica virado para o caminho da base principal. A primeira paliçada é posta enquanto a Prefeitura sobe; as Fazendas e o Moinho de Pólvora ficam dentro do muro, e parte do exército fica na nova base até o muro estar quase pronto."],
