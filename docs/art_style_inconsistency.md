@@ -520,3 +520,11 @@ The stars circling over a stunned unit's head are drawn in code: one 15 px five-
 - (owner, 2026-10-30 19:13) TO REDRAW: the Brood Mother's rearing-up frames in her nest's production (laying) animation show TWO TAILS. Add to the ChatGPT redraw list.
 - (owner, 2026-10-30 19:33) TO REDRAW: the Spitter's EAST walk has no real gait (the legs don't step one by one).
 - (owner, 2026-10-30 19:46) TO REDRAW, DEEP JOB: EXTRA WINGS on the Storm line (Hatchlings, Storm Challenger, Storm Sire): some frames have THREE wings (a ChatGPT hallucination). Go through EVERY Storm sprite strip frame by frame and list each frame with a third wing, then redraw or patch them.
+
+## Diagonal palisade (recomposed in code, 0.25.23; docs/wall_diag.md, tools/import_palisade_diag.py)
+
+The owner's ChatGPT sheet (art/redraws/palisade_diagonal_chatgpt.png) cut into single stakes, each squeezed to
+the straight palisade's stake (6 x 35 px, so a little narrower for its length than ChatGPT drew it), lightened a
+touch, and set down along the diagonal in code, 8 a tile, over the straight piece's dirt strip. The damaged,
+construction and destroyed versions are code-made (stakes snapped off with a light broken top), not drawn. A
+redraw could ask ChatGPT for a diagonal run at the straight pieces' stake size, stakes all the same height.

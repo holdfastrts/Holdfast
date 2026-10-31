@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.24", "items": [
+		"DIAGONAL PALISADE: palisade pieces that touch only at their corners now join along the diagonal, with stakes drawn corner to corner, so a diagonal wall no longer looks full of holes (new art from the owner's drawing). A piece that joins a straight run and a diagonal one shows both. Nobody walks or squeezes through the corner between two diagonal pieces (as before), and gates in a diagonal line still let their own side through.",
+	]},
 	{"v": "0.25.23", "items": [
 		"THE CROWN COMPUTER'S EXPANSION WALL WRAPS ROUND ITS RAMP: when it expands below its main's ramp, the wall no longer plugs the foot of the ramp. It goes round the ramp's foot and the new base together, on the far side, so the main and the expansion are one walled space; the ramp comes down inside, and the gate faces out toward the enemy.",
 	]},

@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.25.24": ["EMPALIZADA EN DIAGONAL: las piezas de empalizada que solo se tocan por las esquinas ahora se unen en diagonal, con estacas dibujadas de esquina a esquina, y un muro en diagonal ya no parece lleno de agujeros (arte nuevo a partir del dibujo del dueño). Una pieza que une un tramo recto y uno diagonal muestra los dos. Nadie pasa ni se cuela por la esquina entre dos piezas diagonales (como antes), y las puertas en una línea diagonal siguen dejando pasar a su propio bando."],
 	"0.25.23": ["EL MURO DE LA EXPANSIÓN DE LA COMPUTADORA DE LA CORONA RODEA LA RAMPA: cuando expande bajo la rampa de su base principal, el muro ya no tapa el pie de la rampa. Pasa alrededor del pie de la rampa y de la nueva base juntos, por el lado de fuera, así que la base principal y la expansión son un solo espacio amurallado; la rampa baja por dentro, y la puerta mira hacia fuera, hacia el enemigo."],
 	"0.25.22": ["LA EMPALIZADA ES MÁS DÉBIL, A JUEGO CON SU PRECIO MÁS BAJO: 200 de vida por pieza (antes 300), armadura 2 como antes."],
 	"0.25.21": ["LA EMPALIZADA ES MÁS BARATA: 15 de oro por pieza (antes 25). Amurallar una base (la tuya o la del ordenador, que ahora amuralla sus expansiones) cuesta un 40% menos; los edificios que forman parte del muro no cuestan nada extra, pues se construirían de todos modos."],

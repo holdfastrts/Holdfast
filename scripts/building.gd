@@ -1188,8 +1188,10 @@ const GATE_SWING := 0.3
 
 
 ## Palisade (kind "wall"): which neighbours this piece joins (Game.wall_links: N 1, E 2,
-## S 4, W 8), and so which picture it shows, like Age of Empires 2's walls.
+## S 4, W 8; diagonals NE 16, SE 32, SW 64, NW 128), and so which picture it shows, like
+## Age of Empires 2's walls.
 var links := 2 | 8
+var _wall_extra: Array = []      # the diagonal halves drawn with its straight picture (wall_extras)
 
 
 func set_links(m: int) -> void:
@@ -1200,7 +1202,22 @@ func set_links(m: int) -> void:
 
 ## The picture of a palisade piece joined to these neighbours (assets/buildings, made by
 ## tools/import_palisade.py): "wall_<links>_built", links in "nesw" order, "post" for none.
+## A piece joined only diagonally (tools/import_palisade_diag.py, docs/wall_diag.md): a
+## straight run through it shows the whole "\\" (wall_diag_se: NW and SE) or "/"
+## (wall_diag_sw: NE and SW); any other mix shows one centre stake (wall_diag_hub) and the
+## halves out to each diagonal neighbour as extra pictures (wall_extras).
+const DIAG_SE := 32 | 128
+const DIAG_SW := 16 | 64
+
+
 static func wall_piece(m: int) -> String:
+	var d := m & 0xF0
+	if m & 15 == 0 and d != 0:
+		if d == DIAG_SE:
+			return "wall_diag_se"
+		if d == DIAG_SW:
+			return "wall_diag_sw"
+		return "wall_diag_hub"
 	var out := ""
 	for i in 4:
 		if m & (1 << i):
@@ -1208,10 +1225,47 @@ static func wall_piece(m: int) -> String:
 	return "wall_%s" % (out if out != "" else "post")
 
 
+## The half-diagonal pictures drawn with a piece's own (wall_piece), from its centre to each
+## diagonal neighbour it joins: [picture, behind] (the north halves stand behind the centre).
+static func wall_extras(m: int) -> Array:
+	var d := m & 0xF0
+	if d == 0 or (m & 15 == 0 and (d == DIAG_SE or d == DIAG_SW)):
+		return []
+	var out: Array = []
+	for i in 4:
+		if m & (16 << i):
+			out.append(["wall_diag_half_" + ["ne", "se", "sw", "nw"][i], i == 0 or i == 3])
+	return out
+
+
 ## A palisade piece's construction / damaged / destroyed picture: the straight's that runs
-## the piece's way (east-west when it joins east or west, else north-south).
+## the piece's way (east-west when it joins east or west, else north-south; a piece joined
+## only diagonally: its diagonal's).
 static func wall_axis(m: int) -> String:
+	if m & 15 == 0 and m & 0xF0 != 0:
+		return "wall_diag_se" if m & DIAG_SE else "wall_diag_sw"
 	return "wall_ew" if m & (2 | 8) else "wall_ns"
+
+
+## The diagonal halves of a built piece (wall_extras) as sprites on its own (children of
+## the sprite: they fade, sort and hide with it).
+func _wall_extras(state: String) -> void:
+	var want: Array = wall_extras(links) if state == "built" else []
+	while _wall_extra.size() > want.size():
+		_wall_extra.pop_back().queue_free()
+	while _wall_extra.size() < want.size():
+		var s := Sprite2D.new()
+		s.centered = false
+		s.use_parent_material = true
+		sprite.add_child(s)
+		_wall_extra.append(s)
+	for i in want.size():
+		var s: Sprite2D = _wall_extra[i]
+		var t := Game.tex("res://assets/buildings/%s_built.png" % want[i][0])
+		s.texture = t
+		s.show_behind_parent = want[i][1]
+		if t != null:
+			s.offset = body_offset(kind, t)     # (anchored as the sprite's own picture, by its height)
 
 
 func _gate(delta: float) -> void:
@@ -1412,6 +1466,8 @@ func _update_sprite() -> void:
 			# it sorts at the back of its yard: the men working there are drawn over it
 			sprite.position.y = -MILL_SORT_UP
 			sprite.offset.y += MILL_SORT_UP
+	if kind == "wall" and (links & 0xF0 or not _wall_extra.is_empty()):
+		_wall_extras(state)
 	_rise(state)
 	if sails:
 		sails.visible = seeded and Array(FARM_ART["sail_states"]).has(state)
