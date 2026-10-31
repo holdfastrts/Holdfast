@@ -74,7 +74,9 @@ that side through; only walls and gates, not buildings in general.
 
 ## The line tool
 
-Unchanged: a 45-degree drag still lays a STAIRCASE (Game.line_cells adds a cell at every
+Changed in 0.25.25 (docs/wall_drag.md): the player's palisade drag now snaps to 8 ways and
+lays exact diagonals corner to corner (`Game.wall_cells`); what follows is how it was, and
+how `Game.line_cells` (still used by the test below) works. Before: a 45-degree drag still lays a STAIRCASE (Game.line_cells adds a cell at every
 diagonal step), so it never makes corner-only joins. The diagonal look shows where pieces
 are laid one by one corner to corner, where two lines meet at a corner, or where the
 computer's wall planner leaves such joins. Laying true diagonals with the line tool would

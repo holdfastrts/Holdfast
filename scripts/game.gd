@@ -547,6 +547,51 @@ func line_cells(a: Vector2i, b: Vector2i) -> Array:
 	return out
 
 
+## The player's palisade drag (docs/wall_drag.md): the end b turned to the nearest of the 8 ways from a (along a row,
+## a column or an exact 45-degree diagonal), as far as b reaches that way.
+static func snap_wall_end(a: Vector2i, b: Vector2i) -> Vector2i:
+	var d := b - a
+	if d == Vector2i.ZERO:
+		return a
+	var ang := atan2(float(d.y), float(d.x))
+	var k := int(roundf(ang / (PI * 0.25)))
+	var dir := Vector2i(int(roundf(cos(k * PI * 0.25))), int(roundf(sin(k * PI * 0.25))))
+	var n: int
+	if dir.x != 0 and dir.y != 0:
+		n = int(roundf((absi(d.x) + absi(d.y)) * 0.5))
+	else:
+		n = absi(d.x) if dir.x != 0 else absi(d.y)
+	return a + dir * maxi(n, 1)
+
+
+## The cells of one run of the player's palisade from a to b: an exact 45-degree diagonal is one piece per diagonal
+## cell, corner to corner (the diagonal pictures, no staircase); anything else as line_cells (unchanged: the
+## computer's planner and the tests use it).
+func wall_cells(a: Vector2i, b: Vector2i) -> Array:
+	var d := b - a
+	if d != Vector2i.ZERO and absi(d.x) == absi(d.y):
+		var step := Vector2i(signi(d.x), signi(d.y))
+		var out: Array = []
+		for i in mini(absi(d.x), 200) + 1:
+			out.append(a + step * i)
+		return out
+	return line_cells(a, b)
+
+
+## The cells of a palisade path through the corners `pts` (Shift segments), each once, in order.
+func wall_path_cells(pts: Array) -> Array:
+	var out: Array = []
+	var seen := {}
+	if pts.size() == 1:
+		return [pts[0]]
+	for i in pts.size() - 1:
+		for c in wall_cells(pts[i], pts[i + 1]):
+			if not seen.has(c):
+				seen[c] = true
+				out.append(c)
+	return out
+
+
 ## Your own wall piece (built or not) on this cell, if any.
 func _own_wall_at(t: int, c: Vector2i) -> Building:
 	for b in buildings:
@@ -718,33 +763,47 @@ func line_ghost_tex(k: String, c: Vector2i, plan: Dictionary) -> Texture2D:
 ## Lay a line of walls or gates; returns how many pieces went down.
 ## queued (Shift): the builders do the whole line, piece after piece, after the orders they
 ## already have (otherwise the first piece, then whatever is unfinished nearby).
-func place_line(t: int, k: String, a: Vector2i, b: Vector2i, builders: Array, queued := false) -> int:
-	if net_forward(self, "place_line", [t, k, a, b, builders, queued]): return 0
+## via: the corners between a and b of a path laid with Shift segments (docs/wall_drag.md): the line runs a -> via...
+## -> b; an exact 45-degree stretch is one piece a diagonal cell (wall_cells). A path of several stretches given at
+## once (not queued) hands the builders all its pieces in order, as a queued line does.
+func place_line(t: int, k: String, a: Vector2i, b: Vector2i, builders: Array, queued := false, via: Array = []) -> int:
+	if net_forward(self, "place_line", [t, k, a, b, builders, queued, via]): return 0
+	var pts: Array = [a]
+	for v in via.slice(0, 32):
+		if v is Vector2i:
+			pts.append(v)
+	pts.append(b)
+	var cells := wall_path_cells(pts).slice(0, 400)
+	var path := pts.size() > 2
 	var n := 0
 	var first := true
 	var pieces: Array = []
 	# gates laid as a line take the line's way (each one sees the whole line planned)
 	_gate_plan = {}
 	if k == "gate":
-		for c in line_cells(a, b):
+		for c in cells:
 			if placement_problem(t, k, c) == "":
 				_gate_plan[c] = k
-	for c in line_cells(a, b):
+	for c in cells:
 		if placement_problem(t, k, c) != "":
 			continue
 		# a wall over one of your gates: only when that one piece is placed on it (a wall
 		# dragged past your gates keeps them)
-		if k == "wall" and _own_gate_at(t, c) != null and a != b:
+		if k == "wall" and _own_gate_at(t, c) != null and cells.size() > 1:
 			continue
 		if players[t]["gold"] < int(Defs.BUILDINGS[k]["cost"]):
 			tell(t, "Not enough gold for the whole wall.")
 			break
-		var bl := place_building(t, k, c, builders if first and not queued else [])
+		var bl := place_building(t, k, c, builders if first and not queued and not path else [])
 		if bl:
 			n += 1
 			first = false
 			pieces.append(bl)
 	_gate_plan = {}
+	if path and not queued and not pieces.is_empty():
+		for u in builders:
+			if u is Unit and u.is_worker() and not u.dead:
+				u.give({"o": "wall", "pieces": pieces}, false)
 	if queued and not pieces.is_empty():
 		for u in builders:
 			if u is Unit and u.is_worker() and not u.dead:
@@ -10289,28 +10348,52 @@ func _draw_overlay_all() -> void:
 		var half := get_viewport().get_visible_rect().size * 0.5 / camera.zoom
 		build_grid.draw(overlay, self, Rect2(camera.get_screen_center_position() - half, half * 2.0))
 	if controls and controls.mode == "place" and controls.line_from.x >= 0:
-		# laying a wall: every piece from the start to here
+		# laying a wall: every piece from the start, round the Shift corners, to here (docs/wall_drag.md)
 		var lk: String = controls.place_kind
 		var gold := int(players[human]["gold"])
-		var cells := line_cells(controls.line_from, controls.ghost_cell)
+		var lprice := int(Defs.BUILDINGS[lk]["cost"])
+		var cells := wall_path_cells(controls.wall_path())
 		var plan := {}
 		var oks := []
+		var shown := []
 		for lc in cells:
-			var lok := placement_problem(human, lk, lc) == "" and gold >= int(Defs.BUILDINGS[lk]["cost"])
+			var keep := not (lk == "wall" and cells.size() > 1 and _own_gate_at(human, lc) != null)     # (place_line keeps your gates)
+			var lok := keep and placement_problem(human, lk, lc) == "" and gold >= lprice
 			if lok:
-				gold -= int(Defs.BUILDINGS[lk]["cost"])
+				gold -= lprice
 				plan[lc] = lk
 			oks.append(lok)
+			shown.append(keep)
 		for i in cells.size():
+			if not shown[i]:
+				continue
 			var lc: Vector2i = cells[i]
 			var lok: bool = oks[i]
 			var lt := line_ghost_tex(lk, lc, plan)
 			overlay.draw_rect(Rect2(Vector2(lc) * T, Vector2(T, T)).grow(-1), Color(0.3, 1, 0.3, 0.3) if lok else Color(1, 0.3, 0.3, 0.4))
 			var lp := Vector2(lc) * T + Vector2(T * 0.5, T) + Vector2(-lt.get_width() * 0.5, -lt.get_height() + 6)
+			var halves: Array = Building.wall_extras(wall_links(human, lc, plan)) if lk == "wall" and lok else []
+			for h in halves:
+				if h[1]:
+					var ht := tex("res://assets/buildings/%s_built.png" % h[0])
+					_ghost(ht, Vector2(lc) * T + Vector2(T * 0.5, T) + Vector2(-ht.get_width() * 0.5, -ht.get_height() + 6))
 			if lok:
 				_ghost(lt, lp)
 			else:
 				overlay.draw_texture(lt, lp, Color(1, 0.5, 0.5, 0.4))
+			for h in halves:
+				if not h[1]:
+					var ht := tex("res://assets/buildings/%s_built.png" % h[0])
+					_ghost(ht, Vector2(lc) * T + Vector2(T * 0.5, T) + Vector2(-ht.get_width() * 0.5, -ht.get_height() + 6))
+		# what it costs: the pieces that will go down (the red ones are not laid)
+		var npc := plan.size()
+		var lab := Loc.t("%d pieces: %d gold") % [npc, npc * lprice] if npc != 1 else Loc.t("1 piece: %d gold") % lprice
+		var end_c: Vector2i = cells[cells.size() - 1] if not cells.is_empty() else controls.ghost_cell
+		var lfont := ThemeDB.fallback_font
+		var lw := lfont.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var lpos := Vector2(end_c) * T + Vector2(T * 0.5 - lw * 0.5, T + 14)
+		overlay.draw_string_outline(lfont, lpos, lab, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, 4, Color(0, 0, 0, 0.8))
+		overlay.draw_string(lfont, lpos, lab, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 1, 0.7) if npc == shown.count(true) else Color(1, 0.75, 0.6))
 	elif controls and controls.mode == "place":
 		var k: String = controls.place_kind
 		var size: Vector2i = Defs.BUILDINGS[k]["size"]

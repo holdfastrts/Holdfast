@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.25", "items": [
+		"PALISADE ON THE DIAGONAL, AND BENT WALLS: press where a wall (or a row of gates) starts and drag to where it ends, or click both ends as before. The line runs along a row, a column or an exact diagonal, whichever is nearest the mouse; a diagonal is one piece per cell, corner to corner, with the diagonal palisade art (no more staircase: 5 pieces for 4 cells across instead of 9). The ghost shows every piece and what they cost. On a computer, hold Shift and click to make a corner and draw on from there (straight, then diagonal...); let go of Shift to lay the whole path (queued, as every Shift order), or finish with a plain click. On a phone the end snaps the same way; a bend is two walls.",
+	]},
 	{"v": "0.25.24", "items": [
 		"DIAGONAL PALISADE: palisade pieces that touch only at their corners now join along the diagonal, with stakes drawn corner to corner, so a diagonal wall no longer looks full of holes (new art from the owner's drawing). A piece that joins a straight run and a diagonal one shows both. Nobody walks or squeezes through the corner between two diagonal pieces (as before), and gates in a diagonal line still let their own side through.",
 	]},

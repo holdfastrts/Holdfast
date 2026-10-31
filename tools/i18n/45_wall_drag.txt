@@ -1,0 +1,21 @@
+# 0.25.25 the palisade drag: straight or diagonal, Shift corners (docs/wall_drag.md)
+
+> Click where the wall starts (drag: straight or diagonal)
+pt Clique onde a muralha começa (arraste: reta ou na diagonal)
+es Haz clic donde empieza el muro (arrastra: recto o en diagonal)
+
+> Click where it ends (Shift-click: a corner)
+pt Clique onde ela termina (Shift+clique: um canto)
+es Haz clic donde termina (Mayús+clic: una esquina)
+
+> Shift-click: another corner; let go of Shift or click to lay it
+pt Shift+clique: outro canto; solte o Shift ou clique para colocá-la
+es Mayús+clic: otra esquina; suelta Mayús o haz clic para colocarlo
+
+> %d pieces: %d gold
+pt %d peças: %d de ouro
+es %d piezas: %d de oro
+
+> 1 piece: %d gold
+pt 1 peça: %d de ouro
+es 1 pieza: %d de oro

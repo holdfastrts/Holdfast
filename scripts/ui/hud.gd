@@ -374,7 +374,7 @@ func _layer_sig(n: String) -> Array:
 			return [_card_look]
 		"rest":
 			var br := controls.box_rect()
-			var vals: Array = [_vs(), br, controls.mode, controls.cast_spell, controls.place_kind, controls.line_from, help_mode, paused, menu_open, game.demo and game.spectator == null,
+			var vals: Array = [_vs(), br, controls.mode, controls.cast_spell, controls.place_kind, controls.line_from, controls.line_via.size(), help_mode, paused, menu_open, game.demo and game.spectator == null,
 				game.line_net.overlay_on, controls.line_tool.end if controls.line_tool != null else null, controls.line_tool.start if controls.line_tool != null else null]
 			if _msg_t > 0.0:
 				vals.append_array([_msg, int(minf(_msg_t, 1.0) * 60.0)])
@@ -2605,13 +2605,29 @@ func _confirm_line(k: String, queued := false) -> void:
 			toast(why)
 			return
 		controls.line_from = controls.ghost_cell
-		toast("Now pick where it ends (the same spot for a single piece).")
+		controls.line_via = []
+		if not Settings.pc():
+			toast("Now pick where it ends (the same spot for a single piece).")      # (a computer: the hint line says it)
 		return
+	_lay_wall_path(k, controls.line_via.duplicate(), controls.wall_end(), queued)
+
+
+## Shift let go (Controls._wall_shift_done): the path drawn with Shift corners goes down, up to its last corner.
+func confirm_wall_path(queued: bool) -> void:
+	if controls.line_from.x < 0 or controls.line_via.is_empty():
+		return
+	var via: Array = controls.line_via.duplicate()
+	var end: Vector2i = via.pop_back()
+	_lay_wall_path(controls.place_kind, via, end, queued)
+
+
+## Lay the line from controls.line_from round the corners `via` to `end` (docs/wall_drag.md).
+func _lay_wall_path(k: String, via: Array, end: Vector2i, queued: bool) -> void:
 	var builders := game.selected_units().filter(func(u: Unit) -> bool: return u.is_worker())
-	var n := game.place_line(game.human, k, controls.line_from, controls.ghost_cell, builders, queued)
+	var n := game.place_line(game.human, k, controls.line_from, end, builders, queued, via)
 	if n > 0:
 		Sfx.play_any(["ui/click", "click"])
-	else:
+	elif game.net == null:
 		toast("Nothing could be placed there.")
 	controls.cancel_mode()
 
@@ -3255,7 +3271,7 @@ func _draw_rest(font: Font) -> void:
 		var line_k: bool = Defs.BUILDINGS.has(controls.place_kind) and Defs.BUILDINGS[controls.place_kind].get("line", false)
 		var hint: String = "Click to build (Shift-click: queue more), right-click or Esc cancels" if Settings.pc() else "Drag to position, tap again or PLACE to build"
 		if line_k:
-			hint = ("Click where the wall starts" if controls.line_from.x < 0 else "Click where it ends") if Settings.pc() else ("Drag to where the wall starts, then START" if controls.line_from.x < 0 else "Drag to where it ends, then END")
+			hint = ("Click where the wall starts (drag: straight or diagonal)" if controls.line_from.x < 0 else ("Click where it ends (Shift-click: a corner)" if controls.line_via.is_empty() else "Shift-click: another corner; let go of Shift or click to lay it")) if Settings.pc() else ("Drag to where the wall starts, then START" if controls.line_from.x < 0 else "Drag to where it ends, then END")
 		_text(font, Vector2(vs.x * 0.5, 66), hint, 20, Color(1, 1, 0.7), 1)
 	elif help_mode:
 		_text(font, Vector2(vs.x * 0.5, 66), "Tap anything to see what it is  (? again: cancel)", 20, Color(1, 1, 0.7), 1)

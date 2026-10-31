@@ -27,6 +27,8 @@ var mode := ""                  # "", move, attack, place, rally
 var place_kind := ""
 var cast_spell := ""            # "cast" mode: storm, miasma, fog (a spot) or tongue (an enemy unit)
 var line_from := Vector2i(-1, -1)  # laying a wall: where it starts
+var line_via: Array = []           # ...and the corners given so far with Shift (docs/wall_drag.md)
+var _wall_drag := false            # the start was pressed: letting go on another cell ends the stretch there
 var ghost_cell := Vector2i(-1, -1)
 var line_tool: LineTool = null     # "lay_line" mode: the Clockwork Line tool (scripts/line_tool.gd)
 
@@ -123,7 +125,51 @@ func cancel_mode() -> void:
 	mode = ""
 	place_kind = ""
 	line_from = Vector2i(-1, -1)
+	line_via = []
+	_wall_drag = false
 	ghost_cell = Vector2i(-1, -1)
+
+
+## PALISADE AND GATES (docs/wall_drag.md): placing a kind laid in a line.
+func wall_kind() -> bool:
+	return mode == "place" and Defs.BUILDINGS.has(place_kind) and Defs.BUILDINGS[place_kind].get("line", false)
+
+
+## Where the stretch being drawn starts: the last Shift corner, else the start.
+func wall_seg_from() -> Vector2i:
+	return line_via.back() if not line_via.is_empty() else line_from
+
+
+## Where it ends: the pointer's cell turned to the nearest of the 8 ways (straight or an exact diagonal).
+func wall_end() -> Vector2i:
+	return Game.snap_wall_end(wall_seg_from(), ghost_cell)
+
+
+## The whole path being drawn: the start, the corners, the end under the pointer.
+func wall_path() -> Array:
+	if line_from.x < 0:
+		return [ghost_cell]
+	return [line_from] + line_via + [wall_end()]
+
+
+## A click (or a drag let go) at the end of a stretch. Shift on a computer: a corner (the next stretch starts there;
+## the path is laid when Shift is let go); otherwise the whole path is laid now.
+func _wall_point(shift: bool) -> void:
+	if shift and Settings.pc():
+		var end := wall_end()
+		if end != wall_seg_from() and line_via.size() < 32:
+			line_via.append(end)
+		_keep_for_shift()
+		return
+	if hud:
+		hud.confirm_place(false)
+
+
+## Shift let go with corners given: the path up to the last corner is laid, queued as every Shift order is.
+func _wall_shift_done() -> void:
+	if hud and line_from.x >= 0 and not line_via.is_empty():
+		hud.confirm_wall_path(true)
+	cancel_mode()
 
 
 ## ATTACK GROUND (Ctrl+A or the card's button): the next click or tap is a spot on the ground, or a held drag a line. Only
@@ -187,6 +233,8 @@ func begin_place(kind: String) -> void:
 	mode = "place"
 	place_kind = kind
 	line_from = Vector2i(-1, -1)
+	line_via = []
+	_wall_drag = false
 	var size: Vector2i = Defs.BUILDINGS[kind]["size"]
 	var center := game.camera.get_screen_center_position()
 	ghost_cell = game.cell_of(center) - size / 2
@@ -293,6 +341,10 @@ func _on_input(event: InputEvent) -> void:
 		hud.hotkey((event as InputEventKey).keycode, true)
 	elif event is InputEventKey and not event.pressed and (event as InputEventKey).keycode == KEY_SHIFT:
 		# Shift let go: a mode kept open for queueing closes (the next click would replace the queue)
+		if wall_kind() and not line_via.is_empty():
+			_wall_shift_done()          # (a palisade path drawn with Shift corners goes down now)
+			_shift_kept = false
+			return
 		if _shift_kept and mode in ["move", "attack", "repair", "place", "bombard", "patrol", "nb_root"]:
 			cancel_mode()
 		_shift_kept = false
@@ -448,9 +500,19 @@ func _left_pc(e: InputEventMouseButton) -> void:
 		_line_btn = ""
 		return
 	if e.pressed:
+		_wall_drag = false
 		match mode:
 			"place":
 				_move_ghost(e.position)
+				if wall_kind():
+					# palisade / gates: press the start (and drag, or click again, to the end); Shift-click: corners
+					if line_from.x < 0:
+						if hud:
+							hud.confirm_place(false)
+						_wall_drag = line_from.x >= 0
+					else:
+						_wall_point(e.shift_pressed)
+					return
 				var kind := place_kind
 				if hud:
 					hud.confirm_place(e.shift_pressed)   # Shift: queued on the builders
@@ -488,6 +550,13 @@ func _left_pc(e: InputEventMouseButton) -> void:
 		_lmb_down = true
 		_lmb_from = e.position
 		_box_from = Vector2.INF
+		return
+	if _wall_drag:
+		_wall_drag = false
+		if wall_kind() and line_from.x >= 0:
+			_move_ghost(e.position)
+			if wall_end() != wall_seg_from():
+				_wall_point(e.shift_pressed)     # (dragged from the start: the stretch ends here)
 		return
 	if mode == "lay_line":
 		if line_tool != null:
