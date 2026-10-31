@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.22", "items": [
+		"THE CROWN COMPUTER'S EXPANSION WALL WRAPS ROUND ITS RAMP: when it expands below its main's ramp, the wall no longer plugs the foot of the ramp. It goes round the ramp's foot and the new base together, on the far side, so the main and the expansion are one walled space; the ramp comes down inside, and the gate faces out toward the enemy.",
+	]},
 	{"v": "0.25.21", "items": [
 		"THE PALISADE IS CHEAPER: 15 gold a piece (was 25). Walling a base (yours or the computer's, which now walls its expansions) costs about 40% less; the buildings that stand in a wall cost nothing extra, as they would be built anyway.",
 	]},

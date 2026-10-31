@@ -458,7 +458,8 @@ func _near_ramp(c: Vector2i) -> bool:
 const DIRS4 := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 
 
-## Every cell an enemy reaches from its main by land (4 ways), the whole map. {} when no enemy start is known.
+## Every cell an enemy reaches from its main by land (4 ways), the whole map, with its steps from there. {} when no
+## enemy start is known.
 func _foe_reach() -> Dictionary:
 	var seen := {}
 	var q: Array = []
@@ -470,7 +471,7 @@ func _foe_reach() -> Dictionary:
 			for x in range(s.x - 4, s.x + 10):
 				var c := Vector2i(x, y)
 				if not seen.has(c) and _foe_walk(c):
-					seen[c] = true
+					seen[c] = 0
 					q.append(c)
 	var head := 0
 	while head < q.size():
@@ -479,18 +480,27 @@ func _foe_reach() -> Dictionary:
 		for d in DIRS4:
 			var n: Vector2i = c + d
 			if not seen.has(n) and _foe_walk(n):
-				seen[n] = true
+				seen[n] = int(seen[c]) + 1
 				q.append(n)
 	return seen
 
 
 ## The hall's area at radius r: the ground walked to from round the hall (4 ways) within r tiles of its middle, no ramp
-## nor the cells beside one, not nearer another hall of ours.
-func _inside(cell: Vector2i, hsize: Vector2i, r: float, others: Array) -> Dictionary:
+## nor the cells beside one, not nearer another hall of ours. THE MAIN'S RAMP (the owner, 2026-10-31: "they should wrap
+## around the ramp from the other side"): once the area reaches the main's ramp zone (its ramp and the ground within
+## RAMP_CLEAR tiles of it below), all of that zone is inside, however far, so the wall wraps round the ramp's foot and
+## the main and the natural are one walled space; the main's own plateau is never part of the area.
+func _inside(cell: Vector2i, hsize: Vector2i, r: float, others: Array, mz: Dictionary = {}) -> Dictionary:
 	var hc := Vector2(cell) + Vector2(hsize) * 0.5
 	var inside := {}
 	var q: Array = []
+	var zone: Dictionary = mz.get("zone", {})
+	var plateau: Dictionary = mz.get("plateau", {})
 	var ok := func(c: Vector2i) -> bool:
+		if zone.has(c):
+			return _walk(c)
+		if plateau.has(c):
+			return false
 		if not _walk(c) or game.ramp[game.idx(c)] == 1 or _near_ramp(c):
 			return false
 		var cc := Vector2(c) + Vector2(0.5, 0.5)
@@ -558,6 +568,76 @@ func _exposed(cell: Vector2i, hsize: Vector2i, inside: Dictionary, foe: Dictiona
 	return out
 
 
+const RAMP_CLEAR := 4           # tiles below the main's ramp kept inside the expansion's wall (no piece, gate or slot there)
+
+
+## The main's plateau (its level, walked from round the main hall, under buildings too) and its RAMP ZONE: the ramps
+## leading off that plateau and the walkable ground below them within RAMP_CLEAR tiles. {plateau, zone, ramp, foot}
+func main_zone() -> Dictionary:
+	var out := {"plateau": {}, "zone": {}, "ramp": {}, "foot": {}}
+	if game.starts.size() <= ai.team:
+		return out
+	var home: Vector2i = game.starts[ai.team] + Vector2i(2, 2)
+	var h0 := int(game.height[game.idx(home)])
+	var plateau := {}
+	var q: Array = []
+	var ground := func(c: Vector2i) -> bool:
+		if not game.in_map(c) or absi(c.x - home.x) > 30 or absi(c.y - home.y) > 30:
+			return false
+		var i: int = game.idx(c)
+		return game.solid[i] != 1 and game.cliff[i] == 0 and game.ramp[i] == 0 and int(game.height[i]) == h0
+	if ground.call(home):
+		plateau[home] = true
+		q.append(home)
+	var head := 0
+	while head < q.size():
+		var c: Vector2i = q[head]
+		head += 1
+		for d in DIRS4:
+			var n: Vector2i = c + d
+			if not plateau.has(n) and ground.call(n):
+				plateau[n] = true
+				q.append(n)
+	# the ramps that touch it
+	var ramp := {}
+	q.clear()
+	for c in plateau:
+		for d in DIRS4:
+			var n: Vector2i = c + d
+			if game.in_map(n) and game.ramp[game.idx(n)] == 1 and not ramp.has(n):
+				ramp[n] = true
+				q.append(n)
+	head = 0
+	while head < q.size():
+		var c: Vector2i = q[head]
+		head += 1
+		for d in DIRS4:
+			var n: Vector2i = c + d
+			if game.in_map(n) and game.ramp[game.idx(n)] == 1 and not ramp.has(n):
+				ramp[n] = true
+				q.append(n)
+	var zone := {}
+	var foot := {}
+	for rc in ramp:
+		zone[rc] = true
+		for dy in range(-RAMP_CLEAR, RAMP_CLEAR + 1):
+			for dx in range(-RAMP_CLEAR, RAMP_CLEAR + 1):
+				var c: Vector2i = rc + Vector2i(dx, dy)
+				if not game.in_map(c) or plateau.has(c) or ramp.has(c) or game.ramp[game.idx(c)] == 1:
+					continue
+				var i: int = game.idx(c)
+				if game.cliff[i] != 0 or game.solid[i] == 1 or int(game.height[i]) == h0:
+					continue
+				zone[c] = true
+				if absi(dx) + absi(dy) == 1:
+					foot[c] = true          # (a low cell beside the ramp: where it comes down)
+	out["plateau"] = plateau
+	out["zone"] = zone
+	out["ramp"] = ramp
+	out["foot"] = foot
+	return out
+
+
 func _is_foe_home(c: Vector2i) -> bool:
 	for o in game.n_players():
 		if game.hostile(o, ai.team) and game.starts.size() > o and Vector2(c).distance_to(Vector2(game.starts[o])) < 8.0:
@@ -578,10 +658,12 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 		if o != h and o.cell != cell:
 			others.append(o.center() / Defs.TILE)
 	var foe := _foe_reach()
+	var mz := main_zone()
+	var plateau: Dictionary = mz["plateau"]
 	var best := {}
 	var best_score := INF
 	for r in range(R_MIN, R_MAX + 1):
-		var inside := _inside(cell, hsize, float(r), others)
+		var inside := _inside(cell, hsize, float(r), others, mz)
 		var area := 0
 		for c in inside:
 			if game.solid[game.idx(c)] == 0:
@@ -590,7 +672,8 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 			continue
 		if foe.is_empty():
 			continue
-		var ex := _exposed(cell, hsize, inside, foe)
+		# (the main's plateau is the main's own wall's business: no expansion piece goes up there)
+		var ex: Array = _exposed(cell, hsize, inside, foe).filter(func(c: Vector2i) -> bool: return not plateau.has(c))
 		var bad := false
 		for c in ex:
 			if not _wall_ok(c):
@@ -608,7 +691,11 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 		return {"ok": false}
 	var ex: Array = best["exposed"]
 	var p := {"ok": true, "hall": h, "cell": cell, "r": best["r"], "inside": best["inside"], "exposed": ex, "slots": [], "pieces": [],
-		"built_t": -1.0, "area": best["area"], "econ": best["econ"]}
+		"built_t": -1.0, "area": best["area"], "econ": best["econ"], "ramp_in": false}
+	for c in mz["zone"]:
+		if (best["inside"] as Dictionary).has(c):
+			p["ramp_in"] = true          # (the main's ramp comes down inside: the two bases are one walled space)
+			break
 	var foe_at := Vector2.ZERO
 	var nf := 0
 	for o in game.n_players():
@@ -621,8 +708,9 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 	var ex_set := {}
 	for c in ex:
 		ex_set[c] = true
-	# the gate: the ways-in cell nearest our main by land (and the next one along, if it touches)
-	var gates: Array = _gate_cells(ex, ex_set, cell, hsize)
+	# the gate: where the expansion's men need to leave: toward the enemy by land when the main's ramp comes down inside
+	# (the main is reached through the area), else the ways-in cell nearest our main by land (and the next one along)
+	var gates: Array = _gate_cells(ex, ex_set, cell, hsize, foe if p["ramp_in"] else {})
 	var gate_set := {}
 	for c in gates:
 		gate_set[c] = true
@@ -756,9 +844,9 @@ func _pack(cell: Vector2i, hsize: Vector2i, inside: Dictionary) -> Array:
 
 
 ## GATE_W touching ways-in cells nearest our main by land.
-func _gate_cells(ex: Array, ex_set: Dictionary, cell: Vector2i, hsize: Vector2i) -> Array:
+func _gate_cells(ex: Array, ex_set: Dictionary, cell: Vector2i, hsize: Vector2i, foe: Dictionary = {}) -> Array:
 	var main_at := Vector2(game.starts[ai.team]) + Vector2(2.5, 2.0)
-	var d := _walk_dist(Vector2i(main_at))
+	var d: Dictionary = foe if not foe.is_empty() else _walk_dist(Vector2i(main_at))
 	var best := Vector2i(-1, -1)
 	var bd := INF
 	for c in ex:
