@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.22", "items": [
+		"THE PALISADE IS WEAKER, TO MATCH ITS LOWER PRICE: 200 health a piece (was 300), armour 2 as before.",
+	]},
 	{"v": "0.25.21", "items": [
 		"THE PALISADE IS CHEAPER: 15 gold a piece (was 25). Walling a base (yours or the computer's, which now walls its expansions) costs about 40% less; the buildings that stand in a wall cost nothing extra, as they would be built anyway.",
 	]},
