@@ -1363,7 +1363,7 @@ const BUILDINGS := {
 	},
 	# Crown fortifications: one tile each, laid in a line (pick the start, then the end).
 	"wall": {
-		"name": "Palisade", "hp": 300, "armor": 2, "cost": 25, "time": 8.0, "size": Vector2i(1, 1),
+		"name": "Palisade", "hp": 300, "armor": 2, "cost": 15, "time": 8.0, "size": Vector2i(1, 1),
 		"supply": 0, "sight": 3, "trains": [], "line": true, "requires": "cottage", "faction": "crown",
 		"about": "A wooden palisade: blocks the way. Lay it in a line: pick where it starts, then where it ends; the stakes join up with your other palisade and gates. Wall off your ramp and keep a gate.",
 	},

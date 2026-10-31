@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.21", "items": [
+		"THE PALISADE IS CHEAPER: 15 gold a piece (was 25). Walling a base (yours or the computer's, which now walls its expansions) costs about 40% less; the buildings that stand in a wall cost nothing extra, as they would be built anyway.",
+	]},
 	{"v": "0.25.20", "items": [
 		"THE CROWN COMPUTER WALLS IN ITS EXPANSIONS (Normal and Hard): every new Town Hall gets a wall across its ways in, the ground an enemy walks in by. Its own buildings make the wall first: Barracks, Cottages, a Church (and later Foundries, Horse Breeders) are placed in the gaps, palisade fills what is left, and a gate faces the way to its main. The first palisade is laid as the hall goes up; the Farms and the Powder Mill go inside the wall, and part of the army stays at the new hall until the wall is mostly up.",
 	]},
