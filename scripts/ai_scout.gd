@@ -928,6 +928,11 @@ func _timing_plan(r: Dictionary) -> Dictionary:
 ## The supply a timing attack goes out with (AI._army): what the scout worked out; it comes
 ## down a little the longer the timing has passed, so it does go.
 func timing_wave() -> int:
+	if verdict != "greedy" and ai.tr.on and _faction() == "crown":
+		# (AI TRANSITIONS: a Crown timing plan the scout did not size goes out with a real force, never 6 supply (3 Musketeers
+		# at a walled ramp: 0.25.25 Ashfall, out at 4:30 and back at 4:38; the owner's game, 11 supply at 6:28, turned round at
+		# the gate). After a scouted rush, AITransition picks the moment)
+		return maxi(int(TIMING_MIN_SUP["crown"]) + 2, int(ceil(float(_recent_army()[1]) * 1.6)) + 4)
 	if timing_target <= 0 or verdict != "greedy":
 		return 6
 	var late: float = maxf(0.0, game.clock - float(mod.get("timing", 0.0)) - 90.0)

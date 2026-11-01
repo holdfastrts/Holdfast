@@ -183,6 +183,11 @@ func _lay_pieces(p: Dictionary) -> void:
 	var keep: int = ai._first_econ_cost() if _farm_first() else 0
 	if ai._unsafe(((p["hall"] as Building).center())):
 		return          # (a fight at the hall: the army first, the wall after)
+	# (AI TRANSITIONS: an army smaller than the enemy's comes first: pieces only from gold above a unit's price, a few at a
+	# time; docs/ai_crown_transitions.md)
+	var short: bool = ai.army_short()
+	if short:
+		keep = maxi(keep, SHORT_RESERVE)
 	var foe: Vector2 = p["foe"]
 	todo.sort_custom(func(a, b) -> bool: return Vector2(a[1]).distance_to(foe) < Vector2(b[1]).distance_to(foe))
 	# gates first (the way out), then the cells nearest the enemy
@@ -190,7 +195,7 @@ func _lay_pieces(p: Dictionary) -> void:
 	var made: Array = []
 	for e in todo:
 		var cost := int(Defs.BUILDINGS[e[0]]["cost"])
-		if ai._gold() - cost < keep:
+		if ai._gold() - cost < keep or (short and made.size() >= SHORT_BATCH):
 			break
 		if game.placement_problem(ai.team, e[0], e[1], true) != "":
 			continue
@@ -266,10 +271,12 @@ func slot_for(kind: String) -> Vector2i:
 ## Gold set aside for the walls' next pieces (AI._hide_kept hides it from the army, research and horses): the price of
 ## the palisade and gates not laid yet, up to WALL_KEEP; 0 with a fight at the hall or a bare hall's first Farm to pay.
 const WALL_KEEP := 100
+const SHORT_RESERVE := 130      # AI TRANSITIONS: gold left for units when the army is short (AI.army_short): two Musketeers
+const SHORT_BATCH := 3          # ... and at most this many pieces laid at a time then
 
 
 func keep() -> int:
-	if not active() or plans.is_empty() or _farm_first():
+	if not active() or plans.is_empty() or _farm_first() or ai.army_short():
 		return 0
 	var debt := 0
 	for id in plans:

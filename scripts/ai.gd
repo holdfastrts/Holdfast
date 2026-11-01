@@ -62,6 +62,10 @@ var r5 = AIRound5.new(self)      # (made with the AI: tests that build one by ha
 ## the Crown computer is walled in, its buildings first (Barracks, Church, Cottages...), palisade in the gaps, a gate.
 const AIExpandWall := preload("res://scripts/ai_expand_wall.gd")
 var xw = AIExpandWall.new(self)
+## AI TRANSITIONS (the owner's playtest 2026-11-01; scripts/ai_transition.gd, docs/ai_crown_transitions.md): a held rush is
+## followed at once by a counter-attack with the whole army or an expansion, not minutes of defence and a trickle attack.
+const AITransition := preload("res://scripts/ai_transition.gd")
+var tr = AITransition.new(self)
 ## The harass (scripts/ai_harass.gd, docs/ai_harass.md): a small party out in the enemy's land hunts workers and walks
 ## past structures and rooted Brood creatures; made on first use (hz()).
 var harass: AIHarass = null
@@ -91,6 +95,10 @@ func _ready() -> void:
 		# (round 6: never against the Clockwork unless the plan is the rush: its Clock Soldiers are out at 1:50, the riders
 		# get nowhere and the Breeder starved the economy, 16 Labourers against 30 Winders at 7:00 on Kestrel Rise)
 		opening = "mill"
+	# (study switch: `-- open<team>:breeder` or `open<team>:mill` fixes a Crown computer's opening, to replay a match log's game)
+	for a in OS.get_cmdline_user_args():
+		if a == "open%d:breeder" % team or a == "open%d:mill" % team:
+			opening = a.split(":")[1]
 	if game.mlog and game.faction_of(team) == "crown":
 		game.mlog.add("%s opens with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
 	scout = AIScout.new(self)
@@ -437,6 +445,7 @@ func _think_stage(i: int) -> void:
 			_lap("ai/raid", pt)
 		3:
 			scout.tick()
+			tr.tick()
 			_army()
 			_lap("ai/army", pt)
 		4:
@@ -2158,6 +2167,8 @@ func _hall_first() -> bool:
 	var need := 1 if _best_soil() >= HALL_FIRST_SOIL else 2
 	if _crown():
 		need = maxi(need, mini(3, ceili(game.workers(team).size() / 16.0)))     # (three fresh halls at most: more halls only grew more hands, round 3)
+		if tr.want_hall():
+			need = maxi(need, 2)    # (AI TRANSITIONS: a held rush, the army ahead: the second hall now, its gold held for it)
 	elif _clock() and Defs.gear_mode and difficulty >= 1 and (not _mine(Defs.CW_TECH).is_empty() or game.clock > 360.0):
 		# (the Clockwork too, one for every 13 Winders (0.24.0; was 15): two presses of five and a Mainspring's crew a hall; it sat on two
 		# halls with 32 Winders while its main ran dry, and the coached Crown out-earned it from 10:00, clockwork-ai.
@@ -2263,6 +2274,34 @@ func _hall_keep() -> int:
 ## AI-EXPAND: the hall plan's gold is set aside while the army, research and horses are paid for (they each check the
 ## bank, some train several things a think: 0.24.0's Crown laid its hall on dry land and spent the Farm's gold on two
 ## Cuirassiers and horses the same second, then had no income for good). Returns what was set aside; the caller puts it back.
+## AI TRANSITIONS (docs/ai_crown_transitions.md): the army it needs comes before new palisade. True when the enemy army
+## seen lately is worth more than ours (ARMY_SHORT times), or an armed enemy is near our buildings: a new hall's wall
+## pieces then wait for gold above a unit's price and go down a few at a time (AIExpandWall._lay_pieces), and no gold is
+## set aside for them (AIExpandWall.keep). Yellow on Ashfall (0.25.25) laid 34 pieces at its new hall in 90 s while its
+## army shrank from 845 to 695.
+const ARMY_SHORT := 1.1
+var _short_t := -99.0
+var _short := false
+
+
+func army_short() -> bool:
+	if not tr.on or not _crown() or difficulty < 1:
+		return false
+	if game.clock - _short_t < 2.0:
+		return _short
+	_short_t = game.clock
+	_horse_watch()
+	var foe: float = _horse_seen_value()
+	if scout != null:
+		foe = maxf(foe, float(scout._recent_army()[0]))
+	var mine := 0.0
+	for u in game.army(team):
+		if u.has_attack():
+			mine += float(u.d["cost"]) / maxf(1.0, float(u.d.get("spawn", 1)))
+	_short = mine < foe * ARMY_SHORT or tr._armed_near()
+	return _short
+
+
 func _hide_kept() -> int:
 	# (CROWN WALL EXPAND: and the gold for a new hall's next wall pieces, laid first thing next think: AIExpandWall.keep)
 	var w: int = mini(int(game.players[team]["gold"]), xw.keep())
@@ -3453,7 +3492,7 @@ var _adopted := {}              # wall site (instance id) -> times a labourer wa
 
 ## A feared rush (scouted or unseen enemy): the wall and the first soldiers come before the economy grows.
 func _wall_urgent() -> bool:
-	if scout != null and scout.enabled and (scout.verdict == "rush" or scout.verdict == "uncertain"):
+	if scout != null and scout.enabled and (scout.verdict == "rush" or scout.verdict == "uncertain") and not tr.done:
 		return true
 	return strategy == "rush" and _crown()
 
@@ -3482,7 +3521,7 @@ func _wall_wanted() -> bool:
 func _army_first() -> bool:
 	if not _crown() or difficulty == 0 or game.clock > 420.0 or scout == null or not scout.enabled:
 		return false
-	if not (scout.verdict == "rush" or scout.verdict == "uncertain"):
+	if not (scout.verdict == "rush" or scout.verdict == "uncertain") or tr.done:
 		return false
 	# (the defenders it has: Musketeers, and Horsemen when it opened with the Breeder: a Horseman opening makes no
 	# Musketeers for minutes, and counting only those held its Labourers at eight for seven minutes; coach round 1)
