@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.1", "items": [
+		"HORSEMEN BREAK A SHUT GATE: the computer's Horsemen out raiding no longer gallop into a shut enemy gate and stand pressed against it. When a wall is between them and the workers, the party weighs it up: if it can bring a piece down in time and nothing shoots them hard there, every rider sets about the gate or the palisade beside it, spread over the pieces (two to a face), and a rider with his pistol loaded shoots a labourer mending it that he can see. If the piece won't go down (menders hidden behind it on the high ground, or muskets on the wall), they ride off after workers they can reach, or home, and come again later. A Horseman riding at prey behind a wall breaks the piece in the way instead of pushing at it.",
+	]},
 	{"v": "0.26.0", "items": [
 		"WINDERS WIND THE ARMY ON THE MARCH (the owner's idea): a Winder now winds a Clockwork soldier that is walking, walking just behind it at its pace and cranking as he goes (his new winding-while-walking animation), until it is full; then he goes to the next one, and once none needs it, back to his own move. Its charge fills at the usual rate and the soldier is never slowed (a Winder is faster than a Clock Soldier). Right-click (REPAIR) a walking soldier to do it by hand; with automatic repair on (the default), Winders moving with the army (move, attack-move or follow) do it by themselves for the walking soldiers near them under 80% charge, lowest first, two Winders never on the same one. A marching army with Winders now arrives wound instead of run down. The computer's Winders do the same. A soldier being wound says Winding up on its card.",
 		"A box over your army keeps the Winders that are winding soldiers in the selection.",
