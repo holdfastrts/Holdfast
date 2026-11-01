@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.28", "items": [
+		"THE CROWN COMPUTER'S RAMP WALL HAS NO USELESS PALISADE: it lays only the pieces that close a gap. A high-ground cell that only touches the ramp's corner, with the cliff on one side and the Cottage (or another piece) on the other, can't be walked into, so it no longer gets a palisade; on Ashfall the wall is now just the Cottage and the Gate. The same goes for the palisade line on any other ramp up to the main.",
+	]},
 	{"v": "0.25.27", "items": [
 		"GEAR VIEW COLOURS (Clockwork): each step has its own colour, so a ring at 70% no longer looks stopped: green 100%, lime 90%, yellow 80%, orange 70%, and red only for a ring that is stopped (unlinked or idle).",
 	]},
