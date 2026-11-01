@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.27", "items": [
+		"GEAR VIEW COLOURS (Clockwork): each step has its own colour, so a ring at 70% no longer looks stopped: green 100%, lime 90%, yellow 80%, orange 70%, and red only for a ring that is stopped (unlinked or idle).",
+	]},
 	{"v": "0.25.26", "items": [
 		"THE ANDROID APP'S NEW-VERSION BOX speaks to a phone: when a newer version is out, the main menu says to download it and install it over this app (the Windows program still says to replace its copy).",
 	]},

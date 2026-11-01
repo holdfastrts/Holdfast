@@ -1203,7 +1203,7 @@ func _build_card() -> Array:
 		return list
 	if b and Defs.gear_mode and b.d["faction"] == "clockwork" and not b.dead and (b.team == game.human or game.demo or game.spectating()):
 		# THE GEAR VIEW (also the ` key): the whole network at a glance (scripts/gear.gd); phone-friendly
-		_tip_for["GEAR VIEW"] = ["Gear view", "Shows the whole gear network: the drivers glow gold, every ring is tinted by how well it works (green full speed, yellow 90%, orange 80%, red 70% or idle), each Mainspring's reach is outlined and the turrets' circles are drawn. Key: `"]
+		_tip_for["GEAR VIEW"] = ["Gear view", "Shows the whole gear network: the drivers glow gold, every ring is tinted by how well it works (green full speed, lime 90%, yellow 80%, orange 70%, red stopped), each Mainspring's reach is outlined and the turrets' circles are drawn. Key: `"]
 		list.append(["ab_gear_view", ("~ " if game.gear_net.view else "") + "GEAR VIEW", func() -> void: game.toggle_gear_view(), true, "", ""])
 	if b and b.built and b.kind != game.faction_hall(game.human):
 		list.append(["demolish", "DEMOLISH", func() -> void:
