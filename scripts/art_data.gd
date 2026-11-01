@@ -260,6 +260,11 @@ const BASE_UNITS := {
 		"walk_se": 6,
 	}},
 	"winder": {"cell": Vector2i(76, 49), "anchor": Vector2(38, 43), "frames": {
+		"walk_wind_s": 4,
+		"walk_wind_se": 4,
+		"walk_wind_e": 4,
+		"walk_wind_ne": 4,
+		"walk_wind_n": 4,
 		"crank_e": 4,
 		"crank_n": 4,
 		"crank_ne": 4,

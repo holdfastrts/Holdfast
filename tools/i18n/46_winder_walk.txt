@@ -1,0 +1,5 @@
+# 0.26.0 winding on the march: a Winder winds a walking soldier from behind it (docs/winder_walk.md)
+
+> Winders also wind Clockwork soldiers: pick one that is walking and he winds it walking behind it, then the next one. With automatic repair on, Winders moving with the army do it by themselves.
+pt Os Enroladores também dão corda aos soldados do Mecanismo: escolha um que esteja andando e ele lhe dá corda caminhando atrás dele, e depois ao próximo. Com o reparo automático ligado, os Enroladores que andam com o exército fazem isso sozinhos.
+es Los Dadores también dan cuerda a los soldados del Mecanismo: elige uno que esté caminando y le da cuerda andando detrás de él, y luego al siguiente. Con la reparación automática activada, los Dadores que van con el ejército lo hacen solos.

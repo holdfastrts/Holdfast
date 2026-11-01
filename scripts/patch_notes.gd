@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.0", "items": [
+		"WINDERS WIND THE ARMY ON THE MARCH (the owner's idea): a Winder now winds a Clockwork soldier that is walking, walking just behind it at its pace and cranking as he goes (his new winding-while-walking animation), until it is full; then he goes to the next one, and once none needs it, back to his own move. Its charge fills at the usual rate and the soldier is never slowed (a Winder is faster than a Clock Soldier). Right-click (REPAIR) a walking soldier to do it by hand; with automatic repair on (the default), Winders moving with the army (move, attack-move or follow) do it by themselves for the walking soldiers near them under 80% charge, lowest first, two Winders never on the same one. A marching army with Winders now arrives wound instead of run down. The computer's Winders do the same. A soldier being wound says Winding up on its card.",
+		"A box over your army keeps the Winders that are winding soldiers in the selection.",
+	]},
 	{"v": "0.25.28", "items": [
 		"THE CROWN COMPUTER'S RAMP WALL HAS NO USELESS PALISADE: it lays only the pieces that close a gap. A high-ground cell that only touches the ramp's corner, with the cliff on one side and the Cottage (or another piece) on the other, can't be walked into, so it no longer gets a palisade; on Ashfall the wall is now just the Cottage and the Gate. The same goes for the palisade line on any other ramp up to the main.",
 	]},

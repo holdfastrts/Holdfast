@@ -4847,6 +4847,9 @@ func _card_tip(it: Array) -> Dictionary:
 		t["body"] = "Automatic work (glowing = on): idle workers go back to their posts by themselves. Press to switch it off, to scout or keep a builder free."
 	elif lab == "REPAIR":
 		t["body"] = "Then pick a damaged building or wall: they fix it (a full repair costs a quarter of its price)."
+		if game.selection.any(func(x) -> bool: return x is Unit and is_instance_valid(x) and x.kind == "winder"):
+			# (WINDING ON THE MARCH: scripts/winder_walk.gd)
+			t["body"] = Loc.t(t["body"]) + " " + Loc.t("Winders also wind Clockwork soldiers: pick one that is walking and he winds it walking behind it, then the next one. With automatic repair on, Winders moving with the army do it by themselves.")
 		t["hint"] = ("Right-click" if Settings.pc() else "Hold") + ": automatic repair (glows while on)."
 	elif lab == "CANCEL" and controls.mode == "" and b:
 		t["body"] = "Take the last thing in the queue back out (paid back)."
