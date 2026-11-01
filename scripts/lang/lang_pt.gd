@@ -2498,6 +2498,7 @@ const T := {
 	"Version %s is out (you have %s). Download it and replace this copy to update.": "A versão %s saiu (você tem a %s). Baixe-a e substitua esta cópia para atualizar.",
 	"DOWNLOAD": "BAIXAR",
 	"LATER": "DEPOIS",
+	"Version %s is out (you have %s). Download it and install it over this app to update.": "A versão %s saiu (você tem a %s). Baixe-a e instale por cima deste app para atualizar.",
 	"GAMEPLAY": "JOGO",
 	"DISPLAY": "TELA",
 	"EXPERIMENTAL": "EXPERIMENTAL",
