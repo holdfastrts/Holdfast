@@ -3249,7 +3249,10 @@ func plan_cottage_wall() -> Dictionary:
 					break
 			if not gets_home:
 				continue
-			var score := float(rest.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(tl) + Vector2(csize) * 0.5).distance_to(mid) + float(tx + ty * 1000) * 0.00001
+			# (only pieces that close a gap: a band cell nothing can reach, such as one that only
+			# touches the ramp's corner past the cliff and the Cottage, gets no palisade)
+			walls = cw_prune(b0["ramp"], fp, gates, walls)
+			var score := float(gates.size() + walls.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(tl) + Vector2(csize) * 0.5).distance_to(mid) + float(tx + ty * 1000) * 0.00001
 			if score < best_score:
 				best_score = score
 				var pieces: Array = []
@@ -3271,8 +3274,10 @@ func plan_cottage_wall() -> Dictionary:
 		var m: Vector2 = bands[i]["mid"]
 		cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return Vector2(a).distance_to(m) < Vector2(b).distance_to(m))
 		var gates2: Array = _gate_cells(cells)
+		var walls2: Array = cw_prune(bands[i]["ramp"], {}, gates2, cells.filter(func(c: Vector2i) -> bool: return not gates2.has(c)))
 		for c in cells:
-			extra.append(["gate" if gates2.has(c) else "wall", c])
+			if gates2.has(c) or walls2.has(c):
+				extra.append(["gate" if gates2.has(c) else "wall", c])
 	for e in extra:
 		best["pieces"].append(e)
 		best["cost"] = int(best["cost"]) + int(Defs.BUILDINGS[e[0]]["cost"])
@@ -3289,6 +3294,48 @@ func _gate_cells(cells: Array) -> Array:
 		if (c - gates[gates.size() - 1]).length() <= 1.01:
 			gates.append(c)
 	return gates
+
+
+## Does the flood from the ramp (gates shut) reach the high ground of the base? (cw_reach)
+func cw_leaks(ramp_cells: Array, blocked: Dictionary, gates: Array) -> bool:
+	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
+	for c in cw_reach(ramp_cells, blocked, gates, false):
+		if game.height[game.idx(c)] == 1 and game.ramp[game.idx(c)] == 0 and Vector2(c).distance_to(home) < 24.0:
+			return true
+	return false
+
+
+## The palisade cells of a ramp wall that actually close a gap: each piece (farthest from the
+## ramp first) is dropped when the wall still seals the ramp without it. A band cell that only
+## touches the ramp's corner, with the cliff and the Cottage on the two sides of that diagonal,
+## can't be reached (no corner cutting) and gets no piece (owner's playtest 2026-11-01:
+## "an extra useless palisade in the ramp wall"). `fixed`: other cells that block (the Cottage).
+## If the full line doesn't seal either, it is returned as it is.
+func cw_prune(ramp_cells: Array, fixed: Dictionary, gates: Array, walls: Array) -> Array:
+	var blocked := fixed.duplicate()
+	for c in walls:
+		blocked[c] = true
+	if cw_leaks(ramp_cells, blocked, gates):
+		return walls
+	var mid := Vector2.ZERO
+	for rc in ramp_cells:
+		mid += Vector2(rc)
+	mid /= maxi(1, ramp_cells.size())
+	var order := walls.duplicate()
+	order.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var da := Vector2(a).distance_to(mid)
+		var db := Vector2(b).distance_to(mid)
+		if absf(da - db) > 0.001:
+			return da > db
+		return a.x + a.y * 1000 < b.x + b.y * 1000)
+	var keep := walls.duplicate()
+	for c in order:
+		blocked.erase(c)
+		if cw_leaks(ramp_cells, blocked, gates):
+			blocked[c] = true
+		else:
+			keep.erase(c)
+	return keep
 
 
 func _cw_touches(c: Vector2i, fp: Dictionary) -> bool:
@@ -3427,8 +3474,10 @@ func _wall_off() -> bool:
 		# (a two-wide gate: the army files out to meet a raid without jamming; test_ai_army_response
 		# fails with a one-tile gate)
 		var gates: Array = _gate_cells(cells)
+		var walls: Array = cw_prune(ramp_cells, {}, gates, cells.filter(func(c: Vector2i) -> bool: return not gates.has(c)))
 		for c in cells:
-			plan.append(["gate" if gates.has(c) else "wall", c])
+			if gates.has(c) or walls.has(c):
+				plan.append(["gate" if gates.has(c) else "wall", c])
 	if plan.is_empty():
 		_walled = true
 		return false

@@ -1203,7 +1203,7 @@ func _build_card() -> Array:
 		return list
 	if b and Defs.gear_mode and b.d["faction"] == "clockwork" and not b.dead and (b.team == game.human or game.demo or game.spectating()):
 		# THE GEAR VIEW (also the ` key): the whole network at a glance (scripts/gear.gd); phone-friendly
-		_tip_for["GEAR VIEW"] = ["Gear view", "Shows the whole gear network: the drivers glow gold, every ring is tinted by how well it works (green full speed, yellow 90%, orange 80%, red 70% or idle), each Mainspring's reach is outlined and the turrets' circles are drawn. Key: `"]
+		_tip_for["GEAR VIEW"] = ["Gear view", "Shows the whole gear network: the drivers glow gold, every ring is tinted by how well it works (green full speed, lime 90%, yellow 80%, orange 70%, red stopped), each Mainspring's reach is outlined and the turrets' circles are drawn. Key: `"]
 		list.append(["ab_gear_view", ("~ " if game.gear_net.view else "") + "GEAR VIEW", func() -> void: game.toggle_gear_view(), true, "", ""])
 	if b and b.built and b.kind != game.faction_hall(game.human):
 		list.append(["demolish", "DEMOLISH", func() -> void:
@@ -4847,6 +4847,9 @@ func _card_tip(it: Array) -> Dictionary:
 		t["body"] = "Automatic work (glowing = on): idle workers go back to their posts by themselves. Press to switch it off, to scout or keep a builder free."
 	elif lab == "REPAIR":
 		t["body"] = "Then pick a damaged building or wall: they fix it (a full repair costs a quarter of its price)."
+		if game.selection.any(func(x) -> bool: return x is Unit and is_instance_valid(x) and x.kind == "winder"):
+			# (WINDING ON THE MARCH: scripts/winder_walk.gd)
+			t["body"] = Loc.t(t["body"]) + " " + Loc.t("Winders also wind Clockwork soldiers: pick one that is walking and he winds it walking behind it, then the next one. With automatic repair on, Winders moving with the army do it by themselves.")
 		t["hint"] = ("Right-click" if Settings.pc() else "Hold") + ": automatic repair (glows while on)."
 	elif lab == "CANCEL" and controls.mode == "" and b:
 		t["body"] = "Take the last thing in the queue back out (paid back)."

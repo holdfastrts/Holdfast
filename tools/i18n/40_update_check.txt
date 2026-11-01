@@ -15,3 +15,7 @@ es DESCARGAR
 > LATER
 pt DEPOIS
 es MÁS TARDE
+
+> Version %s is out (you have %s). Download it and install it over this app to update.
+pt A versão %s saiu (você tem a %s). Baixe-a e instale por cima deste app para atualizar.
+es Ha salido la versión %s (tienes la %s). Descárgala e instálala sobre esta app para actualizar.
