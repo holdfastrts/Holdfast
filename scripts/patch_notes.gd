@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.26", "items": [
+		"HORSEMEN BREAK A SHUT GATE: the computer's Horsemen out raiding no longer gallop into a shut enemy gate and stand pressed against it. When a wall is between them and the workers, the party weighs it up: if it can bring a piece down in time and nothing shoots them hard there, every rider sets about the gate or the palisade beside it, spread over the pieces (two to a face), and a rider with his pistol loaded shoots a labourer mending it that he can see. If the piece won't go down (menders hidden behind it on the high ground, or muskets on the wall), they ride off after workers they can reach, or home, and come again later. A Horseman riding at prey behind a wall breaks the piece in the way instead of pushing at it.",
+	]},
 	{"v": "0.25.25", "items": [
 		"PALISADE ON THE DIAGONAL, AND BENT WALLS: press where a wall (or a row of gates) starts and drag to where it ends, or click both ends as before. The line runs along a row, a column or an exact diagonal, whichever is nearest the mouse; a diagonal is one piece per cell, corner to corner, with the diagonal palisade art (no more staircase: 5 pieces for 4 cells across instead of 9). The ghost shows every piece and what they cost. On a computer, hold Shift and click to make a corner and draw on from there (straight, then diagonal...); let go of Shift to lay the whole path (queued, as every Shift order), or finish with a plain click. On a phone the end snaps the same way; a bend is two walls.",
 	]},
