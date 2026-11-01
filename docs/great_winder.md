@@ -387,3 +387,7 @@ All pass:
 
 Several of these print their pass line and then end with "Aborted" (exit 134) while Godot shuts down; the checks
 themselves all passed. `test_determinism` was not run (its hash varies run to run on main too).
+
+## SCATTER COGS (0.26.1)
+
+Its fourth job: a slow field thrown from its hopper (the owner's idea, 2026-11-01). Enemies on the ground in the litter move 40% slower for 15 s. See `docs/cog_scatter.md`.

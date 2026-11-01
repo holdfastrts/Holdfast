@@ -50,7 +50,10 @@ static func _sounds(u: Unit, delta: float) -> void:
 	if st <= 0.0:
 		st = 0.3
 		if u.visible and u.game.view_rect.has_point(u.position):
-			if u.work == "mending":
+			if u.phase == "cast":
+				st = 1.6           # (SCATTER COGS: the key arm winds the throw up, scripts/cog_scatter.gd)
+				Sfx.play_any(["combat/great_winder_wind", "work/winder_crank"], u.position, -4.0)
+			elif u.work == "mending":
 				st = 1.6
 				Sfx.play_any(["combat/great_winder_wind", "work/winder_crank"], u.position, -6.0)
 			elif u.work == "sweeping":
@@ -350,7 +353,7 @@ static func take(u: Unit, w: Unit) -> int:
 
 ## Its strip: the key arm turning while it mends, the rollers while it sweeps, else walk or stand.
 static func anim(u: Unit, moving: bool) -> String:
-	if u.work == "mending":
+	if u.work == "mending" or u.phase == "cast":      # (SCATTER COGS' windup: the key arm turning, scripts/cog_scatter.gd)
 		return "wind"
 	if u.work == "sweeping":
 		return "sweep"
@@ -381,7 +384,7 @@ static func card_line(u: Unit) -> String:
 	return "Winds everything within %d tiles." % a
 
 
-## Its command card buttons (HUD._ability_buttons): MEND and SWEEP, both autocasts that glow while on (a press switches
+## Its command card buttons (HUD._ability_buttons): SCATTER COGS (CogScatter.card), and MEND and SWEEP, both autocasts that glow while on (a press switches
 ## them for every Great Winder selected, online through the PROPS funnel: Game.net_set).
 static func card(hud, list: Array, units: Array) -> void:
 	var gws := units.filter(func(o: Unit) -> bool: return o.kind == KIND and o.team == hud.game.human)
@@ -402,3 +405,4 @@ static func card(hud, list: Array, units: Array) -> void:
 			if o.kind == KIND:
 				game.net_set(o, "auto_sweep", not sweep_on)
 		hud.toast("Sweeping off." if sweep_on else "Sweeping on: it turns the Clockwork wrecks near it into cogs."), true, "", ""])
+	CogScatter.card(hud, list, gws)        # SCATTER COGS (a spot: scripts/cog_scatter.gd)

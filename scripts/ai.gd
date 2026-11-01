@@ -5789,6 +5789,8 @@ func _great_winder_follow(c: Vector2) -> void:
 		home = (hall[0] as Building).center()
 	var behind := c + (home - c).normalized() * 60.0 if home.distance_to(c) > 1.0 else c
 	for u in gws:
+		if u.order == "cast":
+			continue              # (throwing its SCATTER COGS: CogScatter.ai_tick)
 		if u.order == "mend" or u.order == "sweep":
 			if u.position.distance_to(c) < 420.0:
 				continue          # (busy by the army: its autocast)
@@ -6237,6 +6239,7 @@ func _abilities() -> void:
 		_overloads()
 		_braces()
 		ShieldWall.think(game, team)       # (Clock Soldiers: shields up in ranged fire, down to chase or fall back)
+		CogScatter.ai_tick(game, team)     # (a Great Winder's SCATTER COGS on charging or fleeing clumps: scripts/cog_scatter.gd)
 	if not _crown():
 		return
 	if Defs.marching_band:

@@ -529,3 +529,20 @@ the straight palisade's stake (6 x 35 px, so a little narrower for its length th
 touch, and set down along the diagonal in code, 8 a tile, over the straight piece's dirt strip. The damaged,
 construction and destroyed versions are code-made (stakes snapped off with a light broken top), not drawn. A
 redraw could ask ChatGPT for a diagonal run at the straight pieces' stake size, stakes all the same height.
+
+## SCATTER COGS (code, 0.26.1; scripts/cog_scatter.gd, docs/cog_scatter.md)
+- THE LITTER ON THE GROUND (code, CogScatter._draw): 34 pieces per field lying at the 3/4 angle (squashed to 0.55 high):
+  cogs (the gear field's own IDLER COG, GearArt.ring "idler" 8 teeth, baked down to 24 px; steel ones are the same cog
+  tinted grey-blue, copper ones tinted warm), bolts (a line with a hex head and thread ticks), coil springs (a zigzag),
+  hex nuts and small brass plates with a rivet, all drawn in code; 7 dark oil-and-grit scuffs under them; a 4-point
+  GLINT now and then on about half the pieces; a ring of dust where the first pieces land; the pieces hop 3 px as they
+  land; the litter fades over its last 1.5 s. ChatGPT sheet wanted: docs/cog_scatter.md, prompt 1.
+- THE THROW (code, CogScatter._draw_over): the same pieces fly from the Great Winder's hopper (CogScatter.MOUTH, measured
+  on its idle frames) along arcs to where they land, tumbling (squashed along a turning axis). The Winder itself only
+  plays its WIND strip (the key arm) during the 0.5 s windup: it has no throwing animation. ChatGPT throw strip wanted:
+  docs/cog_scatter.md, prompt 2.
+- THE SLOWED MARK (code): three small cogs (the same baked idler cog) circling slowly round the feet of every unit slowed
+  in the litter.
+- THE ICON (tools/make_cog_scatter_icon.py, PIL): the Clockwork icon frame of ab_sweep.png, the Great Winder's own idle
+  frame (mirrored, shrunk) and code-drawn cogs and a bolt along a dotted arc onto a heap. A ChatGPT icon in the
+  Clockwork icon style wanted: docs/cog_scatter.md, prompt 3.

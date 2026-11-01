@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.1", "items": [
+		"SCATTER COGS, THE GREAT WINDER'S SLOW FIELD (the owner's idea: a slow spell without magic): press SCATTER COGS (C) and tap a spot within 6 tiles. Its key arm winds up for half a second, then its hopper flings a shower of cogs, bolts and springs that litter a circle of 2.5 tiles for 15 s. Enemies on the ground in the litter move 40% slower (their attacks are not slowed); flyers and your own units are not slowed. It costs 40 cogs and the hopper refills in 25 s. The Clockwork computer throws it on clumps of charging melee (Raptors, Horsemen) and on armies running away.",
+	]},
 	{"v": "0.26.0", "items": [
 		"WINDERS WIND THE ARMY ON THE MARCH (the owner's idea): a Winder now winds a Clockwork soldier that is walking, walking just behind it at its pace and cranking as he goes (his new winding-while-walking animation), until it is full; then he goes to the next one, and once none needs it, back to his own move. Its charge fills at the usual rate and the soldier is never slowed (a Winder is faster than a Clock Soldier). Right-click (REPAIR) a walking soldier to do it by hand; with automatic repair on (the default), Winders moving with the army (move, attack-move or follow) do it by themselves for the walking soldiers near them under 80% charge, lowest first, two Winders never on the same one. A marching army with Winders now arrives wound instead of run down. The computer's Winders do the same. A soldier being wound says Winding up on its card.",
 		"A box over your army keeps the Winders that are winding soldiers in the selection.",

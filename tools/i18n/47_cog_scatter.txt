@@ -1,0 +1,43 @@
+# SCATTER COGS (the Great Winder's slow field, the owner's idea 2026-11-01; scripts/cog_scatter.gd, docs/cog_scatter.md).
+# SCATTER COGS = ESPALHAR ENGRENAGENS / ESPARCIR ENGRANAJES (cogs are engrenagens / engranajes everywhere else); the
+# litter = entulho / chatarra; the hopper = funil / tolva.
+
+> SCATTER COGS
+pt ESPALHAR ENGRENAGENS
+es ESPARCIR ENGRANAJES
+
+> Scatter cogs
+pt Espalhar engrenagens
+es Esparcir engranajes
+
+> Tap a spot within %d tiles (it rolls closer if it must): the key arm winds, then the hopper flings cogs, bolts and springs that litter a circle of %.1f tiles for %d s. Enemies on the ground in the litter move %d%% slower (their attacks are not slowed); flyers and your own units are not slowed. The hopper refills in %d s.
+pt Toque num ponto a até %d casas (ele se aproxima se precisar): o braço de chave dá corda, e então o funil arremessa engrenagens, parafusos e molas que cobrem um círculo de %.1f casas por %d s. Os inimigos em terra no entulho andam %d%% mais devagar (os ataques deles não ficam mais lentos); voadores e as suas próprias unidades não são atrasados. O funil se enche de novo em %d s.
+es Toca un punto a %d casillas como mucho (se acerca si hace falta): el brazo de llave da cuerda y luego la tolva lanza engranajes, tornillos y muelles que cubren un círculo de %.1f casillas durante %d s. Los enemigos en tierra entre la chatarra se mueven un %d%% más despacio (sus ataques no se frenan); los voladores y tus propias unidades no se frenan. La tolva se vuelve a llenar en %d s.
+
+> %d cogs  ·  %d s
+pt %d engrenagens  ·  %d s
+es %d engranajes  ·  %d s
+
+> Only a Great Winder can SCATTER COGS.
+pt Só um Grande Enrolador pode ESPALHAR ENGRENAGENS.
+es Solo un Gran Dador de Cuerda puede ESPARCIR ENGRANAJES.
+
+> The hopper is still filling: SCATTER COGS in %d s.
+pt O funil ainda está enchendo: ESPALHAR ENGRENAGENS em %d s.
+es La tolva aún se está llenando: ESPARCIR ENGRANAJES en %d s.
+
+> Not enough cogs: SCATTER COGS needs %d.
+pt Engrenagens insuficientes: ESPALHAR ENGRENAGENS precisa de %d.
+es No hay suficientes engranajes: ESPARCIR ENGRANAJES necesita %d.
+
+> Tap where to SCATTER COGS (enemies on the ground in the litter are slowed)
+pt Toque onde ESPALHAR ENGRENAGENS (os inimigos em terra no entulho ficam mais lentos)
+es Toca dónde ESPARCIR ENGRANAJES (los enemigos en tierra entre la chatarra se frenan)
+
+> Click where to SCATTER COGS (enemies on the ground in the litter are slowed)
+pt Clique onde ESPALHAR ENGRENAGENS (os inimigos em terra no entulho ficam mais lentos)
+es Haz clic dónde ESPARCIR ENGRANAJES (los enemigos en tierra entre la chatarra se frenan)
+
+> %d cogs: litters %.1f tiles for %d s; enemies on the ground in it move %d%% slower.
+pt %d engrenagens: cobre %.1f casas por %d s; os inimigos em terra nele andam %d%% mais devagar.
+es %d engranajes: cubre %.1f casillas durante %d s; los enemigos en tierra en ella se mueven un %d%% más despacio.
