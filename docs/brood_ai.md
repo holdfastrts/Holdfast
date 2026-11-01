@@ -83,10 +83,14 @@ The army's own research never waits for her stage's spoils.
   or 300 value on the move. When it sees one, it holds its army at home, delays her growth and the later Sires, and
   lays warriors for 3 minutes.
 
-**Defence.**
-- Anything near the Mother is fought by every creature that walks.
-- The Sires get up from their nests only when the attack is big and the army can't hold it alone. A Sire off his
-  nest fathers nothing, and a dead one stops his line for minutes.
+**Defence.** (0.25.27: as a swarm, docs/brood_ai_swarm.md)
+- The army at home holds at a rally (no fights picked by sight). Enemies at home (near the Mother or one of its rooted
+  creatures) get a squad sized to them, sent all at once; at the Mother everything near her joins. Too strong away
+  from her: the army gathers on her side.
+- The Tyrant Sire gets up for a small harass when no warriors can take it. The Sires all get up when the attack at
+  her is big and the army can't hold it alone. A Sire off his nest fathers nothing, and a dead one stops his line.
+- The Mother stays rooted unless the attack at her is big, she is hurt with nobody fighting for her, or it is a last
+  stand. A struck rooted Rootmaw uproots and bites back (or backs off), then roots again.
 - A wave out is called home when the attack at her is bigger than what is home.
 
 **Waves.**
