@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.25.26", "items": [
+		"THE CROWN COMPUTER'S RAMP WALL HAS NO USELESS PALISADE: it lays only the pieces that close a gap. A high-ground cell that only touches the ramp's corner, with the cliff on one side and the Cottage (or another piece) on the other, can't be walked into, so it no longer gets a palisade; on Ashfall the wall is now just the Cottage and the Gate. The same goes for the palisade line on any other ramp up to the main.",
+	]},
 	{"v": "0.25.25", "items": [
 		"PALISADE ON THE DIAGONAL, AND BENT WALLS: press where a wall (or a row of gates) starts and drag to where it ends, or click both ends as before. The line runs along a row, a column or an exact diagonal, whichever is nearest the mouse; a diagonal is one piece per cell, corner to corner, with the diagonal palisade art (no more staircase: 5 pieces for 4 cells across instead of 9). The ghost shows every piece and what they cost. On a computer, hold Shift and click to make a corner and draw on from there (straight, then diagonal...); let go of Shift to lay the whole path (queued, as every Shift order), or finish with a plain click. On a phone the end snaps the same way; a bend is two walls.",
 	]},

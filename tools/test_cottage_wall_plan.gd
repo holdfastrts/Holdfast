@@ -82,14 +82,21 @@ func _one(id: String) -> void:
 				gates.append(e[1])
 			check(g.placement_problem(a.team, e[0], e[1]) == "", tag + ": %s site %s legal" % [e[0], str(e[1])])
 		check(not gates.is_empty(), tag + ": a gate")
-		# (every band cell is the Cottage, a piece, or already solid: nothing slips past)
-		for c in band:
-			check(fp.has(c) or kinds.has(c), tag + ": band cell %s covered" % str(c))
 		for e in plan["pieces"]:
 			if e[0] == "wall":
 				blocked[e[1]] = true
 		var home := Vector2(g.starts[a.team]) + Vector2(2.5, 2.0)
 		var shut: Dictionary = a.cw_reach(bands[0]["ramp"], blocked, gates, false)
+		# (every band cell is the Cottage, a piece, or out of reach from the ramp: nothing slips past)
+		for c in band:
+			check(fp.has(c) or kinds.has(c) or not shut.has(c), tag + ": band cell %s covered or out of reach" % str(c))
+		# (no useless piece, owner's playtest 2026-11-01: every palisade closes a gap, the ramp leaks without it)
+		for e in plan["pieces"]:
+			if e[0] != "wall" or not band.has(e[1]):
+				continue
+			var less := blocked.duplicate()
+			less.erase(e[1])
+			check(a.cw_leaks(bands[0]["ramp"], less, gates), tag + ": the palisade at %s closes a gap (the ramp leaks without it)" % str(e[1]))
 		var open: Dictionary = a.cw_reach(bands[0]["ramp"], blocked, gates, true)
 		var leak := false
 		var home_open := false
