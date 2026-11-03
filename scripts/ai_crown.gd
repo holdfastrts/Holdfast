@@ -37,6 +37,9 @@ var _bo_plan: Array = []         # the opening's steps (fixed at the start: a la
 var _plan_of := ""
 var _waits := {}                 # step index -> clock it first waited for want of room (logged once)
 const BO_LIMIT := 600.0          # (game seconds) the opening hands over by then whatever is left
+## THE BALLOON HARASS (scripts/ai_crown_balloon.gd): made on the Balloon harass plan only (Normal and up)
+const AICrownBalloon := preload("res://scripts/ai_crown_balloon.gd")
+var bl = null
 const LAB_COST := 50
 
 ## THE PLANS. Steps ("do"):
@@ -122,6 +125,26 @@ const PLANS := {
 			["barracks", 3, {"labs": 30}]],
 		"s": {"wave": 9, "step": 6, "workers": 1.0, "expand": 1.0, "halls": 3}},     # (after the rush, a full economy: the
 		# shared Rush settings, 0.75 of the posts and a late hall, held 2 farms' worth of labourers till 6:00, ba3 Red Coast)
+	# BALLOON HARASS (crown-builds-c, docs/crown_builds_c.md; the harass itself: scripts/ai_crown_balloon.gd): the safe
+	# Musketeer opening, the Foundry at 10 labourers and the first balloon from it, the second hall at 15, the second balloon;
+	# then the balloons carry Musketeers to the enemy's workers while the army holds at home (Balanced's numbers after it)
+	"balloon": {"opening": "mill", "labs": 99, "army": 0.55, "mill": [[0, 3], [13, 5], [16, 6]], "balloons": 2,
+		"bo": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "army", "k": "musketeer", "cap": 12},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "build", "k": "foundry", "at": {"labs": 12}},
+			{"do": "balloons", "n": 1, "at": {"has": "foundry"}},
+			{"do": "hall", "n": 2, "at": {"labs": 15}},
+			{"do": "balloons", "n": 2, "at": {"has": "foundry"}},
+		],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["horse_breeder", 1, {"labs": 17}], ["barracks", 2, {"labs": 19}],
+			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
+			["foundry", 2, {"labs": 44, "halls": 3}]],
+		"s": {"wave": 18, "step": 8}},
 }
 
 
@@ -150,6 +173,8 @@ func _ready() -> void:
 	if _bo_plan.is_empty():
 		bo_done = true                         # (Easy: no build order, the shared rules from the start)
 	_attack_at = int(_s("wave"))
+	if strategy == "balloon" and difficulty >= 1:
+		bl = AICrownBalloon.new(self)
 	if opening == "breeder" and strategy == "rush":
 		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
 	if game.mlog:
@@ -271,6 +296,8 @@ func _think_stage(i: int) -> void:
 			ch.tick()
 			if difficulty >= 1 and not peaceful:
 				_raid()
+				if bl != null:
+					bl.tick()           # (the balloon harass: scripts/ai_crown_balloon.gd)
 			_lap("ai/raid", pt)
 		3:
 			scout.tick()
@@ -448,6 +475,8 @@ func _supply_due() -> bool:
 # ------------------------------------------------------------------ the steps
 
 func _st_text(st: Dictionary) -> String:
+	if String(st["do"]) == "balloons":
+		return "balloon %d" % int(st.get("n", 1))
 	match String(st["do"]):
 		"wall_cottage": return "the ramp Cottage"
 		"wall_gate": return "the ramp Gate"
@@ -460,6 +489,8 @@ func _st_text(st: Dictionary) -> String:
 
 
 func _st_done(st: Dictionary) -> bool:
+	if String(st["do"]) == "balloons":
+		return bl == null or bl.balloons().size() + bl.queued() >= int(st.get("n", 1))
 	match String(st["do"]):
 		"wall_cottage":
 			return _walled or not _cw_active() or (not _cw_plan.is_empty() and _cw_cottage() != null)
@@ -509,6 +540,8 @@ func _st_near(st: Dictionary) -> bool:
 
 
 func _st_price(st: Dictionary) -> int:
+	if String(st["do"]) == "balloons":
+		return int(Defs.UNITS["balloon"]["cost"])
 	match String(st["do"]):
 		"wall_cottage": return int(Defs.BUILDINGS["cottage"]["cost"])
 		"wall_gate": return maxi(_wall_cost, 50)
@@ -519,6 +552,8 @@ func _st_price(st: Dictionary) -> int:
 
 ## Do the step: "" done (or nothing to pay), "gold" short of its price, "room" no spot for it now, "wait" not yet.
 func _st_do(st: Dictionary) -> String:
+	if String(st["do"]) == "balloons":
+		return _bl_step(st)
 	match String(st["do"]):
 		"wall_cottage", "wall_gate":
 			if _cw_active():
@@ -758,3 +793,32 @@ func _mid_tick() -> void:
 		if _mine(k).size() > n0:
 			say("milestone: %s %d (%d labourers, %d halls, army %d supply)" % [String(Defs.BUILDINGS[k]["name"]), int(m[1]), labs, halls, army])
 		return
+
+
+# ------------------------------------------------------------------ the balloon harass (crown-builds-c)
+
+## The shared balloon drop (AI._balloon_drop) gives way to the harass on its plan.
+func _balloon_drop() -> void:
+	if bl != null:
+		bl.tick()
+		return
+	super()
+
+
+## The harass's balloons and men are on an errand of their own: the army, the post and the waves leave them be.
+func _on_errand(u: Unit) -> bool:
+	return super(u) or (bl != null and bl.has(u))
+
+
+## The "balloons" step: the Foundry rigs one (its price set aside like a building's).
+func _bl_step(st: Dictionary) -> String:
+	if bl == null:
+		return ""
+	var c := int(Defs.UNITS["balloon"]["cost"])
+	if _gold() < c:
+		return "gold"
+	if _res2() < float(Defs.UNITS["balloon"].get("cost2", 0)):
+		return "wait"
+	var n0: int = bl.queued()
+	bl.produce(int(st.get("n", 1)))
+	return "" if bl.queued() > n0 else "wait"

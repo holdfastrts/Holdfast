@@ -19,6 +19,7 @@ const COACH := {
 	"balanced": {"strategy": "balanced", "set": {}},
 	"timing": {"strategy": "timing", "set": {}},
 	"rush": {"strategy": "rush", "set": {}},
+	"balloon": {"strategy": "balloon", "set": {}},        # (crown-builds-c: the Balloon harass; tools/play_crown_c.gd films it)
 	# (variants the coach tries: the plan's settings changed; docs/ai_crown_rebuild.md says which were kept)
 	"eco_late": {"strategy": "economy", "set": {"labs": 99}},
 }
