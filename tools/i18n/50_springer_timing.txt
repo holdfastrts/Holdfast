@@ -1,0 +1,9 @@
+# 0.28.0: the Clockwork computer's own plan, the Springer timing (scripts/ai_clockwork.gd, docs/clockwork_ai_rebuild.md)
+
+> Springer timing
+pt Ataque de Saltadores
+es Ataque de Saltadores
+
+> How this computer player plays. Air rush and Extreme rush are Brood only, Springer timing is Clockwork only (others play Balanced).
+pt Como este jogador do computador joga. Ataque aéreo e Ataque extremo são só da Ninhada, Ataque de Saltadores é só do Mecanismo (as outras jogam Equilibrado).
+es Cómo juega este jugador del ordenador. Ataque aéreo y Ataque extremo son solo de la Nidada, Ataque de Saltadores es solo del Mecanismo (las demás juegan Equilibrado).

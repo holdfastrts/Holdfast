@@ -71,6 +71,13 @@ the natural first, the third Rootmaw at its far edge, grubs first, the Sires and
   weaker punch (wind-ups are slow). Counter-play sketch: a Crown wall + 3 Musketeers or Brood Raptors in
   the swamp both beat early wind-ups; not yet covered by a dedicated test.
 
+### Clockwork: the Springer timing (0.28.0, scripts/ai_clockwork.gd, docs/clockwork_ai_rebuild.md)
+A written build order by supply (not by the clock), the plan owning its gold until the attack has left and the
+expansion is laid. Measured on 0.28.0, Hard Clockwork against the Hard Crown computer, Greenhold, Kestrel Rise and Frostmere
+(seeds 11 and 12): Light Works 1:35-1:38, Mainspring (big ring) 2:01-2:04, Escapement 2:33-2:37, HIGH LEAP 3:38-3:42,
+the 4th Springer 4:11-4:15, the Swift 4:17-4:23 (READY), the raid out 4:17-4:33, first leap in 5:24-5:38, the second
+Clocktower laid 4:51-5:14; 20 Winders at 6:00, 25 at 8:00. `tools/test_clockwork_springer_timing.gd`.
+
 ## Tests that keep this honest
 - `tools/test_ai_brood.gd [profile:xrush|rush|timing|balanced|economy|air]`: the Brood table above, each milestone by
   its latest time (about a minute's margin), no food bank over 900 for a minute, grubs at the plan's cap.

@@ -67,7 +67,10 @@ func tick() -> void:
 	_main_id = main.get_instance_id()
 	for id in plans.keys():
 		var p: Dictionary = plans[id]
-		if not is_instance_valid(p["hall"]) or (p["hall"] as Building).dead:
+		# (a hall with no wall plan has an empty one: it is dropped once the hall is gone; it used to fail here every think)
+		if not is_instance_valid(p.get("hall")) or (p["hall"] as Building).dead:
+			if p.is_empty() and is_instance_valid(instance_from_id(id)) and not (instance_from_id(id) as Building).dead:
+				continue
 			plans.erase(id)
 	for h in halls:
 		var id: int = h.get_instance_id()
@@ -106,10 +109,12 @@ func _run(p: Dictionary) -> void:
 	for s in p["slots"]:
 		if s["closed"]:
 			continue
-		var b: Building = s.get("b")
-		if b != null and (not is_instance_valid(b) or b.dead):
+		var b0 = s.get("b")          # (untyped first: a slot's building freed since cannot be assigned to a typed variable)
+		var b: Building = null
+		if b0 != null and is_instance_valid(b0) and not b0.dead:
+			b = b0
+		else:
 			s["b"] = null
-			b = null
 		if b == null:
 			b = _building_at(s["cell"], s["size"])
 			s["b"] = b

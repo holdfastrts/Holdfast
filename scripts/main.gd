@@ -1776,7 +1776,7 @@ func _slot_row(i: int) -> Control:
 		for o in opts:
 			st_opts.append(["RANDOM PLAN" if o == "random" else String(AI.STRATEGIES[o]["name"]).to_upper(), o, false])
 		var sb := _dropdown("RANDOM PLAN" if st == "random" else String(AI.STRATEGIES[st]["name"]).to_upper(), 150, st_opts, func(v) -> void: sl["strategy"] = v)
-		sb.tooltip_text = "How this computer player plays. Air rush and Extreme rush are Brood only (others play Balanced)."
+		sb.tooltip_text = "How this computer player plays. Air rush and Extreme rush are Brood only, Springer timing is Clockwork only (others play Balanced)."
 		h.add_child(sb)
 	else:
 		var sp := Control.new()
@@ -2772,7 +2772,7 @@ func start(cfg: Dictionary = {}) -> void:
 	for t in slots.size():
 		if t == human or game.puppet or slots[t]["who"] == "remote" or slots[t]["who"] == "script":
 			continue         # (a friend online plays that side; a guest's game runs no computers; a campaign's scripted side has none)
-		var ai: AI = AIBroodNew.new() if facs[t] == "brood" else AI.new()      # (the Brood's own plan: scripts/ai_brood_new.gd)
+		var ai: AI = AIBroodNew.new() if facs[t] == "brood" else (AIClockwork.new() if facs[t] == "clockwork" else AI.new())      # (the Brood's own plan: scripts/ai_brood_new.gd; the Clockwork's: scripts/ai_clockwork.gd)
 		ai.game = game
 		ai.team = t
 		ai.difficulty = maxi(0, LEVELS.find(slots[t]["who"]))
