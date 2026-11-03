@@ -420,6 +420,7 @@ func _think_stage(i: int) -> void:
 	var pt := Time.get_ticks_usec()
 	match i:
 		0:
+			var rk0 := _hide_repair()       # (REPAIR FIRST: the menders' gold is not spent on labourers or buildings)
 			_cottage_wall()
 			xw.tick()           # (a new hall's wall pieces come first, like the ramp wall: the harvest's gold, before it is spent)
 			_workers()
@@ -427,11 +428,14 @@ func _think_stage(i: int) -> void:
 				LineAI.tick(self)           # the Clockwork Line (scripts/line_ai.gd; shelved unless Defs.line_mode)
 			pt = _lap("ai/workers", pt)
 			_econ_build()
+			game.players[team]["gold"] += rk0
 			_lap("ai/econ", pt)
 		1:
+			var rk1 := _hide_repair()
 			_keep_tech()
 			_supply()
 			_build_up()
+			game.players[team]["gold"] += rk1
 			_lap("ai/build", pt)
 		2:
 			var kept := _hide_kept()
@@ -2306,6 +2310,7 @@ func _hide_kept() -> int:
 	# (CROWN WALL EXPAND: and the gold for a new hall's next wall pieces, laid first thing next think: AIExpandWall.keep)
 	var w: int = mini(int(game.players[team]["gold"]), xw.keep())
 	game.players[team]["gold"] -= w
+	w += _hide_repair()       # (REPAIR FIRST: a wall piece under attack keeps a little gold for its mending: _repair_keep)
 	if not _keeping():
 		return w
 	var k: int = mini(int(game.players[team]["gold"]), _hall_keep())
@@ -2656,8 +2661,12 @@ func _guard_new_hall(army: Array) -> Array:
 	if _new_hall and _new_hall.built and game.clock > _guard_until and not xw.holding(_new_hall):
 		# (CROWN WALL EXPAND: two thirds stay until the hall's wall is mostly up)
 		want = maxi(3, army.size() / 3)
-		while _guards.size() > want:
-			_guards.pop_back()
+	if tr.on and _new_hall and _new_hall.built and not _attacking and _army_supply(army) >= _attack_at and not army_short():
+		# (AI TRANSITIONS: the whole army is worth a wave and is not behind the enemy's: it goes, two stay as the garrison.
+		# Two thirds held by an unfinished hall wall kept the rest under the bar for nine minutes, Ashfall 0.25.25 study)
+		want = mini(want, 2)
+	while _guards.size() > want:
+		_guards.pop_back()
 	if _guards.size() < want:
 		var pool := army.filter(func(u: Unit) -> bool: return not _guards.has(u) and u.kind != "powder_wagon" and u.kind != Defs.GREAT_WINDER_KIND and not u.is_air())
 		pool.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.distance_squared_to(site) < b.position.distance_squared_to(site))
@@ -3034,6 +3043,39 @@ func _repair_safe(b: Building) -> bool:
 	return true
 
 
+## REPAIR FIRST (0.26.x; tools/test_ai_wall_vs_rush.gd on Ashfall: with the gold spent on a Musketeer while the gate was
+## hit there was nothing to mend it with, the gate fell at ~2:30 and 3 labourers died): while a wall piece (palisade, gate,
+## the ramp Cottage) is hurt with an armed enemy at it, REPAIR_KEEP gold is held back from training, research and horses
+## (_hide_kept), so the menders (_repair_wall, which runs first in the think) always have something to mend with.
+const REPAIR_KEEP := 80          # (40 was spent in 20 s on Ashfall and the gate fell, 3 labourers lost; 80 held it, none lost)
+const REPAIR_FOE := 160.0        # (pixels) an armed enemy this near a hurt piece: it is under attack
+var _rk_t := -99.0
+var _rk := 0
+
+
+func _hide_repair() -> int:
+	var rk: int = mini(int(game.players[team]["gold"]), _repair_keep())
+	game.players[team]["gold"] -= rk
+	return rk
+
+
+func _repair_keep() -> int:
+	if not _crown() or difficulty == 0:
+		return 0
+	if game.clock - _rk_t < 1.0:
+		return _rk
+	_rk_t = game.clock
+	_rk = 0
+	for b in game.buildings:
+		if b.team != team or b.dead or not b.built or not _wall_piece(b) or b.hp >= b.max_hp * REPAIR_BELOW:
+			continue
+		for u in game.units_near(b.center(), REPAIR_FOE):
+			if game.hostile(u.team, team) and not u.dead and u.has_attack() and not u.is_worker():
+				_rk = REPAIR_KEEP
+				return _rk
+	return _rk
+
+
 func _repair_wall() -> void:
 	if not _crown() or difficulty == 0:
 		return
@@ -3044,7 +3086,7 @@ func _repair_wall() -> void:
 		elif not is_instance_valid(piece) or piece.dead or not _repair_safe(piece):
 			_repairers.erase(w)
 			w.cmd_stop()          # (the flight logic of _worker_safety takes him from here)
-	if _gold() < 2:
+	if _gold() + _rk < 2:          # (_rk: the menders' own gold, hidden from the rest of the think)
 		return
 	var hurt: Array = game.buildings.filter(func(b: Building) -> bool:
 		return b.team == team and b.built and not b.dead and _wall_piece(b) and b.hp < b.max_hp * REPAIR_BELOW)

@@ -107,7 +107,9 @@ const HALL_FOR := 240.0
 
 
 func want_hall() -> bool:
-	return done and choice == "expand" and game.clock - at < HALL_FOR
+	# (not while the enemy has shown a bigger army since (AI.army_short): Ashfall study, green expanded at 5:38 on a sighting
+	# of 230 while yellow's 730 counter-attacked at 5:09, and lost the game; the usual hall rules apply then)
+	return done and choice == "expand" and game.clock - at < HALL_FOR and not ai.army_short()
 
 
 func _pick(c: String) -> void:
