@@ -9472,7 +9472,7 @@ func toggle_gear_view() -> void:
 	gear_net.view = not gear_net.view
 	gear_net.queue_redraw()
 	if hud != null:
-		hud.toast("GEAR VIEW: green full speed, yellow 90%, orange 80%, red 70% or idle." if gear_net.view else "Gear view off.")
+		hud.toast("GEAR VIEW: green full speed, lime 90%, yellow 80%, orange 70%, red stopped." if gear_net.view else "Gear view off.")
 
 
 func demolish(b: Building) -> void:

@@ -2153,7 +2153,8 @@ func _update_box(root: Control) -> void:
 	var h := UiStyle.heading(Loc.t("A NEW VERSION IS OUT"), 30, UiStyle.TRIM)
 	h.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(h)
-	var t := UiStyle.text(Loc.t("Version %s is out (you have %s). Download it and replace this copy to update.") % [UpdateCheck.latest, version], 18, UiStyle.TEXT, HORIZONTAL_ALIGNMENT_CENTER)
+	var msg := "Version %s is out (you have %s). Download it and install it over this app to update." if OS.get_name() == "Android" else "Version %s is out (you have %s). Download it and replace this copy to update."
+	var t := UiStyle.text(Loc.t(msg) % [UpdateCheck.latest, version], 18, UiStyle.TEXT, HORIZONTAL_ALIGNMENT_CENTER)
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	t.custom_minimum_size = Vector2(400, 0)
 	v.add_child(t)

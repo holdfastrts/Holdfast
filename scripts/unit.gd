@@ -241,6 +241,12 @@ var shield_t := 0.0             # Clock Soldier: the shield's switch under way (
 var self_wind_t := 0.0          # Winder: stopped to wind itself
 var wound_until := 0.0         # Clockwork: the game clock till which a Great Winder's ring is winding it (charge_winding)
 var cranked_t := 0.0            # Wind-up Soldier: a Winder is cranking it (wind-up anim)
+# WINDING ON THE MARCH (scripts/winder_walk.gd, docs/winder_walk.md): a Winder winds a walking construct from just behind it
+var _ww_on := false             # (a Winder) this order: he is winding a unit that walks on
+var _ww_back := {}              # (a Winder) the order he goes back to once the march's winding is done ({} : none)
+var _ww_scan := 0.0             # (a Winder) seconds to his next look for a walking construct to wind
+var _ww_cap := 0.0              # (a construct) the pace of the slower Winder winding it on the march...
+var _ww_cap_t := 0.0            # ...for this long
 var jump := {}                  # Springer: the leap under way ({} on the ground; scripts/springer.gd)
 var jump_cd := 0.0              # Springer: seconds before its spring can JUMP again
 var jumps := 0                  # Springer: leaps made (tests, the log)
@@ -2981,6 +2987,8 @@ func _reset_work() -> void:
 	_release_patient()
 	_cancel_boarding()
 	_wind_target = null
+	_ww_on = false
+	_ww_back = {}
 	drop_crate()
 	if sky == "to_land":
 		sky = "air"
@@ -3614,7 +3622,7 @@ func _tick_unit(delta: float) -> void:
 					wind = 1.0
 			else:
 				wind = maxf(0.0, wind - delta / float(Defs.WINDER_SELF["run"]))
-				if wind <= float(Defs.WINDER_SELF["low"]) and phase == "":
+				if wind <= float(Defs.WINDER_SELF["low"]) and phase == "":     # (on the march he winds himself walking: _ww_on)
 					self_wind_t = float(Defs.WINDER_SELF["stop"])
 		elif runs_on_spring():
 			wind = maxf(0.0, wind - delta / float(Defs.SPRING["run"]))
@@ -3632,6 +3640,11 @@ func _tick_unit(delta: float) -> void:
 				spin = maxf(0.0, spin - delta / 0.6)
 		if not is_worker():
 			speed *= lerpf(0.75, 1.0, wind)
+		if _ww_cap_t > 0.0:
+			# a slower Winder winding it on the march: the pair goes at his pace while he winds (never in a fight)
+			_ww_cap_t -= delta
+			if target == null:
+				speed = minf(speed, _ww_cap)
 		# out of charge: it shuts down where it stands, like a statue, until a field
 		# reaches it or a Winder winds it up again
 		if powered_down():
@@ -3707,6 +3720,8 @@ func _tick_unit(delta: float) -> void:
 		RideBy.blows(self, delta)
 	elif rb_state != "":
 		rb_state = ""
+	if kind == "winder" and auto_repair and (order == "move" or order == "amove" or order == "follow"):
+		WinderWalk.auto(self, delta)      # (marching with the army: he winds the walking soldiers near him, scripts/winder_walk.gd)
 	match order:
 		"idle":
 			if _d_medic and scan_t <= 0.0:
@@ -3920,8 +3935,8 @@ func _tick_unit(delta: float) -> void:
 		want = Vector2.ZERO        # a gun or wagon without its horse stands where it is
 	if kind == "balloon" and not incoming.is_empty():
 		want = Vector2.ZERO        # holds still while men climb in
-	if self_wind_t > 0.0:
-		want = Vector2.ZERO        # a Winder cranking its own spring
+	if self_wind_t > 0.0 and not _ww_on:
+		want = Vector2.ZERO        # a Winder cranking its own spring (winding a soldier on the march, he cranks it walking)
 	if tongue_stage != "":
 		want = Vector2.ZERO        # a Mist Toad sits still to aim, lash and pull
 	if kind == "bulwark":
@@ -5094,37 +5109,18 @@ func _repair(delta: float) -> Vector2:
 		if next and next is Building and can_repair(next):
 			cmd_repair(next)
 			return Vector2.ZERO
+		if kind == "winder" and (not _ww_back.is_empty() or _ww_on) and WinderWalk.go_on(self):
+			return Vector2.ZERO        # (winding on the march: the next one, or back to his own order: scripts/winder_walk.gd)
 		cmd_stop()
 		return Vector2.ZERO
+	if kind == "winder" and e is Unit and WinderWalk.walking(e as Unit):
+		return WinderWalk.tick(self, e as Unit, delta)     # (it walks on: he winds it walking behind it)
+	_ww_on = false
 	if e.edge_distance(position) < radius + 20.0:
 		work = "repairing"
 		path = PackedVector2Array()
 		facing = (e.center() - position).normalized()
-		# like StarCraft: a full repair takes about as long as building it (never slower than
-		# REPAIR_RATE hp/s) and costs a quarter of its price
-		var bt: float = maxf(1.0, float(e.d.get("time", 30.0)))
-		var rate := maxf(Defs.REPAIR_RATE, e.max_hp / bt)
-		var heal := minf(rate * delta, e.max_hp - e.hp)
-		var cost := heal * float(e.d.get("cost", 0)) * Defs.REPAIR_COST / maxf(e.max_hp, 1.0)
-		if game.players[team]["gold"] < 1:
-			game.tell(team, "Not enough ore to repair.")
-			if not _next_order():
-				cmd_stop()
-			return Vector2.ZERO
-		game.players[team]["repair_f"] = float(game.players[team].get("repair_f", 0.0)) - cost
-		game.stats[team]["repair"] = float(game.stats[team].get("repair", 0.0)) + cost       # (the gold a side spent mending buildings)
-		while float(game.players[team]["repair_f"]) <= -1.0:
-			game.players[team]["repair_f"] = float(game.players[team]["repair_f"]) + 1.0
-			game.players[team]["gold"] -= 1
-		e.hp = minf(e.max_hp, e.hp + heal)
-		if e is Unit:
-			var eu := e as Unit
-			if eu.runs_on_spring():
-				# a Wind-up Soldier: the Winder cranks its key (it plays its wind-up)
-				eu.wind = minf(1.0, eu.wind + float(Defs.SPRING["crank"]) * delta)
-				eu.cranked_t = 0.3
-			else:
-				eu.wind = minf(1.0, eu.wind + 0.15 * delta)     # and winds it up
+		_repair_step(e, delta)
 		return Vector2.ZERO
 	work = ""
 	if e.is_unit() and position.distance_to(e.global_position) < 140.0:
@@ -5132,6 +5128,38 @@ func _repair(delta: float) -> Vector2:
 	if (path.is_empty() or path_i >= path.size()) and not path_pending:
 		_request_path(game.approach_point(e, position))
 	return _follow(delta)
+
+
+## One tick of repairing (and winding) `e`, in reach: its health (paid for) and a construct's charge. False when the
+## side is out of cogs/ore (he has stopped).
+func _repair_step(e: Entity, delta: float) -> bool:
+	# like StarCraft: a full repair takes about as long as building it (never slower than
+	# REPAIR_RATE hp/s) and costs a quarter of its price
+	var bt: float = maxf(1.0, float(e.d.get("time", 30.0)))
+	var rate := maxf(Defs.REPAIR_RATE, e.max_hp / bt)
+	var heal := minf(rate * delta, e.max_hp - e.hp)
+	var cost := heal * float(e.d.get("cost", 0)) * Defs.REPAIR_COST / maxf(e.max_hp, 1.0)
+	if game.players[team]["gold"] < 1:
+		game.tell(team, "Not enough ore to repair.")
+		if not _next_order():
+			cmd_stop()
+		return false
+	game.players[team]["repair_f"] = float(game.players[team].get("repair_f", 0.0)) - cost
+	game.stats[team]["repair"] = float(game.stats[team].get("repair", 0.0)) + cost       # (the gold a side spent mending buildings)
+	while float(game.players[team]["repair_f"]) <= -1.0:
+		game.players[team]["repair_f"] = float(game.players[team]["repair_f"]) + 1.0
+		game.players[team]["gold"] -= 1
+	e.hp = minf(e.max_hp, e.hp + heal)
+	if e is Unit:
+		var eu := e as Unit
+		if eu.runs_on_spring():
+			# a Wind-up Soldier: the Winder cranks its key (it plays its wind-up)
+			eu.wind = minf(1.0, eu.wind + float(Defs.SPRING["crank"]) * delta)
+			eu.cranked_t = 0.3
+		else:
+			eu.wind = minf(1.0, eu.wind + 0.15 * delta)     # and winds it up
+			eu.cranked_t = 0.3          # (its card and bar say "Winding up": charge_winding; streamed to guests)
+	return true
 
 
 func _leave_mine() -> void:
@@ -6820,8 +6848,10 @@ func _anim_name() -> String:
 				return "carry" if moving else "idle_carry"
 			# his one job is winding (docs/clockwork_ground_up.md): his own spring, a Cog Press, a repair, the crate he
 			# has just set down on a site (the repair strip is the wind strip)
+			if work == "repairing" and moving:
+				return _anim_or("walk_wind", "repair")     # (winding a soldier on the march, walking behind it)
 			if self_wind_t > 0.0:
-				return "wind"
+				return _anim_or("walk_wind", "wind") if moving else "wind"
 			if work == "manning":
 				return "wind"
 			if work == "repairing":
@@ -6981,8 +7011,8 @@ const WINDER_BEAT := {
 static func beat_of(a: String) -> String:
 	if a == "repair":
 		a = "wind"
-	elif a == "carry":
-		a = "walk"           # (the Winder's carry walk ticks like his walk)
+	elif a == "carry" or a == "walk_wind":
+		a = "walk"           # (the Winder's carry walk ticks like his walk; so does winding on the march: a crank turn a step)
 	return a if WINDER_BEAT.has(a) else ""
 
 
@@ -7175,7 +7205,7 @@ func _animate(delta: float) -> void:
 	elif kind == "winder" and beat_of(anim) != "":
 		# the clockwork beat (WINDER_BEAT): held frames that snap on (a step walks it as fast as he goes)
 		var was := frame_i
-		_beat_t += delta * (clampf(velocity.length() / maxf(speed, 1.0), 0.6, 1.3) if anim == "walk" else 1.0)
+		_beat_t += delta * (clampf(velocity.length() / maxf(speed, 1.0), 0.6, 1.3) if anim == "walk" or anim == "walk_wind" else 1.0)
 		frame_i = beat_frame(anim, _beat_t, n, loop)
 		_beat_dip = 0.05 if frame_i != was and beat_of(anim) == "wind" else maxf(0.0, _beat_dip - delta)   # (one tick)
 	else:

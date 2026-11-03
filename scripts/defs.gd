@@ -976,7 +976,7 @@ const UNITS := {
 		"name": "Winder", "hp": 46, "armor": 1, "speed": 74, "cost": 60, "time": 12.0, "supply": 1,
 		"sight": 7, "range": 20, "damage": 7, "cooldown": 1.0, "radius": 12, "from": "clocktower",
 		"faction": "clockwork", "worker": true, "repairs": true,
-		"about": "The one worker: his job is WINDING. He winds a Cog Press for cogs (send him onto it: up to its crew), builds (he fetches a crate from the nearest Clocktower and carries it to the site, where it unfolds and builds itself; killed or sent elsewhere on the way, he drops it for another Winder to carry on) and repairs. He can fight a little.",
+		"about": "The one worker: his job is WINDING. He winds a Cog Press for cogs (send him onto it: up to its crew), builds (he fetches a crate from the nearest Clocktower and carries it to the site, where it unfolds and builds itself; killed or sent elsewhere on the way, he drops it for another Winder to carry on) and repairs. He can fight a little. On the march he winds the walking soldiers too: he walks just behind one, cranking, till it is full, then on to the next (REPAIR on a walking soldier, or by himself while he moves with the army).",
 	},
 	# the new-style army's tier 1 (gear mode; docs/clockwork_ground_up.md): plain melee. 0.14.49 (the owner: a bit faster, less
 	# health, docs/clock_soldier_shield.md): 90 hp -> 75, speed 62 -> 68 (guesses, measured there); its SHIELD FORWARD
