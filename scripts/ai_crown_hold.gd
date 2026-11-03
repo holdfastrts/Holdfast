@@ -394,7 +394,7 @@ func hold_top(army: Array, spots: Array) -> bool:
 	var mine := 0.0
 	for u in home:
 		mine += ai._unit_value(u)
-	if mine >= foe * BEAT:
+	if mine >= foe * _beat():
 		return false
 	if game.clock - _hold_said > 30.0:
 		_hold_said = game.clock
@@ -408,6 +408,12 @@ func hold_top(army: Array, spots: Array) -> bool:
 		if u.order == "idle" and u.position.distance_to(front) > 160.0 and _spot_ok(front):
 			u.cmd_move(front, true)
 	return true
+
+
+## BEAT, or what the computer's own plan says (AICrown.hold_beat: against a melee swarm in the open the value count flatters
+## a musket line, so it goes down only with a bigger edge).
+func _beat() -> float:
+	return float(ai.hold_beat()) if ai.has_method("hold_beat") else BEAT
 
 
 ## The enemy force at these spots: the armed enemies in sight (or seen a moment ago) within FORCE_R of any of them, each
@@ -440,7 +446,7 @@ func refuge(w: Unit, centre: Vector2) -> Vector2:
 	if not active() or _bc == Vector2.INF or on_main(w.position):
 		return Vector2.INF
 	var foe: float = force_at([centre])
-	if home_value() >= foe * BEAT:
+	if home_value() >= foe * _beat():
 		return Vector2.INF
 	var p: Vector2 = (_bc + _in * (GUN_BACK + 2.0)) * float(Defs.TILE)
 	return p if _spot_ok(p) else Vector2.INF

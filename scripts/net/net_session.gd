@@ -1234,7 +1234,7 @@ func _on_notice(d: Dictionary) -> void:
 		if team >= 0 and not game.over and not lost_peers.has(int(d.get("id", -1))):
 			lost_peers[int(d.get("id", -1))] = true
 			if not game.eliminated[team]:
-				var ai: AI = AIBroodNew.new() if game.faction_of(team) == "brood" else AI.new()     # (their side is not left standing still; the Brood has its own computer, scripts/ai_brood_new.gd)
+				var ai: AI = AIBroodNew.new() if game.faction_of(team) == "brood" else (AICrown.new() if game.faction_of(team) == "crown" else AI.new())     # (their side is not left standing still; the Brood has its own computer, scripts/ai_brood_new.gd)
 				ai.game = game
 				ai.team = team
 				ai.difficulty = 1
