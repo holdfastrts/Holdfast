@@ -2844,14 +2844,18 @@ func _raid() -> void:
 	c /= _raiders.size()
 	hp /= _raiders.size()
 	var home: Vector2 = _halls()[0].center() if not _halls().is_empty() else c
-	# badly hurt, or an army closing in: ride home
+	# badly hurt, or an army closing in that can catch it: ride home. A defender much slower than the riders (a Tyrant
+	# Sire, the Mother, a Rootmaw on foot) is KITED instead: the party stays and works round it (RAID MICRO, owner
+	# 2026-11-03, docs/raid_micro.md); behind in economy it stays longer (AIHarass.pressing)
+	var hz_ := hz()
+	var press := hz_.pressing()
 	var danger := 0
 	for o in game.units_near(c, 260.0):
-		if game.hostile(o.team, team) and not o.dead and not o.is_worker() and o.kind != "grub":
+		if game.hostile(o.team, team) and not o.dead and AIHarass.is_defender(o) and not AIHarass.is_slow(o, _raiders):
 			danger += int(o.d["supply"])
-	var hz_ := hz()
-	if hp < 0.45 or danger >= 6 or hz_.outmatched(_raiders, hz_.defenders_near(c, _raiders)):
-		_raid_home = 12.0          # (a Sire, the Mother on her feet, or more than the party: it pulls back, then comes again)
+	var foes_ := hz_.defenders_near(c, _raiders)
+	if hp < (0.35 if press else 0.45) or danger >= (9 if press else 6) or hz_.outmatched(_raiders, foes_):
+		_raid_home = 12.0          # (fast units in number, shooters, more than the party: it pulls back, then comes again)
 	if _raid_home > 0.0:
 		_raid_home -= 1.0
 		for u in _raiders:
@@ -2863,7 +2867,10 @@ func _raid() -> void:
 	best = _raid_wall(best)
 	if best == Vector2.INF:
 		return
+	var slows := hz_.slow_of(_raiders, foes_)
 	for u in _raiders:
+		if not slows.is_empty() and hz_.raid_step(u, slows, best):
+			continue                 # (a slow defender near: kited, the grubs it can't reach ridden down, pistol and all)
 		_hunt(u, best)
 
 

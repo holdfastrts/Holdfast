@@ -158,6 +158,7 @@ func _tick_ai(delta: float) -> void:
 	_nb_maw_guard(q)
 	_nb_rootmaws(q)
 	_nb_turtles(q)
+	_nb_grubs_vs_riders(q)
 	if _eco():
 		_nb_alarm(q)
 	_nb_father(q)
@@ -195,6 +196,8 @@ var seen_air := 0               # the most enemy flyers seen at once lately
 var _air_t := -999.0
 var seen_army := 0.0            # the biggest enemy army value seen lately (fades)
 var seen_wall := false
+var riders_n := 0               # the most fast enemy riders (Horsemen...) seen at once lately (is_rider)
+var riders_t := -999.0          # when riders were last seen
 var rush_seen := ""             # rush evidence: what was seen ("" = none)
 var rush_t := -1.0
 var _foe_blds := {}             # enemy building -> its centre (seen standing)
@@ -236,6 +239,7 @@ func _nb_observe(q: Unit) -> void:
 	var fst: Vector2 = (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE if foe >= 0 else Vector2.INF
 	var past := 0.0                 # (value seen past the foot of its ramp: an army that has left its main)
 	var past_at := Vector2.ZERO
+	var riders_now := 0
 	var out_r := 22.0 * Defs.TILE
 	if _foot != Vector2.INF and fst != Vector2.INF:
 		out_r = minf(out_r, _foot.distance_to(fst) + 3.0 * Defs.TILE)
@@ -258,9 +262,14 @@ func _nb_observe(q: Unit) -> void:
 			air += 1
 		if float(u.d.get("speed", 0)) >= 95.0 and not u.is_air() and away:
 			fast += 1
+		if is_rider(u):
+			riders_now += 1
 		if u.position.distance_to(q.position) < 24.0 * Defs.TILE:
 			home += v
 	_foe_near_home = home
+	if riders_now > 0:
+		riders_n = maxi(riders_n if game.clock - riders_t < 180.0 else 0, riders_now)
+		riders_t = game.clock
 	seen_army = maxf(seen_army, val)
 	if air > 0:
 		seen_air = maxi(seen_air, air)
@@ -300,6 +309,19 @@ func _nb_observe(q: Unit) -> void:
 			rush_seen = why
 			rush_t = game.clock
 			say("rush evidence: %s: holds its army at home and lays warriors" % why)
+
+
+## A fast enemy rider on the ground (a Horseman, a Cuirassier: speed 95 or more, melee): the Tyrant Sire (64) never
+## catches one, so he is not sent after it (the owner's playtest 2026-11-03: "I was able to juke it"); grubs flee or gang
+## up, Raptors and Spitters answer it (docs/raid_micro.md D).
+static func is_rider(u: Unit) -> bool:
+	return not u.is_air() and u.has_attack() and not u.is_worker() and float(u.d.get("speed", 0)) >= 95.0 \
+		and float(u.d.get("range", 0)) < 100.0 and not u._k_nb
+
+
+## Riders seen in the last 3 minutes (2 or more: a rider raid or rush).
+func riders_about() -> bool:
+	return riders_n >= 2 and game.clock - riders_t < 180.0
 
 
 ## The enemy flyers it has seen lately (the most at once): what it knows, not every flyer on the map.
@@ -553,19 +575,7 @@ func _nb_alarm(q: Unit) -> void:
 			_pulled[u] = [m, game.clock]
 			u.auto_work = false
 			u.cmd_move(q.position)
-	for u in _pulled.keys():
-		if not is_instance_valid(u) or u.dead:
-			_pulled.erase(u)
-			continue
-		var m = _pulled[u][0]
-		var gone: bool = m == null or not is_instance_valid(m) or (m as Unit).dead or not _foe_near((m as Unit).position, 11.0 * Defs.TILE)
-		if (gone and game.clock - float(_pulled[u][1]) > 8.0) or game.clock - float(_pulled[u][1]) > 40.0:
-			_pulled.erase(u)
-			u.auto_work = true
-			if m != null and is_instance_valid(m) and not (m as Unit).dead and BroodNew.rooted(m):
-				u.cmd_gather(m)
-			else:
-				u.cmd_stop()
+	# (pulled grubs go back to work: _nb_pull_back)
 	# a turtle in front of the natural
 	if _front_t != null and (not is_instance_valid(_front_t) or _front_t.dead):
 		_front_t = null
@@ -600,6 +610,89 @@ func _nb_alarm(q: Unit) -> void:
 	_front_t = pick
 	BroodNew.uproot(pick, false)
 	say("ALARM: a Mound Turtle gets up to root in front of the natural")
+
+
+## GRUBS AGAINST RIDERS (the owner's playtest 2026-11-03, Glimmerdeep: his Horsemen killed "a gigantic number of
+## workers"; "they need to use the workers to fight"): grubs a rider is at (within 5 tiles) gang up on it when they win
+## on paper (_fight_wins, 5 grubs or more: a Horseman's sabre kills one in three blows while six bite him), else run to
+## the nearest rooted Mound Turtle, warriors or the Mother (no rooted creature bites, but warriors and the Mother do,
+## and a rider among them is in reach of more); they go back to work when the rider is gone (_pulled, _nb_alarm's rule
+## for every profile: _nb_pull_back).
+const RIDER_R := 5.0
+var _gang_t := -99.0
+
+
+func _nb_grubs_vs_riders(q: Unit) -> void:
+	_nb_pull_back(q)
+	var riders: Array = []
+	for u in game.units_near(q.position, (HOME_R + 14.0) * Defs.TILE):
+		if game.hostile(u.team, team) and not u.dead and not u.off_field and is_rider(u) and game.is_visible_to(team, u.position):
+			riders.append(u)
+	if riders.is_empty():
+		return
+	for r in riders:
+		var near: Array = []
+		for u in game.units_near(r.position, RIDER_R * Defs.TILE):
+			if u.team == team and not u.dead and u.kind == "grub" and u != _scout and u.order != "nb_morph":
+				near.append(u)
+		if near.is_empty():
+			continue
+		var foes: Array = riders.filter(func(o: Unit) -> bool: return o.position.distance_to(r.position) < RIDER_R * Defs.TILE)
+		if near.size() >= 5 and _fight_wins(near, foes, 0.6):
+			for u in near:
+				if u.order != "attack" or not (u.order_target is Unit and foes.has(u.order_target)):
+					u.auto_work = false
+					_pulled[u] = [u.home_mine, game.clock]
+					u.cmd_attack(r)
+			if game.clock - _gang_t > 10.0:
+				say("%d grubs gang up on a %s" % [near.size(), String(Defs.UNITS[r.kind]["name"])])
+			_gang_t = game.clock
+			continue
+		var safe := _nb_safe_for_grubs(q, r.position)
+		for u in near:
+			if _pulled.has(u) and u.order == "move":
+				continue
+			_pulled[u] = [u.home_mine, game.clock]
+			u.auto_work = false
+			u.cmd_move(safe)
+
+
+## Where a grub runs from a rider at `from`: the nearest of its warriors in a group, a rooted Mound Turtle or the Mother,
+## not past the rider.
+func _nb_safe_for_grubs(q: Unit, from: Vector2) -> Vector2:
+	var best: Vector2 = q.position
+	var bd := q.position.distance_to(from) * 1.3
+	for u in game.units_near(from, 16.0 * Defs.TILE):
+		if u.team != team or u.dead:
+			continue
+		var ok: bool = (u.kind == BroodNew.TURTLE and BroodNew.rooted(u)) or (not u.is_worker() and u.has_attack() and not u._k_nb)
+		if not ok:
+			continue
+		var d: float = u.position.distance_to(from)
+		if d < 3.0 * Defs.TILE:
+			continue          # (that one is where the rider is)
+		if d < bd:
+			bd = d
+			best = u.position
+	return best
+
+
+## Grubs pulled off their work (by the alarm or a rider) go back once nothing is near their Rootmaw (8 s), or after 40 s.
+func _nb_pull_back(_q: Unit) -> void:
+	for u in _pulled.keys():
+		if not is_instance_valid(u) or u.dead:
+			_pulled.erase(u)
+			continue
+		var m = _pulled[u][0]
+		var mp: Vector2 = (m as Unit).position if m != null and is_instance_valid(m) and not (m as Unit).dead else u.position
+		var gone: bool = not _foe_near(mp, 11.0 * Defs.TILE) and not _foe_near(u.position, 6.0 * Defs.TILE)
+		if (gone and game.clock - float(_pulled[u][1]) > 8.0) or game.clock - float(_pulled[u][1]) > 40.0:
+			_pulled.erase(u)
+			u.auto_work = true
+			if m != null and is_instance_valid(m) and not (m as Unit).dead and BroodNew.rooted(m):
+				u.cmd_gather(m)
+			else:
+				u.cmd_stop()
 
 
 ## In front of the natural: 6 tiles out from its turtle toward the enemy (or where the alarm saw the army), on a spot a
@@ -770,9 +863,9 @@ func _nb_morphs(q: Unit) -> void:
 		k = BroodNew.FATHER         # (the first Sire: the warriors' line)
 	elif _nb_short():
 		k = BroodNew.TURTLE
-		if _nb_far_have(q) < _nb_far_wanted():
-			var fp := _nb_far_spots(q)          # (a turtle on new ground gives the same supply: the expansion first)
-			if not fp.is_empty():
+		if _nb_far_have(q) < _nb_far_wanted() or (_food() >= 300 and _nb_far_have(q) < int(Defs.NB["expansion_max"]) + 2):
+			var fp := _nb_far_spots(q)          # (a turtle on new ground gives the same supply: forward first, when one is free and safe;
+			if not fp.is_empty():               # else one at home, _nb_supply_turtle_spot)
 				spot = fp[0]
 	elif _nb_next_father(q) != "":
 		k = _nb_next_father(q)
@@ -908,15 +1001,15 @@ func _foe_near(p: Vector2, r: float) -> bool:
 func _nb_next_father(q: Unit) -> String:
 	if BroodNew.count_of(game, team, BroodNew.FATHERS[0]) == 0 or BroodNew.count_of(game, team, BroodNew.MAW) < 2:
 		return ""
-	if _rush_on() and game.clock < 300.0:
-		return ""          # (warriors first while a rush is on)
+	if _rush_on() and game.clock < 300.0 and not riders_about():
+		return ""          # (warriors first while a rush is on; against riders the Venom Sire's Spitters are the answer)
 	var order: Array = [BroodNew.DILO, BroodNew.PTERO]
 	var storm_t := float(plan["storm"])
 	if seen_air >= 2:
 		order = [BroodNew.PTERO, BroodNew.DILO]
 		storm_t = 0.0
 	for f in order:
-		var at := float(plan["venom"]) if f == BroodNew.DILO else storm_t
+		var at := (0.0 if riders_about() else float(plan["venom"])) if f == BroodNew.DILO else storm_t
 		if game.clock < at or BroodNew.count_of(game, team, f) > 0:
 			continue
 		if BroodNew.stage(q) < BroodNew.father_stage(f) or BroodRoot.morph_problem(game, team, f) != "":
@@ -954,7 +1047,48 @@ func _nb_turtle_spot(q: Unit, me: Unit):
 					break
 			if ok:
 				return p
-	return null
+	return _nb_supply_turtle_spot(q, me)
+
+
+## SUPPLY TURTLES (the owner's playtest 2026-11-03, Thornwood Maze: the Economy Brood sat at 76/76 supply from 6:00 to
+## 12:00 with 11,000 food banked; the owner: "building turtles are necessary to expand the supply, not only to expand...
+## if they need more supply, they can build turtles in their base as well"). With no room left on the rings round the
+## Mother, a turtle roots ANYWHERE legal on or beside its own swamp: round the Mother farther out, round each rooted
+## turtle (home or new ground), packed closer (3 tiles from the others instead of 5), on any level ground it can walk
+## to; the spot nearest the Mother first, away from the enemy. docs/raid_micro.md F.
+func _nb_supply_turtle_spot(q: Unit, me: Unit):
+	var centres: Array = [q.position]
+	for t in _nb_mine(BroodNew.TURTLE):
+		if t != me and BroodNew.rooted(t):
+			centres.append(t.position)
+	var qreg := game.region_of(game.cell_of(q.position))
+	var best = null
+	var bs := INF
+	for cpos in centres:
+		for ring in [5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0]:
+			for i in 16:
+				var p: Vector2 = BroodRoot.snap(BroodNew.TURTLE, (cpos as Vector2) + Vector2.from_angle(TAU * i / 16.0 + ring * 0.37) * ring * Defs.TILE)
+				var c := game.cell_of(p)
+				if not _nb_on_map(p) or not game._walkable(c) or _spot_bad(p):
+					continue
+				var s := p.distance_to(q.position) + (0.0 if game.region_of(c) == qreg else 300.0)
+				if s >= bs:
+					continue
+				if _foe_near(p, 10.0 * Defs.TILE):
+					continue
+				if BroodRoot.place_problem(game, team, BroodNew.TURTLE, p, me, true) != "":
+					continue
+				var ok := true
+				for o in game.units:
+					if o != me and o.team == team and (o.kind == BroodNew.TURTLE or o.kind == BroodNew.MAW) and not o.dead and o.position.distance_to(p) < 3.0 * Defs.TILE:
+						ok = false
+						break
+				if ok:
+					bs = s
+					best = p
+		if best != null and cpos == q.position:
+			break          # (round the Mother found one: the nearest is good enough)
+	return best
 
 
 ## A father's nest: beside the Mother, three quarters of his reach out (clear of her nest and of the other fathers'),
@@ -1388,6 +1522,8 @@ func _nb_warrior(spend: int) -> String:
 	var venom_share := {"tyrant": 4, "mixed": 2, "venom": 1}.get(String(plan["mix"]), 2) as int      # (one Spitter for this many Raptors)
 	if _wall_foe() and String(plan["mix"]) != "tyrant":
 		venom_share = 1          # (round 3: Raptors alone die on a musket wall; Spitters reach the shooters)
+	if riders_about():
+		venom_share = 1          # (riders about: Spitters shoot what the Sire can't catch, docs/raid_micro.md D)
 	var sp_price: Array = price.call("spitter")
 	if dilo and spoils >= float(sp_price[1]) and spend >= int(sp_price[0]) and (not trex or spitters * venom_share < raptors + 2):
 		return "spitter"
@@ -1550,8 +1686,15 @@ func _nb_threat_big(q: Unit) -> bool:
 
 ## The Sires get up for an attack at the Mother only when it is big and her army can't hold it alone (a Sire away from
 ## his nest fathers nothing, and a dead one stops his line for minutes: round 3's games lost their Tyrant Sire this way).
+## Fast riders are left out: the Sire never catches one (docs/raid_micro.md D; the owner: "keep the Tyrant rooted").
 func _nb_sires_needed(q: Unit) -> bool:
-	return _nb_threat_big(q) and _foe_near_home > _value_of(_nb_army_units()) * 0.8
+	if not _nb_threat_big(q):
+		return false
+	var v := 0.0
+	for u in game.units_near(q.position, 14.0 * Defs.TILE):
+		if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_worker() and not is_rider(u):
+			v += float(Game.unit_value(u))
+	return v >= 120.0 and _foe_near_home > _value_of(_nb_army_units()) * 0.8
 
 
 ## The staging point: a little out from the Mother toward the enemy, on her ground (the army gathers there and goes
@@ -1597,6 +1740,44 @@ func _nb_wave_goal(q: Unit) -> Vector2:
 	return best
 
 
+## An enemy building (not a wall piece) standing within r of p that its creatures see or have seen.
+func _foe_bld_near(p: Vector2, r: float) -> bool:
+	for b in _foe_blds:
+		if is_instance_valid(b) and not b.dead and (_foe_blds[b] as Vector2).distance_to(p) < r and not (b.kind in ["wall", "gate", "palisade"]):
+			return true
+	return false
+
+
+## The wave's next target once its goal is razed: the WEAKEST enemy still in the game (fewest supply; in a free-for-all
+## the one it can finish), its nearest building the Brood has seen, else that enemy's centre, else its start. Vector2.INF:
+## no enemy left.
+func _nb_next_goal(q: Unit, from: Vector2) -> Vector2:
+	var foes: Array = game.enemies_of(team).filter(func(t: int) -> bool: return game.center_of_team(t) != Vector2.ZERO or game.supply_used(t) > 0)
+	if foes.is_empty():
+		return Vector2.INF
+	foes.sort_custom(func(a: int, b: int) -> bool: return game.supply_used(a) < game.supply_used(b))
+	for f in foes:
+		var best := Vector2.INF
+		var bd := INF
+		for b in _foe_blds:
+			if is_instance_valid(b) and not b.dead and b.team == f and not (b.kind in ["wall", "gate", "palisade", "tower"]):
+				var d: float = (_foe_blds[b] as Vector2).distance_to(from)
+				if d < bd and d > 5.0 * Defs.TILE:
+					bd = d
+					best = _foe_blds[b]
+		if best != Vector2.INF:
+			return best
+	for f in foes:
+		var c: Vector2 = game.center_of_team(f)
+		if c.distance_to(from) > 8.0 * Defs.TILE:
+			return c
+		if game.starts.size() > f:
+			var st := (Vector2(game.starts[f]) + Vector2(2.5, 2.0)) * Defs.TILE
+			if st.distance_to(from) > 8.0 * Defs.TILE:
+				return st
+	return Vector2.INF
+
+
 var _wave_v0 := 0.0              # the wave's value when it left
 var _wave_t0 := 0.0
 var _wave_kills0 := 0
@@ -1630,9 +1811,13 @@ func _nb_army(q: Unit) -> void:
 	_rally = home
 	# everyone gathers at the staging point and HOLDS there (no drifting off one by one by sight: _nb_hold_rest)
 	_nb_hold_rest(army)
-	if peaceful or game.clock < _retreat_until or game.clock < float(plan["wave_t"]) or _rush_on() or _alarm_on():
+	# BANKED AT THE CAP (the owner's playtests 2026-11-03: a Brood at its supply cap with thousands of food sat at home
+	# while the enemy outgrew it): its army goes, whatever the plan's wave time or size says (12 supply at least)
+	var capped0 := game.supply_used(team) >= mini(int(game.players[team]["cap"]), game.max_supply(team)) - 6
+	var banked := capped0 and _food() >= 1500 and sup >= 12
+	if peaceful or game.clock < _retreat_until or (not banked and (game.clock < float(plan["wave_t"]) or _rush_on() or _alarm_on())):
 		return
-	if sup < _attack_at:
+	if sup < _attack_at and not banked:
 		return
 	# not into a hopeless fight: its army's value against the biggest enemy army it has seen lately (fading; 0.6 of it is
 	# enough: round 3's best game, g20, traded 11,020 for 4,345 with Pack Hunt Raptors against a bigger Clockwork army), unless
@@ -1725,6 +1910,17 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		say("pulls back: %d of %d left, %d ahead (killed %d)" % [int(left), int(_wave_v0), int(ahead), gained])
 		_wave_end_nb(q, gained < _wave_v0 * 0.6)
 		return
+	# AT THE GOAL WITH NOTHING TO FIGHT (the owner's playtest 2026-11-03, Ashfall FFA: the Brood razed the Clockwork's
+	# main and its whole army, 160/160 supply and 4,000 food banked, stood on that spot for a minute while the
+	# Clockwork's new hall stood a few screens away): the wave goes on to the next target (_nb_next_goal)
+	if not _wave.is_empty() and mid.distance_to(_wave_target) < 7.0 * Defs.TILE and ahead <= 0.0 and not _foe_bld_near(mid, 9.0 * Defs.TILE):
+		var nxt := _nb_next_goal(q, mid)
+		if nxt != Vector2.INF and nxt.distance_to(_wave_target) > 5.0 * Defs.TILE:
+			_wave_target = nxt
+			say("its wave goes on to the next target (%d tiles on)" % int(mid.distance_to(nxt) / Defs.TILE))
+			for u in _wave:
+				if u.target == null or u.order == "idle" or u.order == "hold":
+					u.cmd_move(_wave_target, true)
 	for u in _wave:
 		if u.order == "idle" and u.target == null:
 			u.cmd_move(_wave_target, true)
@@ -1953,13 +2149,14 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 			squad.append(u)
 			if squad.size() >= 2 and _fight_wins(squad, group):
 				break
-		if not _fight_wins(squad, group) and at.distance_to(q.position) < 22.0 * Defs.TILE:
+		var all_riders := group.all(func(o) -> bool: return is_rider(o))
+		if not _fight_wins(squad, group) and at.distance_to(q.position) < 22.0 * Defs.TILE and not all_riders:
 			var f := BroodNew.father(game, team, BroodNew.FATHER)
 			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f):
 				squad.append(f)       # (the Tyrant Sire: 1,000 health, a terrible bite; he roots again after)
 	elif at_mother or _fight_wins(avail, group, 0.8):
 		squad = avail
-		if at_mother and _nb_sires_needed(q):
+		if at_mother and _nb_sires_needed(q) and not group.all(func(o) -> bool: return is_rider(o)):
 			for fk in BroodNew.FATHERS:
 				var f2 := BroodNew.father(game, team, fk)
 				if f2 and not BroodRoot.in_cocoon(f2) and not _wave.has(f2):
@@ -2056,6 +2253,7 @@ func _nb_maw_guard(q: Unit) -> void:
 			continue
 		var win := _fight_wins([m], foes, 0.8)
 		_maw_fight[m] = {"spot": m.position, "mode": "fight" if win else "back", "t": game.clock, "calm": 0.0}
+		m.nb["keep"] = m.position         # (its spot stays its own while it fights: BroodRoot.plan_of)
 		BroodNew.uproot(m, not win)
 		say("a Rootmaw under attack uproots to %s (%s)" % ["fight back" if win else "back off", _kinds_of(foes)])
 	for m in _maw_fight.keys():
@@ -2066,6 +2264,7 @@ func _nb_maw_guard(q: Unit) -> void:
 		if m.tesla_mode != "packed":
 			if BroodNew.rooted(m) and game.clock - float(s["t"]) > 3.0:
 				_maw_fight.erase(m)          # (rooted again: done)
+				m.nb.erase("keep")
 			continue
 		var spot: Vector2 = s["spot"]
 		var foes := _maw_foes(m)
@@ -2077,12 +2276,21 @@ func _nb_maw_guard(q: Unit) -> void:
 		if foes.is_empty() and not near_spot:
 			s["calm"] = float(s["calm"]) + dt
 			if float(s["calm"]) >= MAW_SAFE and m.order != "nb_root":
+				if BroodRoot.place_problem(game, team, BroodNew.MAW, spot, m, true) != "":
+					# (its spot really got taken (a creature stands on it, another's plan): let go; _nb_rootmaws finds it the
+					# nearest free spot on the next think, never the same one again)
+					_maw_fight.erase(m)
+					m.nb.erase("keep")
+					_nb_bad_spots[str(spot.round())] = game.clock + 60.0
+					say("a Rootmaw's spot was taken while it fought: it roots elsewhere")
+					continue
 				_root_last.erase(m.get_instance_id())
 				_root_to(m, spot)            # (back on its own spot: its ground kept what was left)
 		else:
 			s["calm"] = 0.0
 		if game.clock - float(s["t"]) > 90.0:
 			_maw_fight.erase(m)              # (its spot still taken: _nb_rootmaws finds it another)
+			m.nb.erase("keep")
 			continue
 		if foes.is_empty():
 			continue

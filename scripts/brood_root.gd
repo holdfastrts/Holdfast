@@ -280,6 +280,10 @@ static func plan_of(u: Unit) -> Array:
 		return [u.kind, u.order_point]
 	if u.order == "nb_morph" and u.nb.has("mk"):
 		return [String(u.nb["mk"]), u.order_point]
+	if u.nb.has("keep") and u.tesla_mode == "packed":
+		# (a Rootmaw the computer got up to fight keeps its spot: nothing else roots there while it is away; the owner's
+		# playtest 2026-11-03, docs/raid_micro.md C)
+		return [u.kind, u.nb["keep"]]
 	return []
 
 
