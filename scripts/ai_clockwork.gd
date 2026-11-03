@@ -73,18 +73,18 @@ const PLANS := {
 	# Clock Soldiers from both; the first `rush` go at the enemy's workers with `rush_winders` Winders to wind them; fresh
 	# ones follow in groups; once the rush is judged the build turns to the economy (no trickling).
 	"cs_rush": {
-		"workers0": 10, "rush": 5, "rush_winders": 2,
+		"workers0": 11, "rush": 6, "rush_winders": 2,
 		"steps": [
 			"6 movement_works",
-			"movement_works",
+			"7 cog_press",
 			"9 regulator",
-			"clock_soldier 5",
-			"rush",
+			"9 movement_works",
 			"workers 12",
-			"15 regulator",
+			"clock_soldier 6",
+			"rush",
+			"16 regulator",
 			"clock_soldier 6",
 			"rush_over",
-			"7 cog_press",
 			"workers 20",
 			"clocktower",
 			"mainspring",
@@ -98,10 +98,10 @@ const PLANS := {
 		"workers0": 14,
 		"steps": [
 			"7 cog_press",
-			"8 movement_works",
+			"8 ramp_regulator",
+			"works_back",
 			"turret ramp",
 			"workers 16",
-			"11 regulator",
 			"clocktower",
 			"turret ramp",
 			"clock_soldier 2",

@@ -81,6 +81,10 @@ func step(i: int, parts: Array) -> Dictionary:
 			return {"st": "done"} if (launched and verdict != "") else {"st": "wait"}
 		"turret":
 			return _turret_step(i, String(parts[1]) if parts.size() > 1 else "ramp")
+		"ramp_regulator":
+			return _relay_step(i)
+		"works_back":
+			return _works_back_step(i)
 	return {}
 
 
@@ -104,6 +108,13 @@ func _value(list: Array) -> float:
 	var v := 0.0
 	for u in list:
 		v += ai._unit_value(u)
+	return v
+
+
+func _value_cost(list: Array) -> float:
+	var v := 0.0
+	for u in list:
+		v += _cost(u)
 	return v
 
 
@@ -224,6 +235,11 @@ func _march() -> void:
 			continue
 		if u.order == "idle" or u.order_point.distance_to(prey) > 120.0:
 			u.cmd_move(prey + Vector2(randf_range(-50, 50), randf_range(-50, 50)), true)
+	# (a force on the way it cannot beat: the rush is over before it starts, everyone home whole)
+	var met := _foe_near(c, 300.0)
+	if met > _value(party) * FLEE_K + 60.0:
+		_fail("it met a stronger force on the way (%d against %d)" % [int(met), int(_value(party))])
+		return
 	# in the enemy's main (or in a fight near it): the fight begins
 	var near_home := c.distance_to(prey) < 14.0 * Defs.TILE
 	if near_home or _foe_near(c, 260.0) > 0.0 and c.distance_to(prey) < 22.0 * Defs.TILE:
@@ -238,28 +254,98 @@ func _march() -> void:
 func _fight() -> void:
 	var T := Defs.TILE
 	var c := _centre(party)
+	_wall_check(c)
 	for u in party:
 		_hunt(u, T)
 	if game.clock - since > 3.0:
 		_verdict(c)
 
 
+## THE WALL (what the films showed: the Hard Crown walls its ramp by 0:40 and mends the piece with two or three
+## Labourers, 20+ hp a second each, more than five Clock Soldiers take off it). Once in front of the enemy's base: if the
+## way in is shut (a wall or a shut gate) and it is held (menders at it, or guns behind it worth more than WALL_HELD of
+## the party), the party does not throw itself at it: it hunts what is outside the wall (workers out there, an expansion)
+## for a little while, then calls the rush FAILED and walks home whole. A thin wall (no mender, little behind it) is broken.
+const WALL_HELD := 0.6
+const WALL_LOOK := 20.0         # s it hunts outside a held wall before it gives up
+var walled := false             # the way in is shut
+var held := false               # ... and held
+var held_t := -1.0
+var _wall_t := -99.0
+
+
+func _wall_check(c: Vector2) -> void:
+	if verdict != "" or game.clock - _wall_t < 2.0 or party.is_empty():
+		return
+	_wall_t = game.clock
+	var lead: Unit = party[0]
+	for u in party:
+		if u.position.distance_to(prey) < lead.position.distance_to(prey):
+			lead = u
+	walled = not lead._walk_reaches_point(prey)
+	if not walled:
+		held = false
+		return
+	var menders := 0
+	var pieces := 0
+	for b in game.buildings:
+		if b.dead or not game.hostile(b.team, team) or b.center().distance_to(c) > 12.0 * Defs.TILE or not game.is_visible_to(team, b.center()):
+			continue
+		pieces += 1
+	for o in game.units_near(c, 12.0 * Defs.TILE):
+		if not o.dead and o.is_worker() and game.hostile(o.team, team) and o.order == "repair" and o.order_target is Building and game.is_visible_to(team, o.position):
+			menders += 1
+	var defv := _foe_near(c, 360.0)
+	var was := held
+	# (held once: it stays held until the wall is left unmended and nearly unguarded for a while, no flicker)
+	var hold_now := menders >= 2 or defv > _value(party) * WALL_HELD
+	if hold_now:
+		_held_seen = game.clock
+	held = hold_now or (was and game.clock - _held_seen < 8.0)
+	if held and not was:
+		held_t = game.clock
+		say("rush: the way in is walled and held (%d menders, %d value of guns seen): it hunts outside the wall a little, then home" % [menders, int(defv)])
+	if held and game.clock - held_t > WALL_LOOK and (game.clock - _last_kill_t > 10.0 or game.clock - held_t > 45.0):
+		_fail("the way in is walled and held (%d menders, %d value of guns behind it)" % [menders, int(defv)])
+
+
+var _held_seen := -99.0
+
+
+## Enemy workers our side sees within 14 tiles that the party can walk to (outside the wall).
+func _outside_prey(c: Vector2) -> Array:
+	if party.is_empty():
+		return []
+	var out: Array = []
+	for o in game.units_near(c, 14.0 * Defs.TILE):
+		if o.dead or o.off_field or not o.is_worker() or not game.hostile(o.team, team) or not game.is_visible_to(team, o.position):
+			continue
+		if (party[0] as Unit)._walk_reaches_point(o.position):
+			out.append(o)
+		if out.size() >= 3:
+			break
+	return out
+
+
 ## One soldier: a mender at a piece in reach first, then a worker seen nearby (if no soldier is on him), else the fight
-## goes on, else on to the prey's ground on attack-move (a wall in the way is broken by the unit's own wall rule).
+## goes on, else on to the prey's ground on attack-move (a wall in the way is broken by the unit's own wall rule). Before a
+## held wall: only the workers outside it, else it waits out of the guns' reach.
 func _hunt(u: Unit, T: float) -> void:
 	var tgt = u.target if u.target != null and is_instance_valid(u.target) and not u.target.dead else null
 	var fighting: bool = tgt is Unit and not (tgt as Unit).is_worker()
 	var best: Unit = null
 	var bs := INF
+	var c := _centre(party)
 	for o in game.units_near(u.position, HUNT_R * T):
 		if o.dead or o.off_field or not o.is_worker() or not game.hostile(o.team, team) or not u.can_hit(o) or not game.is_visible_to(team, o.position):
 			continue
+		if o.position.distance_to(c) > HUNT_R * T * 1.2:
+			continue          # (the party keeps together: no chasing a lone scout across the map)
+		if walled and not u._walk_reaches_point(o.position):
+			continue
 		var d: float = o.position.distance_to(u.position)
-		var mending: bool = o.order == "repair" and o.order_target is Building
-		if mending and d > MENDER_R * T:
-			mending = false
+		var mending: bool = o.order == "repair" and o.order_target is Building and d < MENDER_R * T
 		var s: float = d - (1000.0 if mending else 0.0)
-		# (a man already on a worker: the next takes another, unless he is right by)
 		if s < bs:
 			bs = s
 			best = o
@@ -270,6 +356,12 @@ func _hunt(u: Unit, T: float) -> void:
 			u.cmd_attack(best)
 		return
 	if fighting:
+		return
+	if held:
+		# (before a held wall: back out of the muskets' reach, toward home, and wait for the verdict)
+		var back := c + (_home() - c).normalized() * 160.0
+		if u.position.distance_to(back) > 80.0 and (u.order != "move" or u.order_point.distance_to(back) > 60.0):
+			u.cmd_move(back + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
 		return
 	if u.order == "idle" or (u.order == "move" and u.order_point.distance_to(prey) > 160.0) or (u.order == "attack" and u.order_target is Unit and (u.order_target as Unit).is_worker() and (u.order_target as Unit).dead):
 		u.cmd_move(prey + Vector2(randf_range(-60, 60), randf_range(-60, 60)), true)
@@ -285,8 +377,11 @@ func _verdict(c: Vector2) -> void:
 	var mine := _value(party)
 	var defv := _foe_near(c, 320.0)
 	var t := game.clock - t_arrive
+	var lost := maxf(0.0, value0 + joined - _value_cost(party) - _value_cost(reinf))
 	if verdict == "":
-		if party.size() <= PARTY_MIN and gained < wv * 0.8:
+		if lost >= wv * 0.35 and gained < lost * 0.5:
+			_fail("losing the trade (%d lost for %d killed)" % [int(lost), int(gained)])
+		elif party.size() <= PARTY_MIN and gained < wv * 0.8:
 			_fail("beaten back (%d of %d left; %d value killed for %d sent)" % [party.size(), n0, int(gained), int(wv)])
 		elif defv >= 100.0 and defv > mine * FLEE_K and gained < wv * 0.6 and t > 8.0:
 			_fail("the defence is worth more (%d against %d; %d killed)" % [int(defv), int(mine), int(gained)])
@@ -403,7 +498,7 @@ func _crank_tick() -> void:
 	need.sort_custom(func(a: Unit, b: Unit) -> bool: return a.wind + a.hp / a.max_hp < b.wind + b.hp / b.max_hp)
 	for w in cranks:
 		if _foe_near(w.position, 140.0) > 0.0:
-			var away := w.position + dir * 160.0
+			var away: Vector2 = w.position + dir * 160.0
 			if w.order != "move" or w.order_point.distance_to(away) > 60.0:
 				w.cmd_move(away)
 			continue
@@ -432,7 +527,12 @@ func _turret_step(i: int, where: String) -> Dictionary:
 		return ai._wait_req()
 	if ai._free() < cost:
 		return {"st": "money", "cost": cost, "t": 0.0}
+	if _turret_target(where) == Vector2.INF:
+		return ai._wait_req()          # (the new Clocktower is not up yet)
 	var spot := turret_spot(where)
+	if OS.get_cmdline_user_args().has("cwdebug"):
+		var hh: Array = ai._halls()
+		print("DBG turret %s target %s ramp_top %s hall %s spot %s" % [where, str(_turret_target(where)), str(game.ramp_top(hh[0]) * Defs.TILE) if not hh.is_empty() else "-", str((hh[0] as Building).center()) if not hh.is_empty() else "-", str(Vector2(spot) * Defs.TILE)])
 	if spot.x < 0:
 		say("turret %s: no spot found, skipped" % where)
 		return {"st": "done"}
@@ -445,6 +545,30 @@ func _turret_step(i: int, where: String) -> Dictionary:
 	var tgt := _turret_target(where)
 	say("lays a Ratchet Turret (%s) at %d supply, %d px from the choke (step %d)" % [where, game.supply_used(team),
 		int((Vector2(spot) * Defs.TILE + Vector2(Defs.TILE, Defs.TILE)).distance_to(tgt)) if tgt != Vector2.INF else -1, i + 1])
+	return {"st": "done"}
+
+
+## "ramp_regulator": the plan's Regulator (supply, needed anyway) laid toward the top of the main's ramp, meshing with the
+## gear building nearest it: a stepping stone that carries the gear field out to the choke, so the turrets that mesh with it
+## stand where they cover the ramp (the first films: the field ended 9 tiles short of it, the turret did not reach).
+func _relay_step(i: int) -> Dictionary:
+	var k: String = ai._sup()
+	if ai._placed.has(i):
+		return {"st": "done"}
+	var cost := game.build_price(team, k)
+	if ai._free() < cost:
+		return {"st": "money", "cost": cost, "t": 0.0}
+	var tgt := _turret_target("ramp")
+	var spot := _gear_spot(k, tgt) if tgt != Vector2.INF else Vector2i(-1, -1)
+	if spot.x < 0:
+		spot = ai._spot(k)
+	if spot.x < 0:
+		return {"st": "wait", "cost": cost, "t": 0.0}
+	var b: Building = ai._lay(k, spot, false)
+	if b == null:
+		return {"st": "wait", "cost": cost, "t": 0.0}
+	ai._placed[i] = b
+	say("lays a Regulator toward the ramp (the gear field's stepping stone) at %d supply (step %d)" % [game.supply_used(team), i + 1])
 	return {"st": "done"}
 
 
@@ -461,10 +585,10 @@ func _turret_target(where: String) -> Vector2:
 		for h in halls:
 			if (h as Building).center().distance_to(home) < main.center().distance_to(home):
 				main = h
-	var f := ai._foe()
+	var f: int = ai._foe()
 	var enemy := (Vector2(game.starts[f]) + Vector2(2.5, 2.0)) * T if f >= 0 else main.center()
 	if where == "hall2":
-		var all: Array = game.halls_of(team, false)
+		var all: Array = game.halls_of(team, true)
 		var newest: Building = null
 		for h in all:
 			if h != main and not h.dead:
@@ -479,33 +603,76 @@ func _turret_target(where: String) -> Vector2:
 	if rt == Vector2.INF:
 		return main.center() + (enemy - main.center()).normalized() * 7.0 * T
 	var top := rt * T
-	var into := (main.center() - top).normalized()
-	var n := turrets_laid.filter(func(e: Array) -> bool: return String(e[0]) == "ramp").size()
-	if n == 0:
-		return top + into * 2.0 * T
-	# (the next one on the other side of the ramp's top: the circles (4 tiles) may not overlap)
-	var perp := Vector2(-into.y, into.x)
-	var first: Building = (turrets_laid.filter(func(e: Array) -> bool: return String(e[0]) == "ramp")[0])[1]
-	var side := 1.0
-	if is_instance_valid(first) and (first.center() - top).dot(perp) > 0.0:
-		side = -1.0
-	return top + into * 2.0 * T + perp * side * 4.5 * T
+	# (one tile in from the ramp's top: every turret goes as near it as the gear field and the 4-tile circles allow; the
+	# second one is pushed aside by the first one's circle)
+	return top + (main.center() - top).normalized() * 1.0 * T
+
+
+## Our first Clocktower (the main).
+func _main_hall() -> Building:
+	var halls: Array = ai._halls()
+	if halls.is_empty():
+		return null
+	var main: Building = halls[0]
+	if game.starts.size() > team:
+		var home := Vector2(game.starts[team]) * Defs.TILE
+		for h in halls:
+			if (h as Building).center().distance_to(home) < main.center().distance_to(home):
+				main = h
+	return main
+
+
+## "works_back": the Light Works on the far side of the main Clocktower from its ramp (room left by the ramp for the
+## Regulator and the turrets: the first films had the Works' ring right over the ramp's top, and no turret could stand
+## near it), with room kept for a Mainspring by it.
+func _works_back_step(i: int) -> Dictionary:
+	var k: String = ai._works()
+	if ai._placed.has(i):
+		return {"st": "done"}
+	var cost := game.build_price(team, k)
+	if ai._free() < cost:
+		return {"st": "money", "cost": cost, "t": 0.0}
+	var main := _main_hall()
+	if main == null:
+		return ai._wait_req()
+	var T := float(Defs.TILE)
+	var rt := game.ramp_top(main)
+	var spot := Vector2i(-1, -1)
+	if rt != Vector2.INF:
+		var away := main.center() + (main.center() - rt * T).normalized() * 7.0 * T
+		game.set_gear_pick(team, k, false)
+		spot = GearEcon.room_spot(game, team, k, [main], ["mainspring"], away, true, 14)
+	if spot.x < 0:
+		spot = ai._spot(k)
+	if spot.x < 0:
+		return {"st": "wait", "cost": cost, "t": 0.0}
+	var b: Building = ai._lay(k, spot, false)
+	if b == null:
+		return {"st": "wait", "cost": cost, "t": 0.0}
+	ai._placed[i] = b
+	say("lays a Light Works behind the Clocktower, away from the ramp, at %d supply (step %d)" % [game.supply_used(team), i + 1])
+	return {"st": "done"}
 
 
 ## The best cell for a turret: meshing with one of our built gear buildings, as near the target as the field allows.
 func turret_spot(where: String) -> Vector2i:
-	var k := Defs.CW_TURRET
 	var tgt := _turret_target(where)
 	if tgt == Vector2.INF:
 		return Vector2i(-1, -1)
+	return _gear_spot(Defs.CW_TURRET, tgt)
+
+
+## A cell for a building of `k` meshing with one of our built gear buildings, as near `tgt` as the field allows.
+func _gear_spot(k: String, tgt: Vector2) -> Vector2i:
+	var lv := game.level_of(tgt)
 	var gears: Array = game.buildings.filter(func(b: Building) -> bool: return b.team == team and not b.dead and b.built \
-		and GearNet.has_gear(b))
+		and GearNet.has_gear(b) and game.level_of(b.center()) == lv)
 	gears.sort_custom(func(a: Building, b: Building) -> bool: return a.center().distance_to(tgt) < b.center().distance_to(tgt))
 	var best := Vector2i(-1, -1)
 	var bd := INF
 	game.set_gear_pick(team, k, false)
 	var size: Vector2i = Defs.BUILDINGS[k]["size"]
-	for g in gears.slice(0, 5):
+	for g in gears.slice(0, 8):
 		var c := GearEcon.room_spot(game, team, k, [g], [], tgt, true, 14)
 		if c.x < 0:
 			continue
