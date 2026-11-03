@@ -1,0 +1,686 @@
+[00:00] P2 Brood plays the Brood (Economy)
+Working Title for RTS v0.26.2 match log  (2026-11-01 09:49:05)
+Map: Mirewood, 2 players  (seed 2900987779)
+  YOU Crown  side 1  colour Red
+  P2 Brood  side 2  colour Orange  AI: HARD, ECONOMY
+Device: phone/tablet
+
+[00:00] P2 Brood's Brood: a grub goes to root a Mound Turtle on new ground, 22 tiles out
+[00:12] P2 Brood got its first Grub
+[00:22] YOU Crown got its first Labourer
+[00:27] YOU Crown finished a Cottage
+[00:30] YOU Crown laid 1 piece of Gate
+[00:33] P2 Brood got its first Mound Turtle
+[00:47] P2 Brood got its first Rootmaw
+--- minute 1 ---
+  Performance: 90 fps avg, 1% low 39 fps, worst frame 52 ms, 4 frames over 33 ms, 1 over 50 ms, 0.3 physics steps a frame | units 20, buildings 5, bodies 0, corpses 0, effects 1, smoke puffs 0, nodes 359, objects 2928
+    busy with: hud draw 83.7 ms/s (63 calls/s), units 54.0 ms/s (480 calls/s), hud/selection 38.5 ms/s (19 calls/s), hud 28.7 ms/s (93 calls/s), hud/rest 21.9 ms/s (9 calls/s), game 18.1 ms/s (30 calls/s), hud/look 15.3 ms/s (20 calls/s), buildings 10.0 ms/s (106 calls/s), overlay draw 9.5 ms/s (9 calls/s), hud/top 8.6 ms/s (4 calls/s), replay/record 7.5 ms/s (4 calls/s), ai 5.2 ms/s (30 calls/s), hud/card build 4.5 ms/s (5 calls/s), game/fog 4.5 ms/s (4 calls/s), game/unit grid 4.4 ms/s (30 calls/s), hud/groups 4.3 ms/s (1 calls/s), game/fog/units 3.6 ms/s (4 calls/s), hud/map view 3.5 ms/s (16 calls/s), hud/hover 3.5 ms/s (11 calls/s), hud/command card 3.1 ms/s (1 calls/s), hud/minimap 2.9 ms/s (6 calls/s), building draw 1.3 ms/s (16 calls/s), game/paths 1.1 ms/s (30 calls/s), effects 0.6 ms/s (56 calls/s), powder smoke 0.5 ms/s (90 calls/s), autosave 0.4 ms/s (0 calls/s), hud/glow 0.3 ms/s (3 calls/s), game/path smoothing 0.3 ms/s (3 calls/s), game/fog/shown 0.3 ms/s (4 calls/s), hud/tip check 0.3 ms/s (20 calls/s), game/fog/picture 0.2 ms/s (4 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), replay/write 0.2 ms/s (0 calls/s), unit draw 0.2 ms/s (1 calls/s), game/pathfinder 0.1 ms/s (3 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), hud/chat 0.1 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 380 gold total, has 230 + 0 powder | supply 8/18 | workers 7 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | APM 51 (this minute 51 actions) | soil 96% | saltpetre 100% | efficiency 60%
+  P2 Brood: earned 246 biomass total, has 21 + 0 spoils | supply 9/28 | workers 8 | halls 0 | army (250 value): 1 Brood Mother, 2 Rootmaw, 1 Mound Turtle, 1 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 7 eggs | Rootmaws rooted 2 (ground 92% 98%) | Mound Turtles rooted 1
+[01:10] P2 Brood's Brood: sends a Grub to watch the foot of the enemy's ramp
+[01:15] YOU Crown finished a Farm
+[01:48] YOU Crown finished a Powder Mill
+--- minute 2 ---
+  Performance: 90 fps avg, 1% low 38 fps, worst frame 76 ms, 4 frames over 33 ms, 1 over 50 ms, 0.3 physics steps a frame | units 28, buildings 6, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 393, objects 3005
+    busy with: units 80.7 ms/s (735 calls/s), hud draw 57.0 ms/s (47 calls/s), hud/selection 38.6 ms/s (19 calls/s), hud 26.3 ms/s (90 calls/s), game 20.1 ms/s (30 calls/s), hud/look 14.8 ms/s (19 calls/s), overlay draw 13.2 ms/s (10 calls/s), buildings 12.2 ms/s (172 calls/s), replay/record 9.1 ms/s (4 calls/s), hud/top 6.8 ms/s (3 calls/s), game/fog 6.3 ms/s (4 calls/s), game/unit grid 5.3 ms/s (30 calls/s), ai 5.1 ms/s (30 calls/s), game/fog/units 5.0 ms/s (4 calls/s), hud/card build 3.9 ms/s (5 calls/s), hud/groups 3.5 ms/s (1 calls/s), hud/minimap 2.8 ms/s (6 calls/s), hud/command card 2.4 ms/s (2 calls/s), hud/hover 1.8 ms/s (7 calls/s), hud/map view 1.4 ms/s (7 calls/s), building draw 1.1 ms/s (20 calls/s), game/paths 0.9 ms/s (30 calls/s), hud/glow 0.6 ms/s (4 calls/s), powder smoke 0.5 ms/s (90 calls/s), autosave 0.5 ms/s (0 calls/s), effects 0.4 ms/s (46 calls/s), hud/rest 0.4 ms/s (2 calls/s), unit draw 0.4 ms/s (1 calls/s), game/fog/shown 0.4 ms/s (4 calls/s), game/path smoothing 0.3 ms/s (4 calls/s), game/fog/picture 0.3 ms/s (4 calls/s), hud/tip check 0.2 ms/s (19 calls/s), game/fog/copy 0.2 ms/s (4 calls/s), replay/write 0.2 ms/s (0 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), game/pathfinder 0.2 ms/s (4 calls/s), hud/chat 0.1 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 760 gold total, has 410 + 0 powder | supply 10/18 | workers 10 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | APM 36 (this minute 36 actions) | soil 92% | saltpetre 100% | efficiency 34%
+  P2 Brood: earned 700 biomass total, has 150 + 0 spoils | supply 13/28 | workers 12 | halls 0 | army (325 value): 1 Brood Mother, 3 Rootmaw, 1 Mound Turtle, 1 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 84% 88%) | Mound Turtles rooted 1
+[02:05] P2 Brood's Brood: a grub goes to grow the Tyrant Lure
+[02:36] P2 Brood got its first Tyrant Sire
+--- minute 3 ---
+  Performance: 88 fps avg, 1% low 31 fps, worst frame 131 ms, 9 frames over 33 ms, 3 over 50 ms, 0.3 physics steps a frame | units 40, buildings 8, bodies 0, corpses 0, effects 1, smoke puffs 0, nodes 436, objects 3089
+    busy with: units 106.3 ms/s (1012 calls/s), hud draw 52.5 ms/s (54 calls/s), hud/selection 35.5 ms/s (19 calls/s), hud 24.8 ms/s (88 calls/s), game 22.8 ms/s (30 calls/s), buildings 14.4 ms/s (213 calls/s), overlay draw 14.1 ms/s (9 calls/s), hud/look 13.6 ms/s (19 calls/s), replay/record 10.8 ms/s (4 calls/s), game/fog 7.4 ms/s (4 calls/s), game/unit grid 6.4 ms/s (30 calls/s), game/fog/units 6.1 ms/s (4 calls/s), hud/top 6.0 ms/s (3 calls/s), ai 5.8 ms/s (30 calls/s), hud/card build 3.2 ms/s (4 calls/s), hud/minimap 2.8 ms/s (6 calls/s), hud/groups 2.7 ms/s (1 calls/s), hud/hover 2.5 ms/s (10 calls/s), hud/map view 2.2 ms/s (11 calls/s), building draw 1.8 ms/s (36 calls/s), hud/command card 1.5 ms/s (1 calls/s), game/paths 1.5 ms/s (30 calls/s), hud/glow 1.3 ms/s (9 calls/s), autosave 0.6 ms/s (0 calls/s), unit draw 0.5 ms/s (3 calls/s), game/path smoothing 0.5 ms/s (5 calls/s), powder smoke 0.5 ms/s (88 calls/s), effects 0.5 ms/s (56 calls/s), game/fog/shown 0.4 ms/s (4 calls/s), game/fog/picture 0.3 ms/s (4 calls/s), replay/write 0.3 ms/s (0 calls/s), game/fog/copy 0.3 ms/s (4 calls/s), hud/tip check 0.2 ms/s (19 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), game/pathfinder 0.2 ms/s (5 calls/s), hud/rest 0.1 ms/s (1 calls/s), hud/chat 0.1 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 1140 gold total, has 390 + 0 powder | supply 12/18 | workers 12 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | APM 36 (this minute 36 actions) | soil 87% | saltpetre 100% | efficiency 33%
+  P2 Brood: earned 1333 biomass total, has 33 + 0 spoils | supply 25/28 | workers 18 | halls 0 | army (575 value): 1 Brood Mother, 3 Rootmaw, 2 Mound Turtle, 1 Tyrant Sire, 3 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 8 eggs | Rootmaws rooted 3 (ground 76% 78% 85%) | Mound Turtles rooted 1
+[03:00] YOU Crown finished a Barracks
+[03:10] YOU Crown finished a Barracks
+[03:28] YOU Crown could not place a Horse Breeder: Blocked. (had 220 gold)
+[03:28] P2 Brood got its first Raptors
+[03:44] P2 Brood's Brood: a grub goes to root a Mound Turtle on new ground, 28 tiles out
+[03:58] YOU Crown finished a Horse Breeder
+--- minute 4 ---
+  Performance: 89 fps avg, 1% low 33 fps, worst frame 52 ms, 10 frames over 33 ms, 1 over 50 ms, 0.3 physics steps a frame | units 65, buildings 10, bodies 0, corpses 0, effects 1, smoke puffs 0, nodes 494, objects 3248
+    busy with: units 135.7 ms/s (1526 calls/s), hud draw 59.8 ms/s (60 calls/s), hud/selection 34.9 ms/s (20 calls/s), game 27.7 ms/s (30 calls/s), hud 27.4 ms/s (92 calls/s), buildings 16.9 ms/s (280 calls/s), hud/look 16.4 ms/s (20 calls/s), overlay draw 14.1 ms/s (10 calls/s), replay/record 13.9 ms/s (4 calls/s), ai 9.4 ms/s (30 calls/s), game/fog 9.1 ms/s (4 calls/s), game/unit grid 8.3 ms/s (30 calls/s), game/fog/units 7.7 ms/s (4 calls/s), hud/pause 6.5 ms/s (1 calls/s), hud/top 5.8 ms/s (3 calls/s), hud/card build 4.2 ms/s (5 calls/s), hud/minimap 3.1 ms/s (6 calls/s), hud/groups 2.7 ms/s (1 calls/s), game/paths 2.3 ms/s (30 calls/s), hud/hover 2.1 ms/s (9 calls/s), building draw 2.0 ms/s (45 calls/s), hud/map view 1.9 ms/s (10 calls/s), hud/command card 1.7 ms/s (1 calls/s), hud/rest 1.5 ms/s (6 calls/s), hud/glow 1.3 ms/s (9 calls/s), autosave 1.1 ms/s (0 calls/s), game/path smoothing 1.0 ms/s (6 calls/s), game/fog/shown 0.6 ms/s (4 calls/s), effects 0.5 ms/s (60 calls/s), powder smoke 0.5 ms/s (89 calls/s), replay/write 0.3 ms/s (0 calls/s), game/pathfinder 0.3 ms/s (6 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), game/fog/picture 0.3 ms/s (4 calls/s), hud/tip check 0.2 ms/s (20 calls/s), unit draw 0.1 ms/s (1 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), hud/chat 0.1 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 1900 gold total, has 350 + 0 powder | supply 18/18 | workers 15 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | APM 38 (this minute 38 actions) | soil 79% | saltpetre 100% | efficiency 43%
+  P2 Brood: earned 2549 biomass total, has 24 + 30 spoils | supply 43/52 | workers 28 | halls 0 | army (1000 value): 1 Brood Mother, 4 Rootmaw, 4 Mound Turtle, 1 Tyrant Sire, 6 Raptors, 6 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 4 eggs | Rootmaws rooted 4 (ground 67% 68% 68% 98%) | Mound Turtles rooted 3 | sacrificed 2 (+30 spoils)
+[04:13] YOU Crown finished a Town Hall (expansion)
+[04:14] P2 Brood's Brood: grows the Mother to stage 2
+[04:27] YOU Crown finished a Cottage
+[04:27] P2 Brood's Tyrant Sire researches Bigger Clutch
+[04:27] P2 Brood's Brood: researches Bigger Clutch
+[04:40] P2 Brood's Brood: a grub goes to root a Mound Turtle on new ground, 28 tiles out
+[04:46] YOU Crown could not place a Barracks: Blocked. (had 405 gold)
+[04:46] YOU Crown could not place a Barracks: Blocked. (had 405 gold)
+[04:47] YOU Crown could not place a Barracks: Blocked. (had 405 gold)
+[04:48] YOU Crown got its first Horse
+[04:55] YOU Crown got its first Horseman
+[04:55] YOU Crown finished a Farm
+--- minute 5 ---
+  Performance: 87 fps avg, 1% low 31 fps, worst frame 75 ms, 9 frames over 33 ms, 1 over 50 ms, 0.3 physics steps a frame | units 78, buildings 14, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 546, objects 3405
+    busy with: units 166.5 ms/s (2151 calls/s), hud draw 46.3 ms/s (53 calls/s), game 31.4 ms/s (30 calls/s), hud/selection 28.2 ms/s (19 calls/s), hud 25.0 ms/s (87 calls/s), buildings 22.4 ms/s (351 calls/s), replay/record 15.8 ms/s (4 calls/s), hud/look 15.3 ms/s (19 calls/s), overlay draw 13.8 ms/s (11 calls/s), ai 10.8 ms/s (30 calls/s), game/fog 10.6 ms/s (4 calls/s), game/unit grid 10.0 ms/s (30 calls/s), game/fog/units 9.1 ms/s (4 calls/s), hud/top 6.6 ms/s (4 calls/s), hud/card build 3.9 ms/s (5 calls/s), hud/groups 3.3 ms/s (1 calls/s), game/paths 2.6 ms/s (30 calls/s), hud/minimap 2.6 ms/s (6 calls/s), hud/hover 2.2 ms/s (10 calls/s), hud/command card 2.0 ms/s (2 calls/s), hud/map view 2.0 ms/s (11 calls/s), building draw 1.9 ms/s (48 calls/s), game/path smoothing 1.3 ms/s (7 calls/s), autosave 1.1 ms/s (0 calls/s), hud/rest 0.8 ms/s (4 calls/s), game/fog/shown 0.8 ms/s (4 calls/s), effects 0.7 ms/s (119 calls/s), powder smoke 0.4 ms/s (87 calls/s), hud/glow 0.4 ms/s (4 calls/s), game/pathfinder 0.4 ms/s (7 calls/s), game/fog/picture 0.3 ms/s (4 calls/s), replay/write 0.3 ms/s (0 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), hud/tip check 0.2 ms/s (19 calls/s), unit draw 0.1 ms/s (1 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), hud/chat 0.1 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 3040 gold total, has 335 + 20 powder | supply 30/36 | workers 23 | halls 2 | army (115 value): 1 Horse, 1 Officer | kills +0 (0) losses +0 (0) | APM 52 (this minute 52 actions) | soil 66% 100% | saltpetre 98% 100% | efficiency 44%
+  P2 Brood: earned 4247 biomass total, has 997 + 30 spoils | supply 46/64 | workers 33 | halls 0 | army (1150 value): 1 Brood Mother, 5 Rootmaw, 4 Mound Turtle, 1 Tyrant Sire, 9 Raptors | kills +0 (0) losses +0 (0) | Brood: Mother stage 2 rooted, 4 eggs | Rootmaws rooted 5 (ground 59% 58% 48% 82% 95%) | Mound Turtles rooted 4 | sacrificed 3 (+45 spoils)
+[05:05] YOU Crown's first Officer mounted (Horseman)
+[05:07] P2 Brood researched Bigger Clutch
+[05:09] P2 Brood's Raptors matured into a Tyrant Challenger
+[05:09] P2 Brood's Raptors matured into a Tyrant Challenger
+[05:09] P2 Brood's Raptors matured into a Tyrant Challenger
+[05:14] YOU Crown's first pistol shot (Horseman)
+[05:24] YOU Crown could not place a Farm: Blocked. (had 615 gold)
+[05:26] YOU Crown finished a Cottage
+[05:31] P2 Brood's Brood: defends with 2 (2 tyrant_challenger, 200) against 115 (1 cuirassier) at home
+[05:33] P2 Brood's Brood: a Rootmaw under attack uproots to fight back (1 cuirassier)
+[05:33] P2 Brood's Brood: defends with 2 (2 tyrant_challenger, 200) against 115 (1 cuirassier) at home
+[05:37] YOU Crown finished a Foundry
+[05:39] YOU Crown finished a Barracks
+[05:53] YOU Crown finished a Farm
+[05:59] P2 Brood's Raptors matured into a Tyrant Challenger
+--- minute 6 ---
+  Performance: 84 fps avg, 1% low 26 fps, worst frame 108 ms, 24 frames over 33 ms, 4 over 50 ms, 0.4 physics steps a frame | units 113, buildings 16, bodies 3, corpses 3, effects 7, smoke puffs 0, nodes 655, objects 3707
+    busy with: units 191.5 ms/s (2842 calls/s), hud draw 47.2 ms/s (53 calls/s), game 35.0 ms/s (30 calls/s), hud/selection 28.2 ms/s (18 calls/s), hud 25.2 ms/s (84 calls/s), buildings 23.9 ms/s (464 calls/s), replay/record 19.5 ms/s (4 calls/s), ai 17.8 ms/s (30 calls/s), hud/look 17.0 ms/s (19 calls/s), game/fog 11.8 ms/s (4 calls/s), game/unit grid 11.6 ms/s (30 calls/s), game/fog/units 10.1 ms/s (4 calls/s), overlay draw 9.1 ms/s (11 calls/s), hud/top 8.3 ms/s (5 calls/s), hud/card build 5.1 ms/s (5 calls/s), game/paths 3.2 ms/s (30 calls/s), hud/groups 2.7 ms/s (1 calls/s), hud/minimap 2.6 ms/s (6 calls/s), hud/map view 2.4 ms/s (13 calls/s), hud/command card 2.0 ms/s (2 calls/s), game/path smoothing 1.7 ms/s (9 calls/s), building draw 1.4 ms/s (39 calls/s), unit draw 1.3 ms/s (9 calls/s), powder smoke 1.2 ms/s (84 calls/s), hud/hover 1.2 ms/s (5 calls/s), autosave 1.0 ms/s (0 calls/s), game/fog/shown 0.9 ms/s (4 calls/s), effects 0.6 ms/s (131 calls/s), game/pathfinder 0.4 ms/s (9 calls/s), replay/write 0.3 ms/s (0 calls/s), game/fog/picture 0.3 ms/s (4 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), hud/glow 0.3 ms/s (4 calls/s), hud/rest 0.3 ms/s (2 calls/s), hud/tip check 0.2 ms/s (19 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), game/refit 0.1 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 3800 gold total, has 265 + 83 powder | supply 38/44 | workers 29 | halls 2 | army (0 value): none | kills +2 (2) losses +1 (1) | APM 57 (this minute 57 actions) | soil 58% 100% | saltpetre 91% 100% | efficiency 59%
+  P2 Brood: earned 5859 biomass total, has 309 + 0 spoils | supply 86/88 | workers 42 | halls 0 | army (2225 value): 1 Brood Mother, 6 Rootmaw, 8 Mound Turtle, 1 Tyrant Sire, 4 Tyrant Challenger, 17 Raptors, 5 Egg | kills +1 (1) losses +2 (2) | Brood: Mother stage 2 rooted, 1 eggs | Rootmaws rooted 5 (ground 51% 48% 28% 65% 90%) | Mound Turtles rooted 6 | sacrificed 5 (+75 spoils)
+[06:03] YOU Crown got its first Musketeer
+[06:07] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[06:08] P2 Brood's Raptors matured into a Tyrant Challenger
+[06:08] P2 Brood's Raptors matured into a Tyrant Challenger
+[06:14] P2 Brood's Tyrant Sire researches Pack Hunt
+[06:14] P2 Brood's Brood: researches Pack Hunt
+[06:16] P2 Brood's Brood: sends a Grub to watch the foot of the enemy's ramp
+[06:30] YOU Crown got its first Field Cannon
+[06:43] YOU Crown laid 6 pieces of Palisade
+[06:49] P2 Brood researched Pack Hunt
+[06:51] YOU Crown laid 18 pieces of Palisade
+[06:56] P2 Brood's Raptors matured into a Tyrant Challenger
+[06:59] YOU Crown finished a Barracks
+--- minute 7 ---
+  Performance: 71 fps avg, 1% low 17 fps, worst frame 95 ms, 135 frames over 33 ms, 25 over 50 ms, 0.4 physics steps a frame | units 148, buildings 41, bodies 2, corpses 2, effects 0, smoke puffs 0, nodes 779, objects 3963
+    busy with: units 245.4 ms/s (4071 calls/s), hud draw 47.6 ms/s (50 calls/s), game 42.3 ms/s (30 calls/s), ai 32.8 ms/s (30 calls/s), buildings 27.3 ms/s (636 calls/s), hud/selection 26.0 ms/s (18 calls/s), overlay draw 25.6 ms/s (16 calls/s), hud 23.6 ms/s (72 calls/s), replay/record 23.5 ms/s (4 calls/s), hud/look 16.8 ms/s (18 calls/s), game/unit grid 14.8 ms/s (30 calls/s), game/fog 14.5 ms/s (4 calls/s), game/fog/units 12.4 ms/s (4 calls/s), hud/top 8.5 ms/s (5 calls/s), hud/pause 3.9 ms/s (1 calls/s), game/paths 3.7 ms/s (30 calls/s), hud/card build 2.9 ms/s (5 calls/s), hud/minimap 2.8 ms/s (6 calls/s), hud/groups 2.3 ms/s (1 calls/s), game/path smoothing 2.1 ms/s (9 calls/s), building draw 1.7 ms/s (71 calls/s), hud/command card 1.5 ms/s (1 calls/s), hud/hover 1.3 ms/s (7 calls/s), autosave 1.3 ms/s (0 calls/s), game/fog/shown 1.2 ms/s (4 calls/s), hud/map view 1.1 ms/s (7 calls/s), hud/rest 0.7 ms/s (3 calls/s), effects 0.5 ms/s (114 calls/s), game/pathfinder 0.5 ms/s (9 calls/s), hud/glow 0.4 ms/s (5 calls/s), replay/write 0.4 ms/s (0 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), powder smoke 0.3 ms/s (71 calls/s), game/fog/picture 0.2 ms/s (4 calls/s), hud/tip check 0.2 ms/s (18 calls/s), unit draw 0.2 ms/s (2 calls/s), game/refit 0.1 ms/s (1 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), hud/chat 0.1 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 5700 gold total, has 1505 + 172 powder | supply 41/44 | workers 34 | halls 2 | army (390 value): 1 Horse, 3 Musketeer, 1 Field Cannon | kills +0 (2) losses +0 (1) | APM 49 (this minute 49 actions) | soil 41% 96% | saltpetre 85% 100% | efficiency 54%
+  P2 Brood: earned 8101 biomass total, has 901 + 80 spoils | supply 119/124 | workers 58 | halls 0 | army (2675 value): 1 Brood Mother, 6 Rootmaw, 9 Mound Turtle, 1 Tyrant Sire, 7 Tyrant Challenger, 19 Raptors, 8 Egg | kills +0 (1) losses +0 (2) | Brood: Mother stage 2 rooted, 0 eggs | Rootmaws rooted 6 (ground 43% 39% 8% 49% 73% 82%) | Mound Turtles rooted 9 | sacrificed 12 (+180 spoils)
+[07:00] P2 Brood's Brood: grows the Mother to stage 3
+[07:01] YOU Crown laid 7 pieces of Palisade
+[07:17] P2 Brood's Raptors matured into a Tyrant Challenger
+[07:19] P2 Brood's Raptors matured into a Tyrant Challenger
+[07:22] P2 Brood: the ground of a Rootmaw is spent (it drinks nothing more)
+[07:22] P2 Brood's Raptors matured into a Tyrant Challenger
+[07:38] YOU Crown finished a Cottage
+[07:48] YOU Crown laid 1 piece of Gate
+[07:52] YOU Crown finished a Cottage
+--- minute 8 ---
+  Performance: 62 fps avg, 1% low 19 fps, worst frame 94 ms, 172 frames over 33 ms, 15 over 50 ms, 0.5 physics steps a frame | units 164, buildings 50, bodies 2, corpses 2, effects 1, smoke puffs 2, nodes 838, objects 4108
+    busy with: units 307.8 ms/s (4873 calls/s), game 48.3 ms/s (30 calls/s), hud draw 46.0 ms/s (52 calls/s), buildings 35.2 ms/s (1477 calls/s), hud 29.2 ms/s (62 calls/s), ai 28.6 ms/s (30 calls/s), hud/selection 24.7 ms/s (17 calls/s), replay/record 24.1 ms/s (3 calls/s), hud/look 23.5 ms/s (17 calls/s), game/unit grid 16.2 ms/s (30 calls/s), game/fog 16.1 ms/s (4 calls/s), overlay draw 14.3 ms/s (12 calls/s), game/fog/units 13.4 ms/s (4 calls/s), hud/top 9.0 ms/s (5 calls/s), hud/card build 8.6 ms/s (5 calls/s), game/paths 4.6 ms/s (30 calls/s), powder smoke 3.7 ms/s (62 calls/s), building draw 3.4 ms/s (222 calls/s), hud/minimap 3.3 ms/s (6 calls/s), hud/groups 3.2 ms/s (1 calls/s), hud/command card 2.9 ms/s (1 calls/s), game/path smoothing 2.1 ms/s (11 calls/s), autosave 1.7 ms/s (0 calls/s), game/fog/shown 1.5 ms/s (4 calls/s), hud/map view 1.4 ms/s (9 calls/s), hud/hover 1.3 ms/s (6 calls/s), game/fog/buildings 0.8 ms/s (4 calls/s), hud/glow 0.7 ms/s (7 calls/s), game/pathfinder 0.6 ms/s (11 calls/s), projectiles 0.5 ms/s (3 calls/s), hud/rest 0.4 ms/s (2 calls/s), effects 0.4 ms/s (75 calls/s), replay/write 0.4 ms/s (0 calls/s), unit draw 0.3 ms/s (4 calls/s), hud/tip check 0.2 ms/s (17 calls/s), game/fog/picture 0.2 ms/s (4 calls/s), game/refit 0.1 ms/s (1 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), hud/chat 0.1 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 7220 gold total, has 2250 + 174 powder | supply 48/60 | workers 34 | halls 2 | army (570 value): 1 Horse, 6 Musketeer, 1 Field Cannon | kills +1 (3) losses +0 (1) | APM 51 (this minute 52 actions) | soil 32% 87% | saltpetre 78% 100% | efficiency 48%
+  P2 Brood: earned 11075 biomass total, has 3150 + 5 spoils | supply 119/124 | workers 57 | halls 0 | army (3450 value): 1 Brood Mother, 6 Rootmaw, 9 Mound Turtle, 1 Tyrant Sire, 10 Tyrant Challenger, 38 Raptors | kills +0 (1) losses +1 (3) | Brood: Mother stage 2 rooted, 1 eggs | Rootmaws rooted 6 (ground 34% 30% 40% 32% 53% 62%) | Mound Turtles rooted 9 | sacrificed 14 (+210 spoils)
+[08:19] P2 Brood's Raptors matured into a Tyrant Challenger
+[08:21] YOU Crown: the soil around a Town Hall is running low (under 25%)
+[08:24] P2 Brood got its first Brute
+[08:27] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[08:27] P2 Brood's Brood Mother researches Quick Roots
+[08:27] P2 Brood's Brood: researches Quick Roots
+[08:28] P2 Brood's Raptors matured into a Tyrant Challenger
+[08:29] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[08:30] P2 Brood's Brood: attacks with 60 supply (12 tyrant_challenger, 33 raptor, 1 brute)
+[08:30] P2 Brood's Brood attacks with 60 supply
+[08:37] P2 Brood's Raptors matured into a Tyrant Challenger
+[08:40] P2 Brood's Brood: sends a Grub to watch the foot of the enemy's ramp
+[08:46] YOU Crown finished a Powder Mill
+[08:46] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[08:59] YOU Crown lost a Gate to P2 Brood (tyrant_challenger)
+--- minute 9 ---
+  Performance: 54 fps avg, 1% low 11 fps, worst frame 225 ms, 282 frames over 33 ms, 48 over 50 ms, 0.6 physics steps a frame | units 153, buildings 50, bodies 34, corpses 37, effects 3, smoke puffs 147, nodes 893, objects 4426
+    busy with: units 344.8 ms/s (5039 calls/s), hud draw 70.1 ms/s (55 calls/s), hud 55.1 ms/s (68 calls/s), game 52.3 ms/s (30 calls/s), hud/look 48.7 ms/s (21 calls/s), buildings 38.7 ms/s (1524 calls/s), hud/selection 31.4 ms/s (21 calls/s), ai 29.5 ms/s (30 calls/s), hud/card build 24.0 ms/s (5 calls/s), replay/record 23.2 ms/s (3 calls/s), game/fog 17.1 ms/s (4 calls/s), game/unit grid 16.9 ms/s (30 calls/s), game/fog/units 14.3 ms/s (4 calls/s), hud/pause 13.1 ms/s (2 calls/s), overlay draw 12.4 ms/s (10 calls/s), hud/top 9.3 ms/s (5 calls/s), game/paths 8.3 ms/s (30 calls/s), hud/minimap 5.0 ms/s (7 calls/s), hud/groups 4.9 ms/s (2 calls/s), building draw 4.1 ms/s (222 calls/s), hud/command card 3.8 ms/s (2 calls/s), game/path smoothing 3.3 ms/s (13 calls/s), game/pathfinder 3.3 ms/s (13 calls/s), autosave 1.7 ms/s (0 calls/s), game/fog/shown 1.6 ms/s (4 calls/s), hud/map view 1.4 ms/s (8 calls/s), unit draw 1.4 ms/s (20 calls/s), powder smoke 1.2 ms/s (54 calls/s), hud/rest 0.7 ms/s (4 calls/s), game/fog/buildings 0.7 ms/s (4 calls/s), effects 0.5 ms/s (126 calls/s), hud/hover 0.5 ms/s (3 calls/s), replay/write 0.4 ms/s (0 calls/s), hud/tip check 0.3 ms/s (21 calls/s), projectiles 0.3 ms/s (1 calls/s), game/fog/picture 0.2 ms/s (4 calls/s), hud/glow 0.2 ms/s (3 calls/s), game/refit 0.1 ms/s (1 calls/s), hud/chat 0.1 ms/s (1 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), hud/tooltip 0.0 ms/s (1 calls/s)
+  YOU Crown: earned 9120 gold total, has 3420 + 201 powder | supply 60/60 | workers 37 | halls 2 | army (1060 value): 2 Horse, 11 Musketeer, 1 Field Cannon, 2 Officer | kills +35 (38) losses +0 (1) | APM 32 (this minute 32 actions) | soil 20% 79% | saltpetre 72% 100% | efficiency 35%
+  P2 Brood: earned 13805 biomass total, has 4305 + 0 spoils | supply 123/124 | workers 58 | halls 0 | army (2525 value): 1 Brood Mother, 6 Rootmaw, 9 Mound Turtle, 1 Tyrant Sire, 8 Tyrant Challenger, 3 Raptors, 1 Brute, 13 Egg | kills +0 (1) losses +35 (38) | Brood: Mother stage 3 rooted, 10 eggs | Rootmaws rooted 6 (ground 26% 20% 20% 16% 33% 42%) | Mound Turtles rooted 9 | sacrificed 19 (+285 spoils)
+[09:00] YOU Crown got its first Powder Wagon
+[09:06] P2 Brood's Brood: pulls back: 450 of 2175 left, 410 ahead (killed 290)
+[09:08] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[09:12] P2 Brood researched Quick Roots
+[09:15] P2 Brood's Raptors matured into a Tyrant Challenger
+[09:23] P2 Brood's Raptors matured into a Tyrant Challenger
+[09:24] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+
+--- SOUND LOG (every sound and music change, per second; x2 = played twice) ---
+[00:00] MUSIC crown_peace, AMBIENCE marsh, ui/click x4, ui/start_match, voice/labourer/select
+[00:01] ui/error, ui/click x2, voice/labourer/move
+[00:03] voice/labourer/move, ui/click
+[00:04] ui/click
+[00:05] ui/click
+[00:07] ui/click, work/crown_build
+[00:09] work/hoe x2, select/town_hall, ui/click, work/crown_build
+[00:10] ui/click x3, work/hoe
+[00:11] work/crown_build
+[00:12] work/hoe x2
+[00:13] work/crown_build
+[00:15] work/hoe, work/crown_build
+[00:16] voice/labourer/select, ui/click
+[00:17] work/crown_build
+[00:18] work/hoe
+[00:19] work/crown_build
+[00:20] work/hoe
+[00:21] select/town_hall, ui/click, work/crown_build
+[00:22] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[00:23] work/hoe, work/crown_build
+[00:24] voice/labourer/select, ui/click
+[00:25] work/hoe, work/crown_build
+[00:26] ui/click
+[00:27] crown/built, announcer/crown/building_done, ui/click
+[00:28] work/hoe
+[00:29] ui/error
+[00:30] work/hoe, ui/click
+[00:33] work/hoe
+[00:34] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[00:35] work/crown_build
+[00:36] work/hoe
+[00:37] work/crown_build
+[00:38] work/hoe x2, select/town_hall, ui/click
+[00:39] work/hoe, work/crown_build
+[00:40] work/hoe
+[00:41] work/hoe x2, work/crown_build, work/farm_harvest, done
+[00:43] work/crown_build, work/hoe
+[00:44] work/hoe x2
+[00:45] work/crown_build, voice/labourer/select, ui/click
+[00:46] voice/crown_recruit/town_hall, select/town_hall, work/hoe, ui/click
+[00:47] work/hoe x2, crown/placed, ui/click
+[00:49] ui/click, work/hoe
+[00:51] work/hoe, work/crown_build
+[00:52] work/hoe x2
+[00:53] work/hoe x2, voice/labourer/select, ui/click x2, work/crown_build
+[00:55] work/hoe
+[00:56] voice/labourer/move, ui/click
+[00:57] work/crown_build, work/hoe x2
+[00:58] select/town_hall, ui/click, work/hoe
+[00:59] ui/click, work/crown_build
+[01:00] work/hoe x2, voice/labourer/select, ui/click
+[01:01] work/crown_build, work/hoe
+[01:02] ui/click, work/hoe
+[01:03] work/crown_build, work/hoe x2
+[01:04] work/hoe, ui/click
+[01:05] work/hoe, work/crown_build
+[01:06] work/hoe x2
+[01:07] work/crown_build
+[01:08] work/hoe
+[01:09] work/hoe x2, work/crown_build
+[01:10] ui/click, work/hoe
+[01:11] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/crown_build, work/hoe, ui/click
+[01:12] work/hoe x2, ui/click
+[01:13] work/crown_build, work/hoe
+[01:14] work/hoe x2
+[01:15] work/crown_build, work/hoe, crown/built, announcer/crown/building_done, ui/click
+[01:17] select/town_hall, ui/click, work/hoe x2
+[01:18] work/hoe, work/crown_build, voice/labourer/select, ui/click
+[01:19] work/hoe x2, ui/click
+[01:20] work/hoe x2, work/crown_build
+[01:21] work/hoe
+[01:22] work/hoe x3, work/crown_build, select/town_hall, ui/click
+[01:23] work/hoe, ui/click
+[01:24] ui/click, work/hoe, work/crown_build
+[01:25] work/hoe x2
+[01:26] voice/labourer/select
+[01:29] clash
+[01:30] voice/labourer/move, ui/click x2
+[01:31] voice/labourer/move, ui/click x2
+[01:32] ui/click
+[01:33] voice/labourer/move, ui/click
+[01:34] ui/click x2
+[01:35] voice/crown_recruit/town_hall, voice/labourer/select
+[01:36] ui/click
+[01:37] ui/click
+[01:38] ui/click x2, voice/labourer/move
+[01:40] ui/click x2, voice/labourer/move
+[01:43] work/hoe
+[01:44] work/hoe x2, work/crown_build, MUSIC ended crown_peace, MUSIC crown_peace_9
+[01:45] work/hoe x3
+[01:46] work/hoe x3, work/crown_build
+[01:47] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe, work/farm_harvest, done
+[01:48] crown/built, announcer/crown/building_done, work/hoe
+[01:49] work/hoe x3
+[01:50] work/hoe x3, voice/labourer/select, ui/click
+[01:51] work/hoe, select/powder_mill, ui/click
+[01:52] work/hoe x3, voice/labourer/select, ui/click
+[01:53] work/hoe x2, ui/error x2, ui/click x2
+[01:54] work/hoe x2, select/powder_mill, ui/click
+[01:55] work/hoe
+[01:56] work/hoe x3, voice/labourer/select, ui/click
+[01:57] work/hoe x3
+[01:59] voice/labourer/select, ui/click
+[02:00] ui/click
+[02:01] voice/labourer/move, ui/click
+[02:04] ui/click
+[02:05] voice/labourer/move, ui/click
+[02:08] ui/click
+[02:09] voice/labourer/move
+[02:10] work/hoe
+[02:11] work/hoe x2
+[02:12] select/town_hall, ui/click x3, work/hoe
+[02:13] work/hoe x2, ui/click
+[02:14] work/hoe x3, voice/labourer/select, ui/click
+[02:15] ui/click, work/hoe x2
+[02:16] work/hoe, ui/click
+[02:17] work/hoe x3
+[02:18] work/hoe, ui/click
+[02:19] work/hoe x2
+[02:20] work/hoe x2, work/crown_build
+[02:21] select/town_hall, ui/click x2, work/hoe x2
+[02:22] work/hoe x2, work/crown_build, voice/labourer/select, ui/click
+[02:23] work/hoe x3, ui/click
+[02:24] ui/click, work/crown_build, work/hoe, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[02:25] work/hoe x3
+[02:26] work/hoe, work/crown_build
+[02:27] work/hoe x2
+[02:28] ui/click, work/hoe x2, work/crown_build
+[02:29] work/hoe, ui/click
+[02:30] work/hoe x3, work/crown_build, ui/click
+[02:31] work/hoe
+[02:32] work/hoe x3, work/crown_build
+[02:33] work/hoe
+[02:34] ui/click, work/hoe, work/crown_build
+[02:35] work/hoe
+[02:36] work/hoe x2, work/crown_build, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[02:37] work/hoe x3
+[02:38] work/crown_build, work/hoe x2
+[02:39] work/hoe
+[02:40] work/hoe x3, work/crown_build
+[02:41] work/hoe x2
+[02:42] work/crown_build, work/hoe
+[02:43] work/hoe
+[02:44] work/hoe x2, work/crown_build
+[02:45] work/hoe
+[02:46] work/hoe x3, work/crown_build
+[02:47] work/hoe x2
+[02:48] work/crown_build, work/hoe x2
+[02:49] work/hoe x2
+[02:50] work/crown_build, work/hoe x2
+[02:51] work/hoe x2
+[02:52] work/hoe x4, work/crown_build
+[02:53] select/powder_mill, ui/click, work/hoe
+[02:54] work/crown_build, work/hoe
+[02:55] work/hoe x2, select/town_hall, ui/click
+[02:56] work/crown_build, work/hoe x2
+[02:57] work/hoe x2
+[02:58] work/hoe, work/crown_build, work/farm_harvest, done, voice/labourer/select, ui/click
+[02:59] work/hoe x2, ui/error, ui/click
+[03:00] work/farm_harvest, done, crown/built, announcer/crown/building_done, work/crown_build, work/hoe x2
+[03:01] work/hoe x3
+[03:02] work/crown_build, work/hoe
+[03:03] work/hoe x3, work/crown_build, voice/labourer/move, ui/click
+[03:04] ui/error, ui/click x2, work/crown_build, work/hoe x2
+[03:05] voice/labourer/move, ui/click
+[03:06] ui/click
+[03:07] ui/click
+[03:08] ui/click
+[03:09] work/crown_build, work/hoe
+[03:10] work/hoe, work/crown_build, crown/built, announcer/crown/building_done
+[03:11] work/hoe x2
+[03:12] work/hoe x2, select/town_hall, ui/click x2
+[03:13] ui/click x2, work/hoe, work/crown_build
+[03:14] work/hoe
+[03:15] work/hoe x3, voice/labourer/select, ui/click, work/crown_build
+[03:16] work/hoe x3
+[03:17] work/hoe x3, ui/click, work/crown_build
+[03:18] work/hoe x2
+[03:19] work/hoe x2, work/crown_build
+[03:20] work/hoe x3, ui/click
+[03:21] work/hoe x3, work/crown_build
+[03:22] work/hoe x2
+[03:23] ui/click x2, work/hoe x2, work/crown_build
+[03:24] work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[03:25] work/hoe x2, work/crown_build
+[03:26] work/hoe x2
+[03:27] work/hoe x2, work/crown_build
+[03:28] work/hoe x2, ui/error, announcer/crown/bad_place
+[03:29] work/hoe x2, work/crown_build
+[03:31] work/hoe x4, work/crown_build
+[03:32] work/hoe x2, ui/click
+[03:33] work/hoe, work/crown_build
+[03:34] work/hoe x3, select/town_hall, ui/click
+[03:35] work/crown_build x2, ui/click, work/hoe x2
+[03:36] work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[03:37] work/hoe, work/crown_build x2
+[03:38] work/hoe x2
+[03:39] work/hoe x2, work/crown_build x2, voice/labourer/select, ui/click
+[03:40] work/hoe x2, ui/error, ui/click
+[03:41] work/hoe x3, work/crown_build x2, ui/error, ui/click
+[03:42] work/hoe x2, select/powder_mill, ui/click
+[03:43] work/crown_build x2, work/hoe, voice/labourer/select, ui/click
+[03:44] work/hoe x3, ui/click x2, voice/labourer/move
+[03:45] work/crown_build x2, work/hoe
+[03:46] work/hoe x2
+[03:47] work/crown_build x2, work/hoe x2
+[03:48] work/hoe, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[03:49] work/crown_build x2, work/farm_harvest, done, work/hoe x2, ui/click
+[03:50] work/hoe x3, announcer/crown/paused, ui/click x2, announcer/crown/resumed
+[03:51] work/crown_build x2, work/hoe x2, ui/click
+[03:52] work/hoe x4, select/town_hall, ui/click
+[03:53] work/crown_build x2, work/hoe, ui/click x2
+[03:54] work/hoe x2
+[03:55] work/hoe x2, MUSIC ended crown_peace_9, MUSIC crown_peace_7, work/crown_build x2
+[03:56] work/hoe x3
+[03:57] work/hoe x3, work/crown_build x2
+[03:58] crown/built, announcer/crown/building_done, work/hoe x2, ui/error, announcer/crown/no_supply
+[03:59] work/hoe, work/crown_build
+[04:00] work/hoe x3, voice/labourer/select, ui/click, voice/crown_recruit/town_hall, select/town_hall
+[04:01] work/hoe x3, ui/click, work/crown_build
+[04:02] work/hoe x3, ui/click
+[04:03] work/hoe x2, work/crown_build
+[04:04] work/hoe x3, ui/click, voice/labourer/move
+[04:05] work/hoe x2, work/crown_build
+[04:06] work/hoe x2, select/town_hall
+[04:07] work/crown_build x2, work/hoe x2
+[04:08] work/hoe
+[04:09] work/crown_build
+[04:11] work/crown_build
+[04:13] voice/crown_recruit/town_hall, voice/labourer/select, crown/built, announcer/crown/expansion
+[04:14] select/town_hall, ui/click
+[04:15] select/town_hall
+[04:17] select/town_hall, ui/click
+[04:18] ui/click x4
+[04:19] work/hoe
+[04:20] work/hoe x2
+[04:21] work/hoe x3, work/crown_build, voice/labourer/select, ui/click x2
+[04:22] work/hoe x2
+[04:23] voice/labourer/move, ui/click x2, work/hoe
+[04:24] work/hoe
+[04:25] voice/crown_recruit/town_hall, voice/labourer/select, work/hoe x3, ui/click
+[04:26] work/hoe x2, ui/click
+[04:27] crown/built, announcer/crown/building_done, work/hoe x2
+[04:28] work/hoe x4, select/town_hall, ui/click
+[04:29] work/hoe x3, ui/click x3
+[04:30] voice/crown_recruit/town_hall, voice/labourer/select, work/hoe x2
+[04:31] work/hoe x3, work/crown_build
+[04:32] work/hoe x3, select/barracks, ui/click x2
+[04:33] work/hoe x3, work/crown_build, ui/click
+[04:34] select/barracks, ui/click, work/hoe x3
+[04:35] work/hoe x2, work/crown_build, combat/cuirassier_attack, work/farm_harvest, done
+[04:36] work/hoe x4, combat/cuirassier_attack
+[04:37] work/hoe x2, work/crown_build
+[04:38] work/hoe x4
+[04:39] work/hoe x3, work/crown_build, combat/cuirassier_attack, voice/labourer/select, ui/click
+[04:40] work/hoe x3, combat/cuirassier_attack, ui/click
+[04:41] work/hoe x4, work/crown_build, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[04:42] work/hoe x3
+[04:43] work/hoe x3, work/crown_build, combat/cuirassier_attack
+[04:44] work/hoe x2, combat/cuirassier_attack, ui/click
+[04:45] work/hoe x4, work/crown_build
+[04:46] ui/error x2, announcer/crown/bad_place, work/hoe x2
+[04:47] work/hoe x4, work/crown_build, ui/error, combat/cuirassier_attack
+[04:48] work/hoe x3, voice/crown_recruit/horse_breeder, horse/neigh, ui/click, combat/cuirassier_attack
+[04:49] work/hoe x4, work/crown_build
+[04:50] work/hoe x3, select/town_hall, ui/click
+[04:51] work/hoe x3, work/crown_build, ui/click x2
+[04:52] combat/cuirassier_attack x2, work/hoe x2, work/farm_harvest, done
+[04:53] work/hoe x4, voice/labourer/select, ui/click x2, work/crown_build, voice/crown_recruit/town_hall, select/town_hall
+[04:54] work/hoe x4, voice/labourer/select, ui/click
+[04:55] work/hoe x4, work/crown_build, voice/crown_recruit/barracks, horse/neigh, voice/cuirassier/select, crown/built, announcer/crown/building_done
+[04:56] work/hoe x4
+[04:57] work/hoe x3
+[04:58] work/hoe x3, ui/click, work/crown_build
+[04:59] work/hoe x3
+[05:00] work/hoe, work/crown_build
+[05:01] work/hoe x4
+[05:02] work/hoe x3, work/crown_build
+[05:03] work/hoe x2, select/farm, ui/click x2, voice/labourer/select
+[05:04] work/hoe x3, horse/whinny, ui/click, work/crown_build
+[05:05] work/hoe x4, ui/click x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[05:06] ui/click, work/hoe x3, work/crown_build
+[05:07] work/hoe x4, work/crown_build
+[05:08] work/hoe x3, work/crown_build
+[05:09] horse/neigh, voice/cuirassier/select, ui/click x2, work/hoe x3, combat/cuirassier_move, work/crown_build
+[05:10] work/hoe x4, voice/cuirassier/move, ui/click, work/crown_build
+[05:11] work/hoe x3, work/crown_build
+[05:12] work/hoe
+[05:13] combat/cuirassier_move, voice/cuirassier/move, ui/click
+[05:14] work/crown_build, work/hoe
+[05:15] work/hoe, combat/grub_death, combat/cuirassier_attack
+[05:16] work/hoe, work/crown_build
+[05:17] voice/crown_recruit/town_hall, voice/labourer/select
+[05:18] work/crown_build
+[05:19] work/hoe, ui/click
+[05:20] work/hoe, work/crown_build
+[05:21] ui/click
+[05:22] work/hoe x2, work/crown_build
+[05:23] work/hoe x2
+[05:24] ui/error, announcer/crown/bad_place, work/crown_build
+[05:25] work/hoe x2
+[05:26] work/hoe, crown/built, announcer/crown/building_done, ui/click, work/crown_build
+[05:27] select/town_hall, ui/click x2
+[05:28] ui/click x3, work/hoe x2, work/crown_build
+[05:29] voice/crown_recruit/town_hall, voice/labourer/select, horse/neigh, ui/click
+[05:30] combat/cuirassier_move, ui/click
+[05:31] voice/cuirassier/move, horse/whinny, ui/click x2, combat/cuirassier_move
+[05:33] brood/uproot, voice/cuirassier/move, ui/click, combat/cuirassier_attack
+[05:34] combat/cuirassier_move, voice/cuirassier/move, ui/click
+[05:35] ui/click x3, combat/cuirassier_attack, voice/cuirassier/attack
+[05:36] combat/rootmaw_attack
+[05:37] crown/built, announcer/crown/building_done
+[05:38] combat/cuirassier_move, voice/cuirassier/attack, ui/click x2
+[05:39] horse/whinny, ui/click x2, voice/cuirassier/move
+[05:40] voice/crown_recruit/town_hall, voice/labourer/select, combat/cuirassier_attack, combat/tyrant_challenger_attack, combat/raptor_attack x2
+[05:41] combat/raptor_attack x2, combat/cuirassier_move, voice/cuirassier/move, ui/click, combat/cuirassier_attack, combat/rootmaw_attack
+[05:42] combat/raptor_attack x3, combat/tyrant_challenger_attack x3, MUSIC crown_battle_9, combat/raptor_death, combat/cuirassier_attack
+[05:43] combat/raptor_attack x2, combat/cuirassier_death
+[05:44] work/hoe
+[05:45] work/crown_build, work/hoe x4
+[05:46] select/barracks, ui/click, work/hoe x2
+[05:47] ui/click x2, work/crown_build, work/hoe x3
+[05:48] work/hoe x4, ui/click
+[05:49] work/crown_build, work/hoe x3, combat/musketeer_attack, select/barracks, ui/click
+[05:50] work/hoe x5, ui/click x2, select/barracks
+[05:51] work/crown_build, ui/click, work/hoe x3, combat/musketeer_attack
+[05:52] voice/crown_recruit/town_hall, voice/labourer/select, combat/musketeer_attack x2, work/hoe x4
+[05:53] work/crown_build, select/town_hall, work/hoe x3, crown/built, announcer/crown/building_done
+[05:54] work/hoe x3, combat/musketeer_attack
+[05:55] work/hoe x4, combat/musketeer_attack x2
+[05:56] work/hoe x2, ui/click
+[05:57] work/hoe x4, select/foundry, ui/click, combat/musketeer_attack
+[05:58] work/hoe x3, combat/musketeer_attack x2, ui/click
+[05:59] work/hoe x3
+[06:00] work/hoe x5, voice/labourer/select, ui/click x2, combat/musketeer_attack
+[06:01] work/hoe x3, combat/musketeer_attack x2
+[06:02] voice/crown_recruit/horse_breeder, horse/neigh, work/hoe x5, MUSIC crown_peace_2
+[06:03] work/hoe x3, work/farm_harvest, done, ui/click, voice/crown_recruit/barracks, voice/musketeer/select, combat/musketeer_attack
+[06:04] voice/crown_recruit/town_hall, work/hoe x4, combat/musketeer_attack
+[06:05] work/hoe x4, voice/musketeer/select
+[06:06] work/hoe x4, voice/crown_recruit/barracks
+[06:07] work/hoe x4
+[06:08] work/hoe x4, ui/click
+[06:09] work/hoe x2
+[06:10] work/hoe x4
+[06:11] work/hoe x2
+[06:12] work/hoe x4, voice/musketeer/select, ui/click
+[06:13] work/hoe x4, ui/click x3, voice/musketeer/select
+[06:14] work/hoe x3, ui/click
+[06:15] work/hoe x4, voice/musketeer/move, ui/click
+[06:16] voice/crown_recruit/town_hall, work/hoe x3, voice/crown_bugle/hold, ui/click
+[06:17] work/hoe x2, voice/crown_recruit/horse_breeder, work/farm_harvest, done
+[06:18] work/hoe x2, select/farm, ui/click
+[06:19] work/hoe x3, voice/labourer/select, ui/click, work/crown_build
+[06:20] work/hoe x2, ui/click
+[06:21] work/hoe x2, select/town_hall, ui/click, work/crown_build
+[06:22] work/hoe x2, ui/click x2
+[06:23] work/hoe x3, ui/click, work/crown_build
+[06:24] ui/click, work/hoe, work/farm_harvest, done
+[06:25] work/hoe x3, work/crown_build
+[06:26] work/hoe x2
+[06:27] work/hoe x3, announcer/crown/paused, ui/click x2, announcer/crown/resumed, work/crown_build
+[06:28] work/hoe x4, ui/click
+[06:29] work/hoe x4, work/crown_build
+[06:30] work/hoe, voice/crown_recruit/foundry, voice/cannon/select, ui/click
+[06:31] work/hoe x3, ui/click, work/crown_build
+[06:32] work/hoe x2
+[06:33] work/hoe x3, work/crown_build
+[06:34] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe
+[06:35] work/hoe, work/crown_build
+[06:36] work/hoe x3, ui/click
+[06:37] work/hoe x3, work/crown_build
+[06:38] work/hoe x3, ui/click
+[06:39] work/hoe x5, ui/click, work/crown_build
+[06:40] work/hoe x3, ui/error
+[06:41] work/hoe x4, work/crown_build
+[06:42] work/hoe x2
+[06:43] work/hoe x3, work/crown_build, ui/click
+[06:44] work/hoe x2
+[06:45] work/hoe x2, voice/labourer/select, ui/click, work/crown_build
+[06:46] work/hoe x3, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[06:47] ui/click x2, work/hoe x2, work/crown_build
+[06:48] work/hoe
+[06:49] work/hoe x2, ui/error, work/crown_build
+[06:50] work/hoe
+[06:51] ui/click, work/hoe, work/crown_build
+[06:52] work/hoe
+[06:53] voice/labourer/select, ui/click, work/hoe x2, work/crown_build
+[06:54] work/hoe x2, ui/click
+[06:55] ui/click, work/hoe, work/crown_build
+[06:56] work/hoe
+[06:57] work/hoe, work/crown_build
+[06:58] work/hoe x2, crown/placed, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, ui/error
+[06:59] crown/built, announcer/crown/building_done
+[07:00] work/crown_build, work/hoe x3
+[07:01] ui/click, combat/cannon_attack, crown/placed
+[07:02] work/crown_build, combat/cannon_hit, work/hoe
+[07:03] work/crown_build, work/hoe x2
+[07:04] work/crown_build x2, work/hoe, voice/crown_army/select
+[07:05] work/hoe x2, crown/placed, select/town_hall
+[07:06] work/crown_build x2, work/hoe
+[07:07] ui/click x3, combat/cannon_attack, work/hoe, combat/cannon_hit
+[07:08] work/crown_build x2, work/hoe x3
+[07:09] work/hoe, select/farm, ui/click, crown/placed x2
+[07:10] voice/labourer/select, ui/click, work/hoe, work/crown_build
+[07:11] work/hoe x3
+[07:12] ui/click x2, work/hoe x2, combat/cannon_attack, work/crown_build, crown/placed
+[07:13] work/hoe x2, combat/cannon_hit
+[07:14] work/hoe x3, crown/placed, work/crown_build
+[07:15] work/hoe
+[07:16] work/hoe x2, work/crown_build, ui/click
+[07:17] work/hoe x2, select/town_hall, ui/click
+[07:18] combat/cannon_attack, crown/placed x2, work/hoe, combat/cannon_hit, work/crown_build
+[07:19] work/hoe x2, work/crown_build, voice/labourer/select, ui/click
+[07:20] ui/click, work/hoe x2, work/crown_build
+[07:21] crown/placed, work/farm_harvest, done, ui/click, work/hoe x2, work/crown_build
+[07:22] voice/crown_recruit/barracks, voice/musketeer/select, work/hoe x2, ui/click, work/crown_build
+[07:23] crown/placed, work/hoe x2, combat/cannon_attack, work/crown_build
+[07:24] work/hoe x3, combat/cannon_hit, work/crown_build
+[07:25] work/hoe x2, work/crown_build
+[07:26] work/hoe x4, work/crown_build
+[07:27] crown/placed, work/crown_build
+[07:28] work/hoe x2, work/crown_build
+[07:29] crown/placed, work/hoe x2, voice/labourer/attack, ui/click, work/crown_build, combat/cannon_attack
+[07:30] work/hoe x3, combat/cannon_hit, work/crown_build
+[07:31] work/hoe x3, voice/labourer/move, ui/click, work/crown_build
+[07:32] crown/placed, work/hoe x2, work/crown_build
+[07:33] work/hoe x4, voice/musketeer/select, ui/click x2, work/crown_build
+[07:34] work/hoe x3, work/crown_build, voice/musketeer/move, ui/click
+[07:35] work/hoe x2, combat/cannon_attack, work/crown_build
+[07:36] work/hoe x3, combat/cannon_hit, clash, crown/placed, select/town_hall, work/crown_build
+[07:37] work/hoe x4, crown/placed, work/crown_build, work/farm_harvest, done, clash
+[07:38] work/hoe x2, crown/built, announcer/crown/building_done, combat/musketeer_attack, work/crown_build
+[07:39] work/hoe, combat/grub_death, combat/musketeer_attack, work/crown_build
+[07:40] work/hoe x3, work/farm_harvest, done, work/crown_build
+[07:41] crown/placed, work/hoe x2, work/crown_build
+[07:42] work/hoe, voice/musketeer/select, ui/click x2, work/crown_build
+[07:43] work/hoe x3, ui/click, work/crown_build
+[07:44] work/hoe x2, work/crown_build, voice/labourer/select, ui/click
+[07:45] crown/placed x2, ui/click, work/crown_build
+[07:46] work/hoe, ui/click, work/crown_build
+[07:47] work/hoe x2, ui/error, work/crown_build
+[07:48] work/hoe x2, ui/click
+[07:49] work/hoe x3, work/crown_build, crown/placed
+[07:50] voice/musketeer/select, ui/click x3, work/hoe
+[07:51] work/crown_build, voice/crown_bugle/hold, ui/click
+[07:52] work/hoe x3, crown/built, announcer/crown/building_done
+[07:53] work/hoe x4, work/crown_build, voice/cannon/select, ui/click
+[07:54] work/hoe x2
+[07:55] ui/click, work/hoe x4, work/crown_build
+[07:56] work/hoe x3
+[07:57] select/town_hall, work/hoe x3, work/crown_build
+[07:58] crown/placed x2, ui/click x4, work/hoe x2
+[07:59] work/hoe, work/crown_build
+[08:00] work/hoe x2, ui/click, crown/placed
+[08:01] work/hoe x2, work/crown_build
+[08:02] work/hoe, MUSIC ended crown_peace_2, MUSIC crown_peace_8, voice/labourer/select, ui/click
+[08:03] work/hoe, work/crown_build, ui/click
+[08:04] work/hoe x3, work/crown_build, ui/click
+[08:05] work/crown_build, crown/placed
+[08:06] work/hoe x2, work/crown_build
+[08:07] work/hoe, work/crown_build
+[08:08] work/hoe, work/crown_build
+[08:09] ui/click x2, work/hoe, work/crown_build
+[08:10] crown/placed, work/crown_build, work/hoe
+[08:11] work/hoe, ui/click, work/crown_build
+[08:12] work/hoe, work/crown_build
+[08:13] work/hoe x2, voice/crown_recruit/barracks, voice/musketeer/select, work/crown_build, crown/placed
+[08:14] crown/placed, ui/click, work/crown_build, work/hoe x2
+[08:15] select/town_hall, ui/click x3, work/crown_build, work/hoe x2
+[08:16] ui/click, work/hoe x2
+[08:17] combat/musketeer_attack, work/hoe x3, work/farm_harvest, done
+[08:18] work/hoe x3
+[08:19] work/hoe x3
+[08:20] work/crown_build
+[08:21] done, crown/placed, work/hoe x2
+[08:22] voice/cannon/select, ui/click, work/crown_build, work/hoe
+[08:23] work/hoe x3, work/crown_build, ui/click
+[08:24] work/crown_build, work/hoe x2
+[08:25] work/farm_harvest, done, work/crown_build, crown/placed, select/town_hall, work/hoe
+[08:26] work/hoe x2
+[08:27] work/crown_build x2, crown/placed, work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[08:28] voice/crown_recruit/barracks
+[08:29] work/crown_build x2, work/hoe x4
+[08:30] voice/musketeer/select, ui/click x2, work/hoe x4, crown/placed
+[08:31] work/hoe x4, work/crown_build
+[08:32] work/hoe, voice/musketeer/move, ui/click
+[08:33] work/crown_build
+[08:34] work/hoe x2, select/town_hall
+[08:35] ui/click, work/hoe, work/crown_build
+[08:36] work/hoe
+[08:37] work/hoe, work/crown_build
+[08:38] ui/click x2, work/hoe, ui/error, announcer/crown/no_supply
+[08:39] work/hoe, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/crown_build
+[08:40] work/hoe x2
+[08:41] ui/click x3, work/crown_build x2, work/hoe x2, announcer/crown/paused, announcer/crown/resumed
+[08:42] work/hoe x3
+[08:43] work/hoe x2, work/crown_build x2, ui/click
+[08:44] work/farm_harvest, done, work/hoe
+[08:45] work/hoe x3, work/crown_build x2
+[08:46] work/hoe, crown/built, announcer/crown/building_done
+[08:47] work/hoe x2, voice/musketeer/select, ui/click x2
+[08:49] work/hoe x2
+[08:50] voice/crown_recruit/horse_breeder, horse/neigh
+[08:51] work/hoe x2, combat/cannon_attack, ui/click, combat/musketeer_attack, combat/raptor_death, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, combat/cannon_hit, MUSIC crown_battle_11
+[08:52] work/hoe x3, combat/musketeer_attack x2, combat/raptor_death x3, combat/raptor_attack x2, combat/cannon_attack, ui/click x2, combat/cannon_hit, voice/crown_bugle/hold
+[08:53] work/hoe x3, combat/raptor_attack x3, combat/musketeer_attack x2, combat/raptor_death x2
+[08:54] work/hoe x3, combat/raptor_attack x3, combat/cannon_attack, combat/musketeer_attack x2, combat/raptor_death x2, voice/labourer/select, ui/click, combat/cannon_hit
+[08:55] combat/raptor_attack x3, combat/musketeer_attack x2, combat/raptor_death x2, work/hoe
+[08:56] combat/tyrant_challenger_attack x2, combat/raptor_death x3, combat/musketeer_attack x2, ui/error, ui/click, combat/raptor_attack x3, combat/cannon_attack, combat/cannon_hit
+[08:57] work/hoe, combat/tyrant_challenger_attack x3, ui/click x2, combat/raptor_death x2, combat/musketeer_attack x4, combat/raptor_attack, combat/cannon_attack, voice/labourer/select
+[08:58] work/hoe x3, combat/raptor_attack, combat/tyrant_challenger_attack x2, combat/musketeer_attack x2, combat/raptor_death, combat/tyrant_challenger_death, ui/error, ui/click
+[08:59] announcer/crown/building_lost, combat/building_collapse, combat/explosion_big, combat/tyrant_challenger_attack x2, work/hoe, combat/tyrant_challenger_death x2, combat/raptor_attack, ui/click, combat/cannon_attack, combat/musketeer_attack x3, combat/cannon_hit
+[09:00] voice/crown_recruit/barracks, horse/neigh, voice/cuirassier/select, ui/click x2, combat/tyrant_challenger_death, combat/pikeman_attack x3, combat/raptor_attack x2, combat/tyrant_challenger_attack x2, combat/raptor_death, combat/musketeer_attack x2, work/hoe, voice/crown_recruit/foundry
+[09:01] combat/tyrant_challenger_death, combat/musketeer_attack x2, combat/crown_death, combat/tyrant_challenger_attack x2, work/crown_build, voice/musketeer/select, ui/click
+[09:02] ui/click x2, combat/raptor_attack, combat/tyrant_challenger_attack x3, combat/pikeman_attack x2, work/hoe x2, combat/crown_death
+[09:03] combat/pikeman_attack x3, combat/tyrant_challenger_attack x2, combat/tyrant_challenger_death, combat/musketeer_attack, combat/raptor_attack, voice/musketeer/move, ui/click, work/hoe, combat/raptor_death, work/crown_build
+[09:04] combat/musketeer_attack, combat/pikeman_attack x2, select/town_hall, ui/click, work/hoe x2, combat/crown_death, combat/tyrant_challenger_attack, combat/tyrant_challenger_death
+[09:05] combat/raptor_attack, combat/pikeman_attack x2, combat/tyrant_challenger_attack x2, combat/musketeer_attack, work/hoe x2, combat/crown_death, combat/cannon_canister, combat/raptor_death, voice/crown_recruit/horse_breeder, horse/neigh
+[09:06] combat/pikeman_attack x3, combat/tyrant_challenger_attack, combat/tyrant_challenger_death, work/hoe
+[09:07] work/hoe, combat/musketeer_attack x2, voice/cannon/select, ui/click
+[09:08] work/hoe x3, combat/musketeer_attack x2
+[09:09] work/hoe x3, horse/whinny
+[09:10] work/hoe x4
+[09:11] work/hoe x2, voice/musketeer/select, ui/click x4
+[09:12] work/hoe x3, voice/musketeer/move, ui/click
+[09:13] work/hoe x2
+[09:14] work/farm_harvest, done, work/hoe x4
+[09:15] work/hoe x2
+[09:16] work/hoe
+[09:17] work/hoe
+[09:18] work/hoe x3
+[09:19] work/hoe x3
+[09:20] work/hoe x3, voice/crown_recruit/horse_breeder, horse/neigh
+[09:21] horse/whinny, work/hoe x3, ui/click
+[09:22] work/hoe x3, ui/click
+[09:23] work/hoe
+[09:24] work/hoe x3, ui/back
+[09:25] work/hoe x2
+[09:26] work/hoe x2, voice/musketeer/move, ui/click
+[09:27] work/hoe x2, voice/musketeer/move, ui/click
+[09:28] work/hoe x2, ui/click
+[09:29] work/hoe x2
