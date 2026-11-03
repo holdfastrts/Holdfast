@@ -70,7 +70,7 @@ Yellow played better but its walls cost it its lead in army:
 The main ramp's Cottage wall (2 pieces, 0:22) was right on both sides: cheap, early, and it stopped the rush.
 That part is left alone (`tools/test_ai_wall_vs_rush.gd` guards it).
 
-## 4. The fix (0.26.5)
+## 4. The fix (0.26.13)
 
 **A held rush picks one transition at once** (`scripts/ai_transition.gd`, Crown computers on Normal and up). While the
 scout's verdict is "rush", it watches for the rush being held: no armed enemy within 420 px of our buildings for 10 s

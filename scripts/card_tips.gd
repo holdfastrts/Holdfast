@@ -12,7 +12,7 @@ extends RefCounted
 ## - the Brood Mother: her EGGS (an egg and "4/10": EggTip.tip, as her egg line on the map) and the GRUBS bringing her
 ##   food (mother_food_tip).
 ## Only for its own side (spectators and the demo see all), as the labels.
-## Each chip: {icon: "", pic: Texture2D or dot: Color, text, title, col, tipf: Callable -> {title, stats, body, hint}}.
+## Each chip: {icon: "", pic: Texture2D and/or dot: Color (the dot while pic is null), text, title, col, tipf: Callable -> {title, stats, body, hint}}.
 
 const FOOD := Color(0.55, 0.85, 0.3)
 const SOIL := Color(0.98, 0.8, 0.2)
@@ -21,6 +21,16 @@ const BRASS := Color(0.85, 0.68, 0.32)
 const SPRING := Color(0.55, 0.85, 1.0)        # (a Mainspring's spring life: the Tension blue)
 
 static var _pics := {}
+
+
+## A resource's painted icon (assets/ui/stats/res_<name>.png, the owner's ChatGPT sheets; tools/import_stat_icons.py),
+## null while missing: the chip then shows its coloured dot. The Mainspring's spring life uses the Tension icon.
+static func res_pic(name: String) -> Texture2D:
+	if name == "tension":
+		if not _pics.has("res:tension"):
+			_pics["res:tension"] = Game.tex("res://assets/icons/tension.png") if ResourceLoader.exists("res://assets/icons/tension.png") else null
+		return _pics["res:tension"]
+	return UnitStats.texture("res_" + name)
 
 
 ## The worker's (or the egg's) picture.
@@ -70,12 +80,12 @@ static func chips(g: Game, e: Entity) -> Array:
 			if not L.is_empty() and String(L["count"]) != "":
 				out.append({"icon": "", "pic": pic("grub"), "text": String(L["count"]), "title": "Grubs", "col": L["col"], "crew_of": u,
 					"tipf": func() -> Dictionary: return WorkerLabels.tip(g, u)})
-			out.append({"icon": "", "dot": FOOD, "text": "%d" % int(float(u.nb.get("food", 0.0))), "title": "Food",
+			out.append({"icon": "", "pic": res_pic("food"), "dot": FOOD, "text": "%d" % int(float(u.nb.get("food", 0.0))), "title": "Food",
 				"tipf": func() -> Dictionary: return WorkerLabels.tip(g, u)})
 			if u.kind == BroodNew.MAW:
 				# the food left in its GROUND (the owner, 2026-10-30 19:33: as its tooltip says)
 				var gl := BroodNew.ground_left(g, u)
-				out.append({"icon": "", "dot": SOIL, "text": "%d" % int(gl), "title": "Ground",
+				out.append({"icon": "", "pic": res_pic("soil"), "dot": SOIL, "text": "%d" % int(gl), "title": "Ground",
 					"col": Color(1, 0.45, 0.4) if gl < 1.0 else null,
 					"tipf": func() -> Dictionary: return WorkerLabels.tip(g, u)})
 		return out
@@ -98,10 +108,11 @@ static func chips(g: Game, e: Entity) -> Array:
 			if not L3.is_empty():
 				out.append({"icon": "", "pic": pic("labourer"), "text": String(L3["count"]), "title": "Haulers", "col": L3["col"], "crew_of": hall,
 					"tipf": func() -> Dictionary: return WorkerLabels.tip(g, hall) if is_instance_valid(hall) and not hall.dead else {}})
-	var res := {"farm": ["Soil", SOIL], "powder_mill": ["Saltpetre", SALT], Defs.GEAR_PRESS: ["Brass", BRASS], "mainspring": ["Spring life", SPRING]}
+	var res := {"farm": ["Soil", SOIL, "soil"], "powder_mill": ["Saltpetre", SALT, "saltpetre"], Defs.GEAR_PRESS: ["Brass", BRASS, "brass"],
+		"mainspring": ["Spring life", SPRING, "tension"]}
 	if res.has(b.kind) and (b.crew_max() > 0 or b.haul_cap() > 0):
 		var left := b.soil_left() if b.kind == "farm" or b.kind == "mainspring" else b.lode_left()      # (a Mainspring: its Clocktower's spring life)
-		out.append({"icon": "", "dot": res[b.kind][1], "text": "%d%%" % int(round(left * 100.0)), "title": res[b.kind][0],
+		out.append({"icon": "", "pic": res_pic(res[b.kind][2]), "dot": res[b.kind][1], "text": "%d%%" % int(round(left * 100.0)), "title": res[b.kind][0],
 			"col": Color(1, 0.45, 0.4) if left <= 0.0 else null,
 			"tipf": func() -> Dictionary: return WorkerLabels.tip(g, b)})
 	return out

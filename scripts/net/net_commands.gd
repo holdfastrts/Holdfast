@@ -11,7 +11,7 @@ extends RefCounted
 const GAME := {
 	"smart_command": {"own": [0]}, "group_move": {"own": [0]}, "command_all": {"own": [0]},
 	"set_rally": {"own": [0]}, "place_building": {"team": 0, "own": [3]}, "place_line": {"team": 0, "own": [4]},
-	"train_any": {"own": [0]}, "cancel_train": {"own": [0]}, "cancel_train_at": {"own": [0]},
+	"train_any": {"own": [0]}, "cancel_train": {"own": [0]}, "cancel_train_at": {"own": [0]}, "crew_order": {"own": [0]},
 	"start_research": {"own": [0]}, "demolish": {"own": [0]},
 	"abandon": {"own": [0]}, "set_gate_locked": {"own": [0]}, "refit_order": {"own": [0]},
 	"mount_order": {"own": [0]}, "lead_order": {"own": [0]}, "harness_order": {"own": [0]},

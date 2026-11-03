@@ -814,11 +814,12 @@ func place_line(t: int, k: String, a: Vector2i, b: Vector2i, builders: Array, qu
 
 
 ## The nearest enemy wall or gate right in front of a unit that can't get through.
+## (a piece going up counts: it is solid already, and units walled out by it pushed at it for good; a planned one is open ground)
 func blocking_wall(u: Unit) -> Building:
 	var best: Building = null
 	var bd := 70.0
 	for b in buildings:
-		if b.dead or not b.built or not (b.kind == "wall" or b.kind == "gate") or not hostile(b.team, u.team):
+		if b.dead or b.ghost or not (b.kind == "wall" or b.kind == "gate") or not hostile(b.team, u.team):
 			continue
 		var dd: float = b.edge_distance(u.position)
 		if dd < bd and u.can_hit(b):
@@ -4383,6 +4384,13 @@ func cancel_train(b: Building) -> void:
 	refund(b.team, k, kit, b)
 	if Building.is_research(k):
 		_drop_dependent_research(b.team, k.substr(1))
+
+
+## + WORKER / - WORKER on a crewed building's card (scripts/crew_orders.gd): one worker comes to work it from the
+## least important job, or one of its crew goes to another post. "" or why not (a guest: "", the host answers).
+func crew_order(b: Building, add: bool) -> String:
+	if net_forward(self, "crew_order", [b, add]): return ""
+	return CrewOrders.order(self, b, add)
 
 
 ## Cancel one entry of the production line (a click on its picture in the unit card).
@@ -10477,13 +10485,45 @@ func breeders_of(t: int) -> Array:
 	return buildings.filter(func(b: Building) -> bool: return b.team == t and b.kind == "horse_breeder" and b.built and not b.dead)
 
 
-## The finished breeder nearest `p` with room in its queue, or null.
+## The finished breeder with room in its queue that has the fewest horses queued (the nearest `p` of those), or null.
+## (The owner's playtest, 2026-11-03: with several Barracks training Horsemen only the nearest breeder bred, the
+## rest stood idle: now every breeder takes its share of the horses wanted; Game.share_breeders evens them out.)
 func breeder_with_room(t: int, p: Vector2) -> Building:
 	var best: Building = null
 	for b in breeders_of(t):
-		if b.queue.size() < 5 and (best == null or b.center().distance_to(p) < best.center().distance_to(p)):
+		if b.queue.size() >= 5:
+			continue
+		if best == null or b.queue.size() < best.queue.size() \
+				or (b.queue.size() == best.queue.size() and b.center().distance_to(p) < best.center().distance_to(p)):
 			best = b
 	return best
+
+
+## Every 2 s (Game._horse_res_tick): a breeder with nothing to do takes over a horse waiting in another breeder's
+## queue for a recruit (a "rid" entry not yet started: index 1 on), so every breeder breeds while horses are wanted.
+## Horses the player queued by hand stay where he queued them.
+func share_breeders(t: int) -> void:
+	var brs := breeders_of(t)
+	if brs.size() < 2:
+		return
+	for idle in brs:
+		if not idle.queue.is_empty():
+			continue
+		var from: Building = null
+		var fi := -1
+		for b in brs:
+			if b == idle or b.queue.size() < 2:
+				continue
+			for i in range(b.queue.size() - 1, 0, -1):
+				if String(b.queue[i]) == "horse" and int(b.kit_at(i).get("rid", 0)) != 0:
+					if from == null or b.queue.size() > from.queue.size():
+						from = b
+						fi = i
+					break
+		if from == null:
+			return
+		var kit := from.take_entry(fi)
+		idle.add_entry("horse", kit)
 
 
 ## A free horse of ours (not reserved, led, claimed or walking anywhere) standing within
@@ -10717,6 +10757,8 @@ func _horse_res_tick(delta: float) -> void:
 	if _res_chk > 0.0:
 		return
 	_res_chk = 2.0
+	for t in players.size():
+		share_breeders(t)
 	for h in units:
 		if h.kind == "horse" and not h.dead and h.horse_rid != 0 and rid_owner(h.team, h.horse_rid) == null:
 			h.horse_rid = 0

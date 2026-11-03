@@ -7,6 +7,8 @@ Names, in reading order (row by row, left to right), the order the sheet was ask
   supply, no_attack
 A second sheet, art/redraws/stat_icons_light_dps_chatgpt.png (two framed icons side by side), gives:
   vs_light (a sword striking a cloth tunic), dps (an hourglass with a blood drop)
+Then the resource icons (res_gold, res_powder, res_horses, res_soil, res_saltpetre; res_food, res_spoils, res_cogs,
+res_brass) and the pistol mark (pistol_loaded, pistol_empty), each sheet a few framed icons on navy.
 (EXTRA below: the default run cuts both sheets.)
 
 Robust to the spacing and the grid (2 rows of 7, 4 + 4 + 4 + 2, one long row...): the background colour is taken
@@ -34,7 +36,13 @@ SHEET = "art/redraws/stat_icons_chatgpt.png"
 # single-icon redos that replace the sheet's picture (one framed icon on the same ground each)
 REDOS = {"melee": "art/redraws/stat_icon_melee_chatgpt.png"}      # (the sheet's first, a sword and a claw, was bad)
 # later sheets with icons the first one lacks: (sheet, names in reading order)
-EXTRA = [("art/redraws/stat_icons_light_dps_chatgpt.png", ["vs_light", "dps"])]
+EXTRA = [("art/redraws/stat_icons_light_dps_chatgpt.png", ["vs_light", "dps"]),
+         # the resource icons (top bar pills, card chips, costs) and the pistol mark (docs/art_redraw_queue.md 1-2)
+         ("art/redraws/res_icons_crown_chatgpt.png", ["res_gold", "res_powder", "res_horses", "res_soil", "res_saltpetre"]),
+         ("art/redraws/res_icons_brood_clockwork_chatgpt.png", ["res_food", "res_spoils", "res_cogs", "res_brass"]),
+         ("art/redraws/pistol_icons_chatgpt.png", ["pistol_loaded", "pistol_empty"])]
+# sheets whose icons get small leftover bits of the frame (rivet corners) wiped: islands near the edge
+DESPECK = {"res_icons_crown_chatgpt.png", "res_icons_brood_clockwork_chatgpt.png", "pistol_icons_chatgpt.png"}
 INSET = 0.14        # the brass frame round each icon: cut away (its share of the frame's side), the picture kept
 OUT = "assets/ui/stats"
 SIZE = 64
@@ -200,6 +208,18 @@ def run(sheet, out, contact=None, keep_bg=False, framed=False, redos=None, extra
     print("%d icons -> %s" % (len(icons), out))
 
 
+def despeck(ic, most=24, edge=8):
+    """Wipes small islands of the picture (under `most` px) that lie within `edge` px of the icon's side: the
+    corners of the brass frame the inset left behind."""
+    px = np.array(ic)
+    on = px[..., 3] > 24
+    for y0, y1, x0, x1 in label(on):
+        sub = on[y0:y1, x0:x1]
+        if sub.sum() < most and (y0 < edge or x0 < edge or y1 > SIZE - edge or x1 > SIZE - edge):
+            px[y0:y1, x0:x1, 3][sub] = 0
+    return Image.fromarray(px, "RGBA")
+
+
 def cut_sheet(sheet, names, out, keep_bg=False, framed=False, redos=None):
     """Cuts the len(names) icons of one sheet into out/<name>.png; returns (images, names)."""
     px = np.array(Image.open(sheet).convert("RGB")).astype(float)
@@ -215,6 +235,8 @@ def cut_sheet(sheet, names, out, keep_bg=False, framed=False, redos=None):
         else:
             bg_used = bg
         ic = cut(src, b, bg_used, keep_bg, framed)
+        if os.path.basename(sheet) in DESPECK and not keep_bg:
+            ic = despeck(ic)
         ic.save(os.path.join(out, name + ".png"))
         icons.append(ic)
         print("%-13s from %4d,%4d  %dx%d" % (name, b[2], b[0], b[3] - b[2], b[1] - b[0]))

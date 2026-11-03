@@ -14,6 +14,8 @@ extends SceneTree
 ##   offmelee the same melee with the camera far away (nothing of it drawn)
 ##   grubs    n Grubs + n/2 Raptors a side, the same melee in view
 ##   muskets  n/2 Musketeers a side (Crown) trading fire in view, the powder smoke as set (THICK by default)
+##   mixed    n/2 Musketeers (Crown) against n/2 Raptors (Brood) in view: volleys, smoke and a melee (docs/perf_smoke.md)
+## smoke:<0..3> sets the powder smoke (off, light, full, thick) instead of the setting.
 ## Side 1's army is selected (its rings, bars and the command card, as a player has them). The armies are made in
 ## one tick, but their men's timers are spread as an army made over minutes has them.
 ## --fixed-fps 60: every frame moves the game on 1/60 s whatever it costs, so the frame times are what a frame
@@ -80,8 +82,10 @@ class SilentSfx extends Sfx:
 func _initialize() -> void:
 	Settings.load_all()
 	for a in OS.get_cmdline_user_args():
-		if a in ["idle", "walk", "melee", "offmelee", "grubs", "muskets"]:
+		if a in ["idle", "walk", "melee", "offmelee", "grubs", "muskets", "mixed"]:
 			scen = a
+		elif a.begins_with("smoke:"):
+			PowderSmoke.force = int(a.substr(6))
 		elif a.begins_with("n:"):
 			n = int(a.substr(2))
 		elif a.begins_with("secs:"):
@@ -160,13 +164,14 @@ func _process(delta: float) -> bool:
 	if not begun:
 		if t > 0.2:
 			begun = true
-			var fac := "crown" if scen == "muskets" else "brood"
+			var fac := "crown" if scen in ["muskets", "mixed"] else "brood"
+			var fac1 := "brood" if scen == "mixed" else fac
 			if not sound:
 				root.add_child(SilentSfx.new())
 			seed(4242)
 			main.start({"map": map, "seed": 4242, "slots": [
 				{"who": "you", "faction": fac, "colour": 0, "side": 0},
-				{"who": "easy", "faction": fac, "colour": 1, "side": 1}]})
+				{"who": "easy", "faction": fac1, "colour": 1, "side": 1}]})
 			# (at once, as perf_bench does: the computers off, no music, no time limit on the path queue,
 			# so nothing goes by the wall clock and every run plays out the same)
 			var g0: Game = main.game
@@ -318,7 +323,7 @@ func _setup() -> void:
 	var set: Array = [["raptor", n]]
 	if scen == "grubs":
 		set = [["grub", n], ["raptor", n / 2]]
-	elif scen == "muskets":
+	elif scen in ["muskets", "mixed"]:
 		set = [["musketeer", n / 2]]
 	var p0: Vector2
 	var p1: Vector2
@@ -326,12 +331,12 @@ func _setup() -> void:
 		p0 = _open_near(h0.center() + dir * 320.0)
 		p1 = _open_near(h1.center() - dir * 320.0)
 	else:
-		var gap := 420.0 if scen == "muskets" else 360.0
+		var gap := 420.0 if scen in ["muskets", "mixed"] else 360.0
 		var m := _open_near(mid)
 		p0 = _open_near(m - dir * gap)
 		p1 = _open_near(m + dir * gap)
 	sides[0] = _army(0, p0, set)
-	sides[1] = _army(1, p1, set)
+	sides[1] = _army(1, p1, [["raptor", n / 2]] if scen == "mixed" else set)
 	_vp_rid = root.get_viewport().get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(_vp_rid, true)
 	match scen:
@@ -341,7 +346,7 @@ func _setup() -> void:
 			g.group_move(sides[0], p1, false)
 			g.group_move(sides[1], p0, false)
 			_fight_cam = true
-		"melee", "grubs", "muskets":
+		"melee", "grubs", "muskets", "mixed":
 			g.group_move(sides[0], p1, true)
 			g.group_move(sides[1], p0, true)
 			_cam_at = (p0 + p1) * 0.5
@@ -393,6 +398,42 @@ func _take_frame() -> void:
 	_prev = Prof.us.duplicate()
 	if g and g.powder_smoke:
 		_prev["smoke"] = g.powder_smoke.tick_us
+		_fill_k += 1
+		if _measuring and _fill_k % 10 == 0:
+			_smoke_fill(g.powder_smoke)
+
+
+## The powder smoke's fill (docs/perf_smoke.md): the area of the puffs drawn on screen, in screens (2.0: every pixel
+## of the screen blended twice over), the graphics card's work for it; and the puffs alive.
+var _fill_k := 0
+var _fill_sum := 0.0
+var _fill_n := 0
+var _fill_max := 0.0
+var _puffs_max := 0
+
+
+func _smoke_fill(ps: PowderSmoke) -> void:
+	if ps.cap == 0 or g.camera == null:
+		return
+	var vsz: Vector2 = root.get_viewport().get_visible_rect().size / g.camera.zoom
+	var scr := Rect2(g.camera.get_screen_center_position() - vsz * 0.5, vsz)
+	var ma: float = ps.get("mesh_area") if ps.get("mesh_area") != null else 1.0
+	var area := 0.0
+	for j in ps.cap:
+		if ps._life[j] <= 0.0 or ps._seen[j] <= 0.0 or ps._al[j] <= 0.0:
+			continue
+		var x: float = ps._age[j] / ps._life[j]
+		var gq := 1.0 - (1.0 - x) * (1.0 - x)
+		var sz: float = (ps._s0[j] + (ps._s1[j] - ps._s0[j]) * gq) * 27.0
+		var r := Rect2(ps._pos[j] - Vector2(sz, sz) * 0.5, Vector2(sz, sz))
+		var cut := r.intersection(scr)
+		area += cut.get_area() * 0.8 * ma
+	var layers := 1.0 + (1.0 / 3.0 * 0.999 if ps.level == 2 or ps.level == 1 else 0.0)      # (FULL and LIGHT: the veil draws a third again)
+	var f := area * layers / maxf(scr.get_area(), 1.0)
+	_fill_sum += f
+	_fill_n += 1
+	_fill_max = maxf(_fill_max, f)
+	_puffs_max = maxi(_puffs_max, ps.alive)
 
 
 func _zones_text(fr: Dictionary) -> String:
@@ -471,7 +512,9 @@ func _report() -> void:
 		"cpu_s": (cpu - _cpu0) / 1000.0, "wall_s": (Time.get_ticks_msec() - _wall0) / 1000.0,
 		"draw_calls": float(_draw_calls) / nf, "render_cpu_ms": _rend_cpu / maxf(_rend_n, 1), "render_gpu_ms": _rend_gpu / maxf(_rend_n, 1),
 		"fight_frames": _stats(_fight)[3], "fight_avg_ms": _stats(_fight)[0], "fight_low1_ms": _stats(_fight)[1], "fight_worst_ms": _stats(_fight)[2],
-		"alive0": alive[0], "alive1": alive[1], "units_total": g.units.size(), "worst_zones": _worst_zones}
+		"alive0": alive[0], "alive1": alive[1], "units_total": g.units.size(), "worst_zones": _worst_zones,
+		"smoke_fill_avg": _fill_sum / maxf(_fill_n, 1), "smoke_fill_max": _fill_max, "puffs_max": _puffs_max}
+	print("SWARM smoke: fill %.2f screens avg, %.2f most; %d puffs alive at most" % [_fill_sum / maxf(_fill_n, 1), _fill_max, _puffs_max])
 	var zs := PackedStringArray()
 	var per_tick := PackedStringArray()
 	var all_z: Array = ZONES.duplicate()

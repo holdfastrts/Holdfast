@@ -6,6 +6,7 @@ var fps := 10.0
 var loop := false
 var t := 0.0
 var n := 1
+var _a0 := -1.0          # (the alpha it had when its fade began)
 
 
 func setup(name: String, speed := 1.0, looping := false) -> void:
@@ -37,5 +38,10 @@ func _tick_effect(delta: float) -> void:
 			queue_free()
 			return
 	frame = f
-	if not loop and n >= 4 and f >= n - 2:
-		modulate.a = minf(modulate.a, clampf(float(n) - t, 0.0, 1.0) * 0.5 + 0.2)
+	if not loop and n >= 4 and t >= float(n - 2):
+		# (its last two frames fade smoothly to nothing from the alpha it was given: before 0.26.5 the alpha snapped
+		# to 0.7 at once and the sprite vanished at 0.2, a blink on every shot's puff; docs/perf_smoke.md)
+		if _a0 < 0.0:
+			_a0 = modulate.a
+		var k := clampf((float(n) - t) * 0.5, 0.0, 1.0)
+		modulate.a = _a0 * k * k * (3.0 - 2.0 * k)

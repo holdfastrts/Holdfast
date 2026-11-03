@@ -111,7 +111,7 @@ Each change below is one sound line. Only the list of sound names changed, so th
 
 ## Decisions made while the owner was away
 
-- **The Raptor keeps the owner's lizard recording** (since 0.7.84) for its voice and deaths. The Skywing's spines keep their older sound (the Raptor's and the Grub's bites are real chomps since 0.24.6). Every other Brood voice and death is new. The old insect clips of the Grub, Spitter, Brute, Mist Toad and Skywing are replaced, because the owner wants the Brood reptilian first.
+- **The Raptor keeps the owner's lizard recording** (since 0.7.84) for its voice and deaths. The Skywing's spines keep their older sound (the Grub's bites are real chomps since 0.24.6; the Raptor's were too, until the owner asked for the old computer-made swish and snap back in 0.26.9: `tools/audio/make_sfx2.py combat/raptor_attack`). Every other Brood voice and death is new. The old insect clips of the Grub, Spitter, Brute, Mist Toad and Skywing are replaced, because the owner wants the Brood reptilian first.
 - The Grub's move voice was insect feet. Now it is the same small call, as with every other creature.
 - **Who got which recording** follows his file names. The ones he did not name are Claude's choice:
   - weak_grown: the Grub, the Rootmaw, the Egg and under the Mother.
@@ -130,7 +130,7 @@ The owner sent a pack of Pixabay sound effects (art/audio_src/brood/SOURCES.txt 
 
 | Sound | When it plays | Cut from |
 |---|---|---|
-| `combat/<kind>_attack` (every Brood blow) | Each blow. The Raptor (3 takes) and the Grub (2) now have their own blows too. | The creature's snarl, as before, over a REAL bite: one of 9 chomps (`CHOMPS`: monster-bite, chomping, chomp), pitched to size. The Tyrant Sire, Brute and Mother have a wet hit under it. The Mist Toad's lick and tongue end on a slimy slap instead. |
+| `combat/<kind>_attack` (every Brood blow) | Each blow. The Grub (2 takes) has its own blow too; the Raptor's 3 are the old computer-made ones again (0.26.9, owner). | The creature's snarl, as before, over a REAL bite: one of 9 chomps (`CHOMPS`: monster-bite, chomping, chomp), pitched to size. The Tyrant Sire, Brute and Mother have a wet hit under it. The Mist Toad's lick and tongue end on a slimy slap instead. |
 | `combat/spitter_hit` (3), `venom_challenger_hit` (2), `dilophosaurus_hit` (2) | A venom glob lands (Shot.impact_sound, Game.blob_land). | Wet splats sized like the globs: small and higher (splat2ogg, wet-splat, slime), mid (cartoon-wet-splat, slime), big and lower (wet-impact, cartoon-wet-splat) with a bit of hiss. |
 | `combat/<kind>_death` | Every Brood death. | The dying call as before, with a wet burst under it (`WET_DEATH`: small, mid or large splat per creature). The egg's death: a real shell cracking. |
 | `brood/hatch` (3) | An egg hatches. | egg-crack5, egg-crack14, egg-cracking, each with a little goo (so-slimy, extended-squish, a splat). |
