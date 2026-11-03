@@ -160,11 +160,6 @@ func _maybe_go() -> void:
 	if game.clock < _next_go or ai.peaceful or ai._foe() < 0:
 		return
 	_next_go = game.clock + 2.0
-	if ai._threat() != Vector2.INF:
-		_threat_t = game.clock
-		return
-	if game.clock - _threat_t < QUIET:
-		return
 	var home := _home_army()
 	var guns := home.filter(func(u: Unit) -> bool: return GUNS.has(u.kind))
 	var cannons := guns.filter(func(u: Unit) -> bool: return u.kind == "cannon").size()
@@ -176,14 +171,33 @@ func _maybe_go() -> void:
 	var mine := 0.0
 	for u in home:
 		mine += float(Game.unit_value(u)) * (GUN_WEIGHT if GUNS.has(u.kind) else 1.0)
+	# an enemy force at our buildings (not a lone scout or a raider the guards see off): the push stays, and QUIET s after
+	var near: float = ai.ch.foe_near()
+	if ai._threat() != Vector2.INF and near >= THREAT_MIN:
+		_threat_t = game.clock
+		_stay("an enemy force (%d) is at our buildings" % int(near))
+		return
+	if game.clock - _threat_t < QUIET:
+		_stay("an enemy force was at our buildings %d s ago" % int(game.clock - _threat_t))
+		return
 	var known: float = ai.ch.foe_known()
 	var edge := EDGE_BROOD if _brood() else EDGE
 	if known > 0.0 and mine < known * edge and not big:
-		if game.clock - float(cur.get("waited_said", -99.0)) > 60.0:
-			cur["waited_said"] = game.clock
+		if game.clock - _stay_t > 60.0:
+			_stay_t = game.clock
 			say("waits: %d of army against the %d it knows (it wants %.1f times)" % [int(mine), int(known), edge])
 		return
 	_go(home, mine)
+
+
+const THREAT_MIN := 250.0       # (value) an enemy force this big seen on our side keeps the push home
+var _stay_t := -99.0
+
+
+func _stay(why: String) -> void:
+	if game.clock - _stay_t > 60.0:
+		_stay_t = game.clock
+		say("stays home: " + why)
 
 
 func _go(home: Array, value: float) -> void:
@@ -416,6 +430,8 @@ func _march(line: Array, guns: Array, mid: Vector2) -> void:
 
 # ------------------------------------------------------------------ set up
 
+var _gspot := {}                # gun -> its spot against the defence set up against
+const SPOT_T := 25.0            # (s) a gun not at its spot by then fires from where it is (it walks into range itself)
 var _said_what := ""
 var _said_t := -99.0
 
@@ -428,6 +444,7 @@ func _set_up(a, mid: Vector2) -> void:
 	_set_t = game.clock
 	_orders_t = 0.0
 	_pick_t.clear()
+	_gspot.clear()
 	cur["sets"] = int(cur.get("sets", 0)) + 1
 	if not cur.has("contact"):
 		cur["contact"] = game.clock
@@ -516,9 +533,15 @@ func _gun(g: Unit, out: Vector2, side: Vector2, i: int, n: int) -> void:
 		if g.position.distance_to(wagon.position) > 70.0 and (g.order != "move" or g.order_point.distance_to(wagon.position) > 50.0):
 			g.cmd_move(wagon.position + out * 40.0)
 		return
-	var d := CANNON_D if g.kind == "cannon" else MORTAR_D
-	var off := (float(i) - (n - 1) * 0.5) * 46.0
-	var spot := _spot(anchor_p + out * d + side * off)
+	# its spot behind the line (against a defence: fixed when the push set up, so the gun is not sent on and on; against an
+	# army on the line there is none, the gun fires from where it is and walks into range by itself)
+	var spot := Vector2.INF
+	if _static_target(anchor):
+		if not _gspot.has(g):
+			var d := CANNON_D if g.kind == "cannon" else MORTAR_D
+			var off := (float(i) - (n - 1) * 0.5) * 46.0
+			_gspot[g] = _spot(anchor_p + out * d + side * off)
+		spot = _gspot[g]
 	# canister: enemies at the gun
 	if g.kind == "cannon":
 		var close := _visible_foes(g.position, CANISTER_R).filter(func(e: Unit) -> bool: return not e.is_air() and (not e.is_worker() or e.target != null))
@@ -532,7 +555,7 @@ func _gun(g: Unit, out: Vector2, side: Vector2, i: int, n: int) -> void:
 			return
 		elif g.mode == "canister":
 			g.set_canister(false)
-	if g.position.distance_to(spot) > 60.0 and g.tesla_mode == "packed":
+	if spot != Vector2.INF and g.position.distance_to(spot) > 60.0 and g.tesla_mode == "packed" and game.clock - _set_t < SPOT_T:
 		if g.order != "move" or g.order_point.distance_to(spot) > 40.0:
 			g.cmd_move(spot)
 		return

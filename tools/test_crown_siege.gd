@@ -141,8 +141,8 @@ func _run() -> void:
 	var t0 := g.clock
 	while g.clock - t0 < BREAK_BY + 30.0:
 		await wait(0.5)
-		var alive_men := men.filter(func(u: Unit) -> bool: return not u.dead)
-		var alive_guns := guns.filter(func(u: Unit) -> bool: return not u.dead)
+		var alive_men := men.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
+		var alive_guns := guns.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
 		if sg.state == "march" and set_t < 0.0 and not alive_men.is_empty() and not alive_guns.is_empty():
 			march_n += 1
 			var lm := sg._mid(alive_men)
@@ -155,21 +155,21 @@ func _run() -> void:
 			for gu in alive_guns:
 				if gu.tesla_mode == "deployed":
 					for tu in turrets:
-						if not tu.dead and gu.position.distance_to(tu.center()) < TURRET_SAFE:
+						if is_instance_valid(tu) and not tu.dead and gu.position.distance_to(tu.center()) < TURRET_SAFE:
 							safe_bad = "%s at %d px from a turret" % [gu.kind, int(gu.position.distance_to(tu.center()))]
-			if not wagon.dead:
+			if is_instance_valid(wagon) and not wagon.dead:
 				wagon_n += 1
 				if alive_men.any(func(u: Unit) -> bool: return u.position.distance_to(wagon.position) < WAGON_GAP):
 					wagon_bad += 1
-		if broke_t < 0.0 and turrets.all(func(b: Building) -> bool: return b.dead):
+		if broke_t < 0.0 and turrets.all(func(b) -> bool: return not is_instance_valid(b) or b.dead):
 			broke_t = g.clock - t0
 			break
 	check(march_n > 0 and march_ok >= march_n * 0.8, "[march] the guns limbered behind the line on the march (%d of %d looks)" % [march_ok, march_n])
 	check(set_t >= 0.0, "[set] it set up (%s)" % str(sg.log.map(func(e) -> String: return "%d %s" % [int(e[0]), e[1]])))
-	var on_hold := men.filter(func(u: Unit) -> bool: return not u.dead and u.order == "hold").size()
+	var on_hold := men.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and u.order == "hold").size()
 	check(safe_bad == "", "[set] the guns fired from out of the turrets' reach %s" % safe_bad)
 	check(broke_t >= 0.0 and broke_t <= BREAK_BY, "[break] both turrets down by %d s (%d s)" % [int(BREAK_BY), int(broke_t)])
-	check(guns.all(func(u: Unit) -> bool: return not u.dead), "[break] ... with no gun lost (%d left)" % guns.filter(func(u: Unit) -> bool: return not u.dead).size())
+	check(guns.all(func(u) -> bool: return is_instance_valid(u) and not u.dead), "[break] ... with no gun lost (%d left)" % guns.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead).size())
 	print("   the line on HOLD when the turrets fell: %d" % on_hold)
 	check(wagon_n > 0 and float(wagon_bad) <= float(wagon_n) * WAGON_BAD, "[wagon] the wagon kept out of the line (%d of %d looks within %d px)" % [wagon_bad, wagon_n, int(WAGON_GAP)])
 	# [back] a big army comes at it
@@ -188,7 +188,7 @@ func _run() -> void:
 		check(back_t >= 0.0, "[back] it fell back when a big army came (%s s: %s)" % [str(int(back_t)), str(sg.log.back() if not sg.log.is_empty() else "")])
 		await wait(8.0)
 		var hm: Vector2 = ai._front()
-		var gl := guns.filter(func(u: Unit) -> bool: return not u.dead)
+		var gl := guns.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
 		check(gl.is_empty() or gl.all(func(u: Unit) -> bool: return u.order == "move" and u.order_point.distance_to(hm) < 120.0 or u.position.distance_to(hm) < 200.0),
 			"[back] ... its guns go home (%d alive)" % gl.size())
 	else:

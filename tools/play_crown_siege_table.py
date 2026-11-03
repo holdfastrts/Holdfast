@@ -36,6 +36,13 @@ def game(d):
             q = re.match(r"push t0 (\d+) sup (\d+) guns (\d+) cannons (\d+) line (\d+) value (\d+) end (\S+) why \[(.*)\] killed (-?\d+) lost (-?\d+) broke (\{.*\}) sets (\d+)(?: contact (\d+))?", l)
             if q:
                 pushes.append(q.groups())
+    ev = os.path.join(d, "events.txt")
+    if not pushes and os.path.exists(ev):
+        for l in open(ev):
+            w = re.match(r"(\d{4}) the first attack goes out \((\d+) supply\)", l)
+            if w:
+                row["wave"] = "wave %s (%s)" % (mmss(w.group(1)), w.group(2))
+                break
     row["econ"] = econ
     row["pushes"] = pushes
     return row
@@ -59,7 +66,7 @@ def fmt(rows):
         res = r["result"] if r["result"] != "alive" else "alive %s" % r["end"]
         out.append("| %s | %s | %s %s | %s | %s | %s | %s | %s | %s | %s | %s |" % (
             r["game"], r["foe"], r["map"].replace("_", " ").title(), r["seed"], res, labs, gold, army,
-            ", ".join(outs) or "-", ", ".join("%d %s" % (v, k.replace("_", " ")) for k, v in broke.items()) or "-",
+            ", ".join(outs) or r.get("wave", "-"), ", ".join("%d %s" % (v, k.replace("_", " ")) for k, v in broke.items()) or "-",
             "%d / %d" % tuple(kl) if outs else "-", "%d / %d" % (r.get("killed", 0), r.get("lost", 0))))
     return "\n".join(out)
 
