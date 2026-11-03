@@ -4,7 +4,7 @@ The owner's idea (2026-11-01): "I think I found a way to cast a slow spell for c
 could have a spell that it throws a lot of cogs and parts from its top in an area of effect, littering the ground with
 stuff. This would make that area a slow field."
 
-Built on branch `cog-scatter` as version 0.26.1.
+Built on branch `cog-scatter` as version 0.26.3.
 Code: `scripts/cog_scatter.gd` (rules, card, computer, looks). Numbers: `Defs.COG_SCATTER`.
 Test: `tools/test_cog_scatter.gd`. Pictures: `tools/shot_cog_scatter.gd`, written to `docs/shots/cog_scatter/`.
 Icon: `tools/make_cog_scatter_icon.py` (a stand-in, see prompt 3).

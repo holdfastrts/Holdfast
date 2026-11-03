@@ -530,7 +530,7 @@ touch, and set down along the diagonal in code, 8 a tile, over the straight piec
 construction and destroyed versions are code-made (stakes snapped off with a light broken top), not drawn. A
 redraw could ask ChatGPT for a diagonal run at the straight pieces' stake size, stakes all the same height.
 
-## SCATTER COGS (code, 0.26.1; scripts/cog_scatter.gd, docs/cog_scatter.md)
+## SCATTER COGS (code, 0.26.3; scripts/cog_scatter.gd, docs/cog_scatter.md)
 - THE LITTER ON THE GROUND (code, CogScatter._draw): 34 pieces per field lying at the 3/4 angle (squashed to 0.55 high):
   cogs (the gear field's own IDLER COG, GearArt.ring "idler" 8 teeth, baked down to 24 px; steel ones are the same cog
   tinted grey-blue, copper ones tinted warm), bolts (a line with a hex head and thread ticks), coil springs (a zigzag),

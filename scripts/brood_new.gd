@@ -1001,6 +1001,7 @@ const MOTHER_FIGHT := 3.0
 const MOTHER_LEASH := 7.0
 const MOTHER_CALM := 9.0
 const MOTHER_NEAR := 10.0
+const MOTHER_STAY_CALM := 4.0     # (st "stay": up with no real reason, she roots again after this long with nobody at her)
 
 
 static func mother_guard(g: Game, q: Unit, st: Dictionary, dt: float) -> void:
@@ -1027,9 +1028,17 @@ static func mother_guard(g: Game, q: Unit, st: Dictionary, dt: float) -> void:
 		st["calm"] = 0.0          # (the calm counts only while she is fully up and nobody is about)
 	else:
 		st["calm"] = float(st["calm"]) + dt
+	# st "stay" (the computer's own call each think, AIBroodNew._nb_mother_up: docs/brood_ai_swarm.md): no real reason to
+	# get up (a small harass her army or a Sire answers, a scout): she STAYS ROOTED, armoured, and her swamp (and the
+	# Rootmaws on it) stays; up already for nothing that still strikes her, she roots again after a short calm
+	var stay := bool(st.get("stay", false))
+	if stay and foe == null and q.tesla_mode == "packed" and q.target == null:
+		st["calm2"] = float(st.get("calm2", 0.0)) + dt
+	else:
+		st["calm2"] = 0.0
 	match q.tesla_mode:
 		"deployed":
-			if foe != null:
+			if foe != null and not stay:
 				q.cmd_uproot(false)       # (to fight she must get up)
 		"packed":
 			if foe != null:
@@ -1037,7 +1046,7 @@ static func mother_guard(g: Game, q: Unit, st: Dictionary, dt: float) -> void:
 					q.cmd_move(home)
 				elif q.target == null or q.order == "idle":
 					q.cmd_attack(foe)
-			elif float(st["calm"]) >= MOTHER_CALM and q.target == null:
+			elif (float(st["calm"]) >= MOTHER_CALM or float(st["calm2"]) >= MOTHER_STAY_CALM) and q.target == null:
 				if q.position.distance_to(home) > Defs.TILE:
 					if q.order != "move":
 						q.cmd_move(home)
