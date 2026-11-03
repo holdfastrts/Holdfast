@@ -397,7 +397,8 @@ func _layer_sig(n: String) -> Array:
 			if _msg_t > 0.0:
 				vals.append_array([_msg, int(minf(_msg_t, 1.0) * 60.0)])
 			if game.spectating():
-				vals.append_array([_tick_n, m, view_open, prod_open])
+				vals.append_array([_tick_n, m, view_open, spec_panels().drop, SpecPanels.open.values(), SpecPanels.team.values(), Settings.narrator,
+					game.ai_story.version if game.ai_story else 0])
 			if countdown > 0.0 or _go_t > 0.0:
 				vals.append_array([countdown, _go_t])
 			return vals
@@ -523,7 +524,7 @@ func _hud_has(p: Vector2) -> bool:
 		return false        # the end screen takes the clicks
 	if paused or menu_open or quick_open:
 		return true
-	if game.spectating() and (view_open or view_rect().has_point(p) or prod_rect().has_point(p)):
+	if game.spectating() and (view_open or view_rect().has_point(p) or spec_panels().has_point(p)):
 		return true         # (an open list takes the next press anywhere: it closes it)
 	if _help_on() and help_rect().has_point(p):
 		return true
@@ -607,6 +608,11 @@ func _on_input(event: InputEvent) -> void:
 			if mb.pressed:
 				sel_scroll_by(-1 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
 			get_viewport().set_input_as_handled()
+		elif mb.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN] and game.spectating() and not view_open and spec_panels().has_point(mb.position):
+			if mb.pressed:
+				spec_panels().wheel(mb.position, -1 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1)     # (the AI STORY scrolls)
+				_redraw_t = 0.0
+			get_viewport().set_input_as_handled()
 		elif mb.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN] and _card_over() and card_rect().grow(4).has_point(mb.position):
 			if mb.pressed:
 				card_scroll_by(-1 if mb.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
@@ -679,9 +685,8 @@ func _press(p: Vector2) -> void:
 					toast(b["why"])
 				return
 		return
-	if game.spectating() and not view_open and prod_rect().has_point(p):
-		prod_open = not prod_open
-		Sfx.play_any(["ui/click", "click"])
+	if game.spectating() and not view_open and spec_panels().has_point(p):
+		spec_panels().press(p)        # (the spectator's panels: PRODUCTION, ARMY & STRUCTURES, AI STORY; scripts/ui/spec_panels.gd)
 		return
 	if game.spectating() and (view_open or view_rect().has_point(p)):
 		_view_press(p)
@@ -808,62 +813,15 @@ func _jump(p: Vector2) -> void:
 # ------------------------------------------------------------------ spectator VIEW dropdown
 
 var view_open := false
-var prod_open := false
+var _spec: SpecPanels = null
 
 
-## Watching computers: the PRODUCTION button beside VIEW.
-func prod_rect() -> Rect2:
-	var v := view_rect()
-	return Rect2(v.end.x + 8, v.position.y, 160, v.size.y)
-
-
-## What each watched player is making: every unit and research in its queues (the one in
-## progress with its bar), eggs morphing, and buildings going up.
-func _draw_production(font: Font) -> void:
-	var pr := prod_rect()
-	UiStyle.draw_button(_ci, pr, pr.has_point(_mouse()) and Settings.pc(), prod_open)
-	_text(UiStyle.bold_font(), pr.get_center() + Vector2(0, 6), "PRODUCTION" + ("  ▲" if prod_open else "  ▼"), 15, UiStyle.TEXT, 1)
-	if not prod_open or view_open:
-		return
-	var teams: Array = []
-	if game.view_team >= 0:
-		teams = [game.view_team]
-	else:
-		for t in game.players.size():
-			if not game.eliminated[t]:
-				teams.append(t)
-	const SZ := 34.0
-	const PER := 9
-	var w := PER * (SZ + 4) + 16
-	var x0 := _vs().x - w - 8
-	var y := pr.end.y + 8
-	# work out the rows first, then draw the panel behind them
-	var blocks: Array = []
-	var h := 8.0
-	for t in teams:
-		var items := prod_items(t)
-		var rows := maxi(1, int(ceil(items.size() / float(PER))))
-		blocks.append([t, items])
-		h += 22 + rows * (SZ + 10)
-	UiStyle.draw_panel(_ci, Rect2(x0, y, w, h), UiStyle.accent(game.faction_of(maxi(game.view_team, 0))), 0.92)
-	y += 8
-	for bl in blocks:
-		var t: int = bl[0]
-		var items: Array = bl[1]
-		_ci.draw_rect(Rect2(x0 + 10, y + 3, 10, 12), game.team_colour(t))
-		_text(UiStyle.bold_font(), Vector2(x0 + 26, y + 14), "P%d %s" % [t + 1, Defs.FACTIONS[game.faction_of(t)]["name"]] + ("   (nothing in production)" if items.is_empty() else ""), 13, UiStyle.TEXT)
-		y += 22
-		for i in items.size():
-			var it: Array = items[i]
-			var r := Rect2(x0 + 10 + (i % PER) * (SZ + 4), y + (i / PER) * (SZ + 10), SZ, SZ)
-			_ci.draw_rect(r, Color(0, 0, 0, 0.35))
-			var ic := _icon(String(it[0]))
-			if ic:
-				_ci.draw_texture_rect(ic, r, false, Color.WHITE if float(it[1]) >= 0.0 else Color(1, 1, 1, 0.55))
-			if float(it[1]) >= 0.0:
-				_ci.draw_rect(Rect2(r.position.x, r.end.y + 2, SZ, 4), Color(0, 0, 0, 0.5))
-				_ci.draw_rect(Rect2(r.position.x, r.end.y + 2, SZ * clampf(float(it[1]), 0.0, 1.0), 4), it[2])
-		y += maxi(1, int(ceil(items.size() / float(PER)))) * (SZ + 10)
+## Watching computers or a replay: the panels down the right (PRODUCTION, ARMY & STRUCTURES, AI STORY), each with its own
+## player dropdown (scripts/ui/spec_panels.gd, docs/spectator.md).
+func spec_panels() -> SpecPanels:
+	if _spec == null or _spec.game != game:
+		_spec = SpecPanels.new(self)
+	return _spec
 
 
 ## The PRODUCTION list of side t (watching computers): [icon, progress 0..1 or -1 (waiting), colour] each.
@@ -920,6 +878,7 @@ func _view_row(i: int) -> Rect2:
 func _view_press(p: Vector2) -> void:
 	if not view_open:
 		view_open = true
+		spec_panels().drop = ""
 		Sfx.play_any(["ui/click", "click"])
 		return
 	view_open = false
@@ -3344,8 +3303,8 @@ func _draw_rest(font: Font) -> void:
 		sb.draw(_ci.get_canvas_item(), mrr)
 		_text(UiStyle.bold_font(), Vector2(vs.x * 0.5, mrr.position.y + 25), _msg, 21, Color(1, 0.85, 0.65, a), 1)
 	if game.spectating():
+		spec_panels().draw()
 		_draw_view(font)
-		_draw_production(font)
 	if not paused:
 		_draw_countdown()
 

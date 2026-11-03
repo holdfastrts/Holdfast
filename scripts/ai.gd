@@ -187,6 +187,7 @@ var _failed := 0                # waves in a row that died without paying for th
 var _regroup_until := 0.0       # after a failed rush: no attack before this (building up)
 var _opened := ""               # the strategy it started with (a failed rush switches it)
 var _first_wave := false        # (the match log notes the first attack)
+var _wave_n := 0                # waves sent so far (the match log and the AI STORY count them)
 
 
 # ---- the rush's result: what to send after the first rush resolves ----
@@ -428,7 +429,11 @@ func _rush_pool(candidates: Array) -> Array:
 
 func _physics_process(delta: float) -> void:
 	var _p0 := Time.get_ticks_usec()
+	if game and game.mlog:
+		game.mlog.ai_team = team         # (what it writes now is its own decision: the AI STORY, scripts/ai_story.gd)
 	_tick_ai(delta)
+	if game and game.mlog:
+		game.mlog.ai_team = -1
 	Prof.add("ai", _p0)
 
 
@@ -4819,9 +4824,12 @@ func _army() -> void:
 		_rush_wave = false
 		if is_rush:
 			_rush_begin(ready, false)
+		_wave_n += 1
 		if game.mlog and not _first_wave:
 			_first_wave = true
 			game.mlog.add("%s's first attack goes out (%d supply, %d Horsemen)" % [game.mlog.who(team), _army_supply(ready), ready.filter(func(u: Unit) -> bool: return u.kind == "cuirassier").size()])
+		elif game.mlog:
+			game.mlog.add("%s's wave %d goes out (%d supply; the next waits for %d)" % [game.mlog.who(team), _wave_n, _army_supply(ready), _attack_at])
 		var prey0 := _prey_spot(game.center_of_team(team)) if _cavalry_wave(ready) else Vector2.INF
 		for u in ready:
 			if prey0 != Vector2.INF and u.kind == "cuirassier":

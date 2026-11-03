@@ -8,6 +8,7 @@ var game: Game
 var lines := PackedStringArray()
 var _snap_t := 0.0
 var _last := {}          # team -> {"killed", "lost"} at the last snapshot
+var ai_team := -1        # the computer thinking now (AI._physics_process): its lines are its decisions (AIStory)
 
 
 ## The log of the match being played (for the sound log); null between matches.
@@ -50,6 +51,8 @@ func who(t: int) -> String:
 
 func add(text: String) -> void:
 	lines.append("[%s] %s" % [stamp(), text])
+	if ai_team >= 0:
+		AIStory.from_log(game, text, ai_team)     # (a computer's decision: the AI STORY and the replay, scripts/ai_story.gd)
 
 
 func begin(levels: Dictionary) -> void:

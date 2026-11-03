@@ -377,6 +377,8 @@ func _post_events(t: float) -> void:
 		_ev += 1
 		if String(e[1]) == "chat" and game.chat:
 			game.chat.post(int(e[2]), String(e[3]))
+		elif String(e[1]) == "ai" and game.ai_story:
+			game.ai_story.from_event(e)          # (the AI STORY at its time, 0.27.0)
 		elif String(e[1]) == "out" and game.hud and int(e[2]) < game.n_players():
 			game.hud.toast(Loc.t("P%d %s is out.") % [int(e[2]) + 1, game.faction_of(int(e[2])).capitalize()], false)
 		elif String(e[1]) == "end" and game.hud:
@@ -442,13 +444,20 @@ func seek(t: float) -> void:
 	_ev = 0
 	if game.chat:
 		game.chat.lines.clear()
+	if game.ai_story:
+		game.ai_story.clear()
+		game.ai_story.silent = true          # (the story up to here, told again without the voice)
 	while _ev < events.size() and float(events[_ev][0]) <= t:
 		var e: Array = events[_ev]
 		_ev += 1
+		if String(e[1]) == "ai" and game.ai_story:
+			game.ai_story.from_event(e)
 		if String(e[1]) == "chat" and game.chat and float(e[0]) > t - Chat.SHOW_SECS:
 			Sfx.hush = true
 			game.chat.post(int(e[2]), String(e[3]))
 			Sfx.hush = false
+	if game.ai_story:
+		game.ai_story.silent = false
 	if back:
 		for ex in game.explored_by:
 			(ex as PackedByteArray).fill(0)     # (what each side had looked at by then: from here on)

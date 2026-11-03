@@ -169,6 +169,7 @@ var stats: Array = []
 var soil_scars: Array = []               # [centre, soil left, hall kind, lode left] where a Town Hall, Hive or Clocktower fell
 var _sample_t := 0.0
 var mlog: MatchLog              # the playtest log (copied from the end screen)
+var ai_story: AIStory = null    # watching computers or a replay: the AI STORY panel's feed and the narrator (ai_story.gd)
 var chat: Chat                  # the in-game chat (YOU and the computers; the log lines go to mlog)
 var end_note := ""              # how the match ended, for the log: "", "player_surrender", "ai_resigned"
 var end_ahead := ""             # on a player surrender: "ahead", "behind" or "about even" (worked out at that moment)

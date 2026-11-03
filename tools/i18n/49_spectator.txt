@@ -1,0 +1,538 @@
+# THE SPECTATOR OVERHAUL (0.27.0, docs/spectator.md): the panels (scripts/ui/spec_panels.gd), the AI STORY's sentences
+# (scripts/ai_story_lines.gd, scripts/ai_story.gd) and the narrator (scripts/narrator.gd, Settings > SOUND).
+# The placeholders stay in the same order as in English (the first %s is always the player, "P1 Crown").
+# supply = suprimento / suministro; base = base / base; worker = trabalhador / trabajador.
+
+> ARMY & STRUCTURES
+pt EXÉRCITO E ESTRUTURAS
+es EJÉRCITO Y ESTRUCTURAS
+
+> AI STORY
+pt HISTÓRIA DA IA
+es HISTORIA DE LA IA
+
+> All players
+pt Todos os jogadores
+es Todos los jugadores
+
+> All AIs
+pt Todas as IAs
+es Todas las IA
+
+> ... more
+pt ... mais
+es ... más
+
+> Structures
+pt Estruturas
+es Estructuras
+
+> army %d · supply %d/%d
+pt exército %d · suprimento %d/%d
+es ejército %d · suministro %d/%d
+
+> No computers in this match.
+pt Não há computadores nesta partida.
+es No hay ordenadores en esta partida.
+
+> This replay has no AI story (it was recorded before 0.27.0).
+pt Este replay não tem história da IA (foi gravado antes da 0.27.0).
+es Esta repetición no tiene historia de la IA (se grabó antes de la 0.27.0).
+
+> No voice for this language here: text only.
+pt Sem voz para este idioma aqui: só texto.
+es No hay voz para este idioma aquí: solo texto.
+
+> The computers are thinking...
+pt Os computadores estão pensando...
+es Los ordenadores están pensando...
+
+> Narrator on
+pt Narrador ligado
+es Narrador activado
+
+> Narrator muted
+pt Narrador mudo
+es Narrador silenciado
+
+> Player %d
+pt Jogador %d
+es Jugador %d
+
+> SPECTATOR NARRATOR
+pt NARRADOR DO ESPECTADOR
+es NARRADOR DEL ESPECTADOR
+
+> NARRATOR VOLUME
+pt VOLUME DO NARRADOR
+es VOLUMEN DEL NARRADOR
+
+> NARRATOR SPEED
+pt VELOCIDADE DO NARRADOR
+es VELOCIDAD DEL NARRADOR
+
+> The narrator reads the computers' big decisions out loud while you watch them play (the AI STORY panel; N or its speaker mutes it). It uses your system's voices: without one for your language the story is text only.
+pt O narrador lê em voz alta as grandes decisões dos computadores enquanto você os assiste jogar (o painel HISTÓRIA DA IA; N ou o seu alto-falante o silencia). Ele usa as vozes do seu sistema: sem uma para o seu idioma, a história fica só em texto.
+es El narrador lee en voz alta las grandes decisiones de los ordenadores mientras los ves jugar (el panel HISTORIA DE LA IA; N o su altavoz lo silencia). Usa las voces de tu sistema: sin una para tu idioma, la historia queda solo en texto.
+
+# ---- words the computers' lines put in the sentences
+
+> easy
+pt fácil
+es fácil
+
+> normal
+pt normal
+es normal
+
+> hard
+pt difícil
+es difícil
+
+> brutal
+pt brutal
+es brutal
+
+> rush
+pt rush
+es rush
+
+> economy
+pt economia
+es economía
+
+> balanced
+pt equilibrado
+es equilibrado
+
+> timing attack
+pt ataque cronometrado
+es ataque cronometrado
+
+> air rush
+pt rush aéreo
+es rush aéreo
+
+> extreme rush
+pt rush extremo
+es rush extremo
+
+> land
+pt terra
+es tierra
+
+> the riders are dead
+pt os cavaleiros morreram
+es los jinetes han muerto
+
+> the defenders are worth more than the riders
+pt os defensores valem mais que os cavaleiros
+es los defensores valen más que los jinetes
+
+> out of time
+pt o tempo acabou
+es se acabó el tiempo
+
+> the raiding party was cut down
+pt o grupo de ataque foi abatido
+es el grupo de incursión fue abatido
+
+> the wave is gone
+pt a onda acabou
+es la oleada ya no está
+
+> greedy economy
+pt economia gananciosa
+es economía codiciosa
+
+> standard opening
+pt abertura padrão
+es apertura estándar
+
+> uncertain
+pt incerto
+es incierto
+
+> %s: %s
+pt %s: %s
+es %s: %s
+
+# ---- the plans at the start
+
+> %s (%s) plays a balanced game: economy, tech and an army in steady waves.
+pt %s (%s) joga equilibrado: economia, tecnologia e um exército em ondas constantes.
+es %s (%s) juega equilibrado: economía, tecnología y un ejército en oleadas constantes.
+
+> %s (%s) plans a rush: an early attack with a small army, expanding late.
+pt %s (%s) planeja um rush: um ataque cedo com um exército pequeno, expandindo tarde.
+es %s (%s) planea un rush: un ataque temprano con un ejército pequeño, expandiéndose tarde.
+
+> %s (%s) plays greedy: many workers and bases first, a big army later.
+pt %s (%s) joga ganancioso: muitos trabalhadores e bases primeiro, um grande exército depois.
+es %s (%s) juega codicioso: muchos trabajadores y bases primero, un gran ejército después.
+
+> %s (%s) plans a timing attack: it builds up and strikes once, in force, at about 4:30.
+pt %s (%s) planeja um ataque cronometrado: cresce e ataca uma vez, com força, por volta de 4:30.
+es %s (%s) planea un ataque cronometrado: crece y golpea una vez, con fuerza, hacia las 4:30.
+
+> %s (%s) plans an air rush: fliers early, before the enemy can shoot them down.
+pt %s (%s) planeja um rush aéreo: voadores cedo, antes que o inimigo possa derrubá-los.
+es %s (%s) planea un rush aéreo: voladores pronto, antes de que el enemigo pueda derribarlos.
+
+> %s (%s) gambles on an extreme rush: everything on Raptors, the first wave as soon as they hatch.
+pt %s (%s) aposta num rush extremo: tudo em Raptores, a primeira onda assim que eclodem.
+es %s (%s) se la juega con un rush extremo: todo en Raptores, la primera oleada en cuanto eclosionan.
+
+> %s opens with a Horse Breeder: it plans an early Horseman rush.
+pt %s abre com um Criador de Cavalos: planeja um rush cedo de Cavaleiros.
+es %s abre con un Criador de Caballos: planea un rush temprano de Jinetes.
+
+> %s opens with a Powder Mill: Musketeers first, a steady line of fire.
+pt %s abre com um Moinho de Pólvora: Mosqueteiros primeiro, uma linha de fogo firme.
+es %s abre con un Molino de Pólvora: Mosqueteros primero, una línea de fuego firme.
+
+# ---- the look at what each computer builds
+
+> %s starts a new base (base %s).
+pt %s começa uma nova base (base %s).
+es %s empieza una nueva base (base %s).
+
+> %s starts its first %s: new tech.
+pt %s começa o seu primeiro %s: nova tecnologia.
+es %s empieza su primer %s: nueva tecnología.
+
+> %s starts its first %s, to make %s.
+pt %s começa o seu primeiro %s, para fazer %s.
+es %s empieza su primer %s, para hacer %s.
+
+# ---- scouting
+
+> %s's scout saw a rush coming: it switches to defence, army and walls first, then a counter-attack.
+pt %s: o batedor viu um rush chegando: passa à defesa, exército e muralhas primeiro, depois um contra-ataque.
+es %s: su explorador vio venir un rush: pasa a la defensa, ejército y murallas primero, luego un contraataque.
+
+> %s's scout saw a greedy enemy: it plans one big attack at %s with %s supply.
+pt %s: o batedor viu um inimigo ganancioso: planeja um grande ataque às %s com %s de suprimento.
+es %s: su explorador vio un enemigo codicioso: planea un gran ataque a las %s con %s de suministro.
+
+> %s's scout saw %s: it keeps to its %s plan.
+pt %s: o batedor viu %s: mantém o seu plano %s.
+es %s: su explorador vio %s: sigue con su plan %s.
+
+> %s could not see the enemy: it plays safe, army and walls before greed, and will look again.
+pt %s não conseguiu ver o inimigo: joga seguro, exército e muralhas antes da ganância, e vai olhar de novo.
+es %s no pudo ver al enemigo: juega seguro, ejército y murallas antes que la codicia, y volverá a mirar.
+
+> %s spots an enemy %s: a sign of a %s rush.
+pt %s avista um %s inimigo: sinal de um rush de %s.
+es %s divisa un %s enemigo: señal de un rush de %s.
+
+> %s spots an enemy %s: a normal opening, no rush yet.
+pt %s avista um %s inimigo: uma abertura normal, nada de rush ainda.
+es %s divisa un %s enemigo: una apertura normal, aún sin rush.
+
+> %s sends a %s to scout.
+pt %s manda um %s explorar.
+es %s envía un %s a explorar.
+
+> %s's scout plays safe and will look again.
+pt %s: o batedor joga seguro e vai olhar de novo.
+es %s: su explorador juega seguro y volverá a mirar.
+
+> %s posts a %s at the foot of the enemy's ramp to keep watch.
+pt %s posta um %s ao pé da rampa inimiga para vigiar.
+es %s aposta un %s al pie de la rampa enemiga para vigilar.
+
+# ---- rushes
+
+> %s's rush rides out: %s Horsemen together.
+pt %s: o rush sai a cavalo: %s Cavaleiros juntos.
+es %s: el rush sale a caballo: %s Jinetes juntos.
+
+> %s's rush has failed (%s): it builds up and will attack only with a proper force.
+pt %s: o rush falhou (%s): ele cresce e só vai atacar com uma força de verdade.
+es %s: el rush ha fracasado (%s): crece y solo atacará con una fuerza de verdad.
+
+> %s's rush worked: the riders regroup to finish the job together.
+pt %s: o rush deu certo: os cavaleiros se reagrupam para terminar o serviço juntos.
+es %s: el rush ha funcionado: los jinetes se reagrupan para terminar el trabajo juntos.
+
+> %s's rush worked: only %s enemy workers are left.
+pt %s: o rush deu certo: só restam %s trabalhadores inimigos.
+es %s: el rush ha funcionado: solo quedan %s trabajadores enemigos.
+
+> %s's %s failed: it falls back on economy and tech, and will return in force.
+pt %s: o plano de %s falhou: volta à economia e à tecnologia, e voltará com força.
+es %s: el plan de %s ha fracasado: vuelve a la economía y la tecnología, y volverá con fuerza.
+
+> %s held the enemy (its army %s against %s): it counter-attacks now with everything, %s supply.
+pt %s segurou o inimigo (o seu exército %s contra %s): contra-ataca agora com tudo, %s de suprimento.
+es %s contuvo al enemigo (su ejército %s contra %s): contraataca ahora con todo, %s de suministro.
+
+> %s held the enemy (its army %s against %s): it expands now while its army covers the new base.
+pt %s segurou o inimigo (o seu exército %s contra %s): expande agora enquanto o exército cobre a nova base.
+es %s contuvo al enemigo (su ejército %s contra %s): se expande ahora mientras su ejército cubre la nueva base.
+
+> %s held the enemy (its army %s against %s): back to economy and tech; the next attack waits for %s supply.
+pt %s segurou o inimigo (o seu exército %s contra %s): volta à economia e à tecnologia; o próximo ataque espera %s de suprimento.
+es %s contuvo al enemigo (su ejército %s contra %s): vuelve a la economía y la tecnología; el próximo ataque espera a %s de suministro.
+
+# ---- attacks
+
+> %s sends out its first attack: %s supply, %s of them Horsemen.
+pt %s manda o seu primeiro ataque: %s de suprimento, %s deles Cavaleiros.
+es %s lanza su primer ataque: %s de suministro, %s de ellos Jinetes.
+
+> %s attacks again: wave %s goes out with %s supply; the next one waits for %s.
+pt %s ataca de novo: a onda %s sai com %s de suprimento; a próxima espera %s.
+es %s ataca de nuevo: la oleada %s sale con %s de suministro; la siguiente espera a %s.
+
+> %s is at the supply cap or far ahead (%s supply): it attacks again.
+pt %s está no limite de suprimento ou muito à frente (%s de suprimento): ataca de novo.
+es %s está en el tope de suministro o muy por delante (%s de suministro): ataca de nuevo.
+
+> %s pulls its army back: it lost %s for only %s, a bad trade.
+pt %s recua o exército: perdeu %s por apenas %s, uma troca ruim.
+es %s retira su ejército: perdió %s por solo %s, un mal cambio.
+
+> %s breaks through at the enemy's %s.
+pt %s rompe a defesa inimiga em: %s.
+es %s rompe la defensa enemiga en: %s.
+
+> %s pulls back from the enemy's %s: the fire there is too strong.
+pt %s recua diante do inimigo em: %s: o fogo ali é forte demais.
+es %s se retira ante el enemigo en: %s: el fuego allí es demasiado fuerte.
+
+> %s drops %s Musketeers from a balloon behind the enemy lines!
+pt %s solta %s Mosqueteiros de um balão atrás das linhas inimigas!
+es %s suelta %s Mosqueteros desde un globo tras las líneas enemigas!
+
+> %s sends its Great Winder along with the army, to mend it in the field.
+pt %s manda o seu Grande Enrolador com o exército, para consertá-lo em campo.
+es %s envía su Gran Dador de Cuerda con el ejército, para repararlo en el campo.
+
+> %s sends %s soldiers home to refit.
+pt %s manda %s soldados para casa para se reequipar.
+es %s envía %s soldados a casa a reequiparse.
+
+# ---- raids
+
+> %s's raiders are through the wall and after the workers.
+pt %s: os invasores passaram a muralha e vão atrás dos trabalhadores.
+es %s: los incursores han cruzado la muralla y van a por los trabajadores.
+
+> %s's raiders break the %s in their way.
+pt %s: os invasores derrubam o que está no caminho: %s.
+es %s: los incursores derriban lo que les cierra el paso: %s.
+
+> %s's raiders find the workers walled off and look elsewhere.
+pt %s: os invasores encontram os trabalhadores murados e procuram em outro lugar.
+es %s: los incursores encuentran a los trabajadores amurallados y buscan en otra parte.
+
+> %s's %s goes after the enemy workers.
+pt %s: o %s vai atrás dos trabalhadores inimigos.
+es %s: el %s va a por los trabajadores enemigos.
+
+> %s's %s comes home.
+pt %s: o %s volta para casa.
+es %s: el %s vuelve a casa.
+
+> %s's %s keeps away from a %s.
+pt %s: o %s se mantém longe de um %s.
+es %s: el %s se mantiene lejos de un %s.
+
+# ---- defence
+
+> %s holds the top of its ramp: the force below (%s) is more than its army (%s) can beat.
+pt %s segura o alto da rampa: a força lá embaixo (%s) é mais do que o seu exército (%s) pode vencer.
+es %s defiende lo alto de su rampa: la fuerza de abajo (%s) es más de lo que su ejército (%s) puede vencer.
+
+> %s goes down its ramp with its army.
+pt %s desce a rampa com o exército.
+es %s baja su rampa con el ejército.
+
+> %s holds behind its wall: the enemy wave (%s) is bigger than its army (%s).
+pt %s se segura atrás da muralha: a onda inimiga (%s) é maior que o seu exército (%s).
+es %s aguanta tras su muralla: la oleada enemiga (%s) es mayor que su ejército (%s).
+
+> %s keeps its army home: the enemy's army (%s) is bigger than its own (%s).
+pt %s mantém o exército em casa: o exército inimigo (%s) é maior que o seu (%s).
+es %s mantiene su ejército en casa: el ejército enemigo (%s) es mayor que el suyo (%s).
+
+> %s posts %s Clock Soldiers at the top of its ramp against the riders.
+pt %s posta %s Soldados-Relógio no alto da rampa contra os cavaleiros.
+es %s aposta %s Soldados Reloj en lo alto de su rampa contra los jinetes.
+
+> %s gathers its Winders to fight the riders together.
+pt %s junta os Enroladores para lutar juntos contra os cavaleiros.
+es %s reúne a sus Dadores de cuerda para luchar juntos contra los jinetes.
+
+> %s sends its Clock Soldiers as one group to guard its Winders.
+pt %s manda os Soldados-Relógio num só grupo para guardar os Enroladores.
+es %s envía a sus Soldados Reloj en un solo grupo a proteger a sus Dadores de cuerda.
+
+> %s thinks the game is lost.
+pt %s acha que a partida está perdida.
+es %s cree que la partida está perdida.
+
+> %s resigns: good game.
+pt %s desiste: boa partida.
+es %s se rinde: buena partida.
+
+# ---- walls
+
+> %s walls its ramp in a hurry, %s pieces: it fears a rush.
+pt %s mura a rampa às pressas, %s peças: teme um rush.
+es %s amuralla su rampa a toda prisa, %s piezas: teme un rush.
+
+> %s walls off its ramp: %s pieces.
+pt %s fecha a rampa com muralha: %s peças.
+es %s cierra su rampa con muralla: %s piezas.
+
+> %s's ramp wall is up.
+pt %s: a muralha da rampa está de pé.
+es %s: la muralla de la rampa está en pie.
+
+> %s plans a walled expansion.
+pt %s planeja uma expansão murada.
+es %s planea una expansión amurallada.
+
+> %s walls in its new hall: %s pieces.
+pt %s mura a sua nova base: %s peças.
+es %s amuralla su nueva base: %s piezas.
+
+# ---- the economy and expansions
+
+> %s expands to fresh %s: its best base has only %s%% left, so it goes %s tiles out.
+pt %s expande para uma nova área de %s: a sua melhor base só tem %s%% sobrando, então vai a %s casas de distância.
+es %s se expande a una nueva zona de %s: su mejor base solo tiene un %s%% restante, así que va a %s casillas.
+
+> %s's economy is full on %s bases: it needs a new one to grow.
+pt %s: a economia está cheia em %s bases: precisa de uma nova para crescer.
+es %s: la economía está llena en %s bases: necesita una nueva para crecer.
+
+> %s puts its expansion off: it must answer the swarm first.
+pt %s adia a expansão: precisa responder ao enxame primeiro.
+es %s aplaza su expansión: primero debe responder al enjambre.
+
+> %s puts its next base off until its army can hold it.
+pt %s adia a próxima base até o exército poder segurá-la.
+es %s aplaza su próxima base hasta que su ejército pueda defenderla.
+
+> %s stops at %s workers: the army comes first.
+pt %s para em %s trabalhadores: o exército vem primeiro.
+es %s se detiene en %s trabajadores: el ejército va primero.
+
+> %s pulls down a spent %s.
+pt %s derruba um %s esgotado.
+es %s derriba un %s agotado.
+
+# ---- tech
+
+> %s researches Shield Wall: it has met %s enemy shooters.
+pt %s pesquisa Muralha de Escudos: já encontrou %s atiradores inimigos.
+es %s investiga Muro de Escudos: ya se ha topado con %s tiradores enemigos.
+
+> %s researches High Leap for its %s Springers, to jump the enemy's cliffs and walls.
+pt %s pesquisa Pulo Alto para os seus %s Saltadores, para pular os penhascos e muralhas do inimigo.
+es %s investiga Salto Alto para sus %s Saltadores, para saltar los acantilados y murallas del enemigo.
+
+> %s sees a swarm of %s light fighters: it answers with a Heavy Works, Pendulums and another turret.
+pt %s vê um enxame de %s lutadores leves: responde com uma Oficina Pesada, Pêndulos e mais uma torre.
+es %s ve un enjambre de %s luchadores ligeros: responde con un Taller Pesado, Péndulos y otra torreta.
+
+> %s lays down a Heavy Works, for Pendulums and Spring Ballistas.
+pt %s ergue uma Oficina Pesada, para Pêndulos e Balistas de Mola.
+es %s levanta un Taller Pesado, para Péndulos y Balistas de Resorte.
+
+> %s builds a Mainspring by its Light Works, so it can make Springers.
+pt %s constrói uma Mola Real junto à Oficina Leve, para poder fazer Saltadores.
+es %s construye un Muelle Real junto a su Taller Ligero, para poder hacer Saltadores.
+
+> %s builds a Mainspring by a fresh Clocktower: its old springs are worn out.
+pt %s constrói uma Mola Real junto a uma Torre do Relógio nova: as molas antigas estão gastas.
+es %s construye un Muelle Real junto a una Torre del Reloj nueva: sus muelles viejos están gastados.
+
+> %s sends %s Winders to crew its Spring Ballista.
+pt %s manda %s Enroladores tripular a Balista de Mola.
+es %s envía %s Dadores de cuerda a manejar su Balista de Resorte.
+
+> %s's %s shells %s bodies so the Brood cannot feed on them.
+pt %s: o %s bombardeia %s corpos para a Ninhada não se alimentar deles.
+es %s: el %s bombardea %s cuerpos para que la Camada no se alimente de ellos.
+
+# ---- the Brood
+
+> %s sounds the alarm: an enemy army of %s is on the move. Warriors gather, grubs pull back.
+pt %s dá o alarme: um exército inimigo de %s está em marcha. Os guerreiros se juntam, as larvas recuam.
+es %s da la alarma: un ejército enemigo de %s está en marcha. Los guerreros se reúnen, las larvas se retiran.
+
+> %s gets a Mound Turtle up to root in front of its natural.
+pt %s levanta uma Tartaruga-Montículo para enraizar diante da sua natural.
+es %s levanta una Tortuga Montículo para enraizar delante de su natural.
+
+> %s sees signs of a rush: it keeps its army home and lays warriors.
+pt %s vê sinais de um rush: mantém o exército em casa e põe guerreiros.
+es %s ve señales de un rush: mantiene su ejército en casa y pone guerreros.
+
+> %s attacks with %s supply.
+pt %s ataca com %s de suprimento.
+es %s ataca con %s de suministro.
+
+> %s pulls its wave back: only %s of %s is left.
+pt %s recua a onda: só restam %s de %s.
+es %s retira su oleada: solo quedan %s de %s.
+
+> %s's wave moves on to the next target.
+pt %s: a onda segue para o próximo alvo.
+es %s: la oleada sigue hacia el siguiente objetivo.
+
+> %s calls its wave home: the Mother is under attack.
+pt %s chama a onda de volta: a Mãe está sob ataque.
+es %s llama a su oleada a casa: la Madre está bajo ataque.
+
+> %s's rush failed: it builds up and will return in force.
+pt %s: o rush falhou: ele cresce e voltará com força.
+es %s: el rush ha fracasado: crece y volverá con fuerza.
+
+> %s defends its Mother with %s against %s.
+pt %s defende a sua Mãe com %s contra %s.
+es %s defiende a su Madre con %s contra %s.
+
+> %s defends its home with %s against %s.
+pt %s defende a sua casa com %s contra %s.
+es %s defiende su casa con %s contra %s.
+
+> %s pulls its defenders back to the Mother.
+pt %s recua os defensores até a Mãe.
+es %s retira a sus defensores junto a la Madre.
+
+> %s grows its Mother to stage %s.
+pt %s faz a sua Mãe crescer ao estágio %s.
+es %s hace crecer a su Madre a la fase %s.
+
+> %s researches %s.
+pt %s pesquisa %s.
+es %s investiga %s.
+
+> %s takes new ground: a Mound Turtle roots %s tiles out.
+pt %s toma novo terreno: uma Tartaruga-Montículo enraíza a %s casas de distância.
+es %s toma terreno nuevo: una Tortuga Montículo enraíza a %s casillas.
+
+> %s sends a grub to grow a %s.
+pt %s manda uma larva crescer um %s.
+es %s envía una larva a criar un %s.
+
+> %s roots a Mound Turtle in front of its natural.
+pt %s enraíza uma Tartaruga-Montículo diante da sua natural.
+es %s enraíza una Tortuga Montículo delante de su natural.
+
+> %s's grubs gang up on a %s.
+pt %s: as larvas se juntam contra um %s.
+es %s: las larvas se lanzan juntas contra un %s.
+
+# ---- How to Play (CONTROLS)
+
+> SPECTATOR PANELS\nWatching computers or a replay, a column down the right has three panels, each opened and closed by its title and each with its own player list (All players or one player), apart from VIEW and from each other: PRODUCTION (what each player is making, with progress bars), ARMY & STRUCTURES (each player's army value, supply, resources, its units with counts, army and workers apart, and its buildings, the ones going up dimmer with a bar) and AI STORY (each computer's plan at the start and its decisions with their reasons, newest first: attacks, expansions, defence, tech, walls, raids; big decisions bright, details dim; the mouse wheel or a tap pages back). The narrator reads the big decisions out loud with your system's voice; the speaker on the AI STORY panel or the N key mutes it, and Settings > SOUND has its volume and speed. Without a voice for your language the story is text only. None of this exists in a match you play.
+pt PAINÉIS DO ESPECTADOR\nAssistindo computadores ou um replay, uma coluna à direita tem três painéis, cada um aberto e fechado pelo título e cada um com a sua própria lista de jogadores (Todos os jogadores ou um jogador), independente da VISÃO e dos outros: PRODUÇÃO (o que cada jogador está fazendo, com barras de progresso), EXÉRCITO E ESTRUTURAS (o valor do exército de cada jogador, suprimento, recursos, as suas unidades com contagem, exército e trabalhadores à parte, e os seus edifícios, os que estão subindo mais apagados com uma barra) e HISTÓRIA DA IA (o plano de cada computador no início e as suas decisões com os motivos, as mais novas primeiro: ataques, expansões, defesa, tecnologia, muralhas, incursões; grandes decisões em destaque, detalhes apagados; a roda do mouse ou um toque volta as páginas). O narrador lê as grandes decisões em voz alta com a voz do seu sistema; o alto-falante no painel HISTÓRIA DA IA ou a tecla N o silencia, e Configurações > SOM tem o volume e a velocidade. Sem uma voz para o seu idioma, a história fica só em texto. Nada disso existe numa partida que você joga.
+es PANELES DEL ESPECTADOR\nViendo ordenadores o una repetición, una columna a la derecha tiene tres paneles, cada uno se abre y se cierra con su título y cada uno con su propia lista de jugadores (Todos los jugadores o uno), aparte de VISTA y de los demás: PRODUCCIÓN (lo que cada jugador está haciendo, con barras de progreso), EJÉRCITO Y ESTRUCTURAS (el valor del ejército de cada jugador, suministro, recursos, sus unidades con recuento, ejército y trabajadores aparte, y sus edificios, los que se levantan más tenues con una barra) e HISTORIA DE LA IA (el plan de cada ordenador al principio y sus decisiones con sus motivos, las más nuevas primero: ataques, expansiones, defensa, tecnología, murallas, incursiones; las grandes decisiones resaltadas, los detalles tenues; la rueda del ratón o un toque pasa las páginas). El narrador lee las grandes decisiones en voz alta con la voz de tu sistema; el altavoz del panel HISTORIA DE LA IA o la tecla N lo silencia, y Ajustes > SONIDO tiene su volumen y velocidad. Sin una voz para tu idioma, la historia queda solo en texto. Nada de esto existe en una partida que juegas.

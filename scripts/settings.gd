@@ -24,6 +24,9 @@ static var relay_url := "wss://pocketrts-relay.salgarellius-rts.workers.dev"   #
 static var language := "en"           # "en", "pt" or "es" (Loc)
 static var cw_lab := false            # the Clockwork roster prototype in every Clockwork match (docs/clockwork_units_prototype.md)
 static var replays_keep := 30         # replays kept (the newest; KEEP ones are never deleted)
+static var narrator := true           # SPECTATOR NARRATOR: the AI STORY read out loud while watching computers (Narrator; N mutes)
+static var narrator_volume := 80      # NARRATOR VOLUME (0-100, the system voice's own volume)
+static var narrator_rate := 1.1       # NARRATOR SPEED (0.5-2: 1 is the voice's normal pace)
 static var _loaded := false
 
 
@@ -55,6 +58,9 @@ static func load_all() -> void:
 		language = str(cfg.get_value("ui", "language", "en"))
 		cw_lab = bool(cfg.get_value("ui", "cw_lab", false))
 		replays_keep = clampi(int(cfg.get_value("ui", "replays_keep", 30)), 5, 200)
+		narrator = bool(cfg.get_value("ui", "narrator", true))
+		narrator_volume = clampi(int(cfg.get_value("ui", "narrator_volume", 80)), 0, 100)
+		narrator_rate = clampf(float(cfg.get_value("ui", "narrator_rate", 1.1)), 0.5, 2.0)
 	Loc.set_lang(language)
 	apply()
 
@@ -82,6 +88,9 @@ static func save_all() -> void:
 	cfg.set_value("ui", "language", language)
 	cfg.set_value("ui", "cw_lab", cw_lab)
 	cfg.set_value("ui", "replays_keep", replays_keep)
+	cfg.set_value("ui", "narrator", narrator)
+	cfg.set_value("ui", "narrator_volume", narrator_volume)
+	cfg.set_value("ui", "narrator_rate", narrator_rate)
 	cfg.save(PATH)
 
 
@@ -125,6 +134,9 @@ static func reset() -> void:
 	mini_alpha = 0.6
 	cw_lab = false
 	replays_keep = 30
+	narrator = true
+	narrator_volume = 80
+	narrator_rate = 1.1
 	drag_mode = "box"
 	save_all()
 

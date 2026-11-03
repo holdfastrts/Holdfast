@@ -110,6 +110,9 @@ The command card shows 12 buttons; when a selection has more, drag the card up a
 WATCHING COMPUTERS
 With no "you" in the lobby the computers play and you watch. The VIEW button under the clock picks how: Free · all vision (you move the camera, no fog; the default), Free · a player's vision (you move the camera, under that player's fog of war), or Follow a player: the camera goes by itself to what that computer is doing (its fights first, staying with one until it's over, then its army on the attack, raiders at its base, a building it just placed, its army), under its fog, holding each sight a few seconds. Moving the camera yourself while following switches to Free with the same vision; pick Follow again to resume. On a computer, 0 is all vision and 1-4 follow that player. The view you pick stays for the next match you watch.
 
+SPECTATOR PANELS
+Watching computers or a replay, a column down the right has three panels, each opened and closed by its title and each with its own player list (All players or one player), apart from VIEW and from each other: PRODUCTION (what each player is making, with progress bars), ARMY & STRUCTURES (each player's army value, supply, resources, its units with counts, army and workers apart, and its buildings, the ones going up dimmer with a bar) and AI STORY (each computer's plan at the start and its decisions with their reasons, newest first: attacks, expansions, defence, tech, walls, raids; big decisions bright, details dim; the mouse wheel or a tap pages back). The narrator reads the big decisions out loud with your system's voice; the speaker on the AI STORY panel or the N key mutes it, and Settings > SOUND has its volume and speed. Without a voice for your language the story is text only. None of this exists in a match you play.
+
 GEAR VIEW (the Clockwork): the ` key (left of 1) shows the whole gear network: the drivers, how well every ring works, the Mainsprings (dashed) and the turret circles. On a phone, tap GEAR VIEW on any Clockwork building's card.""",
 	"MAP EDITOR": MapEditor.HELP_TEXT,
 	"REPLAYS": """Every match is recorded: a skirmish, a match you watch, and online. A replay is not a video: it keeps what was on the map a few times a second, so you can move the camera anywhere, select units and buildings to read their health and orders, look through any player's fog, and watch at any speed.
@@ -1121,6 +1124,31 @@ func settings_rows(tab: String) -> Array:
 			rows.append(_tag(_volume_row("SOUND", "sound"), "sound"))
 			rows.append(_tag(_volume_row("AMBIENCE", "ambience"), "ambience"))
 			rows.append(_hint("The speaker beside a bar mutes it."))
+			# the spectator's narrator (0.27.0): the AI STORY read out loud while watching computers or a replay
+			rows.append(_tag(_toggle_row("SPECTATOR NARRATOR", func() -> bool: return Settings.narrator, func() -> void:
+				Settings.narrator = not Settings.narrator
+				Settings.save_all()
+				if game and game.ai_story and not Settings.narrator:
+					game.ai_story.narrator.stop()), "narrator"))
+			var nv := _row("NARRATOR VOLUME")
+			var nvs := HSlider.new()
+			nvs.min_value = 0
+			nvs.max_value = 100
+			nvs.step = 5
+			nvs.value = Settings.narrator_volume
+			nvs.custom_minimum_size = Vector2(220, 44)
+			nvs.value_changed.connect(func(x: float) -> void:
+				Settings.narrator_volume = int(x)
+				Settings.save_all())
+			nv.add_child(nvs)
+			rows.append(_tag(nv, "narrator_volume"))
+			var rates := [0.8, 1.0, 1.1, 1.3, 1.6]
+			rows.append(_tag(_choice_row("NARRATOR SPEED", "%.1fx" % Settings.narrator_rate, func() -> void:
+				var i := rates.find(Settings.narrator_rate)
+				Settings.narrator_rate = rates[(i + 1) % rates.size()]
+				Settings.save_all()
+				show_settings()), "narrator_rate"))
+			rows.append(_hint("The narrator reads the computers' big decisions out loud while you watch them play (the AI STORY panel; N or its speaker mutes it). It uses your system's voices: without one for your language the story is text only."))
 			if not _match_settings:          # (in a match the MENU has its own music player)
 				rows.append(_tag(_choice_row("MUSIC PLAYER", "OPEN", func() -> void: show_music()), "music_player"))
 		"EXPERIMENTAL":
@@ -2785,6 +2813,12 @@ func start(cfg: Dictionary = {}) -> void:
 		sp.game = game
 		game.spectator = sp
 		game.add_child(sp)
+		# the AI STORY: what each computer plans and why, told on its panel and by the narrator (0.27.0)
+		var st := AIStory.new()
+		st.name = "AIStory"
+		st.game = game
+		game.ai_story = st
+		game.add_child(st)
 	if game.sandbox:
 		var sbx := SandboxPanel.new()
 		sbx.game = game
