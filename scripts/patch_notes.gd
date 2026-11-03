@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.19", "items": [
+		"FIFE AND DRUM END TOGETHER: the Barracks now recruits to the close of the band's slow tune (the owner's pick of the three): a held high chord, then three big drum strokes, and the fife now plays on with them, one note a stroke, D, C and home to B flat, the last held through the final stroke's ring so fife and drum stop together. The added notes are the same fifers in the same tune, not pitched up or down, and the fife is a little louder against the drums. Same loudness in a match; another version to compare is in docs/sounds_compare/flute/.",
+	]},
 	{"v": "0.26.18", "items": [
 		"THE RIGHT WINGS THIS TIME: 0.26.14 erased the wrong wing in a few Storm line frames. In the south-east wing beat of the Hatchlings and the Storm Challenger, the downstroke now keeps both wings swept down and loses the stray wing raised at the top left instead. The Hatchling and Storm Challenger portraits, the Hatchlings' deaths and the Storm Sire's south-east dive are back as they were drawn.",
 	]},
