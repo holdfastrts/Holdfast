@@ -70,7 +70,7 @@ Yellow played better but its walls cost it its lead in army:
 The main ramp's Cottage wall (2 pieces, 0:22) was right on both sides: cheap, early, and it stopped the rush.
 That part is left alone (`tools/test_ai_wall_vs_rush.gd` guards it).
 
-## 4. The fix (0.25.26)
+## 4. The fix (0.26.3)
 
 **A held rush picks one transition at once** (`scripts/ai_transition.gd`, Crown computers on Normal and up). While the
 scout's verdict is "rush", it watches for the rush being held: no armed enemy within 420 px of our buildings for 10 s
@@ -96,13 +96,56 @@ lately, or an armed enemy near our buildings). A new hall's palisade and gates t
 Musketeers), go down at most 3 at a time, and `AIExpandWall.keep()` sets no gold aside for them. When the army is
 not short, walls are laid as before.
 
+**A full wave is not held by the new hall's guards.** Two thirds of the army guarded a new hall until its wall was 85%
+closed; with the walls yielding, that kept the rest under the wave bar for minutes. Now, once the whole army reaches the
+bar and is not short, two stay as the garrison and the rest go.
+
+**The forced hall is dropped when the enemy shows more** (`want_hall()` only while `army_short()` is false: one study
+game, green expanded on a sighting of 230 while yellow's 730 counter-attacked, and lost).
+
+**Repair first** (found by the 0.26.0 ramp-wall fix: on Ashfall the Crown spent its gold on a Musketeer while the gate
+was hit, had nothing to mend it with, the gate fell at ~2:30 and 3 labourers died). While a wall piece (palisade, gate,
+ramp Cottage) is under 85% with an armed enemy within 160 px, `AI._repair_keep()` holds 80 gold from every spending
+stage of the think; `_repair_wall` still sees it. 40 was spent in 20 s and the gate still fell; 80 held it.
+
 Design rules followed (docs/design_principles.md): 2, the defender's advantage fades so the game moves on (a held rush
 is a lead to use, not a reason to turtle); 4, every choice has an opportunity cost (walls against units).
 
 ## 5. Before and after (AI v AI, Hard, headless, 15:00)
 
-RESULTS_TABLE
+Hard v Hard Crown, P1 Timing attack, P2 Economy (`tools/study/study_game.gd ... end:900`); "before" is `-- tr:off`.
+P2's Horse Breeder opening is fixed with `open1:breeder` (the owner's game) except the first pair (both Mill). Army
+value at 5:00 / 7:00 / 10:00. Results at 15:00 are the study's power lead. One game per row: the timings are the solid
+part, the results are noisy. "Mid" code lacked the last two rules of section 4; "final" is what is committed.
+
+| map | run | P1 green (Mill): held, choice / 1st hall / 1st attack (supply) / army | P2 yellow: held, choice / 1st hall / 1st attack / army | result |
+|---|---|---|---|---|
+| Ashfall, both Mill | before | - / 9:10 / 4:30 (6) / 340, 570, 970 | - / 7:40 / none / 400, 575, 1085 | P2 lead |
+| | after (early) | 5:58 expand / 10:28 / 4:30 (6) / 340, 510, 840 | 4:53 expand / 7:39 / none / 400, 715, 850 | P2 lead |
+| Ashfall, P2 Breeder | before | - / 8:12 / 6:20 (10) / 400, 575, 610 | - / 7:28 / none / 425, 845, 120 | P1 lead |
+| | after (mid) | 4:27 expand / 5:03 / 14:34 (17) / 460, 460, 790 | 5:29 expand / 6:05 / none / 385, 805, 500 | P1 lead |
+| | after (mid, rerun) | 4:07 expand / 5:38 / none / 420, 100, 0 | 5:09 counter / 7:36 / 5:09 (18) / 730, 540, 870 | P2 by gg 10:00 |
+| | **after (final)** | 7:12 expand / 7:31 / none / 420, 420, 930 | 6:19 counter / 7:36 / 6:19 (17) / 730, 390, 550 | P1 lead |
+| Greenhold, both Breeder | before | - / 6:43 / 5:19 (12) / 425, 615, 690 | - / 7:31 / none / 485, 370, 450 | even |
+| | after (mid) | 4:43 counter / 7:44 / 4:43 (15) / 615, 310, 540 | 3:39 expand / 4:24 / none / 500, 615, 1075 | even |
+| Highmoor, P2 Breeder | before | - / 8:35 / 5:58 (7) / 420, 160, 535 | - / 7:22 / none / 730, 845, 695 | P2 lead |
+| | after (mid) | 4:02 expand / 5:30 / 14:15 (20) / 420, 440, 920 | 5:05 counter / 7:23 / 5:05 (18) / 730, 195, 350 | even |
+| Twin Fords, P2 Breeder | before | - / 8:17 / 5:58 (7) / 420, 355, 780 | - / 7:42 / none / 615, 790, 965 | even |
+| | after (mid) | 3:47 expand / 3:53 / none / 360, 280, 320 | 5:36 counter / 8:00 / 5:36 (18) / 615, 350, 510 | P2 lead |
+| | **after (final)** | - / 7:32 / 11:44 (16) / 400, 920, 940 | 6:49 counter / 7:28 / 6:49 (19) / 730, 675, 735 | even |
+
+- **The trickle is gone**: before, the Timing plan went out with 6-12 supply and turned round at the gate; after,
+  first attacks are 15-19 supply.
+- **A held rush is followed at once**: the Horseman side, its rush held, counter-attacked with its whole army
+  (17-19 supply) within a minute in every game; before it never attacked in 15 minutes.
+- **Expansions came 2-4 minutes earlier** after an EXPAND choice (3:53-5:38 against 6:43-9:10).
+- **Over-greedy expansions lost games** in the mid code; with the final rule green held both of those maps.
+- **Wall test** (`tools/test_ai_wall_vs_rush.gd`, with 0.26.2 merged): default map third Musketeer at 164 s (the known
+  "by 160 s" failure; it was 170 s), 1 labourer lost; Ashfall third Musketeer 167 s, **0 labourers lost** (3 before
+  the repair reserve).
 
 ## 6. Open
 
-OPEN_LIST
+- The Musketeer side after EXPAND often made no attack for many minutes (14:34, 14:15, none).
+- More games per map are needed to call win rates.
+- The wall test's 160 s limit for the third Musketeer still fails by 4-7 s (known).

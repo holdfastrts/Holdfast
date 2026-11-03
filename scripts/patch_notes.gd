@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.3", "items": [
+		"THE CROWN COMPUTER USES A HELD RUSH: once it has beaten off a rush (no armed enemy near its buildings for 10 s, its army worth at least what the enemy showed), it picks one move at once instead of sitting in its defensive build for minutes: a counter-attack with its whole army when it is worth half again the enemy's and has 12 supply or more, or else its second Town Hall right away (the gold held for it, the army at home covering it). Either way the defensive build ends: labourers and tech come back. The match log says which it chose and why.",
+		"No more trickle attacks from the Crown computer's Timing plan: when its scout has not sized the attack, the first wave waits for 16 supply (or 1.6 times the enemy army seen) instead of going out with 3 Musketeers.",
+		"The Crown computer's new-hall walls give way to its army: while the enemy army it has seen is bigger than its own, the palisade there is laid only from gold above two Musketeers' price, a few pieces at a time. A full wave no longer waits for two thirds of the army guarding a half-walled hall: two stay, the rest go.",
+		"REPAIR FIRST: while the Crown computer's ramp wall or gate is being hit, it keeps 80 gold back from labourers, buildings and soldiers for mending it. On Ashfall against a Brood rush the gate now holds and no labourers are lost (3 before).",
+	]},
 	{"v": "0.26.2", "items": [
 		"THE BROOD COMPUTER DEFENDS AS A SWARM: its army at home gathers at a rally and holds there, so Raptors no longer run off one by one at every enemy they see. Enemies at home get a group sized to them, sent all at once: a few Raptors, or the Tyrant Sire for a small harass when there are no warriors to spare, the whole army for a real attack, and everything near the Mother when the fight is at her. An attack too strong to meet away from her makes the army gather on her side instead. The Mother stays rooted for a scout or a small harass (her swamp and the Rootmaws on it stay) and gets up only for a real attack, when hurt with nobody fighting for her, or as a last stand. A rooted Rootmaw that is struck gets up and bites back when it can win, or backs off to the Mother when it can't, then roots again on its spot.",
 	]},
