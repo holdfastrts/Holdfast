@@ -814,11 +814,12 @@ func place_line(t: int, k: String, a: Vector2i, b: Vector2i, builders: Array, qu
 
 
 ## The nearest enemy wall or gate right in front of a unit that can't get through.
+## (a piece going up counts: it is solid already, and units walled out by it pushed at it for good; a planned one is open ground)
 func blocking_wall(u: Unit) -> Building:
 	var best: Building = null
 	var bd := 70.0
 	for b in buildings:
-		if b.dead or not b.built or not (b.kind == "wall" or b.kind == "gate") or not hostile(b.team, u.team):
+		if b.dead or b.ghost or not (b.kind == "wall" or b.kind == "gate") or not hostile(b.team, u.team):
 			continue
 		var dd: float = b.edge_distance(u.position)
 		if dd < bd and u.can_hit(b):

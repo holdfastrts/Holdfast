@@ -3784,7 +3784,12 @@ func _tick_unit(delta: float) -> void:
 				_finish_move()
 		"amove":
 			# hacking at a wall: look again now and then, and leave it for anything better
-			if is_instance_valid(target) and target is Building and (target.kind == "wall" or target.kind == "gate") and scan_t <= 0.0 and stuck_t < 0.5:
+			if _self_wall() and scan_t <= 0.0 and not _walled_out(order_point):
+				# (the way on is open, round the wall's end or through a gap: on its way, not hacking at it; docs/wall_stuck.md)
+				scan_t = 0.6
+				target = null
+				_request_path(order_point)
+			elif is_instance_valid(target) and target is Building and (target.kind == "wall" or target.kind == "gate") and scan_t <= 0.0 and stuck_t < 0.5:
 				scan_t = 0.6
 				var better := game.find_target(self, _scan_range())
 				if better and better != target and not (better is Building and (better.kind == "wall" or better.kind == "gate")) and _can_get_at(better):
@@ -3811,13 +3816,22 @@ func _tick_unit(delta: float) -> void:
 				# up, walking on into the fight and setting up again (and again)
 				want = Vector2.ZERO
 			else:
-				want = _follow(delta)
-				if _arrived():
+				var stale := not path_pending and (path_goal == Vector2.INF or path_goal.distance_to(order_point) > 1.0 or path.is_empty())
+				if stale and game.clock >= _amove_rp:
+					# (its path led to a man or building it was after, or was dropped while it shot at one from where it
+					# stood, and he is gone now (dead, or let go elsewhere): on to where it was sent. It used to walk the
+					# old path's end, or count an empty path as there, and stop: the attack-move over, the owner's
+					# Musketeers stood idle by a half-built palisade and took it for a target, docs/wall_stuck.md)
+					_amove_rp = game.clock + 0.5
+					_request_path(order_point)
+					stale = false
+				want = Vector2.ZERO if stale else _follow(delta)
+				if not stale and _arrived():
 					# (the path ended at an enemy wall or gate short of the goal: the way is walled off, so it breaks the
 					# piece in the way instead of stopping there; before, it stood at the gate when the path's end came
 					# before _walled_check's next look: tools/test_sire_reach.gd)
 					var bw: Building = game.blocking_wall(self) if has_attack() and not is_air() and not is_worker() \
-							and position.distance_to(order_point) > 2.0 * Defs.TILE else null
+							and position.distance_to(order_point) > 2.0 * Defs.TILE and _walled_out(order_point) else null
 					if bw:
 						target = bw
 					else:
@@ -4216,6 +4230,89 @@ func _walk_reaches_point(p: Vector2) -> bool:
 	return ok
 
 
+## WALLED OUT: the point can't be walked to (its enemies' gates shut; their walls, built or going up, in the
+## way; planned pieces are open ground). Asked again at most every 2 s for the same spot (docs/wall_stuck.md).
+var _wo_t := -99.0
+var _amove_rp := -99.0          # (game clock) an attack-move's stale path is asked for again no sooner than this
+var _wo_p := Vector2.INF
+var _wo := false
+
+
+func _walled_out(p: Vector2) -> bool:
+	if game.clock < _wo_t and _wo_p.distance_to(p) < 32.0:
+		return _wo
+	_wo_t = game.clock + 2.0
+	_wo_p = p
+	# (the walkable areas first, cheap: another area is walled out for sure; the same one is open unless an enemy gate
+	# is what joins it, which only the pathfinder with those gates shut can tell)
+	var a: Vector2i = game.cell_of(position)
+	if not game.open_cell(a):
+		a = game.nearest_free(a, 4)
+	var b: Vector2i = game.cell_of(p)
+	if not game.open_cell(b):
+		b = game.nearest_free(b, 3)
+	var ra: int = game.region_of(a) if a.x >= 0 else -1
+	var rb: int = game.region_of(b) if b.x >= 0 else -1
+	if ra < 0 or rb < 0 or ra != rb:
+		_wo = true
+	elif not _enemy_gates():
+		_wo = false
+	else:
+		_wo = not _walk_reaches_point(p)
+	return _wo
+
+
+func _enemy_gates() -> bool:
+	for i in game.gate_team:
+		if game.hostile(int(game.gate_team[i]), team):
+			return true
+	return false
+
+
+## _walk_reaches, asked again at most every 2 s for the same man (he moves: the spot is his, then).
+func _walk_reaches_cached(e: Entity) -> bool:
+	_reach_t = 0.5
+	return not _walled_out(e.position if e.is_unit() else e.center())
+
+
+## A wall or gate piece it took for its target BY ITSELF (an attack-move, or standing idle; not one it was told to
+## attack, nor one its army's siege gave it) is only worth hitting while the way is shut: on an attack-move, while the
+## place it was sent to can't be walked to. Five Musketeers on an attack-move stood at a half-built palisade whose end
+## was open, shooting or stabbing a piece that its labourers kept mending, for good (the owner's playtest, 2026-11-01).
+func _self_wall() -> bool:
+	return is_instance_valid(target) and target is Building and (target.kind == "wall" or target.kind == "gate") \
+			and not (order == "attack" and target == order_target) and siege_t <= 0.0
+
+
+## (no headway) the time it has wanted to move and the spot it was at then
+var _hw_t := 0.0
+var _hw_p := Vector2.INF
+
+
+## A unit that has wanted to move for HEADWAY_T seconds and has got under HEADWAY_PX from where it was is given a
+## fresh path (to where it is going), as is anything it took for itself in the way: in a crowd pressed against a
+## wall every man is shoved a little each tick, so the stuck timer (which asks for no movement at all) never fills.
+const HEADWAY_T := 3.0
+const HEADWAY_PX := 14.0
+
+
+func _headway(delta: float) -> void:
+	if _hw_t == 0.0 or _hw_p == Vector2.INF:
+		_hw_p = position
+	_hw_t += delta
+	if _hw_t < HEADWAY_T:
+		return
+	var moved := position.distance_to(_hw_p)
+	_hw_t = 0.0
+	_hw_p = position
+	if moved >= HEADWAY_PX or path_pending or phase != "":
+		return
+	if order == "amove" and _self_wall() and not _walled_out(order_point):
+		target = null
+	if path_goal != Vector2.INF and (target == null or not is_instance_valid(target)):
+		_request_path(path_goal)
+
+
 func _follow(_delta: float) -> Vector2:
 	if path_pending:
 		return (path_goal - position).normalized() * speed if path_goal != Vector2.INF else Vector2.ZERO
@@ -4311,8 +4408,12 @@ func _move(want: Vector2, delta: float) -> void:
 		# Walled out: hack at the enemy wall or gate in the way.
 		# (or chasing a man it can't get at, on the far side of the wall)
 		_reach_t -= delta
+		# (only when it really is walled out: the place it was sent to, or the man it is after, can't be walked to.
+		# A unit jostled against a half-built wall whose end was open took the wall for its target and hacked or
+		# shot at it for good: the owner's playtest 2026-11-01, docs/wall_stuck.md)
 		if stuck_t > 1.2 and not is_worker() and order in ["amove", "idle", "attack"] and not (order == "attack" and target == order_target) \
-				and (target == null or (_reach_t <= 0.0 and not _can_get_at(target))):
+				and ((target == null and (order != "amove" or _walled_out(order_point))) \
+				or (target != null and _reach_t <= 0.0 and not _can_get_at(target) and not _walk_reaches_cached(target))):
 			var wall := game.blocking_wall(self)
 			if wall:
 				target = wall
@@ -4320,6 +4421,12 @@ func _move(want: Vector2, delta: float) -> void:
 			stuck_t = 0.9
 			if not _nb_round():
 				_request_path(path_goal)
+		# no headway for a while (a crowd jostling at a wall keeps the stuck timer from filling): a fresh path
+		# (soldiers: workers at a mine or a site have their own ways round a crowd)
+		if not is_worker():
+			_headway(delta)
+	else:
+		_hw_t = 0.0
 	last_pos = position
 
 
@@ -4562,7 +4669,7 @@ func _attack_detour(delta: float) -> Entity:
 
 func _any_enemy_wall() -> bool:
 	for b in game.buildings:
-		if not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and game.hostile(b.team, team):
+		if not b.dead and not b.ghost and (b.kind == "wall" or b.kind == "gate") and game.hostile(b.team, team):
 			return true
 	return false
 
@@ -4578,6 +4685,15 @@ func _pick_target(r: float) -> Entity:
 	var e := game.find_target(self, r)
 	if e != null and has_meta("ai_scout") and order == "amove" and not Game.fights_back(e):
 		return null                  # (a computer's scout on attack-move: only what fights back, not every hall on its loop)
+	if e is Building and (e.kind == "wall" or e.kind == "gate") and siege_t <= 0.0:
+		# a wall or gate piece, picked by itself (docs/wall_stuck.md): on an attack-move only when the place it was sent
+		# to is walled off (a wall it can walk round is left alone, on its way); standing idle only one it can hit from
+		# where it stands (it doesn't walk off to hack at a palisade: the owner's Musketeers, idle by a half-built wall,
+		# went up to it and stabbed at it for good while its labourers mended it)
+		if order == "amove" and not _walled_out(order_point):
+			return null
+		if order == "idle" and e.edge_distance(position) - radius > _range():
+			return null
 	if e == null or is_air() or float(d["range"]) > 40.0 or not e.is_unit():
 		return e
 	if e == _no_reach and game.clock < _no_reach_t:
@@ -4631,7 +4747,7 @@ func _wall_toward(e: Entity) -> Building:
 	if not game.open_cell(a):
 		a = game.nearest_free(a, 4)
 	for b in game.buildings:
-		if b.dead or not b.built or not (b.kind == "wall" or b.kind == "gate") or not game.hostile(b.team, team):
+		if b.dead or b.ghost or not (b.kind == "wall" or b.kind == "gate") or not game.hostile(b.team, team):
 			continue
 		var dd: float = b.edge_distance(position)
 		if dd > reach or not can_hit(b):
