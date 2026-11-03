@@ -32,7 +32,9 @@ Measured against the bites now: the candidates hit their loudest point at about 
 
 **Pitch per play.** The game already plays every bite a little higher or lower each time (up to 7% either way), and each creature has 2 or 3 different takes. If you want more variety, that can go up to 10 to 12% for the bites only (one number in `scripts/sfx.gd`).
 
-**The game's bites were not changed.** Pick A, B or C (or "none"), and it goes into the game for every Brood biter: Raptor, Grub, Tyrant Challenger, Tyrant Sire, Brute, Brood Mother, Rootmaw, Mound Turtle, Storm Sire, Storm Challenger, Hatchlings.
+**The game's bites were not changed** (in 0.26.5). Pick A, B or C (or "none"), and it goes into the game for every Brood biter: Raptor, Grub, Tyrant Challenger, Tyrant Sire, Brute, Brood Mother, Rootmaw, Mound Turtle, Storm Sire, Storm Challenger, Hatchlings.
+
+**The owner's answer (0.26.9): "For now use the old raptor."** The Raptor's bite in the game is the old one again, the one in `old_raptor.ogg`: the computer-made quick swish and short snap it had up to 0.24.5. It is remade exactly, bit for bit the same files as before 0.24.6, by `python3 tools/audio/make_sfx2.py combat/raptor_attack`, and played at its old loudness (`scripts/sound_mix.gd`). `tools/audio/make_brood_sounds.py` no longer makes the Raptor's bite, so running it again can't put the chomp back. Every other Brood creature keeps its bite from the recordings, as now. (`new_raptor.ogg` is now the bite the Raptor had from 0.24.6 to 0.26.8.) The candidates A, B and C are still here if you want to try one later.
 
 Made by `tools/audio/make_bite_compare.py` (run it again to remake the folder).
 
@@ -45,8 +47,24 @@ Made by `tools/audio/make_bite_compare.py` (run it again to remake the folder).
 | File | What it is |
 |---|---|
 | `old_barracks_recruit.ogg` | The Barracks recruit fife as it was (the stuttering held note and the sudden end). |
-| `new_barracks_recruit.ogg` | The fixed one, now in the game. |
+| `current.ogg` | The fixed one (0.26.5 to 0.26.8; see the next part for the new ending). |
 
 **The other Crown recruit sounds were checked for the same fault.** None has it: the Town Hall's bugle, the Foundry's kettledrums and the Horse Breeder's neigh have no repeated piece and all fade to silence. (The Town Hall bugle's last note fades in about 0.1 s, which is quick but clean; it is a bugle, which stops like that.)
 
 Made by `tools/audio/make_recruit.py barracks` (the fix is the `barracks` part of it).
+
+### The tune's ending (0.26.9)
+
+**The owner, after 0.26.8:** "The current barracks sound is good, I like it ends with the fife. I just don't like the way it ends; I would like it to end similar to a tune ending; currently it doesn't make a lot of sense."
+
+**Why it doesn't sound finished.** The fife is a B flat fife, and the little tune is in B flat. Its notes, measured from the sound itself, are F, B flat, C, D: in the scale of B flat that is the 5th, the home note (1st), the 2nd and the 3rd. Stopping on the 3rd (D) leaves the tune hanging, like a question. A tune sounds finished when it lands on its home note, B flat, usually by stepping down onto it.
+
+**The two endings.** The start (F, B flat, C) is exactly as before in both. Every new note is a real note played by the fifer, cut from a part of the same recording where he plays alone with no drum (found by measuring the pitch of the whole recording; no note was pitched up or down). Both endings get a little room echo, so the last note dies away instead of stopping dead. Both are 3.5 seconds long.
+
+| File | What it is |
+|---|---|
+| `current.ogg` | The ending in the game until now (0.26.8): the long D that fades out. |
+| `cadence_a.ogg` | **A, step down home (now in the game).** The D is shorter (a long-short "dum-di" with the next note), then a quick C, then the home note B flat on the beat, held for a moment and dying away, with one snare drum stroke on it, like the band's last beat. 3, 2, 1: the most common way a march ends. |
+| `cadence_b.ogg` | **B, the fifer's own ending.** After the C, the fifer's own little flourish exactly as he played it in the recording: a quick E flat, the D, and down to B flat. No drum, the fife alone. It sounds more like a real player and a little softer; the last note is a touch shorter than in A. |
+
+If you prefer B (or want A without the drum stroke, or B with it), it is one word in `tools/audio/make_recruit.py` (`barracks(end="a")`). `python3 tools/audio/make_recruit.py compare` remakes these three files.
