@@ -25,6 +25,13 @@
 
 ## Current work
 
+- REPLAYS, NEXT (owner said yes, 2026-11-03): after the perf-stutter job reports, a job for MIXED replays: record the
+  players' commands (StarCraft-style) plus one full keyframe every ~10 s instead of 5 pictures a second; playback re-runs
+  the commands between keyframes and each keyframe corrects drift (determinism a bonus, not a must). The quick Settings
+  option REPLAY RECORDING (FULL / LIGHT / OFF, LIGHT default on phones) is the job replay-rate. Also pending after
+  perf-stutter: an Android follow-up if it only measured the computer (the owner's slowdowns were on the APK, growing
+  late in the game, not at the start).
+
 - CAMPAIGN ENGINE (owner, 2026-11-03), 0.30.0 (branch campaign-engine, docs/campaign_engine.md): data in campaign/
   (campaign.json: storylines with hubs, hotspots, talks; missions/<id>.json; maps/ = map editor maps, id "campaign:<name>"),
   scripts/campaign/ (Campaign, MissionRun = game.mission, MissionUi, CampaignMenu, StillView), texts in
