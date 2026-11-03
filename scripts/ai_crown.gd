@@ -122,6 +122,26 @@ const PLANS := {
 			["barracks", 3, {"labs": 30}]],
 		"s": {"wave": 9, "step": 6, "workers": 1.0, "expand": 1.0, "halls": 3}},     # (after the rush, a full economy: the
 		# shared Rush settings, 0.75 of the posts and a late hall, held 2 farms' worth of labourers till 6:00, ba3 Red Coast)
+	# DRAGOON RAIDS (crown-builds-a, docs/crown_builds_a.md; the raids themselves: scripts/ai_dragoon_raid.gd): the safe
+	# Musketeer opening, the Horse Breeder early, the second hall at 15 labourers; then Dragoons (Musketeers on horseback)
+	# ride out in groups of four to the enemy's workers while the Musketeer line holds the main's high ground. "raid": the
+	# first group once the line has `musk` Musketeers, one more every `per` labourers over `from` (three at most).
+	"dragoon": {"opening": "mill", "labs": 99, "army": 0.5, "mill": [[0, 3], [13, 5], [17, 6]],
+		"bo": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "army", "k": "musketeer", "cap": 10},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 9}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 10}},
+			{"do": "hall", "n": 2, "at": {"labs": 16}},
+		],
+		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {"labs": 18}], ["foundry", 1, {"labs": 24}],
+			["horse_breeder", 2, {"labs": 26, "halls": 2}], ["armoury", 1, {"labs": 28}], ["barracks", 3, {"labs": 32}],
+			["church", 1, {"labs": 38, "halls": 2}], ["foundry", 2, {"labs": 46, "halls": 3}]],
+		"raid": {"musk": 3, "from": 14, "per": 8},
+		"s": {"wave": 30, "step": 10}},
 }
 
 
@@ -758,3 +778,75 @@ func _mid_tick() -> void:
 		if _mine(k).size() > n0:
 			say("milestone: %s %d (%d labourers, %d halls, army %d supply)" % [String(Defs.BUILDINGS[k]["name"]), int(m[1]), labs, halls, army])
 		return
+
+
+# ------------------------------------------------------------------ the Dragoon raids (crown-builds-a)
+## The plan "dragoon" (docs/crown_builds_a.md): its riders are trained here before the shared soldiers, and ride in the
+## groups of scripts/ai_dragoon_raid.gd (out of the army's think: _on_errand). Nothing here runs on another plan.
+const DragoonRaid := preload("res://scripts/ai_dragoon_raid.gd")
+var dr = null
+
+
+func dragoon_plan() -> bool:
+	return on and strategy == "dragoon" and difficulty >= 1
+
+
+func _on_errand(u: Unit) -> bool:
+	if dr != null and dr.has(u):
+		return true
+	return super(u)
+
+
+func _tick_ai(delta: float) -> void:
+	super(delta)
+	if dr != null and not game.over:
+		dr.micro()
+
+
+func _raid() -> void:
+	super()
+	if dragoon_plan() and not peaceful:
+		if dr == null:
+			dr = DragoonRaid.new(self)
+		dr.tick()
+
+
+func _produce() -> void:
+	if not dragoon_plan():
+		super()
+		return
+	var short := _train_dragoons()
+	# (the riders short: a Dragoon's gold, horse and all, is kept from the line's Musketeers, unless the enemy is at home)
+	var held := 0
+	if short and _threat() == Vector2.INF:
+		held = clampi(DRAGOON_KEEP, 0, int(game.players[team]["gold"]))
+	game.players[team]["gold"] -= held
+	super()
+	game.players[team]["gold"] += held
+
+
+## The Dragoons the raids want (DragoonRaid.want), from every Barracks with room, before the line's Musketeers; the plan's
+## gold for a step or a milestone is kept from them as from any soldier.
+const DRAGOON_KEEP := 100       # (gold) a Dragoon and his horse
+
+
+## True: the raids want more riders than there are.
+func _train_dragoons() -> bool:
+	if _keeping() and _gold() < 30:
+		return false
+	var army := game.army(team)
+	if (_saving or (_reserve > 0 and _gold() < _reserve + 60)) and _army_supply(army) >= 8:
+		return false
+	var r: Dictionary = plan.get("raid", {"musk": 4, "from": 14, "per": 8})
+	var musk := army.filter(func(u: Unit) -> bool: return u.kind == "musketeer" and not u.auto_mount).size()
+	var have := army.filter(func(u: Unit) -> bool: return DragoonRaid.is_rider(u)).size()
+	for b in _mine("barracks"):
+		have += b.queue.count("dragoon")
+	var want: int = DragoonRaid.want(game.workers(team).size(), musk, int(r["musk"]), int(r["from"]), int(r["per"]))
+	for b in _mine("barracks"):
+		if have >= want:
+			return false
+		if b.built and b.queue.size() < 2 and game.can_train(b, "dragoon") == "":
+			if game.train(b, "dragoon") == "":
+				have += 1
+	return have < want
