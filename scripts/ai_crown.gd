@@ -120,7 +120,8 @@ const PLANS := {
 		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["powder_mill", 1, {}], ["barracks", 2, {"labs": 16}],
 			["foundry", 1, {"labs": 22}], ["armoury", 1, {"labs": 24}], ["church", 1, {"labs": 34, "halls": 2}],
 			["barracks", 3, {"labs": 30}]],
-		"s": {"wave": 9, "step": 6}},
+		"s": {"wave": 9, "step": 6, "workers": 1.0, "expand": 1.0, "halls": 3}},     # (after the rush, a full economy: the
+		# shared Rush settings, 0.75 of the posts and a late hall, held 2 farms' worth of labourers till 6:00, ba3 Red Coast)
 }
 
 
@@ -213,13 +214,18 @@ func _econ_keep(for_army := false) -> int:
 
 
 ## AN ARMY THE SIZE OF THE ECONOMY (after the opening): while the army's supply is under the plan's share of the labourers
-## ("army": economy 0.4, balanced 0.55, timing 0.7), a hall trains a labourer only when every Barracks is busy, so the gold
+## ("army": economy 0.4, balanced 0.55, timing 0.7; at least ARMY_BROOD against the Brood), a hall trains a labourer only when every Barracks is busy, so the gold
 ## goes to soldiers first (coached games a01, a12: 30-32 labourers and 420-455 of army at 6:00, the Brood's Timing attack
 ## at 6:00-6:30 took both halls). Triggered by the economy, not the clock.
+const ARMY_BROOD := 0.55
+
+
 func _army_due() -> bool:
 	if not on or difficulty < 1 or peaceful:
 		return false
 	var share := float(plan.get("army", 0.5))
+	if _foe_is("brood"):
+		share = maxf(share, ARMY_BROOD)       # (the Brood's Timing attack comes at 5:45-6:30 with 15-30 creatures: ba3 Red Coast)
 	if _army_supply(game.army(team)) >= int(share * game.workers(team).size()):
 		return false
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
@@ -691,8 +697,8 @@ func _guard_new_hall(army: Array) -> Array:
 
 
 ## THE POWDER WAGON STAYS BY THE HALL WHILE THE ARMY IS AT HOME (round B, b01 Red Coast 7:59: the wagon stood 120 px
-## behind the ramp post, the Raptors at the gate blew it up and its 120 shots killed the Musketeers on HOLD: 706 of army
-## to 40). At home the soldiers refill at the Barracks, the Town Hall and the Mill anyway; it goes with the waves.
+## behind the ramp post, the Raptors at the gate blew it up among the Musketeers on HOLD, friends hurt too, and a minute later
+## the line was gone: 706 of army at home to 40). At home the soldiers refill at the Barracks, the Town Hall and the Mill anyway; it goes with the waves.
 func _tend_wagon() -> void:
 	if not on or _attacking or difficulty < 1:
 		super()

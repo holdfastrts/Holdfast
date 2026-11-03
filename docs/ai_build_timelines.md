@@ -60,9 +60,17 @@ the natural first, the third Rootmaw at its far edge, grubs first, the Sires and
 - Its scouting decides: an army on the move early means hold and lay warriors; enemy flyers mean the Storm Sire first.
 
 ### Crown
-- Rush = Horse Breeder opening, 3 Horsemen out by ~3:30 (the owner's earlier log). Counter-play: the wall
-  and a few Musketeers by ~2:00 (the wall agent's tests, wt-ai-wall).
-- Balanced / Economy / Timing open with the Barracks at ~1:20, as before this change.
+- Since 0.29.0 the Crown has its own computer (scripts/ai_crown.gd) with a real build order per plan, triggered by
+  labourers and supply: docs/ai_crown_rebuild.md section 2 has each plan's steps and the times they came on Hard. In short:
+  Economy: the ramp Cottage, the second Farm and the Gate at 7 labourers, Barracks and Mill at 8, the first Musketeer
+  2:48-3:33, the second hall at 15 labourers (3:08-3:25). Balanced and Timing: the ramp Cottage and Gate, Barracks and Mill
+  at 7 labourers (0:43), the first Musketeer 2:02-2:16, the second Farm at 9; Balanced expands at 15 labourers (4:00-5:05),
+  Timing adds a second Barracks, the Breeder and the Foundry and attacks with 22 supply (7:00-7:30). Rush: Barracks 0:36,
+  Breeder 0:49, the first Horseman 1:52-2:04, three out at 2:56-3:13 (`tools/test_crown_build_order.gd`).
+- Counter-play to a Brood rush: the wall and 3 Musketeers by 2:40 (`tools/test_ai_wall_vs_rush.gd`: 2:38 default map,
+  2:32 Ashfall).
+- (Before 0.29.0: Rush = Horse Breeder opening, 3 Horsemen out by ~3:30; Balanced / Economy / Timing opened with the
+  Barracks at ~1:20.)
 
 ### Clockwork
 - The first Assembly Works used to wait for `clock / tech factor`, so Rush (factor 2.0) was the slowest to
