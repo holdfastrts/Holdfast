@@ -879,7 +879,7 @@ func _nb_morphs(q: Unit) -> void:
 				spot = fp[0]
 	elif _nb_next_father(q) != "":
 		k = _nb_next_father(q)
-	elif _under_armed() and _army_supply_now() < 30 and maws >= 3:
+	elif _under_armed() and _army_supply_now() < 30 and maws >= 4:
 		pass          # (brood-ai-tune: under-armed, warriors before more ground: round B g07 had 3 Raptors from 4:00 to 8:00
 		              # while every 100 food went into Rootmaws and turtles on new ground and the Crown's army reached 1,360)
 	elif maws < _nb_wanted_maws() and (maws < 3 or not _nb_saving_growth(q)) and _nb_maw_room(q):
@@ -2134,10 +2134,9 @@ func _wave_end_nb(q: Unit, failed: bool) -> void:
 		# (brood-ai-tune, round A g10: an Extreme rush whose first wave paid for itself stayed on the rush plan, whose
 		# grub curve is 0 a minute: 6 grubs until 8:00 and 3,187 food earned by 10:00 against the Clockwork's 7,545. The
 		# rush is an opening: once its first wave is home, it plays Balanced and keeps up the pressure)
-		var aa := _attack_at
-		_rush_to_balanced("its rush is home (killed more than it lost): Balanced from now on, the pressure kept up")
-		_retreat_until = game.clock + 30.0
-		_attack_at = mini(_attack_at, maxi(aa, 16))
+		_rush_to_balanced("its rush is home (killed more than it lost): Balanced from now on")
+		_retreat_until = game.clock + 120.0          # (round C g13: a second wave of 14 Raptors at 5:30 into the Clockwork
+		                                             # lost all but 4 and the economy behind it never grew: two minutes to build)
 
 
 ## A rush over (failed, or called off before it left): the Balanced plan from now on, expanding at once.
