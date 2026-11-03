@@ -66,6 +66,10 @@ var xw = AIExpandWall.new(self)
 ## followed at once by a counter-attack with the whole army or an expansion, not minutes of defence and a trickle attack.
 const AITransition := preload("res://scripts/ai_transition.gd")
 var tr = AITransition.new(self)
+## (the owner's doctrine, the rest of it: the ramp post on HOLD, the rider scouts, the slow wall like with like, the timing
+## after the expansion; scripts/ai_crown_hold.gd, docs/ai_crown_transitions.md section 10)
+const AICrownHold := preload("res://scripts/ai_crown_hold.gd")
+var ch = AICrownHold.new(self)
 ## The harass (scripts/ai_harass.gd, docs/ai_harass.md): a small party out in the enemy's land hunts workers and walks
 ## past structures and rooted Brood creatures; made on first use (hz()).
 var harass: AIHarass = null
@@ -478,6 +482,7 @@ func _think_stage(i: int) -> void:
 			_research()
 			_produce()
 			pt = _lap("ai/produce", pt)
+			ch.tick()           # (the rider scouts are picked before the raid party forms)
 			if difficulty >= 1 and _crown() and not peaceful:
 				_raid()
 				_balloon_drop()
@@ -1809,16 +1814,23 @@ func _raid_workers(c: Dictionary, labs: Array, army: Array, stand: Dictionary) -
 func _flee_spot(w: Unit, centre: Vector2, army: Array, halls: Array, help: int) -> Vector2:
 	# else: the safest of the halls and eight points round him (open ground, far from the raiders)
 	var cands: Array = []
+	# (THE OWNER'S DOCTRINE: "you always have your main to run with your workers": a raid below the main that the army will
+	# not come down to meet sends the labourers up the ramp, behind the musket line)
+	var up: Vector2 = ch.refuge(w, centre)
 	for h in halls:
 		cands.append(h.center() + (h.center() - centre).normalized() * 90.0)
 	for k in 8:
 		cands.append(w.position + Vector2.RIGHT.rotated(k * TAU / 8.0) * 320.0)
+	if up != Vector2.INF:
+		cands.append(up)
 	var best := Vector2.INF
 	var bs := -INF
 	for p in cands:
 		if not game.passable(Vector2i(p / float(Game.T)), team):
 			continue
 		var score: float = minf(p.distance_to(centre), 500.0) - 0.35 * p.distance_to(w.position)
+		if up != Vector2.INF and p == up:
+			score += 0.35 * p.distance_to(w.position) + 300.0       # (the walk up is not held against it)
 		for d in _danger_pts:
 			if p.distance_to(d[0]) < FLEE_R:
 				score -= 300.0
@@ -2471,11 +2483,19 @@ var sat_log := 0                 # halls the match log has called saturated
 ## gold on 62 palisade pieces and gates, 470 on soldiers): a new hall's wall waits while the army is short of the enemy's
 ## (army_short) or under WALL_MIN_ARMY for the clock (4 supply plus 1 every 30 s, at most 30).
 func wall_yield() -> bool:
-	if army_short():
+	if doctrine() and ch.on:
+		if ch.wall_short():
+			return true         # (like with like: the army at home against the enemy's mobile army seen on our side, AICrownHold)
+	elif army_short():
 		return true
 	if not doctrine():
 		return false
 	return _army_supply(game.army(team)) < mini(30, 4 + int(game.clock / 30.0))
+
+
+## Saturated enough to start the new hall's slow wall (AICrownHold.sat_for_wall; saturated() alone without it).
+func wall_sat() -> bool:
+	return ch.sat_for_wall() if ch.on else saturated()
 
 
 func doctrine() -> bool:
@@ -4536,6 +4556,8 @@ func _produce() -> void:
 			var horse_ok: bool = (horse < 3 or horse * 6 < army.size() or rush) if hcap < 0 else horse < hcap
 			if horse_ok and randf() < (0.85 if rush else (0.6 if short_powder else 0.3)) and hk != "":
 				k = hk
+			elif hk != "" and ch.wants_rider():
+				k = hk      # (THE OWNER'S DOCTRINE: a Horseman to scout the map comes first once the Breeder stands)
 			elif k == "":
 				k = hk
 			if k != "":
@@ -4644,7 +4666,7 @@ func _on_errand(u: Unit) -> bool:
 		return true
 	if not _drop.is_empty() and (u == _drop.get("b") or (_drop.get("men", []) as Array).has(u)):
 		return true
-	return false
+	return ch.is_scout(u)       # (a rider scout on its loop: scripts/ai_crown_hold.gd)
 
 
 func _army_supply(list: Array) -> int:
@@ -4741,6 +4763,8 @@ func _army() -> void:
 		var tspots := _threats()
 		if r5.hold_behind_wall(army, tspots):
 			return              # (round 5: a bigger wave at the gate: the army holds on the high ground behind the wall)
+		if ch.hold_top(army, tspots):
+			return              # (THE OWNER'S DOCTRINE: a force below the main it can't beat: the army holds the ramp's top)
 		_defend(army, threat, tspots)
 		# (workers: _worker_safety, from the economy think, pulls them out of reach or sends the hands)
 		if not r6_cw or not _threat_minor(army, tspots):
@@ -4775,6 +4799,8 @@ func _army() -> void:
 	if r6_cw and _pull_until > 0.0 and game.clock >= _pull_until:
 		_pull_until = 0.0
 		_attack_at = mini(_attack_at, _pull_at0)     # (round 6: a pull-back's higher bar lasts PULL_FOR s, no longer)
+	if not _attacking and not regrouping:
+		ch.timing(ready)        # (THE OWNER'S DOCTRINE: on two halls, the moment to go down with the army)
 	var push := r6_cw and not _attacking and not peaceful and _push_anyway(ready)
 	if push and _army_supply(ready) < _attack_at:
 		_attack_at = _army_supply(ready)
@@ -4864,7 +4890,7 @@ func _army() -> void:
 				u.cmd_move(_wave_target + Vector2(randf_range(-60, 60), randf_range(-60, 60)), true)
 		if not group_ok:
 			var front2 := _front()
-			for u in pool:
+			for u in ch.place(pool):
 				if u.order == "idle" and u.position.distance_to(front2) > 160.0:
 					u.cmd_move(_home_spot(front2), true)
 		if _clock():
@@ -4877,7 +4903,7 @@ func _army() -> void:
 		if hall.is_empty():
 			return
 		var front: Vector2 = _rally_front(hall[0])
-		for u in ready:
+		for u in ch.place(ready):       # (THE OWNER'S DOCTRINE: muskets and guns on HOLD at the ramp's top; the rest at the rally)
 			if u.order == "idle" and u.position.distance_to(front) > 160.0:
 				u.cmd_move(_home_spot(front), true)
 			elif u.deploys() and u.order == "idle" and u.tesla_mode == "packed":

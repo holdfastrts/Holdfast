@@ -122,6 +122,7 @@ func _init_state() -> void:
 			"strategy": String(ais[i].strategy), "attacking": false, "wave": {},
 			"hope_since": -1.0, "hope_first": -1.0, "hope_reason": "", "hope_flips": 0, "gg_t": -1.0, "min_workers_after_3": 9999,
 			"soil_zero_t": -1.0, "wall_start_t": -1.0, "wall_done_t": -1.0, "workers_lost": 0, "cap200_t": -1.0,
+			"know_s": 0.0, "know_n": 0.0, "seen_t": {},
 		})
 
 
@@ -272,6 +273,25 @@ func _second(dt: float) -> void:
 				aidle += 1
 		X["army_idle_s"] += aidle * dt
 		X["army_s"] += ar.size() * dt
+		# (crown-hold, 2026-11-03: scouting coverage: the share of the seconds with an enemy army worth 100+ in which this side
+		# had seen, within the last 45 s, at least half of that army's value)
+		var seen_t: Dictionary = X["seen_t"]
+		var foe_v := 0.0
+		var known_v := 0.0
+		for u in g.army(1 - i):
+			if u.kind == "horse" or u.kind == "powder_wagon":
+				continue
+			var uid: int = u.get_instance_id()
+			if g.is_visible_to(i, u.position):
+				seen_t[uid] = g.clock
+			var uv := float(Game.unit_value(u))
+			foe_v += uv
+			if g.clock - float(seen_t.get(uid, -999.0)) <= 45.0:
+				known_v += uv
+		if foe_v >= 100.0:
+			X["know_n"] += dt
+			if known_v >= foe_v * 0.5:
+				X["know_s"] += dt
 		var pb_n := 0
 		var pb_idle := 0
 		for b in g.buildings:
@@ -473,9 +493,10 @@ func _finish(loser_team := -1) -> void:
 			"end_gold": int(g.players[i]["gold"]), "end_res2": int(g.players[i]["res2"]), "end_halls": g.halls_of(i).size(),
 			"end_power": Game.power(stand),
 		}
+		td["knew_army"] = snappedf(float(X["know_s"]) / maxf(1.0, float(X["know_n"])), 0.01)
 		td.merge(_peek(i))      # (why an army may be sitting still at the end; added at stage 9)
 		for k in X:
-			if k in ["wave", "attacking", "strategy"]:
+			if k in ["wave", "attacking", "strategy", "seen_t"]:
 				continue
 			td[k] = X[k]
 		(row["teams"] as Array).append(td)
