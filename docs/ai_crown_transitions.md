@@ -184,7 +184,7 @@ first aggression easily: "so crown ai really has to step up"). The owner, verbat
 
 Not done in this pass (left as it was): a HOLD stance order for the Musketeers and a cannon at the ramp (the army
 already waits idle at the main's rally), and continuous Horseman scouting (the existing raid and harass code, 0.26.1/
-0.26.3, sends Horsemen out after workers; a dedicated 1-2 Horseman scout loop is the next step).
+0.26.3, sends Horsemen out after workers; a dedicated 1-2 Horseman scout loop is the next step). Both done in 0.26.14: section 10.
 
 ## 8. Where the gold went: the FFA log
 
@@ -242,6 +242,99 @@ Tests: `tools/test_ai_wall_vs_rush.gd` default map: only the known third-Muskete
 labourer lost. Ashfall: the result is a coin-flip around the gate holding: final code 0, 4 and 0 labourers lost in three
 runs (limit 2); with `tr:off` 3. `tools/test_ai_expand_wall.gd`: all pass on its three maps (its Crown is peaceful, so the doctrine is off there: the wall plan itself is unchanged).
 
-Open (doctrine): the HOLD stance with a cannon at the ramp; a dedicated 1-2 Horseman scout loop; the expansion wall
+Open (doctrine; the first three done in 0.26.14, section 10): the HOLD stance with a cannon at the ramp; a dedicated 1-2 Horseman scout loop; the expansion wall
 when the Brood's rooted army keeps `army_short` true all game; `AI.saturated()` (posts minus one) is rarely reached
 while farms keep adding posts, so the "saturated" match log line seldom shows.
+
+## 10. The rest of the doctrine (0.26.14, branch crown-hold)
+
+Code: `scripts/ai_crown_hold.gd` (new, `AI.ch`), hooks in `scripts/ai.gd` (`_army`: the post, the hold at the top and the
+timing; `_on_errand`: the scouts; `_flee_spot`: the refuge; `wall_yield`/`wall_sat`; `_produce`: the first Horseman) and
+`scripts/ai_expand_wall.gd` (`wall_sat`). Crown computer, Normal and up, not peaceful (`AI.doctrine()`). Study switches:
+`-- hold:off` (no post, no timing), `-- hscout:off` (no rider scouts), `-- tr:off` (none of the doctrine).
+Test: `tools/test_crown_hold.gd` (Greenhold: the post, the scout, a raid below the main).
+
+1. **The ramp post.** The army waiting at home no longer stands by the Town Hall: Musketeers and Guardsmen take spots in
+   a line across the top of the main's ramp, 2.6 tiles behind its top band (behind the ramp wall), rows of 6, a lane of
+   about 2 tiles left open in front of our gate, and stand on **HOLD** facing down; the Field Cannon and Mortars stand
+   on HOLD 5 tiles back. Horsemen and the rest wait at the old rally spot. Units still waiting while a wave is out join
+   the post too. A threat on the main's high ground is fought as before (`_defend`). A threat **below** (the expansion,
+   the ramp's foot) is met only by a home army worth **1.3 times** the armed enemies there (counted within 450 px of the
+   threat spots: `_assess` looks 300 px round one unit and counted a line of 12 Raptors as 6); against more, the army
+   holds the top (`hold_top`; the match log: `P2 Crown holds the top of its ramp: the force below (448) is more than its
+   army at home (505) can beat; the labourers there run up`) and the labourers below run **up the ramp** behind the line
+   (`refuge`, a candidate in `_flee_spot` whose long walk is not held against it; the old "away from the raiders" still
+   wins when the way up passes the raiders). It goes down to attack by the wave rules (sections 4-5 and point 4 below).
+2. **Rider scouts.** One Horseman (two once it has four) rides a loop: every hall site on the map but the mains, and the
+   foot of the enemy's ramp, in order round the middle (the second rider the other way from the far side). Each think:
+   below half health it rides home; an armed enemy that can catch it (85% of its speed) or shoot it marks the spot bad
+   for 75 s and it turns away (three of them, or under 70% health: home); two or more enemy workers in sight within 9
+   tiles, with no defender it is outmatched by (`AIHarass.outmatched`): it **hands itself to the harass**
+   (`AIHarass.add`, the 0.26.7 raid micro: kites slow defenders, comes home hurt). A scout let go is not taken again for
+   45 s. What it sees feeds the AI as any sighting does (AIScout's buildings and army history, `_horse_watch`), and a
+   report goes to the match log every 75 s (army known, halls seen, tech seen). The scouts are on an errand: no wave,
+   raid party or defence takes them. No scouts during a Horseman rush (the riders ride with it). The first Horseman is
+   trained ahead of the 30% pick once the Breeder stands (`wants_rider`).
+3. **The slow wall, like with like.** `wall_yield` under the doctrine now compares the army **at home** with the enemy's
+   **mobile** army seen on **our side** of the map in the last 90 s (nearer our main than its own, or within 22 tiles of
+   one of our halls); rooted Brood creatures, its Mother and eggs are buildings, not an army (`AIHarass.is_static`).
+   And the wall waits for `wall_sat()`: `saturated()`, or the second hall up 90 s with labourers at 85% of the posts.
+4. **The timing.** On two halls, while the army waits, `AICrownHold.timing` lowers the wave bar to what stands at home
+   (`goes down with its army: ...` in the match log) when: it is worth 1.2 times the enemy army known (every soldier seen
+   in the last 120 s, once each) with 24+ supply; or it has 32+ supply and is worth 0.9 times that army; or 32+ supply and
+   no enemy soldier seen for 120 s; or the enemy is seen with 3 halls and it is worth 0.9 times its army; or no attack
+   for 240 s and it is worth 0.9 times. Never under 18 supply, and 90 s after a wave or a timing at least.
+
+### Before and after (Hard v Hard, headless, 15:00, `tools/study/study_game.gd`)
+
+"Before" is 0.26.13 (the branch point). Crown v Brood: the Crown on Economy in slot 2 against the Brood Economy.
+Crown v Crown: P1 Timing (Mill), P2 Economy with the Breeder opening (`open1:breeder`); Highmoor seed 1 added as a
+second Crown v Crown map. **knew** = the share of the seconds (enemy army worth 100+) in which the side had seen at
+least half of the enemy army's value in the last 45 s (new column in the study: `knew_army`). Attacks: start (supply);
+"r" = a raiding party out (the study records one wave at a time: a raid that stays out hides a wave sent meanwhile).
+One game per row: results are noisy (the same code gave P1 a win and a P2 lead on Ashfall), the timings are the solid part.
+
+| game | run | Crown army 8:00 (value/supply) | army 12:00 | labourers 8:00 | knew | attacks | scouts (1st) / hand-offs | result |
+|---|---|---|---|---|---|---|---|---|
+| Kestrel Rise v Brood (2039763518) | before | 80/0 | dead | 30 | 0.11 | none | - | **Brood wins 9:25** |
+| | after | 755/13 | dead | 25 | 0.23 | r9:08 (16) | 3 / 1 | Brood (gg) 11:49 |
+| | after (final) | 750/14 | dead | 25 | 0.21 | r8:02 (17) | 5 (7:39) / 2 | Brood wins 11:08 |
+| Mirewood v Brood (3) | before | 385/9 | dead | 26 | 0.12 | r7:19 (15) | - | **Brood wins 10:32** |
+| | after | 1145/21 | dead | 27 | 0.02 | r7:48 (21) | 5 / 0 | Brood wins 10:47 |
+| | after (final) | 1295/27 | dead | 32 | 0.05 | r7:37 (22) | 10 (7:22) / 0 | Brood wins 13:15 |
+| Ashfall CvC (1864215939), P1 Mill | before | 1000/19 | 2640/62 | 27 | 0.53 | r7:20 (16), 10:27 (25) | - | **P1 wins (gg) 13:23** |
+| | after (mid) | 845/16 | 875/13 | 22 | 0.65 | r6:57 (12), 9:55 (19) | 5 (6:00) / 2 | P2 on lead |
+| | after (final) | 1050/19 | 2450/44 | 34 | 0.49 | 8:07 (20), r8:38, 9:15 (33), r11:07 | 6 (7:29) / 3 | P1 on lead |
+| ... P2 Breeder | before | 80/0 | 200/0 | 16 | 0.55 | r3:22 (6), 6:58 (15), r8:40 (10) | - | |
+| | after (final) | 720/15 | 1675/34 | 25 | 0.50 | r3:05, r6:04, r8:31, r11:11 (24) | 17 (3:34) / 4 | |
+| Highmoor CvC (1), P1 Mill | before | 1135/22 | 280/2 | 27 | 0.59 | r6:48 (15) | - | **P2 on lead**, P1 lost 57 labourers |
+| | after (mid) | 850/15 | 1665/29 | 29 | 0.33 | r10:14 (18) | 3 (6:28) / 3 | P2 on lead |
+| | after (final) | 1310/29 | 2950/65 | 34 | 0.56 | r7:34, 8:42 (16) on to the end | 6 (7:12) / 3 | **P1 wins (gg) 13:35**, lost 4 labourers |
+| ... P2 Breeder | before | 570/11 | 1160/28 | 21 | 0.72 | r3:04, r5:03, r8:30, 9:48 (17), r11:34 | - | |
+| | after (final) | 565/12 | 275/3 | 26 | 0.43 | r3:09, 6:03 (15), r9:17 (19) | 11 (3:38) / 0 | |
+
+("after" Crown v Brood: before the first-Horseman rule; "mid" Crown v Crown: before the looser timing of point 4.)
+
+Read:
+- **The post holds.** Against the Brood economy the Crown has 3-9 times the army at 8:00 (750-1295 against 80-385)
+  and lives 0:15-2:45 longer, but still loses every game: the Brood's army (4,000-5,800 at 8:00 with its rooted
+  creatures) is out of reach of anything the Crown computer does by then; the doctrine does not fix that matchup.
+- **The slow wall now comes against the Brood**: the new hall's first palisade at 6:15 (Kestrel) and 5:22 (Mirewood),
+  7 and 12 batches laid; never before (section 9).
+- **Scouting** is up where riders can live: knew 0.11 to 0.21-0.23 on Kestrel; the Crown v Crown sides stay about the
+  same (0.43-0.65, they saw each other's armies at the ramps anyway). On Mirewood the Brood's army is all over the map
+  and the scout is chased within seconds (knew 0.02-0.05). The first rider comes late on the Musketeer side (6:00-7:39):
+  the Breeder stands at 4:12 (Kestrel) but the first horse was hauled to the Barracks at 7:23 (the horse logistics,
+  `_horses`, not changed here).
+- **The Musketeer Crown attacks**: on both Crown v Crown maps with the final code its first wave went at 8:07-8:42 with
+  16-20 supply and it kept fighting (Highmoor: the wave stayed out from 8:42 and won at 13:35). The new timing rule
+  (point 4) did not fire in these four games: the wave bar left by the EXPAND transition (16 supply) sent the army first.
+  It is the backstop for a bar raised by a failed wave.
+
+Tests: `tools/test_crown_hold.gd` all pass. `tools/test_ai_wall_vs_rush.gd`: default map only the known third-Musketeer
+limit (165 s against 160 s), 1 labourer lost; Ashfall 167-168 s (167 before), 0 lost. `tools/test_ai_expand_wall.gd`:
+all pass. `tools/test_raid_kite.gd`: all pass.
+
+Open: the first Horseman waits for the horse logistics (Breeder to Barracks); the Crown computer against the Brood
+economy still loses by 11-13 minutes (army 4-5 times smaller at 8:00); scouts are re-picked at once after a hand-off
+(the match log repeats "sends a Horseman to scout"); more games per row to call results.

@@ -185,7 +185,7 @@ func _lay_pieces(p: Dictionary) -> void:
 		return          # (a fight at the hall: the army first, the wall after)
 	# (AI TRANSITIONS: an army smaller than the enemy's comes first: pieces only from gold above a unit's price, a few at a
 	# time; docs/ai_crown_transitions.md)
-	if ai.doctrine() and not ai.saturated():
+	if ai.doctrine() and not ai.wall_sat():
 		return          # (THE OWNER'S DOCTRINE: saturate the expansion first, then wall it in slowly)
 	var short: bool = ai.wall_yield()
 	if short and ai.doctrine():
@@ -281,7 +281,7 @@ const SHORT_BATCH := 3          # ... and at most this many pieces laid at a tim
 
 
 func keep() -> int:
-	if not active() or plans.is_empty() or _farm_first() or ai.wall_yield() or (ai.doctrine() and not ai.saturated()):
+	if not active() or plans.is_empty() or _farm_first() or ai.wall_yield() or (ai.doctrine() and not ai.wall_sat()):
 		return 0
 	var debt := 0
 	for id in plans:

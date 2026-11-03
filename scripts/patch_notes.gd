@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.14", "items": [
+		"THE CROWN COMPUTER HOLDS ITS RAMP: its army at home now stands on HOLD at the top of the main's ramp, Musketeers in a line across it behind the ramp wall (a lane left open in front of the gate) and its Field Cannon behind them, instead of waiting by the Town Hall. It goes down only to attack, or to meet a force at its expansion that it clearly beats; against more it holds the top, and the labourers below run up the ramp to it.",
+		"The Crown computer scouts with Horsemen: one rider (two once it has four) rides a loop round the map's hall sites and the foot of the enemy's ramp, so it knows the enemy's army, halls and tech; when it finds workers it can take it turns to hunting them, and it rides home when hurt or chased by what can catch it. Its first Horseman is trained as soon as the Horse Breeder can give it a horse. The match log gives a scouting report.",
+		"The Crown computer's new hall gets its slow wall against the Brood too: the wall now waits only while the enemy army seen on its side of the map (rooted Brood creatures count as buildings, not as an army) is bigger than the army at home, and once the economy is nearly saturated, not only when every last post is filled.",
+		"After expanding the Crown computer goes down to fight when it is ready: when its army is worth clearly more than the enemy army it knows, when it is big and not behind, when the enemy is seen taking a third hall, or when it has not attacked for four minutes and is not behind. Never with less than 18 supply.",
+	]},
 	{"v": "0.26.13", "items": [
 		"THE CROWN COMPUTER USES A HELD RUSH: once it has beaten off a rush (no armed enemy near its buildings for 10 s, its army worth at least what the enemy showed), it picks one move at once instead of sitting in its defensive build for minutes: a counter-attack with its whole army when it is worth half again the enemy's and has 12 supply or more, or else its second Town Hall right away (the gold held for it, the army at home covering it). Either way the defensive build ends: labourers and tech come back. The match log says which it chose and why.",
 		"No more trickle attacks from the Crown computer's Timing plan: when its scout has not sized the attack, the first wave waits for 16 supply (or 1.6 times the enemy army seen) instead of going out with 3 Musketeers.",
