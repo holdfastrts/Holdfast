@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.3", "items": [
+		"RAIDING HORSEMEN AT THE NEW RAMP WALL (Cottage and Gate): the computer's raid strikes the ramp Cottage as well as the gate, so the riders spread over both instead of queueing at a one-tile gate. A labourer mending the gate from the riders' side is ridden down first rather than counted as endless repair, and a worker coming into sight on the near side no longer makes the raid give up on a gate it could break.",
+	]},
 	{"v": "0.26.2", "items": [
 		"THE BROOD COMPUTER DEFENDS AS A SWARM: its army at home gathers at a rally and holds there, so Raptors no longer run off one by one at every enemy they see. Enemies at home get a group sized to them, sent all at once: a few Raptors, or the Tyrant Sire for a small harass when there are no warriors to spare, the whole army for a real attack, and everything near the Mother when the fight is at her. An attack too strong to meet away from her makes the army gather on her side instead. The Mother stays rooted for a scout or a small harass (her swamp and the Rootmaws on it stay) and gets up only for a real attack, when hurt with nobody fighting for her, or as a last stand. A rooted Rootmaw that is struck gets up and bites back when it can win, or backs off to the Mother when it can't, then roots again on its spot.",
 	]},

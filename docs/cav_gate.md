@@ -87,6 +87,16 @@ unrelated), `tools/test_ai_harass.gd` (passes; one run showed the known flaky Cl
 0.25.25), `tools/test_ai_wall_vs_rush.gd` (the known open "3 Musketeers by 2:40" line only). `tools/test_ride_by_raid.gd` stops
 at its set-up ("no open ground for the test" on Hollowfen), before any AI code runs: to look at separately.
 
+## 0.26.3: the Cottage + Gate ramp wall
+
+0.25.28 (`AI.cw_prune`) made the computer's ramp wall a Cottage and a Gate only. On merged main test case 6 failed: at
+0 s the raid said "walled with nothing it can break" and rode home. Cause (behaviour, not the test's set-up):
+`_piece_to_break` checked reachability against a fresh `_prey_spot`, which by then named the mender standing on the
+riders' side of the wall (reachable), so it returned no piece. Fixed: it checks the spot the raid is going for. Also:
+the ramp Cottage counts in the stretch the riders strike (`_raid_line`: the gate has room for two horses, the Cottage's
+faces for the rest), and a visible mender the riders can get at is counted as hit points to cut through, not as
+repair for good (`_raid_weigh`). All 7 cases pass on 0.26.3.
+
 ## Open
 
 - The wave's siege sim and the raid's race are two separate estimates; they could share one.

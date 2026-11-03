@@ -2941,11 +2941,7 @@ func _raid_wall(prey: Vector2) -> Vector2:
 	# the pieces side by side with it (the palisade and the gate across the ramp): the riders spread over them, two to a
 	# face (a one-tile piece has room for about two horses; the rest stood behind them out of reach), and a labourer can
 	# only mend one piece at a time
-	var line: Array = [piece]
-	for b in game.buildings:
-		if b != piece and not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and game.hostile(b.team, team) \
-				and b.center().distance_to(piece.center()) < RAID_LINE:
-			line.append(b)
+	var line := _raid_line(piece)
 	var on := {}
 	for u in party:
 		if u.order == "attack" and line.has(u.order_target):
@@ -2988,12 +2984,28 @@ func _raid_wall(prey: Vector2) -> Vector2:
 	return Vector2.INF
 
 
-## The lowest share of hit points among the wall and gate pieces within RAID_LINE of `piece` (itself too).
-func _line_hp(piece: Building) -> float:
-	var low := piece.hp / piece.max_hp
+## The stretch of wall the party strikes: `piece`, the wall and gate pieces within RAID_LINE of it, and a building of
+## theirs standing in the wall right beside it (the ramp Cottage: since 0.25.28 the computer's ramp wall is a Cottage and
+## a Gate only, AI.cw_prune; a one-tile gate between the Cottage and the cliff has room for two horses, the Cottage's
+## faces for the rest, and bringing the Cottage down opens the way as well).
+func _raid_line(piece: Building) -> Array:
+	var line: Array = [piece]
 	for b in game.buildings:
-		if not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and b.team == piece.team and b.center().distance_to(piece.center()) < RAID_LINE:
-			low = minf(low, b.hp / b.max_hp)
+		if b == piece or b.dead or not b.built or b.ghost or not game.hostile(b.team, team):
+			continue
+		if b.kind == "wall" or b.kind == "gate":
+			if b.center().distance_to(piece.center()) < RAID_LINE:
+				line.append(b)
+		elif b.edge_distance(piece.center()) < float(Defs.TILE):
+			line.append(b)
+	return line
+
+
+## The lowest share of hit points along the stretch the party strikes (_raid_line).
+func _line_hp(piece: Building) -> float:
+	var low := 1.0
+	for b in _raid_line(piece):
+		low = minf(low, b.hp / b.max_hp)
 	return low
 
 
@@ -3009,6 +3021,7 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 	var menders: Array = []
 	var rep := 0.0
 	var inc := 0.0
+	var kill_hp := 0.0
 	for o in game.units_near(piece.center(), 360.0):
 		if o.dead or o.off_field or not game.hostile(o.team, team):
 			continue
@@ -3017,7 +3030,12 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 			if ((o.work == "repairing" or o.order == "repair") and o.order_target == piece or (o.work == "repairing" and piece.edge_distance(o.position) < 60.0)) \
 					and game.is_visible_to(team, o.position):
 				menders.append(o)
-				rep += maxf(float(Defs.REPAIR_RATE), piece.max_hp / maxf(float(piece.d.get("time", 10.0)), 1.0))
+				# a mender the riders can get at (out on their side of the wall, or in pistol reach of its face) is cut down
+				# first, not mended around: his hit points join the work instead of his repair counting for good
+				if party[0]._walk_reaches(o) or piece.edge_distance(o.position) <= float(Defs.PISTOL["range"]) - 20.0:
+					kill_hp += o.hp
+				else:
+					rep += maxf(float(Defs.REPAIR_RATE), piece.max_hp / maxf(float(piece.d.get("time", 10.0)), 1.0))
 			continue
 		if not o.has_attack() or not Game.fights_back(o):
 			continue
@@ -3026,7 +3044,7 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 		if piece.edge_distance(o.position) <= float(o.d["range"]) + o.radius + 30.0 and game.is_visible_to(team, o.position):
 			inc += float(o.d["damage"]) / maxf(float(o.d["cooldown"]), 0.1)
 	var net := dps - rep
-	return {"t": piece.hp / net if net > 0.5 else INF, "die": hp / inc if inc > 0.1 else INF, "inc": inc,
+	return {"t": (piece.hp + kill_hp) / net if net > 0.5 else INF, "die": hp / inc if inc > 0.1 else INF, "inc": inc,
 		"menders": menders.size(), "mender_list": menders}
 
 
@@ -4633,7 +4651,10 @@ func _piece_to_break(wave: Array, c: Vector2) -> Building:
 			break
 	if rep == null:
 		return null
-	if rep._walk_reaches_point(_prey_spot(rep.position)):
+	# (the spot the caller is going for, `c`: asking _prey_spot afresh here could name another spot, a worker out on
+	# the near side of the wall that came into sight meanwhile, and a raid then found "nothing it can break" at a gate
+	# it could break: tools/test_cav_gate.gd case 6 on 0.26.1)
+	if rep._walk_reaches_point(c):
 		return null
 	var a: Vector2i = game.cell_of(rep.position)
 	if not game.open_cell(a):
