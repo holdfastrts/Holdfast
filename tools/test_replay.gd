@@ -8,6 +8,11 @@ extends SceneTree
 ## clock as they should, a file cut short (a crash) still plays to its last whole chunk, and a replay stamped with
 ## another version (other field lists, a unit kind that is gone) shows the warning and still plays. Prints the size
 ## and the recorder's cost. spawn:N adds N Musketeers and N Raptors at 30 s (a big battle).
+## rec:full|light|off: Settings REPLAY RECORDING for the match (default full). LIGHT: the header says 2 pictures a
+## second, the pictures come 2 a second, everything above still matches, and the effects carry their times. OFF: no
+## recorder and no replay file. Every run also plays 10 s at 1x from the middle and measures how far each unit is
+## drawn from where it really was at that moment ("GLIDE"; every tick's true places kept in the match), the price of
+## fewer pictures.
 var main: Node
 var t := 0.0
 var g: Game
@@ -33,6 +38,12 @@ var _marks: Array = [300.0, 600.0, 1200.0]
 var _mark_clk := 0.0
 var _mark_us := 0
 var _mark_n := 0
+var rec_mode := "full"
+var _fine: Array = []           # [clock, {id: place}] every game tick in the GLIDE window (the true places)
+var _fine_from := 0.0
+var _gl_d: Array = []           # GLIDE: each unit's distance from its true place, each frame
+var _gl_frames := 0
+var _replays_before: Array = []     # (the replay files before the match: OFF adds none)
 
 
 ## The match as it is the moment a picture is taken.
@@ -86,6 +97,8 @@ func _initialize() -> void:
 			fa = a.substr(2)
 		elif a.begins_with("b:"):
 			fb = a.substr(2)
+		elif a.begins_with("rec:"):
+			rec_mode = a.substr(4)
 
 
 func check(name: String, ok: bool, detail := "") -> void:
@@ -110,6 +123,10 @@ func _process(delta: float) -> bool:
 func _play() -> bool:
 	if t > 0.2 and main.game == null:
 		seed(seed_)
+		Settings.replay_rec = rec_mode      # (not saved: the player's own setting stays)
+		ReplayFile.ensure_dir()
+		_replays_before = Array(DirAccess.get_files_at(ReplayFile.DIR))
+		_fine_from = maxf(secs * 0.5 - 1.0, 5.0)
 		main.start({"map": map, "seed": seed_, "slots": [
 			{"who": "hard", "faction": fa, "colour": 0, "side": 0, "strategy": "balanced"},
 			{"who": "hard", "faction": fb, "colour": 1, "side": 1, "strategy": "balanced"}]})
@@ -118,10 +135,29 @@ func _play() -> bool:
 		return false
 	g = main.game
 	paused = false
+	if rec_mode == "off":
+		if g.clock < 20.0:
+			return false
+		check("off_no_recorder", g.rec == null, "REPLAY RECORDING OFF: recorder %s" % str(g.rec))
+		main._to_menu()
+		var new_files := Array(DirAccess.get_files_at(ReplayFile.DIR)).filter(func(f: String) -> bool: return not _replays_before.has(f))
+		check("off_no_replay", new_files.is_empty(), "files written: %s" % str(new_files))
+		check("off_online_host_records", ReplayRecorder.rate_for("off", true) == ReplayRecorder.RATE_LIGHT and ReplayRecorder.rate_for("off", false) == 0.0
+			and ReplayRecorder.rate_for("light", false) == ReplayRecorder.RATE_LIGHT and ReplayRecorder.rate_for("full", true) == ReplayRecorder.RATE,
+			"online host with OFF records at LIGHT, a skirmish not at all")
+		print("ALL OK" if failed == 0 else "SOME FAILED (%d)" % failed)
+		quit(0 if failed == 0 else 1)
+		return true
 	if g.rec == null:
 		check("recorder_started", false, "no recorder on a skirmish")
 		quit(1)
 		return true
+	if g.clock >= _fine_from and g.clock <= _fine_from + 12.0 and (_fine.is_empty() or g.clock > float(_fine.back()[0]) + 0.001):
+		var fu := {}
+		for x in g.units:
+			if is_instance_valid(x) and not x.dead and x.net_id != 0:
+				fu[x.net_id] = x.position
+		_fine.append([g.clock, fu])
 	if spawn > 0 and not _spawned and g.clock >= 30.0:
 		_spawned = true
 		_spawn()
@@ -144,7 +180,11 @@ func _play() -> bool:
 		rec.recorded.connect(_capture)
 	if g.clock >= secs or g.over:
 		rec_line = rec.cost_line()
-		print("RECORDER %s" % rec_line)
+		print("RECORDER %s %s" % [rec_mode.to_upper(), rec_line])
+		var want_rate := ReplayRecorder.RATE_LIGHT if rec_mode == "light" else ReplayRecorder.RATE
+		var pics := rec.n_frames / maxf(g.clock - float(rec.header.get("t0", 0.0)), 1.0)
+		check("rate_in_header", absf(float(rec.header.get("rate", 0.0)) - want_rate) < 0.001 and pics <= want_rate + 0.2 and pics >= want_rate * 0.55,
+			"%s: header %.1f a second, %.2f pictures a second taken" % [rec_mode, float(rec.header.get("rate", 0.0)), pics])
 		rec_path = rec.finish(g.winner if g.over else -1)
 		check("replay_written", rec_path != "" and FileAccess.file_exists(rec_path), rec_path)
 		var size := FileAccess.get_file_as_bytes(rec_path).size()
@@ -152,6 +192,7 @@ func _play() -> bool:
 		var m := ReplayFile.read_meta(rec_path)
 		check("replay_listed", ReplayFile.list().any(func(x: Dictionary) -> bool: return String(x["path"]) == rec_path) and String(m.get("result", "")) != "",
 			"result %s, %d players, %s" % [m.get("result"), (m.get("players", []) as Array).size(), ReplayPlayer.clock_text(float(m.get("len", 0)))])
+		_fxt_check()
 		_make_variants()
 		stage = "watch"
 		main._to_menu()
@@ -216,6 +257,31 @@ func _watch() -> bool:
 				var r := _compare_now(rp)
 				check("units_match_while_playing", (r["bad"] as Array).is_empty() and float(r["worst"]) <= 4.0, "at %s: worst place %.2f px, mismatches %s" % [ReplayPlayer.clock_text(rp.play_t), r["worst"], str(r["bad"].slice(0, 3))])
 				rp.set_speed(1.0)
+				_wstep = 10
+		10:
+			# GLIDE: 10 s at 1x from the middle; each frame every unit against its true place at that moment
+			rp.seek(_fine_from + 0.5)
+			rp.set_speed(1.0)
+			rp.set_playing(true)
+			_gl_frames = 0
+			_wstep = 11
+		11:
+			_gl_frames += 1
+			_glide_frame(rp)
+			if _gl_frames >= 2000 or rp.play_t >= _fine_from + 10.5:
+				_gl_d.sort()
+				var n := _gl_d.size()
+				var mean := 0.0
+				for d in _gl_d:
+					mean += float(d)
+				mean /= maxf(n, 1.0)
+				var p95: float = _gl_d[int(n * 0.95)] if n > 0 else 0.0
+				var p99: float = _gl_d[int(n * 0.99)] if n > 0 else 0.0
+				var mx: float = _gl_d[n - 1] if n > 0 else 0.0
+				print("GLIDE %s: %d unit-frames over %.1f s, off its true place: mean %.2f px, 95%% under %.1f, 99%% under %.1f, worst %.1f" % [
+					rec_mode.to_upper(), n, rp.play_t - (_fine_from + 0.5), mean, p95, p99, mx])
+				_bench["glide"] = [snappedf(mean, 0.01), snappedf(p95, 0.1), snappedf(p99, 0.1), snappedf(mx, 0.1)]
+				check("glide_close", n > 1000 and p95 <= 12.0, "95%% of units within %.1f px of their true place" % p95)
 				_wstep = 3
 		3:
 			# fog: one player's view hides the other's units out of sight; all vision shows them all
@@ -278,6 +344,52 @@ func _watch() -> bool:
 			quit(0 if failed == 0 else 1)
 			return true
 	return false
+
+
+## GLIDE: the true places at the tick nearest the shown clock; units that jumped (boarding, leaving: 40 px in a tick
+## around it) are left out.
+func _glide_frame(rp: ReplayPlayer) -> void:
+	var best := -1
+	var bd := 1e9
+	for i in _fine.size():
+		var d := absf(float(_fine[i][0]) - rp.play_t)
+		if d < bd:
+			bd = d
+			best = i
+	if best <= 0 or best >= _fine.size() - 1 or bd > 0.02:
+		return
+	var now: Dictionary = _fine[best][1]
+	var before: Dictionary = _fine[best - 1][1]
+	var after: Dictionary = _fine[best + 1][1]
+	for id in now:
+		var p: Vector2 = now[id]
+		if not before.has(id) or not after.has(id) or p.distance_to(before[id]) > 40.0 or p.distance_to(after[id]) > 40.0:
+			continue
+		var u = rp.by_id.get(id)
+		if not is_instance_valid(u) or not (u is Unit) or u.dead:
+			continue
+		_gl_d.append(u.position.distance_to(p))
+
+
+## Every picture in the file carries its effects' times (fxt), one byte each.
+func _fxt_check() -> void:
+	var d := ReplayFile.read(rec_path)
+	var with_fx := 0
+	var timed := 0
+	var spread := 0
+	for c in d.get("chunks", []):
+		for fb in ReplayFile.unpack_frames(c["data"]):
+			var m = bytes_to_var(fb)
+			if not (m is Dictionary) or not m.has("fx"):
+				continue
+			with_fx += 1
+			var ft = m.get("fxt")
+			if ft is PackedByteArray and (ft as PackedByteArray).size() == (m["fx"] as Array).size():
+				timed += 1
+				for b in ft:
+					if int(b) > 0:
+						spread += 1
+	check("effects_timed", with_fx > 0 and timed == with_fx and spread > 0, "%d pictures with effects, %d with their times, %d effects before their picture" % [with_fx, timed, spread])
 
 
 ## The recorded picture with this clock (or the last one before it).

@@ -24,6 +24,7 @@ static var relay_url := "wss://pocketrts-relay.salgarellius-rts.workers.dev"   #
 static var language := "en"           # "en", "pt" or "es" (Loc)
 static var cw_lab := false            # the Clockwork roster prototype in every Clockwork match (docs/clockwork_units_prototype.md)
 static var replays_keep := 30         # replays kept (the newest; KEEP ones are never deleted)
+static var replay_rec := ""           # REPLAY RECORDING: "full", "light", "off"; "" = not chosen (replay_mode: LIGHT on a phone, FULL elsewhere)
 static var narrator := true           # SPECTATOR NARRATOR: the AI STORY read out loud while watching computers (Narrator; N mutes)
 static var narrator_volume := 80      # NARRATOR VOLUME (0-100, the system voice's own volume)
 static var narrator_rate := 1.1       # NARRATOR SPEED (0.5-2: 1 is the voice's normal pace)
@@ -58,6 +59,9 @@ static func load_all() -> void:
 		language = str(cfg.get_value("ui", "language", "en"))
 		cw_lab = bool(cfg.get_value("ui", "cw_lab", false))
 		replays_keep = clampi(int(cfg.get_value("ui", "replays_keep", 30)), 5, 200)
+		replay_rec = String(cfg.get_value("ui", "replay_rec", ""))
+		if not REPLAY_MODES.has(replay_rec):
+			replay_rec = ""
 		narrator = bool(cfg.get_value("ui", "narrator", true))
 		narrator_volume = clampi(int(cfg.get_value("ui", "narrator_volume", 80)), 0, 100)
 		narrator_rate = clampf(float(cfg.get_value("ui", "narrator_rate", 1.1)), 0.5, 2.0)
@@ -88,6 +92,7 @@ static func save_all() -> void:
 	cfg.set_value("ui", "language", language)
 	cfg.set_value("ui", "cw_lab", cw_lab)
 	cfg.set_value("ui", "replays_keep", replays_keep)
+	cfg.set_value("ui", "replay_rec", replay_rec)
 	cfg.set_value("ui", "narrator", narrator)
 	cfg.set_value("ui", "narrator_volume", narrator_volume)
 	cfg.set_value("ui", "narrator_rate", narrator_rate)
@@ -117,6 +122,21 @@ static func powder_smoke_level() -> int:
 	return POWDER_SMOKE_DEFAULT
 
 
+## REPLAY RECORDING (docs/replays.md "Lighter recording"): how a match is recorded. FULL: 5 pictures a second (the
+## recorder's own rate), LIGHT: 2 a second (the viewer glides between them), OFF: no replay of a skirmish, a campaign
+## mission or a watched match (online still records, at LIGHT: the friends get the host's replay).
+const REPLAY_MODES := ["full", "light", "off"]
+static func replay_mode() -> String:
+	if REPLAY_MODES.has(replay_rec):
+		return replay_rec
+	return "light" if phone_device() else "full"
+
+
+## The game runs on a phone or tablet (the Android app, a mobile export), not a phone's browser (the web keeps FULL).
+static func phone_device() -> bool:
+	return OS.has_feature("mobile") or OS.get_name() == "Android" or OS.get_name() == "iOS"
+
+
 ## Settings > OTHER > RESET SETTINGS: every choice back to how it starts, except the device,
 ## the language, the online relay and the sound (it has its own mute buttons and bars).
 static func reset() -> void:
@@ -134,6 +154,7 @@ static func reset() -> void:
 	mini_alpha = 0.6
 	cw_lab = false
 	replays_keep = 30
+	replay_rec = ""
 	narrator = true
 	narrator_volume = 80
 	narrator_rate = 1.1

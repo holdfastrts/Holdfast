@@ -42,6 +42,8 @@ var _udef := {}                   # this version's default value of each unit / 
 var _bdef := {}
 var _income := {}                 # team -> [[clock, gold so far], ...] (income per minute on the observer bar)
 var end_winner := -1
+var rate := 5.0                   # the pictures a second it was recorded at (header "rate": FULL 5, LIGHT 2)
+var _fx_wait: Array = []          # [time, effect] of a picture's effects still to come (fxt: played as play_t passes them)
 
 
 ## Read a replay file: the parsed data (ReplayFile.parse) with "error" set when it can't be watched.
@@ -92,6 +94,8 @@ static func play(g: Game, d: Dictionary) -> ReplayPlayer:
 	p.events = d.get("events", [])
 	p.me = int(p.header.get("me", -1))
 	p.view_only = bool(p.header.get("view_only", false))
+	p.rate = clampf(float(p.header.get("rate", ReplayRecorder.RATE)), 0.5, 30.0)
+	p.interval = 1.0 / p.rate
 	p.start_t = float(p.chunks[0]["t0"])
 	p.length = float(p.footer.get("len", 0.0)) if not p.footer.is_empty() else float(p.chunks.back()["t1"])
 	p.length = maxf(p.length, float(p.chunks.back()["t1"]))
@@ -211,6 +215,7 @@ func tick_rclk(delta: float) -> void:
 	rclk = play_t
 	game.clock = play_t
 	_post_events(play_t)
+	_play_waiting(play_t)
 	if cam_team >= 0:
 		_camera()
 
@@ -265,17 +270,29 @@ func _apply(m: Dictionary) -> void:
 	_sanitize(m)
 	if m.has("fx"):
 		var keep: Array = []
-		for f in m["fx"]:
+		var fxt = m.get("fxt")
+		var timed: bool = fxt is PackedByteArray and (fxt as PackedByteArray).size() == (m["fx"] as Array).size() and not _seeking
+		var fl: Array = m["fx"]
+		for i in fl.size():
+			var f: Array = fl[i]
 			if _seeking and f[0] != "c" and f[0] != "h":
 				continue           # (a jump: only the bodies torn or hit, no sights or sounds from the times between)
 			if f[0] == "e" and not ArtData.EFFECTS.has(String(f[1])) and not String(f[1]).begins_with("powder:"):
 				continue
+			if timed:
+				# (each effect at its own time, as it happened, not all with the picture: a picture is put on about one
+				# interval before play_t reaches it, so they come in step with the units gliding there)
+				var at := clk - float(fxt[i]) / 100.0
+				if at > play_t:
+					_fx_wait.append([at, f])
+					continue
 			keep.append(f)
 		m["fx"] = keep
+	m.erase("fxt")
 	prev_clk = snap_clk
 	snap_clk = clk
 	if prev_clk > 0.0:
-		interval = clampf(snap_clk - prev_clk, 0.03, 0.5)
+		interval = clampf(snap_clk - prev_clk, 0.03, 1.0)
 	NetSnapshot.apply(self, m)
 	if _seeking:
 		# (no game ticks run between the pictures of a jump: each unit stands where its last row put it, so the next row
@@ -370,6 +387,20 @@ func _sanitize(m: Dictionary) -> void:
 		m["b"] = keep
 
 
+## The effects whose time play_t has reached (_apply keeps them waiting until then).
+func _play_waiting(t: float) -> void:
+	if _fx_wait.is_empty():
+		return
+	var due: Array = []
+	var i := 0
+	while i < _fx_wait.size() and float(_fx_wait[i][0]) <= t:
+		due.append(_fx_wait[i][1])
+		i += 1
+	if i > 0:
+		_fx_wait = _fx_wait.slice(i)
+		play_fx(due)
+
+
 ## The chat (and the end) as play_t passes their times.
 func _post_events(t: float) -> void:
 	while _ev < events.size() and float(events[_ev][0]) <= t:
@@ -430,6 +461,7 @@ func seek(t: float) -> void:
 	prev_clk = 0.0
 	_cams = {}
 	_income = {}
+	_fx_wait = []
 	_seeking = true
 	Sfx.hush = true
 	_feed(t)

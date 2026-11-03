@@ -10,8 +10,9 @@ extends SceneTree
 ## The player's settings file is put back at the end. Prints PASS / FAIL; exit code 1 on a failure.
 
 const PC_IDS := ["language", "device", "grid_keys", "layout", "tooltips", "build_grid", "replays_keep", "relay_url",
-	"window_full", "ui_size", "mini_alpha", "powder_smoke", "area_marks", "expansion_spots", "health_bars", "charge_bars",
-	"music", "sound", "ambience", "music_player", "gear_turn", "marching_band", "cw_lab", "patch_notes", "anim_viewer", "reset"]
+	"replay_rec", "window_full", "ui_size", "mini_alpha", "powder_smoke", "area_marks", "expansion_spots", "health_bars", "charge_bars",
+	"music", "sound", "ambience", "music_player", "gear_turn", "marching_band", "cw_lab", "patch_notes", "anim_viewer", "reset",
+	"narrator", "narrator_volume", "narrator_rate"]
 
 var main
 var fails := 0

@@ -1059,6 +1059,15 @@ func settings_rows(tab: String) -> Array:
 				Settings.replays_keep = keeps[(i + 1) % keeps.size()]
 				Settings.save_all()
 				show_settings()), "replays_keep"))
+			var rec_names := {"full": "FULL", "light": "LIGHT", "off": "OFF"}
+			var rec_rows: Array = [_tag(_choice_row("REPLAY RECORDING", Loc.t(rec_names[Settings.replay_mode()]), func() -> void:
+				var modes: Array = Settings.REPLAY_MODES
+				Settings.replay_rec = modes[(modes.find(Settings.replay_mode()) + 1) % modes.size()]
+				Settings.save_all()
+				show_settings()), "replay_rec"),
+				_hint({"full": "5 pictures a second: the smoothest replays.", "light": "2 pictures a second: lighter for a phone late in a match; replays still glide.",
+					"off": "No replays of your own matches (online games still record)."}[Settings.replay_mode()])]
+			rows.append_array(rec_rows)
 			var rh := _row("ONLINE RELAY ADDRESS")
 			var rhe := LineEdit.new()
 			rhe.text = Settings.relay_url
@@ -2875,7 +2884,9 @@ func start(cfg: Dictionary = {}) -> void:
 	elif not game.edit_mode:
 		# every match is recorded (docs/replays.md): the skirmish, the online host (every side), an online guest (what it
 		# was sent: its own view, kept until the host's whole replay comes)
-		ReplayRecorder.start(game, last_cfg, human, game.puppet)
+		# Settings REPLAY RECORDING: FULL, LIGHT (fewer pictures) or OFF (none; online the host still records, at LIGHT)
+		var online_host := game.net != null and game.net.is_host
+		ReplayRecorder.start(game, last_cfg, human, game.puppet, ReplayRecorder.rate_for(Settings.replay_mode(), online_host))
 
 
 func _to_menu() -> void:
@@ -2925,6 +2936,8 @@ func _on_end(winner: int) -> void:
 		elif game.net and not game.net.is_host and game.net.rp_path != "" and rp_path != "":
 			ReplayFile.delete(rp_path)              # (the host's whole replay came first)
 			rp_path = game.net.rp_path
+	elif game.net and not game.net.is_host and game.net.rp_path != "":
+		rp_path = game.net.rp_path                  # (REPLAY RECORDING OFF: no view of its own, the host's whole replay came)
 	await get_tree().create_timer(1.2, true, false, true).timeout
 	if game == null:
 		return
