@@ -134,6 +134,9 @@ What the two pairs say together:
 - Seen on the way, not from this work (main does it too): on Kestrel Rise with the Brood as player 1 the computer
   throws a script error every tick in AI._hall_first (scripts/ai.gd:2315) and AI._hall_keep (2401): a Dictionary
   indexed with a String, the Brood having no hall building. It floods the log (1 MB in 7 minutes).
+  FIXED in 0.26.17: tools/perf_bench.gd made the plain computer (AI) for player 1 whatever its faction; the Brood's is
+  AIBroodNew (as scripts/main.gd makes it in a match). The same slip was in the online game: a Brood player who left
+  was taken over by the plain computer (scripts/net/net_session.gd), and in tools/test_online.gd's autoplay.
 
 ## What is left, and the owner's options
 

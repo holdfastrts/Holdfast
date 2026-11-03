@@ -503,7 +503,7 @@ func _host_tick() -> void:
 				check("host_computer_plan_in_config", String(main.last_cfg["slots"][2].get("strategy", "")) == "rush")
 			if autoplay:
 				for tm in [0, 1]:
-					var ai := AI.new()
+					var ai: AI = AIBroodNew.new() if g.faction_of(tm) == "brood" else AI.new()
 					ai.game = g
 					ai.team = tm
 					ai.difficulty = 2

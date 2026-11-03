@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.20", "items": [
+		"A BROOD SIDE TAKEN OVER BY THE COMPUTER PLAYS AS THE BROOD: online, when a Brood player left, the computer that took over their side was the one for the Crown and the Clockwork. The Brood has no buildings, so it stood looking for a hall to build and threw an error every tick. It is now the Brood's own computer, as in a skirmish.",
+	]},
 	{"v": "0.26.19", "items": [
 		"FIFE AND DRUM END TOGETHER: the Barracks now recruits to the close of the band's slow tune (the owner's pick of the three): a held high chord, then three big drum strokes, and the fife now plays on with them, one note a stroke, D, C and home to B flat, the last held through the final stroke's ring so fife and drum stop together. The added notes are the same fifers in the same tune, not pitched up or down, and the fife is a little louder against the drums. Same loudness in a match; another version to compare is in docs/sounds_compare/flute/.",
 	]},
