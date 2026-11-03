@@ -27,6 +27,11 @@ const RULES := [
 	["^'s plan: the opening is over", "%s's opening is over: its milestones and its doctrine take over.", 2, "plan"],
 	["^'s plan: milestone: (.+?) \\(", "%s puts up its next milestone: %s.", 2, "tech"],
 	["^'s plan: the wave waits", "%s holds its wave back: the enemy army it knows is bigger.", 2, "attack"],
+	# ---- the Crown's Dragoon raids (crown-builds-a, scripts/ai_dragoon_raid.gd)
+	["^'s Dragoon raid: group \\d+ rides for", "%s's Dragoons ride out to raid the enemy's workers.", 2, "raid"],
+	["^'s Dragoon raid: group \\d+ strikes", "%s's Dragoons get off their horses and shoot at the workers.", 2, "raid"],
+	["^'s Dragoon raid: group \\d+ rides off", "%s's Dragoons mount and ride off before the defenders reach them.", 2, "raid"],
+	["^'s Dragoon raid: ", "", 1, "raid"],
 	["^'s plan: ", "", 1, "build"],
 	# ---- scouting and what it decides from it
 	["^scouted: rush \\(", "%s's scout saw a rush coming: it switches to defence, army and walls first, then a counter-attack.", 3, "plan"],

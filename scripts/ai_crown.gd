@@ -132,15 +132,15 @@ const PLANS := {
 			{"do": "wall_gate", "at": {"sup": 5}},
 			{"do": "build", "k": "barracks", "at": {"labs": 7}},
 			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
-			{"do": "army", "k": "musketeer", "cap": 10},
-			{"do": "build", "k": "horse_breeder", "at": {"labs": 9}},
-			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 10}},
-			{"do": "hall", "n": 2, "at": {"labs": 16}},
+			{"do": "army", "k": "musketeer", "cap": 8},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 13}},
+			{"do": "hall", "n": 2, "at": {"labs": 15}},
 		],
 		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {"labs": 18}], ["foundry", 1, {"labs": 24}],
 			["horse_breeder", 2, {"labs": 26, "halls": 2}], ["armoury", 1, {"labs": 28}], ["barracks", 3, {"labs": 32}],
 			["church", 1, {"labs": 38, "halls": 2}], ["foundry", 2, {"labs": 46, "halls": 3}]],
-		"raid": {"musk": 3, "from": 14, "per": 8},
+		"raid": {"musk": 2, "from": 14, "per": 8},
 		"s": {"wave": 30, "step": 10}},
 }
 
@@ -832,6 +832,8 @@ const DRAGOON_KEEP := 100       # (gold) a Dragoon and his horse
 
 ## True: the raids want more riders than there are.
 func _train_dragoons() -> bool:
+	if not bo_done:
+		return false            # (the riders come with the second hall: before it the opening's gold is the economy's, round A)
 	if _keeping() and _gold() < 30:
 		return false
 	var army := game.army(team)

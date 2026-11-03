@@ -40,6 +40,12 @@ const FAST_X := 0.8             # a melee enemy at least this share of the group
 const PACK := 3                 # fast melee in this number (and at least the group's) is a pack: the group leaves
 const MAIN_R := 1000.0         # (px) a site this close to the enemy's main is near its army (picked last)
 const NO_SITE_WAIT := 45.0      # (s) no site worth a ride: no group forms again for this long
+const HANDS_MEMORY := 90.0     # (s) a worker seen this long ago still says where they walk
+const MAX_LEAVES := 2           # chased off this often on one sortie: home (round A: groups rode from pack to pack)
+const BROOD_WAIT := 75.0        # (s) against the Brood a group waits at home this long for its army to come out
+const OUT_V := 250.0            # (value) the enemy's army on our side of the map this big: it is out, the raids go
+const SLOW_X := 1.5             # slow defenders worth this much more than the group: it leaves too
+const MAIN_NO := 750.0          # (px) a site this close to the enemy's main is never picked (unless its army is out)
 const LOOK_T := 2.0             # (s) between looks at the map (sites, armies)
 
 var ai                          # the AICrown
@@ -50,6 +56,7 @@ var ever := {}                  # Unit -> true: every rider that went on a raid 
 var sites := {}                 # key -> {"p": Vector2, "kind", "seen": clock, "workers": int, "guess": bool}
 var hot := {}                   # site key -> clock until which it is left be
 var armies: Array = []          # [clock, position, value] of enemy armies seen
+var hands: Array = []           # [clock, position] of enemy workers seen (the haul lines: where to wait for them)
 var log_lines: Array = []       # [clock, text] (tests and the coach read it)
 var stats := {"groups": 0, "strikes": 0, "leaves": 0, "homes": 0}
 var _look_t := -99.0
@@ -154,6 +161,13 @@ func _look() -> void:
 			s["workers"] = n
 			if s["guess"] and n == 0 and not _site_has_building(s["p"], foe):
 				hot[key] = game.clock + EMPTY_FOR          # (a guess found empty)
+	# workers seen (any of our eyes: scouts, the line, the riders)
+	hands = hands.filter(func(a: Array) -> bool: return game.clock - float(a[0]) < HANDS_MEMORY)
+	for o in game.units:
+		if o.team == foe and not o.dead and not o.off_field and o.is_worker() and game.is_visible_to(t, o.position):
+			hands.append([game.clock, o.position])
+	if hands.size() > 400:
+		hands = hands.slice(hands.size() - 400)
 	# armies seen (a value at a spot), for the choice of site
 	armies = armies.filter(func(a: Array) -> bool: return game.clock - float(a[0]) < ARMY_MEMORY)
 	var seen_army: Array = []
@@ -200,6 +214,7 @@ func pick_site(from: Vector2, g: Dictionary) -> String:
 			taken[String(o["site"])] = true
 	var best := ""
 	var bs := -INF
+	var out: bool = ai.ch.foe_near() >= OUT_V              # (its army on our side: the main is open)
 	for key in sites:
 		var s: Dictionary = sites[key]
 		if float(hot.get(key, -1.0)) > game.clock:
@@ -207,11 +222,18 @@ func pick_site(from: Vector2, g: Dictionary) -> String:
 		var p: Vector2 = s["p"]
 		var sc := 0.0
 		sc += minf(float(s["workers"]), 8.0) * 60.0
+		var hn := 0
+		for h in hands:
+			if (h[1] as Vector2).distance_to(p) < 700.0:
+				hn += 1
+		sc += minf(float(hn), 20.0) * 12.0
 		if not s["guess"]:
 			sc += 150.0
 		sc += minf(p.distance_to(their), 1800.0) * 0.35        # (far from its main: an expansion)
 		sc -= p.distance_to(from) * 0.15
 		var dm: float = p.distance_to(their)
+		if dm < MAIN_NO and not out:
+			continue                                           # (its main: its army and its turrets; round A a05)
 		if dm < MAIN_R:
 			sc -= 400.0 + (MAIN_R - dm) * 0.6                   # (its main and the foot of its ramp: the army is there)
 		for a in armies:
@@ -333,11 +355,16 @@ func danger(units: Array, c: Vector2) -> String:
 			fast += 1
 	if fast >= maxi(PACK, units.size()):
 		return "a pack of %d" % fast
-	if shooters * 2 > units.size():
-		return "shooters"
 	var real := foes.filter(func(o: Unit) -> bool: return not AIHarass.is_slow(o, units))
 	if not real.is_empty() and ai.hz().outmatched(units, real):
 		return "an army worth more"
+	# (slow ones too, in number: a Dragoon on foot is slower than a Clock Soldier; round A a05, a group rode into the
+	# Clockwork's main past 30 of them, "slow" each, and died)
+	var all_v := 0.0
+	for o in foes:
+		all_v += ai._unit_value(o)
+	if all_v > ai.hz().strength(units) * SLOW_X:
+		return "an army (%d)" % int(all_v)
 	return ""
 
 
@@ -420,7 +447,7 @@ func _steer(g: Dictionary) -> void:
 	if st == "gather":
 		var rally: Vector2 = g["rally"]
 		var there := units.filter(func(u: Unit) -> bool: return u.position.distance_to(rally) < GATHER_R)
-		if there.size() == units.size() or game.clock - float(g["t_state"]) > GATHER_MAX:
+		if (there.size() == units.size() or game.clock - float(g["t_state"]) > GATHER_MAX) and _may_go(g):
 			g["units"] = there if there.size() >= GROUP_MIN else units
 			for u in units:
 				if not (g["units"] as Array).has(u):
@@ -459,6 +486,7 @@ func _steer(g: Dictionary) -> void:
 		if key != "":
 			hot[key] = game.clock + HOT_FOR
 		stats["leaves"] += 1
+		g["leaves"] = int(g.get("leaves", 0)) + 1
 		say("group %d rides off from %s (%s)" % [int(g["id"]), _site_name(key), d2])
 		g["flee"] = _away(c)
 		g["flee_t"] = game.clock
@@ -474,6 +502,11 @@ func _steer(g: Dictionary) -> void:
 			return
 		if c.distance_to(fp) > 200.0 and game.clock - float(g["t_state"]) < 6.0:
 			_move_all(units, fp, 60.0)
+			return
+		if int(g.get("leaves", 0)) >= MAX_LEAVES:
+			say("group %d rides home (chased off %d times)" % [int(g["id"]), int(g["leaves"])])
+			stats["homes"] += 1
+			_state(g, "home")
 			return
 		_go(g, c)                      # (clear of it: on to another site)
 		return
@@ -614,9 +647,20 @@ func _stand(key: String, sp: Vector2) -> Vector2:
 			if b.team == foe and not b.dead and not b.ghost and b.kind == game.faction_hall(foe) and b.center().distance_to(sp) < bd and b.center().distance_to(sp) > 100.0:
 				bd = b.center().distance_to(sp)
 				to = b.center()
+	# (the workers seen lately near the site: where they walk; else 5 tiles toward what they haul to)
+	var best := Vector2.INF
+	var bd := INF
+	for h in hands:
+		var hp: Vector2 = h[1]
+		var d := hp.distance_to(sp)
+		if d < 600.0 and d > 60.0 and game.clock - float(h[0]) < 40.0 and d < bd and (to == Vector2.INF or hp.distance_to(to) > 500.0):
+			bd = d
+			best = hp
+	if best != Vector2.INF:
+		return best
 	if to == Vector2.INF or to.distance_to(sp) < 6.0 * Defs.TILE:
 		return sp
-	return sp + (to - sp).normalized() * 5.0 * Defs.TILE
+	return sp + (to - sp).normalized() * minf(10.0 * Defs.TILE, to.distance_to(sp) * 0.4) * (0.5 if int(game.clock / 8.0) % 2 == 0 else 1.0)
 
 
 ## Every physics tick (AICrown._tick_ai): a rider on foot who picked a structure by himself (a Musketeer standing idle
@@ -649,3 +693,18 @@ func micro() -> void:
 				u.cmd_attack(w)
 			elif sites.has(String(g["site"])):
 				u.cmd_move(_stand(String(g["site"]), sites[String(g["site"])]["p"]))
+
+
+## May a gathered group set out? Against the Brood (its Raptor packs stay round its Rootmaws: round A, a01-a03, every
+## site had a pack within seconds) it goes when the Brood's army is out on our side of the map (THE COUNTER-RAID: the
+## doctrine's line holds the high ground while the riders hit the grubs it left), or after BROOD_WAIT s at home.
+func _may_go(g: Dictionary) -> bool:
+	var foe: int = ai._foe()
+	if foe < 0 or game.faction_of(foe) != "brood":
+		return true
+	if ai.ch.foe_near() >= OUT_V:
+		if not g.get("counter", false):
+			g["counter"] = true
+			say("group %d goes while the enemy's army is on our side (a counter-raid)" % int(g["id"]))
+		return true
+	return game.clock - float(g["t_state"]) > BROOD_WAIT

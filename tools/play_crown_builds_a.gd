@@ -97,6 +97,35 @@ func _minute() -> void:
 	var extra := " | workers killed %d (raid %d) | raid killed %d lost %d | dragoons %d (groups %d)" % [wk_all, wk_raid, raid_kill, raid_lost, riders, dr.groups.size() if dr != null else 0]
 	minutes[minutes.size() - 1] = String(minutes[minutes.size() - 1]) + extra
 	wk_at[_mmss(g.clock)] = [wk_all, wk_raid]
+	# (where the enemy's workers are: at a work site, at their hall / Mother, on the way; and how many we see)
+	var at_site := 0
+	var at_home := 0
+	var seen := 0
+	var n := 0
+	for u in g.units:
+		if not is_instance_valid(u) or u.dead or u.team != 1 or not u.is_worker():
+			continue
+		n += 1
+		if g.is_visible_to(0, u.position):
+			seen += 1
+		var near_site := false
+		var near_home := false
+		for o in g.units_near(u.position, 260.0):
+			if o.team == 1 and (o.kind == BroodNew.MAW):
+				near_site = true
+			if o.team == 1 and o.kind == BroodNew.QUEEN:
+				near_home = true
+		for b in g.buildings:
+			if b.team == 1 and not b.dead and b.center().distance_to(u.position) < 260.0:
+				if b.kind == g.faction_hall(1):
+					near_home = true
+				elif Defs.is_econ(b.kind):
+					near_site = true
+		if near_home:
+			at_home += 1
+		elif near_site:
+			at_site += 1
+	minutes[minutes.size() - 1] = String(minutes[minutes.size() - 1]) + " | enemy workers %d: at a site %d, at home %d, between %d, seen %d" % [n, at_site, at_home, n - at_site - at_home, seen]
 	print("RAID " + extra)
 
 
