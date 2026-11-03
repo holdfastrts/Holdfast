@@ -4,6 +4,31 @@ The owner (2026-10-30 19:46, "DEEP JOB", and 2026-11-03: "could you remove the t
 some Storm line frames with THREE wings. The extra wings are erased in code (tools/fix_third_wing.py), hooked into the
 importers so a re-import keeps the fix.
 
+## 0.26.22: the portraits' extra wing is the UPPER-LEFT one (branch portrait-wing)
+
+The owner, asked directly (2026-11-03): in the Hatchling and Storm Challenger portraits the extra wing is the one
+raised at the UPPER LEFT, behind the head; the bottom-left wing is the creature's own near wing and stays (0.26.14
+had erased that one; 0.26.18 put the originals back).
+
+**What changed** (tools/fix_third_wing.py `PORTRAITS`, applied by tools/import_storm_line.py through
+`ftw.portrait_fixed`, so a re-import keeps it; output assets/icons/hatchlings.png and storm_challenger.png, the card
+icon the command card and production buttons use too; the BIGGER CLUTCH research icon is other art, untouched):
+- **Hatchling**: the upper-left wing's bony arm, the shoulder knob where it met the neck, and its whole membrane are
+  painted out down to the top of the lower wing's arm. The lower-left wing (arm, knob and membrane), the head, crest
+  and the little red spines on the back of the head are untouched.
+- **Storm Challenger**: the wing's spiked arm (its seven red spikes), the claw, the wrist, the forearm running down
+  behind the neck and the membrane are painted out. The red spines running down the neck and back (over where the
+  membrane was) stay whole: inside the cut, red spikes below y 460 on the sheet are kept with a dark rim (the wing's
+  own spikes are all above that line); the lower-left wing and its red spikes stay.
+- The painted area takes the portrait's own backdrop: its soft gradient (from the backdrop well clear of the creature,
+  blurred so there are no seams) and its faint grain (seeded, so a re-import gives the same pixels). The body's new
+  edge along the cut (the Hatchling's neck, the Storm Challenger's neck between its spines) gets the portrait's
+  near-black outline, 5 sheet px (about one art pixel). The steel frame and everything outside the polygons are pixel
+  for pixel as drawn.
+
+Pictures: docs/shots/third_wing/hatchlings_portrait.png, storm_challenger_portrait.png: "original" on top, "fixed"
+below; left the 64 px card icon (x6), right the owner's sheet (1/3).
+
 ## 0.26.16: "You deleted the wrong wings." (the owner, 2026-11-03)
 
 His marked pictures: docs/shots/third_wing/owner_marks/ (the SE wing beat frame 3 of the Hatchlings and the Storm
@@ -20,7 +45,7 @@ near wing, not a second one: erasing it was wrong.
   wing is erased instead. The cut follows the back along the crest spikes and over the shoulder, and becomes the back's
   dark outline (3 sheet px), so the body reads as whole: a clean downstroke with both wings down.
 - Portraits (assets/icons/hatchlings.png, storm_challenger.png): back to the originals, pixel for pixel (no entry left
-  in PORTRAITS).
+  in PORTRAITS; 0.26.22 then erased their real extra wing, the upper-left one).
 - The other frames the fix had touched were re-checked with the same rule (which two wings make a pair for that pose?).
   None was certain enough to cut, so all are back as drawn (pixel for pixel as before 0.26.10) and listed for the owner
   below.
@@ -37,7 +62,8 @@ near wing, not a second one: erasing it was wrong.
 
 Pictures (docs/shots/third_wing/, rebuilt with `python3 -I tools/fix_third_wing.py --shots docs/shots/third_wing`):
 - hatchlings_walk_se.png, storm_challenger_walk_se.png: "original" on top, "fixed" (the game's) below.
-- hatchlings_death_*.png, pterodactyl_attack_se.png, *_portrait.png: one row, "original" (what the game shows again).
+- hatchlings_death_*.png, pterodactyl_attack_se.png: one row, "original" (what the game shows again).
+- *_portrait.png: since 0.26.22 "original" on top, "fixed" below (see above).
 
 ## The survey (0.26.10)
 
@@ -57,7 +83,8 @@ down), the Storm Challenger's lying deaths (the long spiked piece at the left is
 - `FRAMES`: per (sheet, row, frame) a hand-drawn polygon in the cut-out frame's pixels, read off gridded zooms. Inside
   it the frame becomes transparent; small pieces cut off by it and thin slivers along the cut go too; the creature's
   new edge along the cut gets the sheet's own dark outline.
-- `PORTRAITS`: a polygon on the 1254 px portrait, filled from its dark backdrop (empty since 0.26.16).
+- `PORTRAITS`: a polygon on the 1254 px portrait, filled from its dark backdrop, red spikes below `keep_red_y` kept, the
+  cut outlined (empty in 0.26.16-0.26.21; the upper-left wing of both portraits since 0.26.22).
 - Hooks: tools/import_storm_line.py (`ftw.fix_rows`, `ftw.portrait_fixed`) and tools/import_brood_fathers.py (the
   Storm Sire's dive sheet; no entry since 0.26.16). Both importers take the flying frames' anchors from the frames as
   drawn, before the fix, so a body does not jump when a wing is removed.
@@ -87,5 +114,6 @@ docs/shots/third_wing/storm_challenger_walk_se.png.
 > red spikes show there. Exactly TWO wings. Same body and head as frame 3 of the first row. Flat dark navy background
 > (#0f1a2a), no shadow, no text. Download as PNG.
 
-(The 0.26.14 portrait prompts were dropped: the portraits were right. Save answers as
+(The 0.26.14 portrait prompts were dropped: they asked for the wrong wing gone; the portraits' upper-left wing is
+erased in code since 0.26.22. Save answers as
 art/redraws/hatchling_se_down_chatgpt.png etc.; the importer would then need a line to use them.)

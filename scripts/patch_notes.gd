@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.23", "items": [
+		"THE PORTRAITS LOSE THEIR THIRD WING: the Hatchling's and the Storm Challenger's portraits (their cards and buttons) had a wing too many: the one raised at the upper left behind the head. It is gone, painted over with the portrait's own dark backdrop, and the body is outlined where it was. The wing at the bottom left is the creature's own and stays; on the Storm Challenger the red spines down its neck stay too.",
+	]},
 	{"v": "0.26.22", "items": [
 		"THE CROWN COMPUTER HOLDS ITS RAMP: its army at home now stands on HOLD at the top of the main's ramp, Musketeers in a line across it behind the ramp wall (a lane left open in front of the gate) and its Field Cannon behind them, instead of waiting by the Town Hall. It goes down only to attack, or to meet a force at its expansion that it clearly beats; against more it holds the top, and the labourers below run up the ramp to it.",
 		"The Crown computer scouts with Horsemen: one rider (two once it has four) rides a loop round the map's hall sites and the foot of the enemy's ramp, so it knows the enemy's army, halls and tech; when it finds workers it can take it turns to hunting them, and it rides home when hurt or chased by what can catch it. Its first Horseman is trained as soon as the Horse Breeder can give it a horse. The match log gives a scouting report.",
