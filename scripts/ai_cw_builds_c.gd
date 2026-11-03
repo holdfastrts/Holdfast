@@ -50,7 +50,6 @@ const PLANS := {
 			"owl_raid",
 			"workers 22",
 			"clocktower",
-			"morph 3",
 			"end",
 		],
 		# against the Brood (round A: its Hard computer floods the base with Raptors from 5:00, which cannot hit flyers):
@@ -79,8 +78,8 @@ const PLANS := {
 	},
 }
 
-const FLEE_K := 0.65            # anti-air seen by the flock worth more than this share of it: the flock flies back
-const FIGHT_K := 0.45           # anti-air near worth at most this share of the flock: the Owls swoop on it first
+const FLEE_K := 0.75            # anti-air seen by the flock worth more than this share of it: the flock flies back
+const FIGHT_K := 0.6           # anti-air near worth at most this share of the flock: the Owls swoop on it first
 const AA_MEMORY := 40.0         # s an anti-air unit's last seen spot counts as danger
 const DANGER_R := 300.0         # px round a target where anti-air counts against it
 const STRIKE_R := 260.0         # px round the target point the Owls look for prey
@@ -89,12 +88,16 @@ const GO_WIND := 0.9            # out again once every Owl is wound this far
 const GO_HP := 0.7              # ... and mended this far (on average)
 const WIND_SPARE := 0.12        # wind kept over what the way home takes
 const MAX_OUT := 75.0           # s out at most in one go
+const BUILD_END := 450.0        # the opening build is over by this clock whatever is left of it
+const SORTIE_MIN := 3           # Owls a sortie wants (2 against an enemy with no anti-air seen near the target)
 
 var ai = null
 var game: Game = null
 var team := 0
 var on := false                 # this is the plan that runs (only the owl plan's computer claims its flyers)
 var flock: Array = []           # the Owls
+var joining: Array = []         # new Owls on their way to the flock's resting place
+var _joined: Dictionary = {}
 var swifts: Array = []          # the Swifts (scouts and morphs to be)
 var launched := false
 var phase := "home"             # "home" (wound and mended at home), "out", "strike", "back", "defend"
@@ -137,7 +140,7 @@ func _init(a) -> void:
 
 
 func has(u: Unit) -> bool:
-	return on and (flock.has(u) or swifts.has(u) or cranks.has(u))
+	return on and (flock.has(u) or joining.has(u) or swifts.has(u) or cranks.has(u))
 
 
 func say(s: String) -> void:
@@ -229,9 +232,18 @@ func _armed_near(p: Vector2, r: float) -> bool:
 func _refresh() -> void:
 	flock.clear()
 	swifts.clear()
+	joining.clear()
 	for u in game.army(team):
 		if u.kind == Defs.OWL:
-			flock.append(u)
+			# (a new Owl joins the flock where it rests, not out on a sortie: round A, Frostmere, a fresh Owl at home
+			# counted in a sortie from the post, 100 tiles away, and turned it back at once)
+			if not _joined.has(u):
+				if not launched or (phase in ["home", "defend"] and u.position.distance_to(_rest()) < 200.0):
+					_joined[u] = true
+			if _joined.has(u):
+				flock.append(u)
+			else:
+				joining.append(u)
 			if first_owl_t < 0.0:
 				first_owl_t = game.clock
 				say("the first Ticking Owl flies")
@@ -264,15 +276,25 @@ func tick() -> void:
 	_refresh()
 	_remember()
 	_count_kills()
+	# (a written build must never hold the bank for good: round A, Frostmere, its Swifts lost, it waited for one
+	# with 3,900 cogs in the bank; the shared computer plays on by BUILD_END at the latest)
+	if ai.bo_on and game.clock > BUILD_END:
+		ai._end_build("the clock (%d:%02d)" % [int(BUILD_END) / 60, int(BUILD_END) % 60])
 	if not ai.bo_on:
 		_top_up()
 	_swift_tick()
 	_crank_tick()
+	_join_tick()
 	if OS.get_cmdline_user_args().has("owldebug") and int(game.clock) % 10 == 0 and int(game.clock) != _dbg_t:
 		_dbg_t = int(game.clock)
 		print("ODBG %d phase %s rest %s post %s cranks %s flock %s" % [_dbg_t, phase, str(_rest() != _home()), str(Vector2i(post / Defs.TILE)) if post != Vector2.INF else "-",
 			str(cranks.map(func(w): return [int(w.position.distance_to(post)) if post != Vector2.INF else -1, w.order])),
 			str(flock.map(func(u): return [int(u.position.distance_to(post)) if post != Vector2.INF else -1, snappedf(u.wind, 0.01), int(u.hp), u.order]))])
+		var ords := {}
+		for w in game.workers(team):
+			var k := "%s/%s" % [w.order, (w.home_mine.kind if w.home_mine != null and is_instance_valid(w.home_mine) else "-")]
+			ords[k] = int(ords.get(k, 0)) + 1
+		print("ODBG workers %s gold %d" % [str(ords), ai._gold()])
 	if flock.is_empty():
 		return
 	# home defence: enemies at home that cannot hit flyers are the Owls' (they cannot touch them)
@@ -304,7 +326,7 @@ func _remember() -> void:
 			continue
 		if not game.is_visible_to(team, o.position):
 			continue
-		if not o.is_worker() and ai._armed(o):
+		if not o.is_worker() and not o.is_air():
 			_heat[Vector2i(int(o.position.x / 256.0), int(o.position.y / 256.0))] = game.clock
 		if o.is_worker():
 			_prey_w[o] = [o.position, game.clock]
@@ -399,7 +421,9 @@ func _defend(thr: Vector2) -> void:
 func _at_home() -> void:
 	var home := _rest()
 	var at_post := home != _home()
-	var ready := flock.size() >= mini(int(ai.plan.get("flock", 3)), 2)
+	var ready := flock.size() >= SORTIE_MIN or (flock.size() >= 2 and game.clock - since > 45.0)
+	if vs_brood and _aa.is_empty():
+		ready = flock.size() >= 2
 	var hp := 0.0
 	for u in flock:
 		hp += u.hp / u.max_hp
@@ -416,8 +440,11 @@ func _at_home() -> void:
 				var foe_u = _ground_foe_near(cc, 330.0, u)
 				if foe_u != null:
 					u.cmd_attack(foe_u)
-				elif u.position.distance_to(cc) > 50.0 and (u.order != "move" or u.order_point.distance_to(cc) > 40.0):
-					u.cmd_move(cc + Vector2(randf_range(-20, 20), randf_range(-20, 20)))
+				else:
+					# (a little ahead of the cranks toward the post: a crank winding an Owl on the move follows it)
+					var lead := cc + (post - cc).normalized() * minf(70.0, cc.distance_to(post))
+					if u.position.distance_to(lead) > 40.0 and (u.order != "move" or u.order_point.distance_to(lead) > 30.0):
+						u.cmd_move(lead + Vector2(randf_range(-16, 16), randf_range(-16, 16)))
 			continue
 		if not there:
 			if u.order != "move" or u.order_point.distance_to(home) > 80.0:
@@ -745,7 +772,9 @@ func _swift_tick() -> void:
 		if s.order == "move" and s.order_point.distance_to(home) < 80.0 and s.position.distance_to(home) > 200.0 and s.wind < 0.85:
 			continue          # (on its way home to be wound)
 		var to: Vector2
-		if launched and phase in ["out", "strike"] and target_pt != Vector2.INF:
+		if launched and post != Vector2.INF and not _post_seen and game.clock - _post_new_t <= POST_LOOK:
+			to = post
+		elif launched and phase in ["out", "strike"] and target_pt != Vector2.INF:
 			to = target_pt.lerp(_centre(flock), 0.3)
 		else:
 			to = _scout_point(s)
@@ -800,16 +829,16 @@ func _top_up() -> void:
 	var gold: int = ai._gold()
 	var ten: float = game.tension(team)
 	# morph a spare Swift (one at a time) while the bank can spare it
-	if flock.size() + turning < keep and plain > scouts and turning == 0 and game.has_tech(team, "owl_morph") \
-			and gold >= int(Defs.OWL_MORPH["cost"]) + 150 and ten >= float(Defs.OWL_MORPH["tension"]) + 20.0:
+	if flock.size() + joining.size() + turning < keep and plain > scouts and turning == 0 and game.has_tech(team, "owl_morph") \
+			and gold >= int(Defs.OWL_MORPH["cost"]) + 40 and ten >= float(Defs.OWL_MORPH["tension"]) + 20.0:
 		var cand := _morphable()
 		if not cand.is_empty() and CwAir.morph_problem(cand[0]) == "":
 			CwAir.start_morph(cand[0])
 			say("top-up: a Swift turns into a Ticking Owl (%d Owls)" % (flock.size() + 1))
 			return
 	# a Swift trained for it (or a lost scout replaced)
-	var want_sw := scouts + maxi(0, keep - flock.size() - turning)
-	if plain + turning < want_sw and gold >= int(Defs.UNITS[Defs.CUCKOO]["cost"]) + 200 and ten >= 40.0:
+	var want_sw := scouts + maxi(0, keep - flock.size() - joining.size() - turning)
+	if plain + turning < want_sw and gold >= int(Defs.UNITS[Defs.CUCKOO]["cost"]) + 60 and ten >= 40.0:
 		for b in ai._mine(Defs.CW_AIR):
 			if b.built and (b.queue as Array).is_empty() and game.can_train(b, Defs.CUCKOO) == "":
 				if game.train(b, Defs.CUCKOO) == "":
@@ -849,9 +878,12 @@ func _count_kills() -> void:
 ## see them off; anti-air or more: the cranks run home, and the Owls rest at home.
 const POST_NEAR := 720.0         # px from the enemy's start (the Owl: 13 s there, 13 s back, about 35 s of striking)
 const POST_DANGER := 380.0
-const CRANKS_LOST_MAX := 4       # cranks lost: the post is given up for POST_REST s
-const POST_REST := 120.0
+const CRANKS_LOST_MAX := 2       # cranks lost: the post is given up for POST_REST s
+const POST_REST := 150.0
 var cranks_lost := 0
+var _post_seen := false          # the scout has looked at the post (the cranks walk out only then, or after POST_LOOK s)
+var _post_new_t := -999.0
+const POST_LOOK := 25.0
 var _lost_at: Dictionary = {}    # (256 px squares where cranks were lost: no post there again)
 var cranks: Array = []
 var post := Vector2.INF
@@ -866,6 +898,19 @@ func _rest() -> Vector2:
 
 
 ## The cranks are at the post (winding is there).
+## The cranks may walk to the post: the scout has looked at it and seen it clear (or no scout, or POST_LOOK s gone).
+func _post_cleared() -> bool:
+	if _post_seen:
+		return true
+	if game.clock - _post_new_t > POST_LOOK:
+		return true
+	for s0 in swifts:
+		if s0.owl_t < 0.0 and s0.position.distance_to(post) < 150.0:
+			_post_seen = true
+			return true
+	return swifts.is_empty()
+
+
 func _cranks_there() -> bool:
 	for w in cranks:
 		if w.position.distance_to(post) < 140.0:
@@ -961,6 +1006,8 @@ func _pick_post() -> void:
 		print("ODBG post map %dx%d starts %s expansions %s ramps %s best %s" % [game.W, game.H, str(game.starts), str(game.expansions), str(ramps.slice(0, 4).map(func(v): return Vector2i(v / Defs.TILE))), str(Vector2i(best / Defs.TILE)) if best != Vector2.INF else "-"])
 	if best != Vector2.INF and (post == Vector2.INF or best.distance_to(post) > 64.0):
 		post = best
+		_post_seen = false
+		_post_new_t = game.clock
 		say("the crank post: %d,%d (%d tiles from the enemy's start)" % [int(post.x / Defs.TILE), int(post.y / Defs.TILE), int(post.distance_to(fh) / Defs.TILE)])
 
 
@@ -1013,16 +1060,36 @@ func _crank_tick() -> void:
 		if not need.is_empty() and w.can_repair(need[0]) and w.position.distance_to(post) < 160.0:
 			w.cmd_repair(need.pop_front())
 			continue
-		if w.position.distance_to(post) > 50.0:
-			var fc: Vector2 = _centre(flock) if not flock.is_empty() else w.position
-			if not flock.is_empty() and phase == "home" and w.position.distance_to(fc) > 140.0 and w.position.distance_to(post) > 200.0 \
-					and fc.distance_to(post) > w.position.distance_to(post):
-				# (ahead of the flock: wait for it, a move on the spot: an idle Winder is sent back to work)
-				if w.order != "move" or w.order_point.distance_to(w.position) > 30.0:
-					w.cmd_move(w.position)
+		if w.position.distance_to(post) <= 50.0:
+			continue
+		# the way out: only with the flock over them (resting, not defending the base, at least 2 Owls), the post looked
+		# at; else they wait at home (round A: cranks walking out alone were caught by riders and Raptors)
+		var fc: Vector2 = _centre(flock) if not flock.is_empty() else home
+		var escorted: bool = flock.size() >= 2 and phase == "home" and _post_cleared()
+		if not escorted:
+			var hold: Vector2 = home if w.position.distance_to(home) < 600.0 or flock.is_empty() or phase != "home" else fc
+			if w.position.distance_to(hold) > 120.0 and (w.order != "move" or w.order_point.distance_to(hold) > 80.0):
+				w.cmd_move(hold + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
+			elif w.position.distance_to(hold) <= 120.0 and w.order != "move":
+				w.cmd_move(w.position)
+			continue
+		# (on the way: an Owl running down is wound walking: the Winder follows it, winding, WinderWalk)
+		if w.order == "repair" and is_instance_valid(w.order_target) and flock.has(w.order_target) and (w.order_target as Unit).wind < 0.95:
+			continue
+		var low: Array = flock.filter(func(u: Unit) -> bool: return u.wind < 0.75 and u.position.distance_to(w.position) < 200.0 \
+			and not cranks.any(func(c2: Unit) -> bool: return c2 != w and c2.order == "repair" and c2.order_target == u))
+		if not low.is_empty():
+			low.sort_custom(func(a: Unit, b: Unit) -> bool: return a.wind < b.wind)
+			if w.can_repair(low[0]):
+				w.cmd_repair(low[0])
 				continue
-			if w.order != "move" or w.order_point.distance_to(post) > 40.0:
-				w.cmd_move(post + Vector2(randf_range(-20, 20), randf_range(-20, 20)))
+		if w.position.distance_to(fc) > 150.0 and w.position.distance_to(post) > 200.0 and fc.distance_to(post) > w.position.distance_to(post):
+			# (ahead of the flock: wait for it, a move on the spot: an idle Winder is sent back to work)
+			if w.order != "move" or w.order_point.distance_to(w.position) > 30.0:
+				w.cmd_move(w.position)
+			continue
+		if w.order != "move" or w.order_point.distance_to(post) > 40.0:
+			w.cmd_move(post + Vector2(randf_range(-20, 20), randf_range(-20, 20)))
 
 
 ## An armed enemy within r of p that unit u can hit and that cannot hit flyers (the Owls' to see off), the nearest.
@@ -1039,3 +1106,13 @@ func _ground_foe_near(p: Vector2, r: float, u: Unit):
 			bd = dd
 			best = o
 	return best
+
+
+## New Owls fly to where the flock rests (they join it there).
+func _join_tick() -> void:
+	var to := _rest()
+	for u in joining:
+		if u.target != null and is_instance_valid(u.target) and not u.target.dead:
+			continue
+		if u.position.distance_to(to) > 60.0 and (u.order != "move" or u.order_point.distance_to(to) > 60.0):
+			u.cmd_move(to + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
