@@ -28,7 +28,8 @@
 - CROWN: FOUNDRY BEFORE THE SECOND BARRACKS, ALWAYS (owner, DECIDED 2026-11-03 22:33), in every plan and matchup (the Horseman
   rush is done with 1 Barracks). The Horse Breeder comes either way (cannons need horses). Canister hits flyers, round shot
   has the longest range (430). Riders are an addition when the scout sees drops/leaps, enemy artillery, a greedy enemy or
-  for map control. Apply it to crown-builds-a/b/c's plans at merge.
+  for map control. Apply it to crown-builds-a/b/c's plans at merge. POSSIBLE EXCEPTION, UNDECIDED (owner, 22:36): the
+  Dragoon raids might go 2 Barracks before the Foundry, but only when scouted and for a reason, as an answer to something.
 - EXPANSION SPOTS PER FACTION (owner, DECIDED 2026-11-03 22:25): each faction has its own optimal expansion spot (the Brood
   already does: Mound Turtle spots). CROWN: 2nd and 3rd bases at the MINIMUM hall distance (Defs.HALL_SPACING 18) and close
   together, covered by the main's high ground (Musketeer range from its edge) and easy to wall (walls join up); 4th base on:
