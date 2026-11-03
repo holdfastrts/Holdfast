@@ -1,0 +1,677 @@
+[00:00] P2 Brood plays the Brood (Economy)
+Working Title for RTS v0.28.3 match log  (2026-11-03 21:07:11)
+Map: Cinder Steps, 2 players  (seed 607822690)
+  YOU Clockwork  side 1  colour Pink
+  P2 Brood  side 2  colour Yellow  AI: HARD, ECONOMY
+Device: computer
+
+[00:00] P2 Brood's Brood: a grub goes to root a Mound Turtle on new ground, 20 tiles out
+[00:12] P2 Brood got its first Grub
+[00:12] YOU Clockwork got its first Winder
+[00:31] P2 Brood got its first Mound Turtle
+[00:47] YOU Clockwork finished a Regulator
+[00:49] P2 Brood got its first Rootmaw
+[00:54] YOU Clockwork finished a Cog Press
+--- minute 1 ---
+  Performance: 60 fps avg, 1% low 27 fps, worst frame 51 ms, 66 frames over 33 ms, 2 over 50 ms, 0.5 physics steps a frame | units 21, buildings 4, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 406, objects 4432
+    busy with: units 120.0 ms/s (2237 calls/s), hud draw 51.2 ms/s (130 calls/s), game 35.7 ms/s (51 calls/s), hud 34.1 ms/s (103 calls/s), ai 33.0 ms/s (51 calls/s), buildings 31.7 ms/s (1009 calls/s), hud/look 24.1 ms/s (33 calls/s), ai/workers 23.5 ms/s (1 calls/s), overlay draw 13.5 ms/s (45 calls/s), hud/groups 12.4 ms/s (12 calls/s), hud/top 12.1 ms/s (25 calls/s), replay/record 11.2 ms/s (7 calls/s), hud/selection 9.1 ms/s (16 calls/s), hud/tip check 8.8 ms/s (33 calls/s), game/unit grid 7.5 ms/s (51 calls/s), hud/hover 7.2 ms/s (48 calls/s), hud/card build 6.7 ms/s (18 calls/s), game/fog 5.7 ms/s (6 calls/s), hud/rest 5.4 ms/s (17 calls/s), game/fog/units 4.4 ms/s (6 calls/s), hud/command card 3.5 ms/s (5 calls/s), building draw 3.3 ms/s (43 calls/s), hud/pause 3.0 ms/s (2 calls/s), ai/army 2.4 ms/s (1 calls/s), unit draw 2.4 ms/s (52 calls/s), hud/map view 2.2 ms/s (25 calls/s), game/paths 2.1 ms/s (51 calls/s), hud/minimap 2.1 ms/s (10 calls/s), ai/produce 1.2 ms/s (1 calls/s), powder smoke 1.1 ms/s (100 calls/s), ai/build 1.1 ms/s (1 calls/s), effects 1.1 ms/s (378 calls/s), game/path smoothing 1.0 ms/s (11 calls/s), hud/glow 0.8 ms/s (14 calls/s), ai/horses 0.8 ms/s (1 calls/s), autosave 0.7 ms/s (0 calls/s), ai/raid 0.6 ms/s (1 calls/s), ai/econ 0.5 ms/s (1 calls/s), game/pathfinder 0.5 ms/s (11 calls/s), game/fog/shown 0.5 ms/s (6 calls/s), game/fog/buildings 0.4 ms/s (6 calls/s), ai/abil 0.3 ms/s (1 calls/s), game/fog/picture 0.2 ms/s (6 calls/s), replay/write 0.2 ms/s (0 calls/s), ai/gg 0.1 ms/s (1 calls/s), ai/micro 0.1 ms/s (1 calls/s), game/refit 0.1 ms/s (2 calls/s), hud/tooltip 0.1 ms/s (2 calls/s), game/fog/copy 0.1 ms/s (6 calls/s), hud/chat 0.1 ms/s (2 calls/s), ai/loose 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 389 cogs total, has 149 + 0 tension | supply 9/20 | workers 8 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | APM 248 (this minute 248 actions) | brass 96% | efficiency 70%
+  P2 Brood: earned 227 biomass total, has 2 + 0 spoils | supply 9/28 | workers 7 | halls 0 | army (250 value): 1 Brood Mother, 2 Rootmaw, 1 Mound Turtle, 2 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 7 eggs | Rootmaws rooted 2 (ground 92% 98%) | Mound Turtles rooted 1
+[01:10] P2 Brood's Brood: sends a Grub to explore the enemy's main
+[01:48] YOU Clockwork finished a Light Works
+--- minute 2 ---
+  Performance: 60 fps avg, 1% low 24 fps, worst frame 68 ms, 44 frames over 33 ms, 7 over 50 ms, 0.5 physics steps a frame | units 29, buildings 6, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 434, objects 4493
+    busy with: units 42.8 ms/s (761 calls/s), hud draw 26.6 ms/s (71 calls/s), hud 17.3 ms/s (60 calls/s), game 13.7 ms/s (30 calls/s), overlay draw 12.0 ms/s (25 calls/s), hud/look 11.6 ms/s (19 calls/s), hud/groups 9.2 ms/s (9 calls/s), buildings 8.7 ms/s (153 calls/s), hud/top 6.6 ms/s (15 calls/s), hud/selection 5.6 ms/s (10 calls/s), replay/record 4.5 ms/s (4 calls/s), hud/tip check 4.2 ms/s (19 calls/s), hud/hover 4.2 ms/s (29 calls/s), game/unit grid 3.4 ms/s (30 calls/s), hud/card build 3.3 ms/s (10 calls/s), ai 2.3 ms/s (30 calls/s), game/fog 2.1 ms/s (4 calls/s), hud/command card 2.0 ms/s (4 calls/s), game/fog/units 1.5 ms/s (4 calls/s), building draw 1.4 ms/s (15 calls/s), hud/minimap 1.1 ms/s (6 calls/s), game/paths 0.9 ms/s (30 calls/s), hud/map view 0.8 ms/s (9 calls/s), hud/glow 0.8 ms/s (11 calls/s), unit draw 0.5 ms/s (6 calls/s), effects 0.4 ms/s (76 calls/s), hud/rest 0.3 ms/s (5 calls/s), game/path smoothing 0.3 ms/s (5 calls/s), powder smoke 0.2 ms/s (60 calls/s), autosave 0.2 ms/s (0 calls/s), game/fog/copy 0.2 ms/s (4 calls/s), game/pathfinder 0.2 ms/s (5 calls/s), game/fog/shown 0.2 ms/s (4 calls/s), game/fog/picture 0.1 ms/s (4 calls/s), game/fog/buildings 0.1 ms/s (4 calls/s), replay/write 0.1 ms/s (0 calls/s), hud/chat 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 1071 cogs total, has 91 + 0 tension | supply 12/20 | workers 11 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | APM 253 (this minute 253 actions) | brass 88% | efficiency 90%
+  P2 Brood: earned 716 biomass total, has 166 + 0 spoils | supply 13/28 | workers 12 | halls 0 | army (325 value): 1 Brood Mother, 3 Rootmaw, 1 Mound Turtle, 1 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 83% 88%) | Mound Turtles rooted 1
+[02:03] P2 Brood's Brood: a grub goes to grow the Tyrant Lure
+[02:08] YOU Clockwork got its first Clock Soldier
+[02:33] P2 Brood got its first Tyrant Sire
+[02:41] YOU Clockwork could not place a Escapement: Its gear ring would clash with a Clocktower's ring: leave room for the gears to mesh. (had 240 cogs, 0 tension)
+[02:49] YOU Clockwork finished a Mainspring
+[02:57] YOU Clockwork finished a Clocktower (expansion)
+[02:57] YOU Clockwork finished a Regulator
+--- minute 3 ---
+  Performance: 60 fps avg, 1% low 26 fps, worst frame 52 ms, 80 frames over 33 ms, 3 over 50 ms, 0.5 physics steps a frame | units 47, buildings 10, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 483, objects 4568
+    busy with: units 61.3 ms/s (1123 calls/s), hud draw 22.7 ms/s (64 calls/s), hud 17.6 ms/s (60 calls/s), game 15.9 ms/s (30 calls/s), overlay draw 15.8 ms/s (25 calls/s), hud/look 12.1 ms/s (18 calls/s), buildings 11.3 ms/s (235 calls/s), hud/top 7.4 ms/s (15 calls/s), replay/record 6.3 ms/s (4 calls/s), hud/groups 5.4 ms/s (5 calls/s), hud/tip check 5.2 ms/s (17 calls/s), hud/selection 4.7 ms/s (9 calls/s), game/unit grid 4.3 ms/s (30 calls/s), hud/hover 3.9 ms/s (28 calls/s), ai 3.0 ms/s (30 calls/s), hud/card build 2.7 ms/s (7 calls/s), game/fog 2.5 ms/s (4 calls/s), hud/command card 2.0 ms/s (3 calls/s), game/fog/units 2.0 ms/s (4 calls/s), building draw 1.1 ms/s (36 calls/s), hud/minimap 1.1 ms/s (6 calls/s), game/paths 0.9 ms/s (30 calls/s), hud/map view 0.8 ms/s (11 calls/s), hud/glow 0.5 ms/s (7 calls/s), unit draw 0.5 ms/s (7 calls/s), hud/rest 0.5 ms/s (5 calls/s), effects 0.4 ms/s (95 calls/s), game/path smoothing 0.3 ms/s (6 calls/s), autosave 0.3 ms/s (0 calls/s), powder smoke 0.2 ms/s (60 calls/s), game/fog/shown 0.2 ms/s (4 calls/s), game/fog/buildings 0.1 ms/s (4 calls/s), game/pathfinder 0.1 ms/s (6 calls/s), game/fog/picture 0.1 ms/s (4 calls/s), replay/write 0.1 ms/s (0 calls/s), hud/chat 0.0 ms/s (1 calls/s), game/fog/copy 0.0 ms/s (4 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 1912 cogs total, has 212 + 13 tension | supply 15/40 | workers 14 | halls 2 | army (70 value): 1 Clock Soldier | kills +0 (0) losses +0 (0) | APM 150 (this minute 150 actions) | brass 79% 100% | efficiency 100%
+  P2 Brood: earned 1493 biomass total, has 43 + 0 spoils | supply 28/28 | workers 20 | halls 0 | army (575 value): 1 Brood Mother, 3 Rootmaw, 2 Mound Turtle, 1 Tyrant Sire, 5 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 7 eggs | Rootmaws rooted 3 (ground 74% 78% 86%) | Mound Turtles rooted 1
+[03:24] YOU Clockwork finished a Escapement
+[03:31] YOU Clockwork finished a Light Works
+[03:32] P2 Brood got its first Raptors
+[03:46] P2 Brood's Brood: grows the Mother to stage 2
+[03:50] P2 Brood's Brood: a grub goes to root a Mound Turtle on new ground, 30 tiles out
+[03:50] YOU Clockwork finished a Cog Press
+[03:51] YOU Clockwork finished a Light Works
+--- minute 4 ---
+  Performance: 60 fps avg, 1% low 25 fps, worst frame 158 ms, 25 frames over 33 ms, 5 over 50 ms, 0.5 physics steps a frame | units 71, buildings 12, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 535, objects 4678
+    busy with: units 91.0 ms/s (1729 calls/s), hud draw 28.4 ms/s (71 calls/s), game 22.5 ms/s (30 calls/s), hud 19.0 ms/s (60 calls/s), buildings 15.9 ms/s (352 calls/s), hud/look 13.7 ms/s (18 calls/s), overlay draw 10.4 ms/s (25 calls/s), replay/record 9.2 ms/s (4 calls/s), hud/top 8.0 ms/s (16 calls/s), hud/groups 7.9 ms/s (8 calls/s), game/unit grid 6.0 ms/s (30 calls/s), hud/selection 5.8 ms/s (9 calls/s), hud/tip check 5.8 ms/s (17 calls/s), ai 5.3 ms/s (30 calls/s), game/fog 3.7 ms/s (4 calls/s), hud/card build 3.4 ms/s (8 calls/s), hud/hover 3.4 ms/s (23 calls/s), game/fog/units 3.0 ms/s (4 calls/s), hud/command card 3.0 ms/s (4 calls/s), game/paths 1.5 ms/s (30 calls/s), hud/minimap 1.3 ms/s (6 calls/s), hud/map view 0.9 ms/s (12 calls/s), game/path smoothing 0.9 ms/s (7 calls/s), building draw 0.7 ms/s (36 calls/s), hud/rest 0.6 ms/s (6 calls/s), effects 0.5 ms/s (159 calls/s), autosave 0.5 ms/s (0 calls/s), hud/glow 0.5 ms/s (7 calls/s), game/fog/shown 0.3 ms/s (4 calls/s), powder smoke 0.2 ms/s (60 calls/s), unit draw 0.2 ms/s (6 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), game/pathfinder 0.2 ms/s (7 calls/s), replay/write 0.1 ms/s (0 calls/s), hud/tooltip 0.1 ms/s (2 calls/s), game/fog/picture 0.1 ms/s (4 calls/s), game/fog/copy 0.0 ms/s (4 calls/s), hud/chat 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 2804 cogs total, has 64 + 77 tension | supply 28/40 | workers 19 | halls 2 | army (140 value): 2 Clock Soldier | kills +0 (0) losses +0 (0) | APM 174 (this minute 174 actions) | brass 69% 100% | efficiency 98%
+  P2 Brood: earned 2951 biomass total, has 26 + 0 spoils | supply 47/52 | workers 33 | halls 0 | army (900 value): 1 Brood Mother, 4 Rootmaw, 4 Mound Turtle, 1 Tyrant Sire, 2 Raptors, 5 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 1 eggs | Rootmaws rooted 4 (ground 66% 67% 66% 91%) | Mound Turtles rooted 3
+[04:00] P2 Brood's Brood: sends a Grub to explore the enemy's main
+[04:10] P2 Brood's Tyrant Sire researches Bigger Clutch
+[04:10] P2 Brood's Brood: researches Bigger Clutch
+[04:12] YOU Clockwork got its first Springer
+[04:20] YOU Clockwork queued research: Shield Wall
+[04:40] P2 Brood's Brood: a grub goes to root a Mound Turtle on new ground, 30 tiles out
+[04:40] P2 Brood's Raptors matured into a Tyrant Challenger
+[04:40] P2 Brood's Raptors matured into a Tyrant Challenger
+[04:41] P2 Brood's Raptors matured into a Tyrant Challenger
+[04:46] YOU Clockwork finished a Cog Press
+[04:50] P2 Brood researched Bigger Clutch
+[04:59] YOU Clockwork researched Shield Wall
+--- minute 5 ---
+  Performance: 60 fps avg, 1% low 26 fps, worst frame 68 ms, 51 frames over 33 ms, 3 over 50 ms, 0.5 physics steps a frame | units 96, buildings 17, bodies 0, corpses 0, effects 1, smoke puffs 0, nodes 605, objects 4787
+    busy with: units 132.2 ms/s (2487 calls/s), hud draw 29.9 ms/s (76 calls/s), game 27.6 ms/s (30 calls/s), hud 23.5 ms/s (60 calls/s), buildings 18.6 ms/s (421 calls/s), hud/look 18.3 ms/s (19 calls/s), overlay draw 15.5 ms/s (25 calls/s), replay/record 11.2 ms/s (4 calls/s), hud/groups 9.9 ms/s (10 calls/s), hud/tip check 8.8 ms/s (18 calls/s), hud/top 8.7 ms/s (17 calls/s), ai 8.2 ms/s (30 calls/s), game/unit grid 7.6 ms/s (30 calls/s), game/fog 5.3 ms/s (4 calls/s), hud/selection 4.6 ms/s (10 calls/s), game/fog/units 4.5 ms/s (4 calls/s), hud/card build 4.3 ms/s (10 calls/s), hud/hover 3.6 ms/s (26 calls/s), hud/command card 3.2 ms/s (6 calls/s), game/paths 2.1 ms/s (30 calls/s), hud/minimap 1.4 ms/s (6 calls/s), game/path smoothing 1.2 ms/s (9 calls/s), hud/map view 0.8 ms/s (11 calls/s), building draw 0.7 ms/s (44 calls/s), hud/rest 0.6 ms/s (6 calls/s), autosave 0.5 ms/s (0 calls/s), effects 0.5 ms/s (155 calls/s), game/fog/shown 0.4 ms/s (4 calls/s), hud/glow 0.4 ms/s (8 calls/s), unit draw 0.3 ms/s (8 calls/s), powder smoke 0.2 ms/s (60 calls/s), game/pathfinder 0.2 ms/s (9 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), replay/write 0.2 ms/s (0 calls/s), game/fog/picture 0.1 ms/s (4 calls/s), game/fog/copy 0.0 ms/s (4 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 4153 cogs total, has 188 + 132 tension | supply 34/40 | workers 25 | halls 2 | army (410 value): 3 Clock Soldier, 2 Springer | kills +0 (0) losses +0 (0) | APM 235 (this minute 235 actions) | brass 60% 94% | efficiency 97%
+  P2 Brood: earned 4646 biomass total, has 271 + 0 spoils | supply 69/76 | workers 39 | halls 0 | army (1425 value): 1 Brood Mother, 5 Rootmaw, 5 Mound Turtle, 1 Tyrant Sire, 3 Tyrant Challenger, 4 Raptors, 8 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 2 rooted, 0 eggs | Rootmaws rooted 5 (ground 57% 57% 46% 76% 98%) | Mound Turtles rooted 5 | sacrificed 3 (+45 spoils)
+[05:06] P2 Brood's Brood: attacks with 22 supply (3 tyrant_challenger, 16 raptor)
+[05:06] P2 Brood's Brood attacks with 22 supply
+[05:09] YOU Clockwork finished a Mainspring
+[05:23] YOU Clockwork finished a Light Works
+[05:27] YOU Clockwork finished a Light Works
+[05:42] YOU Clockwork finished a Regulator
+[05:45] YOU Clockwork finished a Heavy Works
+[05:48] YOU Clockwork got its first Netter
+[05:49] YOU Clockwork's Netter caught P2 Brood's Tyrant Challenger
+[05:49] YOU Clockwork finished a Regulator
+[05:49] YOU Clockwork's Netter caught P2 Brood's Tyrant Challenger
+[05:50] YOU Clockwork's Netter caught P2 Brood's Tyrant Challenger
+[05:50] YOU Clockwork's Netter caught P2 Brood's Raptors
+--- minute 6 ---
+  Performance: 58 fps avg, 1% low 23 fps, worst frame 111 ms, 42 frames over 33 ms, 8 over 50 ms, 0.5 physics steps a frame | units 139, buildings 19, bodies 17, corpses 18, effects 2, smoke puffs 0, nodes 731, objects 5117
+    busy with: units 205.1 ms/s (3517 calls/s), game 35.6 ms/s (30 calls/s), hud draw 29.4 ms/s (82 calls/s), hud 24.2 ms/s (58 calls/s), buildings 23.5 ms/s (556 calls/s), hud/look 19.1 ms/s (18 calls/s), overlay draw 17.5 ms/s (27 calls/s), replay/record 15.4 ms/s (4 calls/s), ai 15.3 ms/s (30 calls/s), game/unit grid 10.2 ms/s (30 calls/s), hud/groups 9.1 ms/s (9 calls/s), hud/tip check 9.1 ms/s (17 calls/s), hud/top 8.3 ms/s (16 calls/s), game/fog 7.4 ms/s (4 calls/s), game/fog/units 6.5 ms/s (4 calls/s), hud/selection 4.7 ms/s (9 calls/s), hud/card build 4.5 ms/s (8 calls/s), hud/hover 3.8 ms/s (28 calls/s), game/paths 3.6 ms/s (30 calls/s), game/path smoothing 2.4 ms/s (16 calls/s), hud/command card 2.4 ms/s (4 calls/s), unit draw 2.0 ms/s (67 calls/s), hud/map view 1.8 ms/s (22 calls/s), hud/minimap 1.5 ms/s (6 calls/s), hud/rest 1.0 ms/s (9 calls/s), building draw 0.9 ms/s (60 calls/s), effects 0.6 ms/s (245 calls/s), game/fog/shown 0.6 ms/s (4 calls/s), autosave 0.6 ms/s (0 calls/s), game/pathfinder 0.5 ms/s (16 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), replay/write 0.2 ms/s (0 calls/s), powder smoke 0.2 ms/s (58 calls/s), hud/glow 0.2 ms/s (4 calls/s), hud/tooltip 0.1 ms/s (1 calls/s), game/fog/copy 0.0 ms/s (4 calls/s), game/fog/picture 0.0 ms/s (4 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 5711 cogs total, has 139 + 150 tension | supply 48/60 | workers 25 | halls 2 | army (800 value): 5 Clock Soldier, 2 Springer, 2 Netter | kills +14 (14) losses +4 (4) | APM 165 (this minute 166 actions) | brass 50% 87% | efficiency 66%
+  P2 Brood: earned 6549 biomass total, has 449 + 0 spoils | supply 98/112 | workers 42 | halls 0 | army (2750 value): 1 Brood Mother, 6 Rootmaw, 9 Mound Turtle, 1 Tyrant Sire, 3 Tyrant Challenger, 38 Raptors, 5 Egg | kills +4 (4) losses +14 (14) | Brood: Mother stage 2 rooted, 0 eggs | Rootmaws rooted 5 (ground 48% 47% 26% 60% 78%) | Mound Turtles rooted 8 | sacrificed 3 (+45 spoils)
+[06:01] P2 Brood's Tyrant Sire researches Pack Hunt
+[06:01] P2 Brood's Brood: researches Pack Hunt
+[06:04] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[06:05] YOU Clockwork's Netter caught P2 Brood's Tyrant Challenger
+[06:05] YOU Clockwork's Netter caught P2 Brood's Tyrant Challenger
+[06:06] YOU Clockwork's Netter caught P2 Brood's Raptors
+[06:12] P2 Brood's Brood: sends a Grub to explore the enemy's main
+[06:25] P2 Brood's Brood: pulls back: 325 of 700 left, 1250 ahead (killed 300)
+[06:25] YOU Clockwork's Netter caught P2 Brood's Raptors
+[06:26] P2 Brood's Brood: ALARM: an enemy army of 800 out of its main at 6:26: warriors, grubs pulled back, a turtle in front
+[06:26] P2 Brood's Brood: ALARM: a Mound Turtle gets up to root in front of the natural
+[06:26] P2 Brood's Raptors matured into a Tyrant Challenger
+[06:28] P2 Brood's Raptors matured into a Tyrant Challenger
+[06:30] P2 Brood's Raptors matured into a Tyrant Challenger
+[06:32] P2 Brood's Raptors matured into a Tyrant Challenger
+[06:36] P2 Brood researched Pack Hunt
+[06:46] P2 Brood's Brood: a Mound Turtle roots in front of the natural
+[06:58] P2 Brood's Raptors matured into a Tyrant Challenger
+--- minute 7 ---
+  Performance: 57 fps avg, 1% low 19 fps, worst frame 92 ms, 66 frames over 33 ms, 14 over 50 ms, 0.5 physics steps a frame | units 174, buildings 20, bodies 47, corpses 44, effects 0, smoke puffs 0, nodes 870, objects 5477
+    busy with: units 223.5 ms/s (4036 calls/s), game 41.0 ms/s (30 calls/s), hud draw 26.4 ms/s (77 calls/s), hud 23.8 ms/s (57 calls/s), buildings 22.8 ms/s (580 calls/s), ai 22.1 ms/s (30 calls/s), hud/look 18.5 ms/s (18 calls/s), replay/record 16.9 ms/s (4 calls/s), overlay draw 15.2 ms/s (27 calls/s), game/unit grid 11.1 ms/s (30 calls/s), game/fog 8.9 ms/s (4 calls/s), hud/top 8.3 ms/s (16 calls/s), hud/tip check 8.2 ms/s (17 calls/s), game/fog/units 7.8 ms/s (4 calls/s), hud/selection 6.2 ms/s (9 calls/s), hud/groups 4.9 ms/s (5 calls/s), game/paths 4.8 ms/s (30 calls/s), hud/card build 4.4 ms/s (7 calls/s), hud/hover 4.2 ms/s (30 calls/s), game/path smoothing 3.3 ms/s (25 calls/s), hud/command card 2.6 ms/s (4 calls/s), unit draw 2.4 ms/s (70 calls/s), hud/map view 1.6 ms/s (19 calls/s), hud/minimap 1.6 ms/s (6 calls/s), hud/rest 0.8 ms/s (9 calls/s), game/fog/shown 0.7 ms/s (4 calls/s), autosave 0.6 ms/s (0 calls/s), game/pathfinder 0.6 ms/s (25 calls/s), effects 0.6 ms/s (221 calls/s), building draw 0.5 ms/s (43 calls/s), hud/glow 0.4 ms/s (7 calls/s), replay/write 0.2 ms/s (0 calls/s), powder smoke 0.2 ms/s (57 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), game/fog/picture 0.1 ms/s (4 calls/s), game/fog/copy 0.0 ms/s (4 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 7058 cogs total, has 327 + 267 tension | supply 57/60 | workers 26 | halls 2 | army (1460 value): 13 Clock Soldier, 3 Springer, 2 Netter | kills +28 (42) losses +1 (5) | APM 131 (this minute 131 actions) | brass 40% 81% | efficiency 64%
+  P2 Brood: earned 8663 biomass total, has 388 + 25 spoils | supply 123/124 | workers 43 | halls 0 | army (3675 value): 1 Brood Mother, 6 Rootmaw, 11 Mound Turtle, 1 Tyrant Sire, 5 Tyrant Challenger, 59 Raptors, 4 Egg | kills +1 (5) losses +28 (42) | Brood: Mother stage 2 rooted, 3 eggs | Rootmaws rooted 6 (ground 40% 36% 6% 45% 58% 90%) | Mound Turtles rooted 9 | sacrificed 9 (+135 spoils)
+[07:06] P2 Brood's Brood: a grub goes to grow the Venom Lure
+[07:06] P2 Brood's Brood: defends with 68 (63 raptor, 5 tyrant_challenger, 2075) against 420 (6 clock_soldier) at home
+[07:07] P2 Brood's Brood: a Rootmaw under attack uproots to back off (8 clock_soldier)
+[07:10] P2 Brood's Brood: a grub goes to grow the Venom Lure
+[07:10] P2 Brood's Brood: defends with 4 (4 raptor, 100) against 140 (2 clock_soldier) at home
+[07:16] YOU Clockwork's Netter caught P2 Brood's Mound Turtle
+[07:17] YOU Clockwork's Netter caught P2 Brood's Raptors
+[07:19] P2 Brood: the ground of a Rootmaw is spent (it drinks nothing more)
+[07:20] P2 Brood's Raptors matured into a Tyrant Challenger
+[07:20] P2 Brood's Raptors matured into a Tyrant Challenger
+[07:33] P2 Brood's Raptors matured into a Tyrant Challenger
+[07:33] P2 Brood's Raptors matured into a Tyrant Challenger
+[07:37] YOU Clockwork finished a Regulator
+[07:45] P2 Brood got its first Venom Sire
+[07:50] YOU Clockwork finished a Clocktower (expansion)
+[07:56] P2 Brood's Brood: sends a Grub to explore the enemy's main
+--- minute 8 ---
+  Performance: 49 fps avg, 1% low 9 fps, worst frame 160 ms, 231 frames over 33 ms, 87 over 50 ms, 0.6 physics steps a frame | units 191, buildings 21, bodies 27, corpses 27, effects 1, smoke puffs 0, nodes 869, objects 5398
+    busy with: units 295.6 ms/s (5435 calls/s), ai 80.9 ms/s (30 calls/s), game 45.6 ms/s (30 calls/s), hud draw 26.5 ms/s (67 calls/s), buildings 24.0 ms/s (625 calls/s), hud 23.0 ms/s (49 calls/s), replay/record 19.1 ms/s (4 calls/s), hud/look 18.9 ms/s (18 calls/s), game/unit grid 14.1 ms/s (30 calls/s), overlay draw 13.4 ms/s (28 calls/s), game/fog 9.7 ms/s (4 calls/s), hud/top 8.8 ms/s (16 calls/s), game/fog/units 8.3 ms/s (4 calls/s), hud/tip check 8.2 ms/s (17 calls/s), hud/groups 7.2 ms/s (7 calls/s), game/paths 6.0 ms/s (30 calls/s), hud/selection 4.7 ms/s (9 calls/s), hud/card build 4.7 ms/s (8 calls/s), game/path smoothing 4.1 ms/s (30 calls/s), hud/hover 3.0 ms/s (22 calls/s), hud/command card 2.2 ms/s (4 calls/s), unit draw 2.0 ms/s (68 calls/s), hud/minimap 1.7 ms/s (6 calls/s), game/pathfinder 1.1 ms/s (30 calls/s), building draw 1.0 ms/s (59 calls/s), game/fog/shown 1.0 ms/s (4 calls/s), hud/map view 0.9 ms/s (12 calls/s), autosave 0.9 ms/s (0 calls/s), hud/rest 0.6 ms/s (7 calls/s), effects 0.4 ms/s (204 calls/s), replay/write 0.3 ms/s (0 calls/s), powder smoke 0.2 ms/s (49 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), hud/glow 0.1 ms/s (4 calls/s), game/fog/picture 0.1 ms/s (4 calls/s), game/fog/copy 0.1 ms/s (4 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  YOU Clockwork: earned 8523 cogs total, has 515 + 145 tension | supply 50/80 | workers 23 | halls 3 | army (700 value): 10 Clock Soldier | kills +1 (43) losses +23 (28) | APM 178 (this minute 179 actions) | brass 31% 75% 100% | efficiency 77%
+  P2 Brood: earned 10174 biomass total, has 149 + 50 spoils | supply 160/160 | workers 43 | halls 0 | army (4950 value): 1 Brood Mother, 6 Rootmaw, 13 Mound Turtle, 1 Tyrant Sire, 9 Tyrant Challenger, 78 Raptors, 1 Venom Sire, 5 Egg | kills +23 (28) losses +1 (43) | Brood: Mother stage 2 rooted, 12 eggs | Rootmaws rooted 5 (ground 35% 26% 29% 48% 80%) | Mound Turtles rooted 12 | sacrificed 15 (+225 spoils)
+[08:05] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[08:06] YOU Clockwork got its first Pendulum
+[08:06] YOU Clockwork queued research: High Leap
+[08:16] P2 Brood: the ground of a Rootmaw is running low (under 25%)
+[08:33] P2 Brood's Raptors matured into a Tyrant Challenger
+[08:33] P2 Brood's Raptors matured into a Tyrant Challenger
+[08:34] YOU Clockwork dropped a Clock Aviary: nobody was coming to start it (refunded)
+[08:34] P2 Brood's Brood: attacks with 104 supply (11 tyrant_challenger, 82 raptor)
+[08:34] P2 Brood's Brood attacks with 104 supply
+[08:36] YOU Clockwork: the brass at a Clocktower is running low (under 25%)
+[08:36] P2 Brood got its first Spitters
+[08:57] YOU Clockwork surrendered while behind (army 340 vs 4680, workers 29 vs 43, buildings 21 vs 0)
+[08:57] YOU Clockwork lost a Clocktower to P2 Brood
+[08:57] YOU Clockwork lost a Cog Press to P2 Brood
+[08:57] YOU Clockwork lost a Cog Press to P2 Brood
+[08:57] YOU Clockwork lost a Regulator to P2 Brood
+[08:57] YOU Clockwork lost a Light Works to P2 Brood
+[08:57] YOU Clockwork lost a Clocktower to P2 Brood
+[08:57] YOU Clockwork lost a Mainspring to P2 Brood
+[08:57] YOU Clockwork lost a Regulator to P2 Brood
+[08:57] YOU Clockwork lost a Escapement to P2 Brood
+[08:57] YOU Clockwork lost a Light Works to P2 Brood
+[08:57] YOU Clockwork lost a Light Works to P2 Brood (tyrant_challenger)
+[08:57] YOU Clockwork lost a Cog Press to P2 Brood
+[08:57] YOU Clockwork lost a Cog Press to P2 Brood
+[08:57] YOU Clockwork lost a Mainspring to P2 Brood
+[08:57] YOU Clockwork lost a Light Works to P2 Brood
+[08:57] YOU Clockwork lost a Light Works to P2 Brood
+[08:57] YOU Clockwork lost a Heavy Works to P2 Brood
+[08:57] YOU Clockwork lost a Regulator to P2 Brood
+[08:57] YOU Clockwork lost a Regulator to P2 Brood
+[08:57] YOU Clockwork lost a Clocktower to P2 Brood
+[08:57] YOU Clockwork lost a Regulator to P2 Brood
+[08:57] YOU Clockwork lost a Cog Press (unfinished) to P2 Brood
+[08:57] YOU Clockwork lost a Heavy Works (unfinished) to P2 Brood
+[08:58] YOU Clockwork is out
+--- minute 9 ---
+  Performance: 32 fps avg, 1% low 4 fps, worst frame 330 ms, 365 frames over 33 ms, 230 over 50 ms, 0.9 physics steps a frame | units 119, buildings 0, bodies 71, corpses 134, effects 49, smoke puffs 0, nodes 980, objects 5829
+    busy with: units 353.1 ms/s (6272 calls/s), ai 126.6 ms/s (30 calls/s), game 71.2 ms/s (30 calls/s), game/paths 30.2 ms/s (30 calls/s), buildings 26.1 ms/s (644 calls/s), game/pathfinder 25.3 ms/s (52 calls/s), hud draw 23.5 ms/s (50 calls/s), hud 21.5 ms/s (35 calls/s), hud/look 18.9 ms/s (15 calls/s), overlay draw 18.0 ms/s (27 calls/s), replay/record 16.1 ms/s (3 calls/s), game/unit grid 15.2 ms/s (30 calls/s), game/fog 10.6 ms/s (4 calls/s), hud/tip check 9.2 ms/s (15 calls/s), game/fog/units 9.1 ms/s (4 calls/s), hud/top 8.0 ms/s (14 calls/s), hud/groups 4.4 ms/s (4 calls/s), hud/card build 4.4 ms/s (6 calls/s), hud/selection 4.0 ms/s (8 calls/s), game/path smoothing 3.1 ms/s (52 calls/s), hud/pause 2.3 ms/s (1 calls/s), unit draw 2.1 ms/s (81 calls/s), hud/command card 2.0 ms/s (3 calls/s), hud/minimap 1.8 ms/s (5 calls/s), hud/hover 1.8 ms/s (13 calls/s), game/fog/shown 1.2 ms/s (4 calls/s), autosave 1.0 ms/s (0 calls/s), building draw 1.0 ms/s (66 calls/s), hud/map view 0.5 ms/s (7 calls/s), effects 0.4 ms/s (174 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), replay/write 0.2 ms/s (0 calls/s), hud/rest 0.2 ms/s (3 calls/s), powder smoke 0.1 ms/s (32 calls/s), game/fog/picture 0.1 ms/s (4 calls/s), hud/glow 0.1 ms/s (3 calls/s), game/refit 0.1 ms/s (1 calls/s), game/fog/copy 0.0 ms/s (4 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s)
+  P2 Brood: earned 11390 biomass total, has 60 + 50 spoils | supply 108/196 | workers 43 | halls 0 | army (4355 value): 1 Brood Mother, 6 Rootmaw, 16 Mound Turtle, 1 Tyrant Sire, 11 Tyrant Challenger, 27 Raptors, 1 Venom Sire, 4 Spitters, 2 Egg | kills +41 (69) losses +77 (120) | Brood: Mother stage 2 rooted, 15 eggs | Rootmaws rooted 5 (ground 32% 16% 15% 37% 66%) | Mound Turtles rooted 15 | sacrificed 17 (+255 spoils)
+
+RESULT at 08:58: winner P2 Brood - ended by surrender (player was behind)
+  Performance per minute: m1 60 fps (1% low 27), m2 60 fps (1% low 24), m3 60 fps (1% low 26), m4 60 fps (1% low 25), m5 60 fps (1% low 26), m6 58 fps (1% low 23), m7 57 fps (1% low 19), m8 49 fps (1% low 9), m9 32 fps (1% low 4). Worst: minute 9 (1% low 4 fps, worst frame 330 ms).
+  YOU Clockwork: earned 10150, spent 9340, trained 72, built 21, killed 120, lost 69, razed 0, buildings lost 23, peak army 1810. Kills by: Clock Soldier 30, Springer 17, Winder 1, Pendulum 72 APM: average 187, peak 271, 1681 actions.
+  APM peaks and lows: busiest minute 2 (253 actions), quietest minute 7 (131 actions); busiest 10 seconds: 64 actions, ending at 01:14 (a pace of 384 APM). Per minute: 248, 253, 150, 174, 235, 166, 131
+  P2 Brood: earned 11390, spent 11580, trained 262, built 0, killed 69, lost 120, razed 21, buildings lost 0, peak army 6065. Kills by: Raptors 40, Tyrant Challenger 6
+
+--- SOUND LOG (every sound and music change, per second; x2 = played twice) ---
+[00:00] AMBIENCE volcanic, ui/click x5, MUSIC clock_peace, ui/start_match, select/clocktower
+[00:01] ui/error x3, voice/winder/select, ui/click, select/clocktower
+[00:02] ui/error x3, work/cog_press_stamp, work/winder_crank, ui/click, select/clocktower
+[00:03] ui/error
+[00:04] work/winder_crank, work/cog_press_stamp
+[00:05] work/winder_crank, ui/error x2
+[00:07] ui/error x2
+[00:08] work/winder_crank, ui/error x3, ui/click
+[00:09] work/cog_press_stamp, work/winder_crank, voice/winder/select, ui/click
+[00:10] select/clocktower x2, work/winder_crank, ui/click
+[00:11] work/cog_press_stamp, work/winder_crank
+[00:12] work/winder_crank, ui/click x2, clock/ready, voice/winder/select
+[00:13] work/cog_press_stamp, ui/click x2, voice/winder/select, select/clocktower, ui/error
+[00:14] ui/error x2, work/winder_crank, ui/click
+[00:15] work/winder_crank, work/cog_press_stamp, ui/click x2, ui/error
+[00:17] ui/click, select/clocktower, ui/error x3, work/winder_crank, work/cog_press_stamp
+[00:18] ratchet, ui/error x3, work/winder_crank
+[00:19] ratchet, voice/winder/select, ui/click, select/clocktower, ui/error x2, work/cog_press_stamp
+[00:20] work/winder_crank, ratchet x3
+[00:21] voice/winder/select, ui/click, work/winder_crank, work/cog_press_stamp
+[00:22] ui/click, ui/error x3, announcer/clock/no_gold, work/winder_crank
+[00:23] ui/error, ui/click x2, work/winder_crank
+[00:24] work/cog_press_stamp, select/clocktower, ui/error x5, clock/ready, voice/winder/select
+[00:25] ui/error, work/winder_crank, ratchet
+[00:26] work/winder_crank, ui/click, work/cog_press_stamp, voice/winder/move
+[00:28] voice/winder/move
+[00:29] voice/winder/move
+[00:31] voice/winder/move
+[00:32] voice/winder/move
+[00:33] voice/winder/move
+[00:34] ui/click x3
+[00:35] voice/winder/move
+[00:36] clock/ready, voice/winder/select, work/winder_crank
+[00:37] work/cog_press_stamp, ui/click
+[00:38] work/winder_crank, ui/click
+[00:39] voice/winder/move, work/cog_press_stamp, work/winder_crank
+[00:41] voice/winder/move, work/cog_press_stamp, work/winder_crank
+[00:42] voice/winder/move, work/winder_crank
+[00:43] select/clocktower, voice/winder/select, work/cog_press_stamp
+[00:44] ui/click, select/clocktower x2, work/winder_crank
+[00:45] ui/click, work/cog_press_stamp
+[00:46] select/clocktower, voice/winder/select
+[00:47] work/winder_crank, select/clocktower, voice/winder/select, work/cog_press_stamp, clock/built, announcer/clock/building_done
+[00:48] work/winder_crank, select/clocktower x2
+[00:49] work/winder_crank
+[00:50] work/cog_press_stamp, select/cog_press, ui/click x2, select/clocktower x2, work/winder_crank, voice/winder/select
+[00:52] work/cog_press_stamp, work/winder_crank
+[00:53] work/winder_crank
+[00:54] clock/built, announcer/clock/building_done, work/cog_press_stamp, voice/winder/select, select/clocktower, work/winder_crank
+[00:55] work/winder_crank
+[00:56] ui/click, work/cog_press_stamp, voice/winder/select, select/clocktower
+[00:57] clock/ready, select/clocktower, work/winder_crank
+[00:58] work/cog_press_stamp
+[00:59] work/winder_crank, voice/winder/select, select/clocktower
+[01:00] work/winder_crank, voice/winder/select, ui/click, work/cog_press_stamp
+[01:01] work/winder_crank, ui/click
+[01:03] work/cog_press_stamp, work/winder_crank
+[01:04] ui/click, select/clocktower, voice/winder/select
+[01:05] work/cog_press_stamp, select/clocktower x2, ratchet
+[01:06] work/winder_crank, voice/winder/select, select/clocktower x2
+[01:07] work/cog_press_stamp, select/clocktower
+[01:08] work/winder_crank, ratchet, select/movement_works, ui/click
+[01:09] clock/ready, voice/winder/select, work/cog_press_stamp, select/clocktower, ratchet, work/winder_crank, select/movement_works
+[01:10] ratchet x2, voice/winder/select, select/clocktower
+[01:12] voice/winder/select, ui/click
+[01:13] select/clocktower
+[01:14] voice/winder/select
+[01:16] select/clocktower x2, voice/winder/select
+[01:18] ui/click, select/clocktower, voice/winder/select
+[01:19] ui/click
+[01:20] select/clocktower, ui/click
+[01:21] voice/winder/select, ui/click x3, select/clocktower
+[01:22] ui/click, voice/winder/move
+[01:24] voice/winder/move
+[01:25] voice/winder/move
+[01:26] MUSIC ended clock_peace, voice/winder/move, MUSIC clock_peace_6
+[01:28] voice/winder/select, ui/click
+[01:30] voice/winder/move
+[01:31] voice/winder/move
+[01:32] voice/winder/move, clock/ready
+[01:35] work/winder_crank, work/cog_press_stamp
+[01:36] voice/winder/move, select/regulator, ui/click, select/clocktower
+[01:37] work/cog_press_stamp, work/winder_crank
+[01:38] voice/winder/select, ui/click, work/winder_crank
+[01:39] work/cog_press_stamp, work/winder_crank
+[01:40] select/clocktower x2, voice/winder/select x2, ui/click, work/winder_crank
+[01:41] select/clocktower, voice/winder/select, ui/click, work/cog_press_stamp
+[01:42] work/winder_crank, select/clocktower, voice/winder/select
+[01:43] select/clocktower, work/winder_crank
+[01:44] work/cog_press_stamp, work/winder_crank
+[01:45] voice/winder/select, ui/click x2, work/winder_crank
+[01:46] work/cog_press_stamp
+[01:47] ui/click
+[01:48] clock/built, announcer/clock/building_done
+[01:49] ui/click, select/clocktower, voice/winder/select
+[01:50] ratchet, voice/winder/select, work/cog_press_stamp, work/winder_crank, select/clocktower
+[01:51] work/winder_crank
+[01:52] select/clocktower x2, select/movement_works, ui/click x2, clock/ready, voice/winder/select, work/cog_press_stamp, work/winder_crank
+[01:53] select/clocktower, work/winder_crank, select/movement_works, ui/click
+[01:54] select/clocktower, ui/click x3, work/cog_press_stamp
+[01:55] work/winder_crank, select/clocktower
+[01:56] work/winder_crank
+[01:57] work/cog_press_stamp, ratchet, select/clocktower, ui/click, work/winder_crank
+[01:58] voice/winder/select, ratchet x3, select/clocktower
+[01:59] ui/click, work/cog_press_stamp, select/clocktower, work/winder_crank
+[02:00] select/clocktower, ui/click x3, work/winder_crank
+[02:01] ui/click, work/cog_press_stamp, select/clocktower, voice/winder/select
+[02:02] work/winder_crank, ui/click, select/clocktower
+[02:03] work/winder_crank, work/cog_press_stamp, voice/winder/select, ui/click, select/clocktower
+[02:04] work/winder_crank, ui/click x2, select/movement_works, select/clocktower
+[02:05] work/winder_crank, work/cog_press_stamp
+[02:06] voice/winder/select, ui/click x2, work/winder_crank
+[02:07] work/cog_press_stamp, work/winder_crank
+[02:08] voice/winder/move, clock/ready, work/winder_crank
+[02:09] voice/winder/move, ui/click, work/cog_press_stamp
+[02:10] work/winder_crank, ui/click, select/clocktower
+[02:11] voice/winder/select, work/winder_crank
+[02:12] work/winder_crank, work/cog_press_stamp, ui/error, announcer/clock/no_gold, ratchet
+[02:13] work/winder_crank, voice/winder/select, select/clocktower x2, combat/clock_soldier_attack, ui/click
+[02:14] ratchet, work/winder_crank, work/cog_press_stamp
+[02:15] work/winder_crank, voice/winder/select, ui/click
+[02:16] work/winder_crank, work/cog_press_stamp
+[02:17] work/winder_crank, voice/clock_soldier/select, ui/click
+[02:18] voice/clock_soldier/move, work/winder_crank, work/cog_press_stamp
+[02:19] voice/clock_soldier/attack, work/winder_crank
+[02:20] voice/clock_soldier/move x2, work/cog_press_stamp, work/winder_crank
+[02:21] voice/clock_soldier/move
+[02:22] work/winder_crank, voice/clock_soldier/move, ui/click, select/clocktower, voice/winder/select, work/cog_press_stamp
+[02:23] work/winder_crank
+[02:24] select/clocktower x2, ui/click, work/winder_crank, voice/winder/select
+[02:25] work/cog_press_stamp, work/winder_crank, ui/click x2
+[02:26] clock/ready, voice/winder/select, work/winder_crank
+[02:27] work/cog_press_stamp, work/winder_crank
+[02:28] ui/error, announcer/clock/no_gold, work/winder_crank, voice/winder/select, ui/click
+[02:29] work/cog_press_stamp, work/winder_crank
+[02:30] ui/click x2, work/winder_crank
+[02:31] select/clocktower, voice/winder/select, work/winder_crank, work/cog_press_stamp
+[02:33] work/cog_press_stamp, work/winder_crank
+[02:34] voice/winder/move, ratchet, work/winder_crank, select/clocktower
+[02:35] select/clocktower, work/winder_crank, work/cog_press_stamp
+[02:36] work/winder_crank
+[02:37] work/winder_crank, ratchet
+[02:38] work/cog_press_stamp, voice/winder/select, ui/click, clock/ready, work/winder_crank, ratchet
+[02:39] ratchet x2, ui/click, work/winder_crank
+[02:40] work/cog_press_stamp, ui/click, work/winder_crank
+[02:41] ui/error, announcer/clock/bad_place, ui/click
+[02:42] work/winder_crank, select/clocktower, work/cog_press_stamp, ratchet
+[02:43] work/winder_crank, select/escapement, ui/click
+[02:44] ratchet x2, work/winder_crank, work/cog_press_stamp, voice/winder/select, ui/click
+[02:45] ui/click, ratchet x2
+[02:46] work/winder_crank x2, ui/click, work/cog_press_stamp
+[02:47] ui/click
+[02:48] work/winder_crank, work/cog_press_stamp
+[02:49] clock/built, announcer/clock/building_done, work/winder_crank, ratchet
+[02:50] work/winder_crank
+[02:51] work/cog_press_stamp, ratchet x2, work/winder_crank
+[02:52] voice/winder/move, ratchet x2, work/winder_crank
+[02:53] work/cog_press_stamp, voice/winder/move, work/winder_crank
+[02:55] voice/winder/select, ui/click x2, work/winder_crank, work/cog_press_stamp
+[02:56] ui/click, work/winder_crank
+[02:57] clock/built, announcer/clock/expansion, work/winder_crank, work/cog_press_stamp, announcer/clock/building_done
+[02:58] work/winder_crank
+[02:59] work/cog_press_stamp, work/winder_crank
+[03:00] work/winder_crank
+[03:02] ui/click, select/clocktower
+[03:03] ratchet, work/cog_press_stamp, ui/click
+[03:04] work/winder_crank x2
+[03:05] work/winder_crank
+[03:06] work/cog_press_stamp, work/winder_crank, voice/winder/select, ui/click
+[03:07] ui/click
+[03:08] ui/error
+[03:09] work/winder_crank, voice/winder/select, ui/click
+[03:11] voice/winder/select, ui/click
+[03:12] ratchet x2
+[03:13] ui/click x2, ratchet x2, work/winder_crank
+[03:14] work/winder_crank, select/clocktower, voice/winder/select
+[03:15] ui/click, ratchet x2, work/winder_crank, clock/ready
+[03:16] work/winder_crank, ratchet, work/cog_press_stamp
+[03:17] ratchet x2, voice/clock_soldier/move, work/winder_crank
+[03:18] voice/clock_soldier/move, select/movement_works, select/clocktower, ui/click, work/winder_crank, voice/winder/select
+[03:19] work/cog_press_stamp
+[03:20] work/winder_crank, work/clock_build
+[03:21] work/cog_press_stamp, work/winder_crank, select/movement_works
+[03:22] work/winder_crank
+[03:23] ui/click, work/cog_press_stamp, work/winder_crank
+[03:24] clock/built, announcer/clock/building_done, select/movement_works, ui/click x2
+[03:26] select/clocktower
+[03:27] clock/ready, voice/winder/select, ui/click x2, select/clocktower
+[03:28] select/movement_works
+[03:29] ui/click, ui/error, announcer/clock/no_gold, select/clocktower, voice/winder/select, work/cog_press_stamp
+[03:30] select/clocktower, ui/error, work/winder_crank
+[03:31] clock/built, announcer/clock/building_done, select/clocktower, voice/winder/select, work/winder_crank
+[03:32] work/cog_press_stamp, select/cog_press, ui/click x2, work/winder_crank
+[03:33] ui/click x3, select/clocktower, voice/winder/select, work/winder_crank
+[03:34] select/clocktower, work/cog_press_stamp, select/regulator, ui/click x2, work/winder_crank
+[03:35] select/escapement, ui/click, work/winder_crank
+[03:36] select/clocktower x2, work/cog_press_stamp, work/winder_crank, voice/winder/select
+[03:37] select/clocktower, voice/winder/select, work/winder_crank
+[03:38] work/cog_press_stamp, work/winder_crank
+[03:39] clock/ready, work/winder_crank, voice/winder/select
+[03:40] work/cog_press_stamp, work/winder_crank
+[03:41] work/winder_crank
+[03:42] work/cog_press_stamp
+[03:43] voice/clock_soldier/select, work/winder_crank
+[03:44] work/winder_crank
+[03:45] work/cog_press_stamp, work/winder_crank
+[03:46] work/winder_crank
+[03:47] work/cog_press_stamp, work/winder_crank, select/clocktower, ui/click
+[03:48] work/winder_crank, voice/winder/select, select/movement_works
+[03:49] work/winder_crank, work/cog_press_stamp
+[03:50] ui/click x2, voice/winder/select, clock/built, announcer/clock/building_done, select/clocktower
+[03:51] work/winder_crank, work/cog_press_stamp, select/escapement, ui/click
+[03:52] work/winder_crank, voice/winder/select, select/clocktower, ui/click
+[03:53] work/winder_crank, select/clocktower x2, work/cog_press_stamp
+[03:54] ui/click, select/clocktower, work/cog_press_stamp
+[03:55] voice/winder/select, ui/click x2, work/winder_crank, ui/error, announcer/clock/no_gold
+[03:56] ui/error x5, work/cog_press_stamp
+[03:57] select/clocktower, voice/winder/select, work/winder_crank, ui/click, work/cog_press_stamp
+[03:58] work/winder_crank
+[03:59] work/cog_press_stamp, ui/click, work/winder_crank, select/movement_works, clock/ready, voice/winder/select
+[04:00] select/clocktower, work/winder_crank, ui/click
+[04:01] work/cog_press_stamp, ui/error, announcer/clock/no_gold, work/winder_crank, select/clocktower, voice/winder/select
+[04:02] select/movement_works x2, work/cog_press_stamp, work/winder_crank, select/clocktower
+[04:03] work/cog_press_stamp, select/clocktower, work/winder_crank
+[04:04] voice/winder/select, ui/click, work/winder_crank, ui/error x2
+[04:05] ui/error x3, work/cog_press_stamp, work/winder_crank
+[04:06] ui/error x4, announcer/clock/no_gold, work/winder_crank, ui/click
+[04:07] work/winder_crank, work/cog_press_stamp, ui/click, select/clocktower
+[04:08] voice/winder/select, ui/error x3, work/winder_crank, ratchet
+[04:09] select/clocktower x2, work/winder_crank, work/cog_press_stamp, voice/winder/select
+[04:10] work/cog_press_stamp, work/winder_crank
+[04:11] select/clocktower, ui/click x3, ratchet, clock/ready, voice/winder/select
+[04:12] work/cog_press_stamp, work/winder_crank, select/clocktower, ui/click x3, select/mainspring
+[04:13] ui/click x3, work/cog_press_stamp, select/clocktower, work/winder_crank, select/cog_press
+[04:14] work/cog_press_stamp, select/regulator, ui/click x2, work/winder_crank, voice/clock_soldier/select, select/clocktower
+[04:15] work/cog_press_stamp, work/winder_crank, select/clocktower, voice/winder/select, select/movement_works
+[04:16] work/cog_press_stamp, ui/click, select/clocktower, voice/winder/select
+[04:17] select/movement_works
+[04:18] work/cog_press_stamp, select/clocktower, voice/winder/select
+[04:19] work/winder_crank, MUSIC ended clock_peace_6
+[04:20] MUSIC clock_peace_3, work/winder_crank, ui/click, work/cog_press_stamp, select/clocktower, voice/winder/select
+[04:21] work/winder_crank, select/movement_works, work/cog_press_stamp, select/clocktower, voice/winder/select
+[04:22] work/winder_crank, ui/click, work/cog_press_stamp
+[04:23] work/winder_crank, ui/error, announcer/clock/no_res2, select/clocktower, work/cog_press_stamp
+[04:24] ui/click x3, work/winder_crank, voice/winder/select, select/clocktower, work/cog_press_stamp
+[04:25] select/clocktower, work/winder_crank
+[04:26] ui/click x2, work/cog_press_stamp
+[04:27] work/cog_press_stamp, ui/click
+[04:29] work/cog_press_stamp, ui/click, select/clocktower, voice/winder/select
+[04:31] ratchet, work/cog_press_stamp, voice/clock_soldier/select, ui/click
+[04:32] voice/clock_soldier/attack, ui/click, work/winder_crank
+[04:33] work/winder_crank, work/cog_press_stamp, voice/clock_soldier/move
+[04:34] work/winder_crank, ui/click, combat/springer_attack, ratchet
+[04:35] work/winder_crank, ui/click x2, ratchet, voice/clock_soldier/select, work/cog_press_stamp
+[04:36] ratchet x2, clock/ready, voice/winder/select, select/clocktower, work/winder_crank
+[04:37] work/winder_crank, ui/click, select/clocktower, work/cog_press_stamp
+[04:38] select/movement_works
+[04:39] voice/winder/select, ui/click
+[04:40] work/cog_press_stamp, ui/click
+[04:41] ui/click
+[04:42] ui/click x2, work/cog_press_stamp, ratchet
+[04:43] work/winder_crank, ui/click
+[04:44] ratchet x2, work/cog_press_stamp, ui/click
+[04:45] ratchet x2, select/movement_works
+[04:46] select/movement_works, ui/click x2, work/cog_press_stamp, clock/built, announcer/clock/building_done
+[04:47] ratchet x2, select/clocktower, voice/winder/select
+[04:48] clock/ready, work/winder_crank, select/clocktower, work/cog_press_stamp
+[04:49] work/winder_crank, select/clocktower, work/cog_press_stamp
+[04:50] work/winder_crank, work/cog_press_stamp
+[04:51] voice/winder/select, ui/click x2, work/winder_crank, work/cog_press_stamp
+[04:52] work/winder_crank, ui/click
+[04:53] work/cog_press_stamp, work/winder_crank
+[04:54] work/cog_press_stamp, work/winder_crank, ui/click
+[04:55] work/cog_press_stamp, select/clocktower, voice/winder/select, work/winder_crank, ratchet
+[04:56] select/clocktower x2, work/cog_press_stamp, work/winder_crank
+[04:57] select/clocktower, work/winder_crank, work/cog_press_stamp, voice/clock_soldier/select
+[04:58] work/winder_crank, select/clocktower, ui/click x2
+[04:59] voice/winder/select, select/clocktower x2, work/winder_crank, work/cog_press_stamp, clock/research, announcer/clock/research_done
+[05:00] ui/click, work/winder_crank, ratchet, work/cog_press_stamp, select/clocktower
+[05:01] ratchet x2, work/winder_crank, select/clocktower, voice/winder/select, work/cog_press_stamp
+[05:02] ratchet, select/heavy_works, ui/click, work/winder_crank, work/cog_press_stamp
+[05:03] work/cog_press_stamp
+[05:04] select/clocktower, ui/click, work/winder_crank, work/cog_press_stamp
+[05:05] work/winder_crank
+[05:06] work/cog_press_stamp, select/clocktower x2, ui/click, work/winder_crank, voice/winder/select
+[05:07] work/cog_press_stamp, ui/click, select/clocktower, work/winder_crank
+[05:08] work/cog_press_stamp, work/winder_crank
+[05:09] work/cog_press_stamp, work/winder_crank, clock/built, announcer/clock/building_done, voice/winder/select, ui/click
+[05:10] ui/click x2, work/cog_press_stamp, clock/ready, work/winder_crank
+[05:11] work/cog_press_stamp
+[05:12] work/winder_crank, work/cog_press_stamp
+[05:13] work/winder_crank, ui/click x2, work/cog_press_stamp
+[05:14] work/winder_crank x2, ui/click, work/cog_press_stamp
+[05:15] ui/click, select/clocktower, voice/winder/select, work/cog_press_stamp, work/winder_crank
+[05:16] ratchet, select/clocktower, work/cog_press_stamp
+[05:18] work/winder_crank, voice/winder/select, ui/click, work/cog_press_stamp
+[05:19] ui/click x2
+[05:20] work/winder_crank
+[05:21] work/cog_press_stamp, voice/clock_soldier/select, voice/clock_soldier/move
+[05:22] work/cog_press_stamp, voice/clock_soldier/move, work/winder_crank, ui/click x2, select/clocktower, clock/ready, voice/winder/select
+[05:23] work/cog_press_stamp, work/winder_crank, clock/built, announcer/clock/building_done
+[05:24] ui/click x2, select/clocktower, voice/winder/select
+[05:25] work/cog_press_stamp, select/movement_works
+[05:26] work/winder_crank, work/cog_press_stamp, ratchet
+[05:27] announcer/clock/building_done, work/winder_crank, select/clocktower, voice/winder/select, work/cog_press_stamp, ui/click
+[05:28] ui/click, work/winder_crank, work/cog_press_stamp
+[05:29] work/winder_crank, ratchet, work/cog_press_stamp
+[05:30] select/mainspring, ui/click x3, voice/winder/select, ratchet x2, select/regulator, select/clocktower, work/cog_press_stamp
+[05:31] ui/click, ratchet, work/winder_crank, work/cog_press_stamp
+[05:32] work/winder_crank
+[05:33] clock/base_alert, combat/raptor_attack, voice/clock_soldier/select, ui/click x2, voice/clock_soldier/attack
+[05:34] work/cog_press_stamp, combat/raptor_attack x3, combat/springer_attack, clock/ready, voice/winder/select
+[05:35] combat/raptor_attack x3, work/winder_crank, combat/springer_attack, ui/error
+[05:36] announcer/clock/base_attack, work/winder_crank, combat/raptor_attack x2, combat/tyrant_challenger_attack, MUSIC clock_battle_8, combat/raptor_death, combat/clock_soldier_attack
+[05:37] combat/springer_attack x2, work/clock_build, combat/clock_soldier_attack x3, combat/raptor_attack x3, combat/raptor_death
+[05:38] work/clock_build, combat/raptor_attack x3, combat/tyrant_challenger_attack, combat/clock_soldier_attack, combat/springer_attack x2, combat/raptor_death, voice/winder/select
+[05:39] combat/raptor_attack x3, combat/clock_soldier_attack x2, work/winder_crank, work/clock_build, combat/tyrant_challenger_attack
+[05:40] combat/raptor_attack x4, combat/raptor_death, combat/springer_attack x2, work/cog_press_stamp, ui/click x2, combat/tyrant_challenger_attack
+[05:41] combat/winder_death, ui/click x2, combat/raptor_attack x2, combat/clock_soldier_attack x3, voice/clock_soldier/attack, work/winder_crank, combat/tyrant_challenger_attack, work/clock_build, combat/springer_attack
+[05:42] combat/raptor_attack x3, combat/tyrant_challenger_attack, clock/built, announcer/clock/building_done, combat/clock_soldier_attack
+[05:43] combat/raptor_attack, combat/tyrant_challenger_attack x2, combat/raptor_death, combat/springer_attack x2, select/movement_works, combat/clock_soldier_attack x2, ui/click x2, work/clock_build
+[05:44] combat/raptor_attack x3, ui/click x7, combat/clock_soldier_attack x2, combat/tyrant_challenger_attack, combat/raptor_death x2, combat/springer_attack
+[05:45] combat/springer_attack x2, select/clocktower, ui/error x2, combat/tyrant_challenger_attack x2, combat/raptor_attack x2, select/movement_works, combat/clock_soldier_attack, work/cog_press_stamp
+[05:46] combat/raptor_attack x2, combat/clock_soldier_attack, select/escapement, ui/click, work/winder_crank, combat/tyrant_challenger_attack, combat/springer_attack x3, combat/raptor_death, work/clock_build
+[05:47] work/cog_press_stamp, combat/raptor_attack x2, combat/tyrant_challenger_attack x2, select/escapement, ui/click, work/winder_crank, combat/clock_soldier_attack, work/clock_build, voice/clock_soldier/select, combat/springer_attack
+[05:48] combat/clock_soldier_attack, combat/raptor_attack x3, combat/raptor_death, combat/springer_attack x2, clock/ready, voice/netter/select, ui/click, combat/netter_attack x2
+[05:49] combat/raptor_attack x2, combat/tyrant_challenger_attack, combat/netter_hit x2, work/cog_press_stamp, combat/netter_attack x3, clock/built, announcer/clock/building_done, combat/raptor_death, combat/clock_soldier_attack x2, combat/springer_attack
+[05:50] combat/raptor_attack, combat/netter_hit x2, work/clock_build, ui/error, combat/springer_attack, combat/tyrant_challenger_attack
+[05:51] combat/raptor_attack x2, voice/clock_soldier/attack, ui/click, work/cog_press_stamp, combat/springer_attack, combat/clock_soldier_attack x2, select/clocktower, ui/error
+[05:52] ui/error, combat/springer_attack x2, work/winder_crank, work/cog_press_stamp, clock/alert, voice/clock_soldier/select
+[05:53] combat/raptor_attack x3, combat/raptor_death, combat/clock_soldier_attack x3, work/cog_press_stamp
+[05:54] combat/tyrant_challenger_attack x3, combat/raptor_attack x2, combat/springer_attack, combat/winder_death
+[05:55] work/winder_crank, combat/raptor_attack x3, voice/winder/select, ui/click, announcer/clock/under_attack, combat/clock_soldier_attack x2, work/cog_press_stamp, select/movement_works
+[05:56] combat/tyrant_challenger_attack x3, combat/springer_attack, select/movement_works, combat/raptor_attack, MUSIC clock_battle, work/clock_build, ui/error
+[05:57] combat/raptor_attack x3, select/movement_works, work/winder_crank, combat/winder_death, ui/click x2, combat/springer_attack, clock/ready, voice/clock_soldier/select
+[05:58] select/clocktower, ui/error x3, combat/raptor_attack, work/winder_crank, work/cog_press_stamp
+[05:59] combat/raptor_attack x4, work/winder_crank, combat/winder_death, combat/springer_attack, combat/clock_soldier_attack x2, voice/clock_soldier/select, combat/tyrant_challenger_attack
+[06:00] work/cog_press_stamp, work/winder_crank, combat/tyrant_challenger_attack x2, combat/raptor_attack
+[06:01] work/winder_crank, combat/winder_death, combat/raptor_attack, work/clock_build, combat/clock_soldier_attack x2, combat/tyrant_challenger_death, combat/springer_attack, voice/clock_soldier/move, ui/click x2
+[06:02] combat/springer_attack x2, combat/raptor_attack x3, work/cog_press_stamp, combat/clock_soldier_attack x2, combat/tyrant_challenger_attack x2, voice/clock_soldier/select
+[06:03] combat/clock_soldier_attack x2, combat/raptor_attack x3, work/winder_crank, combat/springer_attack, voice/clock_soldier/move
+[06:04] ui/click x2, work/clock_build, combat/clock_soldier_attack x3, combat/raptor_attack x3, combat/springer_attack, combat/tyrant_challenger_attack, combat/netter_attack x2
+[06:05] combat/springer_attack x3, combat/netter_hit x2, combat/clock_soldier_attack x2, work/clock_build, combat/netter_attack, combat/raptor_attack x3, clock/ready, voice/springer/select, combat/raptor_death
+[06:06] combat/clock_soldier_attack x3, combat/netter_attack, combat/tyrant_challenger_attack, work/winder_crank, combat/raptor_attack x2, combat/raptor_death x2, combat/springer_attack x2, combat/netter_hit, work/clock_build, voice/clock_soldier/select
+[06:07] combat/springer_attack x3, ui/click x2, combat/tyrant_challenger_death, combat/raptor_attack x2, voice/clock_soldier/attack, combat/clock_soldier_attack
+[06:08] combat/raptor_death x2, combat/springer_attack x3, combat/clock_soldier_attack x2, combat/tyrant_challenger_attack, work/clock_build, ui/click, combat/raptor_attack
+[06:09] combat/clock_soldier_attack x3, voice/clock_soldier/attack, ui/click, work/winder_crank, combat/raptor_attack, combat/springer_attack, combat/tyrant_challenger_death
+[06:10] combat/raptor_death x2, combat/springer_attack x2, combat/raptor_attack, voice/clock_soldier/move, ui/click x2
+[06:11] voice/clock_soldier/move x2, clock/ready
+[06:14] combat/springer_attack, voice/clock_soldier/select
+[06:15] work/cog_press_stamp, voice/clock_soldier/move, ui/click x2, combat/raptor_attack, combat/springer_attack
+[06:16] combat/raptor_attack x3, combat/clock_soldier_attack x3, combat/raptor_death x2, combat/springer_attack x2, work/winder_crank, voice/clock_soldier/select
+[06:17] combat/raptor_attack x3, combat/clock_soldier_attack x2, combat/springer_attack x2, work/cog_press_stamp, work/winder_crank, select/movement_works
+[06:18] combat/clock_soldier_attack x3, combat/raptor_attack x3, combat/springer_attack, voice/winder/select, ui/click
+[06:19] combat/raptor_death x3, combat/clock_soldier_attack x3, combat/springer_attack x2, clock/ready, ui/click, work/cog_press_stamp
+[06:20] combat/raptor_death, combat/springer_attack, work/winder_crank
+[06:21] combat/springer_attack x2, ui/click, work/cog_press_stamp, combat/raptor_attack x2, combat/raptor_death, combat/clock_soldier_attack
+[06:22] combat/clock_soldier_attack x3, combat/raptor_attack, combat/raptor_death, combat/springer_attack x2, combat/netter_attack x2, ui/error, ui/click
+[06:23] combat/raptor_death x3, combat/clock_soldier_attack x2, combat/springer_attack x2, voice/winder/move, work/cog_press_stamp, ui/click
+[06:24] ui/click x5, work/winder_crank, combat/springer_attack x3, combat/netter_attack, combat/clock_soldier_attack, combat/raptor_death, combat/raptor_attack, voice/clock_soldier/attack
+[06:25] combat/raptor_attack, combat/netter_hit, combat/clock_soldier_attack x3, combat/raptor_death x2, ui/click x4, combat/springer_attack, voice/springer/attack, work/cog_press_stamp, select/movement_works
+[06:27] work/clock_build, voice/clock_soldier/select, ui/click, voice/clock_soldier/move, select/clocktower, ui/error
+[06:28] ui/error, work/cog_press_stamp, work/winder_crank
+[06:29] select/movement_works, work/cog_press_stamp, work/winder_crank, select/clocktower
+[06:30] ui/click x3, clock/ready, voice/clock_soldier/select, work/cog_press_stamp, work/winder_crank, work/clock_build
+[06:31] work/winder_crank, work/cog_press_stamp
+[06:32] work/cog_press_stamp
+[06:33] voice/winder/select, ui/click, work/winder_crank
+[06:34] ui/click
+[06:36] ui/error, work/cog_press_stamp
+[06:37] ui/error
+[06:38] work/cog_press_stamp
+[06:40] ui/click x2
+[06:41] work/winder_crank
+[06:42] select/movement_works, clock/ready, voice/winder/select, ratchet, select/clocktower, ui/click
+[06:43] ui/click, work/cog_press_stamp, ui/error
+[06:44] voice/winder/select, ui/click
+[06:45] work/winder_crank, work/cog_press_stamp, ui/error, ui/click
+[06:46] voice/winder/move, ui/click
+[06:47] work/winder_crank, work/cog_press_stamp, voice/clock_soldier/select, ui/click
+[06:48] work/winder_crank
+[06:49] voice/winder/move, select/movement_works, work/cog_press_stamp, work/clock_build
+[06:50] ui/click x5, work/winder_crank, MUSIC clock_peace_6, work/clock_build
+[06:51] select/clocktower, voice/clock_soldier/select, work/cog_press_stamp
+[06:52] voice/clock_soldier/select, ui/click, work/clock_build, voice/clock_soldier/move
+[06:53] voice/clock_soldier/move
+[06:54] work/cog_press_stamp, clock/ready, voice/winder/select, select/clocktower, work/clock_build
+[06:55] select/clocktower, ui/click, work/clock_build
+[06:56] work/winder_crank, work/cog_press_stamp, ui/click
+[06:57] work/winder_crank, voice/clock_soldier/attack, ui/click x2
+[06:59] work/clock_build
+[07:00] select/clocktower x2, voice/clock_soldier/select x2, work/cog_press_stamp
+[07:01] select/clocktower, work/cog_press_stamp, work/winder_crank
+[07:02] select/movement_works
+[07:04] clock/ready, voice/clock_soldier/select x3, ui/click x3, ui/error, announcer/clock/no_supply, select/clocktower
+[07:05] work/clock_build
+[07:06] voice/winder/select, work/winder_crank, work/cog_press_stamp
+[07:07] ui/click x2
+[07:08] work/winder_crank, ui/click
+[07:09] work/cog_press_stamp, MUSIC clock_battle_9
+[07:10] ui/click
+[07:11] ratchet, work/cog_press_stamp, voice/clock_soldier/select, ui/click, voice/clock_soldier/attack
+[07:13] work/clock_build, combat/springer_attack, voice/clock_soldier/move
+[07:14] ui/click x2, combat/springer_attack, combat/raptor_attack x3, combat/winder_attack x2, work/clock_build, voice/clock_soldier/move
+[07:15] combat/raptor_attack x5, ui/click x2, combat/netter_attack, combat/springer_attack x2, combat/clock_soldier_death x3, work/clock_build, combat/clock_soldier_attack x2, voice/clock_soldier/move
+[07:16] combat/netter_hit, ui/click x2, combat/raptor_attack x3, combat/clock_soldier_death x3, combat/tyrant_challenger_attack x2, combat/winder_attack x2, combat/winder_death, combat/clock_soldier_attack, combat/netter_attack, combat/springer_attack, voice/clock_soldier/move
+[07:17] combat/raptor_attack x5, combat/winder_death x2, ui/click x2, combat/netter_hit, combat/clock_soldier_death, combat/tyrant_challenger_attack x2, combat/springer_attack, combat/springer_death
+[07:18] combat/springer_attack, combat/clock_soldier_death x2, combat/winder_attack x2, combat/raptor_attack x3, voice/springer/move, clock/ready, ui/click x2, combat/springer_death, combat/raptor_death
+[07:19] combat/raptor_attack x4, combat/winder_death, combat/tyrant_challenger_attack, combat/winder_attack x2, combat/springer_attack, combat/springer_death, select/clocktower, voice/netter/select, combat/netter_death
+[07:20] combat/raptor_attack x3, ui/click x3, combat/netter_death, combat/winder_death, voice/clock_soldier/move
+[07:21] combat/clock_soldier_attack, voice/clock_soldier/move, ui/click
+[07:22] ui/click, voice/clock_soldier/move
+[07:24] voice/clock_soldier/select, voice/clock_soldier/move
+[07:25] select/movement_works
+[07:27] ui/click x3, select/clocktower, voice/clock_soldier/select
+[07:28] voice/clock_soldier/move
+[07:30] voice/clock_soldier/move, clock/ready, ui/click x3, select/clocktower, work/cog_press_stamp, ui/error x2, announcer/clock/no_gold
+[07:31] ui/error, work/winder_crank, voice/clock_soldier/select, select/clocktower
+[07:32] work/winder_crank, select/clocktower, ui/click
+[07:33] voice/clock_soldier/select, select/clocktower, select/movement_works
+[07:35] work/cog_press_stamp, voice/winder/select, ui/click
+[07:36] work/winder_crank, select/cog_press, ui/click, ui/error
+[07:37] ui/error, work/winder_crank, clock/built, announcer/clock/building_done, work/cog_press_stamp
+[07:38] voice/clock_soldier/move, ui/click
+[07:39] select/clocktower, voice/clock_soldier/select, work/winder_crank, work/cog_press_stamp, select/movement_works
+[07:41] select/clocktower, work/cog_press_stamp, voice/clock_soldier/select, select/movement_works
+[07:42] select/clocktower, voice/clock_soldier/select x2, work/winder_crank, clock/ready
+[07:43] work/winder_crank, voice/clock_soldier/move, work/cog_press_stamp
+[07:44] select/movement_works, ui/click, voice/clock_soldier/select, work/winder_crank
+[07:45] MUSIC clock_peace_2, work/cog_press_stamp, select/clocktower
+[07:46] ui/error, work/winder_crank, select/clocktower, ui/click
+[07:47] work/winder_crank
+[07:48] work/cog_press_stamp, ui/error
+[07:49] ui/error x2, voice/clock_soldier/select, select/clocktower, work/winder_crank
+[07:50] work/cog_press_stamp, select/clocktower, ui/click x2, clock/built, announcer/clock/expansion, work/winder_crank
+[07:51] work/cog_press_stamp, select/clocktower, work/winder_crank
+[07:52] work/cog_press_stamp, ui/click, work/winder_crank
+[07:53] ui/click x2, work/cog_press_stamp
+[07:54] work/winder_crank, work/cog_press_stamp
+[07:56] work/winder_crank, ui/click, work/cog_press_stamp, voice/clock_soldier/select, select/clocktower
+[07:57] work/winder_crank
+[07:58] work/cog_press_stamp, work/winder_crank
+[08:00] voice/clock_soldier/select, work/cog_press_stamp
+[08:01] select/clocktower, voice/clock_soldier/select
+[08:02] select/movement_works, ui/click, clock/ready, voice/winder/select
+[08:03] work/cog_press_stamp, select/clocktower
+[08:04] voice/winder/select
+[08:05] work/winder_crank, work/cog_press_stamp, select/escapement, ui/click
+[08:06] work/winder_crank, voice/pendulum/select, ui/click x2, work/cog_press_stamp
+[08:07] work/winder_crank, select/clocktower, voice/clock_soldier/select, work/cog_press_stamp, select/heavy_works, ui/click x2
+[08:08] work/winder_crank, work/cog_press_stamp, select/heavy_works, ui/click
+[08:09] work/winder_crank x2, ui/click, work/cog_press_stamp
+[08:10] voice/pendulum/select, ui/click, work/cog_press_stamp
+[08:11] work/winder_crank, work/cog_press_stamp, voice/pendulum/move
+[08:12] work/winder_crank x2, voice/pendulum/move, work/cog_press_stamp
+[08:13] voice/pendulum/move, work/winder_crank, work/cog_press_stamp
+[08:14] work/winder_crank, clock/ready, voice/winder/select
+[08:15] work/cog_press_stamp, work/winder_crank
+[08:16] work/cog_press_stamp, work/winder_crank
+[08:17] work/winder_crank
+[08:18] work/cog_press_stamp, voice/clock_soldier/move
+[08:19] ui/click x3, select/movement_works x2, voice/clock_soldier/select
+[08:20] voice/clock_soldier/select, ui/click, work/cog_press_stamp, work/winder_crank
+[08:21] select/clocktower, voice/clock_soldier/select, work/winder_crank
+[08:22] work/cog_press_stamp, work/winder_crank
+[08:23] work/winder_crank
+[08:24] ui/click, work/cog_press_stamp, work/winder_crank
+[08:25] work/winder_crank, work/cog_press_stamp
+[08:26] ui/click, work/winder_crank, work/cog_press_stamp
+[08:27] select/clocktower x2, voice/clock_soldier/select x2, work/cog_press_stamp, work/winder_crank
+[08:28] select/escapement, ui/click x2, work/winder_crank
+[08:29] work/cog_press_stamp, select/regulator, ui/click, voice/clock_soldier/select, select/clocktower
+[08:30] work/cog_press_stamp, work/winder_crank, select/movement_works, ui/click x2
+[08:31] ui/click, work/winder_crank, work/cog_press_stamp
+[08:32] select/clocktower, work/winder_crank, voice/winder/select, ui/click
+[08:33] ui/click x2
+[08:34] ui/click x2
+[08:35] ui/click x2
+[08:36] ui/click
+[08:37] select/clocktower x2, ui/click x2, ratchet, voice/clock_soldier/select
+[08:38] work/winder_crank, ui/click x4, select/movement_works
+[08:39] ui/click x2, select/clocktower, voice/clock_soldier/select, select/movement_works, work/cog_press_stamp
+[08:40] ratchet, work/winder_crank, work/cog_press_stamp
+[08:41] work/winder_crank
+[08:42] work/cog_press_stamp, ui/click, work/winder_crank
+[08:43] work/cog_press_stamp
+[08:44] work/cog_press_stamp, work/winder_crank, clock/ready, voice/clock_soldier/select
+[08:45] ui/click
+[08:46] voice/winder/select, ui/click x2, work/cog_press_stamp
+[08:48] combat/raptor_attack x5, ui/click, combat/clock_soldier_attack, work/cog_press_stamp, MUSIC clock_battle_10, work/winder_crank, combat/clock_soldier_death, combat/pendulum_attack
+[08:49] combat/clock_soldier_attack x2, combat/raptor_attack x3, work/winder_crank, combat/raptor_death, ui/click
+[08:50] combat/raptor_attack x5, combat/clock_soldier_attack x2, select/heavy_works, ui/click, combat/raptor_death, combat/pendulum_attack, work/cog_press_stamp, ratchet
+[08:51] combat/clock_soldier_attack x3, combat/pendulum_death, combat/clock_soldier_death x3, combat/raptor_attack x3, combat/raptor_death
+[08:52] combat/clock_soldier_attack x3, combat/raptor_attack x4, combat/raptor_death x2, combat/clock_soldier_death x3, clock/ready, ui/click, work/cog_press_stamp
+[08:53] combat/raptor_attack x4, ui/click x2, work/clock_build, combat/clock_soldier_death x2, work/winder_crank, combat/raptor_death, combat/clock_soldier_attack
+[08:54] combat/raptor_attack x3, combat/clock_soldier_death x3, select/movement_works, ui/click, combat/clock_soldier_attack x3, work/winder_crank, combat/tyrant_challenger_attack, work/cog_press_stamp
+[08:55] combat/raptor_attack x5, combat/winder_death x2, combat/tyrant_challenger_attack x2, combat/raptor_death, combat/pendulum_attack
+[08:56] ratchet, combat/clock_soldier_death, combat/raptor_attack x4, work/clock_build, work/winder_crank, ui/click, combat/raptor_death, combat/pendulum_attack
+[08:57] combat/raptor_attack x3, combat/raptor_death x2, combat/pendulum_attack x2, work/winder_crank, work/clock_build, announcer/clock/paused, ui/click x4, announcer/clock/building_lost, combat/building_collapse, combat/explosion_big, announcer/clock/site_lost, announcer/clock/resumed
+[08:58] combat/tyrant_challenger_attack x5, work/clock_build, combat/raptor_attack x4, combat/pendulum_death, combat/clock_soldier_death x2, announcer/clock/defeat, combat/winder_death, combat/raptor_death x2, combat/clock_soldier_attack x3, ui/click
