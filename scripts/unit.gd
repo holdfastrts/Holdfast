@@ -3467,8 +3467,12 @@ func _physics_process(delta: float) -> void:
 				_jumped = true         # (it jumped: the searches allow that much more till the next rebuild)
 				game.grid_jumpers.append(self)
 			game.grid_slack = maxf(game.grid_slack, sqrt(moved) + 1.0)
-	Prof.unit_us += Time.get_ticks_usec() - _p0
+	var _du := Time.get_ticks_usec() - _p0
+	Prof.unit_us += _du
 	Prof.unit_n += 1
+	if _du > Prof.slow_unit_us:
+		Prof.slow_unit_us = _du
+		Prof.slow_unit = self
 
 
 func _tick_unit(delta: float) -> void:

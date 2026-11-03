@@ -467,7 +467,9 @@ func _think_stage(i: int) -> void:
 		0:
 			var rk0 := _hide_repair()       # (REPAIR FIRST: the menders' gold is not spent on labourers or buildings)
 			_cottage_wall()
+			pt = _lap("ai/workers/wall", pt)
 			xw.tick()           # (a new hall's wall pieces come first, like the ramp wall: the harvest's gold, before it is spent)
+			pt = _lap("ai/workers/xwall", pt)
 			_workers()
 			if _clock() and Defs.line_mode:
 				LineAI.tick(self)           # the Clockwork Line (scripts/line_ai.gd; shelved unless Defs.line_mode)

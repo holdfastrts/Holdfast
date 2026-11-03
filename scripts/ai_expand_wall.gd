@@ -472,31 +472,64 @@ func _near_ramp(c: Vector2i) -> bool:
 const DIRS4 := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 
 
-## Every cell an enemy reaches from its main by land (4 ways), the whole map, with its steps from there. {} when no
-## enemy start is known.
+## Every cell an enemy reaches from its main by land (4 ways), the whole map, with its steps from there:
+## {"d": steps per map cell (-1 = not reached), "order": the cells (map indices) in the order they were reached,
+## "walk": 1 where the enemy walks (_foe_walk)}. "order" is empty when no enemy start is known.
+## (0.28.1, perf-stutter: worked in packed arrays; it was a Dictionary of the whole map, 15 ms each new hall.)
 func _foe_reach() -> Dictionary:
-	var seen := {}
-	var q: Array = []
+	var W: int = game.W
+	var H: int = game.H
+	var n_cells := W * H
+	var walk := PackedByteArray()
+	walk.resize(n_cells)
+	var solid: PackedByteArray = game.solid
+	var cliff: PackedByteArray = game.cliff
+	for i in n_cells:
+		if cliff[i] != 0:
+			continue
+		var v: int = solid[i]
+		if v == 0 or v == 5:
+			walk[i] = 1
+		elif v == 3 and game.hostile(int(game.gate_team.get(i, ai.team)), ai.team):
+			walk[i] = 1
+	var d := PackedInt32Array()
+	d.resize(n_cells)
+	d.fill(-1)
+	var q := PackedInt32Array()
 	for o in game.n_players():
 		if not game.hostile(o, ai.team) or game.starts.size() <= o:
 			continue
 		var s: Vector2i = game.starts[o]
 		for y in range(s.y - 4, s.y + 9):
+			if y < 0 or y >= H:
+				continue
 			for x in range(s.x - 4, s.x + 10):
-				var c := Vector2i(x, y)
-				if not seen.has(c) and _foe_walk(c):
-					seen[c] = 0
-					q.append(c)
+				if x < 0 or x >= W:
+					continue
+				var i := y * W + x
+				if d[i] < 0 and walk[i] == 1:
+					d[i] = 0
+					q.append(i)
 	var head := 0
 	while head < q.size():
-		var c: Vector2i = q[head]
+		var i: int = q[head]
 		head += 1
-		for d in DIRS4:
-			var n: Vector2i = c + d
-			if not seen.has(n) and _foe_walk(n):
-				seen[n] = int(seen[c]) + 1
-				q.append(n)
-	return seen
+		var x := i % W
+		var nd: int = d[i] + 1
+		# (DIRS4: right, left, down, up)
+		if x + 1 < W and d[i + 1] < 0 and walk[i + 1] == 1:
+			d[i + 1] = nd
+			q.append(i + 1)
+		if x > 0 and d[i - 1] < 0 and walk[i - 1] == 1:
+			d[i - 1] = nd
+			q.append(i - 1)
+		if i + W < n_cells and d[i + W] < 0 and walk[i + W] == 1:
+			d[i + W] = nd
+			q.append(i + W)
+		if i - W >= 0 and d[i - W] < 0 and walk[i - W] == 1:
+			d[i - W] = nd
+			q.append(i - W)
+	return {"d": d, "order": q, "walk": walk}
 
 
 ## The hall's area at radius r: the ground walked to from round the hall (4 ways) within r tiles of its middle, no ramp
@@ -504,82 +537,205 @@ func _foe_reach() -> Dictionary:
 ## around the ramp from the other side"): once the area reaches the main's ramp zone (its ramp and the ground within
 ## RAMP_CLEAR tiles of it below), all of that zone is inside, however far, so the wall wraps round the ramp's foot and
 ## the main and the natural are one walled space; the main's own plateau is never part of the area.
-func _inside(cell: Vector2i, hsize: Vector2i, r: float, others: Array, mz: Dictionary = {}) -> Dictionary:
-	var hc := Vector2(cell) + Vector2(hsize) * 0.5
+func _inside(cell: Vector2i, hsize: Vector2i, r: float, others: Array, mz: Dictionary = {}, base: Dictionary = {}) -> Dictionary:
+	if base.is_empty():
+		base = _inside_base(cell, hsize, others, mz)
+	var W: int = game.W
+	var H: int = game.H
+	var okg: PackedByteArray = base["ok"]
+	var dist: PackedFloat64Array = base["dist"]
 	var inside := {}
-	var q: Array = []
-	var zone: Dictionary = mz.get("zone", {})
-	var plateau: Dictionary = mz.get("plateau", {})
-	var ok := func(c: Vector2i) -> bool:
-		if zone.has(c):
-			return _walk(c)
-		if plateau.has(c):
-			return false
-		if not _walk(c) or game.ramp[game.idx(c)] == 1 or _near_ramp(c):
-			return false
-		var cc := Vector2(c) + Vector2(0.5, 0.5)
-		var d := cc.distance_to(hc)
-		if d >= r:
-			return false
-		for o in others:
-			if cc.distance_to(o) < d:
-				return false
-		return true
+	var q := PackedInt32Array()
+	var seen := PackedByteArray()
+	seen.resize(W * H)
+	var hx0 := cell.x
+	var hy0 := cell.y
+	var hx1 := cell.x + hsize.x
+	var hy1 := cell.y + hsize.y
 	for y in range(cell.y - 1, cell.y + hsize.y + 1):
 		for x in range(cell.x - 1, cell.x + hsize.x + 1):
-			var c := Vector2i(x, y)
-			if Rect2i(cell, hsize).has_point(c):
+			if x >= hx0 and x < hx1 and y >= hy0 and y < hy1:
 				continue
-			if not inside.has(c) and ok.call(c):
-				inside[c] = true
-				q.append(c)
+			if x < 0 or y < 0 or x >= W or y >= H:
+				continue
+			var i := y * W + x
+			if seen[i] == 0 and okg[i] == 1 and dist[i] < r:
+				seen[i] = 1
+				inside[Vector2i(x, y)] = true
+				q.append(i)
 	var head := 0
 	while head < q.size():
-		var c: Vector2i = q[head]
+		var i: int = q[head]
 		head += 1
-		for d in DIRS4:
-			var n: Vector2i = c + d
-			if not inside.has(n) and not Rect2i(cell, hsize).has_point(n) and ok.call(n):
-				inside[n] = true
+		var x := i % W
+		var y := i / W
+		# (DIRS4: right, left, down, up; never into the hall's own footprint)
+		for k in 4:
+			var nx := x
+			var ny := y
+			match k:
+				0: nx = x + 1
+				1: nx = x - 1
+				2: ny = y + 1
+				3: ny = y - 1
+			if nx < 0 or ny < 0 or nx >= W or ny >= H:
+				continue
+			if nx >= hx0 and nx < hx1 and ny >= hy0 and ny < hy1:
+				continue
+			var n := ny * W + nx
+			if seen[n] == 0 and okg[n] == 1 and dist[n] < r:
+				seen[n] = 1
+				inside[Vector2i(nx, ny)] = true
 				q.append(n)
 	return inside
 
 
+## What _inside asks of a cell at every radius, worked out once for all of them: "ok" (1 = it may be inside at some radius:
+## walkable, in the main's ramp zone or off the ramps and the cells beside them, not on the main's plateau, not nearer
+## another hall of ours) and "dist" (its middle's distance to the hall's middle; inside only while under the radius).
+func _inside_base(cell: Vector2i, hsize: Vector2i, others: Array, mz: Dictionary) -> Dictionary:
+	var W: int = game.W
+	var H: int = game.H
+	var hc := Vector2(cell) + Vector2(hsize) * 0.5
+	var zone: Dictionary = mz.get("zone", {})
+	var plateau: Dictionary = mz.get("plateau", {})
+	var okg := PackedByteArray()
+	okg.resize(W * H)
+	var dist := PackedFloat64Array()
+	dist.resize(W * H)
+	dist.fill(INF)
+	var x0 := maxi(0, int(floor(hc.x)) - R_MAX - 2)
+	var x1 := mini(W - 1, int(ceil(hc.x)) + R_MAX + 2)
+	var y0 := maxi(0, int(floor(hc.y)) - R_MAX - 2)
+	var y1 := mini(H - 1, int(ceil(hc.y)) + R_MAX + 2)
+	for y in range(y0, y1 + 1):
+		for x in range(x0, x1 + 1):
+			var c := Vector2i(x, y)
+			var i := y * W + x
+			var cc := Vector2(c) + Vector2(0.5, 0.5)
+			var d := cc.distance_to(hc)
+			if d >= float(R_MAX) or zone.has(c) or plateau.has(c):
+				continue
+			if not _walk(c) or game.ramp[i] == 1 or _near_ramp(c):
+				continue
+			var near := false
+			for o in others:
+				if cc.distance_to(o) < d:
+					near = true
+					break
+			if near:
+				continue
+			okg[i] = 1
+			dist[i] = d
+	# (the main's ramp zone: inside at any radius and however far, wherever it is walkable)
+	for c in zone:
+		var i: int = game.idx(c)
+		okg[i] = 1 if _walk(c) else 0
+		dist[i] = -INF
+	return {"ok": okg, "dist": dist}
+
+
 ## The ring's cells an enemy walks to without crossing the area: a flood inside a box round the hall from the box's
 ## edge cells the enemy reaches (foe), over walkable ground outside the area.
-func _exposed(cell: Vector2i, hsize: Vector2i, inside: Dictionary, foe: Dictionary) -> Array:
-	var box := Rect2i(cell - Vector2i(R_MAX + 4, R_MAX + 4), hsize + Vector2i(2 * R_MAX + 8, 2 * R_MAX + 8))
-	var seen := {}
-	var q: Array = []
-	for y in range(box.position.y, box.end.y):
-		for x in range(box.position.x, box.end.x):
-			var edge := y == box.position.y or y == box.end.y - 1 or x == box.position.x or x == box.end.x - 1
-			var c := Vector2i(x, y)
-			if edge and foe.has(c) and not inside.has(c):
-				seen[c] = true
-				q.append(c)
-	# (an enemy start inside the box: its own cells seed too)
-	for c in foe:
-		if box.has_point(c) and not seen.has(c) and not inside.has(c) and _is_foe_home(c):
-			seen[c] = true
-			q.append(c)
+func _exposed(cell: Vector2i, hsize: Vector2i, inside: Dictionary, foe: Dictionary, xb: Dictionary = {}) -> Array:
+	if xb.is_empty():
+		xb = _exposed_base(cell, hsize, foe)
+	var bx0: int = xb["x0"]
+	var by0: int = xb["y0"]
+	var bw: int = xb["w"]
+	var bh: int = xb["h"]
+	# (local index (y - by0) * bw + (x - bx0)) blocked: off the map, not the enemy's ground, or in the area
+	var blocked: PackedByteArray = (xb["blocked"] as PackedByteArray).duplicate()
+	var ins := PackedByteArray()
+	ins.resize(bw * bh)
+	for c in inside:
+		var lx: int = c.x - bx0
+		var ly: int = c.y - by0
+		if lx >= 0 and ly >= 0 and lx < bw and ly < bh:
+			ins[ly * bw + lx] = 1
+			blocked[ly * bw + lx] = 1
+	var seen := PackedByteArray()
+	seen.resize(bw * bh)
+	var q := PackedInt32Array()          # local indices, in the order seen
+	for l in xb["edge"]:
+		if ins[l] == 0:
+			seen[l] = 1
+			q.append(l)
+	for l in xb["home"]:
+		if seen[l] == 0 and ins[l] == 0:
+			seen[l] = 1
+			q.append(l)
+	var n_all := bw * bh
 	var head := 0
 	while head < q.size():
-		var c: Vector2i = q[head]
+		var l: int = q[head]
 		head += 1
-		for d in DIRS4:
-			var n: Vector2i = c + d
-			if seen.has(n) or inside.has(n) or not box.has_point(n) or not _foe_walk(n):
-				continue
-			seen[n] = true
-			q.append(n)
+		var lx := l % bw
+		# (DIRS4: right, left, down, up)
+		if lx + 1 < bw and seen[l + 1] == 0 and blocked[l + 1] == 0:
+			seen[l + 1] = 1
+			q.append(l + 1)
+		if lx > 0 and seen[l - 1] == 0 and blocked[l - 1] == 0:
+			seen[l - 1] = 1
+			q.append(l - 1)
+		if l + bw < n_all and seen[l + bw] == 0 and blocked[l + bw] == 0:
+			seen[l + bw] = 1
+			q.append(l + bw)
+		if l - bw >= 0 and seen[l - bw] == 0 and blocked[l - bw] == 0:
+			seen[l - bw] = 1
+			q.append(l - bw)
 	var out: Array = []
-	for c in seen:
+	for l in q:
+		var lx: int = l % bw
+		var ly: int = l / bw
+		# (beside the area, 4 ways; at the box's edge the area may run past it)
+		if lx > 0 and ly > 0 and lx < bw - 1 and ly < bh - 1:
+			if ins[l + 1] == 1 or ins[l - 1] == 1 or ins[l + bw] == 1 or ins[l - bw] == 1:
+				out.append(Vector2i(lx + bx0, ly + by0))
+			continue
+		var c := Vector2i(lx + bx0, ly + by0)
 		for d in DIRS4:
 			if inside.has(c + d):
 				out.append(c)
 				break
 	return out
+
+
+## What _exposed needs at every radius, worked out once: the box round the hall, the cells in it the enemy can't walk
+## ("blocked", off the map too), its edge cells the enemy reaches (in rows, as the flood starts from them) and the cells
+## of an enemy start inside it (in the order the enemy reached them).
+func _exposed_base(cell: Vector2i, hsize: Vector2i, foe: Dictionary) -> Dictionary:
+	var W: int = game.W
+	var H: int = game.H
+	var fd: PackedInt32Array = foe["d"]
+	var fwalk: PackedByteArray = foe["walk"]
+	var box := Rect2i(cell - Vector2i(R_MAX + 4, R_MAX + 4), hsize + Vector2i(2 * R_MAX + 8, 2 * R_MAX + 8))
+	var bx0 := box.position.x
+	var by0 := box.position.y
+	var bw := box.size.x
+	var bh := box.size.y
+	var blocked := PackedByteArray()
+	blocked.resize(bw * bh)
+	blocked.fill(1)
+	var edge := PackedInt32Array()
+	for y in range(maxi(0, by0), mini(H, by0 + bh)):
+		for x in range(maxi(0, bx0), mini(W, bx0 + bw)):
+			var l := (y - by0) * bw + (x - bx0)
+			var i := y * W + x
+			if fwalk[i] == 1:
+				blocked[l] = 0
+			var on_edge := y == by0 or y == by0 + bh - 1 or x == bx0 or x == bx0 + bw - 1
+			if on_edge and fd[i] >= 0:
+				edge.append(l)
+	var home := PackedInt32Array()
+	for i in foe["order"]:
+		var x: int = i % W
+		var y: int = i / W
+		if x < bx0 or y < by0 or x >= bx0 + bw or y >= by0 + bh:
+			continue
+		if _is_foe_home(Vector2i(x, y)):
+			home.append((y - by0) * bw + (x - bx0))
+	return {"x0": bx0, "y0": by0, "w": bw, "h": bh, "blocked": blocked, "edge": edge, "home": home}
 
 
 const RAMP_CLEAR := 4           # tiles below the main's ramp kept inside the expansion's wall (no piece, gate or slot there)
@@ -674,30 +830,38 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 	var foe := _foe_reach()
 	var mz := main_zone()
 	var plateau: Dictionary = mz["plateau"]
+	var base := _inside_base(cell, hsize, others, mz)
+	var xb := _exposed_base(cell, hsize, foe)
+	var wall_ok := {}            # (the ground doesn't change while the plan is made: each cell asked once)
 	var best := {}
 	var best_score := INF
 	for r in range(R_MIN, R_MAX + 1):
-		var inside := _inside(cell, hsize, float(r), others, mz)
+		var inside := _inside(cell, hsize, float(r), others, mz, base)
 		var area := 0
 		for c in inside:
 			if game.solid[game.idx(c)] == 0:
 				area += 1
 		if area < AREA_MIN and r < R_MAX:
 			continue
-		if foe.is_empty():
+		if (foe["order"] as PackedInt32Array).is_empty():
 			continue
 		# (the main's plateau is the main's own wall's business: no expansion piece goes up there)
-		var ex: Array = _exposed(cell, hsize, inside, foe).filter(func(c: Vector2i) -> bool: return not plateau.has(c))
+		var ex: Array = _exposed(cell, hsize, inside, foe, xb).filter(func(c: Vector2i) -> bool: return not plateau.has(c))
 		var bad := false
 		for c in ex:
-			if not _wall_ok(c):
+			if not wall_ok.has(c):
+				wall_ok[c] = _wall_ok(c)
+			if not wall_ok[c]:
 				bad = true
 				break
 		if bad:
 			continue
 		# (the hall's two Farms and its Mill must fit inside: else its workers walk out of the wall to them)
+		var score0 := float(ex.size()) - float(area) / 150.0
+		if score0 >= best_score:
+			continue            # (it can't beat the best so far even with all of them inside: no need to pack them)
 		var econ := _pack(cell, hsize, inside)
-		var score := float(ex.size()) - float(area) / 150.0 + float(ECON_KINDS.size() - econ.size()) * 1000.0
+		var score := score0 + float(ECON_KINDS.size() - econ.size()) * 1000.0
 		if score < best_score:
 			best_score = score
 			best = {"r": r, "inside": inside, "exposed": ex, "area": area, "econ": econ}
@@ -724,7 +888,16 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 		ex_set[c] = true
 	# the gate: where the expansion's men need to leave: toward the enemy by land when the main's ramp comes down inside
 	# (the main is reached through the area), else the ways-in cell nearest our main by land (and the next one along)
-	var gates: Array = _gate_cells(ex, ex_set, cell, hsize, foe if p["ramp_in"] else {})
+	var foe_d := {}             # (the enemy's steps to the ways-in cells and the cells beside them, for the gate)
+	if p["ramp_in"]:
+		var fd: PackedInt32Array = foe["d"]
+		for c in ex:
+			for n in [c, c + DIRS4[0], c + DIRS4[1], c + DIRS4[2], c + DIRS4[3]]:
+				if game.in_map(n) and fd[game.idx(n)] >= 0:
+					foe_d[n] = fd[game.idx(n)]
+		if foe_d.is_empty():
+			foe_d[Vector2i(-99, -99)] = 0       # (never empty: the enemy's steps are used, not our own walk)
+	var gates: Array = _gate_cells(ex, ex_set, cell, hsize, foe_d)
 	var gate_set := {}
 	for c in gates:
 		gate_set[c] = true
@@ -733,6 +906,8 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 	var used := {}
 	var hall_zone := Rect2i(cell - Vector2i(1, 1), hsize + Vector2i(2, 2))
 	var counts := {"barracks": 0, "church": 0, "cottage": 0}
+	var has_church: bool = not ai._mine("church").is_empty()
+	var placeable := {}          # (kind and corner -> may it go there: the ground doesn't change while the plan is made)
 	while true:
 		var pick := {}
 		var pick_score := -INF
@@ -741,7 +916,7 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 			var kind: String = sz_kind[1]
 			if int(counts[kind]) >= int(SLOT_MAX[kind]):
 				continue
-			if kind == "church" and not ai._mine("church").is_empty():
+			if kind == "church" and has_church:
 				continue
 			var tried := {}
 			for e in ex:
@@ -774,7 +949,10 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 								break
 						if not fine or cov < int(SLOT_MIN_COVER[kind]) or ins > sz.x * sz.y / 2:
 							continue
-						if game.placement_problem(ai.team, kind, tl, true) != "":
+						var pk := Vector3i(tl.x, tl.y, kind.length())       # (barracks, church, cottage: their lengths differ)
+						if not placeable.has(pk):
+							placeable[pk] = game.placement_problem(ai.team, kind, tl, true) == ""
+						if not placeable[pk]:
 							continue
 						var sc := float(cov) * 10.0 - float(ins) - float(sz.x * sz.y) * 0.5
 						if sc > pick_score:
@@ -817,15 +995,22 @@ func _pack(cell: Vector2i, hsize: Vector2i, inside: Dictionary) -> Array:
 	for y in range(cell.y - 1, cell.y + hsize.y + 1):
 		for x in range(cell.x - 1, cell.x + hsize.x + 1):
 			ring[Vector2i(x, y)] = true
-	var cells: Array = inside.keys()
+	var keys: Array = inside.keys()
+	# (the cells sorted by their distance as before, but as numbers into a table of the distances: the same
+	# comparisons in the same order give the same order, ties included, without working out two distances a comparison)
+	var order: Array = range(keys.size())
+	var key := PackedFloat64Array()
+	key.resize(keys.size())
 	var out: Array = []
 	for kind in ECON_KINDS:
 		var size: Vector2i = Defs.BUILDINGS[kind]["size"]
 		var best := Vector2i(-1, -1)
 		var half := Vector2(size) * 0.5
-		cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return (Vector2(a) + half).distance_squared_to(hc) < (Vector2(b) + half).distance_squared_to(hc))
-		for c in cells:
-			var tl: Vector2i = c
+		for i in keys.size():
+			key[i] = (Vector2(keys[i]) + half).distance_squared_to(hc)
+		order.sort_custom(func(a: int, b: int) -> bool: return key[a] < key[b])
+		for oi in order:
+			var tl: Vector2i = keys[oi]
 			if (Vector2(tl) + half).distance_to(hc) > float(Defs.ECON_RANGE) - 0.5:
 				break
 			var ok := true

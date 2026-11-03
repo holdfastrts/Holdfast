@@ -64,6 +64,8 @@ var device := "pc"
 var _trace: FileAccess = null
 var _trace_next := 0.0
 var _cpu0 := 0.0                 # the processor time used when this minute began (ms)
+var log_file := ""               # log:FILE writes the match log there at the end
+var spike_ms := 100.0            # spike:N prints every frame slower than N ms with its parts
 var sound := false               # sounds and music as in a real match (and the path queue's time limit)
 
 
@@ -131,6 +133,8 @@ func _start() -> void:
 	var facs: Array = []
 	var map := "sundered_realm"
 	var level := "hard"
+	var strat := "balanced"          # strat:rush = the computers' plan (players 2 on)
+	var strat0 := "balanced"         # strat0: = player 1's (played by a computer too)
 	for a in args:
 		if a in ["crown", "brood", "clockwork"]:
 			facs.append(a)
@@ -152,6 +156,14 @@ func _start() -> void:
 			_trace = FileAccess.open(a.substr(6), FileAccess.WRITE)
 		elif a == "sound":
 			sound = true
+		elif a.begins_with("log:"):
+			log_file = a.substr(4)
+		elif a.begins_with("spike:"):
+			spike_ms = float(a.substr(6))
+		elif a.begins_with("strat:"):
+			strat = a.substr(6)
+		elif a.begins_with("strat0:"):
+			strat0 = a.substr(7)
 	if facs.size() < 2:
 		facs = ["crown", "crown"]
 	var render := DisplayServer.get_name() != "headless"
@@ -162,7 +174,7 @@ func _start() -> void:
 		var side := i
 		if teams:
 			side = 0 if i < facs.size() / 2 else 1
-		slots.append({"who": "you" if i == 0 else level, "faction": facs[i], "colour": i, "side": side, "strategy": "balanced"})
+		slots.append({"who": "you" if i == 0 else level, "faction": facs[i], "colour": i, "side": side, "strategy": strat0 if i == 0 else strat})
 	if not sound:
 		root.add_child(SilentSfx.new())       # (Sfx.me from now on)
 	seed(match_seed)              # (before the match is made: setting it up draws random numbers too)
@@ -177,7 +189,7 @@ func _start() -> void:
 	ai.game = g
 	ai.team = 0
 	ai.difficulty = main.LEVELS.find(level)
-	ai.strategy = "balanced"
+	ai.strategy = strat0
 	g.add_child(ai)
 	g.ais.append(ai)
 	_cfg_text = "%s, %s, %s AI, %s, Godot %s, %s, %s profile, seed %d, v%s" % [map, " vs ".join(facs), level, "rendered %s" % RenderingServer.get_video_adapter_name() if render else "headless",
@@ -219,8 +231,11 @@ func _process(delta: float) -> bool:
 	if ms > _worst_ms:
 		_worst_ms = ms
 		_worst_zones = _diff_zones()
-	if ms > 100.0:
-		print("PERF spike %.0f ms at %d:%02d: %s" % [ms, int(g.clock) / 60, int(g.clock) % 60, _diff_zones()])
+	if ms > spike_ms:
+		var su := ""
+		if Prof.slow_unit_us >= 2000 and is_instance_valid(Prof.slow_unit):
+			su = " | slowest unit %s %.1f ms (%s)" % [Prof.slow_unit.kind, Prof.slow_unit_us / 1000.0, Prof.slow_unit.order]
+		print("PERF spike %.0f ms at %d:%02d: %s%s" % [ms, int(g.clock) / 60, int(g.clock) % 60, _diff_zones(), su])
 	if mouse:
 		_player(g, delta)
 	_cam_t -= delta
@@ -235,6 +250,10 @@ func _process(delta: float) -> bool:
 		_minute = int(g.clock / 60.0)
 	if g.over or g.clock > stop_at:
 		_save()
+		if log_file != "" and g.mlog:
+			var lf := FileAccess.open(log_file, FileAccess.WRITE)
+			lf.store_string("\n".join(g.mlog.lines) + "\n")
+			lf.close()
 		if _trace != null:
 			_trace.close()
 		return true
