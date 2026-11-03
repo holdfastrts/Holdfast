@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.9", "items": [
+		"NO MORE STANDING AT A HALF-BUILT WALL: soldiers on an attack-move no longer stop to hack or shoot at an enemy palisade they can walk round (only when the place they were sent to is walled off do they break a piece); after killing a man on the way they go on to where they were sent instead of stopping there; standing idle they only hit a wall piece already in reach, rather than walking up to one. A piece still going up can be broken when it is what shuts them out, and a soldier that makes no headway for 3 seconds (a crowd jostling at a wall) looks for a fresh way. (A playtest: five Musketeers stood at the computer's half-built diagonal wall for good though its end was open.)",
+	]},
 	{"v": "0.26.8", "items": [
 		"THE BARRACKS' FIFE ENDS CLEANLY: when the Barracks recruits a soldier, the fife's last long note no longer stutters (it was one short piece of the recording repeated five times, with the band's drum in it) and no longer stops short. It is now a real held note from the fifer, fading out smoothly, and the low drum thump and hum under the tune are gone.",
 	]},

@@ -1,4 +1,4 @@
-# Units stuck at a half-built wall (0.26.3, branch wall-stuck)
+# Units stuck at a half-built wall (0.26.9, branch wall-stuck)
 
 The owner's playtest (AI Crown v AI Crown, 0.25.25, Ashfall, 2026-11-01; docs/playtests/ai_crown_v_crown_2026-11-01/,
 problem 3): "a half completed wall stuck 5 musketeers indefinitely ... they could have just walked up because the
@@ -59,5 +59,5 @@ Pictures: docs/shots/wall_stuck/half_built_diagonal.png (the test's wall: two pl
 going up, the rest built); before_fix_dry_musketeers_amove_6s.png (0.25.25, six seconds in: the dry Musketeers on an
 attack-move standing at the built pieces, bayonets on the wall, though the end is open).
 
-Merged with main 0.26.2 (0.26.1's Horsemen at a shut gate, docs/cav_gate.md, go on attack-move only when the prey
-can't be walked to, which agrees with the rule here); tools/test_cav_gate.gd passes.
+Merged with main 0.26.8 (0.26.1's Horsemen at a shut gate, docs/cav_gate.md, go on attack-move only when the prey
+can't be walked to, which agrees with the rule here); tools/test_cav_gate.gd passes (0 failures on 0.26.8 + this; its case 6 also failed on plain 0.26.2, before raid-micro).
