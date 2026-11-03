@@ -53,8 +53,8 @@ Prompt column: "NEW" = written in section 2 of this file; otherwise the doc and 
 
 | # | item | faction | reason | in game (asset / code) | size / layout the importer expects | import step | prompt |
 |---|---|---|---|---|---|---|---|
-| 1 | **Resource icons**: top-bar pills (gold, powder, horses; Brood food + spoils; Clockwork cogs) and unit-card resource chips (soil, saltpetre, brass) | all | CODE: plain coloured dots/box (Hud._pill, hud.gd ~l.4680; card_tips.gd FOOD/SOIL/SALT/BRASS dots); COGS is GearNet.draw_gear in code. Only TENSION (assets/icons/tension.png) is painted | none yet: new files assets/ui/stats/res_<name>.png (64x64) | a sheet of framed square icons on flat navy; importer finds icons by blobs, any grid; frames cut away (INSET 0.14), 64x64 out, drawn at 18-24 px | add each sheet to EXTRA in tools/import_stat_icons.py; then small code hook: Hud._pill already takes `pic` (pass UnitStats.texture("res_gold") etc.), CardTips chips take `pic` instead of `dot`; supply pill can reuse existing assets/ui/stats/supply.png (no drawing needed) | **NEW: 1A, 1B** |
-| 2 | **Pistol mark** on the Officer / Horseman / Cuirassier card (loaded / empty) | Crown | CODE: Hud._draw_pistol (hud.gd l.4129): rectangles and a polygon, red bar when empty (the owner noticed it) | none yet: assets/ui/stats/pistol_loaded.png, pistol_empty.png | 2 framed icons on navy, same importer | EXTRA in tools/import_stat_icons.py; code: _draw_pistol draws UnitStats.texture(...) when present (keep the code drawing as fallback) | **NEW: 2** |
+| 1 | DONE 0.26.8 (docs/shots/res_icons/) **Resource icons**: top-bar pills (gold, powder, horses; Brood food + spoils; Clockwork cogs) and unit-card resource chips (soil, saltpetre, brass) | all | CODE: plain coloured dots/box (Hud._pill, hud.gd ~l.4680; card_tips.gd FOOD/SOIL/SALT/BRASS dots); COGS is GearNet.draw_gear in code. Only TENSION (assets/icons/tension.png) is painted | none yet: new files assets/ui/stats/res_<name>.png (64x64) | a sheet of framed square icons on flat navy; importer finds icons by blobs, any grid; frames cut away (INSET 0.14), 64x64 out, drawn at 18-24 px | add each sheet to EXTRA in tools/import_stat_icons.py; then small code hook: Hud._pill already takes `pic` (pass UnitStats.texture("res_gold") etc.), CardTips chips take `pic` instead of `dot`; supply pill can reuse existing assets/ui/stats/supply.png (no drawing needed) | **NEW: 1A, 1B** |
+| 2 | DONE 0.26.8 (docs/shots/res_icons/) **Pistol mark** on the Officer / Horseman / Cuirassier card (loaded / empty) | Crown | CODE: Hud._draw_pistol (hud.gd l.4129): rectangles and a polygon, red bar when empty (the owner noticed it) | none yet: assets/ui/stats/pistol_loaded.png, pistol_empty.png | 2 framed icons on navy, same importer | EXTRA in tools/import_stat_icons.py; code: _draw_pistol draws UnitStats.texture(...) when present (keep the code drawing as fallback) | **NEW: 2** |
 | 3 | Code/PIL-made command icons: Marching Band portrait + DRUMS/PIPES/FIFE buttons; GEAR VIEW; SCATTER COGS; COUPLE/UNCOUPLE (LAB only) | Crown, Clockwork | CODE: tools/make_band_icons.py (PIL flat shapes); CwArt._ability_glyph "ab_gear_view"; tools/make_cog_scatter_icon.py (PIL composite) | assets/icons/band.png, ab_band_drums/pipes/fife.png; assets/icons/clockwork/ab_gear_view.png (missing: code glyph shown); assets/icons/clockwork/ab_scatter.png | 64x64. Crown: steel bevel style sheet (3x2 on 1536x1024); Clockwork: bronze frame sheet. See command_icons_audit.md "The format of a new sheet" | tools/import_round13.py-style cut (add a sheet entry), files win over code by themselves | band: none (art_style_inconsistency.md "The Marching Band", ICONS bullet describes them); scatter: docs/cog_scatter.md "Prompt 3: the command icon"; gear view: none |
 | 4 | Framed-crop buttons that are not painted as buttons: Clockwork MEND, SWEEP, CREW/BOARD | Clockwork | CODE: painted parts / a Winder sprite set in the bronze frame by importers | assets/icons/clockwork/ab_mend.png, ab_sweep.png, ab_crew.png | 64x64 bronze style | import_great_winder.py / import_ballista.py write them; a round13-style sheet would replace | none (art_style_inconsistency.md "The Great Winder in the game", MEND/SWEEP bullet; "Spring Ballista", portrait bullet) |
 | 5 | Stats row: named bonuses ("x2 against Raptor") borrow the vs-armoured icon | all | CODE (borrowed picture) | assets/ui/stats/vs_armoured.png reused | 1 framed icon | EXTRA in import_stat_icons.py + code to pick it | none (docs/unit_stats.md "The icons") |
@@ -144,6 +144,7 @@ target, the Great Winder winding ring, attack-ground lines, meshing-teeth arcs, 
 - Brood DEMOLISH redrawn (art/ui/icons3/brood_demolish_2.png, round 13). SPIT icon: the Bloater is gone (old Brood removed 0.18.0); brood_spit_2.png exists but the button is obsolete.
 - BOMBARD x3, TEAM, MORE, RESTOCK, AUTO REFIT, Clockwork BACK/CANCEL/HOLD/..., Clock Soldier/Jack/Swift/Owl/Pendulum/Netter/Catapult portraits: drawn (rounds 13/14). Shield icons ab_shield / research_shield now exist as painted files.
 - Stats-row icons: all 16 painted (assets/ui/stats/); the draw_icon shapes are only a fallback.
+- Items 1 and 2 (0.26.8): the resource icons (res_gold, res_powder, res_horses, res_soil, res_saltpetre, res_food, res_spoils, res_cogs, res_brass) and the pistol mark (pistol_loaded, pistol_empty) are painted, cut by tools/import_stat_icons.py (EXTRA) into assets/ui/stats/ and wired into the top bar pills, the card chips and Hud._draw_pistol. Costs on buttons and tooltips are text only (no dots), so nothing else changed.
 - Winder walk legs (retired 2026-10-26), labourer walk E/NE/N (ChatGPT v3), the dismounted Cuirassier (0.15.21/22), Musketeer and Guardsman aim/fire/bayonet directions (0.14.63-0.14.69), Clock Aviary boil (fixed).
 - Obsolete with the old Brood (0.18.0): Clutch Mound states, the Queen (her "still sprite" backlog line is stale: the Brood Mother has full animations), Spore Mother, Bloater, Skywing prompts B7-B12 of the Brood audit.
 - Off in normal games: Windup Soldier walk (old roster), the LAB prototype roster and its code icons (CwArt), the Clockwork Line art and trains.
@@ -155,7 +156,7 @@ target, the Great Winder winding ring, attack-ground lines, meshing-teeth arcs, 
 
 Each block below is ONE complete request: attach the listed images (in order), paste the block, download the PNG.
 
-### Item 1: resource icons
+### Item 1: resource icons (DONE 0.26.8)
 
 #### Request 1A: Crown resource icons (5 icons)
 
@@ -205,7 +206,7 @@ Layout: a landscape image 1536 x 1024 pixels. Background: ONE flat even dark nav
 Style: hard square pixels, no anti-aliasing, no blur, no glow, two or three painted tones per colour, exactly like the first image. Deliver a PNG file (not a JPEG, not a screenshot).
 ```
 
-### Item 2: the pistol mark on the unit card
+### Item 2: the pistol mark on the unit card (DONE 0.26.8)
 
 #### Request 2: pistol loaded / pistol fired
 

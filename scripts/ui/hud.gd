@@ -3131,22 +3131,32 @@ func _res_pills(font: Font, t: int, x: float) -> float:
 	var cols: Array = {"crown": [Color(0.98, 0.8, 0.2), Color(0.35, 0.33, 0.36)], "brood": [Color(0.55, 0.85, 0.3), Color(0.75, 0.45, 1.0)],
 		"clockwork": [Color(0.7, 0.72, 0.78), Color(0.45, 0.75, 1.0)]}[fac]
 	var x0 := x
-	x = _pill(font, x, cols[0], "%d" % pl["gold"], Color(1, 0.9, 0.55), false, fac == "clockwork" and Defs.gear_mode)
+	# the painted resource icons (assets/ui/stats/res_*.png); a missing one falls back to the dot / the code gear
+	var gear := fac == "clockwork" and Defs.gear_mode
+	var pic0: Texture2D = null       # (the old-roster Clockwork's ore keeps its dot)
+	if fac != "clockwork" or gear:
+		pic0 = UnitStats.texture({"crown": "res_gold", "brood": "res_food", "clockwork": "res_cogs"}[fac])
+	x = _pill(font, x, cols[0], "%d" % pl["gold"], Color(1, 0.9, 0.55), false, gear, pic0)
 	var r2 := "%d" % int(pl["res2"])
 	if fac == "clockwork":
 		r2 = "%d energy (%s batteries stored)" % [int(game.energy[t]), "blue" if game.blue_energy(t) else "yellow"]
 		if Defs.gear_mode:
 			r2 = "%d/%d tension" % [int(float(pl.get("tension", 0.0))), int(GearEcon.tension_cap(game, t))]       # (gear mode: TENSION, held / what the Mainsprings store)
 	var x1 := x
-	x = _pill(font, x, cols[1], r2, Color(0.85, 0.9, 1.0), false, false,
-		_icon("tension") if fac == "clockwork" and Defs.gear_mode else null)
+	var pic1: Texture2D = null
+	if fac == "clockwork":
+		pic1 = _icon("tension") if gear else null
+	else:
+		pic1 = UnitStats.texture("res_powder" if fac == "crown" else "res_spoils")
+	x = _pill(font, x, cols[1], r2, Color(0.85, 0.9, 1.0), false, false, pic1)
 	var used := NetPredict.shown_supply(game, t)
 	var cap: int = pl["cap"]
 	var x2 := x
-	x = _pill(font, x, Color(0.75, 0.55, 0.3), "%d / %d" % [used, cap], UiStyle.BAD if used >= cap else UiStyle.TEXT, true)
+	x = _pill(font, x, Color(0.75, 0.55, 0.3), "%d / %d" % [used, cap], UiStyle.BAD if used >= cap else UiStyle.TEXT, true, false,
+		UnitStats.texture("supply"))
 	var x3 := x
 	if fac == "crown":
-		x = _pill(font, x, Color(0.55, 0.42, 0.3), game.horses_text(t), UiStyle.TEXT)
+		x = _pill(font, x, Color(0.55, 0.42, 0.3), game.horses_text(t), UiStyle.TEXT, false, false, UnitStats.texture("res_horses"))
 	if t == game.human and not game.spectating():
 		# (for their tooltips)
 		_pill_rects = [[Rect2(x0, 4, x1 - 8 - x0, 30), 0], [Rect2(x1, 4, x2 - 8 - x1, 30), 1], [Rect2(x2, 4, x3 - 8 - x2, 30), 2]]
@@ -4159,9 +4169,14 @@ static func pistol_text(u: Unit) -> String:
 	return t
 
 
-## A small flintlock pistol (barrel, lock, grip) at p, about 24 x 12: bright when loaded,
-## grey with a red bar when empty.
+## A small flintlock pistol at p (its top left), about 24 x 12: the painted icon (assets/ui/stats/pistol_loaded.png, a
+## spark at the pan; pistol_empty.png, smoke from the muzzle) at 24 px; while missing, drawn in code: bright when
+## loaded, grey with a red bar when empty.
 func _draw_pistol(p: Vector2, loaded: bool) -> void:
+	var pt := UnitStats.texture("pistol_loaded" if loaded else "pistol_empty")
+	if pt:
+		_ci.draw_texture_rect(pt, Rect2(p + Vector2(-1, -7), Vector2(26, 26)), false)
+		return
 	var steel := Color(0.85, 0.87, 0.9) if loaded else Color(0.45, 0.45, 0.48)
 	var wood := Color(0.62, 0.38, 0.18) if loaded else Color(0.35, 0.28, 0.22)
 	_ci.draw_rect(Rect2(p + Vector2(6, 1), Vector2(16, 3)), steel)                 # barrel
@@ -4717,7 +4732,7 @@ func _pill(font: Font, x: float, dot: Color, value: String, col: Color, box := f
 	var r := Rect2(x, 4, w, 30)
 	UiStyle.draw_panel(_ci, r, Color(0, 0, 0, 0), 0.8)
 	if pic:
-		_ci.draw_texture_rect(pic, Rect2(x + 6, 7, 24, 24), false)      # (the Clockwork's TENSION: the wound mainspring)
+		_ci.draw_texture_rect(pic, Rect2(x + 6, 7, 24, 24), false)      # (painted: res_* icons, supply, the Clockwork's TENSION)
 	elif gear:
 		# the Clockwork's COGS: a small gear drawn in code (placeholder resource icon: docs/art_style_inconsistency.md)
 		_ci.draw_set_transform(Vector2(x + 18, 19), 0.0, Vector2.ONE)
