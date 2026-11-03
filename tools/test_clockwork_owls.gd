@@ -10,10 +10,12 @@ extends SceneTree
 ##  - every 30 s: Winders, cogs earned, Tension, army, the enemy's workers;
 ##  - at 4, 6, 8 and 10 minutes: Winders, cogs earned, army value, the enemy's workers lost, value killed and lost;
 ##  - what the Owls finished off (kind, value, clock) and the plan's decisions.
-## check:1 (the test; Greenhold seed 11 against the Hard Crown, until:420 is enough): the first Owl by OWL_BY, the first
-## sortie by OUT_BY, at least WORKERS_6 Winders at 6:00 (the economy keeps growing), a second Clocktower laid by HALL_BY.
+## check:1 (the test; Greenhold seed 11 against the Hard Crown, until:480 is enough): the first Owl by OWL_BY, the raid
+## ready (its flock out of the opening) by RAID_BY, the first sortie by OUT_BY (after the crank post is set up), at least
+## WORKERS_6 Winders at 6:00 (the economy keeps growing), a second Clocktower laid by HALL_BY.
 const OWL_BY := 330.0
-const OUT_BY := 360.0
+const RAID_BY := 360.0
+const OUT_BY := 480.0
 const WORKERS_6 := 18
 const HALL_BY := 450.0
 var main: Node
@@ -223,6 +225,7 @@ func _finish() -> void:
 		f.close()
 	if check:
 		_check(float(ms.get("owl1", 9999.0)) <= OWL_BY, "the first Ticking Owl by %s: %s" % [_mmss(OWL_BY), _mmss(float(ms.get("owl1", -1.0)))])
+		_check(float(ms.get("raid", 9999.0)) <= RAID_BY, "the Owl raid is ready by %s: %s" % [_mmss(RAID_BY), _mmss(float(ms.get("raid", -1.0)))])
 		_check(float(ms.get("sortie", 9999.0)) <= OUT_BY, "the first Owl sortie by %s: %s" % [_mmss(OUT_BY), _mmss(float(ms.get("sortie", -1.0)))])
 		var m6: Dictionary = marks.get("360", end)
 		_check(int(m6.get("cw_workers", 0)) >= WORKERS_6, "the economy grows behind it: %d Winders at 6:00 (want %d+)" % [int(m6.get("cw_workers", 0)), WORKERS_6])

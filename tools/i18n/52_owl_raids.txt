@@ -1,0 +1,5 @@
+# cw-builds-c: the Clockwork computer's air plan, the Owl raids (scripts/ai_cw_builds_c.gd, docs/clockwork_builds_c.md)
+
+> Owl raids
+pt Ataque de Corujas
+es Ataque de Búhos

@@ -89,6 +89,7 @@ const GO_HP := 0.7              # ... and mended this far (on average)
 const WIND_SPARE := 0.12        # wind kept over what the way home takes
 const MAX_OUT := 75.0           # s out at most in one go
 const BUILD_END := 450.0        # the opening build is over by this clock whatever is left of it
+const BIG_ATTACK := 150.0       # value of armed enemies at the base that calls the flock back from anywhere
 const SORTIE_MIN := 3           # Owls a sortie wants (2 against an enemy with no anti-air seen near the target)
 
 var ai = null
@@ -299,8 +300,11 @@ func tick() -> void:
 		return
 	# home defence: enemies at home that cannot hit flyers are the Owls' (they cannot touch them)
 	var thr: Vector2 = ai._threat()
-	if thr != Vector2.INF and phase in ["home", "defend"] and _aa_near(thr, 360.0, 0.0) <= _value(flock) * FIGHT_K \
-			and (_rest() == _home() or _centre(flock).distance_to(thr) < 900.0 or not launched):
+	# (round A, Kestrel Rise and Greenhold against the Brood: the flock went raiding while Raptors ate the base: a real
+	# attack on the base calls it back from anywhere)
+	var big: bool = thr != Vector2.INF and _attack_value(thr) >= BIG_ATTACK
+	if thr != Vector2.INF and (phase in ["home", "defend"] or big) and _aa_near(thr, 360.0, 0.0) <= _value(flock) * FIGHT_K \
+			and (big or _rest() == _home() or _centre(flock).distance_to(thr) < 900.0 or not launched):
 		_defend(thr)
 		return
 	if phase == "defend":
@@ -1116,3 +1120,12 @@ func _join_tick() -> void:
 			continue
 		if u.position.distance_to(to) > 60.0 and (u.order != "move" or u.order_point.distance_to(to) > 60.0):
 			u.cmd_move(to + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
+
+
+## The armed enemies our side sees within 450 px of p, by value.
+func _attack_value(p: Vector2) -> float:
+	var v := 0.0
+	for o in game.units_near(p, 450.0):
+		if not o.dead and not o.off_field and game.hostile(o.team, team) and ai._armed(o) and game.is_visible_to(team, o.position):
+			v += ai._unit_value(o)
+	return v
