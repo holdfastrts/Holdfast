@@ -71,6 +71,23 @@ func hz() -> AIHarass:
 	if harass == null:
 		harass = AIHarass.new(self)
 	return harass
+## The Clockwork against a swarm (scripts/ai_swarm.gd, docs/clockwork_ai_swarm.md): Pendulums first, a turret more, no
+## expansion or wave into a bigger swarm before them, the escort Winders with every wave; made on first use (swm()).
+## `-- swarm:off` on the command line plays the computer as before (0.25.26), for study games.
+const AISwarm := preload("res://scripts/ai_swarm.gd")
+var swarm_ai = null
+var sw_on := not OS.get_cmdline_user_args().has("swarm:off")
+
+
+func swm():
+	if swarm_ai == null:
+		swarm_ai = AISwarm.new(self)
+	return swarm_ai
+
+
+## The swarm rules apply: gear-mode Clockwork, Normal or Hard, not switched off.
+func _sw() -> bool:
+	return sw_on and _clock() and Defs.gear_mode and difficulty >= 1
 ## Round 6 (docs/ai_round6.md) on; `-- r6:off` on the command line plays the computer as before (0.14.100), for study games.
 var r6 := not OS.get_cmdline_user_args().has("r6:off")
 ## (study switches: `r6:crownonly` the Crown's part only (opening, tech spot, expansion, farmers) plus the hall-spot rules;
@@ -187,6 +204,7 @@ var _rush_raid := false         # the rush is the raiding party (the Horse Breed
 var _rush_def := 0.0            # armed defenders last seen (value) ...
 var _rush_def_t := -999.0       # ... and when
 var _rush_wk_peak := 0
+var _rush_joined := 0.0         # (clock-ai-swarm) the value of the units that joined the rush wave after it went out
 var _rush_why := ""
 var _raid_block := 0.0          # no raiding party forms before this
 var _raid_peak := 0             # the biggest the party has been since it formed
@@ -214,6 +232,7 @@ func _rush_begin(party: Array, raid: bool) -> void:
 	_rush_def = 0.0
 	_rush_def_t = -999.0
 	_rush_wk_peak = 0
+	_rush_joined = 0.0
 	if raid:
 		_wave_value = 0.0
 		for u in party:
@@ -261,7 +280,7 @@ func _rush_verdict(party: Array) -> String:
 	var mine := 0.0
 	for u in party:
 		mine += _unit_value(u)
-	var wv := maxf(1.0, _wave_value)
+	var wv := maxf(1.0, _wave_value + (_rush_joined if sw_on else 0.0))
 	var gained := float(int(game.stats[team]["value_killed"]) - _wave_kill0)
 	var defv := _rush_defenders(party)
 	var left := _rush_workers_left()
@@ -294,7 +313,24 @@ func _rush_verdict(party: Array) -> String:
 ## finish (cavalry can ride down the last workers) or mop (a real force must go).
 func _rush_mode_now(party: Array) -> String:
 	var defv := _rush_defenders(party)
+	# (clock-ai-swarm: "finish" only once it has SEEN the workers fall: at least 6 seen at once before, 3 or fewer now, and
+	# no army in sight lately. A Brood's grubs sit unseen behind its rooted creatures: "1 workers left and no defenders"
+	# was called at 4:29 in the owner's Glimmerdeep game while 25 Raptors were coming)
+	if sw_on and (_rush_wk_peak < 6 or _foe_seen_lately() >= RUSH_FINISH_DEF):
+		return "mop"
 	return "finish" if _rush_workers_left() <= RUSH_FINISH_WORKERS and defv < RUSH_FINISH_DEF else "mop"
+
+
+## The enemy's armed units in sight in the last 20 s (value; _sighted's memory), anywhere.
+func _foe_seen_lately() -> float:
+	var foe := _foe()
+	if foe < 0:
+		return 0.0
+	var v := 0.0
+	for u in game.army(foe):
+		if not u.off_field and _armed(u) and _sighted(u):
+			v += _unit_value(u)
+	return v
 
 
 ## The mop-up force: sized by the defenders seen, never under RUSH_MOP_MIN supply.
@@ -608,6 +644,8 @@ func _turrets() -> void:
 		want = 0
 	if difficulty > 0 and game.clock > _lv([9999.0, 540.0, 420.0]) and _gold() > 300:
 		want = 2
+	if _sw() and swm().on() and not _mine(Defs.CW_HEAVY).is_empty():
+		want = maxi(want, 2 + (1 if swm().outmatched() else 0))      # (clock-ai-swarm: a turret more at home, after the Heavy Works)
 	if have < want:
 		_construct(k)
 
@@ -720,7 +758,9 @@ func _tier2(t: float) -> void:
 		next_cost += int(Defs.BUILDINGS[Defs.CW_TECH]["cost"])      # (the pair is laid at once: _tier2)
 	if next == Defs.CW_TECH and _esc_blocked and _spring_ok():
 		next_cost += int(Defs.BUILDINGS["mainspring"]["cost"])      # (no room for it: another Mainspring first, saved for too)
-	if next != "" and _gold() < next_cost + 20 and (_threat() == Vector2.INF or _holds_line()):
+	# (clock-ai-swarm: against a swarm the tech is the way to the Pendulums: saved for even while the line is pressed; the
+	# owner's Cinder Steps game, 2026-11-03: "Clockwork didn't tech up soon enough")
+	if next != "" and _gold() < next_cost + 20 and (_threat() == Vector2.INF or _holds_line() or (_sw() and swm().on())):
 		_reserve = maxi(_reserve, next_cost + 20)
 		_tech_hold = true
 	_esc_spring(esc)       # (an Escapement laid first gets its Mainspring)
@@ -735,11 +775,24 @@ func _tier2(t: float) -> void:
 	if game.clock < _tier2_t:
 		return
 	_tier2_t = game.clock + 3.0
+	if sw_on:
+		_keep_heavy_fed()          # (clock-ai-swarm: the Heavy Works' big ring kept on the field from the tier-2 start)
 	if springs.is_empty():
 		# the Mainspring and the Escapement are laid together: the room by the spring went to Regulators and a turret
 		# in the minute before the Escapement's cogs came in, and three games in eight had no Escapement for minutes
 		if _gold() >= int(Defs.BUILDINGS["mainspring"]["cost"]) + int(Defs.BUILDINGS[Defs.CW_TECH]["cost"]) + 20:
 			var msc := _spring_spot()
+			if msc.x < 0 and _field_keep():
+				# (clock-ai-swarm: no room by a Works or a hall for the pair beside the Heavy Works' kept ring: the Mainspring
+				# goes on any linked spot (Tension flows through the network: the Escapement need not touch it); if even that
+				# is gone, the keep is let go: the tech first)
+				msc = _any_gear_spot("mainspring")
+				if msc.x < 0:
+					_unkeep(Defs.CW_HEAVY)
+					_keep_fed_t = game.clock + 60.0
+					msc = _spring_spot()
+					if game.mlog:
+						game.mlog.add("%s lets go of the room it kept for a Heavy Works: its main has no room for the Mainspring and the Escapement besides (the yard waits for a new hall's field)" % game.mlog.who(team))
 			_construct("mainspring", msc)
 			for sp in _mine("mainspring"):
 				var ce := GearEcon.room_spot(game, team, Defs.CW_TECH, [sp])
@@ -791,6 +844,14 @@ func _tier2(t: float) -> void:
 		# Works, and the Mainspring follows by it (_esc_spring); cramped bases waited up to ten minutes, 0.14.79
 		# Hollowfen and Kestrel Rise)
 		if _gold() >= int(Defs.BUILDINGS[Defs.CW_TECH]["cost"]) + 20:
+			if sw_on and not springs.is_empty():
+				# (clock-ai-swarm: since 0.25.0 a Mainspring anywhere in its network feeds it: any linked spot will do)
+				var ca := _any_gear_spot(Defs.CW_TECH)
+				if ca.x >= 0:
+					_construct(Defs.CW_TECH, ca)
+					if game.mlog:
+						game.mlog.add("%s lays its Escapement on its gear field (no room by its Mainspring; the network feeds it)" % game.mlog.who(team))
+					return
 			var pair: Array = _halls() + _mine(_works())
 			for b in pair:
 				if b.built:
@@ -814,6 +875,62 @@ func _tier2(t: float) -> void:
 		return
 	_air(t)
 	_tier3()
+
+
+## clock-ai-swarm: from the tier-2 start (before the first Mainspring is laid) the Heavy Works' big ring is KEPT
+## (Game.ai_keep) on any linked spot of the gear field: since 0.25.0 a Mainspring anywhere in the network feeds it, so it
+## need not be beside one. The Mainspring and the Escapement then go where their smaller rings fit (_spring_spot respects
+## the keep; if the keep was the last room, it is let go: the tech first). In the owner's Glimmerdeep game (2026-11-01)
+## the room for the big ring was there until 3:20, when the Mainspring and the Escapement took it; the Regulators took the
+## rest, and from 4:14 it "finds no room for a Heavy Works by its Mainsprings" all game: no Pendulum against 50 Raptors.
+## A spot by a built Mainspring is still preferred (_heavy_spot), then any fed ring, then (no Mainspring yet) any linked
+## ring (FIELD_KEEP: kept without a Mainspring).
+const FIELD_KEEP := Vector2i(-2, -2)
+var _keep_fed_t := 0.0
+var field_keep_on := OS.get_cmdline_user_args().has("fieldkeep:on")      # (study switch: off by default, see docs/clockwork_ai_swarm.md)
+
+
+func _keep_heavy_fed() -> void:
+	if game.clock < _keep_fed_t or not _mine(Defs.CW_HEAVY).is_empty() or not _kept(Defs.CW_HEAVY).is_empty():
+		return
+	_keep_fed_t = game.clock + 5.0
+	var springs: Array = _mine("mainspring").filter(func(b: Building) -> bool: return b.built)
+	if springs.is_empty() and not field_keep_on:
+		return
+	var c := _heavy_spot() if not springs.is_empty() else Vector2i(-1, -1)
+	var sc := FIELD_KEEP
+	if c.x >= 0:
+		var st: Dictionary = game.gear_net.candidate(team, Defs.CW_HEAVY, c, true)
+		var sp: Building = st.get("spring") if st.get("spring") != null else springs[0]
+		sc = sp.cell
+	else:
+		for b in _gear_neighbours():
+			c = GearEcon.room_spot(game, team, Defs.CW_HEAVY, [b])
+			if c.x >= 0:
+				break
+	if c.x < 0:
+		return
+	if not game.ai_keep.has(team):
+		game.ai_keep[team] = {}
+	game.ai_keep[team][Defs.CW_HEAVY] = {"cell": c, "t": game.clock, "spring": sc, "fed": true}
+	if game.mlog and not game._first_of.has("%d:ai_keep_fed" % team):
+		game._first_of["%d:ai_keep_fed" % team] = true
+		game.mlog.add("%s keeps room for a Heavy Works' big ring on its gear field (a Mainspring anywhere in the network feeds it)" % game.mlog.who(team))
+
+
+## clock-ai-swarm: a spot for a `kind` whose ring links to the gear field anywhere (by our halls and Works first), the
+## computer's kept spots left alone; (-1, -1) when none.
+func _any_gear_spot(kind: String) -> Vector2i:
+	for b in _gear_neighbours():
+		var c := GearEcon.room_spot(game, team, kind, [b])
+		if c.x >= 0:
+			return c
+	return Vector2i(-1, -1)
+
+
+## The Heavy Works' kept spot is a field keep (kept before any Mainspring stood).
+func _field_keep() -> bool:
+	return game.ai_keep.has(team) and game.ai_keep[team].has(Defs.CW_HEAVY) and game.ai_keep[team][Defs.CW_HEAVY].get("spring") == FIELD_KEEP
 
 
 ## Gear mode: an Escapement with no Mainspring meshing with it (laid first, _tier2) gets one beside it; `heavy`: the same for
@@ -988,7 +1105,8 @@ func _heavy_hold() -> void:
 	var cost := int(Defs.BUILDINGS[Defs.CW_HEAVY]["cost"])
 	if _heavy_no_room and _spring_ok():
 		cost += int(Defs.BUILDINGS["mainspring"]["cost"])      # (no room by a Mainspring: one with room for it first)
-	if _gold() < cost + 20 and (_threat() == Vector2.INF or _holds_line()):
+	# (clock-ai-swarm: against a swarm the yard is the answer: saved for even while the line is pressed)
+	if _gold() < cost + 20 and (_threat() == Vector2.INF or _holds_line() or (_sw() and swm().on())):
 		_reserve = maxi(_reserve, cost + 20)
 		_tech_hold = true
 
@@ -1004,8 +1122,30 @@ func _heavy_spot() -> Vector2i:
 				c = GearNet.ring_spot(game, team, Defs.CW_HEAVY, sp, deg, true)
 			if c.x >= 0:
 				return c
-	# (no spot by a Mainspring: _tier3 builds a Mainspring with room for it first; a Heavy Works laid elsewhere waiting for a
-	# Mainspring stood idle for good in a crowded base, frostmere seed 12)
+	return _heavy_spot_fed() if sw_on else Vector2i(-1, -1)
+
+
+## clock-ai-swarm (owner's playtest 2026-11-01, Glimmerdeep: "finds no room for a Heavy Works by its Mainsprings" four times,
+## no Pendulum ever, while 50 Raptors massed): since 0.25.0 Tension flows through the WHOLE gear network, so the Heavy
+## Works works by ANY finished ring whose network has a Mainspring, not only beside one. The fed rings nearest a Mainspring
+## first; the spot is checked with GearNet.candidate (it links, and has a "spring"). (-1, -1) when none.
+func _heavy_spot_fed() -> Vector2i:
+	var fed: Array = []
+	for b in _gear_neighbours():
+		if b.kind == "mainspring" or b.kind == Defs.CW_TURRET or game.gear_net.spring_for(b) == null:
+			continue
+		var s: Building = game.gear_net.spring_for(b)
+		fed.append([b.center().distance_to(s.center()), b])
+	fed.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	for e in fed:
+		var c := GearEcon.room_spot(game, team, Defs.CW_HEAVY, [e[1]])
+		if c.x < 0:
+			continue
+		var st: Dictionary = game.gear_net.candidate(team, Defs.CW_HEAVY, c, true)
+		if st["state"] == "ok" and st.get("spring") != null:
+			return c
+	# (none: _tier3 builds a Mainspring with room for it; a Heavy Works laid where no Mainspring feeds its network stood idle
+	# for good in a crowded base, frostmere seed 12)
 	return Vector2i(-1, -1)
 
 
@@ -1034,8 +1174,10 @@ func _kept(kind: String) -> Dictionary:
 		return {}
 	var keep: Dictionary = game.ai_keep[team][kind]
 	var sc: Vector2i = keep.get("spring", Vector2i(-1, -1))
-	var has_spring := _mine("mainspring").any(func(b: Building) -> bool: return b.cell == sc)
-	if game.clock - float(keep["t"]) > KEEP_FOR or not has_spring:
+	var has_spring := sc == FIELD_KEEP or _mine("mainspring").any(func(b: Building) -> bool: return b.cell == sc)
+	# (clock-ai-swarm: the Heavy Works' field keep does not time out: it is held until the yard is laid; the tech in a
+	# cramped main lets it go, _tier2)
+	if (game.clock - float(keep["t"]) > KEEP_FOR and not keep.get("fed", false)) or not has_spring:
 		_unkeep(kind)
 		if game.mlog:
 			game.mlog.add("%s lets go of the spot it kept for a %s (%s)" % [game.mlog.who(team), String(Defs.BUILDINGS[kind]["name"]), "too long" if has_spring else "no Mainspring there"])
@@ -1577,7 +1719,7 @@ func _raid_workers(c: Dictionary, labs: Array, army: Array, stand: Dictionary) -
 	var centre: Vector2 = c["c"]
 	var near: Array = labs.filter(func(w: Unit) -> bool: return foes.any(func(o: Unit) -> bool: return o.position.distance_to(w.position) < FLEE_R))
 	# (a labourer mending the ramp wall behind it stays while _repair_wall finds him safe there)
-	near = near.filter(func(w: Unit) -> bool: return not (_repairers.has(w) and w.order == "repair"))
+	near = near.filter(func(w: Unit) -> bool: return not (_repairers.has(w) and w.order == "repair") and not _escort_stays(w))
 	if near.is_empty():
 		return
 	if r5.worker_raid(c, labs, stand):
@@ -2166,6 +2308,8 @@ func _hall_first() -> bool:
 		need = maxi(need, mini(3, ceili(game.workers(team).size() / 13.0)))
 	if fresh >= need or _busy_building(hall):
 		return false
+	if _sw() and _best_soil() > DRY_LAND and swm().hold_expand():
+		return false        # (clock-ai-swarm: not into a bigger swarm before the Pendulums are out; a dry main goes anyway)
 	_hall_reserve = true
 	_saving = true
 	var cost := int(Defs.BUILDINGS[hall]["cost"]) + (_first_econ_cost() if _dry() else 0)     # (dry land: the Farm / press too)
@@ -2844,14 +2988,18 @@ func _raid() -> void:
 	c /= _raiders.size()
 	hp /= _raiders.size()
 	var home: Vector2 = _halls()[0].center() if not _halls().is_empty() else c
-	# badly hurt, or an army closing in: ride home
+	# badly hurt, or an army closing in that can catch it: ride home. A defender much slower than the riders (a Tyrant
+	# Sire, the Mother, a Rootmaw on foot) is KITED instead: the party stays and works round it (RAID MICRO, owner
+	# 2026-11-03, docs/raid_micro.md); behind in economy it stays longer (AIHarass.pressing)
+	var hz_ := hz()
+	var press := hz_.pressing()
 	var danger := 0
 	for o in game.units_near(c, 260.0):
-		if game.hostile(o.team, team) and not o.dead and not o.is_worker() and o.kind != "grub":
+		if game.hostile(o.team, team) and not o.dead and AIHarass.is_defender(o) and not AIHarass.is_slow(o, _raiders):
 			danger += int(o.d["supply"])
-	var hz_ := hz()
-	if hp < 0.45 or danger >= 6 or hz_.outmatched(_raiders, hz_.defenders_near(c, _raiders)):
-		_raid_home = 12.0          # (a Sire, the Mother on her feet, or more than the party: it pulls back, then comes again)
+	var foes_ := hz_.defenders_near(c, _raiders)
+	if hp < (0.35 if press else 0.45) or danger >= (9 if press else 6) or hz_.outmatched(_raiders, foes_):
+		_raid_home = 12.0          # (fast units in number, shooters, more than the party: it pulls back, then comes again)
 	if _raid_home > 0.0:
 		_raid_home -= 1.0
 		for u in _raiders:
@@ -2863,7 +3011,10 @@ func _raid() -> void:
 	best = _raid_wall(best)
 	if best == Vector2.INF:
 		return
+	var slows := hz_.slow_of(_raiders, foes_)
 	for u in _raiders:
+		if not slows.is_empty() and hz_.raid_step(u, slows, best):
+			continue                 # (a slow defender near: kited, the grubs it can't reach ridden down, pistol and all)
 		_hunt(u, best)
 
 
@@ -2941,11 +3092,7 @@ func _raid_wall(prey: Vector2) -> Vector2:
 	# the pieces side by side with it (the palisade and the gate across the ramp): the riders spread over them, two to a
 	# face (a one-tile piece has room for about two horses; the rest stood behind them out of reach), and a labourer can
 	# only mend one piece at a time
-	var line: Array = [piece]
-	for b in game.buildings:
-		if b != piece and not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and game.hostile(b.team, team) \
-				and b.center().distance_to(piece.center()) < RAID_LINE:
-			line.append(b)
+	var line := _raid_line(piece)
 	var on := {}
 	for u in party:
 		if u.order == "attack" and line.has(u.order_target):
@@ -2988,12 +3135,28 @@ func _raid_wall(prey: Vector2) -> Vector2:
 	return Vector2.INF
 
 
-## The lowest share of hit points among the wall and gate pieces within RAID_LINE of `piece` (itself too).
-func _line_hp(piece: Building) -> float:
-	var low := piece.hp / piece.max_hp
+## The stretch of wall the party strikes: `piece`, the wall and gate pieces within RAID_LINE of it, and a building of
+## theirs standing in the wall right beside it (the ramp Cottage: since 0.25.28 the computer's ramp wall is a Cottage and
+## a Gate only, AI.cw_prune; a one-tile gate between the Cottage and the cliff has room for two horses, the Cottage's
+## faces for the rest, and bringing the Cottage down opens the way as well).
+func _raid_line(piece: Building) -> Array:
+	var line: Array = [piece]
 	for b in game.buildings:
-		if not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and b.team == piece.team and b.center().distance_to(piece.center()) < RAID_LINE:
-			low = minf(low, b.hp / b.max_hp)
+		if b == piece or b.dead or not b.built or b.ghost or not game.hostile(b.team, team):
+			continue
+		if b.kind == "wall" or b.kind == "gate":
+			if b.center().distance_to(piece.center()) < RAID_LINE:
+				line.append(b)
+		elif b.edge_distance(piece.center()) < float(Defs.TILE):
+			line.append(b)
+	return line
+
+
+## The lowest share of hit points along the stretch the party strikes (_raid_line).
+func _line_hp(piece: Building) -> float:
+	var low := 1.0
+	for b in _raid_line(piece):
+		low = minf(low, b.hp / b.max_hp)
 	return low
 
 
@@ -3009,6 +3172,7 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 	var menders: Array = []
 	var rep := 0.0
 	var inc := 0.0
+	var kill_hp := 0.0
 	for o in game.units_near(piece.center(), 360.0):
 		if o.dead or o.off_field or not game.hostile(o.team, team):
 			continue
@@ -3017,7 +3181,12 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 			if ((o.work == "repairing" or o.order == "repair") and o.order_target == piece or (o.work == "repairing" and piece.edge_distance(o.position) < 60.0)) \
 					and game.is_visible_to(team, o.position):
 				menders.append(o)
-				rep += maxf(float(Defs.REPAIR_RATE), piece.max_hp / maxf(float(piece.d.get("time", 10.0)), 1.0))
+				# a mender the riders can get at (out on their side of the wall, or in pistol reach of its face) is cut down
+				# first, not mended around: his hit points join the work instead of his repair counting for good
+				if party[0]._walk_reaches(o) or piece.edge_distance(o.position) <= float(Defs.PISTOL["range"]) - 20.0:
+					kill_hp += o.hp
+				else:
+					rep += maxf(float(Defs.REPAIR_RATE), piece.max_hp / maxf(float(piece.d.get("time", 10.0)), 1.0))
 			continue
 		if not o.has_attack() or not Game.fights_back(o):
 			continue
@@ -3026,7 +3195,7 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 		if piece.edge_distance(o.position) <= float(o.d["range"]) + o.radius + 30.0 and game.is_visible_to(team, o.position):
 			inc += float(o.d["damage"]) / maxf(float(o.d["cooldown"]), 0.1)
 	var net := dps - rep
-	return {"t": piece.hp / net if net > 0.5 else INF, "die": hp / inc if inc > 0.1 else INF, "inc": inc,
+	return {"t": (piece.hp + kill_hp) / net if net > 0.5 else INF, "die": hp / inc if inc > 0.1 else INF, "inc": inc,
 		"menders": menders.size(), "mender_list": menders}
 
 
@@ -4042,6 +4211,13 @@ func _produce() -> void:
 		# (the Heavy Works first: its Pendulums and Spring Ballistas, 0.14.94; a Pendulum for every 6 others, up to 4, once
 		# three Springers are out or Tension piles up; the Ballistas as _ballista_want says)
 		var want_p: bool = pends < mini(4, 1 + others / 6) and (springers >= 3 or flush)
+		# (clock-ai-swarm: against a swarm the Pendulums come first, without waiting for Springers: AISwarm.pend_want)
+		# (and against the Brood, whose staple is light melee, two Pendulums as soon as the yard stands, swarm seen or not: its
+		# Raptors mass at home, out of sight, until they come: the swarm was "seen" at 7:00 in most test games)
+		var swarm_p: bool = _sw() and (swm().on() or (_foe() >= 0 and game.faction_of(_foe()) == "brood" and pends < 2))
+		var pend_cap: int = maxi(mini(4, 1 + others / 6), swm().pend_want()) if swarm_p else mini(4, 1 + others / 6)
+		if swarm_p:
+			want_p = pends < pend_cap
 		var keep0 := 0.0
 		if _want_aviary:
 			keep0 += float(Defs.tension_cost(Defs.BUILDINGS[Defs.CW_AIR]))       # (the Aviary's Tension price is kept too)
@@ -4054,9 +4230,11 @@ func _produce() -> void:
 				var hk := ""
 				# (the first Ballista before the Pendulums, as when it came from the Works: then the Great Winder, the
 				# Pendulums, the other Ballistas)
-				if bals == 0 and bal_want > 0 and others >= 3 and _tension_ok(hw, Defs.BALLISTA_KIND, keep0):
+				if swarm_p and want_p and _tension_ok(hw, Defs.PENDULUM, 0.0):
+					hk = Defs.PENDULUM                   # (a swarm: the Pendulums before the Ballista and the Great Winder)
+				elif bals == 0 and bal_want > 0 and others >= 3 and not (swarm_p and want_p) and _tension_ok(hw, Defs.BALLISTA_KIND, keep0):
 					hk = Defs.BALLISTA_KIND
-				elif _great_winder_due(hw, gws, others, keep0):
+				elif not (swarm_p and want_p) and _great_winder_due(hw, gws, others, keep0):
 					hk = Defs.GREAT_WINDER_KIND          # (its one Great Winder, from the Heavy Works too, after the first Ballista)
 				elif want_p and _tension_ok(hw, Defs.PENDULUM, 0.0):
 					hk = Defs.PENDULUM
@@ -4067,6 +4245,8 @@ func _produce() -> void:
 					# Springers used to eat every bit of it, and no Ballista nor Pendulum came all game)
 					var want_k := Defs.BALLISTA_KIND if bals == 0 and bal_want > 0 and others >= 3 else \
 							(Defs.GREAT_WINDER_KIND if gws < 1 and others >= GREAT_WINDER_ARMY else (Defs.PENDULUM if want_p else ""))
+					if swarm_p and want_p:
+						want_k = Defs.PENDULUM
 					if want_k != "" and game.gear_net.spring_for(hw) != null:
 						heavy_keep = maxf(heavy_keep, float(Defs.tension_cost(Defs.UNITS[want_k])))
 					continue
@@ -4076,7 +4256,7 @@ func _produce() -> void:
 					continue          # (saving up for it: its cogs and Tension are kept from the Light Works)
 				if hk == Defs.PENDULUM:
 					pends += 1
-					want_p = pends < mini(4, 1 + others / 6)
+					want_p = pends < pend_cap
 				elif hk == Defs.GREAT_WINDER_KIND:
 					gws += 1
 				else:
@@ -4392,6 +4572,8 @@ func _army() -> void:
 	harass_.adopt_strays(army)
 	harass_.tick()
 	army = army.filter(func(u: Unit) -> bool: return not harass_.has(u))
+	if _sw():
+		swm().tick()                    # (clock-ai-swarm: the enemy army in sight, the swarm in it)
 	if _clock():
 		r5.tick(army)                   # (round 5: the guards by the Winders and the ramp post against riders)
 		army = army.filter(func(u: Unit) -> bool: return not r5.busy(u))
@@ -4450,7 +4632,7 @@ func _army() -> void:
 		_attack_at = _army_supply(ready)
 		if game.mlog:
 			game.mlog.add("%s's army is at the supply cap or far ahead (%d supply): it goes out again" % [game.mlog.who(team), _army_supply(ready)])
-	if not _attacking and _army_supply(ready) >= _attack_at and not regrouping and _timing_ok(ready) and _kit_ready(ready) and r5.attack_ok(ready) and _wave_worth(ready):
+	if not _attacking and _army_supply(ready) >= _attack_at and not regrouping and _timing_ok(ready) and _kit_ready(ready) and r5.attack_ok(ready) and _wave_worth(ready) and not (_sw() and swm().hold_attack()):
 		_attacking = true
 		_wave_target = _enemy_base()
 		_attack_at = mini(_attack_at + int(_s("step")), 70)
@@ -4513,6 +4695,8 @@ func _army() -> void:
 			for u in pool:
 				_wave_set[u] = true
 				wave.append(u)
+				if _rush_wave:
+					_rush_joined += float(u.d["cost"]) / maxf(1.0, float(u.d.get("spawn", 1)))      # (the rush is judged on all it sent)
 		var wagon := _wagon() if _crown() else null
 		var cav := _cavalry_wave(ready)
 		var prey := Vector2.INF
@@ -4536,7 +4720,9 @@ func _army() -> void:
 				if u.order == "idle" and u.position.distance_to(front2) > 160.0:
 					u.cmd_move(_home_spot(front2), true)
 		if _clock():
-			_follow_with_escort(army)
+			# (clock-ai-swarm: the escort follows the WAVE, not the middle of the whole army: with half of it at home they stood
+			# between the two, and the wave fought run down and unmended)
+			_follow_with_escort(wave if _sw() else army)
 	else:
 		# Gather at a rally spot in front of the base.
 		var hall: Array = _halls()
@@ -4633,7 +4819,10 @@ func _piece_to_break(wave: Array, c: Vector2) -> Building:
 			break
 	if rep == null:
 		return null
-	if rep._walk_reaches_point(_prey_spot(rep.position)):
+	# (the spot the caller is going for, `c`: asking _prey_spot afresh here could name another spot, a worker out on
+	# the near side of the wall that came into sight meanwhile, and a raid then found "nothing it can break" at a gate
+	# it could break: tools/test_cav_gate.gd case 6 on 0.26.1)
+	if rep._walk_reaches_point(c):
 		return null
 	var a: Vector2i = game.cell_of(rep.position)
 	if not game.open_cell(a):
@@ -5823,6 +6012,10 @@ func _follow_with_escort(army: Array) -> void:
 	if gear:
 		want = _escort_want(army)
 	_escort = _escort.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
+	if _sw():
+		for u in _escort:
+			if _fled.has(u) and _escort_stays(u):
+				_fled.erase(u)          # (clock-ai-swarm: out with the wave it does not run home: _escort_stays)
 	while _escort.size() < want:
 		var pick: Unit = null
 		var pd := INF
@@ -6013,6 +6206,8 @@ func _great_winder_follow(c: Vector2) -> void:
 		home = (hall[0] as Building).center()
 	var behind := c + (home - c).normalized() * 60.0 if home.distance_to(c) > 1.0 else c
 	for u in gws:
+		if u.order == "cast":
+			continue              # (throwing its SCATTER COGS: CogScatter.ai_tick)
 		if u.order == "mend" or u.order == "sweep":
 			if u.position.distance_to(c) < 420.0:
 				continue          # (busy by the army: its autocast)
@@ -6032,10 +6227,26 @@ func _enemy_near(p: Vector2, r: float) -> bool:
 
 
 func _release_escort() -> void:
+	var home := _home_spot(_front()) if _sw() and not _halls().is_empty() else Vector2.INF
 	for u in _escort:
 		if is_instance_valid(u) and not u.dead:
-			u.cmd_stop()
+			if home != Vector2.INF and u.position.distance_to(home) > 300.0:
+				u.cmd_move(home + Vector2(randf_range(-40, 40), randf_range(-40, 40)))      # (clock-ai-swarm: home with the wave)
+			else:
+				u.cmd_stop()
 	_escort.clear()
+
+
+## clock-ai-swarm: an escort Winder out with the army (soldiers of ours within 260 px) does not run from the fight like a
+## raided worker: it stays behind the wave, winding and mending (_escort_wind), and goes home with it. (In the owner's
+## Glimmerdeep game the escort fled from the first Raptor home to its press, and the wave fought unwound and unmended.)
+func _escort_stays(w: Unit) -> bool:
+	if not _sw() or not _escort.has(w) or _home_dist(w.position) <= HOME_AREA:
+		return false
+	for u in game.units_near(w.position, 260.0):
+		if u.team == team and not u.dead and not u.is_worker() and _armed(u):
+			return true
+	return false
 
 
 ## Every place our buildings are under attack (one spot per raid, at least 300 px apart).
@@ -6461,6 +6672,7 @@ func _abilities() -> void:
 		_overloads()
 		_braces()
 		ShieldWall.think(game, team)       # (Clock Soldiers: shields up in ranged fire, down to chase or fall back)
+		CogScatter.ai_tick(game, team)     # (a Great Winder's SCATTER COGS on charging or fleeing clumps: scripts/cog_scatter.gd)
 	if not _crown():
 		return
 	if Defs.marching_band:

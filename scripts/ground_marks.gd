@@ -27,6 +27,7 @@ const COLS := {
 	"fog": Color(0.75, 0.82, 0.78),          # a Mist Toad's fog bank
 	"storm": Color(0.55, 0.8, 1.0),          # storms (they stun / burn)
 	"steam": Color(0.92, 0.95, 0.95),        # a Steam Walker's jet
+	"cogs": Color(0.95, 0.74, 0.32),         # a Great Winder's SCATTER COGS (the litter's edge while it lasts)
 }
 const STRIKE := 0.45            # seconds a strike's mark lasts (fading all the way)
 const SMEAR := 0.38             # seconds the Pendulum's smear lingers

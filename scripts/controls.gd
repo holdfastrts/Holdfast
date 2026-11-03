@@ -897,6 +897,20 @@ func _tap(screen: Vector2, is_mouse: bool, shift := false, world := Vector2.INF)
 		return
 	if own and WorkerLabels.at(game, raw) == e and WorkerLabels.select_workers(game, e):
 		return          # a tap on a worker label: its workers
+	# Workers (only workers) tapping one of their finished crewed buildings (a Powder Mill, a Farm...): they go to
+	# work it (the computer's right click; CrewOrders). Ones already working it keep the tap a plain selection.
+	# (a tap on the Farm's fields or the Mill's yard often lands on one of its men: the building it is)
+	var site: Building = e as Building if e is Building else (game.crew_site_at(raw, game.human) if own and e is Unit and (e as Unit).is_worker() else null)
+	if own and not is_mouse and site != null and site.built and site.crew_max() > 0 and site.haul_cap() == 0 and not units.is_empty() \
+			and units.all(func(u: Unit) -> bool: return u.can_gather() and u.kind != "grub") \
+			and units.any(func(u: Unit) -> bool: return not site.crew.has(u)):
+		game.input_cmd = true
+		for u in units:
+			u.give({"o": "gather", "e": site})
+		game.input_cmd = false
+		game._ping(site.center(), Color(1, 0.85, 0.3))
+		Sfx.play_any(["ui/click", "click"])
+		return
 	if own:
 		var now := Time.get_ticks_msec()
 		if e is Unit and now - _last_tap_t < 350 and _last_tap_kind == e.kind:

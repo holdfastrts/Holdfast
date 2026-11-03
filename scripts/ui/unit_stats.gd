@@ -446,6 +446,8 @@ static func _specials(kind: String, d: Dictionary, st: Dictionary) -> Array:
 				+ ("" if st["shield_tech"] else " " + Loc.t("(Needs SHIELD WALL at the Light Works.)")))
 		"great_winder":
 			add.call("WIND / MEND / SWEEP", Loc.t("No weapon: it winds, mends and sweeps wrecks into cogs."))
+			add.call("SCATTER COGS", Loc.t("%d cogs: litters %.1f tiles for %d s; enemies on the ground in it move %d%% slower.") % [int(Defs.COG_SCATTER["cost"]),
+				float(Defs.COG_SCATTER["radius"]) / Defs.TILE, int(Defs.COG_SCATTER["time"]), int(round((1.0 - float(Defs.COG_SCATTER["slow"])) * 100.0))])
 	if d.get("venom", false):
 		add.call("VENOM", Loc.t("Its venom strips 2 armour for %.1f s; ground units only." if d.get("ground_only", false) else "Its venom strips 2 armour for %.1f s.") % float(d.get("acid", 1.5)) \
 			+ ((" " + Loc.t("Half the blow splashes on enemies within %.1f tiles of its target.") % (float(d.get("splash", 0)) / Defs.TILE)) if float(d.get("splash", 0)) > 0.0 else ""))

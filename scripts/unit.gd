@@ -250,6 +250,9 @@ var _ww_cap_t := 0.0            # ...for this long
 var jump := {}                  # Springer: the leap under way ({} on the ground; scripts/springer.gd)
 var jump_cd := 0.0              # Springer: seconds before its spring can JUMP again
 var jumps := 0                  # Springer: leaps made (tests, the log)
+var scatter_ready := 0.0        # Great Winder: the game clock when its hopper can SCATTER COGS again (scripts/cog_scatter.gd)
+var litter_t := 0.0             # in a SCATTER COGS litter: s of the slow left (topped up while its feet are in it; host)
+var littered := false           # ...slowed now (streamed online: the cogs round its feet, CogScatter)
 var shots := 0                  # Springer: screws fired (tests)
 var last_shot: Shot = null      # Springer: its last screw in flight (tests, screenshots)
 var last_tip := Vector2.ZERO    # Springer: where its last screw left from (the drill tip, raised at a flyer; tests)
@@ -545,6 +548,8 @@ func revive() -> void:
 	stun_t = 0.0
 	stun_end = 0.0
 	slow_t = 0.0
+	litter_t = 0.0
+	littered = false
 	knock = Vector2.ZERO
 	velocity = Vector2.ZERO
 	corpse_t = 0.0
@@ -3544,6 +3549,10 @@ func _tick_unit(delta: float) -> void:
 	if slow_t > 0.0:
 		slow_t -= delta
 		speed *= Defs.ACID_SLOW
+	if litter_t > 0.0:
+		speed *= CogScatter.speed_mul(self)       # (in a Great Winder's SCATTER COGS litter: scripts/cog_scatter.gd)
+		litter_t -= delta
+	littered = litter_t > 0.0
 	if band_until > game.clock:
 		speed *= band_mul.x                # (the band's DRUMS: scripts/marching_band.gd)
 	if kind == MarchingBand.KIND:

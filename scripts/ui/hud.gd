@@ -1258,7 +1258,40 @@ func _build_card() -> Array:
 		if Defs.REFIT_AT.has(b.kind) and (game.has_refits(game.human) or _full_card):
 			# (once there's something to refit with)
 			_auto_refit_button(list, game.selected_buildings().filter(func(x: Building) -> bool: return Defs.REFIT_AT.has(x.kind) and x.built))
+		if b.team == game.human and b.crew_max() > 0:
+			_crew_buttons(list, b)
 	return list
+
+
+## + WORKER / - WORKER on a crewed building's card (scripts/crew_orders.gd): one worker at a press, phone and computer
+## alike. Several of the same kind selected: + goes to the one with the fewest workers, - takes from the one with most.
+func _crew_buttons(list: Array, b: Building) -> void:
+	var same: Array = game.selected_buildings().filter(func(x: Building) -> bool: return x.kind == b.kind and x.built and not x.dead and x.team == game.human)
+	if same.is_empty():
+		same = [b]
+	var add_to: Building = b
+	var take_from: Building = b
+	for x in same:
+		if CrewOrders.problem(game, x, true) == "" and (CrewOrders.problem(game, add_to, true) != "" or x.crew.size() < add_to.crew.size()):
+			add_to = x
+		if CrewOrders.problem(game, x, false) == "" and (CrewOrders.problem(game, take_from, false) != "" or x.crew.size() > take_from.crew.size()):
+			take_from = x
+	var awhy := CrewOrders.problem(game, add_to, true)
+	var rwhy := CrewOrders.problem(game, take_from, false)
+	var icon := "winder" if game.faction_of(game.human) == "clockwork" else "labourer"
+	var count := "%d/%d" % [b.crew.size(), b.crew_max()]
+	_tip_for["+ WORKER"] = ["+ Worker", "One more worker comes to work here: an idle one first, else the nearest one taken from the least important job (a Farm before a Powder Mill, haulers last)."]
+	_tip_for["- WORKER"] = ["- Worker", "One of its workers leaves for another job with room (a different kind of post first)."]
+	var at: Building = add_to
+	var tf: Building = take_from
+	list.append([icon, "+ WORKER", func() -> void:
+		var w := game.crew_order(at, true)
+		if w != "":
+			toast(w), awhy == "", awhy, count])
+	list.append([icon, "- WORKER", func() -> void:
+		var w := game.crew_order(tf, false)
+		if w != "":
+			toast(w), rwhy == "", rwhy, count])
 
 
 ## Does a building of this kind research anything?
@@ -1954,7 +1987,7 @@ const FIXED_KEYS := {"MOVE": "V", "ATTACK": "A", "STOP": "S", "HOLD": "H", "PATR
 	"STOP RESEARCH": "X", "STOP GROWING": "Z",      # (never S: the research keys stay put, 0.24.22)
 	"CANISTER": "C", "ROUND SHOT": "C",
 	"UNLIMBER": "D", "LIMBER": "D", "ROOT": "D", "UPROOT": "D", "STORM": "T", "FOG": "F", "TONGUE": "T", "MIASMA": "Q", "HARVEST": "Q", "SACRIFICE": "C", "START": "F", "END": "F",
-	"JUMP": "E", "HIGH LEAP": "E", "MORPH TO OWL": "E", "CANCEL MORPH": "X", "TICKING OWL": "E",
+	"JUMP": "E", "HIGH LEAP": "E", "SCATTER COGS": "C","MORPH TO OWL": "E", "CANCEL MORPH": "X", "TICKING OWL": "E",
 	"LOAD": "F", "UNLOAD": "G", "DROP HERE": "G", "RESTOCK": "E", "COURIER": "C", "OVERLOAD": "V", "BRACE": "E", "SHIELD FORWARD": "F", "LAND": "D", "TAKE OFF": "D", "SUPPLY": "G",
 	"ARMOUR": "E", "MATCHLOCK": "F", "FLINTLOCK": "F", "CAPLOCK": "F", "BAYONET": "W", "AUTO REFIT": "Q", "POUCH": "T",
 	"LEAD": "Q", "RELEASE": "W", "MOUNT": "T", "DISMOUNT": "T", "RELEASE HORSE": "W", "HARNESS": "Q",
@@ -3261,8 +3294,8 @@ func _draw_rest(font: Font) -> void:
 	if controls.mode in ["move", "attack", "rally", "rally_army", "rally_worker", "cast", "bombard"]:
 		var t: String = {"move": "Tap where to move", "attack": "Tap a target or place to attack-move", "rally": "Tap the rally point",
 			"bombard": "Tap the spot to attack, or drag a line to share out: they keep at it until another order",
-			"cast": "Tap the enemy to lash with the tongue" if controls.cast_spell == "tongue" else ("Tap where to JUMP (up to 5 tiles; up a cliff only with HIGH LEAP, where you can see)" if controls.cast_spell == "jump" else "Tap where to cast the %s" % {"storm": "storm (it stuns your own units too)",
-				"fog": "fog (shots from or into it miss half the time, yours too)"}.get(controls.cast_spell, controls.cast_spell)),
+			"cast": "Tap the enemy to lash with the tongue" if controls.cast_spell == "tongue" else ("Tap where to JUMP (up to 5 tiles; up a cliff only with HIGH LEAP, where you can see)" if controls.cast_spell == "jump" else ("Tap where to SCATTER COGS (enemies on the ground in the litter are slowed)" if controls.cast_spell == "scatter" else "Tap where to cast the %s" % {"storm": "storm (it stuns your own units too)",
+				"fog": "fog (shots from or into it miss half the time, yours too)"}.get(controls.cast_spell, controls.cast_spell))),
 			"rally_army": "Tap where new soldiers gather", "rally_worker": "Tap where new workers go to work"}[controls.mode]
 		if Settings.pc():
 			t = t.replace("Tap", "Click") + "  (right-click or Esc cancels)"

@@ -4386,6 +4386,13 @@ func cancel_train(b: Building) -> void:
 		_drop_dependent_research(b.team, k.substr(1))
 
 
+## + WORKER / - WORKER on a crewed building's card (scripts/crew_orders.gd): one worker comes to work it from the
+## least important job, or one of its crew goes to another post. "" or why not (a guest: "", the host answers).
+func crew_order(b: Building, add: bool) -> String:
+	if net_forward(self, "crew_order", [b, add]): return ""
+	return CrewOrders.order(self, b, add)
+
+
 ## Cancel one entry of the production line (a click on its picture in the unit card).
 func cancel_train_at(b: Building, i: int) -> void:
 	if net_forward(self, "cancel_train_at", [b, i]): return
@@ -5410,7 +5417,7 @@ func _draw_fields() -> void:
 			draw_ring.call(e.position, Defs.TESLA_FIELD * T * field_mult(e.team), 0.9)
 	if controls and controls.mode == "cast" and controls.cast_spell != "tongue" and controls.cast_spell != "jump":
 		var info: Dictionary = spell_info(controls.cast_spell)
-		var col: Color = {"storm": Color(0.55, 0.8, 1.0, 0.9), "fog": Color(0.75, 0.85, 0.8, 0.9)}.get(controls.cast_spell, Color(0.6, 1.0, 0.35, 0.9))
+		var col: Color = {"storm": Color(0.55, 0.8, 1.0, 0.9), "fog": Color(0.75, 0.85, 0.8, 0.9), "scatter": Color(0.95, 0.75, 0.35, 0.9)}.get(controls.cast_spell, Color(0.6, 1.0, 0.35, 0.9))
 		var at: Vector2 = get_global_mouse_position() if Settings.pc() else camera.get_screen_center_position()
 		field_layer.draw_set_transform(at, 0.0, Vector2(1.0, FIELD_Y))
 		field_layer.draw_circle(Vector2.ZERO, float(info["radius"]), Color(col.r, col.g, col.b, 0.12))
@@ -7335,10 +7342,10 @@ var zones: Array = []
 
 ## A spell's numbers (range, radius, cast time...) and who casts it.
 static func spell_info(spell: String) -> Dictionary:
-	return {"storm": Defs.STORM, "fog": Defs.FOG, "miasma": Defs.MIASMA}.get(spell, Defs.FOG)
+	return {"storm": Defs.STORM, "fog": Defs.FOG, "miasma": Defs.MIASMA, "scatter": Defs.COG_SCATTER}.get(spell, Defs.FOG)
 
 
-const CASTERS := {"storm": "stormcaller", "fog": "mist_toad", "miasma": "mist_toad"}
+const CASTERS := {"storm": "stormcaller", "fog": "mist_toad", "miasma": "mist_toad", "scatter": "great_winder"}      # (scatter: the Great Winder's SCATTER COGS, scripts/cog_scatter.gd)
 
 
 ## Why this unit can't cast that spell now ("" = it can).
@@ -7356,6 +7363,8 @@ func spell_problem(u: Unit, spell: String) -> String:
 			return "Not enough charge: the Stormcaller recharges inside a Clockwork field."
 		if energy_stored(u.team) < int(Defs.STORM["cost2"]):
 			return "Not enough energy: a storm burns %d stored batteries." % int(Defs.STORM["cost2"])
+	elif spell == "scatter":
+		return CogScatter.problem(u)
 	elif not CASTERS.has(spell):
 		return "Nobody here can cast that."
 	return ""
@@ -7501,6 +7510,9 @@ func cast_spell(u: Unit, spell: String, p: Vector2) -> void:
 	if w != "":
 		tell(u.team, w)
 		return
+	if spell == "scatter":
+		CogScatter.throw(self, u, p)        # (the Great Winder's SCATTER COGS: its own zone and looks)
+		return
 	var z := {"kind": spell, "pos": p, "team": u.team, "age": 0.0, "fx": null, "stage": "", "caster": u}
 	if spell == "miasma":
 		u.charge -= float(Defs.MIASMA["cost"])
@@ -7534,6 +7546,8 @@ func cast_spell(u: Unit, spell: String, p: Vector2) -> void:
 ## Show the zone's effect for a stage ("in", "loop", "out"); falls back to sparks when the
 ## effect art isn't there.
 func _zone_fx(z: Dictionary, stage: String) -> void:
+	if z["kind"] == "scatter":
+		return           # (SCATTER COGS draws its own litter: CogScatter, Game.cog_layer)
 	var name: String = ("miasma_" if z["kind"] == "miasma" else "storm_") + stage
 	if z["kind"] == "fog":
 		_fog_fx(z, stage)
@@ -7825,6 +7839,9 @@ func _tick_zones(delta: float) -> void:
 			_zone_fx(z, "loop")
 		if z["kind"] == "fog":
 			_drift_fog(z, delta)
+			continue
+		if z["kind"] == "scatter":
+			CogScatter.tick_zone(self, z, delta)      # (SCATTER COGS: enemies in the litter are slowed)
 			continue
 		if z["kind"] == "miasma":
 			for u in units_near(p, r + 20.0):
@@ -8981,6 +8998,7 @@ var _human_vis := PackedByteArray()
 var body_bars: Node2D
 var occluded_layer: OccludedLook = null
 var stun_layer: StunMark = null        # the stun marks (StunMark)
+var cog_layer: CogScatter = null       # SCATTER COGS' litter and the pieces in the air (made when first needed: CogScatter.layer)
 var bodies: Array = []                   # the fallen still lying there (Unit._rest_in_peace)
 var _body_bar_t := 0.0
 
@@ -10467,13 +10485,45 @@ func breeders_of(t: int) -> Array:
 	return buildings.filter(func(b: Building) -> bool: return b.team == t and b.kind == "horse_breeder" and b.built and not b.dead)
 
 
-## The finished breeder nearest `p` with room in its queue, or null.
+## The finished breeder with room in its queue that has the fewest horses queued (the nearest `p` of those), or null.
+## (The owner's playtest, 2026-11-03: with several Barracks training Horsemen only the nearest breeder bred, the
+## rest stood idle: now every breeder takes its share of the horses wanted; Game.share_breeders evens them out.)
 func breeder_with_room(t: int, p: Vector2) -> Building:
 	var best: Building = null
 	for b in breeders_of(t):
-		if b.queue.size() < 5 and (best == null or b.center().distance_to(p) < best.center().distance_to(p)):
+		if b.queue.size() >= 5:
+			continue
+		if best == null or b.queue.size() < best.queue.size() \
+				or (b.queue.size() == best.queue.size() and b.center().distance_to(p) < best.center().distance_to(p)):
 			best = b
 	return best
+
+
+## Every 2 s (Game._horse_res_tick): a breeder with nothing to do takes over a horse waiting in another breeder's
+## queue for a recruit (a "rid" entry not yet started: index 1 on), so every breeder breeds while horses are wanted.
+## Horses the player queued by hand stay where he queued them.
+func share_breeders(t: int) -> void:
+	var brs := breeders_of(t)
+	if brs.size() < 2:
+		return
+	for idle in brs:
+		if not idle.queue.is_empty():
+			continue
+		var from: Building = null
+		var fi := -1
+		for b in brs:
+			if b == idle or b.queue.size() < 2:
+				continue
+			for i in range(b.queue.size() - 1, 0, -1):
+				if String(b.queue[i]) == "horse" and int(b.kit_at(i).get("rid", 0)) != 0:
+					if from == null or b.queue.size() > from.queue.size():
+						from = b
+						fi = i
+					break
+		if from == null:
+			return
+		var kit := from.take_entry(fi)
+		idle.add_entry("horse", kit)
 
 
 ## A free horse of ours (not reserved, led, claimed or walking anywhere) standing within
@@ -10707,6 +10757,8 @@ func _horse_res_tick(delta: float) -> void:
 	if _res_chk > 0.0:
 		return
 	_res_chk = 2.0
+	for t in players.size():
+		share_breeders(t)
 	for h in units:
 		if h.kind == "horse" and not h.dead and h.horse_rid != 0 and rid_owner(h.team, h.horse_rid) == null:
 			h.horse_rid = 0

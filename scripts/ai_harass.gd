@@ -16,6 +16,7 @@ extends RefCounted
 ##  - hurt, run down (a construct out of wind) or out too long, it goes home and is let go.
 ## Orders are refreshed every think (about once a second). A big army push keeps its own targeting (AI._army).
 
+const LONE_FAST := 95.0         # a soldier slower than this (a Musketeer) found out alone comes home, not harass
 const MAX_UNITS := 3            # the most units harassing at once (strays adopted by adopt_strays)
 const STRAY_FROM := 900.0       # (pixels from our nearest building) an army unit out alone this far is a stray
 const PREY_R := 12.0            # (tiles) how far a harasser looks for workers
@@ -25,6 +26,18 @@ const MAX_BACKS := 3            # pulled back this often: it goes home
 const HOME_HP := 0.35           # below this share of its hit points it goes home
 const MAX_TIME := 150.0         # (s) out this long: home
 const STUCK_FOR := 3.0          # (s) a plain walk that gets nowhere this long: it breaks through what is in the way
+## RAID MICRO (owner, 2026-11-03, docs/raid_micro.md: "with 3 Horsemen stay there and kill more workers... not fight the
+## Tyrant Sire and try to focus on the workers"): a defender much slower than the party (a Tyrant Sire, the Mother or a
+## Rootmaw on foot against Horsemen) is KITED, not fled: the party steps away from its bite and rides on to grubs it
+## can't reach in time. Only a threat that can catch it (fast units in number, shooters) or low health sends it home.
+const SLOW_SHARE := 0.74        # a melee defender at most this share of the party's slowest speed is slow (kited)
+const SHOOTER_R := 100.0        # (px) a defender with this reach or more is a shooter: never kited
+const KITE_GAP := 80.0          # (px) kept between a rider and a slow defender's bite
+const SWARM_X := 2.0            # catchers (fast enough to catch it) at least twice the party's number weigh double
+## Behind in economy (the enemy's workers it has seen far outnumber ours): the raid must do damage, it stays longer.
+const PRESS_HP := 0.25
+const PRESS_BACKS := 5
+const PRESS_TIME := 240.0
 
 var ai: AI
 var game: Game
@@ -80,6 +93,21 @@ static func is_big(e) -> bool:
 	return is_defender(e) and (bool(e.d.get("father", false)) or e.kind == BroodNew.QUEEN)
 
 
+## The party's slowest speed (what a defender must match to catch it).
+static func party_speed(party: Array) -> float:
+	var sp := INF
+	for u in party:
+		if is_instance_valid(u) and not u.dead:
+			sp = minf(sp, u.speed)
+	return 0.0 if sp == INF else sp
+
+
+## A defender the party outruns: melee, at most SLOW_SHARE of its speed (a Tyrant Sire, the Mother, a Rootmaw on foot
+## against Horsemen; never against a Clock Soldier or a Musketeer).
+static func is_slow(o: Unit, party: Array) -> bool:
+	return float(o.d.get("range", 0)) < SHOOTER_R and o.speed <= party_speed(party) * SLOW_SHARE
+
+
 # ------------------------------------------------------------------ the measures
 
 ## The party's strength (the computer's own measure: value, less when hurt).
@@ -105,16 +133,88 @@ func defenders_near(c: Vector2, party: Array) -> Array:
 	return out
 
 
-## Too strong to stand against: a Sire or the Mother on her feet, or armed units worth more than the party.
+## Too strong to stand against: a Sire or the Mother on her feet, or armed units worth more than the party. Slow
+## defenders the party outruns are left out (kited: kite_from); catchers in number weigh double (SWARM_X).
 func outmatched(party: Array, foes: Array) -> bool:
-	if foes.is_empty():
+	var real := foes.filter(func(o: Unit) -> bool: return not is_slow(o, party))
+	if real.is_empty():
 		return false
 	var theirs := 0.0
-	for o in foes:
+	var sp := party_speed(party)
+	var catchers := 0
+	for o in real:
 		if is_big(o):
 			return true
 		theirs += ai._unit_value(o)
+		if o.speed >= sp * 0.8:
+			catchers += 1
+	if catchers >= party.size() * SWARM_X:
+		theirs *= 2.0
 	return theirs > strength(party) * 1.05
+
+
+## The slow defenders among `foes` (kited).
+func slow_of(party: Array, foes: Array) -> Array:
+	return foes.filter(func(o: Unit) -> bool: return is_slow(o, party))
+
+
+## Behind in economy: the enemy's workers it has seen (its scout's count, or in sight now) are well over ours. The raid
+## then has to do damage: it stays longer and goes home later (PRESS_*).
+func pressing() -> bool:
+	var foe: int = ai._foe()
+	if foe < 0:
+		return false
+	var seen := 0
+	for o in game.units:
+		if o.team == foe and not o.dead and o.is_worker() and game.is_visible_to(ai.team, o.position):
+			seen += 1
+	if ai.scout != null:
+		seen = maxi(seen, ai.scout._workers_seen)
+	var mine := 0
+	for o in game.units:
+		if o.team == ai.team and not o.dead and o.is_worker():
+			mine += 1
+	return seen >= mine * 1.3 + 3
+
+
+## A step away from the nearest slow defender about to bite `u` (a plain move: the pistol is kept for a grub), on open
+## ground, leaning toward `toward` (prey or the worker line) when that is not into its jaws. False: none close.
+func kite_from(u: Unit, slows: Array, toward: Vector2) -> bool:
+	var s: Unit = null
+	var sd := INF
+	for o in slows:
+		var gap: float = o.position.distance_to(u.position) - (float(o.d["range"]) + o.radius + u.radius)
+		if gap < sd:
+			sd = gap
+			s = o
+	if s == null or sd > KITE_GAP:
+		return false
+	var away := (u.position - s.position).normalized()
+	var best := Vector2.INF
+	var bs := -INF
+	for i in 12:
+		var d := Vector2.from_angle(TAU * i / 12.0)
+		if d.dot(away) < -0.1:
+			continue
+		var p := u.position + d * 170.0
+		var open := true
+		for k in range(1, 6):
+			if not game._walkable(game.cell_of(u.position.lerp(p, k / 5.0))):
+				open = false
+				break
+		if not open:
+			continue
+		var sc: float = p.distance_to(s.position) + d.dot(away) * 40.0
+		if toward != Vector2.INF:
+			sc += d.dot((toward - u.position).normalized()) * 60.0
+		if sc > bs:
+			bs = sc
+			best = p
+	if best == Vector2.INF:
+		best = u.position + away * 170.0
+	if u.order != "move" or u.order_point.distance_to(best) > 50.0:
+		u.cmd_move(best)
+	return true
 
 
 ## The best worker (or unarmed unit) for `u` to go after: the nearest it can see within PREY_R tiles, the ones in reach
@@ -134,6 +234,8 @@ func pick_prey(u: Unit) -> Unit:
 		for b in biters:
 			if b.position.distance_to(o.position) <= float(b.d["range"]) + b.radius + u.radius + 30.0:
 				s += 400.0
+			elif is_slow(b, [u]) and b.position.distance_to(o.position) <= float(b.d["range"]) + b.radius + u.radius + KITE_GAP + b.speed * 1.5:
+				s += 300.0      # (a slow defender would reach it before it is cut down: one farther from it first)
 		# one walking away as fast as it is is not caught: the ones standing (a grub loading at its Rootmaw) or coming
 		# towards it first; the one it is after already is kept unless another is clearly better (no to and fro)
 		if o.velocity.length() > 10.0 and o.velocity.dot(o.position - u.position) > 0.0 and float(o.d["speed"]) >= float(u.d["speed"]) * 0.9:
@@ -175,6 +277,32 @@ func work_line(from: Vector2) -> Vector2:
 	return p
 
 
+## One of the Crown's raiders (AI._raid) with a slow defender near: a step away from its bite, else the grub it can't
+## reach in time (an attack order: the loaded pistol goes at the grub, never at the Sire), else a plain ride on to the
+## worker line (no attack-move, which would pick the Sire). Always true (the orders are given here).
+func raid_step(u: Unit, slows: Array, goal: Vector2) -> bool:
+	if u.dead or u.off_field or u.order == "mount" or u.order == "dismount":
+		return true
+	var w := pick_prey(u)
+	if kite_from(u, slows, w.position if w else goal):
+		if game.clock - float(_raid_kite_t) > 8.0:
+			_say(u, "keeps away from %s (the raid stays)" % String(Defs.UNITS[slows[0].kind]["name"]))
+		_raid_kite_t = game.clock
+		raid_kites += 1
+		return true
+	if w:
+		if u.order != "attack" or u.order_target != w:
+			u.cmd_attack(w)
+		return true
+	if u.position.distance_to(goal) > 120.0 and (u.order != "move" or u.order_point.distance_to(goal) > 120.0):
+		u.cmd_move(goal + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
+	return true
+
+
+var _raid_kite_t := -99.0
+var raid_kites := 0              # (tests) kite steps the raid took
+
+
 # ------------------------------------------------------------------ one unit, one step
 
 ## Steer one harassing unit for a second: pull back from a real defender, go after prey, fight a weak defender in its
@@ -199,12 +327,22 @@ func steer(u: Unit, party: Array, goal: Vector2, home: Vector2, e: Dictionary) -
 			u.cmd_move(u.position + (home - u.position).normalized() * 160.0)
 		return "back"
 	var w := pick_prey(u)
+	# a slow defender (a Sire, the Mother, a Rootmaw on foot against riders) about to bite: a step away, toward the prey
+	# it can't reach in time; the party stays (RAID MICRO, docs/raid_micro.md)
+	var slows := slow_of(party, foes)
+	if not slows.is_empty() and kite_from(u, slows, w.position if w else goal):
+		if float(e.get("kite_t", -99.0)) < game.clock - 8.0:
+			_say(u, "keeps away from %s" % String(Defs.UNITS[slows[0].kind]["name"]))
+		e["kite_t"] = game.clock
+		e["kites"] = int(e.get("kites", 0)) + 1
+		return "kite"
 	if w:
 		if u.order != "attack" or u.order_target != w:
 			u.cmd_attack(w)
 		e["still"] = 0.0
 		return "prey"
-	# an armed enemy it can beat is in its face: it fights it (it does not turn its back)
+	# an armed enemy it can beat is in its face: it fights it (it does not turn its back); a slow one is not fought
+	foes = foes.filter(func(o: Unit) -> bool: return not slows.has(o))
 	if not foes.is_empty():
 		var f: Unit = foes[0]
 		if u.order != "attack" or u.order_target == null or not is_instance_valid(u.order_target) or u.order_target.dead or is_static(u.order_target):
@@ -276,7 +414,35 @@ func adopt_strays(army: Array) -> void:
 			continue
 		if float(u.d.get("speed", 0)) < 55.0 or ai._home_dist(u.position) < STRAY_FROM:
 			continue
+		# A LONE SLOW SOLDIER COMES HOME (the owner's playtest 2026-11-03, Greenhold: a Crown Musketeer that had chased
+		# something out was taken as a harasser, alone, 2:35-4:29, and only got itself chased about: "usually it would be a
+		# bad idea"). Riders harass; a slow one (a Musketeer, anything that can't outrun a Raptor) found out alone walks home,
+		# unless it is clearly safe (no armed enemy seen within 15 tiles). The Clockwork's Clock Soldier is the exception the
+		# owner asked for on 2026-10-31 (docs/ai_harass.md): it harasses as before.
+		if not ai._clock() and u.speed < LONE_FAST and _alone(u) and not _clearly_safe(u):
+			if float(done.get(u, -1.0)) <= game.clock:
+				done[u] = game.clock + 30.0
+				_say(u, "comes home (out alone, too slow to harass)")
+			var post: Vector2 = ai._post_spot()
+			u.cmd_move(post if post != Vector2.INF else game.center_of_team(ai.team))
+			continue
 		add(u, "out alone")
+
+
+## No friend of its army within 400 px.
+func _alone(u: Unit) -> bool:
+	for o in game.units_near(u.position, 400.0):
+		if o != u and o.team == ai.team and not o.dead and not o.is_worker() and o.has_attack():
+			return false
+	return true
+
+
+## No armed enemy on its feet seen within 15 tiles.
+func _clearly_safe(u: Unit) -> bool:
+	for o in game.units_near(u.position, 15.0 * Defs.TILE):
+		if game.hostile(o.team, ai.team) and is_defender(o) and game.is_visible_to(ai.team, o.position):
+			return false
+	return true
 
 
 ## Every army think: each harasser steers (see steer); hurt, run down, out too long or driven back too often, it goes
@@ -301,17 +467,18 @@ func tick() -> void:
 		c += u.position
 	c /= party.size()
 	var goal := work_line(c)
+	var press := pressing()
 	for u in party:
 		var e: Dictionary = units[u]
 		if not e["home"]:
 			var why := ""
-			if u.hp < u.max_hp * HOME_HP:
+			if u.hp < u.max_hp * (PRESS_HP if press else HOME_HP):
 				why = "hurt"
 			elif ai._clock() and u.wind < 0.25 and not u.runs_on_spring() and not u._in_field:
 				why = "running down"
-			elif game.clock - float(e["t0"]) > MAX_TIME:
+			elif game.clock - float(e["t0"]) > (PRESS_TIME if press else MAX_TIME):
 				why = "out long enough"
-			elif int(e["backs"]) >= MAX_BACKS and float(e["back_until"]) < game.clock:
+			elif int(e["backs"]) >= (PRESS_BACKS if press else MAX_BACKS) and float(e["back_until"]) < game.clock:
 				why = "driven back too often"
 			if why != "":
 				e["home"] = true
