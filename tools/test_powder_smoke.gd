@@ -168,7 +168,7 @@ func _run() -> void:
 	ps.puff("musket", me.position, Vector2.RIGHT)
 	var j := (ps._w - 1 + ps.cap) % ps.cap
 	ps._pos[j] = far
-	await wait(1.5)
+	await wait(2.2)          # (0.26.5: it fades only after half a second out of sight, then over 1.25 s)
 	check(ps._life[j] <= 0.0 or ps._seen[j] < 0.2, "a puff that drifts out of sight fades out (%.2f)" % ps._seen[j])
 	ps.clear()
 	# the game's random numbers are untouched

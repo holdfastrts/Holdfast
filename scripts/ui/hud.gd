@@ -347,7 +347,9 @@ func _layer_sig(n: String) -> Array:
 		"selection":
 			if game.selection.is_empty():
 				return [_vs(), 0, game.fog_team(), game.over and not game.map_view]
-			# (drawn again at every look while something is selected: its bars and lines move)
+			# (drawn again at every other look while something is selected, 10 times a second: its bars and lines move;
+			# a hover or a scroll at once. At every look (20) it was the HUD's biggest cost with an army selected:
+			# about 4 ms a draw with 60 men, docs/perf_smoke.md)
 			var hv := -1
 			if pc:
 				for i in _portraits.size():
@@ -359,7 +361,7 @@ func _layer_sig(n: String) -> Array:
 				var x := panel_rect()
 				if Rect2(x.end.x - 30, x.position.y + 2, 28, 28).has_point(m):
 					hv = 200
-			return [_vs(), _tick_n, hv, _sel_scroll]
+			return [_vs(), _tick_n / 2, hv, _sel_scroll]
 		"command card":
 			var hv := -1
 			if pc:

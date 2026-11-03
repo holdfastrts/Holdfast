@@ -244,3 +244,20 @@ peak 660 puffs alive after, 932 before. (The machine was shared, so the totals p
 
 - Only THICK was filmed; FULL and LIGHT use the same rules (LIGHT rarely gets dense).
 - The puffs are still the painted muzzle smoke, softened; a painted soft puff would be better (docs/art_style_inconsistency.md).
+
+## Still clipping, blinking and lag (0.26.5, branch smoke-perf)
+
+The owner, after 0.26.2: "The game smoke still clipping." "Maybe the smoke is helping the game to lag."
+What was found and changed is in docs/perf_smoke.md. In short:
+
+- The painted muzzle smoke touched the edges of its frames, so every shot's quick puff (and every chimney) had straight,
+  cut-off sides. Its edges are feathered now (tools/fix_smoke_edges.py; the original is art/world/smoke_effect_original.png).
+- Every shot's quick puff dimmed to 70% in one step, then vanished at 20%: a blink on every shot. It fades smoothly to nothing now (scripts/effect.gd).
+- The haze moved and faded in 20 steps a second. The shader now carries each puff on between the ticks (its velocity
+  and its alpha's rate ride in the instance's custom data, and a "since" uniform is set each frame).
+- The haze was culled by the camera's view at each tick: after a jump of the camera (a minimap tap) it was missing for a
+  tick and popped in. Every seen puff is drawn now; off-screen ones cost the graphics card nothing.
+- At the edge of sight, a puff faded out as soon as one look (every 0.25 s) found its cell unseen. Now it needs two
+  looks in a row, and fades more slowly (0.8 a second, was 1.5).
+- Cheaper to draw: each puff is an octagon round its soft circle, not a square (17% less to fill), and a dense square
+  takes new puffs only up to 14 (was 22): past 8 it is drawn at 8 / count anyway, so the extra puffs only cost fill.
