@@ -32,6 +32,10 @@ const STRATEGIES := {
 	# soon as it hatches. A gamble: a wall, a few Musketeers and the workers stop it (then it
 	# falls back to a normal game).
 	"xrush": {"name": "Extreme rush", "wave": 6, "step": 2, "expand": 99.0, "halls": 1, "tech": 99.0, "workers": 0.4, "brood_only": true},
+	# cw-builds-b (scripts/ai_cw_builds_b.gd, docs/clockwork_builds_b.md): PENDULUMS (the Brood's swarm answer) and the HEAVY
+	# WORKS PUSH: a written opening, then the push (scripts/ai_cw_push.gd) sends the waves, not these numbers ("wave" 999)
+	"pendulum": {"name": "Pendulums", "wave": 999, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
+	"heavy": {"name": "Heavy Works push", "wave": 999, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
 	# THE SPRINGER TIMING (the owner's plan, 2026-11-03; scripts/ai_clockwork.gd, docs/clockwork_ai_rebuild.md): a written
 	# opening build (4 Springers, HIGH LEAP and a Swift as soon as possible, the economy growing behind it), the Springers
 	# leap into the enemy's main by the Swift's sight, then the computer plays on as Balanced (these numbers).

@@ -67,6 +67,9 @@ const PLANS := {
 		],
 	},
 }
+## cw-builds-b (docs/clockwork_builds_b.md): the PENDULUMS against the Brood and the HEAVY WORKS PUSH (PLANS_B, the push:
+## scripts/ai_cw_push.gd). Kept apart from PLANS so the builds of the other jobs merge cleanly.
+const PLANS_B := preload("res://scripts/ai_cw_builds_b.gd").PLANS
 
 var cw_on := not OS.get_cmdline_user_args().has("cwnew:off")
 var plan := {}
@@ -95,9 +98,10 @@ func _ready() -> void:
 		_attack_at = int(_s("wave"))
 		note("cwnew:off: the Springer timing plays as the old computer's Balanced")
 		return
-	if not PLANS.has(strategy) or not Defs.gear_mode:
+	if not (PLANS.has(strategy) or PLANS_B.has(strategy)) or not Defs.gear_mode:
 		return
 	_make_plan()
+	_b_ready()          # (cw-builds-b: the push, scripts/ai_cw_push.gd)
 	bo_on = true
 	if scout != null:
 		scout.enabled = false          # (the plan does not change on what a scout sees while it runs; its Swift scouts)
@@ -105,7 +109,7 @@ func _ready() -> void:
 
 
 func _make_plan() -> void:
-	plan = (PLANS[strategy] as Dictionary).duplicate(true)
+	plan = ((PLANS[strategy] if PLANS.has(strategy) else PLANS_B[strategy]) as Dictionary).duplicate(true)
 	for k in over:
 		plan[k] = over[k]
 	steps = (plan["steps"] as Array).duplicate()
@@ -123,7 +127,7 @@ func note(s: String) -> void:
 
 ## The plan's own Springers (the raid's), its Swift and its Winders at the cliff foot are not the shared computer's.
 func _on_errand(u: Unit) -> bool:
-	return super._on_errand(u) or (raid != null and raid.has(u))
+	return super._on_errand(u) or (raid != null and raid.has(u)) or (push != null and push.has(u))
 
 
 func _held_worker(u: Unit) -> bool:
@@ -149,6 +153,7 @@ func _econ_build() -> void:
 
 func _produce() -> void:
 	if not bo_on:
+		_b_keep()           # (cw-builds-b: the plan's heavy machines first, after the opening)
 		super._produce()
 
 
@@ -170,10 +175,13 @@ func _build_up() -> void:
 
 
 func _army() -> void:
-	if bo_on:
+	if bo_on or push != null:
 		_attack_at = 99999
 	if raid != null:
 		raid.tick()
+	if push != null:
+		push.tick()
+		_b_rewind()
 	super._army()
 
 
@@ -296,6 +304,8 @@ func _do_build(i: int, kind: String, big: bool) -> Dictionary:
 	if b == null:
 		return {"st": "wait", "cost": cost, "t": tc}
 	_placed[i] = b
+	if kind == "mainspring" and plan.has("push") and not _b_spring.is_empty() and _b_spring[0] == spot:
+		_keep_heavy(spot, _b_spring[1])        # (cw-builds-b: the Escapement's and the Heavy Works' spots by it are kept)
 	note("lays a %s at %d supply (step %d: %s)" % [String(Defs.BUILDINGS[kind]["name"]), game.supply_used(team), i + 1, String(steps[i])])
 	return {"st": "done"}
 
@@ -308,8 +318,13 @@ func _spot(kind: String) -> Vector2i:
 			return _econ_spot(kind)
 		"mainspring":
 			var c := _spring_spot()
+			_b_spring = [c, _spring_users.duplicate()] if c.x >= 0 and _spring_heavy else []
 			return c if c.x >= 0 else _any_gear_spot(kind)
+		"heavy_works":
+			return _b_heavy_spot()
 		"escapement", "cuckoo_house":
+			if kind == "escapement" and not _kept(kind).is_empty():
+				return _kept(kind)["cell"]
 			for sp in _mine("mainspring"):
 				if not sp.dead:
 					var c2 := GearEcon.room_spot(game, team, kind, [sp])
@@ -483,3 +498,149 @@ func _crew_springs() -> void:
 		labs.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.distance_to(sp.center()) < b.position.distance_to(sp.center()))
 		for u in labs.slice(0, short):
 			u.cmd_gather(sp)
+
+
+# ------------------------------------------------------------------ cw-builds-b: the push plans (docs/clockwork_builds_b.md)
+## PENDULUMS (against the Brood) and the HEAVY WORKS PUSH: their opening builds are in scripts/ai_cw_builds_b.gd (PLANS_B);
+## after the opening the PUSH (scripts/ai_cw_push.gd) takes the army out as one slow block once the plan's machines are
+## there, and the plan's KEEP rule keeps its Heavy Works making the machines it is built round.
+
+const CwPush := preload("res://scripts/ai_cw_push.gd")
+var push = null
+var _b_spring: Array = []           # [cell, users]: the Mainspring spot _spring_spot found with room for both
+
+
+func _b_ready() -> void:
+	if not plan.has("raid"):
+		raid = null
+	if plan.has("push"):
+		push = CwPush.new(self, plan["push"])
+
+
+## Its waves are the push's: the shared computer sends none (it still defends at home).
+func _push_anyway(ready: Array) -> bool:
+	return false if push != null else super._push_anyway(ready)
+
+
+## The escort Winders (and the Great Winder, the Ballistas' crew) go with the push while it is out.
+func _follow_with_escort(army: Array) -> void:
+	if push != null and push.phase != "" and push.phase != "back" and not push.units.is_empty():
+		super._follow_with_escort(push.units.filter(func(u: Unit) -> bool: return u.kind != Defs.GREAT_WINDER_KIND))
+		return
+	super._follow_with_escort(army)
+
+
+## The Heavy Works' spot: the one kept for it by the Mainspring, else by any Mainspring's network (AI._heavy_spot).
+func _b_heavy_spot() -> Vector2i:
+	var keep := _kept(Defs.CW_HEAVY)
+	if not keep.is_empty():
+		var kc: Vector2i = keep["cell"]
+		if game.placement_problem(team, Defs.CW_HEAVY, kc, true) == "":
+			var st: Dictionary = game.gear_net.candidate(team, Defs.CW_HEAVY, kc)
+			if st["state"] == "ok" and st.get("spring") != null:
+				return kc
+	var c := _heavy_spot()
+	if c.x < 0:
+		c = _heavy_spot_fed()
+	return c
+
+
+## After the opening, the plan's own mix first, then the shared computer trains the rest (Springers, Netters, the air):
+##  - the HEAVY WORKS keeps n of each kind ("keep": [[kind, n], ...], in order; against the Brood "keep_brood" when the plan
+##    has one): the first one short is trained when its cogs and Tension are there, and its cogs are kept from the Clock
+##    Soldiers while its Tension is due within TENSION_SOON s;
+##  - the LIGHT WORKS keeps the FRONT: Clock Soldiers up to "front" (+ FRONT_STEP for each push gone out).
+## (The shared computer's own rules made Springers and a Ballista, few Clock Soldiers: the push waited till 11:00, and against
+## the Crown the Ballistas stood at home with no one in front of them.)
+const FRONT_STEP := 2
+
+
+func _b_keep() -> void:
+	if not plan.has("keep"):
+		return
+	var keep: Array = plan["keep"]
+	if _foe() >= 0 and game.faction_of(_foe()) == "brood" and plan.has("keep_brood"):
+		keep = plan["keep_brood"]
+	var army := game.army(team)
+	var queued := func(k: String) -> int:
+		var n := army.filter(func(u: Unit) -> bool: return u.kind == k).size()
+		for w in _mine(Defs.CW_HEAVY) + _mine(_works()):
+			n += (w.queue as Array).count(k)
+		return n
+	var hold := 0
+	for hw in _mine(Defs.CW_HEAVY):
+		if not hw.built or not (hw.queue as Array).is_empty() or game.gear_net.spring_for(hw) == null:
+			continue
+		for e in keep:
+			var k := String(e[0])
+			var n := int(e[1])
+			if k == Defs.PENDULUM and _sw():
+				n = maxi(n, swm().pend_want() if swm().on() else 0)
+			if queued.call(k) >= n:
+				continue
+			var why := game.can_train(hw, k)
+			if why == "":
+				game.train(hw, k)
+			elif _maker_ok(why):
+				var p := game.unit_price(team, k)
+				var short := float(p[1]) - game.tension(team)
+				var rate := game.tension_rate(team)
+				if short <= 0.0 or (rate > 0.05 and short / rate < TENSION_SOON):
+					hold = maxi(hold, int(p[0]))
+			break           # (the first one short waits for its cogs and Tension: not the next)
+	var want: int = int(plan.get("front", 0)) + (int(push.pushes) * FRONT_STEP if push != null else 0)
+	var soldiers: int = queued.call("clock_soldier")
+	for w in _mine(_works()):
+		if soldiers >= want or _gold() - hold < int(Defs.UNITS["clock_soldier"]["cost"]):
+			break
+		if w.built and (w.queue as Array).size() < 2 and game.can_train(w, "clock_soldier") == "" and game.train(w, "clock_soldier") == "":
+			soldiers += 1
+	if hold > 0:
+		_reserve = maxi(_reserve, hold)        # (the shared computer's training keeps it too)
+
+
+## A machine at home run down (or nearly) off the gear ground with no enemy beside it: the nearest free Winder walks out and
+## winds it (REPAIR winds first). (Pendulums that chased Raptors past the gear field froze there for good: the shared
+## escort winds only while no threat holds the army at home, and the Brood kept one there for minutes. Greenhold 11, 8:30.)
+const REWIND_AT := 0.25
+const REWIND_MAX := 3
+var _rewinders := {}            # Winder -> the machine he winds
+var _rewind_t := {}             # machine -> when a Winder was last sent to it
+
+
+func _b_rewind() -> void:
+	for w in _rewinders.keys():
+		var m = _rewinders[w]
+		if not is_instance_valid(w) or w.dead or not is_instance_valid(m) or m.dead or w.order != "repair" or (m.wind >= 0.95 and not m.powered_down()):
+			if is_instance_valid(w) and not w.dead and w.order == "repair":
+				w.cmd_stop()
+			_rewinders.erase(w)
+	if _rewinders.size() >= REWIND_MAX:
+		return
+	var busy := _rewinders.values()
+	for u in game.army(team):
+		if _rewinders.size() >= REWIND_MAX:
+			return
+		if u.is_air() or u.runs_on_spring() or String(u.d["faction"]) != "clockwork" or busy.has(u) or (push != null and push.has(u)):
+			continue
+		if not (u.powered_down() or (u.wind < REWIND_AT and not u._in_field)) or _home_dist(u.position) > 1600.0 or _enemy_near(u.position, 300.0):
+			continue
+		if game.clock - float(_rewind_t.get(u, -99.0)) < 12.0:
+			continue          # (one sent lately: he is on his way, or was pulled off by the worker rules)
+		_rewind_t[u] = game.clock
+		var best: Unit = null
+		var bd := INF
+		for w in game.workers(team):
+			if _rewinders.has(w) or w.order == "build" or w.crate_site != null or _escort.has(w) or _held_worker(w) or (scout != null and scout.is_scout(w)):
+				continue
+			var dd: float = w.position.distance_to(u.position)
+			if dd < bd:
+				bd = dd
+				best = w
+		if best != null and best.can_repair(u):
+			best.cmd_repair(u)
+			_rewinders[best] = u
+			busy.append(u)
+			if game.clock - float(_rewind_t.get("said", -99.0)) > 20.0:
+				_rewind_t["said"] = game.clock
+				note("a Winder walks out to wind a run-down %s" % String(u.d["name"]))
