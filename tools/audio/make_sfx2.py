@@ -610,13 +610,7 @@ def clock_alert(rng, v):
     return reverb(x, rng, 0.3, 0.1)
 
 
-@sfx("clock/base_alert")
-def clock_base_alert(rng, v):
-    d = 1.5
-    f = glide(220, 820, d, 0.7)
-    x = bl_saw(f) + 0.5 * bl_saw(f * 1.006)
-    x = formants(x, [(f * 1.2, 1.0), (1800, 0.4)], 4) * adsr(d, 0.1, 0.1, 0.9, 0.2)
-    return reverb(x, rng, 0.8, 0.15)
+# (clock/base_alert removed 2026-11-03: one Clockwork alarm, clock/alert, for units and buildings)
 
 
 @sfx("clock/select_building")

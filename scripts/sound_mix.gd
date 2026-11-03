@@ -59,8 +59,7 @@ const GAIN := {
 	"res://assets/audio/cannon.wav": -9.5,
 	"res://assets/audio/clash.wav": 4.8,
 	"res://assets/audio/click.wav": 3.6,
-	"res://assets/audio/clock/alert.wav": -1.0,
-	"res://assets/audio/clock/base_alert.wav": -1.7,
+	"res://assets/audio/clock/alert.wav": -3.0,      # (softer on the ear: the owner, 2026-11-03)
 	"res://assets/audio/clock/built.wav": 2.7,
 	"res://assets/audio/clock/no_res.wav": -0.5,
 	"res://assets/audio/clock/no_supply.wav": -4.7,

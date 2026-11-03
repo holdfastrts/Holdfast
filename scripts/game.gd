@@ -9848,9 +9848,9 @@ func under_attack(e: Entity) -> void:
 	_alert_ms = now
 	var fac := faction_of(human)
 	# the same alarm for every faction and every kind of attack, then (once it has rung) the faction's voice says what;
-	# the Clockwork's alarm is an alarm clock ringing (its own base: another ring; tools/audio/make_clockwork_sounds.py)
+	# the Clockwork's alarm is an alarm clock ringing twice (units and buildings alike; tools/audio/make_clockwork_sounds.py)
 	if fac == "clockwork":
-		Sfx.play_any((["clock/base_alert"] if e is Building and e.team == human else []) + ["clock/alert", "ui/alert_all"])
+		Sfx.play_any(["clock/alert", "ui/alert_all"])      # (one alarm for units and buildings: the owner, 2026-11-03)
 	else:
 		Sfx.play_any(["ui/alert_all"])
 	var line := "under_attack"

@@ -290,8 +290,10 @@ SOUNDS = {
     "work/cog_press_stamp_1": [("stamp", 6.91, 0.30, 0.0, 1.0, 0.72, 0.18), cl(5, 0.42, 0.30, at=0.0, gain=0.35)],
     "work/cog_press_stamp_2": [("ostamp", 3.14, 0.24, 0.0, 1.0, 0.7, 0.14), cl(1, 0.45, 0.28, at=0.0, gain=0.3)],
     # the alarm clock ringing: the Clockwork's alarm when its men (alert) or its base (base_alert) are attacked
-    "clock/alert": [("alarm", 7.58, 1.6, 0.0, 1.0, 1.0, 0.45)],
-    "clock/base_alert": [("alarm", 6.92, 0.3, 0.0, 0.5, 1.0, 0.05), ("alarm", 11.0, 1.5, 0.30, 1.0, 1.0, 0.45)],
+    # (the owner, 2026-11-03: one alarm for units and buildings alike; the alarm clock in two short rings, softer on the
+    # ear: its brightest highs taken down, a little lower; his pick B of docs/sounds_compare/clock_alert, without the crank)
+    "clock/alert": [("alarm", 7.58, 0.42, 0.0, 1.0, 0.94, 0.12, {"lp": 2600, "attack": 0.02}),
+                    ("alarm", 8.62, 0.50, 0.62, 0.9, 0.94, 0.22, {"lp": 2600, "attack": 0.02})],
     # research done: one strike of the old bell
     "clock/research": [bell(0, 2.1, fade=1.1)],
     # a building finished: the carriage slides back and the typewriter's bell rings

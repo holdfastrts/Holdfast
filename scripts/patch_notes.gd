@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.2", "items": [
+		"THE CLOCKWORK'S ATTACK ALARM IS GENTLER: one alarm for units and buildings alike, the alarm clock ringing twice briefly, a little lower and softer on the ear (it was one long ring, and another for the base). The owner's pick.",
+	]},
 	{"v": "0.29.1", "items": [
 		"POWDER SMOKE: SHORTER, STAYS WHERE IT WAS FIRED, NO BLINK (the owner): every puff now lives about 3 seconds, solid for 2 and fading over the last 1 (it lingered 10 to 20 seconds, mostly too thin to see, and drifted far). The shot's push carries it less far. Its fade reaches nothing a moment before it goes, so it no longer blinks at the end, and a thick cloud no longer makes its puffs age in sudden jumps.",
 	]},
