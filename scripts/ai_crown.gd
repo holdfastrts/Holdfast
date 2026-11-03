@@ -123,25 +123,25 @@ const PLANS := {
 			["barracks", 3, {"labs": 30}]],
 		"s": {"wave": 9, "step": 6, "workers": 1.0, "expand": 1.0, "halls": 3}},     # (after the rush, a full economy: the
 		# shared Rush settings, 0.75 of the posts and a late hall, held 2 farms' worth of labourers till 6:00, ba3 Red Coast)
-	# SIEGE PUSH (crown-builds-b, docs/crown_builds_b.md, scripts/ai_crown_siege.gd): the safe Musketeer opening, the Breeder
-	# (the guns' horses), the second hall at 15 labourers, the Foundry behind it; then Field Cannons and Mortars behind a
+	# SIEGE PUSH (crown-builds-b, docs/crown_builds_b.md, scripts/ai_crown_siege.gd): the Economy plan's opening (the second
+	# hall at 15 labourers), then the Breeder (the guns' horses) and the Foundry behind it; then Field Cannons and Mortars behind a
 	# Musketeer line go out together to break a turtle (turrets and their menders, rooted creatures). The shared waves never
 	# go ("wave" 999): the push does (AICrownSiege).
-	"siege": {"opening": "mill", "labs": 99, "army": 0.5, "mill": [[0, 3], [13, 5], [16, 6]], "siege": true,
+	"siege": {"opening": "mill", "labs": 99, "army": 0.45, "mill": [[0, 2], [14, 4], [18, 6]], "siege": true,
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
-			{"do": "wall_gate", "at": {"sup": 5}},
-			{"do": "build", "k": "barracks", "at": {"labs": 7}},
-			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
-			{"do": "army", "k": "musketeer", "cap": 8},
-			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
-			{"do": "build", "k": "horse_breeder", "at": {"labs": 12}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
+			{"do": "wall_gate", "at": {"labs": 7}},
+			{"do": "build", "k": "barracks", "at": {"labs": 8}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 8}},
+			{"do": "army", "k": "musketeer", "cap": 6},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
-			{"do": "build", "k": "foundry", "at": {"labs": 17}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 17}},
+			{"do": "build", "k": "foundry", "at": {"labs": 19}},
 		],
-		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {}], ["barracks", 2, {"labs": 19}],
-			["armoury", 1, {"labs": 24}], ["foundry", 2, {"labs": 28, "halls": 2}], ["barracks", 3, {"labs": 32}],
-			["church", 1, {"labs": 38, "halls": 2}]],
+		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {}], ["barracks", 2, {"labs": 21, "halls": 2}],
+			["armoury", 1, {"labs": 28}], ["foundry", 2, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 34}],
+			["church", 1, {"labs": 40, "halls": 2}]],
 		"s": {"wave": 999, "step": 8}},
 }
 
@@ -264,6 +264,13 @@ func _plan_tech() -> bool:
 
 func _think_stage(i: int) -> void:
 	if not bo_owns():
+		if siege != null and i != 2:
+			# (the siege plan's next gun: its price is kept from the labourers and the tech, AICrownSiege.gun_due)
+			var keep: int = clampi(siege.gun_due(), 0, int(game.players[team]["gold"]))
+			game.players[team]["gold"] -= keep
+			super(i)
+			game.players[team]["gold"] += keep
+			return
 		super(i)
 		return
 	var pt := Time.get_ticks_usec()
@@ -807,4 +814,9 @@ func _on_errand(u: Unit) -> bool:
 func _produce() -> void:
 	if siege != null:
 		siege.produce()           # (the guns first: the shared training adds one now and then)
+		var keep: int = clampi(siege.gun_due(), 0, int(game.players[team]["gold"]))
+		game.players[team]["gold"] -= keep
+		super()
+		game.players[team]["gold"] += keep
+		return
 	super()

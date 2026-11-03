@@ -26,6 +26,7 @@ const LINE_GO := 10             # Musketeers (or Guardsmen) at home before the p
 const BIG_GO := 50              # (supply) a push this big goes whatever the guns
 const EDGE := 0.9               # the push worth this many times the enemy army it knows (the guns outrange its defence)
 const EDGE_BROOD := 1.2         # (the Brood's swarm comes at the guns: more)
+const GUN_WEIGHT := 1.5         # a gun counts this many times its price for the push's worth (it outranges the defence)
 const COOL := 60.0              # (s) after a push came back
 const STOP_D := 330.0           # (px) a defence this near the line: set up
 const ARMY_STOP_D := 360.0      # (px) an enemy force this near the line, worth ARMY_STOP of ours: set up and fight it there
@@ -148,7 +149,7 @@ func _maybe_go() -> void:
 		return
 	var mine := 0.0
 	for u in home:
-		mine += float(Game.unit_value(u))
+		mine += float(Game.unit_value(u)) * (GUN_WEIGHT if GUNS.has(u.kind) else 1.0)
 	var known: float = ai.ch.foe_known()
 	var edge := EDGE_BROOD if _brood() else EDGE
 	if known > 0.0 and mine < known * edge and not big:
@@ -595,8 +596,52 @@ const MORTARS_MAX := 3
 
 
 func produce() -> void:
-	if ai._res2() < 20.0:
+	var w := _gun_want()
+	if w.is_empty():
 		return
+	var k: String = w[0]
+	var f: Building = w[1]
+	if ai._gold() >= int(Defs.UNITS[k]["cost"]) + int(w[2]) and game.train(f, k) == "":
+		_due_since = -1.0
+		say("trains a %s" % String(Defs.UNITS[k]["name"]))
+
+
+## THE GUNS COME FIRST: while a gun is wanted and a Foundry stands idle, its price is kept from everything else (the
+## labourers, the tech, the Musketeers): AICrown._think_stage / _produce. At most DUE_HOLD s at a time (a gun that cannot be
+## had, no horse or no powder, never holds the gold for good), never while the base is attacked.
+const DUE_HOLD := 50.0
+const DUE_REST := 30.0
+var _due_since := -1.0
+var _due_rest := 0.0
+var _due_t := -1.0
+var _due_v := 0
+
+
+func gun_due() -> int:
+	if game.clock == _due_t:
+		return _due_v
+	_due_t = game.clock
+	_due_v = 0
+	if game.clock < _due_rest or ai._threat() != Vector2.INF:
+		return 0
+	var w := _gun_want()
+	if w.is_empty():
+		_due_since = -1.0
+		return 0
+	if _due_since < 0.0:
+		_due_since = game.clock
+	elif game.clock - _due_since > DUE_HOLD:
+		_due_since = -1.0
+		_due_rest = game.clock + DUE_REST
+		return 0
+	_due_v = int(Defs.UNITS[w[0]]["cost"]) + int(w[2])
+	return _due_v
+
+
+## [kind, Foundry] of the next gun the push wants, or [] (none wanted, no idle Foundry, no powder for it).
+func _gun_want() -> Array:
+	if ai._res2() < 20.0:
+		return []
 	var army: Array = game.army(ai.team)
 	var cannons := 0
 	var mortars := 0
@@ -616,19 +661,20 @@ func produce() -> void:
 	var want_c := clampi(1 + muskets / 5, 1, CANNONS_MAX)
 	var want_m := clampi(muskets / 7, 0, MORTARS_MAX)
 	if muskets < 4:
-		return
+		return []
+	var k := ""
+	if cannons < want_c:
+		k = "cannon"
+	elif mortars < want_m:
+		k = "mortar"
+	if k == "":
+		return []
 	for f in ai._mine("foundry"):
-		if not f.built or f.queue.size() >= 1:
-			continue
-		var k := ""
-		if cannons < want_c:
-			k = "cannon"
-		elif mortars < want_m:
-			k = "mortar"
-		if k == "" or ai._gold() < int(Defs.UNITS[k]["cost"]) or game.can_train(f, k) != "":
-			continue
-		if game.train(f, k) == "":
-			if k == "cannon":
-				cannons += 1
-			else:
-				mortars += 1
+		if f.built and f.queue.is_empty():
+			var why: String = game.can_train(f, k)
+			if why == "" or why.begins_with("Not enough gold"):
+				var extra := 0
+				if game.free_horse_at(f) == null and game.spare_horse(ai.team, f) == null:
+					extra = int(Defs.UNITS["horse"]["cost"])        # (no horse to hand: a Breeder trains one, paid now)
+				return [k, f, extra]
+	return []

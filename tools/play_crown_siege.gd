@@ -73,7 +73,12 @@ func _finish() -> void:
 			f.store_line("econ %d labourers %d gold %d army %d enemy_army %d" % [m / 60, e[0], e[1], e[2], e[3]])
 	f.store_line("total killed %d lost %d" % [int(g.stats[0]["value_killed"]), int(g.stats[1]["value_killed"])])
 	if _ai and _ai.siege:
-		for p in _ai.siege.pushes:
+		var sg: AICrownSiege = _ai.siege
+		if not sg.cur.is_empty() and float(sg.cur.get("end", -1.0)) < 0.0:
+			sg.cur["killed"] = int(g.stats[0]["value_killed"]) - sg._kill_base
+			sg.cur["lost"] = int(g.stats[1]["value_killed"]) - sg._loss_base
+			sg.cur["why"] = "still out at the end"
+		for p in sg.pushes:
 			f.store_line("push t0 %s sup %d guns %d cannons %d line %d value %d end %s why [%s] killed %d lost %d broke %s sets %d" % [
 				_mmss(float(p["t0"])), int(p["sup"]), int(p["guns"]), int(p["cannons"]), int(p["line"]), int(p["value"]),
 				_mmss(float(p["end"])) if float(p["end"]) >= 0.0 else "-", String(p["why"]), int(p.get("killed", -1)), int(p.get("lost", -1)),
