@@ -70,6 +70,11 @@ var trained := 0
 var _seen_t := -99.0
 var _next_id := 1
 var _scout_b: Unit = null
+var bad: Array = []              # [position, clock] where anti-air chased a party off
+const BAD_R := 520.0
+const BAD_FOR := 150.0
+const EVADE_T := 7.0             # (s) a party flies away from anti-air this long (or till clear), then picks again
+const DEFEND_MIN := 180.0        # an attack at home worth this much (seen) is helped from the air
 
 
 func _init(a) -> void:
@@ -291,6 +296,12 @@ func _pick_target(party: Dictionary) -> Vector2:
 		for u in used:
 			if (u[0] as Vector2).distance_to(p) < USED_GAP and game.clock - float(u[1]) < USED_FOR:
 				s -= 25.0
+		for x in bad:
+			if (x[0] as Vector2).distance_to(p) < BAD_R and game.clock - float(x[1]) < BAD_FOR:
+				s -= 60.0           # (anti-air chased a party off near there lately)
+		var w := _route(b.position, p)
+		var line := aa_line(b.position, p) if w == Vector2.INF else aa_line(b.position, w) + aa_line(w, p)
+		s -= minf(line / maxf(val, 1.0) * 10.0, 60.0)
 		s -= b.position.distance_to(p) / 160.0
 		if s > bs:
 			bs = s
@@ -440,7 +451,8 @@ func _party(p: Dictionary) -> void:
 	# home under attack: a loaded party near home fires down on the attackers from behind our line
 	if p["phase"] in ["fly", "home", "load"] and not _aboard(p).is_empty():
 		var thr: Vector2 = ai._threat()
-		if thr != Vector2.INF and b.position.distance_to(_home()) < DEFEND_R * Defs.TILE and aa_at(thr) < _party_value(p) * FLEE_K:
+		if thr != Vector2.INF and b.position.distance_to(_home()) < DEFEND_R * Defs.TILE and aa_at(thr) < _party_value(p) * FLEE_K \
+				and army_at(thr, 450.0) >= DEFEND_MIN:
 			_phase(p, "defend")
 			p["at"] = thr
 			say("party %d hovers over the attack at home: the basket fires down" % p["id"])
@@ -476,6 +488,8 @@ func _party(p: Dictionary) -> void:
 			_lift(p)
 		"defend":
 			_defend(p)
+		"evade":
+			_evading(p)
 		"home":
 			_go_home(p)
 
@@ -536,9 +550,7 @@ func _fly(p: Dictionary) -> void:
 	var b: Unit = p["b"]
 	var at: Vector2 = p["at"]
 	if _danger(p):
-		used.append([at, game.clock])
-		say("party %d turns back: anti-air on the way (%d of it)" % [p["id"], int(aa_at(b.position, 40.0))])
-		_go(p)
+		_evade(p, "anti-air on the way")
 		return
 	if p["wp"] != Vector2.INF:
 		if b.position.distance_to(p["wp"]) < 80.0:
@@ -608,8 +620,11 @@ func _prey(at: Vector2, r := 520.0) -> Array:
 func _strike(p: Dictionary) -> void:
 	var b: Unit = p["b"]
 	var t := game.clock - float(p["since"])
-	if _danger(p) or b.hp < b.max_hp * HURT:
-		say("party %d pulls back from %s (%s)" % [p["id"], _what_at(p["at"]), "anti-air" if _danger(p) else "the balloon is hurt"])
+	if _danger(p):
+		_evade(p, "anti-air over " + _what_at(p["at"]))
+		return
+	if b.hp < b.max_hp * HURT:
+		say("party %d pulls back from %s (the balloon is hurt)" % [p["id"], _what_at(p["at"])])
 		_go(p)
 		return
 	var prey := _prey(b.position, 420.0)
@@ -797,7 +812,7 @@ func _lift(p: Dictionary) -> void:
 func _defend(p: Dictionary) -> void:
 	var b: Unit = p["b"]
 	var thr: Vector2 = ai._threat()
-	if thr == Vector2.INF or _danger(p) or b.hp < b.max_hp * HURT:
+	if thr == Vector2.INF or _danger(p) or b.hp < b.max_hp * HURT or army_at(thr, 450.0) < DEFEND_MIN * 0.4:
 		_go(p)
 		return
 	# over the attackers, a little behind our side of them
@@ -928,3 +943,37 @@ func _mmss(t: float) -> String:
 	if t < 0.0:
 		return "-"
 	return "%d:%02d" % [int(t) / 60, int(t) % 60]
+
+
+## Anti-air near: fly straight away from it (toward home), then pick the next target with that place rated down.
+func _evade(p: Dictionary, why: String) -> void:
+	var b: Unit = p["b"]
+	var c := Vector2.ZERO
+	var n := 0.0
+	for k in aa:
+		var e: Array = aa[k]
+		var pos: Vector2 = k.position if (k is Unit and is_instance_valid(k)) else e[0]
+		if pos.distance_to(b.position) < float(e[3]) + AA_MARGIN + 200.0:
+			c += pos * float(e[2])
+			n += float(e[2])
+	var away := (_home() - b.position).normalized()
+	if n > 0.0:
+		c /= n
+		away = ((b.position - c).normalized() * 2.0 + away).normalized()
+		bad.append([c, game.clock])
+	if p["at"] != Vector2.INF:
+		used.append([p["at"], game.clock])
+	var size := Vector2(Game.W, Game.H) * Defs.TILE
+	b.cmd_move((b.position + away * 420.0).clamp(Vector2(64, 64), size - Vector2(64, 64)))
+	_phase(p, "evade")
+	say("party %d backs off: %s (%d of it)" % [p["id"], why, int(aa_at(b.position, 40.0))])
+
+
+func _evading(p: Dictionary) -> void:
+	var b: Unit = p["b"]
+	var t := game.clock - float(p["since"])
+	if t > EVADE_T and not _danger(p) or t > EVADE_T * 3.0:
+		_go(p)
+	elif b.order != "move" or b.velocity.length() < 2.0:
+		var away := (_home() - b.position).normalized()
+		b.cmd_move(b.position + away * 300.0)

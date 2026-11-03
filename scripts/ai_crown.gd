@@ -126,7 +126,8 @@ const PLANS := {
 		"s": {"wave": 9, "step": 6, "workers": 1.0, "expand": 1.0, "halls": 3}},     # (after the rush, a full economy: the
 		# shared Rush settings, 0.75 of the posts and a late hall, held 2 farms' worth of labourers till 6:00, ba3 Red Coast)
 	# BALLOON HARASS (crown-builds-c, docs/crown_builds_c.md; the harass itself: scripts/ai_crown_balloon.gd): the safe
-	# Musketeer opening, the Foundry at 10 labourers and the first balloon from it, the second hall at 15, the second balloon;
+	# Musketeer opening (four Musketeers, the soldiers wait at 6 supply), the Foundry at 10 labourers and the first balloon
+	# from it, then soldiers again (14 supply), the second hall at 15, the second balloon;
 	# then the balloons carry Musketeers to the enemy's workers while the army holds at home (Balanced's numbers after it)
 	"balloon": {"opening": "mill", "labs": 99, "army": 0.55, "mill": [[0, 3], [13, 5], [16, 6]], "balloons": 2,
 		"bo": [
@@ -134,10 +135,11 @@ const PLANS := {
 			{"do": "wall_gate", "at": {"sup": 5}},
 			{"do": "build", "k": "barracks", "at": {"labs": 7}},
 			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
-			{"do": "army", "k": "musketeer", "cap": 12},
+			{"do": "army", "k": "musketeer", "cap": 6},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
-			{"do": "build", "k": "foundry", "at": {"labs": 12}},
+			{"do": "build", "k": "foundry", "at": {"labs": 10}},
 			{"do": "balloons", "n": 1, "at": {"has": "foundry"}},
+			{"do": "army", "k": "musketeer", "cap": 14},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
 			{"do": "balloons", "n": 2, "at": {"has": "foundry"}},
 		],
