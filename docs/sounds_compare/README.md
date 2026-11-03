@@ -99,3 +99,7 @@ All three are set to the loudness of the old sound, as far as the drum strokes a
 If you prefer 2c (or the first version, 2), it is one name in `tools/audio/make_recruit.py` (`fife_drums("2b")` in `SOUNDS`), and the mix gain in `scripts/sound_mix.gd` goes to what `python3 tools/audio/make_recruit.py fife_drums` prints for it (2b -1.3, 2c -0.9, 2 -1.2), so it stays as loud as before. The notes and where they come from are `FIFE_ON` in that file.
 
 If you prefer 1 or 3, it is one number in `tools/audio/make_recruit.py` (`fife_drums("2b")` in `SOUNDS`). `python3 tools/audio/make_recruit.py fife_drums` remakes these files (1, 2, 3, 2b, 2c); `python3 tools/audio/make_recruit.py barracks --built` puts the old note-by-note tune (`cadence_a.ogg`) back.
+
+## 0.26.21: the owner chose the original candidate 2
+
+Owner: "I think original fife and drums 2 is better, use it for now." The game plays fife_drums_2.ogg (fife_music.mp3 70.8-74.4 s) as it was recorded; mix gain -1.2. 2b and 2c stay here for comparison.

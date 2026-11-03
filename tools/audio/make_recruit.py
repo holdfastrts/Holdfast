@@ -46,7 +46,7 @@ drum-band tracking; see FIFE_DRUMS):
   3  12.78-15.47 s: the F major strain's last bars: B flat chord, F chord, B flat, F held, then the short final
      F chord stabbed with the drum's last stroke (a plagal "a-men" close).
 The old built tune stays: `make_recruit.py barracks --built` (ending a; --built=b or --built=held for the others;
-its mix gain was -3.0 dB, candidate 1's -1.8, 2b's is -1.3)."""
+its mix gain was -3.0 dB, candidate 1's -1.8, 2b's -1.3, candidate 2's (in the game since 0.26.21) -1.2)."""
 import os, subprocess, sys
 import numpy as np
 from scipy.signal import butter, lfilter, sosfiltfilt
@@ -314,7 +314,7 @@ def foundry():
     return seg
 
 
-SOUNDS = {"barracks_1": lambda: fife_drums("2b"), "foundry_1": foundry}      # (town_hall_1: make_bugle.py; horse_breeder_1: make_breeder_select.py)
+SOUNDS = {"barracks_1": lambda: fife_drums(2), "foundry_1": foundry}      # (town_hall_1: make_bugle.py; horse_breeder_1: make_breeder_select.py)
 
 
 def compare():

@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.21", "items": [
+		"THE BARRACKS PLAYS THE BAND'S OWN ENDING (the owner's choice): the end of a slow piece from the fife-and-drum recording, as it was played, landing on the home note with a big drum stroke and two more strokes ringing away. The added fife notes of 0.26.19 are gone.",
+	]},
 	{"v": "0.26.20", "items": [
 		"A BROOD SIDE TAKEN OVER BY THE COMPUTER PLAYS AS THE BROOD: online, when a Brood player left, the computer that took over their side was the one for the Crown and the Clockwork. The Brood has no buildings, so it stood looking for a hall to build and threw an error every tick. It is now the Brood's own computer, as in a skirmish.",
 	]},

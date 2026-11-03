@@ -486,7 +486,7 @@ const GAIN := {
 	"res://assets/voice/crown_bugle/patrol_1.wav": -6.1,
 	"res://assets/voice/crown_bugle/stop_1.wav": -7.2,
 	"res://assets/voice/crown_bugle/trained_1.wav": -6.4,
-	"res://assets/voice/crown_recruit/barracks_1.wav": -1.3,
+	"res://assets/voice/crown_recruit/barracks_1.wav": -1.2,
 	"res://assets/voice/crown_recruit/foundry_1.wav": -1.4,
 	"res://assets/voice/crown_recruit/horse_breeder_1.wav": -4.3,
 	"res://assets/voice/crown_recruit/town_hall_1.wav": -6.4,
