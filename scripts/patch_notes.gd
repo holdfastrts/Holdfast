@@ -4,11 +4,17 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
-	{"v": "0.26.3", "items": [
+	{"v": "0.26.5", "items": [
 		"THE CLOCKWORK COMPUTER AGAINST A SWARM: once it has seen a mass of Raptors (10 or more light melee creatures among the fighters it saw lately, at least half of them), it builds the Heavy Works and its Pendulums first (whose blades cut every enemy in the arc), before Ballistas, the Great Winder or more Springers, two to six of them; it adds a Ratchet Turret at home; it does not expand or send a new wave into a swarm clearly bigger than its army until two Pendulums are out.",
 		"THE CLOCKWORK COMPUTER FINDS ROOM FOR ITS HEAVY WORKS: since Tension flows through the whole gear network (0.25.0) the Heavy Works need not stand beside a Mainspring, and the computer now takes any spot a Mainspring feeds, and keeps room for its big ring from about 2:50 so its Regulators do not take it. (In a cramped main it lets that room go if the Mainspring and the Escapement need it, and builds the Heavy Works on a new hall's field.)",
 		"THE CLOCKWORK COMPUTER'S WINDERS STAY WITH ITS WAVE: the Winders that go with an attack follow the wave itself (not the middle of the whole army), no longer run home from the fight like raided workers, and walk home with the wave when it pulls back.",
 		"FIX: a computer's rush is no longer called a success because the soldiers sent after it were not counted, nor 'finished' when it saw only one worker and no army (the Brood's grubs sit unseen behind its rooted creatures).",
+	]},
+	{"v": "0.26.4", "items": [
+		"SCATTER COGS, THE GREAT WINDER'S SLOW FIELD (the owner's idea: a slow spell without magic): press SCATTER COGS (C) and tap a spot within 6 tiles. Its key arm winds up for half a second, then its hopper flings a shower of cogs, bolts and springs that litter a circle of 2.5 tiles for 15 s. Enemies on the ground in the litter move 40% slower (their attacks are not slowed); flyers and your own units are not slowed. It costs 40 cogs and the hopper refills in 25 s. The Clockwork computer throws it on clumps of charging melee (Raptors, Horsemen) and on armies running away.",
+	]},
+	{"v": "0.26.3", "items": [
+		"RAIDING HORSEMEN AT THE NEW RAMP WALL (Cottage and Gate): the computer's raid strikes the ramp Cottage as well as the gate, so the riders spread over both instead of queueing at a one-tile gate. A labourer mending the gate from the riders' side is ridden down first rather than counted as endless repair, and a worker coming into sight on the near side no longer makes the raid give up on a gate it could break.",
 	]},
 	{"v": "0.26.2", "items": [
 		"THE BROOD COMPUTER DEFENDS AS A SWARM: its army at home gathers at a rally and holds there, so Raptors no longer run off one by one at every enemy they see. Enemies at home get a group sized to them, sent all at once: a few Raptors, or the Tyrant Sire for a small harass when there are no warriors to spare, the whole army for a real attack, and everything near the Mother when the fight is at her. An attack too strong to meet away from her makes the army gather on her side instead. The Mother stays rooted for a scout or a small harass (her swamp and the Rootmaws on it stay) and gets up only for a real attack, when hurt with nobody fighting for her, or as a last stand. A rooted Rootmaw that is struck gets up and bites back when it can win, or backs off to the Mother when it can't, then roots again on its spot.",
