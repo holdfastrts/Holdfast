@@ -1258,7 +1258,40 @@ func _build_card() -> Array:
 		if Defs.REFIT_AT.has(b.kind) and (game.has_refits(game.human) or _full_card):
 			# (once there's something to refit with)
 			_auto_refit_button(list, game.selected_buildings().filter(func(x: Building) -> bool: return Defs.REFIT_AT.has(x.kind) and x.built))
+		if b.team == game.human and b.crew_max() > 0:
+			_crew_buttons(list, b)
 	return list
+
+
+## + WORKER / - WORKER on a crewed building's card (scripts/crew_orders.gd): one worker at a press, phone and computer
+## alike. Several of the same kind selected: + goes to the one with the fewest workers, - takes from the one with most.
+func _crew_buttons(list: Array, b: Building) -> void:
+	var same: Array = game.selected_buildings().filter(func(x: Building) -> bool: return x.kind == b.kind and x.built and not x.dead and x.team == game.human)
+	if same.is_empty():
+		same = [b]
+	var add_to: Building = b
+	var take_from: Building = b
+	for x in same:
+		if CrewOrders.problem(game, x, true) == "" and (CrewOrders.problem(game, add_to, true) != "" or x.crew.size() < add_to.crew.size()):
+			add_to = x
+		if CrewOrders.problem(game, x, false) == "" and (CrewOrders.problem(game, take_from, false) != "" or x.crew.size() > take_from.crew.size()):
+			take_from = x
+	var awhy := CrewOrders.problem(game, add_to, true)
+	var rwhy := CrewOrders.problem(game, take_from, false)
+	var icon := "winder" if game.faction_of(game.human) == "clockwork" else "labourer"
+	var count := "%d/%d" % [b.crew.size(), b.crew_max()]
+	_tip_for["+ WORKER"] = ["+ Worker", "One more worker comes to work here: an idle one first, else the nearest one taken from the least important job (a Farm before a Powder Mill, haulers last)."]
+	_tip_for["- WORKER"] = ["- Worker", "One of its workers leaves for another job with room (a different kind of post first)."]
+	var at: Building = add_to
+	var tf: Building = take_from
+	list.append([icon, "+ WORKER", func() -> void:
+		var w := game.crew_order(at, true)
+		if w != "":
+			toast(w), awhy == "", awhy, count])
+	list.append([icon, "- WORKER", func() -> void:
+		var w := game.crew_order(tf, false)
+		if w != "":
+			toast(w), rwhy == "", rwhy, count])
 
 
 ## Does a building of this kind research anything?
