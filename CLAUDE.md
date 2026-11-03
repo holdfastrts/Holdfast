@@ -25,6 +25,12 @@
 
 ## Current work
 
+- STATIC DEFENCE IS NOT A BUILD (owner, 2026-11-03 21:45): "Good base design should be for all builds. Static defense
+  isn't a good strategy on its own: it is either a desperate attempt to hold a rush or a later security against harass so
+  you can concentrate your army." So cw-builds-a's TURRET TURTLE plan is NOT to be merged as a strategy: at merge, take its
+  good base layout (production behind the hall, Regulators/buildings toward the ramp) as a SHARED rule for every Clockwork
+  plan, and turrets only REACTIVE: an emergency vs a scouted/arriving rush, and later at expansions/worker lines against
+  harass so the army can leave home. The fast second Clocktower part may become the Clockwork's Economy plan.
 - COACHED BUILDS, "do it all" (owner, 2026-11-03 20:32): running now as cloud jobs: cw-builds-a (Clock Soldier rush,
   Turret turtle), cw-builds-b (Pendulums v Brood, Heavy Works push), cw-builds-c (air: Swifts -> Ticking Owls), plus
   brood-ai-tune, perf-stutter, perf-armies (big-army throughput), crown-builds-a (Dragoon raids), crown-builds-c (Balloon harass: a separate build, owner),
