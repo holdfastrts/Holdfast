@@ -31,6 +31,7 @@ var bo_reserve := 0              # gold set aside for the next step (nothing els
 var bo_army := false             # soldiers are trained in the opening (an "army" step came)
 var bo_army_cap := 0             # ... up to this much army supply (0: no cap)
 var bo_lab_cap := 99             # labourers in the opening at most
+var bo_army_first := false       # ... and they come before labourers (the Rush: a hall trains one only when every Barracks is busy)
 var bo_log: Array = []           # [clock, step text] of every step done (tests and the coach read it)
 var _bo_plan: Array = []         # the opening's steps (fixed at the start: a later change of plan does not change them)
 var _plan_of := ""
@@ -52,26 +53,26 @@ const LAB_COST := 50
 ## "mid" (after the opening): [kind, how many, {trigger}] in order; one is put up a think.
 ## "s": the shared plan settings it plays with (AI.STRATEGIES keys: wave, step, expand, halls, tech, workers).
 const PLANS := {
-	# the Economy plan: the second Farm at once, the Mill and the Barracks, a few Musketeers, then the second hall at
-	# 15 labourers (about 2:45); the army waits on the high ground while the halls fill
-	"economy": {"opening": "mill", "labs": 99, "mill": [[0, 2], [14, 4], [18, 6]],
+	# the Economy plan: the second Farm at 7 labourers, the Gate, the Barracks and the Mill at 8, six Musketeers, then the
+	# second hall at 15 labourers (about 3:10); the second Barracks with it; the army waits on the high ground
+	"economy": {"opening": "mill", "labs": 99, "army": 0.4, "mill": [[0, 2], [14, 4], [18, 6]],
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
 			{"do": "wall_gate", "at": {"labs": 7}},
 			{"do": "build", "k": "barracks", "at": {"labs": 8}},
 			{"do": "build", "k": "powder_mill", "at": {"labs": 8}},
-			{"do": "army", "k": "musketeer", "cap": 5},
+			{"do": "army", "k": "musketeer", "cap": 6},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
 		],
-		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {"labs": 20}], ["foundry", 1, {"labs": 26, "halls": 2}],
-			["barracks", 2, {"labs": 28}], ["armoury", 1, {"labs": 32}], ["church", 1, {"labs": 40, "halls": 2}],
-			["barracks", 3, {"labs": 40}], ["foundry", 2, {"labs": 48, "halls": 3}]],
+		"mid": [["barracks", 1, {}], ["barracks", 2, {"labs": 20, "halls": 2}], ["horse_breeder", 1, {"labs": 22}],
+			["foundry", 1, {"labs": 26, "halls": 2}], ["armoury", 1, {"labs": 30}], ["barracks", 3, {"labs": 34}],
+			["church", 1, {"labs": 40, "halls": 2}], ["foundry", 2, {"labs": 48, "halls": 3}]],
 		"s": {"wave": 34, "step": 10}},
 	# Balanced: the safe Musketeer opening (the ramp Cottage and its Gate, the Barracks and the Mill at once: three Musketeers
 	# by about 2:30 against a rush, tools/test_ai_wall_vs_rush.gd), the second Farm, the Breeder for a rider scout, the second
-	# hall at 17 labourers
-	"balanced": {"opening": "mill", "labs": 99, "mill": [[0, 3], [13, 5], [16, 6]],
+	# hall at 15 labourers
+	"balanced": {"opening": "mill", "labs": 99, "army": 0.55, "mill": [[0, 3], [13, 5], [16, 6]],
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
@@ -79,16 +80,16 @@ const PLANS := {
 			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
 			{"do": "army", "k": "musketeer", "cap": 8},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
-			{"do": "build", "k": "horse_breeder", "at": {"labs": 14}},
-			{"do": "hall", "n": 2, "at": {"labs": 17}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 13}},
+			{"do": "hall", "n": 2, "at": {"labs": 15}},
 		],
-		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {"labs": 22}], ["foundry", 1, {"labs": 24}],
-			["armoury", 1, {"labs": 28}], ["church", 1, {"labs": 36, "halls": 2}], ["barracks", 3, {"labs": 34}],
+		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {"labs": 18}], ["foundry", 1, {"labs": 22}],
+			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
 			["foundry", 2, {"labs": 44, "halls": 3}]],
 		"s": {"wave": 18, "step": 8}},
 	# Timing attack: one hall, two Barracks, the Breeder, the Foundry (a cannon goes with the wave) and the first wave of
 	# 22 supply (about 5:30); the second hall goes down behind it (the milestones)
-	"timing": {"opening": "mill", "labs": 19, "mill": [[0, 3], [14, 5]],
+	"timing": {"opening": "mill", "labs": 19, "army": 0.7, "mill": [[0, 3], [14, 5]],
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
@@ -105,14 +106,14 @@ const PLANS := {
 			["church", 1, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 28}], ["foundry", 2, {"labs": 40, "halls": 3}]],
 		"s": {"wave": 22, "step": 8, "timing": 0.0, "expand": 0.6}},
 	# Rush: the Horse Breeder opening. The ramp Cottage, the Barracks at 7, the Breeder at 8, the second Farm, Horsemen
-	# nonstop; the labourers stay at 12 until the first 3 Horsemen are out (about 3:00), then the milestones
-	"rush": {"opening": "breeder", "labs": 12, "mill": [[0, 2]],
+	# before labourers; the labourers stay at 12 until the first 3 Horsemen are out (about 3:30), then the milestones
+	"rush": {"opening": "breeder", "labs": 12, "army": 0.55, "mill": [[0, 2]],
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "build", "k": "barracks", "at": {"labs": 7}},
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 8}},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
-			{"do": "army", "k": "cuirassier", "cap": 0},
+			{"do": "army", "k": "cuirassier", "cap": 0, "first": true},
 			{"do": "wall_gate", "at": {"labs": 10}},
 			{"do": "attack", "n": 9, "at": {"army": 9}},
 		],
@@ -198,7 +199,32 @@ func bo_owns() -> bool:
 
 
 func _base_trains_labs() -> bool:
-	return not bo_owns()
+	if bo_owns():
+		return false
+	return not _army_due()
+
+
+## (the doctrine's economy-first keeps a labourer's gold from the soldiers; not while the soldiers are due)
+func _econ_keep(for_army := false) -> int:
+	var k := super(for_army)
+	if on and _lab_short and _army_due():
+		k = maxi(0, k - int(Defs.UNITS[_f()["worker"]]["cost"]))
+	return k
+
+
+## AN ARMY THE SIZE OF THE ECONOMY (after the opening): while the army's supply is under the plan's share of the labourers
+## ("army": economy 0.4, balanced 0.55, timing 0.7), a hall trains a labourer only when every Barracks is busy, so the gold
+## goes to soldiers first (coached games a01, a12: 30-32 labourers and 420-455 of army at 6:00, the Brood's Timing attack
+## at 6:00-6:30 took both halls). Triggered by the economy, not the clock.
+func _army_due() -> bool:
+	if not on or difficulty < 1 or peaceful:
+		return false
+	var share := float(plan.get("army", 0.5))
+	if _army_supply(game.army(team)) >= int(share * game.workers(team).size()):
+		return false
+	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
+		return false            # (supply-blocked: the Cottage, not the soldiers)
+	return _mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty())
 
 
 func _plan_tech() -> bool:
@@ -311,6 +337,7 @@ func _bo_tick() -> void:
 		if String(st["do"]) == "army":
 			bo_army = true
 			bo_army_cap = int(st.get("cap", 0))
+			bo_army_first = bool(st.get("first", false))
 			_bo_next(st)
 			continue
 		if String(st["do"]) == "labs":
@@ -370,6 +397,8 @@ const DEF_MUSK := 6
 
 
 func _soldiers_first() -> bool:
+	if bo_army_first and (bo_army_cap <= 0 or _army_supply(game.army(team)) < bo_army_cap):
+		return _mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty())
 	if not _defending():
 		return false
 	var musk := game.army(team).filter(func(u: Unit) -> bool: return Defs.MUSKETS.has(u.kind)).size()

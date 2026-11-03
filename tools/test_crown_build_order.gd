@@ -13,7 +13,7 @@ extends SceneTree
 ##  [rush]    the Rush plan (Horse Breeder opening): the first attack goes out with three Horsemen by RUSH_BY and ends the
 ##            opening
 ##  [switch]  with `on` false the computer is the shared one (no build order owns the gold)
-const PAY_LATE := 45.0
+const PAY_LATE := 60.0          # (one harvest: a farm with part of its crew pays every 40-60 s, the gold comes in lumps)
 const HALL_IDLE := 30.0
 const HALL_BY := 270.0
 const LAB_MIN := 26
