@@ -76,7 +76,7 @@ const RULES := [
 	["^'s ramp wall stands", "%s's ramp wall is up.", 1, "wall"],
 	["^plans a walled expansion", "%s plans a walled expansion.", 2, "wall"],
 	["^lays (\\d+) wall pieces at its new hall", "%s walls in its new hall: %s pieces.", 1, "wall"],
-	["^(?:closes an empty wall slot|found no wall plan|has no Cottage wall plan|sends a Labourer back)", "", 1, "wall"],
+	["^(?:closes an empty wall slot|plans palisade for an empty wall slot|found no wall plan|has no Cottage wall plan|sends a Labourer back)", "", 1, "wall"],
 	# ---- the economy and expansions
 	["^is expanding to fresh (\\w+) \\(left at its best hall: (\\d+)%\\), (\\d+) tiles", "%s expands to fresh %s: its best base has only %s%% left, so it goes %s tiles out.", 3, "expand"],
 	["^'s economy is saturated on (\\d+) halls?", "%s's economy is full on %s bases: it needs a new one to grow.", 2, "expand"],

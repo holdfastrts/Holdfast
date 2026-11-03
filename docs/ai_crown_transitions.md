@@ -338,3 +338,106 @@ all pass. `tools/test_raid_kite.gd`: all pass.
 Open: the first Horseman waits for the horse logistics (Breeder to Barracks); the Crown computer against the Brood
 economy still loses by 11-13 minutes (army 4-5 times smaller at 8:00); scouts are re-picked at once after a hand-off
 (the match log repeats "sends a Horseman to scout"); more games per row to call results.
+
+## 11. Economy first, the phantom threat and the Brood read (0.27.1, branch crown-econ)
+
+The owner's log `docs/playtests/2026-11-03/crown_econ_v_brood_timing_redcoast.txt` (v0.27.0, Red Coast 2p, seed
+4291306512, Crown HARD ECONOMY v Brood HARD TIMING, cut at 7:12): "analyse this game". The headless study replays it
+almost line for line with `open0:mill` (same 300 holds, the same "greedy" call at 5:05, the same three stray Musketeers
+at 4:18, Breeder 4:04 and first Horse 4:59).
+
+### What the log showed, checked in the code
+
+1. **The economy starved, but not for want of a Farm slot.** The log's "Farm at 2:23" was the *second* farm: the Crown
+   starts with one, and a hall allows two (`Defs` "econ" farm 2 a hall), so the main had both from 2:23. The real faults:
+   the labourers stayed at 17-19 from 3:50 to 5:40 on 22-34 posts (gold 0-40 at every look, nothing queued at the Town
+   Hall), and the new hall's farms came 70-100 s after it stood. The gold went first to whatever stage of the think came
+   after a harvest: the scout's "uncertain" verdict (the scout was turned back at 1:17) asks for **three Barracks on
+   Hard** (`AIScout._defence`: the 4:16 and 6:09 Barracks), then the Armoury, Foundry, Church, a Horse Breeder and two
+   spare horses; the labourers are trained in stage 0 only from what is left.
+2. **The phantom threat was the Brood's ramp-watch grub.** `AI._threat()` counted *any* enemy within 330 px of any of our
+   buildings, seen or not; the grub the Brood sends "to watch the foot of the enemy's ramp" (1:10) stood unseen by the
+   ramp Cottage, and `AICrownHold.force_at` values an unseen threat at `AI.DEF_UNSEEN` (300). So the army held the top,
+   the labourers below ran up, and `_hall_first`'s "no threat" condition kept the expansion back until 5:10.
+3. **The scout's "greedy economy" at 5:05** came from a look that saw the Brood Mother and one Mound Turtle rooted on new
+   ground (counted as 2 halls) and nothing else: no Rootmaw, no grub, no Sire, no army (the 15 Raptors were out of its
+   base). Rooted creatures were already read as structures (0.18.0); what was missing is any check that the scout had
+   actually seen the Brood's economy or looked for its army. The 6:31 "rush" was the Brood's real timing attack (an
+   early army in our base): left as it is.
+4. **The stray Musketeers**: the 0.26.7 rule sent a slow soldier home only when it was *alone*; three of them out
+   together were each "not alone" and were adopted as a harassing band ("out alone" was the adopt reason's wording).
+5. **The idle horses**: with no Horseman ordered, `_buy_horses` kept a spare horse (4:59) and the Foundry's (5:40); the
+   first Horseman was ordered only when the Barracks found gold, at 5:45-6:05, then hauled and trained (6:06).
+6. **Walls under attack: not laid.** "closes an empty wall slot ... with palisade" only *adds* the slot to the plan;
+   pieces are laid by `AIExpandWall._lay_pieces` ("lays N wall pieces"), which already waits for `wall_sat` and
+   `wall_yield` (no such line in the log). The line now says what it is. The dropped Powder Mill at 6:48 was a site placed
+   by the new hall while the Brood was there: its builder fled.
+
+### The fix
+
+- **Economy first** (`AI._econ_first`, `_econ_keep`, `_hide_econ`, `_farm_due`, `_econ_wait`; doctrine on, not the Rush
+  plan, before 10:00; off in a fight at home or while a feared rush has the first Musketeers still to come). Stage 1
+  (buildings) is played without the gold for the next labourer (a hall with nothing queued and labourers short of the
+  target), the next Farm (`_farm_due`: a slot free and 3 posts or fewer free on the farms, or a hall with no Farm) and
+  the first Horseman (`AICrownHold.wants_rider`, Barracks and Breeder standing). Stage 2 (research, training) keeps the
+  labourer's price always and the Farm's once the army has the doctrine's minimum for the clock and is not short.
+- **Tech waits for the economy** on the Economy and Balanced plans (`_econ_wait`: a Farm due, or labourers under 80% of
+  the posts): the second and third Barracks, Foundry, Armoury and Church, and a Barracks or Church in a new hall's wall
+  slot; the scout's "uncertain" plan asks for one Barracks, not three, meanwhile.
+- **No spare horse before the first rider** (`_buy_horses`): the Horseman's order brings its own horse.
+- **No econ building placed where a fight is** (`_econ_build`, `_unsafe` at the spot).
+- **Phantom threats** (`AI._threat_seen`, Crown Normal and up): an enemy by our buildings counts when we see it (or saw it
+  in the last 20 s: `_sighted`), or when that building was hit in the last 10 s (guns from the dark keep `DEF_UNSEEN`).
+- **The Brood read** (`AIScout._brood_seen_enough`, `_brood_reason`): "greedy" needs 2 rooted Rootmaws or 8 grubs seen,
+  and the Mother's ground 45% looked at or the Brood's army seen lately (`AICrownHold.army_known_lately`), and the
+  Brood's army known (`foe_known`) under half its rush value; the match log names what was seen ("the Mother and 1 turtle
+  on new ground, 3 Rootmaws and 9 grubs seen, 1 Sire, ...").
+- **Crown soldiers slower than a rider are never harassers** (`AIHarass.adopt_strays`): found far from home, alone or
+  not, they walk back to the post.
+
+Study switches: `-- econ:off`, `-- phantom:off`, `-- broodread:off`, `-- strays:off` (all four: plays as 0.27.0).
+
+### Before and after (Hard v Hard, headless, 12:00, `tools/study/study_game.gd`, Crown Economy v Brood Timing)
+
+"Before" = the four switches off. Red Coast a/b = the owner's seed with the Mill opening (two runs: the study is not
+exactly repeatable); "7" and "11" are other Red Coast seeds with the opening left to chance; Kestrel Rise (2039763518) v
+the Brood ECONOMY. Labourers / farms at 6:00; earned at 6:00 and 8:00; holds = "holds the top" lines before the Brood's
+first attack (all at the phantom 300); Breeder to first Horseman.
+
+| game | run | labourers 6:00 | farms 6:00 | 2nd hall | earned 6:00 / 8:00 | Crown army 6:00 / 7:00 | phantom holds | scout | Breeder -> Horseman | result |
+|---|---|---|---|---|---|---|---|---|---|---|
+| RC owner a | before | 21 | 2 | 5:10 | 3,420 / 5,320 | 260 / 495 | 4 | greedy 5:05 | 4:04 -> 6:28 | Brood (gg) 9:39 |
+| | after | 26 | 3 | 5:04 | 3,420 / 5,700 | 715 / 760 | 0 | - | 4:58 -> 5:54 | Brood wins 9:01 |
+| RC owner b | before | 21 | 2 | 5:14 | 3,420 / 5,700 | 260 / 665 | 4 | greedy 5:07 | 4:04 -> 6:25 | Brood (gg) 10:03 |
+| | after | 27 | 3 | 5:04 | 3,420 / 5,700 | 715 / 935 | 0 | - | 4:58 -> 5:54 | Brood on lead at 12:00 |
+| RC 7 | before | 19 | 2 | 5:08 | 3,420 / 5,320 | 410 / 860 | 4 | greedy 5:05 | 4:04 -> 5:52 | Brood (gg) 10:43 |
+| | after | 27 | 3 | 5:03 | 3,420 / 6,080 | 660 / 720 | 0 | - | 4:58 -> 8:40 (supply-capped, Cottages lost) | Brood on lead at 12:00 |
+| RC 11 | before | 21 | 2 | 5:09 | 3,420 / 5,320 | 260 / 570 | 4 | greedy 5:05 | 4:03 -> 6:38 | Brood (gg) 9:45 |
+| | after | 29 | 3 | 4:27 | 3,420 / 6,840 | 660 / 895 | 0 | - | 5:53 -> 6:35 | Brood on lead at 12:00 |
+| Kestrel v Brood econ | before | 21 | 2 | 5:00 | 3,420 / 6,080 | 460 / 750 | 4 | - | 4:09 -> 6:28 | Brood on lead at 12:00 (army 1,360 v 5,775) |
+| | after | 29 | 3 | 4:54 | 3,800 / 7,600 | 655 / 985 | 0 | - | 4:56 -> 5:52 | **even at 12:00** (earned 17,100 v 9,880; army 3,500 at 11:00) |
+
+Read:
+- **The hands come**: 26-29 labourers at 6:00 against 19-21, the third Farm by 5:54 everywhere (6:04-6:49 before), the
+  income from minute 6 to 8 up by about a quarter (2,280-3,800 against 1,900-2,660). Earned at 6:00 is the same lump count: the
+  new hall's farms pay from about 6:30.
+- **The phantom is gone**: no hold before a real enemy force in any game (4 at "300" in every game before); the army's
+  first hold is against the real attack (615-1,000).
+- **No misread, no strays**: no "greedy" call against the Brood (5:05 in all four Red Coast games before), no Musketeer
+  harass line (3 a game before).
+- **The first Horseman** comes 40-60 s after the Breeder (1:50-2:25 before), with no spare horse bought first; the Breeder
+  itself comes later (4:56-5:53 against 4:04): it waits behind the new hall's farms.
+- **Results**: the Brood's Hard Timing attack still wins Red Coast (its army is 2-3 times the Crown's at 7:00-8:00), but
+  the Crown now lives to 12:00 in 3 of 4 games (gg at 9:39-10:43 in all four before); Kestrel against the Brood economy
+  goes from a Brood lead to even. One game per row: the timings are the solid part.
+
+Tests: `tools/test_crown_farms.gd` (new: the unseen grub is no threat and never makes the army hold; with the farms full
+a free Farm slot is built within 60 s, no idle labourers, 24+ labourers and 3 farms at 6:00 against a still Brood, which
+0.27.0 fails at 19 and 2; three Musketeers together walk home; the Mother and a far turtle are not "greedy"): all pass.
+`tools/test_crown_hold.gd`, `tools/test_raid_kite.gd`: all pass. `tools/test_ai_wall_vs_rush.gd`: only the known
+third-Musketeer limit (165 s default, 167 s Ashfall, the same with the four switches off: 165 and 166), 1 and 0 labourers
+lost.
+
+Open: the Crown computer still loses to the Brood's Hard Timing attack on Red Coast (the Brood's army 2,150 at 6:00
+against 660-715); the Breeder now waits behind the farms, so a rider scout comes at about 6:00; the study tool's gg check
+throws on the Brood computer (`AIBroodNew.gg_view`, pre-existing, harmless to the results).

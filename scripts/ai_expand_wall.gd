@@ -122,7 +122,7 @@ func _run(p: Dictionary) -> void:
 			for c in s["cover"]:
 				p["pieces"].append(["wall", c])
 			if game.mlog:
-				game.mlog.add("%s closes an empty wall slot at its new hall with palisade (%d pieces)" % [game.mlog.who(ai.team), (s["cover"] as Array).size()])
+				game.mlog.add("%s plans palisade for an empty wall slot at its new hall (%d pieces, laid later)" % [game.mlog.who(ai.team), (s["cover"] as Array).size()])
 		elif hall.built:
 			_fill_slot(p, s)
 	_lay_pieces(p)
@@ -150,6 +150,8 @@ func _fill_slot(p: Dictionary, s: Dictionary) -> void:
 		return          # (supply it can't use: palisade at SLOT_WAIT instead)
 	if kind == "church" and not ai._mine("church").is_empty():
 		return
+	if kind != "cottage" and ai._econ_wait():
+		return          # (CROWN ECONOMY FIRST: no Church or Barracks in a slot while a Farm is due or the hands are short)
 	if kind == "barracks" and (ai._mine("barracks").size() >= 9 or spare < 100):
 		return
 	ai._construct(kind, s["cell"])

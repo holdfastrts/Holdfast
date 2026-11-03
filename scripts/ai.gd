@@ -479,13 +479,16 @@ func _think_stage(i: int) -> void:
 			var rk1 := _hide_repair()
 			_keep_tech()
 			_supply()
+			var ek1 := _hide_econ()         # (CROWN ECONOMY FIRST: the next labourer, Farm and rider before more buildings)
 			_build_up()
-			game.players[team]["gold"] += rk1
+			game.players[team]["gold"] += rk1 + ek1
 			_lap("ai/build", pt)
 		2:
 			var kept := _hide_kept()
+			var ek2 := _hide_econ(true)     # (... and before more soldiers, once the army has its minimum)
 			_research()
 			_produce()
+			game.players[team]["gold"] += ek2
 			pt = _lap("ai/produce", pt)
 			ch.tick()           # (the rider scouts are picked before the raid party forms)
 			if difficulty >= 1 and _crown() and not peaceful:
@@ -1572,6 +1575,7 @@ func _workers() -> void:
 	if _clock() and _mine(_works()).is_empty() and game.clock > _lv([90.0, 60.0, 40.0]) and labs.size() >= 7 \
 			and _gold() < int(Defs.BUILDINGS[_works()]["cost"]) + 20:
 		hold_gold = true            # (the Winders wait for the Works' 200)
+	_lab_short = _crown() and not hold_gold and labs.size() + queued < want and _halls().any(func(h: Building) -> bool: return h.built and h.queue.is_empty())
 	for h in _halls():
 		if h.built and not hold_gold and labs.size() + queued < want and h.queue.size() < 2:
 			if game.train(h, worker) == "":
@@ -2113,6 +2117,8 @@ func _econ_build() -> void:
 				_reserve = int(Defs.BUILDINGS[kind]["cost"])    # save up for it first
 			return
 		var spot := _econ_spot(kind)
+		if spot.x >= 0 and _crown() and difficulty >= 1 and _unsafe((Vector2(spot) + Vector2(Defs.BUILDINGS[kind]["size"]) * 0.5) * Defs.TILE):
+			return          # (a fight there: its builder would run and the site be dropped, 0.27.0 Red Coast 6:48; after the fight)
 		if spot.x >= 0:
 			_construct(kind, spot)
 			return
@@ -2245,18 +2251,18 @@ func _build_up() -> void:
 			_construct("cottage")
 		if barracks == 0 and (labs >= _lv([9, 8, 7]) or (difficulty > 0 and labs >= 5 and _walled and opening == "mill")):
 			_construct("barracks")
-		elif barracks == 1 and (t > _lv([420.0, 200.0, 150.0]) or strategy == "rush") and gold > 150 and not _rushing() and not _tech_wait():
+		elif barracks == 1 and (t > _lv([420.0, 200.0, 150.0]) or strategy == "rush") and gold > 150 and not _rushing() and not _tech_wait() and not _econ_wait():
 			_construct("barracks")
-		elif barracks == 2 and difficulty >= 2 and t > _lv([9999.0, 9999.0, 330.0]) and gold > 300:
+		elif barracks == 2 and difficulty >= 2 and t > _lv([9999.0, 9999.0, 330.0]) and gold > 300 and not _econ_wait():
 			_construct("barracks")
-		if _tech_wait():
+		if _tech_wait() or _econ_wait():
 			pass          # (soldiers before tech: the Musketeers' gold is not spent on buildings)
 		elif _mine("foundry").is_empty() and game.requirement_met(team, "foundry") and t > _lv([480.0, 260.0, 200.0]):
 			_construct("foundry")
 		# the Armoury: all the Crown's research (and a second place to refit at)
-		if _mine("armoury").is_empty() and game.requirement_met(team, "armoury") and (t > _lv([450.0, 240.0, 180.0]) or gold > 400) and gold >= 150 and not _rushing() and not _tech_wait():
+		if _mine("armoury").is_empty() and game.requirement_met(team, "armoury") and (t > _lv([450.0, 240.0, 180.0]) or gold > 400) and gold >= 150 and not _rushing() and not _tech_wait() and not _econ_wait():
 			_construct("armoury")
-		if _mine("church").is_empty() and game.requirement_met(team, "church") and t > _lv([500.0, 280.0, 220.0]) and not _tech_wait():
+		if _mine("church").is_empty() and game.requirement_met(team, "church") and t > _lv([500.0, 280.0, 220.0]) and not _tech_wait() and not _econ_wait():
 			_construct("church")
 		_tend_wall()
 	_bank_spend()
@@ -4119,6 +4125,76 @@ func _eco_first() -> bool:
 
 func _tech_wait() -> bool:
 	return _army_first() or _eco_first()
+
+
+## CROWN ECONOMY FIRST (the owner's log 2026-11-03, v0.27.0 Red Coast, Crown HARD ECONOMY v Brood TIMING: the Crown earned
+## the same ~760 gold a minute from 3:00 to 6:00 with 17-19 labourers on 22-42 posts, its gold always 0-40, while it
+## built 3 Barracks, an Armoury, a Foundry and a Church; docs/ai_crown_transitions.md section 11). Under the doctrine,
+## before ECON_FIRST_UNTIL: the next labourer at each hall, the next Farm while the farms are nearly manned, and the first
+## Horseman (the rider scout) keep their gold from the other spending (`_econ_keep`), and the Economy and Balanced plans
+## put their tech and extra production buildings off while a Farm is due or the labourers are well short of the posts
+## (`_econ_wait`). A fight at home or a feared rush still puts the army first.
+const ECON_FIRST_UNTIL := 600.0
+const ECON_WAIT_SHARE := 0.8     # tech waits while the labourers are under this share of the posts
+var _lab_short := false          # (set by _workers) a hall could train the next labourer we want and has nothing queued
+var econ_first_on := not OS.get_cmdline_user_args().has("econ:off")      # (study switch: `-- econ:off` plays as 0.27.0)
+
+
+func _econ_first() -> bool:
+	if not econ_first_on or not doctrine() or strategy == "rush" or game.clock > ECON_FIRST_UNTIL:
+		return false
+	if tr._armed_near():
+		return false            # (a fight at home: the army first)
+	if scout != null and scout.verdict == "rush" and _army_first():
+		return false            # (a feared rush, the first Musketeers not out yet)
+	return true
+
+
+## A Farm slot is free and the farms we have are nearly manned (or a hall has no Farm yet): the next Farm is due.
+func _farm_due() -> bool:
+	if not _crown() or game.clock < 150.0 or _no_room.has("farm") or _busy_building("farm"):
+		return false
+	if game.econ_count(team, "farm") >= game.econ_limit(team, "farm"):
+		return false
+	if _halls().any(func(h: Building) -> bool: return h.built and _land(h) >= DRY_LAND and not _mine("farm").any(func(f: Building) -> bool: return game.nearest_hall(f.center(), team) == h)):
+		return true             # (a hall on fresh land with no Farm: its first one)
+	var room := 0
+	for f in _mine("farm"):
+		if f.built and not f.barren():
+			room += f.crew_max() - f.crew.size()
+	return room <= 3
+
+
+## The gold kept from tech, production and training for the economy (see _econ_first).
+func _econ_keep(for_army := false) -> int:
+	if not _econ_first():
+		return 0
+	var k := 0
+	if _lab_short:
+		k += int(Defs.UNITS[_f()["worker"]]["cost"])      # (the next labourer always: "never stop making labourers")
+	if for_army and (army_short() or _army_supply(game.army(team)) < mini(30, 4 + int(game.clock / 30.0))):
+		return k                # (the army under the doctrine's minimum for the clock, or short of the enemy's: only the labourer waits for it)
+	if _farm_due() and not _hall_reserve:
+		k += int(Defs.BUILDINGS["farm"]["cost"])
+	if not for_army and ch.wants_rider() and not _mine("barracks").filter(func(b: Building) -> bool: return b.built).is_empty() \
+			and not _mine("horse_breeder").filter(func(b: Building) -> bool: return b.built).is_empty():
+		k += int(Defs.UNITS["cuirassier"]["cost"])      # (the first Horseman, the rider scout: trained before more buildings)
+	return k
+
+
+## Hides _econ_keep from the spending of a think stage; the caller puts it back.
+func _hide_econ(for_army := false) -> int:
+	var k: int = mini(int(game.players[team]["gold"]), _econ_keep(for_army))
+	game.players[team]["gold"] -= k
+	return k
+
+
+## Economy and Balanced plans: the tech and extra production buildings wait for the economy (a Farm due, or the
+## labourers under ECON_WAIT_SHARE of the posts).
+func _econ_wait() -> bool:
+	if not _econ_first() or not (strategy == "economy" or strategy == "balanced"):
+		return false
+	return _farm_due() or float(game.workers(team).size()) < float(_posts()) * ECON_WAIT_SHARE
 
 
 ## The wall is the first thing to pay for (and the first soldiers): the economy structures wait.
@@ -6679,7 +6755,7 @@ func _threats() -> Array:
 		if b.team != team or b.dead:
 			continue
 		for u in game.units_near(b.center(), 330.0):
-			if game.hostile(u.team, team) and not u.dead and not u.off_field:
+			if game.hostile(u.team, team) and not u.dead and not u.off_field and _threat_seen(u, b):
 				if out.all(func(p: Vector2) -> bool: return p.distance_to(u.position) > 300.0):
 					out.append(u.position)
 				break
@@ -6691,9 +6767,24 @@ func _threat() -> Vector2:
 		if b.team != team or b.dead:
 			continue
 		for u in game.units_near(b.center(), 330.0):
-			if game.hostile(u.team, team) and not u.dead and not u.off_field:
+			if game.hostile(u.team, team) and not u.dead and not u.off_field and _threat_seen(u, b):
 				return u.position
 	return Vector2.INF
+
+
+## PHANTOM THREAT (the owner's log 2026-11-03, v0.27.0 Red Coast: "holds the top of its ramp: the force below (300)" every
+## 30 s from 2:12 to 6:11, the Brood's ramp-watch grub standing unseen at the ramp's foot by the ramp Cottage, counted as
+## AI.DEF_UNSEEN). The Crown computer (Normal and up) counts an enemy by its buildings only when it sees it (or saw it a
+## moment ago: _sighted), or when that building was hit in the last THREAT_HIT s (guns shelling from the dark). The others
+## as before (an enemy anywhere by a building).
+const THREAT_HIT := 10.0
+var phantom_on := not OS.get_cmdline_user_args().has("phantom:off")      # (study switch: `-- phantom:off` plays as 0.27.0)
+
+
+func _threat_seen(u: Unit, b: Building) -> bool:
+	if not phantom_on or not _crown() or difficulty < 1:
+		return true
+	return _sighted(u) or game.clock - b.hit_clock < THREAT_HIT
 
 
 ## Which enemy to go after: the nearest one; Brutal hunts the human player first.
@@ -7785,6 +7876,8 @@ func _buy_horses(horses: Array, keep: Dictionary, need: int) -> void:
 			if b.queue[i] == "horse" and int(b.kit_at(i).get("rid", 0)) == 0:
 				coming += 1
 	var spare := 2 if _rushing() else 1
+	if doctrine() and econ_first_on and not _rushing() and not game.army(team).any(func(u: Unit) -> bool: return Defs.RIDERS.has(u.kind) or Defs.HARNESSED.has(u.kind)):
+		spare = 0       # (CROWN ECONOMY FIRST: no spare horse before the first rider: his order brings its own, 0.27.0 Red Coast bought two at 4:49 and 5:40 that stood idle till 6:11)
 	if r5.spare_horses() >= 0:
 		spare = r5.spare_horses()           # (round 5: no spare standing about against the Clockwork)
 	if need + spare <= 0:

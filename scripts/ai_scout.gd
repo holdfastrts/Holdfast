@@ -838,18 +838,61 @@ func _evaluate() -> Dictionary:
 	elif mil >= 1 and halls <= 1 and econ < econ_cap - 1 and clock < 180.0 and _hall_seen and value >= thr * 0.5:
 		out["verdict"] = "rush"
 		out["reason"] = "a production building, a thin economy and %d supply of army" % sup
-	elif halls >= 2 and value < thr * 0.5 and mil <= 1:
+	elif fac == "brood" and brood_read_on and not _brood_seen_enough():
+		# (THE BROOD READ: what the scout saw is too little to call it greedy: see _brood_seen_enough)
+		out["reason"] = _brood_reason(halls, econ, mil, sup)
+		if not _hall_seen and cov < 0.35:
+			out["verdict"] = "uncertain"
+	elif halls >= 2 and value < thr * 0.5 and mil <= 1 and not (fac == "brood" and brood_read_on and ai.ch != null and ai.ch.foe_known() >= thr * 0.5):
 		out["verdict"] = "greedy"
-		out["reason"] = "%d halls, %d economy buildings, %d military buildings, %d supply of army" % [halls, econ, mil, sup]
-	elif clock >= 210.0 and econ >= econ_cap and mil == 0 and value <= 0.0 and cov >= 0.55 and _workers_seen >= 10:
+		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else "%d halls, %d economy buildings, %d military buildings, %d supply of army" % [halls, econ, mil, sup]
+	elif clock >= 210.0 and econ >= econ_cap and mil == 0 and value <= 0.0 and cov >= 0.55 and _workers_seen >= 10 and not (fac == "brood" and brood_read_on):
 		out["verdict"] = "greedy"
 		out["reason"] = "a full economy (%d buildings, %d workers), no military building, no army" % [econ, _workers_seen]
 	elif not _hall_seen and cov < 0.35 and halls == 0:
 		out["verdict"] = "uncertain"
 		out["reason"] = "it saw too little of the base"
 	else:
-		out["reason"] = "%d halls, %d economy, %d military buildings, %d supply of army" % [halls, econ, mil, sup]
+		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else "%d halls, %d economy, %d military buildings, %d supply of army" % [halls, econ, mil, sup]
 	return out
+
+
+## THE BROOD READ (the owner's log 2026-11-03, v0.27.0 Red Coast 5:05: "scouted: greedy economy (2 halls, 0 economy
+## buildings, 0 military buildings, 0 supply of army)" from a look that saw the Mother and one far Mound Turtle, while the
+## Brood had 4 rooted Rootmaws, a Tyrant Sire and 15 Raptors; the Crown switched to a timing attack and was hit at 6:06).
+## The Brood has no buildings: its economy is its Rootmaws and grubs, its army its loose creatures (often out of its base),
+## its tech its Sires. A "greedy" call needs a look at that economy: BROOD_LOOK_MAWS rooted Rootmaws or BROOD_LOOK_GRUBS
+## grubs seen, and the army looked for: its Mother's ground seen (BROOD_LOOK_COV) or an army of the Brood seen in the last
+## 120 s (AICrownHold.foe_known, which also counts the army met outside its base).
+const BROOD_LOOK_MAWS := 2
+const BROOD_LOOK_GRUBS := 8
+const BROOD_LOOK_COV := 0.45
+var brood_read_on := not OS.get_cmdline_user_args().has("broodread:off")      # (study switch: `-- broodread:off` plays as 0.27.0)
+
+
+func _brood_maws() -> int:
+	var n := 0
+	for nu in _nb_seen.keys():
+		if is_instance_valid(nu) and not nu.dead and nu.kind == BroodNew.MAW:
+			n += 1
+	return n
+
+
+func _brood_seen_enough() -> bool:
+	if _brood_maws() < BROOD_LOOK_MAWS and _workers_seen < BROOD_LOOK_GRUBS:
+		return false
+	if _coverage() >= BROOD_LOOK_COV:
+		return true
+	return ai.ch != null and ai.ch.army_known_lately()
+
+
+## The Brood as the scout saw it: its Mother and expansions (far turtles), its economy (Rootmaws, grubs), Sires, army.
+func _brood_reason(halls: int, econ: int, mil: int, sup: int) -> String:
+	var known: float = ai.ch.foe_known() if ai.ch != null else 0.0
+	return "the Mother%s, %d Rootmaw%s and %d grubs seen, %d Sire%s, %d supply of army seen near its base%s" % [
+		"" if halls <= 1 else " and %d turtle%s on new ground" % [halls - 1, "" if halls == 2 else "s"],
+		econ, "" if econ == 1 else "s", _workers_seen, mil, "" if mil == 1 else "s", sup,
+		", %d of army known" % int(known) if known > 0.0 else ""]
 
 
 # ------------------------------------------------------------------ deciding
@@ -967,6 +1010,8 @@ func _defence() -> void:
 	match _faction():
 		"crown":
 			plan = {"barracks": 1 if game.clock < 200.0 else (2 if ai.difficulty < 2 else 3)}
+			if verdict == "uncertain" and ai._econ_wait():
+				plan["barracks"] = 1        # (CROWN ECONOMY FIRST: an enemy not seen is no reason for three Barracks while the farms want hands; 0.27.0 Red Coast built its 2nd at 4:17, 3rd at 6:09)
 		"clockwork":
 			plan = {ai._works(): 2}
 	for k in plan:
