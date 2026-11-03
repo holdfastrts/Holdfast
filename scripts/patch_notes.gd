@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.27.1", "items": [
+		"THE SCREEN NO LONGER GETS LOCKED TO THE TOP LEFT: on computer controls the view scrolls when the mouse rests at an edge of the screen, and it did so even when no mouse had moved: on a touch screen (or before the mouse first moved) the game thinks the mouse sits at the very top-left corner, so the view slid to the top-left of the map every moment, however you moved it, while playing and while watching. Now only a mouse that has really moved over the game scrolls at an edge, and a finger on the screen turns that off. Also, when the mouse left the window by an edge and the browser never said it came back, the view kept scrolling that way: moving the mouse over the game now stops it. And the view never takes a broken position (a jump to nowhere is ignored).",
+	]},
 	{"v": "0.27.0", "items": [
 		"THE SPECTATOR OVERHAUL: watching computers or a replay, three panels in the same style as VIEW, each opened and closed by its title and each with its own player list (All players or one player), independent of VIEW and of each other. PRODUCTION and ARMY & STRUCTURES stand down the right, the AI STORY down the left under the players' resources; they keep clear of the minimap, the bottom panels, the command card and a replay's bar, on a computer and on a phone. None of it exists in a match you play. The old PRODUCTION button beside VIEW is gone: its list is the PRODUCTION panel.",
 		"ARMY & STRUCTURES: for each player its army value and supply, its resources with the painted icons (gold, powder and horses; biomass and spoils; cogs and tension), its units with their counts (the army first, then the workers) and its buildings with their counts; buildings going up are dimmer, with the bar of the one furthest along.",
