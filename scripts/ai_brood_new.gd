@@ -218,10 +218,15 @@ func _alarm_on() -> bool:
 ## first (with 16 grubs or more) while its army is under this share of what it saw (0.7 against the Clockwork, which
 ## comes early; 0.3 against the others).
 func _under_armed() -> bool:
-	if not _eco() or game.clock < 150.0 or seen_army < 200.0:
+	if not _eco() or game.clock < 150.0:
 		return false
-	var share := 0.7 if _foe_is("clockwork") else 0.3
-	return _value_of(_nb_army_units()) < seen_army * share
+	var need := seen_army * (0.7 if _foe_is("clockwork") else 0.3) if seen_army >= 200.0 else 0.0
+	if _foe_is("clockwork"):
+		# (brood-ai-tune, round B g08/g10: a rush turned Balanced grew 6 to 47 grubs with 3 Raptors from 3:00 to 8:00, its
+		# watching grub saw little of the Clockwork army gathering in its main, and 1,600 of Clock Soldiers took the
+		# Mother. What every player knows of the Clockwork's tempo is a floor: 2 of army a second from 2:00, up to 800)
+		need = maxf(need, clampf((game.clock - 120.0) * 2.0, 0.0, 800.0))
+	return need > 0.0 and _value_of(_nb_army_units()) < need
 
 
 func _nb_observe(q: Unit) -> void:
@@ -874,6 +879,9 @@ func _nb_morphs(q: Unit) -> void:
 				spot = fp[0]
 	elif _nb_next_father(q) != "":
 		k = _nb_next_father(q)
+	elif _under_armed() and _army_supply_now() < 30 and maws >= 3:
+		pass          # (brood-ai-tune: under-armed, warriors before more ground: round B g07 had 3 Raptors from 4:00 to 8:00
+		              # while every 100 food went into Rootmaws and turtles on new ground and the Crown's army reached 1,360)
 	elif maws < _nb_wanted_maws() and (maws < 3 or not _nb_saving_growth(q)) and _nb_maw_room(q):
 		# (brood-ai-tune: no "100 food in hand" gate any more: the rushes spent every 50 food on Raptors, so their third
 		# Rootmaw waited from 2:00 to 8:30 and the grubs stood at 14; now the food is kept for it like any structure)
@@ -883,7 +891,7 @@ func _nb_morphs(q: Unit) -> void:
 		if not picks.is_empty():
 			k = BroodNew.TURTLE
 			spot = picks[0]
-	if k == "" and maws < _nb_wanted_maws() and not _nb_saving_growth(q) and not _nb_maw_room(q) \
+	if k == "" and maws < _nb_wanted_maws() and not _nb_saving_growth(q) and not _nb_maw_room(q) and not (_under_armed() and _army_supply_now() < 30) \
 			and _nb_far_have(q) < 6:
 		var more := _nb_far_spots(q, 40.0)    # (0.24.7: no room left for a Rootmaw: one more turtle on new ground makes room,
 		                                      # farther out than the planned expansions)
@@ -1311,8 +1319,9 @@ func _nb_grow(q: Unit) -> void:
 		return
 	if _rush_on() and st == 0:
 		return
-	if _eco() and _alarm_on() and _value_of(_nb_army_units()) < seen_army * 0.8:
-		return          # (brood-ai-tune: not 45-60 s without eggs while an enemy army is on its way and hers is smaller)
+	if _eco() and ((_alarm_on() and _value_of(_nb_army_units()) < seen_army * 0.8) or (seen_army >= 500.0 and _value_of(_nb_army_units()) < seen_army * 0.5)):
+		return          # (brood-ai-tune: not 45-60 s without eggs while an enemy army is on its way, or one twice hers was
+		                # seen lately: round B g07 grew to stage 3 at 9:36 with 1,075 of army against 2,440 seen, and fell)
 	if not _nb_grow_time(q):
 		return
 	if BroodNew.count_of(game, team, BroodNew.FATHER) == 0:
