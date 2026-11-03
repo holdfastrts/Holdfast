@@ -66,7 +66,7 @@ const PLANS := {
 			"clock_soldier 4",
 			"end",
 		],
-		"push": {"need": {"ballista": 2, "great_winder": 1, "front": 12}, "min_supply": 22,
+		"push": {"need": {"ballista": 2, "great_winder": 1, "front": 10}, "min_supply": 20,
 			"need_brood": {"ballista": 2, "great_winder": 1, "front": 6, "pendulum": 1}},
 		"keep": [[Defs.BALLISTA_KIND, 3], [Defs.GREAT_WINDER_KIND, 1]],
 		"keep_brood": [[Defs.PENDULUM, 2], [Defs.BALLISTA_KIND, 2], [Defs.GREAT_WINDER_KIND, 1]],

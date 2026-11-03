@@ -33,6 +33,7 @@ const SIEGE_SEE := 340.0        # a wall or gate this close ahead of the anchor 
 const SIEGE_FRONT := 215.0      # the front stands this far from the piece (a Musketeer reaches 190 from behind it)
 const SIEGE_BAL := 255.0        # the Ballistas this far (they reach 300)
 const SIEGE_MAX := 150.0        # s at one piece at most
+const GRIND := 0.4             # retreat when less than this share of what went out (and joined) is left
 const OUTNUMBERED := 1.4       # retreat at once from armed enemies near worth this many times the push
 const MAIN_K := 1.3            # it goes for the enemy's main only worth this many times the enemy army seen lately (else it holds)
 const RETREAT_K := 0.65         # retreat when the push is worth less than this share of the armed enemies near it ...
@@ -78,7 +79,7 @@ func _init(a, settings: Dictionary) -> void:
 
 
 func has(u: Unit) -> bool:
-	return units.has(u)
+	return units.has(u) or joining.has(u)
 
 
 func say(s: String) -> void:
@@ -178,7 +179,7 @@ func tick() -> void:
 		return
 	if _siege_tick():
 		return
-	var foes := _foes_near(_front_centre(), LOOK)
+	var foes := _foes_near(anchor, LOOK) + _foes_near(_front_centre(), LOOK * 0.7).filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) >= LOOK)
 	if not foes.is_empty():
 		calm_t = game.clock
 		if phase != "fight":
@@ -199,6 +200,7 @@ func _launch(list: Array) -> void:
 	pushes += 1
 	stats["pushes"] = pushes
 	value0 = _value(units)
+	value_in = value0
 	stats["max_out"] = maxf(float(stats["max_out"]), value0)
 	kill0 = int(game.stats[team]["value_killed"])
 	anchor = _centre(units)
@@ -215,15 +217,30 @@ func _launch(list: Array) -> void:
 	say("push %d goes out: %d units, %d supply, %d value %s" % [pushes, units.size(), ai._army_supply(units), int(value0), str(kinds)])
 
 
-## Fresh fighters at home join as a group, walking to the anchor; they count once they are near.
+## Fresh fighters at home join as a group, walking to the anchor; they count as the push's once they are near it (JOIN_R).
+## (Counted at once, the ones still on the road dragged the front's middle home: the anchor never moved again, and the push
+## fed them into the Brood's nest a few at a time for four minutes, Greenhold 11.)
+const JOIN_R := 360.0
+var joining: Array = []
+var value_in := 0.0             # what went out, the reinforcements that arrived included
+
+
 func _join() -> void:
-	var home := _home_army()
+	joining = joining.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
+	for u in joining.duplicate():
+		if u.position.distance_to(anchor) < JOIN_R:
+			joining.erase(u)
+			units.append(u)
+			value_in += _value([u])
+		else:
+			_order(u, anchor, true, 80.0)
+	var home := _home_army().filter(func(u: Unit) -> bool: return not joining.has(u))
 	if home.is_empty() or ai._army_supply(home) < JOIN_SUPPLY:
 		return
 	if ai._threat() != Vector2.INF:
 		return          # (the base is attacked: they stay for it)
 	for u in home:
-		units.append(u)
+		joining.append(u)
 		_order(u, anchor, true, 60.0)
 	say("%d fresh units walk out to join it (%d supply)" % [home.size(), ai._army_supply(home)])
 
@@ -256,9 +273,9 @@ func foe_mem() -> float:
 
 
 func _remember_brood() -> void:
-	if Engine.get_physics_frames() % 6 == 0:
-		_remember_army()
-	if not _vs_brood() or Engine.get_physics_frames() % 6 != 0:
+	# (every think: gated on the frame count it ran one think in six, and the Rootmaws by the Mother were never "seen")
+	_remember_army()
+	if not _vs_brood():
 		return
 	for u in game.units:
 		if u.dead or u.team != foe or u.off_field:
@@ -368,8 +385,8 @@ func _march() -> void:
 	_repath()
 	var front: Array = units.filter(func(u: Unit) -> bool: return _front_kind(u))
 	var heavies: Array = units.filter(func(u: Unit) -> bool: return _heavy(u) or u.kind == Defs.GREAT_WINDER_KIND)
-	var fc := _centre(front) if not front.is_empty() else anchor
-	var at := front.is_empty() or fc.distance_to(anchor) < FRONT_AT
+	var near_n := front.filter(func(u: Unit) -> bool: return u.position.distance_to(anchor) < FRONT_AT).size()
+	var at := front.is_empty() or float(near_n) >= float(front.size()) * 0.6
 	var dir := _dir()
 	var lag := false
 	for h in heavies:
@@ -377,7 +394,7 @@ func _march() -> void:
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
 	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
-	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and _value(units) < foe_mem() * MAIN_K:
+	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K)):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
 		# it took, and the reinforcements join it (Greenhold 11: the push razed the Crown's expansion, walked on up to its
 		# main and met its whole army, 25 Musketeers, at the ramp: 3,100 value lost in a minute)
@@ -684,11 +701,14 @@ func _should_retreat() -> bool:
 	var now := _value(units)
 	var foes := _foes_near(_front_centre(), LOOK + 120.0)
 	var fv := _value(foes)
+	if now < value_in * GRIND:
+		_retreat("it has lost %d of the %d that went out and joined" % [int(value_in - now), int(value_in)])
+		return true
 	if fv > now * OUTNUMBERED and fv > 300.0:
 		_retreat("the enemy's army comes, worth %d against its %d" % [int(fv), int(now)])
 		return true
-	if now < value0 * (1.0 - LOST_SHARE) and now < fv * RETREAT_K:
-		_retreat("worth %d against %d near it, %d of %d lost" % [int(now), int(fv), int(value0 - now), int(value0)])
+	if now < value_in * (1.0 - LOST_SHARE) and now < fv * RETREAT_K:
+		_retreat("worth %d against %d near it, %d of %d lost" % [int(now), int(fv), int(value_in - now), int(value_in)])
 		return true
 	# a big attack on the base while it is far out: home to meet it
 	var th: Vector2 = ai._threat()
@@ -712,6 +732,8 @@ func _retreat(why: String) -> void:
 
 func _go_back() -> void:
 	var home: Vector2 = ai._home_spot(ai._front()) if not ai._halls().is_empty() else Vector2(game.starts[team]) * Defs.TILE
+	units.append_array(joining.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead))
+	joining.clear()
 	var all_home := true
 	for u in units:
 		if u.position.distance_to(home) > 300.0:

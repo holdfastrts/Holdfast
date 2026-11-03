@@ -5,7 +5,7 @@ extends "res://tools/shot_ai_match.gd"
 ## side 1 a computer of faction `foe` on plan `fp`. The coach steers the plan through its settings: `set:key=value,...`
 ## (any key of the plan in scripts/ai_cw_builds_b.gd: steps, push, keep, front; a value in Godot's text form).
 ##   xvfb-run -a godot --rendering-driver opengl3 --resolution 1280x720 --fixed-fps 30 --script res://tools/play_clockwork_builds_b.gd -- \
-##       cw:pendulum foe:brood fp:rush map:greenhold seed:11 out:/abs/dir [end:720] [da:hard db:hard] [set:front=10]
+##       cw:pendulum foe:brood fp:rush map:greenhold seed:11 out:/abs/dir [end:720] [da:hard db:hard] [set:front=10] [main_k:0]
 ##   python3 -I tools/play_brood_new_gif.py /abs/dir          (the clip frames into first_push_fight.gif)
 ## Everything of tools/shot_ai_match.gd (fight_*.png, base_<team>_MMSS.png, log.txt, ai.txt) plus:
 ##   <out>/minutes.txt  a line a minute: Winders, cogs earned (both sides), bank, Tension, supply, the army by kind, the push's
@@ -18,6 +18,7 @@ extends "res://tools/shot_ai_match.gd"
 var cw_plan := "pendulum"
 var fp := "rush"
 var sets := {}
+var main_k := -1.0              # main_k:<x> the push goes for the enemy's main worth x times its army seen (0: at once; the coach's siege variant)
 var _ai = null
 var _min_lines: Array = []
 var _next_min := 60.0
@@ -41,6 +42,7 @@ func _initialize() -> void:
 			"cw": cw_plan = kv[1]
 			"foe": fb = kv[1]
 			"fp": fp = kv[1]
+			"main_k": main_k = float(kv[1])
 			"set":
 				for pair in kv[1].split(","):
 					var p := pair.split("=", true, 1)
@@ -63,7 +65,9 @@ func _process(delta: float) -> bool:
 						a.over = sets.duplicate(true)
 						a._make_plan()
 						a._b_ready()
-					print("COACH plan %s v %s %s, forced %s" % [cw_plan, fb, fp, str(sets.keys())])
+					if main_k >= 0.0 and a.push != null:
+						a.push.cfg["main_k"] = main_k
+					print("COACH plan %s v %s %s, forced %s, main_k %s" % [cw_plan, fb, fp, str(sets.keys()), str(main_k)])
 		return false
 	g = main.game
 	if g.hud and g.hud.countdown > 0.0:
