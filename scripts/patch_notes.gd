@@ -4,6 +4,13 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.11", "items": [
+		"NO MORE STANDING AT A HALF-BUILT WALL: soldiers on an attack-move no longer stop to hack or shoot at an enemy palisade they can walk round (only when the place they were sent to is walled off do they break a piece); after killing a man on the way they go on to where they were sent instead of stopping there; standing idle they only hit a wall piece already in reach, rather than walking up to one. A piece still going up can be broken when it is what shuts them out, and a soldier that makes no headway for 3 seconds (a crowd jostling at a wall) looks for a fresh way. (A playtest: five Musketeers stood at the computer's half-built diagonal wall for good though its end was open.)",
+	]},
+	{"v": "0.26.10", "items": [
+		"THE BARRACKS' FIFE ENDS LIKE A TUNE: the fife's little call when the Barracks recruits no longer stops on a note that sounds like a question. It now steps down home, D, C, then the home note B flat, held and dying away, with one drum stroke on it.",
+		"THE RAPTOR'S OLD BITE IS BACK (the owner's choice): the quick swish and snap the Raptor had before 0.24.6. The other Brood creatures keep their bites.",
+	]},
 	{"v": "0.26.9", "items": [
 		"POWDER SMOKE WITHOUT CUT EDGES OR BLINKING: the painted smoke of every shot (and of the chimneys) had straight, cut-off sides; it is soft all round now. Each shot's quick puff fades out smoothly instead of dimming in one step and then vanishing. The lingering haze glides smoothly instead of moving in small jumps 20 times a second, no longer pops in at the screen's edge or after the camera jumps (a minimap tap), and a puff at the edge of your sight no longer blinks as your men's sight flickers. It lingers as long as before.",
 		"LESS LAG IN BIG BATTLES: the powder haze draws about a fifth fewer pixels, the work a phone's graphics chip pays for (rounder puffs, and fewer puffs piled on one spot, which looked the same), and its own work each tick is about a quarter lighter, and the panel of a selected army is redrawn 10 times a second instead of 20 (with an army selected it was the interface's biggest cost). The game plays out exactly as before.",

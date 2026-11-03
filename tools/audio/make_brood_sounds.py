@@ -292,9 +292,8 @@ SOUNDS = {
     # ================= COMBAT (assets/audio/combat/): blows, spits, deaths =================
     # the blows: a short snarl of the creature over the crunch of the old bite (bigger = lower)
     # (the bites are real since the 2026-10-30 pack: bite(v=...) is one of CHOMPS, the big ones with a wet hit under)
-    "combat/raptor_attack_1": [bite(1.1, gain=0.9, v=1), cut("raspy", 0.20, 0.10, gain=0.35, pitch=0.9, fade=0.05)],
-    "combat/raptor_attack_2": [bite(1.15, gain=0.9, v=2), cut("raspy", 1.27, 0.10, gain=0.35, pitch=0.9, fade=0.05)],
-    "combat/raptor_attack_3": [bite(1.05, gain=0.9, v=3), splat("s", 0, pitch=1.2, gain=0.3)],
+    # (the Raptor's bite is NOT made here: owner, 2026-11-03, "For now use the old raptor": combat/raptor_attack_1..3
+    #  are the computer-made swish and snap again, tools/audio/make_sfx2.py combat/raptor_attack; docs/sounds_compare/)
     "combat/grub_attack_1": [bite(1.45, gain=0.8, v=4)],
     "combat/grub_attack_2": [bite(1.4, gain=0.8, v=6)],
     "combat/tyrant_challenger_attack_1": [cut("tchal", 0.30, 0.22, gain=0.6, pitch=1.1, fade=0.08), bite(0.95, gain=0.9, v=0)],
