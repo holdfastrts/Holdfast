@@ -61,7 +61,8 @@ func _initialize() -> void:
 		"matured": 0, "far_turtles": 0, "turtles": 0, "maws": 0, "grubs_max": 0, "winner": -1, "end": 0, "lost": 0, "killed": 0,
 		"value_killed": 0, "foe_value_killed": 0, "earned": 0, "foe_earned": 0, "waves": 0, "scouted": "",
 		"inc": {}, "foe_inc": {}, "grubs": {}, "maws_at": {}, "natural": -1, "natural_tiles": 0, "maw3": -1, "scout": -1,
-		"spoils_in": 0, "sacrificed": 0, "eggs_taken": 0, "alarms": []}
+		"spoils_in": 0, "sacrificed": 0, "eggs_taken": 0, "alarms": [],
+		"ms": {}, "ground": {}, "spent": {}, "maws_up": {}, "eggs": {}, "bank_s": 0.0, "bank_big_s": 0.0, "eggs_low_s": 0.0, "capped_s": 0.0}
 
 
 func _process(delta: float) -> bool:
@@ -105,6 +106,22 @@ func _process(delta: float) -> bool:
 			if u.team == 0 and not u.dead and u.kind == BroodNew.MAW and BroodNew.rooted(u):
 				rm += 1
 		res["maws_at"][str(m)] = rm
+		var gl := 0.0
+		var sp := 0
+		var up := 0
+		for u in g.units:
+			if u.team == 0 and not u.dead and u.kind == BroodNew.MAW:
+				if BroodNew.rooted(u):
+					gl += BroodNew.ground_left(g, u)
+					if BroodNew.ground_left(g, u) < 150.0:
+						sp += 1
+				else:
+					up += 1
+		res["ground"][str(m)] = int(gl)
+		res["spent"][str(m)] = sp
+		res["maws_up"][str(m)] = up
+		var q0 = BroodNew.queen(g, 0)
+		res["eggs"][str(m)] = int(q0.nb.get("eggs", 0)) if q0 else -1
 		print("       income this minute: brood %d, foe %d | grubs %d, rooted Rootmaws %d" % [res["inc"][str(m)], res["foe_inc"][str(m)], res["grubs"][str(m)], rm])
 		print("%2d:00  %s" % [m, _line(0)])
 		print("       %s" % _line(1))
@@ -141,7 +158,48 @@ func _value(tm: int) -> int:
 var _next_half := 30.0
 
 
+func _ms(k: String) -> void:
+	if not res["ms"].has(k):
+		res["ms"][k] = int(g.clock)
+
+
 func _watch() -> void:
+	var dt := 1.0 / 30.0
+	var food := int(g.players[0]["gold"])
+	if food > 600:
+		res["bank_s"] = float(res["bank_s"]) + dt
+	if food > 1200:
+		res["bank_big_s"] = float(res["bank_big_s"]) + dt
+	var cap := int(g.players[0]["cap"])
+	if g.supply_used(0) >= cap - 1 and cap < g.max_supply(0):
+		res["capped_s"] = float(res["capped_s"]) + dt
+	var qq = BroodNew.queen(g, 0)
+	if qq and int(qq.nb.get("eggs", 0)) <= 1 and float(qq.nb.get("grow_t", 0.0)) <= 0.0:
+		res["eggs_low_s"] = float(res["eggs_low_s"]) + dt
+	if qq:
+		if BroodNew.count_of(g, 0, "raptor") >= 8:
+			_ms("raptors8")
+		var exn: int = BroodNew.expansions(g, qq).size()
+		for i in range(1, exn + 1):
+			_ms("far%d" % i)
+		var rmn := 0
+		for u in g.units:
+			if u.team == 0 and not u.dead and u.kind == BroodNew.MAW and BroodNew.rooted(u):
+				rmn += 1
+		for i in [3, 5, 7, 9]:
+			if rmn >= i:
+				_ms("maw%d" % i)
+		var gn := BroodNew.count_of(g, 0, "grub")
+		for i in [10, 20, 30, 40, 50]:
+			if gn >= i:
+				_ms("grubs%d" % i)
+		if int(g.players[0]["cap"]) >= g.max_supply(0):
+			_ms("maxcap")
+	for key in BroodResearch.keys():
+		if g.has_tech(0, key):
+			_ms("research1")
+	if g.has_tech(0, "nb_pack_hunt"):
+		_ms("pack")
 	if g.clock >= _next_half and g.clock <= 361.0:
 		_next_half += 30.0
 		if not res.has("early"):
