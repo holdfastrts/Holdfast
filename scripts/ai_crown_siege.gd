@@ -304,6 +304,8 @@ func _pick(gun: Unit, from: Vector2) -> Variant:
 	for e in _visible_foes(from, rng):
 		if e.is_air():
 			continue
+		if not _static_target(e) and not game.aoe_worth_it(gun, e):
+			continue          # (our own men in the ball's path or the shell's burst: AI never orders that)
 		var s := _score(gun, e) - from.distance_to(e.position) / 400.0
 		if s > bs:
 			bs = s
@@ -338,17 +340,25 @@ func _next_anchor(mid: Vector2, r: float) -> Variant:
 	return best
 
 
+## The nearest of an enemy force on the line worth ARMY_STOP of the push, or null.
+func _army_on(mid: Vector2) -> Variant:
+	var foes := _visible_foes(mid, ARMY_STOP_D).filter(func(u: Unit) -> bool: return not u.is_worker() and not u.is_air())
+	if foes.is_empty() or _value(foes) < _value(men.keys()) * ARMY_STOP:
+		return null
+	var a: Unit = foes[0]
+	for f in foes:
+		if f.position.distance_to(mid) < a.position.distance_to(mid):
+			a = f
+	return a
+
+
 # ------------------------------------------------------------------ the march
 
 func _march(line: Array, guns: Array, mid: Vector2) -> void:
 	# contact: a defence near, or the enemy army on the line
 	var a = _next_anchor(mid, STOP_D)
-	var foes := _visible_foes(mid, ARMY_STOP_D).filter(func(u: Unit) -> bool: return not u.is_worker() and not u.is_air())
-	if a == null and _value(foes) >= _value(men.keys()) * ARMY_STOP:
-		a = foes[0]
-		for f in foes:
-			if f.position.distance_to(mid) < a.position.distance_to(mid):
-				a = f
+	if a == null:
+		a = _army_on(mid)
 	if a != null:
 		_set_up(a, mid)
 		return
@@ -380,6 +390,10 @@ func _march(line: Array, guns: Array, mid: Vector2) -> void:
 
 # ------------------------------------------------------------------ set up
 
+var _said_what := ""
+var _said_t := -99.0
+
+
 func _set_up(a, mid: Vector2) -> void:
 	var was: bool = state == "set"
 	anchor = a
@@ -389,9 +403,11 @@ func _set_up(a, mid: Vector2) -> void:
 	_orders_t = 0.0
 	_pick_t.clear()
 	cur["sets"] = int(cur.get("sets", 0)) + 1
-	if not was or int(cur["sets"]) <= 6:
-		var what: String = (a.d["name"] if a.d.has("name") else a.kind)
-		say("sets up against %s %s (%d px off)" % ["a" if a is Building else "the", String(what), int(anchor_p.distance_to(mid))])
+	var what: String = String(a.d["name"] if a.d.has("name") else a.kind)
+	if not was or what != _said_what or game.clock - _said_t > 20.0:
+		_said_what = what
+		_said_t = game.clock
+		say("sets up against %s %s (%d px off)" % ["a" if a is Building else "the", what, int(anchor_p.distance_to(mid))])
 
 
 ## A walkable spot near `p` (the nearest open cell), on the line's side.
@@ -413,7 +429,9 @@ func _siege_set(line: Array, guns: Array, mid: Vector2) -> void:
 			var k: String = String(anchor.kind) if anchor != null and is_instance_valid(anchor) else "?"
 			if anchor != null and is_instance_valid(anchor) and anchor.dead:
 				cur["broke"][k] = int(cur["broke"].get(k, 0)) + 1
-		var nx = _next_anchor(anchor_p if anchor_p != Vector2.INF else mid, REACH - 80.0)
+		var nx = _army_on(mid)          # (the enemy army still on the line first: the fight goes on where it is)
+		if nx == null:
+			nx = _next_anchor(mid, STOP_D + 60.0)
 		if nx != null:
 			_set_up(nx, mid)
 		else:
@@ -475,10 +493,12 @@ func _gun(g: Unit, out: Vector2, side: Vector2, i: int, n: int) -> void:
 	var spot := _spot(anchor_p + out * d + side * off)
 	# canister: enemies at the gun
 	if g.kind == "cannon":
-		var close := _visible_foes(g.position, CANISTER_R).filter(func(e: Unit) -> bool: return not e.is_worker() or e.target != null)
+		var close := _visible_foes(g.position, CANISTER_R).filter(func(e: Unit) -> bool: return not e.is_air() and (not e.is_worker() or e.target != null))
 		if not close.is_empty():
 			if g.mode != "canister":
 				g.set_canister(true)
+			close = close.filter(func(e: Unit) -> bool: return game.aoe_worth_it(g, e))      # (not through our own line)
+		if not close.is_empty():
 			if g.order != "attack" or not _alive(g.order_target) or not close.has(g.order_target):
 				g.cmd_attack(close[0])
 			return

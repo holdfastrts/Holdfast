@@ -11,7 +11,8 @@ extends "res://tools/play_crown_1.gd"
 ##   siege.txt                one line a push: when it left, its supply and guns, what it broke, killed / lost, why it ended
 ##                            + the 4/6/8-minute economy for the round's table (tools/play_crown_siege_table.py)
 var _sg_seen := 0
-var econ := {}                 # minute -> [labourers, gold earned so far, army value]
+var econ := {}
+var _later_p: Array = []         # [clock, file]: a picture of the push set up, when it is due                 # minute -> [labourers, gold earned so far, army value]
 
 
 func _initialize() -> void:
@@ -30,6 +31,15 @@ func _coach() -> void:
 	var sg: AICrownSiege = _ai.siege
 	if sg == null:
 		return
+	# (the pictures of a set-up: between the push's middle and what it shoots at, when they are due)
+	for i in range(_later_p.size() - 1, -1, -1):
+		if g.clock >= float(_later_p[i][0]):
+			var e: Array = _later_p[i]
+			_later_p.remove_at(i)
+			if sg.state != "" and not sg.men.is_empty():
+				var m: Vector2 = sg._mid(sg.men.keys())
+				var at: Vector2 = (m + sg.anchor_p) * 0.5 if sg.anchor_p != Vector2.INF else m
+				pending.append([e[1], at, 0.9])
 	while _sg_seen < sg.log.size():
 		var e: Array = sg.log[_sg_seen]
 		_sg_seen += 1
@@ -46,8 +56,8 @@ func _coach() -> void:
 				clip("push_%d" % sg.pushes.size(), any, 30, 6, 1.0)
 		elif text.begins_with("sets up") and sg.anchor_p != Vector2.INF:
 			var mid := (sg.anchor_p + sg._mid(sg.men.keys())) * 0.5 if not sg.men.is_empty() else sg.anchor_p
-			_later.append([g.clock + 8.0, "push_set_%s.png" % _mmss(g.clock), mid])
-			_later.append([g.clock + 20.0, "push_fire_%s.png" % _mmss(g.clock), mid])
+			_later_p.append([g.clock + 8.0, "push_set_%s.png" % _mmss(g.clock)])
+			_later_p.append([g.clock + 20.0, "push_fire_%s.png" % _mmss(g.clock)])
 		elif text.begins_with("falls back") and any:
 			shot("push_back", any, 1.0, 10.0)
 		elif text.begins_with("is over"):
