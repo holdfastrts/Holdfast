@@ -16,6 +16,8 @@ var fails := 0
 var compared := 0
 var worst_new := 0.0
 var worst_old := 0.0
+var new_ms: Array = []
+var old_ms: Array = []
 
 
 func _initialize() -> void:
@@ -46,7 +48,11 @@ func _process(delta: float) -> bool:
 		checks.pop_front()
 		_check()
 	if checks.is_empty() or g.over:
-		print("XWALL compared %d plans, %d different; slowest new %.1f ms, slowest old %.1f ms" % [compared, fails, worst_new, worst_old])
+		new_ms.sort()
+		old_ms.sort()
+		var med := func(a: Array, f: float) -> float: return float(a[int(a.size() * f)]) if not a.is_empty() else 0.0
+		print("XWALL compared %d plans, %d different; slowest new %.1f ms, slowest old %.1f ms; median new %.1f old %.1f, 95%% new %.1f old %.1f" % [
+			compared, fails, worst_new, worst_old, med.call(new_ms, 0.5), med.call(old_ms, 0.5), med.call(new_ms, 0.95), med.call(old_ms, 0.95)])
 		var ok := fails == 0 and compared > 0 and worst_new <= limit_ms
 		print("XWALL PASS" if ok else "XWALL FAIL")
 		quit(0 if ok else 1)
@@ -73,8 +79,8 @@ func _check() -> void:
 			var t1 := Time.get_ticks_usec()
 			var b: Dictionary = ref.plan_for(e[0], e[1])
 			var t2 := Time.get_ticks_usec()
-			if (t1 - t0) / 1000.0 > 60.0:
-				print("XWDBG ", e[0], " ", ai.xw.dbg)
+			new_ms.append((t1 - t0) / 1000.0)
+			old_ms.append((t2 - t1) / 1000.0)
 			worst_new = maxf(worst_new, (t1 - t0) / 1000.0)
 			worst_old = maxf(worst_old, (t2 - t1) / 1000.0)
 			compared += 1
