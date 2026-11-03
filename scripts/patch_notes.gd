@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.15", "items": [
+		"THE BARRACKS RECRUITS TO REAL FIFE AND DRUMS: its call is no longer put together note by note with an added echo and drum tap. It is now a piece of a real fife-and-drum band recording, as it was played: the fifes over a rolling snare climb to a held F and walk down F, E flat, D onto the home note B flat, which the drum marks, and the band stops there. Nothing added, no echo. Two other places in the recording to compare are in docs/sounds_compare/flute/.",
+	]},
 	{"v": "0.26.14", "items": [
 		"NO MORE THIRD WINGS ON THE STORM LINE: a few of the painted frames had a hallucinated extra wing. The Hatchlings' south-east wing beat and five of their deaths, the Storm Challenger's south-east wing beat, the Storm Sire's south-east dive and the Hatchling and Storm Challenger portraits now show two wings. Nothing else changes: the same timing, and each body stays where it was.",
 	]},

@@ -64,7 +64,25 @@ Made by `tools/audio/make_recruit.py barracks` (the fix is the `barracks` part o
 | File | What it is |
 |---|---|
 | `current.ogg` | The ending in the game until now (0.26.8): the long D that fades out. |
-| `cadence_a.ogg` | **A, step down home (now in the game).** The D is shorter (a long-short "dum-di" with the next note), then a quick C, then the home note B flat on the beat, held for a moment and dying away, with one snare drum stroke on it, like the band's last beat. 3, 2, 1: the most common way a march ends. |
+| `cadence_a.ogg` | **A, step down home (in the game from 0.26.9 to 0.26.14).** The D is shorter (a long-short "dum-di" with the next note), then a quick C, then the home note B flat on the beat, held for a moment and dying away, with one snare drum stroke on it, like the band's last beat. 3, 2, 1: the most common way a march ends. |
 | `cadence_b.ogg` | **B, the fifer's own ending.** After the C, the fifer's own little flourish exactly as he played it in the recording: a quick E flat, the D, and down to B flat. No drum, the fife alone. It sounds more like a real player and a little softer; the last note is a touch shorter than in A. |
 
 If you prefer B (or want A without the drum stroke, or B with it), it is one word in `tools/audio/make_recruit.py` (`barracks(end="a")`). `python3 tools/audio/make_recruit.py compare` remakes these three files.
+
+### The real fife and drums (0.26.15)
+
+**The owner:** "For the barracks sound I want you to focus on the fife. That sound of drums and fife. Nothing else."
+
+**What changed.** Until now the sound was built note by note: single fife notes cut from the recording and put in a row, the drum's low sound filtered away, a computer-made room echo added, and a snare stroke from another recording laid on top. Now it is **one piece of the recording as it was played**: the fifes and their drums together, at a place where the music itself comes to an end. Nothing is added: no echo, no pitch change, no filter except the deep rumble under 60 Hz (below any drum's body). Each cut starts on a note with its drum stroke and stops where the players stop, with only a very short fade over the last moment of sound.
+
+The recording is `fife_music.mp3` (the one the fife notes were cut from). It is several fife-and-drum pieces in a row: some in B flat, one in F, one slow. The three places below were found by measuring where the drums and the fifes stop together and which notes the fifes land on (the files can't be listened to here).
+
+| File | Where in the recording | What you hear, and how it ends |
+|---|---|---|
+| `fife_drums_1.ogg` | 0:01.7 to 0:05.4 (3.6 s), the opening strain | **Now in the game.** A B flat march strain: the fifes (in two octaves) over a rolling snare. The tune climbs B flat, C, D, E flat to a long held F, then walks down F, E flat, D and lands on the home note B flat with a drum stroke. The fifes hold the B flat for half a second and let go together with the roll's last stroke. The end is quick: the players stop and the next strain starts right after in the recording, so there is no long ring, only their release. |
+| `fife_drums_2.ogg` | 1:10.8 to 1:14.4 (3.6 s), the end of the slow piece | The slow tune's last bars, the fifes high and sweet: a held chord (A and C, the "almost there" chord), then they land on B flat with a big bass-drum stroke, and the drums close the piece with two more strokes (boom, boom, boom) that ring away into real silence. The most final-sounding of the three, but the fife is softer than the drums and is over after about a second and a half. |
+| `fife_drums_3.ogg` | 0:12.8 to 0:15.5 (2.7 s), the end of the F major strain | A march in F: B flat chord, F chord, B flat chord, a held F chord, then one short last F chord stabbed together with the drum's final stroke ("ta-DA"). A firm, short "amen" close (the 4 to 1 chords) rather than a dying note. The shortest. |
+
+All three are set to the loudness of the old sound, as far as the drum strokes allow without clipping (nothing squashes them); the game plays the Barracks sound 1.2 dB louder to make up for it, so in a match it is as loud as before.
+
+If you prefer 2 or 3, it is one number in `tools/audio/make_recruit.py` (`fife_drums(1)` in `SOUNDS`). `python3 tools/audio/make_recruit.py fife_drums` remakes these three files; `python3 tools/audio/make_recruit.py barracks --built` puts the old note-by-note tune (`cadence_a.ogg`) back.
