@@ -995,6 +995,13 @@ func _pick_post() -> void:
 					var ec := (Vector2(e) + Vector2(2.5, 2.0)) * Defs.TILE
 					if ec.distance_to(fh) < 1500.0 and ec.distance_to(p) < 560.0:
 						sc -= 10.0
+			var seen_foe := false
+			for o in game.units_near(p, POST_DANGER + 120.0):
+				if not o.dead and not o.off_field and game.hostile(o.team, team) and ai._armed(o) and game.is_visible_to(team, o.position):
+					seen_foe = true
+					break
+			if seen_foe:
+				continue          # (round B: a new post picked next to the enemies that found the last one, five in a second)
 			var hq := Vector2i(int(p.x / 256.0), int(p.y / 256.0))
 			for hy in range(-2, 3):
 				for hx in range(-2, 3):
