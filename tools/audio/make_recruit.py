@@ -4,7 +4,7 @@ phrase, Foundry = kettledrum strokes cut from the timpani solo. Output: assets/v
 
 Run:  python3 tools/audio/make_recruit.py [barracks|foundry ...]   (no name: all of them)
       python3 tools/audio/make_recruit.py compare   (docs/sounds_compare/flute/: cadence_a, cadence_b, current .ogg)
-      python3 tools/audio/make_recruit.py fife_drums   (docs/sounds_compare/flute/fife_drums_1..3.ogg)
+      python3 tools/audio/make_recruit.py fife_drums   (docs/sounds_compare/flute/fife_drums_1..3, 2b, 2c .ogg)
       python3 tools/audio/make_recruit.py barracks --built[=a|b|held]   (the old note-by-note tune instead)
 
 THE BARRACKS' LAST NOTE (owner, 2026-11-03: "the end of the flute sound when recruiting in the barracks"): the
@@ -37,13 +37,16 @@ Candidates (docs/sounds_compare/flute/fife_drums_<n>.ogg; times in the fully dec
 drum-band tracking; see FIFE_DRUMS):
   1  1.72-5.36 s: the B flat march strain, fifes over a snare roll, the tune climbing to a held F and walking down
      F, E flat, D onto the home note B flat (both octaves), which lands with a drum stroke and ends with the roll's
-     last stroke. IN THE GAME.
+     last stroke. In the game 0.26.15-0.26.16.
   2  70.77-74.42 s: the end of the slow tune: the fifes hold a high F chord (A and C), land on B flat with a big
      drum stroke, and the drums close it with two more strokes (boom, boom, boom) that ring away to silence.
-  3  12.78-15.47 s: the F major march strain's last bars: B flat chord, F chord, B flat, F held, then the short final
+  2b 2 with the fife playing on (see FIFE_ON): D on the first stroke, C on the second, B flat on the last, held
+     through its ring; the drums' deep part 4 dB down. IN THE GAME (0.26.17).
+  2c 2 with the A/C chord again on the second stroke and B flat on the last.
+  3  12.78-15.47 s: the F major strain's last bars: B flat chord, F chord, B flat, F held, then the short final
      F chord stabbed with the drum's last stroke (a plagal "a-men" close).
 The old built tune stays: `make_recruit.py barracks --built` (ending a; --built=b or --built=held for the others;
-its mix gain was -3.0 dB, candidate 1's is -1.8)."""
+its mix gain was -3.0 dB, candidate 1's -1.8, 2b's is -1.3)."""
 import os, subprocess, sys
 import numpy as np
 from scipy.signal import butter, lfilter, sosfiltfilt
@@ -63,7 +66,17 @@ DRUM_TAP = (os.path.join(ROOT, "art", "audio_src", "marching", "drums1.mp3"), 2.
 FIFE_DRUMS = {1: (1.715, 5.358, 0.03),     # snare at 1.72; the B flat lets go 5.33, the next strain's stroke at 5.37
               2: (70.775, 74.42, 0.30),    # the A/C chord at 70.79 (stroke 70.82); last boom 73.25, -50 dB by 74.4
               3: (12.78, 15.472, 0.04)}    # B flat chord + stroke 12.80; final F stab 15.27-15.43, next note 15.49
-LOUD = -14.8                 # make_mix.py's loud(): the loudest 0.3 s RMS (dB) of barracks_1 before 0.26.15
+# candidate 2 with the fife playing on (owner, 2026-11-03: "I like fife drums 2. But could you give us a couple more
+# notes of fife in rhythm, to finish together fife and drum?"): its drum strokes start at 71.995, 72.615 and 73.235 s
+# (0.62 s apart); real fife notes of the same slow tune laid on them: (source start s, source end s, at s, fade in s,
+# fade out s). Pitches measured: the fifes' B flat 94.1, C 96.0, D 98.4, A 93.0 (midi), as in the cut itself.
+FIFE_ON = {"2b": [(70.06, 70.66, 72.000, 0.02, 0.04),     # D over the cut's own B flat (the two fifes' B flat + D)
+                  (68.955, 69.53, 72.620, 0.02, 0.04),    # C (with the second fife's E flat)
+                  (67.13, 68.17, 73.240, 0.015, 0.08)],   # B flat, held through the last stroke's ring, own release
+           "2c": [(70.90, 71.48, 72.620, 0.02, 0.05),     # the A/C chord again ("almost there")
+                  (67.13, 68.17, 73.240, 0.015, 0.08)]}   # B flat home with the last stroke, held as in 2b
+FIFE_LIFT = 4.0              # dB the drums' deep part (under 1 kHz) goes down in 2b/2c, so the fife sits nearer them
+LOUD = -14.8                # make_mix.py's loud(): the loudest 0.3 s RMS (dB) of barracks_1 before 0.26.15
 
 
 def save(name, x, path=None, norm=True):
@@ -218,9 +231,9 @@ def zero_near(x, i, back=True, span=0.003):
     return i
 
 
-def fife_drums(n=1):
-    """Candidate n of FIFE_DRUMS: the passage as recorded, only the rumble under 60 Hz taken off, a 3 ms start and
-    the fade over its own dying tail, levelled to LOUD."""
+def _fd_cut(n):
+    """Candidate n's passage as recorded (rumble under 60 Hz off, 3 ms start, fade over its dying tail), not levelled,
+    and the time in the recording of its first sample."""
     s, e, fo = FIFE_DRUMS[n]
     y = whole(FIFE_REC)
     pad = int(0.5 * SR)
@@ -234,21 +247,59 @@ def fife_drums(n=1):
     k = int(fo * SR)
     x[-k:] *= np.cos(np.linspace(0, np.pi / 2, k)) ** 2
     x[-1] = 0.0
+    return x, (a - pad + a2) / SR
+
+
+def fife_drums(n=1):
+    """Candidate n of FIFE_DRUMS: the passage as recorded, only the rumble under 60 Hz taken off, a 3 ms start and
+    the fade over its own dying tail, levelled to LOUD. n "2b"/"2c": candidate 2 with the fife playing on (FIFE_ON)."""
+    if n in FIFE_ON:
+        x = fife_on(n)
+    else:
+        x, _ = _fd_cut(n)
     x *= 10 ** ((LOUD - loud(x)) / 20)
     if np.abs(x).max() > 0.95:          # (a drum stroke would clip: the whole cut goes down, no limiter; the mix
         x *= 0.95 / np.abs(x).max()     #  gain in scripts/sound_mix.gd makes up the difference, as make_mix.py would)
     return x
 
 
+def fife_on(v):
+    """Candidate 2 with the fife playing on to the last drum stroke (FIFE_ON[v]): the drums' deep part (under 1 kHz)
+    turned down FIFE_LIFT dB so the fifes sit nearer them, then real fife notes of the same slow tune (same players,
+    same tuning, no pitch change) laid one per drum stroke, each cut above 1.5 kHz (the fifes here are all over
+    1.7 kHz; that leaves the source's own drum out) and set to the loudness of the cut's own held A/C chord."""
+    x, t0 = _fd_cut(2)
+    lo = sosfiltfilt(butter(4, 1000 / (SR / 2), "low", output="sos"), x)
+    x = lo * 10 ** (-FIFE_LIFT / 20) + (x - lo)
+    hp = butter(6, 1500 / (SR / 2), "high", output="sos")
+    y = whole(FIFE_REC)
+    ref = sosfiltfilt(hp, x)[int((70.95 - t0) * SR):int((71.70 - t0) * SR)]
+    ref = np.sqrt((ref ** 2).mean())
+    for src_a, src_b, at, fin, fout in FIFE_ON[v]:
+        pad = int(0.2 * SR)
+        a, b = int(src_a * SR), int(src_b * SR)
+        n = sosfiltfilt(hp, y[a - pad:b + pad])[pad:pad + (b - a)].copy()
+        m = n[int(0.05 * SR):len(n) - int(0.05 * SR)]
+        n *= ref / (np.sqrt((m ** 2).mean()) + 1e-9)
+        k = int(fin * SR)
+        n[:k] *= np.sin(np.linspace(0, np.pi / 2, k)) ** 2
+        k = int(fout * SR)
+        n[-k:] *= np.cos(np.linspace(0, np.pi / 2, k)) ** 2
+        o = int((at - t0) * SR)
+        x[o:o + len(n)] += n[:len(x) - o]
+    return x
+
+
 def fife_drums_compare():
-    """docs/sounds_compare/flute/fife_drums_<n>.ogg: the three candidates at the game's loudness."""
+    """docs/sounds_compare/flute/fife_drums_<n>.ogg: the candidates at the game's loudness."""
     d = os.path.join(ROOT, "docs", "sounds_compare", "flute")
-    for n in FIFE_DRUMS:
+    for n in list(FIFE_DRUMS) + list(FIFE_ON):
         x = fife_drums(n)
         subprocess.run(["ffmpeg", "-y", "-v", "quiet", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "-", "-c:a",
-                        "libvorbis", "-q:a", "6", os.path.join(d, "fife_drums_%d.ogg" % n)],
+                        "libvorbis", "-q:a", "6", os.path.join(d, "fife_drums_%s.ogg" % n)],
                        input=x.astype(np.float32).tobytes(), check=True)
-        print("fife_drums_%d %.2f s  peak %.2f  loudest 0.3 s %.1f dB" % (n, len(x) / SR, np.abs(x).max(), loud(x)))
+        print("fife_drums_%s %.2f s  peak %.2f  loudest 0.3 s %.1f dB  mix gain %.1f" % (
+            n, len(x) / SR, np.abs(x).max(), loud(x), -17.8 - loud(x)))
 
 
 def foundry():
@@ -263,7 +314,7 @@ def foundry():
     return seg
 
 
-SOUNDS = {"barracks_1": lambda: fife_drums(1), "foundry_1": foundry}      # (town_hall_1: make_bugle.py; horse_breeder_1: make_breeder_select.py)
+SOUNDS = {"barracks_1": lambda: fife_drums("2b"), "foundry_1": foundry}      # (town_hall_1: make_bugle.py; horse_breeder_1: make_breeder_select.py)
 
 
 def compare():

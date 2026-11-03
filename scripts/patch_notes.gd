@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.17", "items": [
+		"FIFE AND DRUM END TOGETHER: the Barracks now recruits to the close of the band's slow tune (the owner's pick of the three): a held high chord, then three big drum strokes, and the fife now plays on with them, one note a stroke, D, C and home to B flat, the last held through the final stroke's ring so fife and drum stop together. The added notes are the same fifers in the same tune, not pitched up or down, and the fife is a little louder against the drums. Same loudness in a match; another version to compare is in docs/sounds_compare/flute/.",
+	]},
 	{"v": "0.26.16", "items": [
 		"SMOOTHER BIG BATTLES (a first pass at the units' own work): what each army sees is worked out in one pass over all its men instead of man by man (the fog's update, 4 times a second, 15 to 45% lighter on average, with smaller spikes); the command card of a big selected army is rebuilt on a frame without a game tick, so it no longer adds to a tick's frame; the units' pictures skip work that changed nothing (a sprite set to what it already showed). The units' own tick is about as heavy as before: the next big savings would change how they move and fight a little, and are the owner's call. The game plays out exactly the same: whole-state traces of every test battle and of computer matches are identical before and after.",
 	]},
