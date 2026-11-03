@@ -25,6 +25,14 @@
 
 ## Current work
 
+- COACHED BUILDS, "do it all" (owner, 2026-11-03 20:32): running now as cloud jobs: cw-builds-a (Clock Soldier rush,
+  Turret turtle), cw-builds-b (Pendulums v Brood, Heavy Works push), cw-builds-c (air: Swifts -> Ticking Owls), plus
+  crown-ai-rebuild, brood-ai-tune, perf-stutter. QUEUED: when crown-ai-rebuild is merged, start Crown builds in its
+  framework: Dragoon raids, siege push (Field Cannons + Mortars behind Musketeers), Balloon drops; when brood-ai-tune is
+  merged, Brood builds: a Spitter timing (Venom Sire) and a Brute siege (wall breaking). Later: the computer picks its build
+  by matchup and switches on what its scout sees. Springer balance proposals waiting on the owner: jump recharge 10 -> 6-7 s,
+  jump range 5 -> 6-7 tiles, Springer range 170 -> 190, High Leap 100 -> 50 Tension.
+
 - REPLAYS, NEXT (owner said yes, 2026-11-03): after the perf-stutter job reports, a job for MIXED replays: record the
   players' commands (StarCraft-style) plus one full keyframe every ~10 s instead of 5 pictures a second; playback re-runs
   the commands between keyframes and each keyframe corrects drift (determinism a bonus, not a must). The quick Settings
