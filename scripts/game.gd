@@ -7086,7 +7086,7 @@ func hit_body(b: Unit, dmg: float, aimed := true) -> bool:
 		b._schedule_rot()
 	if net != null and not puppet and net.fx.size() < NetSession.FX_MAX:
 		net.fx.append(["h", "", b.position, b.body_left()])
-	if rec != null and not puppet and rec.fx.size() < NetSession.FX_MAX:
+	if rec != null and not puppet and rec.fx.size() < rec.fx_max:
 		rec.fx.append(["h", "", b.position, b.body_left()])
 	return false
 
@@ -7281,7 +7281,7 @@ func tear_body(b: Unit, aimed := false) -> void:
 	bodies_blasted["aimed" if aimed else "combat"] += 1
 	if net != null and not puppet and net.fx.size() < NetSession.FX_MAX:
 		net.fx.append(["c", "", b.position, 0.0])       # (online: the guest's copy of it goes too)
-	if rec != null and not puppet and rec.fx.size() < NetSession.FX_MAX:
+	if rec != null and not puppet and rec.fx.size() < rec.fx_max:
 		rec.fx.append(["c", "", b.position, 0.0])       # (and the replay's)
 	torn_fx(b.position)
 	b.tear_up()
@@ -7300,7 +7300,7 @@ func sweep_body(b: Unit) -> void:
 	bodies_swept += 1
 	if net != null and not puppet and net.fx.size() < NetSession.FX_MAX:
 		net.fx.append(["c", "", b.position, 0.0])
-	if rec != null and not puppet and rec.fx.size() < NetSession.FX_MAX:
+	if rec != null and not puppet and rec.fx.size() < rec.fx_max:
 		rec.fx.append(["c", "", b.position, 0.0])
 	torn_fx(b.position)
 	b.tear_up()
@@ -9195,7 +9195,7 @@ func powder(kind: String, p: Vector2, dir := Vector2.ZERO) -> void:
 		# (shots and blows first: the smoke takes only what room is left in a snapshot's effects)
 		if net != null and net.fx.size() < NetSession.FX_MAX - 15:
 			net.fx.append(f)
-		if rec != null and rec.fx.size() < NetSession.FX_MAX - 15:
+		if rec != null and rec.fx.size() < rec.fx_max - 15:
 			rec.fx.append(f)
 	if powder_smoke != null:
 		powder_smoke.puff(kind, p, dir)

@@ -11,8 +11,9 @@ extends NetSession
 
 signal recorded                  # a picture was taken (the tests compare the match with the replay right then)
 
-const RATE := 5.0                # pictures a second, normally (the viewer glides between them)
+const RATE := 5.0                # pictures a second, normally (FULL; the viewer glides between them)
 const RATE_MIN := 3.0            # ...and in a big battle on a slow device, at least this many
+const RATE_LIGHT := 2.0          # Settings REPLAY RECORDING LIGHT (the phone's default): this many, never fewer
 const RATE_MAX := 8.0
 ## The share of real time recording may take (building and packing the pictures, writing the chunks): 3% of a
 ## phone's frame. Measured on the device itself, so a phone records less often than a computer in the same battle.
@@ -23,6 +24,8 @@ var path := ""
 var header := {}
 var view_only := false           # an online guest: what it was sent (its side's view)
 var rec_every := 1.0 / RATE
+var rate := RATE                 # this recording's pictures a second (FULL or LIGHT: rate_for)
+var rate_min := RATE_MIN
 var frames: Array = []           # this chunk's frames (each var_to_bytes of a snapshot)
 var chunk_t0 := 0.0
 var last_clk := -999.0
@@ -45,16 +48,35 @@ var _cost_avg := 0.0
 var _out: Array = []             # who was out at the last picture
 
 
+## The pictures a second for a recording in `mode` (Settings.replay_mode()); 0: none. A skirmish, a campaign mission
+## and a watched match follow the setting; online the host always records (its friends get its replay at the end),
+## at LIGHT when the setting is LIGHT or OFF, and a friend's own fallback record follows the setting.
+## (The host's pictures for its friends are NetSession's own, never these: their rate doesn't change.)
+static func rate_for(mode: String, online_host: bool) -> float:
+	match mode:
+		"off":
+			return RATE_LIGHT if online_host else 0.0
+		"light":
+			return RATE_LIGHT
+	return RATE
+
+
 ## Start recording `g` (in the tree, its setup known). `cfg`: the resolved setup (Main.last_cfg), `me`: the team
-## that records (-1: watching computers).
-static func start(g: Game, cfg: Dictionary, me: int, guest := false) -> ReplayRecorder:
+## that records (-1: watching computers). `pics`: pictures a second (rate_for). Null when `pics` is 0 (OFF).
+static func start(g: Game, cfg: Dictionary, me: int, guest := false, pics := RATE) -> ReplayRecorder:
+	if pics <= 0.0:
+		return null
 	var r := ReplayRecorder.new()
+	r.rate = pics
+	r.rate_min = minf(RATE_MIN, pics)
+	r.rec_every = 1.0 / pics
 	r.game = g
 	r.is_host = true
 	r.my_team = me
 	r.view_only = guest
 	r.go_given = true
-	r.snap_every = 1.0 / RATE      # (never the "half rows" mode: pictures are far enough apart)
+	r.fx_max = int(FX_MAX * RATE / pics)    # (as many effects a second as FULL keeps: fewer pictures, more in each)
+	r.snap_every = 1.0 / pics      # (never the "half rows" mode: pictures are far enough apart)
 	r._m_reset()
 	r.name = "ReplayRecorder"
 	r.path = ReplayFile.new_path("_view" if guest else "")
@@ -73,7 +95,7 @@ static func start(g: Game, cfg: Dictionary, me: int, guest := false) -> ReplayRe
 	r.header = {"format": ReplayFile.FORMAT, "game_version": String(ProjectSettings.get_setting("application/config/version", "dev")),
 		"cfg": c, "me": me, "names": names, "date": int(Time.get_unix_time_from_system()), "map_name": g.map_name,
 		"online": ("guest" if guest else "host") if g.net != null else "", "view_only": guest,
-		"sandbox": g.sandbox, "cw_roster": Defs.cw_roster, "lists": lists(), "rate": RATE, "key_secs": KEY_SECS, "t0": snappedf(g.clock, 0.01)}
+		"sandbox": g.sandbox, "cw_roster": Defs.cw_roster, "lists": lists(), "rate": pics, "key_secs": KEY_SECS, "t0": snappedf(g.clock, 0.01)}
 	if String(c.get("map", "")).begins_with("custom:"):
 		r.header["custom_map"] = MapGen.load_custom(String(c["map"]).substr(7))     # (so it plays where the map isn't)
 	r.written = ReplayFile.begin(r.path, r.header)
@@ -166,7 +188,7 @@ func note_event(kind: String, data: Array) -> void:
 ## An online guest: the host's effects as they came (NetSession.play_fx), into its own record.
 func note_fx(list: Array) -> void:
 	for f in list:
-		if fx.size() < FX_MAX:
+		if fx.size() < fx_max:
 			fx.append(f)
 
 
@@ -175,9 +197,23 @@ func note_fx(list: Array) -> void:
 func _physics_process(_delta: float) -> void:
 	if done or not written:
 		return
+	_stamp_fx()
 	if game.clock - last_clk < rec_every - 0.0005:
 		return
 	_due = true                  # (taken in _process)
+
+
+## Each effect gets the time of the game tick that made it (this runs first in each physics frame, after the last
+## tick, and before each picture): a picture carries its effects' times ("fxt"), so the viewer spreads them as they
+## happened, not in a burst with each picture (at LIGHT's 2 pictures a second a volley would come in clumps).
+var _fx_t := PackedFloat32Array()
+
+
+func _stamp_fx() -> void:
+	while _fx_t.size() < fx.size():
+		_fx_t.append(game.clock)
+	if _fx_t.size() > fx.size():
+		_fx_t.resize(fx.size())
 
 
 func record(force_key := false) -> void:
@@ -196,8 +232,15 @@ func record(force_key := false) -> void:
 		n_keys += 1
 	elif snap_n % NetSnapshot.KEY_EVERY == 1:
 		snap_n += 1
+	_stamp_fx()
+	var fxt := PackedByteArray()
+	for ft in _fx_t:
+		fxt.append(clampi(roundi((clk - ft) * 100.0), 0, 255))
+	_fx_t = PackedFloat32Array()
 	var tb := Time.get_ticks_usec()
 	var m := NetSnapshot.build(self)
+	if m.has("fx") and fxt.size() == (m["fx"] as Array).size():
+		m["fxt"] = fxt             # (each effect's time, hundredths of a second before the picture: the viewer plays it then)
 	build_us += Time.get_ticks_usec() - tb
 	m.erase("ack")
 	m.erase("acc")
@@ -242,7 +285,7 @@ func record(force_key := false) -> void:
 	recorded.emit()
 	# as often as the budget allows (a big battle: fewer, never under RATE_MIN a second)
 	_cost_avg = lerpf(_cost_avg, float(us), 0.15) if n_frames > 1 else float(us)
-	var every := clampf(_cost_avg / 1e6 / BUDGET, 1.0 / RATE, 1.0 / RATE_MIN)
+	var every := clampf(_cost_avg / 1e6 / BUDGET, 1.0 / rate, 1.0 / rate_min)
 	rec_every = maxf(every, 1.0 / RATE_MAX)
 
 

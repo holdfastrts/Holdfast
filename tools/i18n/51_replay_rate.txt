@@ -1,0 +1,21 @@
+# Settings > REPLAY RECORDING (docs/replays.md "Lighter recording")
+
+> REPLAY RECORDING
+pt GRAVAÇÃO DE REPLAYS
+es GRABACIÓN DE REPETICIONES
+
+> LIGHT
+pt LEVE
+es LIGERA
+
+> 5 pictures a second: the smoothest replays.
+pt 5 imagens por segundo: os replays mais suaves.
+es 5 imágenes por segundo: las repeticiones más suaves.
+
+> 2 pictures a second: lighter for a phone late in a match; replays still glide.
+pt 2 imagens por segundo: mais leve para um celular no fim da partida; os replays continuam deslizando.
+es 2 imágenes por segundo: más ligera para un móvil al final de la partida; las repeticiones siguen fluidas.
+
+> No replays of your own matches (online games still record).
+pt Sem replays das suas partidas (as partidas online continuam gravando).
+es Sin repeticiones de tus partidas (las partidas en línea se siguen grabando).

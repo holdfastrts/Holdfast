@@ -60,6 +60,38 @@ Most of it is building the pictures (the same work the online host does for its 
 
 Watching costs less than playing: nothing is simulated. A jump on the timeline takes 15 to 50 ms here in a normal match and 65 to 100 ms in the big battle (it starts from the keyframe before and runs the pictures forward), so on a phone a jump in a big battle takes about a third of a second.
 
+## Lighter recording (0.28.1)
+
+Settings > GAMEPLAY > REPLAY RECORDING (Settings.replay_rec, "" until chosen; Settings.replay_mode() resolves it):
+
+| Choice | What it records |
+|---|---|
+| FULL | 5 pictures a second, as before (ReplayRecorder.RATE). The default on computers and in the browser. |
+| LIGHT | 2 pictures a second (RATE_LIGHT; the budget never takes it lower). The default on phones and tablets (OS.has_feature("mobile"), Android, iOS; not a phone's browser). |
+| OFF | no recorder at all in a skirmish, a campaign mission or a watched match: the REPLAYS list just has none for it, and the end screen has no WATCH REPLAY. |
+
+Online the host's pictures for its friends are NetSession's own and their rate does not change. The host's recorder builds pictures of its own (every side, no fog), so it follows the setting, except that OFF records at LIGHT there: each friend is owed the whole replay at the end. A friend's own fallback record (its view) follows the setting, OFF included; the host's replay still comes and is shown on the end screen. ReplayRecorder.rate_for(mode, online_host) is the rule.
+
+The rate goes in the header ("rate", there since 0.14.51: old replays say 5). The viewer never needed it: it glides each unit between the times of the two pictures around the shown clock, whatever they are; it now starts its picture interval from the header and lets it go up to 1 s.
+
+Effects are timed now (both rates): each shot, blast, smoke and body hit gets the clock of the tick that made it, and a picture carries those times ("fxt", one byte each, hundredths of a second before the picture). The viewer puts a picture on about one interval before the shown clock reaches it, so it holds each effect back until its time: shots no longer come in a burst with each picture, which at 2 a second would look like volleys. A picture may hold more effects at LIGHT (fx_max: as many a second as FULL). Old replays have no "fxt" and play their effects with the picture, as before.
+
+Measured with tools/test_replay.gd (two Hard computers on Hollowfen, spawn:50: 50 Musketeers and 50 Raptors added in the middle and kept marching, about 125 units at 5:00), --fixed-fps 60 so there are frames without a game tick, as on a screen; this computer is a shared 2-CPU cloud machine:
+
+| 5:00 of match, ~125 units | FULL | LIGHT |
+|---|---|---|
+| pictures a second taken | 4.3 | 1.9 |
+| recording, ms per second of match | 7.42 | 3.76 (-49%) |
+| ...of which building the pictures | 5.44 | 2.58 |
+| file | 833 KB (167 KB a minute) | 574 KB (115 KB a minute, -31%) |
+| GLIDE: a unit drawn from its true place, mean | 0.49 px | 1.10 px |
+| ...95% of units within / 99% within | 2.4 / 4.9 px | 5.9 / 11.5 px |
+| ...worst | 9.6 px | 20.5 px |
+
+GLIDE plays 10 s at 1x from the middle of the match and, each frame, compares every unit on the screen with where it really was at that moment in the match (every tick's places kept while it ran). At LIGHT the error is where units turn a corner or step about in a melee between two pictures: they cut the corner by a few pixels (a unit is about 30 px tall). Nothing teleports; the jump rule (a unit out of sight for three intervals and far away) is unchanged. The file shrinks less than the pictures because keyframes stay every 10 s and a delta 0.5 s apart holds bigger changes. At --fixed-fps 30 (every frame has a tick) FULL takes only 3.3 pictures a second (the recorder waits for a frame without a tick), so that comparison is 5.45 against 3.25 ms. A phone is about four times slower: about 30 ms of recording per second at FULL and 15 at LIGHT in such a battle, so LIGHT takes it from about 3% of the time (where the budget already pushed FULL toward 3 pictures a second) to 1.5%.
+
+Run: `godot --headless --fixed-fps 30 --script res://tools/test_replay.gd -- rec:light` (also rec:full, the default, and rec:off: no recorder, no file, and the online rule).
+
 ## The controls
 
 The viewer is the match's own screen as when you watch computers play, with the replay bar above the bottom panels.
@@ -101,7 +133,7 @@ tools/test_online.gd now checks, at the end of a 1 vs 1, that the host sent its 
 
 A jump on the timeline starts from the keyframe before it, so bodies of units that died before that keyframe are not lying there, and the fog's "explored" ground starts over from the jump.
 
-The viewer is one picture ahead: what a unit is doing (attacking, dying) shows about a fifth of a second early. Production bars and timers move in steps, five a second.
+The viewer is one picture ahead: what a unit is doing (attacking, dying) shows about a fifth of a second early (half a second at LIGHT). Production bars and timers move in steps, five a second (two at LIGHT).
 
 A friend who leaves before the end keeps only its own view: the host can't send a replay of a match still going. A friend whose side is out in co-op while its ally plays on has the same.
 

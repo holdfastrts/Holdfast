@@ -324,28 +324,29 @@ func _log(text: String) -> void:
 const FX_SENT := ["hit", "smoke", "smoke_big", "dust", "explosion", "burst", "flame", "blast", "blaze", "acid_splash",
 	"zap_strike", "zap_spark_y", "zap_burst", "zap_burst_y", "arc_impact", "bloat_cloud"]
 const FX_MAX := 60
+var fx_max := FX_MAX              # (a replay recording at fewer pictures a second keeps more a picture: ReplayRecorder)
 
 
 func note_effect(name: String, p: Vector2, speed: float, looping: bool) -> void:
-	if looping or fx.size() >= FX_MAX or not FX_SENT.has(name):
+	if looping or fx.size() >= fx_max or not FX_SENT.has(name):
 		return
 	fx.append(["e", name, p, speed])
 
 
 func note_shot(s: Shot, kind: String, a: Vector2, b: Vector2, spd: float) -> void:
-	if fx.size() < FX_MAX:
+	if fx.size() < fx_max:
 		fx.append(["s", kind, a, b, spd, s.face_offset, s.scale.x, s.impact, s.impact_scale, s.arc])
 
 
 ## A Ticking Owl let its weight go (CwAir.drop_bomb): the guest sees it fall and burst (the host's bomb does the damage).
 func note_bomb(b: OwlBomb) -> void:
-	if fx.size() < FX_MAX:
+	if fx.size() < fx_max:
 		fx.append(["b", "", b.from, b.to, b.ground_from, b.duration])
 
 
 ## A Netter's net left the muzzle (Netter.fire): the guest sees it fly at its copy of the target (the host's net catches).
 func note_net(cn: ChainNet) -> void:
-	if fx.size() < FX_MAX and cn.target != null and is_instance_valid(cn.target):
+	if fx.size() < fx_max and cn.target != null and is_instance_valid(cn.target):
 		assign(cn.target)
 		fx.append(["n", "", cn.from, cn.target.net_id, cn.speed])
 
@@ -353,19 +354,19 @@ func note_net(cn: ChainNet) -> void:
 ## A Great Winder's SCATTER COGS (CogScatter.throw): the guest sees the pieces fly from `from` and lie at `to` (the host's
 ## field slows; the guest's is looks only: CogScatter.show).
 func note_scatter(from: Vector2, to: Vector2, team: int, r: float, flight: float, life: float) -> void:
-	if fx.size() < FX_MAX:
+	if fx.size() < fx_max:
 		fx.append(["k", "", from, to, team, r, flight, life])
 
 
 ## An area mark (Game.area_mark: [shape, p, a, r, h, colour, life, warn, zone, arm, smear, team]): the guest lays it by its
 ## own fog. And a "+N" for a guest's side (Game.own_float).
 func note_mark(m: Array) -> void:
-	if fx.size() < FX_MAX:
+	if fx.size() < fx_max:
 		fx.append(["g", "", m[1], m])
 
 
 func note_float(team: int, p: Vector2, txt: String, col: Color) -> void:
-	if fx.size() < FX_MAX:
+	if fx.size() < fx_max:
 		fx.append(["f", txt, p, team, col])
 
 
