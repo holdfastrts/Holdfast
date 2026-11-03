@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.8", "items": [
+		"PAINTED RESOURCE ICONS (the owner's ChatGPT pictures): the top bar shows a picture for each resource instead of a coloured dot: gold coins and a powder keg for the Crown (and a horse's head by the horses), meat and leaves for the Brood's food and a bone-and-claw bundle for its spoils, three brass gears for the Clockwork's cogs; the supply pill shows the supply icon. The resource chips on a building's card use them too: a Farm's soil (a clod with a sprout), a Powder Mill's saltpetre (white crystals), a Cog Press's brass (two ingots), a Rootmaw's food and ground, and a Mainspring's spring life (the Tension spring).",
+		"THE PISTOL MARK on a Horseman's, Cuirassier's or Officer's card is a painted flintlock: a spark at the pan when loaded, smoke from the muzzle once fired.",
+	]},
 	{"v": "0.26.7", "items": [
 		"THE COMPUTER'S HORSEMEN STAY AND RAID (the owner's playtest): a Tyrant Sire, the Brood Mother or a Rootmaw on foot can't catch a Horseman, so the Crown's raid no longer rides home from one. The riders keep out of its bite, ride round it to the grubs it can't reach in time and cut them down, their loaded pistols for the grubs, not the Sire. They still ride home from what can catch or shoot them (Raptors in numbers, Spitters, more than the party) or when badly hurt, and a Crown behind in economy raids longer. A lone Musketeer that chased something far out now comes home instead of harassing alone.",
 		"THE BROOD AGAINST HORSEMEN: the Brood's computer no longer sends its Tyrant Sire after fast riders (he never catches them). Grubs a rider is at gang up on him when they are enough to win, else run to the warriors, a turtle or the Mother, and go back to work when he is gone. With riders about it grows the Venom Sire at once and lays a Spitter for every Raptor.",
