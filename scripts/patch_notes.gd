@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.3", "items": [
+		"FEWER FREEZES: the long frames of a quarter to half a second came from the Crown computer drawing up the wall plan for a new Town Hall in one go (each time it expanded). That plan is now made about four times faster and is exactly the same plan. The Crown computer's first search for a hall spot (a 55 ms frame) is about four times faster too.",
+		"NO MORE HITCHES WHEN A PICTURE IS FIRST SHOWN: each unit's pictures (its attack, death, rooting, laying...) were loaded the first time they were shown, a moment's freeze each, several at once in the first fight. They are now loaded in the background as soon as the kind is on the field (the ones standing at the start while the match loads), and the sounds too. On the web, one picture at a time when the game has a moment to spare.",
+		"The tooltip under the mouse is built 4 times a second instead of 20 (it still follows the mouse). The match log now names the cause of every frame over 50 ms (a \"slow frame\" line), so the next freeze can be found. The game plays out exactly the same.",
+	]},
 	{"v": "0.29.2", "items": [
 		"THE CLOCKWORK'S ATTACK ALARM IS GENTLER: one alarm for units and buildings alike, the alarm clock ringing twice briefly, a little lower and softer on the ear (it was one long ring, and another for the base). The owner's pick.",
 	]},

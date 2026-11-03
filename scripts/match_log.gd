@@ -82,9 +82,52 @@ func _process(_delta: float) -> void:
 	var now := Time.get_ticks_usec()
 	var fr := Engine.get_process_frames()
 	if _last_frame == fr - 1 and game != null and not game.over:
-		_ft.append((now - _last_us) / 1000.0)
+		var ms := (now - _last_us) / 1000.0
+		_ft.append(ms)
+		if ms > SLOW_FRAME_MS:
+			_slow_frame(ms)
 	_last_us = now
 	_last_frame = fr
+	Prof.frame_reset()
+
+
+## A frame slower than this gets a "slow frame" line: what took the time (Prof's parts).
+const SLOW_FRAME_MS := 50.0
+## At most this many slow frame lines a minute (the slowest are kept: a long freeze always shows).
+const SLOW_LINES := 8
+var _slow_n := 0
+var _slow_min := -1
+
+
+## "[07:31] slow frame 286 ms: ai/workers/xwall 270.3, units 8.9 (slowest unit: raptor 2.1 ms, attack), the rest 4.0"
+## "the rest" is what no part of the game timed: drawing on the graphics card, the engine, shaders made the first
+## time something is drawn, the system.
+func _slow_frame(ms: float) -> void:
+	var m := int(game.clock / 60.0)
+	if m != _slow_min:
+		_slow_min = m
+		_slow_n = 0
+	if _slow_n >= SLOW_LINES and ms < 150.0:
+		return
+	_slow_n += 1
+	var d := Prof.frame_parts()
+	var keys := d.keys()
+	keys.sort_custom(func(a, b) -> bool: return int(d[a]) > int(d[b]))
+	var parts := PackedStringArray()
+	var top := 0.0
+	for k in keys:
+		var v := int(d[k]) / 1000.0
+		if not String(k).contains("/"):
+			top += v
+		if v >= 1.0 and parts.size() < 8:
+			var p := "%s %.1f" % [k, v]
+			if k == "units" and Prof.slow_unit_us >= 2000 and is_instance_valid(Prof.slow_unit):
+				var su: Unit = Prof.slow_unit as Unit
+				if su:
+					p += " (slowest unit: %s %.1f ms, %s)" % [su.kind, Prof.slow_unit_us / 1000.0, su.order]
+			parts.append(p)
+	parts.append("the rest %.1f" % maxf(0.0, ms - top))
+	lines.append("[%s] slow frame %d ms: %s" % [stamp(), int(round(ms)), ", ".join(parts)])
 
 
 ## "  Performance: 58 fps avg, 1% low 31 fps, worst frame 120 ms, 14 frames over 50 ms ..."

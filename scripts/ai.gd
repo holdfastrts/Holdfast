@@ -489,7 +489,9 @@ func _think_stage(i: int) -> void:
 		0:
 			var rk0 := _hide_repair()       # (REPAIR FIRST: the menders' gold is not spent on labourers or buildings)
 			_cottage_wall()
+			pt = _lap("ai/workers/wall", pt)
 			xw.tick()           # (a new hall's wall pieces come first, like the ramp wall: the harvest's gold, before it is spent)
+			pt = _lap("ai/workers/xwall", pt)
 			_workers()
 			if _clock() and Defs.line_mode:
 				LineAI.tick(self)           # the Clockwork Line (scripts/line_ai.gd; shelved unless Defs.line_mode)
@@ -501,7 +503,9 @@ func _think_stage(i: int) -> void:
 			var rk1 := _hide_repair()
 			_keep_tech()
 			_supply()
+			pt = _lap("ai/build/supply", pt)
 			var ek1 := _hide_econ()         # (CROWN ECONOMY FIRST: the next labourer, Farm and rider before more buildings)
+			pt = _lap("ai/build/econ", pt)
 			_build_up()
 			game.players[team]["gold"] += rk1 + ek1
 			_lap("ai/build", pt)

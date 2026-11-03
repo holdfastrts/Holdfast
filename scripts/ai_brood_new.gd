@@ -140,6 +140,7 @@ func _tick_ai(delta: float) -> void:
 	if _nb_think > 0.0:
 		return
 	_nb_think = [1.6, 1.0, 0.6, 0.4][clampi(difficulty, 0, 3)]
+	var _pb := Time.get_ticks_usec()
 	if strategy != _plan_of and PLANS.has(strategy):
 		var aa := _attack_at
 		_make_plan()
@@ -170,6 +171,7 @@ func _tick_ai(delta: float) -> void:
 	_nb_army(q)
 	if difficulty >= 1:
 		_spells()           # (the Mist Toads' FOG and TONGUE, as the old Brood's computer: AI._toad)
+	Prof.add("ai/brood", _pb)
 
 
 func in_wave(u: Unit) -> bool:

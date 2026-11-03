@@ -5121,6 +5121,12 @@ func _supply_split(t: int) -> Dictionary:
 	return {"workers": w, "army": a, "queued": q}
 
 
+## The tooltip shown is built again (its numbers: health, cooldowns, costs) this often while the mouse stays on the same thing.
+const TIP_REBUILD_MS := 250
+var _tip_id := ""
+var _tip_built_ms := 0
+
+
 func _update_tip() -> void:
 	var now := Time.get_ticks_msec()
 	if not Settings.tooltips or paused or menu_open or game.over or countdown > 0.0:
@@ -5145,7 +5151,13 @@ func _update_tip() -> void:
 		_hover_id = id
 		_hover_ms = now
 	if id != "" and now - _hover_ms >= float(c["delay"]) * 1000.0:
+		if id == _tip_id and not _tip.is_empty() and now - _tip_built_ms < TIP_REBUILD_MS:
+			_tip_at = m           # (the same tip, built a moment ago: kept, as it was built 20 times a second, 0.28.1)
+			_tip_ms = now
+			return
 		var t := _tip_of(c)
+		_tip_id = id
+		_tip_built_ms = now
 		if not t.is_empty():
 			_tip = t
 			_tip_at = m
