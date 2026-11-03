@@ -246,6 +246,13 @@ func _march() -> void:
 	if met > _value(party) * FLEE_K + 60.0:
 		_fail("it met a stronger force on the way (%d against %d)" % [int(met), int(_value(party))])
 		return
+	_wall_check(c)
+	if held:
+		_phase("fight")          # (a held wall seen on the way: the fight's rules take it from here, before the climb)
+		if t_arrive < 0.0:
+			t_arrive = game.clock
+			say("rush: at the enemy's base (%d Clock Soldiers; defence seen %d)" % [party.size(), int(_foe_near(c, 320.0))])
+		return
 	# in the enemy's main (or in a fight near it): the fight begins
 	var near_home := c.distance_to(prey) < 14.0 * Defs.TILE
 	if near_home or _foe_near(c, 260.0) > 0.0 and c.distance_to(prey) < 22.0 * Defs.TILE:
@@ -286,14 +293,25 @@ var _wall_t := -99.0
 
 
 func _wall_check(c: Vector2) -> void:
-	if verdict != "" or game.clock - _wall_t < 2.0 or party.is_empty():
+	if verdict != "" or game.clock - _wall_t < 1.0 or party.is_empty():
 		return
 	_wall_t = game.clock
 	var lead: Unit = party[0]
 	for u in party:
 		if u.position.distance_to(prey) < lead.position.distance_to(prey):
 			lead = u
-	walled = not lead._walk_reaches_point(prey)
+	# (fair: a wall is "seen" only when our side sees an enemy gate or wall piece near the party while the party is still
+	# below the prey's ground; the pathfinder's word alone would know walls nobody has seen)
+	walled = false
+	if game.level_of(lead.position) < game.level_of(prey):
+		for b in game.buildings:
+			if b.dead or not game.hostile(b.team, team) or not (b.kind == "gate" or b.kind == "wall") or b.center().distance_to(lead.position) > 10.0 * Defs.TILE:
+				continue
+			if game.is_visible_to(team, b.center()):
+				walled = true
+				break
+	if not walled and not lead._walk_reaches_point(prey):
+		walled = true
 	if not walled:
 		held = false
 		return

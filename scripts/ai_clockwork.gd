@@ -36,6 +36,7 @@ var bta = null
 ##   "unit N"               train N of that unit (every building that can make it, one in each queue at a time)
 ##   "attack"               the raid takes the Springers and the Swift once the plan's raid force is out (ai_springer_raid)
 ##   "end"                  the opening is over: the shared computer plays on
+##   (cw-builds-a, scripts/ai_cw_builds_a.gd: "rush", "rush_over", "turret ramp|hall2", "ramp_regulator", "works_back")
 ## A step waiting for a building or for Tension does not stop the next ones: they may go with the cogs left after its price
 ## (a player reads ahead the same way); a step waiting for COGS, or for its supply, stops the reading there.
 ##  workers0       Winders at the start of the build (before the "workers" steps)
@@ -86,9 +87,11 @@ const PLANS := {
 			"clock_soldier 6",
 			"rush_over",
 			"turret ramp",
+			"mainspring",
+			"crew mainspring 3",
 			"workers 20",
 			"clocktower",
-			"mainspring",
+			"escapement",
 			"end",
 		],
 	},

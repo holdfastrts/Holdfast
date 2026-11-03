@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.28.5", "items": [
+		"TWO NEW PLANS FOR THE CLOCKWORK COMPUTER, each a written opening. CLOCK SOLDIER RUSH: a Light Works at 6 supply and a second one soon after, six Clock Soldiers out at about 2:45 with two Winders behind them to wind and mend them, straight at the enemy's workers. A wall held by guns or menders is not charged: the soldiers back out of the muskets' reach, watch the foot of the enemy's ramp for a while (its expansion, the workers who come out), and then the computer turns to its economy (a turret, the Mainspring, a second Clocktower) with no trickle of soldiers. TURRET TURTLE: a Regulator toward the top of the main's ramp, the Light Works behind the Clocktower, a Ratchet Turret by the ramp's top at about 1:50 and a second at about 2:15, a FAST second Clocktower laid at about 2:05 with a turret by it, then the Mainspring and the Escapement, and a later, bigger first wave. Against the Hard computers it has the most Winders and cogs of every Clockwork plan (about 15% more cogs than Balanced at 6:00, 19% more at 8:00) and was the only Clockwork plan not to lose a game to the Hard Brood by 10:00. Pick them as a Clockwork computer's plan (RANDOM PLAN can pick them too). The numbers, the films and what is still weak (the rush against the Brood) are in docs/clockwork_builds_a.md.",
+	]},
 	{"v": "0.28.4", "items": [
 		"THE SPRINGER HAS A REAL ATTACK SOUND: its shot was a tenth of a second of ratchet click, lost under the muskets. Now each shot is either a spring's twang and the clank of the screw flying, or a springy thwip with a lighter clank (the owner's two picks, from his Clockwork recordings).",
 	]},

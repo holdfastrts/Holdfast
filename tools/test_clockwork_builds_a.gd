@@ -7,7 +7,8 @@ extends SceneTree
 ## Prints the milestones (Light Works, the 1st and 5th Clock Soldier, the rush going out, arriving, its verdict; the turrets;
 ## the second Clocktower laid and standing; the first wave of the old plans), a line every 30 s, the numbers at 4, 6, 8
 ## and 10 minutes (Winders, cogs earned, army, the enemy's workers and their losses, value killed and lost) and the plan's
-## decisions. check:1 is the test for cw:cs_rush or cw:turtle (the thresholds below); json:<file> appends one line.
+## decisions. check:1 is the test for cw:cs_rush (until:480 is enough) or cw:turtle (until:400), Greenhold seed 11 against the
+## Hard Crown (the thresholds below); json:<file> appends one line (tools/clockwork_builds_a_report.py makes the tables).
 const RUSH_BY := 225.0           # cs_rush: the party goes out by 3:45
 const RUSH_JUDGED_BY := 420.0    # ... and is judged by 7:00
 const RUSH_WORKERS_6 := 14       # ... and the economy is back on: Winders at 6:00
