@@ -128,14 +128,21 @@ func _init() -> void:
 
 
 func _ready() -> void:
-	super._ready()
 	if not on:
+		super._ready()
 		return
+	# (AI._ready, with the opening from the plan instead of the dice)
+	if not strategies_for("crown").has(strategy):
+		strategy = "balanced"
+	_opened = strategy
 	_make_plan()
 	opening = String(plan.get("opening", "mill"))
 	for a in OS.get_cmdline_user_args():
 		if a == "open%d:breeder" % team or a == "open%d:mill" % team:
 			opening = a.split(":")[1]          # (study switch, as in AI._ready)
+	if game.mlog:
+		game.mlog.add("%s opens with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
+	scout = AIScout.new(self)
 	_bo_plan = (plan["bo"] as Array).duplicate(true) if difficulty >= 1 else []
 	bo_lab_cap = int(plan.get("labs", 99))
 	if _bo_plan.is_empty():
@@ -144,7 +151,6 @@ func _ready() -> void:
 	if opening == "breeder" and strategy == "rush":
 		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
 	if game.mlog:
-		game.mlog.add("%s opens (its plan) with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
 		game.mlog.add("%s's plan: %s, a build order of %d steps (scripts/ai_crown.gd)" % [game.mlog.who(team), STRATEGIES.get(strategy, STRATEGIES["balanced"])["name"], _bo_plan.size()])
 
 
@@ -262,6 +268,8 @@ func _bo_labs() -> void:
 	for h in _halls():
 		queued += h.queue.count(_f()["worker"])
 	var free := _gold() - bo_reserve
+	if _soldiers_first():
+		return
 	for h in _halls():
 		if not h.built or labs + queued >= bo_lab_cap or free < LAB_COST:
 			continue
@@ -274,9 +282,9 @@ func _bo_labs() -> void:
 
 ## The opening: the supply first, then the next step; its gold is set aside until it can be paid.
 func _bo_tick() -> void:
-	if scout != null and scout.verdict == "rush" and opening != "breeder":
-		_bo_end("a rush was scouted: the shared defence (the wall, Musketeers first, then the counter)")
-		return
+	if _defending() and not _def_on:
+		_def_on = true
+		_bo_defence()
 	if _attacking:
 		_bo_end("the first attack is out")
 		return
@@ -330,6 +338,44 @@ func _bo_tick() -> void:
 			continue
 		return
 	_bo_end("the build order is done")
+
+
+## A RUSH SCOUTED IN THE OPENING (AIScout's verdict "rush", until AITransition calls it held): the plan keeps the gold
+## and puts the defence first, the ramp wall, the Barracks and the Mill next if they are not up yet, soldiers from then
+## on with no cap, labourers only from gold the Barracks cannot use (_bo_labs) and no new hall until the rush is held.
+## (The shared defence it handed over to before cut the labourers to 12 at 4:00 in coached game a05.)
+var _def_on := false
+
+
+func _defending() -> bool:
+	return scout != null and scout.verdict == "rush" and opening != "breeder" and not tr.done
+
+
+func _bo_defence() -> void:
+	var first: Array = [{"do": "wall_cottage"}, {"do": "wall_gate"}, {"do": "build", "k": "barracks"}, {"do": "build", "k": "powder_mill"}]
+	var ins: Array = []
+	for st in first:
+		if not _st_done(st):
+			ins.append(st)
+	for k in ins.size():
+		_bo_plan.insert(bo_i + k, ins[k])
+	bo_army = true
+	bo_army_cap = 0
+	say("a rush is scouted: the wall, the Barracks and the Mill first, soldiers before labourers, no new hall till it is held")
+
+
+## The soldiers come first while a rush is feared: a hall trains a labourer only when every Barracks is busy (gold the
+## soldiers cannot use now: no powder, no supply) or the line has DEF_MUSK Musketeers.
+const DEF_MUSK := 6
+
+
+func _soldiers_first() -> bool:
+	if not _defending():
+		return false
+	var musk := game.army(team).filter(func(u: Unit) -> bool: return Defs.MUSKETS.has(u.kind)).size()
+	if musk >= DEF_MUSK:
+		return false
+	return _mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty())
 
 
 func _bo_next(st: Dictionary) -> void:
@@ -399,6 +445,10 @@ func _st_done(st: Dictionary) -> bool:
 
 
 func _st_ready(st: Dictionary) -> bool:
+	if String(st["do"]) == "hall" and _defending():
+		return false            # (no new hall while a rush is feared: AITransition says when it is held)
+	if String(st["do"]) == "hall" and tr.done and tr.choice == "expand":
+		return true             # (the rush held: the next hall at once, the doctrine)
 	var at: Dictionary = st.get("at", {})
 	if at.has("sup") and game.supply_used(team) < int(at["sup"]):
 		return false
@@ -532,8 +582,8 @@ func _bo_hall() -> String:
 	_new_hall = nb
 	_guards.clear()
 	if game.mlog:
-		game.mlog.add("%s is expanding to fresh land (its build order), %d tiles from its main" % [game.mlog.who(team),
-			int(nb.center().distance_to(Vector2(game.starts[team]) * Defs.TILE) / Defs.TILE)])
+		game.mlog.add("%s is expanding to fresh land (left at its best hall: %d%%), %d tiles from its main (its build order)" % [game.mlog.who(team),
+			int(round(_best_soil() * 100)), int(nb.center().distance_to(Vector2(game.starts[team]) * Defs.TILE) / Defs.TILE)])
 	return ""
 
 
@@ -554,6 +604,8 @@ func _mill_cap() -> int:
 	for e in plan.get("mill", [[0, 3]]):
 		if labs >= int(e[0]):
 			per = int(e[1])
+	if _defending():
+		per = maxi(per, 3)      # (the Musketeers' powder while a rush is feared)
 	if per <= 0 or mills == 0:
 		return per * maxi(1, mills)
 	return mini(per * mills, _mill_feedback(mills))      # (the plan's most; fewer while the powder piles up)
