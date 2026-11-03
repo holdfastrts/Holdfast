@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.5", "items": [
+		"THE BARRACKS' FIFE ENDS CLEANLY: when the Barracks recruits a soldier, the fife's last long note no longer stutters (it was one short piece of the recording repeated five times, with the band's drum in it) and no longer stops short. It is now a real held note from the fifer, fading out smoothly, and the low drum thump and hum under the tune are gone.",
+	]},
 	{"v": "0.26.4", "items": [
 		"SCATTER COGS, THE GREAT WINDER'S SLOW FIELD (the owner's idea: a slow spell without magic): press SCATTER COGS (C) and tap a spot within 6 tiles. Its key arm winds up for half a second, then its hopper flings a shower of cogs, bolts and springs that litter a circle of 2.5 tiles for 15 s. Enemies on the ground in the litter move 40% slower (their attacks are not slowed); flyers and your own units are not slowed. It costs 40 cogs and the hopper refills in 25 s. The Clockwork computer throws it on clumps of charging melee (Raptors, Horsemen) and on armies running away.",
 	]},
