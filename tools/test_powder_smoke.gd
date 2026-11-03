@@ -278,9 +278,9 @@ func _thick(me: Unit) -> void:
 	for i in th.cap:
 		longest = maxf(longest, th._life[i])
 		solid = maxf(solid, th._a[i])
-	check(longest > float(PowderSmoke.KINDS["cannon"][3]) * 0.999 or th._life[j] > float(PowderSmoke.KINDS["musket"][2]) * 1.2,
-		"THICK: the puffs last longer (longest %.1f s; FULL's cannon at most %.0f s, its musket %.0f)" % [longest, PowderSmoke.KINDS["cannon"][3], full_max])
-	check(is_equal_approx(PowderSmoke.LIFE_K[3], 1.25) and PowderSmoke.THICK_A > 1.0, "THICK: lives x%.2f, %.0f%% more solid" % [PowderSmoke.LIFE_K[3], (PowderSmoke.THICK_A - 1.0) * 100.0])
+	# (the owner, 2026-11-03: every puff lives about 3 s, THICK included: 2 s solid, 1 s fading)
+	check(longest <= 3.2 and longest >= 2.8, "THICK: puffs live about 3 s like the rest (longest %.1f s)" % longest)
+	check(is_equal_approx(PowderSmoke.LIFE_K[3], 1.0) and PowderSmoke.THICK_A > 1.0, "THICK: lives x%.2f (3 s), %.0f%% more solid" % [PowderSmoke.LIFE_K[3], (PowderSmoke.THICK_A - 1.0) * 100.0])
 	th.tick(0.1)
 	check(th._mm.visible_instance_count > 0, "THICK puffs are drawn (%d)" % th._mm.visible_instance_count)
 	th.queue_free()
@@ -391,7 +391,7 @@ func _volley() -> void:
 	check(jump <= STEP, "the volley: no puff's alpha jumps more than %.2f a tick (biggest %.3f)" % [STEP, jump])
 	check(vanish <= 0.01, "the volley: no puff vanishes while it still shows (biggest %.3f)" % vanish)
 	check(peak_fire < 8.0, "the volley: the cloud is bounded while they fire (most in one 64 px square: %.2f summed alpha)" % peak_fire)
-	check(at5 > 0.3, "the volley: it still lingers 5 s after the last volley (%.2f)" % at5)
+	check(at5 < 0.05, "the volley: gone 5 s after the last volley, 3 s lives (the owner, 2026-11-03) (%.2f)" % at5)
 	check(thin_at >= 0.0 and thin_at <= THIN_BY, "the volley: thinned under a summed alpha of 1 within %.0f s (%.1f s)" % [THIN_BY, thin_at])
 	check(gone_at >= 0.0 and gone_at <= GONE_BY, "the volley: gone within %.0f s of the last volley (%.1f s)" % [GONE_BY, gone_at])
 	g.reveal = false

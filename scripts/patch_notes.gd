@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.1", "items": [
+		"POWDER SMOKE: SHORTER, STAYS WHERE IT WAS FIRED, NO BLINK (the owner): every puff now lives about 3 seconds, solid for 2 and fading over the last 1 (it lingered 10 to 20 seconds, mostly too thin to see, and drifted far). The shot's push carries it less far. Its fade reaches nothing a moment before it goes, so it no longer blinks at the end, and a thick cloud no longer makes its puffs age in sudden jumps.",
+	]},
 	{"v": "0.29.0", "items": [
 		"THE CROWN HAS A COMPUTER OF ITS OWN, like the Brood's: each plan (Economy, Balanced, Timing attack, Rush) now plays a real opening build order, step by step, each step waiting for so many labourers or so much supply, never for the clock. The plan keeps the gold for its next step: nothing else may spend it, and the labourers and soldiers get what is left. After the opening its milestones put up the second Barracks, the Breeder, the Foundry, the Armoury and the Church at so many labourers and halls. Everything that worked stays: the scout, the raids, the ramp post on HOLD, the rider scouts, the walls of a new hall, the counter-attack after a held rush.",
 		"A rush scouted in the opening is now defended by the plan itself: the wall, the Barracks and the Mill first, soldiers before labourers, no new hall until the rush is held, then the hall at once. Against the Brood's extreme rush the third Musketeer comes at 2:38 instead of 2:45, and the economy no longer stalls at a dozen labourers for minutes.",

@@ -1,7 +1,7 @@
 class_name PowderSmoke
 extends Node2D
 ## Black powder smoke (docs/powder_smoke.md): every Crown powder shot leaves puffs of grey-white
-## smoke that drift on a light wind, grow, thin and fade over 8 to 22 seconds, so a long
+## smoke that drift on a light wind, grow, stay solid 2 seconds and fade over 1 (3 s in all: the owner, 2026-11-03), so a long
 ## firefight builds a haze over the firing line that clears slowly afterwards.
 ##
 ## Looks only. It never touches the simulation: its own random numbers (rng), nothing it does
@@ -31,16 +31,16 @@ const FRAMES := 3               # assets/effects/smoke.png frames 1..3 (frame 0 
 ## size grown (both as a scale of the 27 px smoke frame), push (px/s, along the shot),
 ## spread (px around the muzzle), peak alpha].
 const KINDS := {
-	"musket": [3, 1, 10.0, 16.0, 0.6, 2.9, 30.0, 5.0, 0.42],
-	"cannon": [7, 3, 16.0, 24.0, 1.0, 4.4, 46.0, 10.0, 0.48],
-	"canister": [8, 3, 15.0, 22.0, 1.0, 4.2, 60.0, 14.0, 0.48],
-	"mortar": [5, 2, 14.0, 20.0, 0.9, 3.6, 18.0, 8.0, 0.45],
-	"keg": [8, 3, 15.0, 21.0, 1.2, 4.6, 30.0, 26.0, 0.48],
-	"wagon": [16, 6, 17.0, 24.0, 1.5, 5.4, 40.0, 50.0, 0.5],
-	"shell": [3, 1, 10.0, 15.0, 0.9, 3.2, 22.0, 14.0, 0.36],
+	"musket": [3, 1, 2.85, 3.15, 0.6, 2.9, 18.0, 5.0, 0.42],
+	"cannon": [7, 3, 2.85, 3.15, 1.0, 4.4, 27.6, 10.0, 0.48],
+	"canister": [8, 3, 2.85, 3.15, 1.0, 4.2, 36.0, 14.0, 0.48],
+	"mortar": [5, 2, 2.85, 3.15, 0.9, 3.6, 10.8, 8.0, 0.45],
+	"keg": [8, 3, 2.85, 3.15, 1.2, 4.6, 18.0, 26.0, 0.48],
+	"wagon": [16, 6, 2.85, 3.15, 1.5, 5.4, 24.0, 50.0, 0.5],
+	"shell": [3, 1, 2.85, 3.15, 0.9, 3.2, 13.2, 14.0, 0.36],
 }
 const CAP := {3: 960, 2: 720, 1: 260}          # puffs alive at most (thick, full, light)
-const LIFE_K := {3: 1.25, 2: 1.0, 1: 0.65}     # light: shorter lives; thick: longer
+const LIFE_K := {3: 1.0, 2: 1.0, 1: 1.0}       # (the owner, 2026-11-03: every puff lives 3 s whatever the level)
 const HZ := {3: 20.0, 2: 20.0, 1: 12.0}         # how often the puffs move and the MultiMesh is refilled (they move a few px a second)
 const SOFT := 0.8                      # past this share of the cap the oldest puffs age OVER_RATE x faster (they thin, never vanish at once)
 const OVER_RATE := 3.0
@@ -54,9 +54,10 @@ const DENSE := 8.0
 const MERGE := 14.0                    # (22 before 0.26.5: past 14 a square is drawn at DENSE / count anyway, so more puffs there only cost fill)
 const THIN_MIN := 0.3
 const THIN_RATE := 0.7                 # how fast a puff's thinning follows its square's (per second)
-const AGE_K := 0.3                    # extra ageing per DENSE puffs past DENSE in its square
+const AGE_K := 0.0                    # extra ageing per DENSE puffs past DENSE in its square (0: a puff lives its 3 s; an ageing jump made it blink)
 const RATE_MAX := 2.2
-const FADE_IN := 0.6                   # seconds a new puff takes to fade in (smoothstep)
+const FADE_IN := 0.5                   # seconds a new puff takes to fade in (smoothstep; quicker steps a frame of 20 a second visibly)
+const FADE_OUT := 1.0                  # the last second of its life it fades (the owner, 2026-11-03: 2 s solid, 1 s going)
 
 static var force := -1                 # tests and tools: this level in every new match (-1: the setting)
 
@@ -380,7 +381,8 @@ func tick(dt: float) -> void:
 				_seen[j] = sn
 				var x := age / life
 				var fi := minf(age / FADE_IN, 1.0)
-				var al := _a[j] * fi * fi * (3.0 - 2.0 * fi) * (1.0 - pow(x, 1.6)) * sn * th     # (thick for a while, then vanishing slowly)
+				var fo := clampf((life - age - 0.12) / (FADE_OUT - 0.12), 0.0, 1.0)      # (1 until its last second, then down to 0 a tick or two before it ends: no pop, no blink)
+				var al := _a[j] * fi * fi * (3.0 - 2.0 * fi) * fo * sn * th     # (solid for 2 s, then fading over 1 s)
 				var dal := (al - _al[j]) / dt if _al[j] > 0.0 else 0.0
 				_al[j] = al
 				_dal[j] = dal
