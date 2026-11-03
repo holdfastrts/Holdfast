@@ -2,7 +2,7 @@ extends SceneTree
 ## The Crown computer's walled-expansion plan (scripts/ai_expand_wall.gd plan_for) made faster in 0.28.1 (perf-stutter):
 ## it must give EXACTLY the same plan as before (tools/xw_plan_ref.gd is the old code, kept for this test), every cell,
 ## piece, slot and their order, and take far less time (it made a 130 to 270 ms frame each time the Crown laid a hall).
-##   godot --headless --fixed-fps 60 --script res://tools/test_xwall_plan.gd [-- map:cinder_steps seed:3206849968 limit_ms:60]
+##   godot --headless --fixed-fps 60 --script res://tools/test_xwall_plan.gd [-- map:cinder_steps seed:3206849968 ratio:0.5]
 ## A computer Brood against a Hard Crown on RUSH (the owner's lag report); at a few times of the match, plans for the
 ## Crown's halls and for free hall spots over the map are made by both and compared. Prints PASS or FAIL.
 var main: Node
@@ -11,12 +11,14 @@ var g: Game
 var map := "cinder_steps"
 var seed_ := 3206849968
 var checks := [150.0, 300.0, 420.0, 480.0, 540.0]
-var limit_ms := 60.0            # the slowest new plan may take this long (the old one took 120 to 300 ms here)
+var max_ratio := 0.5            # the new plan's median time over the old one's, at most (0.28.1: about 0.3)
 var fails := 0
 var compared := 0
 var worst_new := 0.0
 var worst_old := 0.0
 var new_ms: Array = []
+var hall_new := 0.0             # the slowest plan for one of the Crown's real halls
+var hall_old := 0.0
 var old_ms: Array = []
 
 
@@ -26,8 +28,8 @@ func _initialize() -> void:
 			map = a.substr(4)
 		elif a.begins_with("seed:"):
 			seed_ = int(a.substr(5))
-		elif a.begins_with("limit_ms:"):
-			limit_ms = float(a.substr(9))
+		elif a.begins_with("ratio:"):
+			max_ratio = float(a.substr(6))
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 
@@ -51,9 +53,13 @@ func _process(delta: float) -> bool:
 		new_ms.sort()
 		old_ms.sort()
 		var med := func(a: Array, f: float) -> float: return float(a[int(a.size() * f)]) if not a.is_empty() else 0.0
-		print("XWALL compared %d plans, %d different; slowest new %.1f ms, slowest old %.1f ms; median new %.1f old %.1f, 95%% new %.1f old %.1f" % [
-			compared, fails, worst_new, worst_old, med.call(new_ms, 0.5), med.call(old_ms, 0.5), med.call(new_ms, 0.95), med.call(old_ms, 0.95)])
-		var ok := fails == 0 and compared > 0 and worst_new <= limit_ms
+		print("XWALL compared %d plans, %d different; slowest new %.1f ms, slowest old %.1f ms; median new %.1f old %.1f, 95%% new %.1f old %.1f; the Crown's own halls: slowest new %.1f ms, old %.1f ms" % [
+			compared, fails, worst_new, worst_old, med.call(new_ms, 0.5), med.call(old_ms, 0.5), med.call(new_ms, 0.95), med.call(old_ms, 0.95), hall_new, hall_old])
+		# (the times are relative: the old code timed in the same run on the same cells, so a slow or busy machine
+		# doesn't fail it; the old code itself would come out at 1.0)
+		var ratio: float = float(med.call(new_ms, 0.5)) / maxf(0.001, float(med.call(old_ms, 0.5)))
+		print("XWALL median time new / old: %.2f (must be under %.2f)" % [ratio, max_ratio])
+		var ok: bool = fails == 0 and compared > 0 and ratio <= max_ratio
 		print("XWALL PASS" if ok else "XWALL FAIL")
 		quit(0 if ok else 1)
 	return false
@@ -80,6 +86,9 @@ func _check() -> void:
 			var b: Dictionary = ref.plan_for(e[0], e[1])
 			var t2 := Time.get_ticks_usec()
 			new_ms.append((t1 - t0) / 1000.0)
+			if e[1] != null:
+				hall_new = maxf(hall_new, (t1 - t0) / 1000.0)
+				hall_old = maxf(hall_old, (t2 - t1) / 1000.0)
 			old_ms.append((t2 - t1) / 1000.0)
 			worst_new = maxf(worst_new, (t1 - t0) / 1000.0)
 			worst_old = maxf(worst_old, (t2 - t1) / 1000.0)

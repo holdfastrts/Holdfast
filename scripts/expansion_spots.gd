@@ -390,26 +390,41 @@ static func rate_all(g: Game) -> Array:
 
 ## Steps by land (4 ways) from round a hall at `c` to every cell (INF: none).
 static func _steps(g: Game, c: Vector2i) -> PackedFloat32Array:
+	# (0.28.1, perf-stutter: the same steps, worked in map indices: with a Vector2i queue each map took ~15 ms, and the
+	# Crown computer's first hall search asked for four or five at once, a 55 ms frame)
+	var W := Game.W
+	var H := Game.H
+	var n_cells := W * H
 	var d := PackedFloat32Array()
-	d.resize(Game.W * Game.H)
+	d.resize(n_cells)
 	d.fill(INF)
-	var q: Array = []
+	var solid: PackedByteArray = g.solid
+	var cliff: PackedByteArray = g.cliff
+	var q := PackedInt32Array()
 	for y in MapGen.HALL.y:
 		for x in MapGen.HALL.x:
 			var cc := c + Vector2i(x, y)
 			if g.in_map(cc):
 				d[g.idx(cc)] = 0.0
-				q.append(cc)
+				q.append(g.idx(cc))
 	var head := 0
 	while head < q.size():
-		var p: Vector2i = q[head]
+		var i: int = q[head]
 		head += 1
-		var nd := d[g.idx(p)] + 1.0
-		for dd in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-			var n2: Vector2i = p + dd
-			if g.in_map(n2) and d[g.idx(n2)] == INF and _open(g, n2):
-				d[g.idx(n2)] = nd
-				q.append(n2)
+		var nd := d[i] + 1.0
+		var x := i % W
+		if x + 1 < W and d[i + 1] == INF and solid[i + 1] != 1 and cliff[i + 1] == 0:
+			d[i + 1] = nd
+			q.append(i + 1)
+		if x > 0 and d[i - 1] == INF and solid[i - 1] != 1 and cliff[i - 1] == 0:
+			d[i - 1] = nd
+			q.append(i - 1)
+		if i + W < n_cells and d[i + W] == INF and solid[i + W] != 1 and cliff[i + W] == 0:
+			d[i + W] = nd
+			q.append(i + W)
+		if i - W >= 0 and d[i - W] == INF and solid[i - W] != 1 and cliff[i - W] == 0:
+			d[i - W] = nd
+			q.append(i - W)
 	return d
 
 

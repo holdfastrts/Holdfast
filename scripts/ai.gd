@@ -481,7 +481,9 @@ func _think_stage(i: int) -> void:
 			var rk1 := _hide_repair()
 			_keep_tech()
 			_supply()
+			pt = _lap("ai/build/supply", pt)
 			var ek1 := _hide_econ()         # (CROWN ECONOMY FIRST: the next labourer, Farm and rider before more buildings)
+			pt = _lap("ai/build/econ", pt)
 			_build_up()
 			game.players[team]["gold"] += rk1 + ek1
 			_lap("ai/build", pt)

@@ -871,6 +871,7 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 	var wall_ok := {}            # (the ground doesn't change while the plan is made: each cell asked once)
 	var best := {}
 	var best_score := INF
+	var valid: Array = []          # the radii whose ways in can all be walled: {r, cells, exposed, area, s0}
 	for r in range(R_MIN, R_MAX + 1):
 		var cells := _inside_cells(cell, hsize, float(r), base)
 		var area := 0
@@ -892,23 +893,32 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 			if not wall_ok[c]:
 				bad = true
 				break
-		if bad:
-			for i in cells:
-				in_mask[i] = 0
-			continue
-		# (the hall's two Farms and its Mill must fit inside: else its workers walk out of the wall to them)
-		var score0 := float(ex.size()) - float(area) / 150.0
-		if score0 >= best_score:
-			for i in cells:
-				in_mask[i] = 0
-			continue            # (it can't beat the best so far even with all of them inside: no need to pack them)
-		var econ := _pack_cells(cell, hsize, cells, in_mask)
 		for i in cells:
 			in_mask[i] = 0
+		if bad:
+			continue
+		# (the hall's two Farms and its Mill must fit inside: else its workers walk out of the wall to them)
+		valid.append({"r": r, "cells": cells, "exposed": ex, "area": area, "s0": float(ex.size()) - float(area) / 150.0})
+	# The best radius: the lowest score (ways in, less a little for room, +1000 for each economy building that doesn't fit),
+	# the smaller radius on a tie. Packing the economy is the dear part, so the radii are packed from the lowest score
+	# without it (its lower bound) up, and the search stops once no radius left can beat (or tie with a smaller radius)
+	# the best found: the same radius as packing every one in turn (0.28.1, perf-stutter).
+	var by_s0 := valid.duplicate()
+	by_s0.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["s0"]) < float(b["s0"]) or (float(a["s0"]) == float(b["s0"]) and int(a["r"]) < int(b["r"])))
+	for v in by_s0:
+		var score0: float = v["s0"]
+		if not best.is_empty() and (score0 > best_score or (score0 == best_score and int(v["r"]) > int(best["r"]))):
+			break
+		var vc: PackedInt32Array = v["cells"]
+		for i in vc:
+			in_mask[i] = 1
+		var econ := _pack_cells(cell, hsize, vc, in_mask)
+		for i in vc:
+			in_mask[i] = 0
 		var score := score0 + float(ECON_KINDS.size() - econ.size()) * 1000.0
-		if score < best_score:
+		if best.is_empty() or score < best_score or (score == best_score and int(v["r"]) < int(best["r"])):
 			best_score = score
-			best = {"r": r, "cells": cells, "exposed": ex, "area": area, "econ": econ}
+			best = {"r": v["r"], "cells": vc, "exposed": v["exposed"], "area": v["area"], "econ": econ}
 	if best.is_empty():
 		return {"ok": false}
 	var best_in := {}

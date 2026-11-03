@@ -198,7 +198,8 @@ static func _new_stats() -> Dictionary:
 static func tex(path: String) -> Texture2D:
 	if not _tex_cache.has(path):
 		# (the Clockwork roster prototype's units with no sheet yet are drawn in code: scripts/cw_art.gd)
-		_tex_cache[path] = CwArt.texture(path) if CwArt.is_placeholder(path) else load(path)
+		var warm := ArtWarm.take(path)        # (loading in the background already: scripts/art_warm.gd)
+		_tex_cache[path] = warm if warm != null else (CwArt.texture(path) if CwArt.is_placeholder(path) else load(path))
 	return _tex_cache[path]
 
 
@@ -340,6 +341,9 @@ func _ready() -> void:
 	mlog = MatchLog.new()
 	mlog.game = self
 	add_child(mlog)
+	var aw := ArtWarm.new()             # the pictures of the kinds on the field loaded ahead (scripts/art_warm.gd)
+	aw.game = self
+	add_child(aw)
 	chat = Chat.new()
 	chat.game = self
 	add_child(chat)
