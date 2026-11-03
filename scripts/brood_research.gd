@@ -118,13 +118,43 @@ static func egg_price(k: String, n: int) -> Array:
 ## Speed added to this unit by its side's research (px/s); the flyers' only while flying.
 static func speed_add(u: Unit) -> float:
 	var add := 0.0
-	for k in _speed_keys(u.kind):
-		if has(u.game, u.team, k):
+	var ks := _speed_keys(u.kind)
+	if ks.is_empty():
+		return add
+	# (every Brood unit asks this every tick: has(g, t, k) written out, the side's research looked up once)
+	var g := u.game
+	var t := u.team
+	if g == null or t < 0 or t >= g.players.size():
+		return add
+	var tech: Dictionary = g.players[t]["tech"]
+	# (the answer for this side, kind and air or not, kept while the side's research is the same dictionary with as many
+	# entries: research is only ever added, as true. perf_units)
+	var air := u.is_air()
+	while _memo.size() <= t:
+		_memo.append([null, -1, {}])
+	var mt: Array = _memo[t]
+	if not is_same(mt[0], tech) or int(mt[1]) != tech.size():
+		mt[0] = tech
+		mt[1] = tech.size()
+		mt[2] = {}
+	var by_kind: Dictionary = mt[2]
+	var e = by_kind.get(u.kind)
+	if e != null and e[int(air)] != null:
+		return e[int(air)]
+	for k in ks:
+		if tech.get(k, false) == true:
 			var info: Dictionary = Defs.RESEARCH[k]
-			if bool(info.get("air", false)) and not u.is_air():
+			if bool(info.get("air", false)) and not air:
 				continue
 			add += float(info["speed"][u.kind])
+	if e == null:
+		e = [null, null]
+		by_kind[u.kind] = e
+	e[int(air)] = add
 	return add
+
+
+static var _memo: Array = []     # per side: [its research dictionary, its size, {kind: [ground answer, air answer]}]
 
 
 static var _sk := {}

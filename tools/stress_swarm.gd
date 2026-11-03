@@ -15,6 +15,8 @@ extends SceneTree
 ##   grubs    n Grubs + n/2 Raptors a side, the same melee in view
 ##   muskets  n/2 Musketeers a side (Crown) trading fire in view, the powder smoke as set (THICK by default)
 ##   mixed    n/2 Musketeers (Crown) against n/2 Raptors (Brood) in view: volleys, smoke and a melee (docs/perf_smoke.md)
+##   clockbrood n/2 Clockwork (4/5 Clock Soldiers, 1/5 Springers) against n/2 Brood (3/4 Raptors, 1/4 Spitters) in view
+##            (docs/perf_units.md; n:160 is 80 a side)
 ## smoke:<0..3> sets the powder smoke (off, light, full, thick) instead of the setting.
 ## Side 1's army is selected (its rings, bars and the command card, as a player has them). The armies are made in
 ## one tick, but their men's timers are spread as an army made over minutes has them.
@@ -82,7 +84,7 @@ class SilentSfx extends Sfx:
 func _initialize() -> void:
 	Settings.load_all()
 	for a in OS.get_cmdline_user_args():
-		if a in ["idle", "walk", "melee", "offmelee", "grubs", "muskets", "mixed"]:
+		if a in ["idle", "walk", "melee", "offmelee", "grubs", "muskets", "mixed", "clockbrood"]:
 			scen = a
 		elif a.begins_with("smoke:"):
 			PowderSmoke.force = int(a.substr(6))
@@ -164,8 +166,8 @@ func _process(delta: float) -> bool:
 	if not begun:
 		if t > 0.2:
 			begun = true
-			var fac := "crown" if scen in ["muskets", "mixed"] else "brood"
-			var fac1 := "brood" if scen == "mixed" else fac
+			var fac := "crown" if scen in ["muskets", "mixed"] else "clockwork" if scen == "clockbrood" else "brood"
+			var fac1 := "brood" if scen in ["mixed", "clockbrood"] else fac
 			if not sound:
 				root.add_child(SilentSfx.new())
 			seed(4242)
@@ -325,6 +327,8 @@ func _setup() -> void:
 		set = [["grub", n], ["raptor", n / 2]]
 	elif scen in ["muskets", "mixed"]:
 		set = [["musketeer", n / 2]]
+	elif scen == "clockbrood":
+		set = [["clock_soldier", n / 2 - n / 10], ["springer", n / 10]]
 	var p0: Vector2
 	var p1: Vector2
 	if scen in ["idle", "walk"]:
@@ -336,7 +340,7 @@ func _setup() -> void:
 		p0 = _open_near(m - dir * gap)
 		p1 = _open_near(m + dir * gap)
 	sides[0] = _army(0, p0, set)
-	sides[1] = _army(1, p1, [["raptor", n / 2]] if scen == "mixed" else set)
+	sides[1] = _army(1, p1, [["raptor", n / 2]] if scen == "mixed" else [["raptor", n / 2 - n / 8], ["spitter", n / 8]] if scen == "clockbrood" else set)
 	_vp_rid = root.get_viewport().get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(_vp_rid, true)
 	match scen:
@@ -346,7 +350,7 @@ func _setup() -> void:
 			g.group_move(sides[0], p1, false)
 			g.group_move(sides[1], p0, false)
 			_fight_cam = true
-		"melee", "grubs", "muskets", "mixed":
+		"melee", "grubs", "muskets", "mixed", "clockbrood":
 			g.group_move(sides[0], p1, true)
 			g.group_move(sides[1], p0, true)
 			_cam_at = (p0 + p1) * 0.5

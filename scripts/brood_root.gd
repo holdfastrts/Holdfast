@@ -1395,9 +1395,11 @@ static func _plans_key(g: Game) -> int:
 	for u in g.units:
 		if u.dead or u.team != g.human:
 			continue
-		var pl := plan_of(u)
-		if not pl.is_empty():
-			h = hash([h, pl[0], pl[1]])
+		# (plan_of is [] unless it roots, morphs or keeps a spot: asked as plain fields first, every tick for every unit)
+		if u.order == "nb_root" or u.order == "nb_morph" or u.nb.has("keep"):
+			var pl := plan_of(u)
+			if not pl.is_empty():
+				h = hash([h, pl[0], pl[1]])
 		for o in u.queue:
 			var oo := String(o.get("o", ""))
 			if (oo == "nb_root" or oo == "nb_morph") and o.has("p"):

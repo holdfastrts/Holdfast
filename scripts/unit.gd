@@ -3561,7 +3561,7 @@ func _tick_unit(delta: float) -> void:
 		CwUnits.pre_tick(self, delta)
 	if shield_up or shield_t > 0.0:
 		ShieldWall.tick(self, delta)        # (a Clock Soldier's SHIELD FORWARD: the switch, the slower pace)
-	if _k_fac == "brood" and game.on_swamp(team, position):
+	if _k_fac == "brood" and game.swamp[team][clampi(int(position.y / Game.T), 0, Game.H - 1) * Game.W + clampi(int(position.x / Game.T), 0, Game.W - 1)] == 1:     # (game.on_swamp(team, position), written out)
 		speed *= 1.3
 		if hp < max_hp and game.clock - hit_clock >= float(Defs.NB["regen_calm"]):
 			# (OUT OF THE FIGHT only, the owner 2026-10-31: a Clock Soldier couldn't kill a rooted Mound Turtle; SWAMP
@@ -3611,7 +3611,7 @@ func _tick_unit(delta: float) -> void:
 		if _field_t <= 0.0:
 			_field_t = 0.4
 			_in_field = game.in_field(team, position)
-			_in_ovc = not is_worker() and game.in_overcharge(team, position)
+			_in_ovc = not _k_worker and game.in_overcharge(team, position)
 		# overcharge: a while by a Boiler, in a Pylon's or a deployed Tesla Cart's field
 		if _in_ovc:
 			overcharge_t = minf(overcharge_t + delta, float(Defs.OVERCHARGE["time"]) + 1.0)
@@ -3623,7 +3623,7 @@ func _tick_unit(delta: float) -> void:
 			self_wind_t = 0.0
 			if kind == "stormcaller":
 				charge = minf(float(Defs.STORM["max"]), charge + float(Defs.STORM["fill"]) * delta)
-		elif is_worker():
+		elif _k_worker:
 			# Winders wind themselves: when they run low they stop a few seconds to crank
 			if self_wind_t > 0.0:
 				self_wind_t -= delta
@@ -3647,7 +3647,7 @@ func _tick_unit(delta: float) -> void:
 			_spin_idle += delta
 			if _spin_idle > float(Defs.THRESHER["reset"]):
 				spin = maxf(0.0, spin - delta / 0.6)
-		if not is_worker():
+		if not _k_worker:
 			speed *= lerpf(0.75, 1.0, wind)
 		if _ww_cap_t > 0.0:
 			# a slower Winder winding it on the march: the pair goes at his pace while he winds (never in a fight)
@@ -3938,9 +3938,9 @@ func _tick_unit(delta: float) -> void:
 		Ballista.drive_by(self)                 # (no set-up: it shoots on the move at what is ahead)
 	if kind == "horse":
 		want = _horse_tick(delta, want)
-	if deploys():
+	if _k_deploys:                 # (deploys())
 		want = _tesla(want, delta)
-	if not can_roll():
+	if _k_harness and not harnessed:      # (not can_roll())
 		want = Vector2.ZERO        # a gun or wagon without its horse stands where it is
 	if kind == "balloon" and not incoming.is_empty():
 		want = Vector2.ZERO        # holds still while men climb in
@@ -3984,7 +3984,7 @@ func _tick_unit(delta: float) -> void:
 			extra += ToadHop.draw_key(self) * 1000000     # (its shadow goes with the hopping body)
 		var key := Vector4i(Settings.health_bars * 536870912 + int(selected) + (2 if carrying > 0 else 0) + (4 if cross_t > 0.0 else 0) + (8 if work == "feeding" else 0) + (16 if carry_empty else 0) + (32 if cocoon > 0 else 0) + kills * 64,
 			int(hp), int(wind * 40.0) + (int(carry_t * 4.0) * 100 if carrying > 0 else 0) + (5000 if charge_winding() else 0) + (10000 if Settings.charge_bars else 0) if _k_fac == "clockwork" else int(powder * 2.0) + (1000 if supplying else 0),
-			int(max_hp) + extra + (int(reload_frac() * 16.0) + 17 * int(tesla_t * 4.0) + 850 * TESLA_MODES.find(tesla_mode)) * 10000 if has_attack() else int(max_hp) + extra)
+			int(max_hp) + extra + (int((1.0 if phase == "" and cooldown <= 0.0 else reload_frac()) * 16.0) + 17 * int(tesla_t * 4.0) + 850 * TESLA_MODES.find(tesla_mode)) * 10000 if has_attack() else int(max_hp) + extra)
 		if key != _draw_key:
 			_draw_key = key
 			queue_redraw()
@@ -4800,7 +4800,7 @@ func _engage(e: Entity, delta: float, may_move: bool) -> Vector2:
 	var dist := e.edge_distance(position) - radius
 	var rng := _range()
 	var min_r := 0.0 if mode == "canister" else float(d.get("min_range", 0.0))
-	if deploys() and not _k_nb and tesla_mode != "deployed":
+	if _k_deploys and not _k_nb and tesla_mode != "deployed":      # (_k_deploys: deploys())
 		# (a gun sets up to shoot; the Brood's rooters fight uprooted: rooted they don't attack at all)
 		if tesla_mode == "packed" and dist <= rng and dist >= min_r and game.target_seen(team, e, position):
 			tesla_mode = "deploying"
@@ -4809,7 +4809,7 @@ func _engage(e: Entity, delta: float, may_move: bool) -> Vector2:
 			return Vector2.ZERO
 		if tesla_mode != "packed":
 			return Vector2.ZERO
-	elif deploys() and (not _k_nb or (kind == BroodNew.QUEEN and not BroodNew.mother_chases(self))) and (dist > rng or dist < min_r) and phase == "":
+	elif _k_deploys and (not _k_nb or (kind == BroodNew.QUEEN and not BroodNew.mother_chases(self))) and (dist > rng or dist < min_r) and phase == "":
 		# (guns set up and don't chase; the Brood Mother stands her ground against what she picks for herself and on the
 		# computer's leash (BroodNew.mother_guard), but goes for what the player sends her at (ATTACK, ATTACK-MOVE: she
 		# stood at the foot of a ramp gate before, 0.22.1); the other rooters, up, are walking creatures and chase what
@@ -7111,7 +7111,7 @@ func _animate(delta: float) -> void:
 		# frames, played so that his stride takes the same time
 		fps *= CUIRASSIER_GALLOP_FPS / WALK_FPS * n / 8.0
 	var loop := true
-	match anim:
+	match anim if _FPS_POSES.has(anim) else "":
 		"idle", "idle_carry", "guard":
 			fps = 2.0 if not Defs.FLYER.has(kind) else float(Defs.FLYER[kind]["flap"]) * 0.85     # (a flyer flaps in place)
 			if kind == "skywing":
@@ -7246,7 +7246,9 @@ func _animate(delta: float) -> void:
 	if anim == "jump":
 		frame_i = mini(Springer.frame(self), n - 1)
 		shown = frame_i
-	sprite.frame = clampi(shown, 0, sprite.hframes - 1)
+	var sf := clampi(shown, 0, sprite.hframes - 1)
+	if sprite.frame != sf:
+		sprite.frame = sf          # (only when it changes: perf_units)
 	if not team_horses.is_empty() or not _team_sprites.is_empty():
 		_update_team(delta, fps)
 	if _front:
@@ -7296,9 +7298,11 @@ func _animate(delta: float) -> void:
 		sprite.position = Vector2(0.0, Ballista.crew_bob(self))     # (a Ballista's pusher: a step bob, scripts/ballista.gd)
 	elif kind == "mist_toad":
 		sprite.position = _hop_off.round()      # (held on the ground frames, carried in the air: ToadHop.track every tick)
-	elif kind != "cannon":
+	elif kind != "cannon" and sprite.position != Vector2.ZERO:
 		sprite.position = Vector2.ZERO
-	sprite.scale.y = float(d.get("art_scale", 1.0))
+	var asc := float(d.get("art_scale", 1.0))
+	if sprite.scale.y != asc:
+		sprite.scale.y = asc       # (setting a sprite's position or scale costs a transform update even when it is the same)
 	if kind == "cannon" and anim == "walk" and velocity.length() < 10.0:
 		sprite.frame = 0        # the horse stands still
 	if kind == "cannon" and not ArtData.UNITS["cannon"]["frames"].has("walk_e"):
@@ -7525,6 +7529,14 @@ static func own_west(art_frames: Dictionary, a: String, dr: String) -> String:
 	return ""
 
 
+## Every pose named in _animate's fps match (any other leaves the walk's fps and the loop as they are).
+const _FPS_POSES := {"idle": 1, "idle_carry": 1, "guard": 1, "death": 1, "death_cocoon": 1, "gdeath": 1, "death_keg": 1,
+	"gidle": 1, "gattack": 1, "land": 1, "idle_keg": 1, "wrap": 1, "idle_cocoon": 1, "graze": 1, "pistol": 1, "aim": 1,
+	"fire": 1, "aimup": 1, "fireup": 1, "thrust": 1, "brace": 1, "attack": 1, "melee": 1, "attack_up": 1, "bomb": 1,
+	"attack_r": 1, "attack_l": 1, "harvest": 1, "rooted": 1, "breath": 1, "morph": 1, "leap": 1, "charge": 1, "crank": 1,
+	"repair": 1, "wind": 1, "vent": 1, "sweep": 1, "block": 1, "mine": 1, "build": 1, "reload": 1, "deploy": 1,
+	"spinup": 1, "windup": 1, "braced_hit": 1, "deployed": 1, "cast": 1, "fog": 1, "tongue": 1, "bandage": 1, "mount": 1,
+	"jump": 1}
 static var _STRIPS := {}         # "art/anim_dir" -> [texture, frames, sprite offset, walk fps] (_set_anim)
 var _an_n := 1                   # (_set_anim: the strip's frame count, ArtData frames[anim_dir])
 var _an_wfps := WALK_FPS         # (_set_anim: walk_fps_for(the strip's art))
@@ -7611,12 +7623,19 @@ func _set_anim(a: String, force: bool) -> void:
 			wfps *= float(frames.get(key, 1)) / float(WALK_CYCLE_ART[sa])      # (one stride, the same time in every view)
 		ce = [tx, int(frames.get(key, 1)), -anchor - Vector2(0, tx.get_height() - cell.y), wfps]
 		_STRIPS[ck] = ce
-	sprite.texture = ce[0]
+	# (each sprite setter updates the drawing even for the same value; a turn that only flips the view keeps the strip:
+	# only what changes is set, perf_units)
+	if sprite.texture != ce[0]:
+		sprite.texture = ce[0]
 	_an_n = ce[1]
 	_an_wfps = ce[3]
-	sprite.hframes = _an_n
-	sprite.offset = ce[2]
-	sprite.scale = Vector2(-1.0 if flip else 1.0, 1.0) * float(d.get("art_scale", 1.0))
+	if sprite.hframes != _an_n:
+		sprite.hframes = _an_n
+	if sprite.offset != ce[2]:
+		sprite.offset = ce[2]
+	var sc := Vector2(-1.0 if flip else 1.0, 1.0) * float(d.get("art_scale", 1.0))
+	if sprite.scale != sc:
+		sprite.scale = sc
 	frame_i = mini(frame_i, sprite.hframes - 1)
 	if was_mount != (a == "mount"):
 		HorseCoat.apply(self)        # (getting on: the horse's coat on the strip, then his own)

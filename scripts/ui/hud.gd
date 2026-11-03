@@ -166,6 +166,10 @@ func _process(delta: float) -> void:
 
 
 func _tick_hud(delta: float) -> void:
+	# (did a game tick run in this frame? docs/perf_units.md: the command card's timed rebuild waits for a frame without one)
+	var pf := Engine.get_physics_frames()
+	var ticked := pf != _pf_seen
+	_pf_seen = pf
 	_msg_t = maxf(_msg_t - delta, 0.0)
 	_countdown(delta)
 	if _go_t > 0.0:
@@ -208,18 +212,30 @@ func _tick_hud(delta: float) -> void:
 		_tick_n += 1
 		var q := Time.get_ticks_usec()
 		_card_wait -= 1
-		if _card_fresh or _card_wait <= 0:
+		if _card_fresh or (_card_wait <= 0 and (not ticked or _card_wait <= -2)):
 			# (the command card is rebuilt at once after a click, a key or a touch and otherwise
 			# four times a second: it was 20 times, and each build asks the game a lot)
 			_card_fresh = false
 			_card_wait = 5
+			_card_due = false
 			_refresh_card()
+		elif _card_wait <= 0:
+			_card_due = true           # (a game tick ran in this frame: the next frame without one, perf_units)
 		_refresh_counts()
 		var q2 := Time.get_ticks_usec()
 		_update_tip()
 		Prof.add("hud/tip check", q2)
 		_check(LAYERS)
 		Prof.add("hud/look", q)
+	elif _card_due and not ticked:
+		# the command card's timed rebuild, put off from a frame with a game tick in it (with an army selected it takes a few
+		# ms: on a tick's frame it added to the tick's). The game doesn't change between ticks, so it is the same card.
+		var qc := Time.get_ticks_usec()
+		_card_due = false
+		_card_wait = 5
+		_refresh_card()
+		_check(["command card", "glow"])
+		Prof.add("hud/look", qc)
 	elif _moved:
 		_moved = false
 		var q := Time.get_ticks_usec()
@@ -4614,6 +4630,8 @@ func _draw_card_bar() -> void:
 var _card_look := ""
 var _card_fresh := true
 var _card_wait := 0
+var _card_due := false            # (a timed rebuild waiting for a frame without a game tick: _tick_hud)
+var _pf_seen := -1
 
 
 func _refresh_card() -> void:
