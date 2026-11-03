@@ -789,6 +789,8 @@ func _tier2(t: float) -> void:
 					_unkeep(Defs.CW_HEAVY)
 					_keep_fed_t = game.clock + 60.0
 					msc = _spring_spot()
+					if game.mlog:
+						game.mlog.add("%s lets go of the room it kept for a Heavy Works: its main has no room for the Mainspring and the Escapement besides (the yard waits for a new hall's field)" % game.mlog.who(team))
 			_construct("mainspring", msc)
 			for sp in _mine("mainspring"):
 				var ce := GearEcon.room_spot(game, team, Defs.CW_TECH, [sp])
@@ -883,6 +885,7 @@ func _tier2(t: float) -> void:
 ## ring (FIELD_KEEP: kept without a Mainspring).
 const FIELD_KEEP := Vector2i(-2, -2)
 var _keep_fed_t := 0.0
+var field_keep_on := not OS.get_cmdline_user_args().has("fieldkeep:off")      # (study switch)
 
 
 func _keep_heavy_fed() -> void:
@@ -890,6 +893,8 @@ func _keep_heavy_fed() -> void:
 		return
 	_keep_fed_t = game.clock + 5.0
 	var springs: Array = _mine("mainspring").filter(func(b: Building) -> bool: return b.built)
+	if springs.is_empty() and not field_keep_on:
+		return
 	var c := _heavy_spot() if not springs.is_empty() else Vector2i(-1, -1)
 	var sc := FIELD_KEEP
 	if c.x >= 0:
@@ -1098,7 +1103,8 @@ func _heavy_hold() -> void:
 	var cost := int(Defs.BUILDINGS[Defs.CW_HEAVY]["cost"])
 	if _heavy_no_room and _spring_ok():
 		cost += int(Defs.BUILDINGS["mainspring"]["cost"])      # (no room by a Mainspring: one with room for it first)
-	if _gold() < cost + 20 and (_threat() == Vector2.INF or _holds_line()):
+	# (clock-ai-swarm: against a swarm the yard is the answer: saved for even while the line is pressed)
+	if _gold() < cost + 20 and (_threat() == Vector2.INF or _holds_line() or (_sw() and swm().on())):
 		_reserve = maxi(_reserve, cost + 20)
 		_tech_hold = true
 

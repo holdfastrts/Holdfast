@@ -5,8 +5,8 @@ extends RefCounted
 ## repair and rewind."). docs/clockwork_ai_swarm.md.
 ##
 ## Gear-mode Clockwork only. What it counts, every 2 s, of the enemy army in sight: its value, and the SWARM in it (cheap
-## light melee: Raptors, value 40 or less a body, reach 40 px or less). The most seen at once is remembered for MEMORY s.
-## A swarm is ON when SWARM_MIN or more such bodies were seen at once and they are at least half of what was seen. Then:
+## light melee: Raptors, value 40 or less a body, reach 40 px or less). Every fighter seen (not rooted) counts for MEMORY s while it lives.
+## A swarm is ON when SWARM_MIN or more such bodies are known and they are at least half of the fighters known. Then:
 ##  - the counter first: the Heavy Works, then Pendulums (their blades cut every enemy in the arc, light ones hardest):
 ##    pend_want() of them, before the Ballista and the Great Winder, without waiting for three Springers (AI._produce);
 ##  - a turret more at home (AI._turrets);
@@ -17,7 +17,8 @@ extends RefCounted
 
 const MEMORY := 120.0           # (s) the biggest army seen lately counts this long
 const SWARM_MIN := 10           # light melee bodies seen (alive, in the last MEMORY s) to call it a swarm
-const SWARM_SHARE := 0.5        # ... and at least this share of the army value seen
+const SWARM_SHARE := 0.5        # ... and at least this share of the fighters seen (by count: a Tyrant Sire or the Mother
+                                # outweighs 13 Raptors by value)
 const BODY_VALUE := 40.0        # a swarm body is worth this or less (Raptors: 25)
 const BODY_REACH := 40.0        # ... and fights within this reach (melee)
 const OUTMATCHED := 1.3         # the enemy army seen is worth this many times ours (plus 100): clearly bigger
@@ -31,6 +32,7 @@ var _n := 0                     # swarm bodies among them
 var _n_t := -999.0              # (when last counted)
 var _v := 0.0                   # their value
 var _sv := 0.0                  # ... the swarm's part of it
+var _m := 0                     # all the fighters seen lately
 var _said := false
 var _said_hold := -999.0
 var log_lines: Array = []       # [clock, text] (tests read it)
@@ -63,6 +65,7 @@ func tick() -> void:
 		_seen[u.get_instance_id()] = {"u": u, "t": game.clock,
 				"v": float(u.d.get("cost", 50)) / maxf(1.0, float(u.d.get("spawn", 1))), "body": is_body(u)}
 	var n := 0
+	var m := 0
 	var v := 0.0
 	var sv := 0.0
 	for id in _seen.keys():
@@ -71,10 +74,12 @@ func tick() -> void:
 			_seen.erase(id)
 			continue
 		v += float(e["v"])
+		m += 1
 		if e["body"]:
 			n += 1
 			sv += float(e["v"])
 	_n = n
+	_m = m
 	_v = v
 	_sv = sv
 	_n_t = game.clock
@@ -87,7 +92,7 @@ func tick() -> void:
 func on() -> bool:
 	if game.clock - _n_t > MEMORY:
 		return false
-	return _n >= SWARM_MIN and _sv >= _v * SWARM_SHARE
+	return _n >= SWARM_MIN and float(_n) >= float(_m) * SWARM_SHARE
 
 
 ## How many Pendulums it wants against the swarm: 2, and one more for every 10 bodies seen, at most 6.
@@ -116,7 +121,8 @@ func not_ready() -> bool:
 ## The expansion waits (AI._hall_first); logged once a minute.
 func hold_expand() -> bool:
 	# (the counter's yard first: a swarm seen, the Escapement working and no Heavy Works laid yet: its cogs before a hall's)
-	var yard: bool = on() and game.has_working(ai.team, Defs.CW_TECH) and ai._mine(Defs.CW_HEAVY).is_empty()
+	# (not when its main has no room for the yard at all: the new hall's field is then where it goes, AI._tier3)
+	var yard: bool = on() and game.has_working(ai.team, Defs.CW_TECH) and ai._mine(Defs.CW_HEAVY).is_empty() and not ai._heavy_no_room
 	if not yard and not not_ready():
 		return false
 	if game.clock - _said_hold > 60.0:
