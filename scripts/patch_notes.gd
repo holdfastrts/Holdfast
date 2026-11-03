@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.5", "items": [
+		"+ WORKER AND - WORKER ON A FARM, POWDER MILL OR OTHER CREWED BUILDING (the owner's playtest: on a phone there was no way to move workers from the farms to a Powder Mill): select the building and press + WORKER: one more worker comes to work it, an idle one first, else the nearest one taken from the least important job (a Farm before a Powder Mill, haulers last). - WORKER sends one of its workers to another job with room. The same buttons are on the computer's card. On a phone you can also select workers (a tap on a FARMERS label selects that farm's) and tap one of your Farms or Mills: they go to work it.",
+		"EVERY HORSE BREEDER BREEDS: with several Barracks training Horsemen, the horses they need are shared between all your Horse Breeders (the one with the fewest horses queued takes the next) instead of all going to the nearest one while the others stood idle. A breeder with nothing to do also takes over a horse still waiting in another breeder's queue. The computer's breeders do the same.",
+	]},
 	{"v": "0.26.4", "items": [
 		"SCATTER COGS, THE GREAT WINDER'S SLOW FIELD (the owner's idea: a slow spell without magic): press SCATTER COGS (C) and tap a spot within 6 tiles. Its key arm winds up for half a second, then its hopper flings a shower of cogs, bolts and springs that litter a circle of 2.5 tiles for 15 s. Enemies on the ground in the litter move 40% slower (their attacks are not slowed); flyers and your own units are not slowed. It costs 40 cogs and the hopper refills in 25 s. The Clockwork computer throws it on clumps of charging melee (Raptors, Horsemen) and on armies running away.",
 	]},

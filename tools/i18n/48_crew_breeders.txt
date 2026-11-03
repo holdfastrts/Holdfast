@@ -1,0 +1,50 @@
+# + WORKER / - WORKER on a crewed building's card (scripts/crew_orders.gd, the owner's playtest 2026-11-03).
+# worker = trabalhador / trabajador (as WORKERS on the Brood Mother's rally); Farm = Fazenda / Granja.
+
+> + WORKER
+pt + TRABALHADOR
+es + TRABAJADOR
+
+> - WORKER
+pt - TRABALHADOR
+es - TRABAJADOR
+
+> + Worker
+pt + Trabalhador
+es + Trabajador
+
+> - Worker
+pt - Trabalhador
+es - Trabajador
+
+> One more worker comes to work here: an idle one first, else the nearest one taken from the least important job (a Farm before a Powder Mill, haulers last).
+pt Mais um trabalhador vem trabalhar aqui: primeiro um parado, senão o mais próximo, tirado do trabalho menos importante (uma Fazenda antes de um Moinho de Pólvora, carregadores por último).
+es Un trabajador más viene a trabajar aquí: primero uno ocioso, si no el más cercano, sacado del trabajo menos importante (una Granja antes que un Molino de Pólvora, porteadores al final).
+
+> One of its workers leaves for another job with room (a different kind of post first).
+pt Um dos seus trabalhadores sai para outro trabalho com vaga (primeiro um posto de outro tipo).
+es Uno de sus trabajadores se va a otro trabajo con sitio (primero un puesto de otro tipo).
+
+> It takes no workers.
+pt Não leva trabalhadores.
+es No lleva trabajadores.
+
+> It has all its workers.
+pt Já tem todos os seus trabalhadores.
+es Ya tiene todos sus trabajadores.
+
+> Its ground is spent: work fresh land.
+pt O seu chão está esgotado: trabalhe terra nova.
+es Su suelo está agotado: trabaja tierra nueva.
+
+> No worker to spare: train more.
+pt Nenhum trabalhador sobrando: treine mais.
+es Ningún trabajador libre: entrena más.
+
+> Nobody works here.
+pt Ninguém trabalha aqui.
+es Nadie trabaja aquí.
+
+> No other work with room for him.
+pt Nenhum outro trabalho com vaga para ele.
+es Ningún otro trabajo con sitio para él.
