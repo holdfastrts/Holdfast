@@ -92,7 +92,7 @@ func _finish() -> void:
 			f.store_line("push t0 %s sup %d guns %d cannons %d line %d value %d end %s why [%s] killed %d lost %d broke %s sets %d" % [
 				_mmss(float(p["t0"])), int(p["sup"]), int(p["guns"]), int(p["cannons"]), int(p["line"]), int(p["value"]),
 				_mmss(float(p["end"])) if float(p["end"]) >= 0.0 else "-", String(p["why"]), int(p.get("killed", -1)), int(p.get("lost", -1)),
-				JSON.stringify(p["broke"]), int(p.get("sets", 0))])
+				JSON.stringify(p["broke"]), int(p.get("sets", 0))] + (" contact %s" % _mmss(float(p["contact"])) if p.has("contact") else ""))
 	f.close()
 
 

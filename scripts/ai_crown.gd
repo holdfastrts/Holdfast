@@ -139,6 +139,19 @@ const PLANS := {
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 17}},
 			{"do": "build", "k": "foundry", "at": {"labs": 19}},
 		],
+		# (against the Brood: the Balanced plan's safe opening, the Gate and eight Musketeers before the second hall: the
+		# Economy opening's six lost the main to the Brood's Timing attack at 6:00, coached game a04 Highmoor)
+		"bo_brood": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "army", "k": "musketeer", "cap": 8},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 13}},
+			{"do": "hall", "n": 2, "at": {"labs": 15}},
+			{"do": "build", "k": "foundry", "at": {"labs": 17}},
+		],
 		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {}], ["barracks", 2, {"labs": 21, "halls": 2}],
 			["armoury", 1, {"labs": 28}], ["foundry", 2, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 34}],
 			["church", 1, {"labs": 40, "halls": 2}]],
@@ -166,7 +179,8 @@ func _ready() -> void:
 	if game.mlog:
 		game.mlog.add("%s opens with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
 	scout = AIScout.new(self)
-	_bo_plan = (plan["bo"] as Array).duplicate(true) if difficulty >= 1 else []
+	var bo_key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"      # (a plan may open otherwise against the Brood)
+	_bo_plan = (plan[bo_key] as Array).duplicate(true) if difficulty >= 1 else []
 	bo_lab_cap = int(plan.get("labs", 99))
 	if _bo_plan.is_empty():
 		bo_done = true                         # (Easy: no build order, the shared rules from the start)

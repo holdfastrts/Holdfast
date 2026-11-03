@@ -33,7 +33,7 @@ def game(d):
         if t:
             row["killed"], row["lost"] = int(t.group(1)), int(t.group(2))
         if l.startswith("push "):
-            q = re.match(r"push t0 (\d+) sup (\d+) guns (\d+) cannons (\d+) line (\d+) value (\d+) end (\S+) why \[(.*)\] killed (-?\d+) lost (-?\d+) broke (\{.*\}) sets (\d+)", l)
+            q = re.match(r"push t0 (\d+) sup (\d+) guns (\d+) cannons (\d+) line (\d+) value (\d+) end (\S+) why \[(.*)\] killed (-?\d+) lost (-?\d+) broke (\{.*\}) sets (\d+)(?: contact (\d+))?", l)
             if q:
                 pushes.append(q.groups())
     row["econ"] = econ
@@ -42,7 +42,7 @@ def game(d):
 
 
 def fmt(rows):
-    out = ["| game | against | map | result | labourers 4/6/8 | gold earned by 6/8 | army 6/8 (enemy 8) | pushes: out at (supply, guns) | what the pushes broke | push killed / lost | game killed / lost |",
+    out = ["| game | against | map | result | labourers 4/6/8 | gold earned by 6/8 | army 6/8 (enemy 8) | pushes: out at (supply, guns) -> first contact | what the pushes broke | push killed / lost | game killed / lost |",
            "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         e = r["econ"]
@@ -51,7 +51,7 @@ def fmt(rows):
         army = "%s/%s (%s)" % (e.get(6, ("-", "-", "-"))[2], e.get(8, ("-", "-", "-"))[2], e.get(8, ("-",) * 4)[3])
         outs, broke, kl = [], {}, [0, 0]
         for p in r["pushes"]:
-            outs.append("%s (%s, %s)" % (mmss(p[0]), p[1], p[2]))
+            outs.append("%s (%s, %s)%s" % (mmss(p[0]), p[1], p[2], " -> %s" % mmss(p[12]) if p[12] else ""))
             for k, v in eval(p[10].replace("null", "None")).items():
                 broke[k] = broke.get(k, 0) + v
             kl[0] += max(0, int(p[8]))

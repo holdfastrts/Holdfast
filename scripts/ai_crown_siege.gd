@@ -24,8 +24,10 @@ const GUNS := ["cannon", "mortar"]
 const GUNS_GO := 3              # guns at home before the push (at least one Field Cannon)
 const LINE_GO := 10             # Musketeers (or Guardsmen) at home before the push
 const BIG_GO := 50              # (supply) a push this big goes whatever the guns
-const EDGE := 0.9               # the push worth this many times the enemy army it knows (the guns outrange its defence)
-const EDGE_BROOD := 1.2         # (the Brood's swarm comes at the guns: more)
+const EDGE := 0.75              # the push worth this many times the enemy army it knows (the guns outrange its defence, and the
+                                # line sets up: the enemy must come to it; 0.9 kept it home till 11:00-12:00 in round A)
+const EDGE_BROOD := 1.5         # (the Brood's swarm comes at the guns in the open: AICrown.CR_EDGE_BROOD; 1.2 lost a08 Greenhold)
+const QUIET := 60.0             # (s) nothing at our buildings this long before a push goes (a08: out 28 s after 41 Raptors left)
 const GUN_WEIGHT := 1.5         # a gun counts this many times its price for the push's worth (it outranges the defence)
 const COOL := 60.0              # (s) after a push came back
 const STOP_D := 330.0           # (px) a defence this near the line: set up
@@ -55,6 +57,7 @@ var anchor_p := Vector2.INF
 var v0 := 0.0                   # what went out (grows with reinforcements)
 var t0 := 0.0
 var _next_go := 0.0
+var _threat_t := -999.0         # the last time an enemy was at our buildings (seen while at home)
 var _orders_t := 0.0
 var _pick_t := {}               # gun -> clock of its last pick
 var _back_t := 0.0
@@ -110,6 +113,7 @@ func tick() -> void:
 		return
 	var mid := _mid(line if not line.is_empty() else guns)
 	_crumb(mid)
+	_watch_broke(mid)
 	if state == "back":
 		_back(mid)
 		return
@@ -125,6 +129,25 @@ func tick() -> void:
 	_tend_wagon(guns, mid)
 
 
+## WHAT THE PUSH BROKE: every enemy building and rooted creature it came within BROKE_R of while out, that died since.
+const BROKE_R := 520.0
+var _near := {}
+
+
+func _watch_broke(mid: Vector2) -> void:
+	for e in _near.keys():
+		if not is_instance_valid(e) or e.dead:
+			var k: String = String(_near[e])
+			cur["broke"][k] = int(cur["broke"].get(k, 0)) + 1
+			_near.erase(e)
+	for b in _known_buildings():
+		if b.edge_distance(mid) < BROKE_R and b.built:
+			_near[b] = b.kind
+	for u in _visible_foes(mid, BROKE_R):
+		if _static_target(u):
+			_near[u] = u.kind
+
+
 ## The units at home that may go: not raiding, scouting, harassing, nor on another errand.
 func _home_army() -> Array:
 	return game.army(ai.team).filter(func(u: Unit) -> bool:
@@ -138,6 +161,9 @@ func _maybe_go() -> void:
 		return
 	_next_go = game.clock + 2.0
 	if ai._threat() != Vector2.INF:
+		_threat_t = game.clock
+		return
+	if game.clock - _threat_t < QUIET:
 		return
 	var home := _home_army()
 	var guns := home.filter(func(u: Unit) -> bool: return GUNS.has(u.kind))
@@ -403,6 +429,8 @@ func _set_up(a, mid: Vector2) -> void:
 	_orders_t = 0.0
 	_pick_t.clear()
 	cur["sets"] = int(cur.get("sets", 0)) + 1
+	if not cur.has("contact"):
+		cur["contact"] = game.clock
 	var what: String = String(a.d["name"] if a.d.has("name") else a.kind)
 	if not was or what != _said_what or game.clock - _said_t > 20.0:
 		_said_what = what
@@ -427,8 +455,8 @@ func _siege_set(line: Array, guns: Array, mid: Vector2) -> void:
 	if not alive:
 		if anchor is Building or (anchor is Unit and not _alive(anchor)):
 			var k: String = String(anchor.kind) if anchor != null and is_instance_valid(anchor) else "?"
-			if anchor != null and is_instance_valid(anchor) and anchor.dead:
-				cur["broke"][k] = int(cur["broke"].get(k, 0)) + 1
+			if k == "?":
+				pass
 		var nx = _army_on(mid)          # (the enemy army still on the line first: the fight goes on where it is)
 		if nx == null:
 			nx = _next_anchor(mid, STOP_D + 60.0)
@@ -604,6 +632,7 @@ func _end(why: String) -> void:
 		say("is over (%s): killed %d, lost %d, broke %s" % [why, int(cur["killed"]), int(cur["lost"]), str(cur["broke"])])
 	state = ""
 	men.clear()
+	_near.clear()
 	anchor = null
 	_next_go = game.clock + COOL
 	cur = {}
