@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.28.3", "items": [
+		"THE BROOD MOTHER LAYS WHILE SHE GROWS: growing to her next stage no longer stops her laying. She lays on at half her speed until she is done, and the eggs she already holds can be used to hatch creatures as before (the owner: no eggs at all for 45 to 60 seconds was too harsh).",
+	]},
 	{"v": "0.28.2", "items": [
 		"REPLAY RECORDING (Settings, GAMEPLAY): FULL records 5 pictures a second as before; LIGHT records 2, and the replay still glides each unit between them (in a battle of about 125 units the recording takes half the time and the file is about a third smaller; units are drawn on average about a pixel from where they really were); OFF records no replay of a skirmish, a campaign mission or a watched match. LIGHT is the default on phones and tablets, FULL on computers and in the browser. Online the host always records, at LIGHT when it is set to LIGHT or OFF, so each friend still gets the whole replay; the pictures sent to the friends during the match do not change. Replays keep their own rate, so old ones play as before.",
 		"Replays show each shot, explosion and puff of smoke at the moment it happened, not all together with the next picture (new replays only).",

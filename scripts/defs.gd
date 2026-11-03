@@ -1945,10 +1945,11 @@ const NB := {
 	"root_armor": 3.0, "root_taken": 0.75,       # rooted: 3 more armour, then a quarter less damage
 	"queen_switch": 4.0, "maw_switch": 2.5,      # seconds to root or uproot
 	"start_root": 1.6,                           # the match starts with the last of their rooting (a cue)
+	"grow_lay": 0.5,                             # while she GROWS she lays at this share of her rate (the owner, 2026-11-03: was none)
 	"start_eggs": 3, "egg_time": 6.0,            # the Mother's eggs (one every 6 s at stage 1, no lever: "stages", "father_rate", "expansion_rate")
 	# HER GROWTH STAGES (the owner, 17:39; docs/brood_new_stages.md has the math): eggs she holds, her laying rate
-	# (x), her size (sprite and body), her walk (x) and her swamp (tiles); to grow (GROW on her card, rooted, no
-	# laying meanwhile): food, essence, seconds
+	# (x), her size (sprite and body), her walk (x) and her swamp (tiles); to grow (GROW on her card, rooted, laying
+	# at half speed meanwhile): food, essence, seconds
 	"stages": [
 		{"eggs": 10, "rate": 1.0, "scale": 1.0, "speed": 1.0, "swamp": 12.0},
 		{"eggs": 15, "rate": 1.3, "scale": 1.15, "speed": 0.92, "swamp": 13.5, "cost": 300, "cost2": 0, "time": 45.0},

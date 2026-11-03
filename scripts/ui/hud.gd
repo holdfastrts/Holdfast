@@ -1580,7 +1580,7 @@ func _nb_buttons(list: Array, units: Array) -> void:
 			var nx: Dictionary = stages[mini(st + 1, stages.size() - 1)]
 			var gwhy := BroodNew.grow_problem(game, q)
 			if st < stages.size() - 1:
-				_tip_for["GROW"] = ["Grow (stage %d)" % (st + 2), "She grows bigger: up to %d eggs, laying %d%% faster (stage x%.1f), but a bigger, slower target with a wider swamp. Rooted only; %d s, and she lays no eggs meanwhile (uprooting stops it and pays it back). %s" % [
+				_tip_for["GROW"] = ["Grow (stage %d)" % (st + 2), "She grows bigger: up to %d eggs, laying %d%% faster (stage x%.1f), but a bigger, slower target with a wider swamp. Rooted only; %d s, and she lays at half speed meanwhile (uprooting stops it and pays it back). %s" % [
 					int(nx["eggs"]), int(round((float(nx["rate"]) / float(stages[st]["rate"]) - 1.0) * 100.0)), float(nx["rate"]), int(nx["time"]),
 					Loc.t("Unlocks: %s.") % BroodNew.unlocks_text(st + 1)]]
 			list.append(["broodmound", "GROW", func() -> void:

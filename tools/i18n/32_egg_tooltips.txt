@@ -65,9 +65,9 @@ es Su veteranía, %d de %d (1 por cada cosecha que una larva le trae): +%d%%.
 pt No total: x%.1f x (1 + %.2f) = x%.2f.
 es En total: x%.1f x (1 + %.2f) = x%.2f.
 
-> NOW: she is growing, and lays no eggs until she is done.
-pt AGORA: ela está crescendo e não põe ovos até terminar.
-es AHORA: está creciendo y no pone huevos hasta terminar.
+> NOW: she is growing, and lays at half speed until she is done.
+pt AGORA: ela está crescendo e põe ovos na metade da velocidade até terminar.
+es AHORA: está creciendo y pone huevos a la mitad de velocidad hasta terminar.
 
 > NOW: her clutch is full: she lays again when an egg is used.
 pt AGORA: a ninhada dela está cheia: ela volta a pôr quando um ovo for usado.

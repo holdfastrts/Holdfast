@@ -532,7 +532,7 @@ func _run() -> void:
 			g.consume_unit(c)
 	g.consume_unit(foe)
 	check(rooted_hit.is_empty(), "12. no rooted creature attacks; uprooted they do (%s)" % str(rooted_hit))
-	# 14. her GROWTH STAGES: GROW costs, takes its time rooted, no laying meanwhile; then more eggs held, faster laying,
+	# 14. her GROWTH STAGES: GROW costs, takes its time rooted, laying at half speed meanwhile; then more eggs held, faster laying,
 	# a bigger body and swamp; stage 3 needs essence
 	var nb_stages: Array = Defs.NB["stages"]
 	p["gold"] = 2000
@@ -542,10 +542,13 @@ func _run() -> void:
 	var nb_r_before: float = q.radius
 	var nb_gw: String = q.cmd_grow()
 	check(nb_gw == "" and int(p["gold"]) == nb_g0 - int(nb_stages[1]["cost"]) and float(q.nb.get("grow_t", 0.0)) > 0.0, "14. GROW: paid %d food, growing %.0f s (%s)" % [nb_g0 - int(p["gold"]), float(q.nb.get("grow_t", 0.0)), nb_gw])
-	check(BroodNew.lay_problem(g, q, "grub").begins_with("She is growing"), "    no laying while she grows: %s" % BroodNew.lay_problem(g, q, "grub"))
+	check(BroodNew.lay_problem(g, q, "grub") == "", "    she can still lay while she grows (the owner, 2026-11-03): '%s'" % BroodNew.lay_problem(g, q, "grub"))
 	q.nb["egg_t"] = 0.0
-	await wait(float(Defs.NB["egg_time"]) + 1.0)
-	check(int(q.nb.get("eggs", 0)) == 4, "    and no new eggs grow meanwhile (%d)" % int(q.nb.get("eggs", 0)))
+	await wait(2.0)
+	var nb_rate: float = float(q.nb.get("rate", 1.0))
+	var nb_gain: float = float(q.nb.get("egg_t", 0.0)) + float(int(q.nb.get("eggs", 0)) - 4) * float(Defs.NB["egg_time"])
+	var nb_want: float = 2.0 * nb_rate * float(Defs.NB["grow_lay"])
+	check(absf(nb_gain - nb_want) <= nb_want * 0.25, "    and lays at %.0f%% of her speed meanwhile (%.2f s of egg in 2 s, want %.2f)" % [float(Defs.NB["grow_lay"]) * 100.0, nb_gain, nb_want])
 	var nb_grown: bool = await wait_for(func() -> bool: return BroodNew.stage(q) == 1, float(nb_stages[1]["time"]) + 2.0)
 	check(nb_grown and BroodNew.eggs_max(q) == int(nb_stages[1]["eggs"]) and BroodNew.drawn_r(q) > nb_r_before * 1.1 and q.radius <= BroodNew.BODY_R and absf(float(BroodNew.lay_rate(g, q)[1]) - float(nb_stages[1]["rate"])) < 0.001,
 		"    stage 2 after %d s: %d eggs held, laying x%.2f, drawn %.0f -> %.0f px, her walking body capped (%.0f, ground %.0f)" % [int(nb_stages[1]["time"]), BroodNew.eggs_max(q), float(BroodNew.lay_rate(g, q)[1]), nb_r_before, BroodNew.drawn_r(q), q.radius, q.ground_r()])

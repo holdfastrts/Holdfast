@@ -427,7 +427,7 @@ static func grow_problem(g: Game, q: Unit) -> String:
 	return ""
 
 
-## She grows to her next stage: paid now, grow_t s rooted, laying nothing meanwhile (as a Town Hall's upgrade).
+## She grows to her next stage: paid now, grow_t s rooted, laying at Defs.NB "grow_lay" of her rate meanwhile (as a Town Hall's upgrade).
 ## Uprooting stops it and pays it all back. She never shrinks.
 static func grow(g: Game, q: Unit) -> String:
 	var why := grow_problem(g, q)
@@ -561,8 +561,6 @@ static func lay_problem(g: Game, q: Unit, k: String) -> String:
 		if BroodRoot.morph_list().has(k):
 			return "A grub turns into it now: pick it on a grub's card."
 		return "Not in the Brood yet."
-	if float(q.nb.get("grow_t", 0.0)) > 0.0:
-		return "She is growing: no eggs meanwhile."
 	if int(q.nb.get("eggs", 0)) < 1:
 		return "No eggs ready."
 	var u: Dictionary = Defs.UNITS[k]
@@ -1258,8 +1256,9 @@ static func tick(g: Game, u: Unit, delta: float) -> void:
 			if float(u.nb.get("lay_t", 0.0)) > 0.0:
 				u.nb["lay_t"] = maxf(0.0, float(u.nb["lay_t"]) - delta)
 			u.speed *= float(stage_def(u)["speed"])         # (bigger, a bit slower)
-			if float(u.nb.get("grow_t", 0.0)) > 0.0:
-				# GROWING: no eggs meanwhile; then her next stage
+			var growing := float(u.nb.get("grow_t", 0.0)) > 0.0
+			if growing:
+				# GROWING: she lays on at Defs.NB "grow_lay" of her rate (the owner, 2026-11-03: was no eggs); then her next stage
 				u.nb["grow_t"] = float(u.nb["grow_t"]) - delta
 				if float(u.nb["grow_t"]) <= 0.0:
 					u.nb["grow_t"] = 0.0
@@ -1271,12 +1270,13 @@ static func tick(g: Game, u: Unit, delta: float) -> void:
 					g.swamp_dirty = true
 					if u.team == g.human:
 						g.tell(u.team, "The Brood Mother has grown (stage %d): up to %d eggs, laying faster." % [stage(u) + 1, eggs_max(u)], true)
-			elif int(u.nb.get("eggs", 0)) < eggs_max(u):
+			if int(u.nb.get("eggs", 0)) < eggs_max(u):
 				u.nb["rate_t"] = float(u.nb.get("rate_t", 0.0)) - delta
 				if float(u.nb["rate_t"]) <= 0.0:
 					u.nb["rate_t"] = 0.5
 					u.nb["rate"] = float(lay_rate(g, u)[0])       # (the levers, looked at twice a second)
-				u.nb["egg_t"] = float(u.nb.get("egg_t", 0.0)) + delta * float(u.nb.get("rate", 1.0))
+				var slow := float(Defs.NB["grow_lay"]) if growing else 1.0
+				u.nb["egg_t"] = float(u.nb.get("egg_t", 0.0)) + delta * float(u.nb.get("rate", 1.0)) * slow
 				if float(u.nb["egg_t"]) >= float(Defs.NB["egg_time"]):
 					u.nb["egg_t"] = 0.0
 					u.nb["eggs"] = int(u.nb.get("eggs", 0)) + 1

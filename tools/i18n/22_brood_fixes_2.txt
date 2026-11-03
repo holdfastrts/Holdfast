@@ -222,9 +222,9 @@ es Desbloquea el segundo padre, cuando exista: nada aún.
 pt Desbloqueia o terceiro pai, quando houver um: nada ainda.
 es Desbloquea el tercer padre, cuando exista: nada aún.
 
-> She grows bigger: up to %d eggs, laying %d%% faster (stage x%.1f), but a bigger, slower target with a wider swamp. Rooted only; %d s, and she lays no eggs meanwhile (uprooting stops it and pays it back). %s
-pt Ela cresce: até %d ovos, pondo %d%% mais rápido (estágio x%.1f), mas um alvo maior e mais lento, com um pântano mais largo. Só enraizada; %d s, e ela não põe ovos enquanto isso (desenraizar para e devolve). %s
-es Crece: hasta %d huevos, poniendo un %d%% más rápido (fase x%.1f), pero es un blanco más grande y lento, con un pantano más ancho. Solo arraigada; %d s, y entretanto no pone huevos (desarraigar lo detiene y lo devuelve). %s
+> She grows bigger: up to %d eggs, laying %d%% faster (stage x%.1f), but a bigger, slower target with a wider swamp. Rooted only; %d s, and she lays at half speed meanwhile (uprooting stops it and pays it back). %s
+pt Ela cresce: até %d ovos, pondo %d%% mais rápido (estágio x%.1f), mas um alvo maior e mais lento, com um pântano mais largo. Só enraizada; %d s, e ela põe ovos na metade da velocidade enquanto isso (desenraizar para e devolve). %s
+es Crece: hasta %d huevos, poniendo un %d%% más rápido (fase x%.1f), pero es un blanco más grande y lento, con un pantano más ancho. Solo arraigada; %d s, y entretanto pone huevos a la mitad de velocidad (desarraigar lo detiene y lo devuelve). %s
 
 > %s. Three things make the Brood Mother lay faster, and they add up: her growth STAGE; every FATHER near her (as in some real lizards, the males' presence speeds the female's eggs: +%d%% each); every Mound Turtle rooted on NEW GROUND, %d tiles or more from her and from the other counted ones (their chimneys pump scent into the swamp water: she tastes new territory and lays more: +%d%% each, up to %d). Turtles at home give supply and swamp only.
 pt %s. Três coisas fazem a Mãe da Ninhada pôr mais rápido, e elas se somam: o ESTÁGIO de crescimento dela; cada PAI perto dela (como em alguns lagartos reais, a presença dos machos acelera os ovos da fêmea: +%d%% cada); cada Tartaruga-Montículo enraizada em TERRA NOVA, a %d quadrados ou mais dela e das outras contadas (suas chaminés bombeiam cheiro na água do pântano: ela prova território novo e põe mais: +%d%% cada, até %d). Tartarugas em casa só dão suprimento e pântano.

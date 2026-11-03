@@ -63,10 +63,10 @@ static func tip(g: Game, q: Unit) -> Dictionary:
 	lines.append(Loc.t("In all: x%.1f x (1 + %.2f) = x%.2f.") % [sx, add, rate])
 	# what stops her laying, now first
 	var stops: Array = []
-	if float(q.nb.get("grow_t", 0.0)) > 0.0:
-		stops.append(Loc.t("NOW: she is growing, and lays no eggs until she is done."))
-	elif eggs >= mx:
+	if eggs >= mx:
 		stops.append(Loc.t("NOW: her clutch is full: she lays again when an egg is used."))
+	if float(q.nb.get("grow_t", 0.0)) > 0.0:
+		stops.append(Loc.t("NOW: she is growing, and lays at half speed until she is done."))
 	for f in BroodNew.fathers_near_list(g, q):
 		if BroodResearch.busy(f):
 			stops.append(Loc.t("NOW: the %s is researching: he fathers no eggs of his line meanwhile (her laying goes on).") % Loc.t(String(f.d["name"])))
