@@ -111,7 +111,7 @@ func tick() -> void:
 	if line.is_empty() and guns.is_empty():
 		_end("the push is gone")
 		return
-	var mid := _mid(line if not line.is_empty() else guns)
+	var mid := _core_mid(line if not line.is_empty() else guns)
 	_crumb(mid)
 	_watch_broke(mid)
 	if state == "back":
@@ -243,6 +243,30 @@ func _value(list: Array) -> float:
 	for u in list:
 		v += float(Game.unit_value(u))
 	return v
+
+
+## The middle of the push's MAIN BODY: the units within CORE_R of the one with the most of them near it (nearest the enemy
+## on a tie). The reinforcements walking out from home are part of the push, and with them in the middle the push never
+## "saw" the Clocktower its front stood in (round C, d01 Greenhold 11:29: the line walked into the gear ring).
+const CORE_R := 300.0
+
+
+func _core_mid(list: Array) -> Vector2:
+	if list.is_empty():
+		return ai._front()
+	var goal: Vector2 = anchor_p if anchor_p != Vector2.INF else ai._enemy_base()
+	var best: Unit = null
+	var bs := -INF
+	for u in list:
+		var n := 0
+		for o in list:
+			if u.position.distance_squared_to(o.position) < CORE_R * CORE_R:
+				n += 1
+		var sc: float = float(n) * 10000.0 - u.position.distance_to(goal)
+		if sc > bs:
+			bs = sc
+			best = u
+	return _mid(list.filter(func(u: Unit) -> bool: return u.position.distance_to(best.position) < CORE_R))
 
 
 func _crumb(mid: Vector2) -> void:
@@ -409,7 +433,9 @@ func _march(line: Array, guns: Array, mid: Vector2) -> void:
 	var nb = _next_anchor(mid, 99999.0)
 	if nb != null:
 		goal = _pos(nb)
-	var gmid := _mid(guns) if not guns.is_empty() else mid
+	# (the guns with the main body: a gun walking out from home as a reinforcement does not hold the line back)
+	var near_guns := guns.filter(func(g: Unit) -> bool: return g.position.distance_to(mid) < 700.0)
+	var gmid := _mid(near_guns) if not near_guns.is_empty() else (_mid(guns) if not guns.is_empty() else mid)
 	var lag := gmid.distance_to(mid) > GUN_LAG and not guns.is_empty()
 	for u in line:
 		if u.kind == "cuirassier":
@@ -664,6 +690,8 @@ func _end(why: String) -> void:
 ## The guns the plan wants trained before the line's next Musketeer: GUN_SHARE of the Musketeers as guns, a Mortar for
 ## every two cannons (AICrown._produce calls it before the shared training).
 const CANNONS_MAX := 4
+const GUN_LINE := 5             # Musketeers before the first gun is wanted
+const GUN_LINE_BROOD := 8
 const MORTARS_MAX := 3
 
 
@@ -732,8 +760,8 @@ func _gun_want() -> Array:
 		mortars += f.queue.count("mortar")
 	var want_c := clampi(1 + muskets / 5, 1, CANNONS_MAX)
 	var want_m := clampi(muskets / 7, 0, MORTARS_MAX)
-	if muskets < 4:
-		return []
+	if muskets < (GUN_LINE_BROOD if _brood() else GUN_LINE):
+		return []          # (the line first: against the Brood a gun's gold held from 4 Musketeers lost the main, b08 Greenhold)
 	var k := ""
 	if cannons < want_c:
 		k = "cannon"
