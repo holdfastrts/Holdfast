@@ -23,6 +23,9 @@ extends AI
 ## No cheating: it knows where the enemy started (as every computer does) and otherwise only what its side sees.
 
 const SpringerRaid := preload("res://scripts/ai_springer_raid.gd")
+## (cw-builds-c: the Owl raids, scripts/ai_cw_builds_c.gd, docs/clockwork_builds_c.md)
+const BuildsC := preload("res://scripts/ai_cw_builds_c.gd")
+var btc = null
 
 ## THE PLANS. "steps": the build order, read in order (see _do_step):
 ##   "N kind[:big]"         at N supply (used, queued included), lay a building (a Clockwork building kind)
@@ -95,7 +98,7 @@ func _ready() -> void:
 		_attack_at = int(_s("wave"))
 		note("cwnew:off: the Springer timing plays as the old computer's Balanced")
 		return
-	if not PLANS.has(strategy) or not Defs.gear_mode:
+	if not (PLANS.has(strategy) or BuildsC.PLANS.has(strategy)) or not Defs.gear_mode:
 		return
 	_make_plan()
 	bo_on = true
@@ -105,7 +108,7 @@ func _ready() -> void:
 
 
 func _make_plan() -> void:
-	plan = (PLANS[strategy] as Dictionary).duplicate(true)
+	plan = ((PLANS[strategy] if PLANS.has(strategy) else BuildsC.PLANS[strategy]) as Dictionary).duplicate(true)
 	for k in over:
 		plan[k] = over[k]
 	steps = (plan["steps"] as Array).duplicate()
@@ -113,6 +116,7 @@ func _make_plan() -> void:
 	done.fill(false)
 	worker_goal = int(plan["workers0"])
 	raid = SpringerRaid.new(self)
+	btc = BuildsC.new(self)
 
 
 func note(s: String) -> void:
@@ -123,11 +127,11 @@ func note(s: String) -> void:
 
 ## The plan's own Springers (the raid's), its Swift and its Winders at the cliff foot are not the shared computer's.
 func _on_errand(u: Unit) -> bool:
-	return super._on_errand(u) or (raid != null and raid.has(u))
+	return super._on_errand(u) or (raid != null and raid.has(u)) or (btc != null and btc.has(u))
 
 
 func _held_worker(u: Unit) -> bool:
-	return raid != null and raid.has(u)
+	return (raid != null and raid.has(u)) or (btc != null and btc.has(u))
 
 
 # ------------------------------------------------------------------ the shared computer's parts, off while the build runs
@@ -174,6 +178,8 @@ func _army() -> void:
 		_attack_at = 99999
 	if raid != null:
 		raid.tick()
+	if btc != null:
+		btc.tick()
 	super._army()
 
 
@@ -263,6 +269,10 @@ func _do_step(i: int) -> Dictionary:
 			return _do_research(String(parts[1]))
 		"attack":
 			return {"st": "done"} if raid.launch() else {"st": "wait"}
+	if btc != null:
+		var rc: Dictionary = btc.step(i, parts)
+		if not rc.is_empty():
+			return rc
 	if parts.size() >= 2 and Defs.UNITS.has(head):
 		return _do_units(i, head, int(parts[1]))
 	var big := head.ends_with(":big")
