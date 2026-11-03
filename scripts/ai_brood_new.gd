@@ -267,6 +267,8 @@ func _nb_observe(q: Unit) -> void:
 		if u.position.distance_to(q.position) < 24.0 * Defs.TILE:
 			home += v
 	_foe_near_home = home
+	if _attacking and not _explore_cands.is_empty():
+		_nb_mark_explored()          # (the wave sweeping for what is left: what it passes counts as looked at)
 	if riders_now > 0:
 		riders_n = maxi(riders_n if game.clock - riders_t < 180.0 else 0, riders_now)
 		riders_t = game.clock
@@ -1848,26 +1850,61 @@ func _nb_wall_piece(from: Vector2, foes: Array = []) -> Building:
 var _explored := {}
 
 
-func _nb_explore_point(from: Vector2, foes: Array) -> Vector2:
-	var cands: Array = []
-	for f in foes:
-		if game.starts.size() <= f:
-			continue
-		var st := (Vector2(game.starts[f]) + Vector2(2.5, 2.0)) * Defs.TILE
-		cands.append(st)
-		for r in [10.0, 18.0, 26.0]:
-			for i in 8:
-				cands.append(st + Vector2.from_angle(TAU * i / 8.0) * r * Defs.TILE)
+var _explore_cands: Array = []
+
+
+## The places it looks: round the enemy starts (10, 18, 26 tiles), then a coarse grid over the whole map (every 14
+## tiles), walkable ones only. Marked seen as its creatures see them (_nb_mark_explored, every think).
+func _nb_explore_cands(foes: Array) -> Array:
+	if _explore_cands.is_empty():
+		var pts: Array = []
+		for f in foes:
+			if game.starts.size() <= f:
+				continue
+			var st := (Vector2(game.starts[f]) + Vector2(2.5, 2.0)) * Defs.TILE
+			pts.append(st)
+			for r in [10.0, 18.0, 26.0]:
+				for i in 8:
+					pts.append(st + Vector2.from_angle(TAU * i / 8.0) * r * Defs.TILE)
+		for gx in range(7, Game.W - 3, 14):
+			for gy in range(7, Game.H - 3, 14):
+				pts.append((Vector2(gx, gy) + Vector2(0.5, 0.5)) * Defs.TILE)
+		for p in pts:
+			if _nb_on_map(p) and game._walkable(game.cell_of(p)):
+				_explore_cands.append(p)
+	return _explore_cands
+
+
+func _nb_mark_explored() -> void:
+	for p in _explore_cands:
+		if game.is_visible_to(team, p):
+			_explored[str(game.cell_of(p))] = game.clock
+
+
+## The nearest place not looked at lately, at least 12 tiles from the places other packs were sent.
+func _nb_explore_point_not(from: Vector2, taken: Array) -> Vector2:
 	var best := Vector2.INF
 	var bd := INF
-	for p in cands:
-		var c := game.cell_of(p)
-		if not _nb_on_map(p) or not game._walkable(c):
+	for p in _explore_cands:
+		if game.clock - float(_explored.get(str(game.cell_of(p)), -999.0)) < 150.0:
 			continue
-		var key := str(c)
-		if game.is_visible_to(team, p):
-			_explored[key] = game.clock
-		if game.clock - float(_explored.get(key, -999.0)) < 120.0:
+		if taken.any(func(o: Vector2) -> bool: return o.distance_to(p) < 12.0 * Defs.TILE):
+			continue
+		var d: float = (p as Vector2).distance_to(from)
+		if d < bd:
+			bd = d
+			best = p
+	return best
+
+
+func _nb_explore_point(from: Vector2, foes: Array) -> Vector2:
+	var best := Vector2.INF
+	var bd := INF
+	_nb_explore_cands(foes)
+	_nb_mark_explored()
+	for p in _explore_cands:
+		var c := game.cell_of(p)
+		if game.clock - float(_explored.get(str(c), -999.0)) < 150.0:
 			continue
 		var d: float = (p as Vector2).distance_to(from)
 		if d > 6.0 * Defs.TILE and d < bd:
@@ -1923,6 +1960,12 @@ func _nb_army(q: Unit) -> void:
 	var mine_v := _value_of(army)
 	var capped := game.supply_used(team) >= mini(int(game.players[team]["cap"]), game.max_supply(team)) - 6
 	var first_rush := int(plan["grubs0"]) > 0 and not _first_out
+	if first_rush and seen_army >= maxf(mine_v * 2.0, 400.0):
+		# CALLED OFF (brood-ai-tune, round A g08: the Rush's 10 Raptors went at 3:00 into a Clockwork army of 560 and
+		# lost; the 9-grub economy behind it never came back and the Brood fell at 8:46): its scout saw an army twice
+		# its own, so the Raptors stay home as its defence and the economy starts now
+		_rush_to_balanced("calls its rush off: an enemy army of %d seen against its %d" % [int(seen_army), int(mine_v)])
+		return
 	if not first_rush and not capped and mine_v < seen_army * float(plan.get("edge", 0.6)):
 		return
 	# a wall seen (the Crown's ramp wall): not with claws alone (round 3: Raptor waves into Musketeers behind a wall lost
@@ -2019,6 +2062,27 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 			for u in _wave:
 				if u.target == null or u.order == "idle" or u.order == "hold" or u.order == "move":
 					u.cmd_attack(wall)
+		elif nxt != Vector2.INF and _nb_wall_piece(mid) == null and not _foe_blds.keys().any(func(b) -> bool: return is_instance_valid(b) and not b.dead) \
+				and _wave.size() >= 16:
+			# nothing of the enemy known at all: the wave splits into packs of 8 that sweep the nearest places not looked
+			# at lately, each its own (a hidden cottage kept the Crown alive for four minutes against 135 Raptors)
+			_wave_target = nxt
+			var taken: Array = []
+			var packs := _wave.size() / 8
+			for i in packs:
+				var pk: Array = _wave.slice(i * 8, (i + 1) * 8 if i < packs - 1 else _wave.size())
+				var c := Vector2.ZERO
+				for u in pk:
+					c += u.position
+				c /= maxf(1.0, pk.size())
+				var p := _nb_explore_point_not(c, taken)
+				if p == Vector2.INF:
+					p = nxt
+				taken.append(p)
+				for u in pk:
+					if u.target == null or u.order == "idle" or u.order == "hold" or u.order == "move":
+						u.cmd_move(p, true)
+			say("nothing of the enemy in sight: its wave splits into %d packs to look for it" % packs)
 		elif nxt != Vector2.INF and nxt.distance_to(_wave_target) > 5.0 * Defs.TILE:
 			_wave_target = nxt
 			say("its wave goes on to the next target (%d tiles on)" % int(mid.distance_to(nxt) / Defs.TILE))
@@ -2056,20 +2120,34 @@ func _wave_end_nb(q: Unit, failed: bool) -> void:
 		_attack_at = maxi(_attack_at, int(ceil(_wave_sup * 1.3)))
 		_retreat_until = game.clock + 60.0
 		if strategy in ["rush", "xrush"]:
-			strategy = "balanced"
-			_plan_of = strategy
-			var keep_wave := _attack_at
-			plan = (PLANS["balanced"] as Dictionary).duplicate(true)
-			for k in over:
-				plan[k] = over[k]
-			plan["wave_t"] = 0.0
-			# (brood-ai-tune: the rush's own far list was kept here (one turtle on new ground at 10:00), and with no room
-			# left round her for a third Rootmaw the economy stood at 2 Rootmaws and 14 grubs until 10:00: the expansions
-			# now come from the failed rush on, a minute and a half apart)
-			plan["far"] = [[game.clock, 1], [game.clock + 90.0, 2], [game.clock + 180.0, 3]]
-			_attack_at = maxi(keep_wave, 20)
-			_retreat_until = game.clock + 90.0
-			say("its rush failed: it builds up (economy, tech) and comes back in force")
+			_rush_to_balanced("its rush failed: it builds up (economy, tech) and comes back in force")
+	elif strategy in ["rush", "xrush"]:
+		# (brood-ai-tune, round A g10: an Extreme rush whose first wave paid for itself stayed on the rush plan, whose
+		# grub curve is 0 a minute: 6 grubs until 8:00 and 3,187 food earned by 10:00 against the Clockwork's 7,545. The
+		# rush is an opening: once its first wave is home, it plays Balanced and keeps up the pressure)
+		var aa := _attack_at
+		_rush_to_balanced("its rush is home (killed more than it lost): Balanced from now on, the pressure kept up")
+		_retreat_until = game.clock + 30.0
+		_attack_at = mini(_attack_at, maxi(aa, 16))
+
+
+## A rush over (failed, or called off before it left): the Balanced plan from now on, expanding at once.
+func _rush_to_balanced(why: String) -> void:
+	strategy = "balanced"
+	_plan_of = strategy
+	var keep_wave := _attack_at
+	plan = (PLANS["balanced"] as Dictionary).duplicate(true)
+	for k in over:
+		plan[k] = over[k]
+	plan["wave_t"] = 0.0
+	# (brood-ai-tune: the rush's own far list was kept here (one turtle on new ground at 10:00), and with no room
+	# left round her for a third Rootmaw the economy stood at 2 Rootmaws and 14 grubs until 10:00: the expansions
+	# now come from the failed rush on, a minute and a half apart)
+	plan["far"] = [[game.clock, 1], [game.clock + 90.0, 2], [game.clock + 180.0, 3]]
+	_attack_at = maxi(keep_wave, 20)
+	_retreat_until = game.clock + 90.0
+	_first_out = true
+	say(why)
 
 
 func _kinds_of(list: Array) -> String:
@@ -2233,6 +2311,23 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 		for u in join:
 			_def.append(u)
 			u.cmd_move(at, true)
+		# A SIRE ON A LEASH (brood-ai-tune, round A g05: the Tyrant Sire got up for a Cuirassier and a Musketeer at 9:13,
+		# then chased riders that kept out of his reach (they kite slow defenders since 0.27.0) for minutes; no Raptor egg
+		# was laid meanwhile, her clutch sat full at 19/20 and 4,000 food piled up): he goes home to his nest once only
+		# riders are left, once he is SIRE_LEASH tiles from her, or after SIRE_OUT s, unless the fight is at the Mother
+		for u in _def.duplicate():
+			var su := u as Unit
+			if not BroodNew.is_father(su.kind) or (at_mother and _nb_sires_needed(q)):
+				continue
+			if not _sire_out.has(su):
+				_sire_out[su] = game.clock
+			var riders_only := group.all(func(o) -> bool: return is_rider(o))
+			if riders_only or su.position.distance_to(q.position) > SIRE_LEASH * Defs.TILE or game.clock - float(_sire_out[su]) > SIRE_OUT:
+				_def.erase(su)
+				_sire_out.erase(su)
+				_sire_home_t[su] = game.clock
+				su.cmd_move(q.position)          # (_nb_one_father roots him on his nest again)
+				say("the %s goes back to his nest (%s)" % [String(Defs.UNITS[su.kind]["name"]), "only riders left" if riders_only else "too far from her"])
 		# losing it away from the Mother: back to her (a lost fight is lost ground, not the army)
 		if not at_mother and not _fight_wins(_def, group, 1.0) and not _fight_wins(avail, group, 1.0):
 			say("pulls its defenders back to the Mother: %d against %d" % [int(_value_of(_def)), int(e)])
@@ -2258,7 +2353,7 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 		var all_riders := group.all(func(o) -> bool: return is_rider(o))
 		if not _fight_wins(squad, group) and at.distance_to(q.position) < 22.0 * Defs.TILE and not all_riders:
 			var f := BroodNew.father(game, team, BroodNew.FATHER)
-			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f):
+			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f) and game.clock - float(_sire_home_t.get(f, -999.0)) > 40.0:
 				squad.append(f)       # (the Tyrant Sire: 1,000 health, a terrible bite; he roots again after)
 	elif at_mother or _fight_wins(avail, group, 0.8):
 		squad = avail
@@ -2283,6 +2378,12 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 	return true
 
 
+const SIRE_LEASH := 16.0
+const SIRE_OUT := 30.0
+var _sire_out := {}               # Sire -> when he joined the defence squad
+var _sire_home_t := {}            # Sire -> when he was sent home (not sent out again for 40 s)
+
+
 func in_defence(u: Unit) -> bool:
 	return _def.has(u)
 
@@ -2301,6 +2402,7 @@ func _nb_stand_down(_q: Unit) -> void:
 			continue
 		if BroodNew.FATHERS.has(u.kind):
 			u.cmd_stop()              # (back to his nest: _nb_one_father)
+			_sire_out.erase(u)
 		elif not _wave.has(u):
 			u.cmd_move(_rally)
 	_def.clear()
