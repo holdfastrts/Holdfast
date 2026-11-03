@@ -120,15 +120,17 @@ func not_ready() -> bool:
 
 ## The expansion waits (AI._hall_first); logged once a minute.
 func hold_expand() -> bool:
-	# (the counter's yard first: a swarm seen, the Escapement working and no Heavy Works laid yet: its cogs before a hall's)
+	# (the counter first: a swarm seen, its tier-2 time come and no Heavy Works laid yet: the tech's and the yard's cogs
+	# before a hall's)
 	# (not when its main has no room for the yard at all: the new hall's field is then where it goes, AI._tier3)
-	var yard: bool = on() and game.has_working(ai.team, Defs.CW_TECH) and ai._mine(Defs.CW_HEAVY).is_empty() and not ai._heavy_no_room
+	var yard: bool = on() and ai._mine(Defs.CW_HEAVY).is_empty() and not ai._heavy_no_room \
+			and (game.has_working(ai.team, Defs.CW_TECH) or not ai._mine("mainspring").is_empty() or game.clock >= ai._tier2_at())
 	if not yard and not not_ready():
 		return false
 	if game.clock - _said_hold > 60.0:
 		_said_hold = game.clock
 		if yard:
-			_note("holds its expansion: a swarm seen (%d light melee), the Heavy Works first" % _n)
+			_note("holds its expansion: a swarm seen (%d light melee), its tech and the Heavy Works first" % _n)
 		else:
 			_note("holds its expansion: the swarm seen (%d value) outmatches its army (%d), %d of %d Pendulums out" % [int(_v), int(ai._guard_value()), pendulums(), PEND_READY])
 	return true

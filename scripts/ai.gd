@@ -758,7 +758,9 @@ func _tier2(t: float) -> void:
 		next_cost += int(Defs.BUILDINGS[Defs.CW_TECH]["cost"])      # (the pair is laid at once: _tier2)
 	if next == Defs.CW_TECH and _esc_blocked and _spring_ok():
 		next_cost += int(Defs.BUILDINGS["mainspring"]["cost"])      # (no room for it: another Mainspring first, saved for too)
-	if next != "" and _gold() < next_cost + 20 and (_threat() == Vector2.INF or _holds_line()):
+	# (clock-ai-swarm: against a swarm the tech is the way to the Pendulums: saved for even while the line is pressed; the
+	# owner's Cinder Steps game, 2026-11-03: "Clockwork didn't tech up soon enough")
+	if next != "" and _gold() < next_cost + 20 and (_threat() == Vector2.INF or _holds_line() or (_sw() and swm().on())):
 		_reserve = maxi(_reserve, next_cost + 20)
 		_tech_hold = true
 	_esc_spring(esc)       # (an Escapement laid first gets its Mainspring)
@@ -885,7 +887,7 @@ func _tier2(t: float) -> void:
 ## ring (FIELD_KEEP: kept without a Mainspring).
 const FIELD_KEEP := Vector2i(-2, -2)
 var _keep_fed_t := 0.0
-var field_keep_on := not OS.get_cmdline_user_args().has("fieldkeep:off")      # (study switch)
+var field_keep_on := OS.get_cmdline_user_args().has("fieldkeep:on")      # (study switch: off by default, see docs/clockwork_ai_swarm.md)
 
 
 func _keep_heavy_fed() -> void:
@@ -910,7 +912,7 @@ func _keep_heavy_fed() -> void:
 		return
 	if not game.ai_keep.has(team):
 		game.ai_keep[team] = {}
-	game.ai_keep[team][Defs.CW_HEAVY] = {"cell": c, "t": game.clock, "spring": sc}
+	game.ai_keep[team][Defs.CW_HEAVY] = {"cell": c, "t": game.clock, "spring": sc, "fed": true}
 	if game.mlog and not game._first_of.has("%d:ai_keep_fed" % team):
 		game._first_of["%d:ai_keep_fed" % team] = true
 		game.mlog.add("%s keeps room for a Heavy Works' big ring on its gear field (a Mainspring anywhere in the network feeds it)" % game.mlog.who(team))
@@ -1173,7 +1175,9 @@ func _kept(kind: String) -> Dictionary:
 	var keep: Dictionary = game.ai_keep[team][kind]
 	var sc: Vector2i = keep.get("spring", Vector2i(-1, -1))
 	var has_spring := sc == FIELD_KEEP or _mine("mainspring").any(func(b: Building) -> bool: return b.cell == sc)
-	if game.clock - float(keep["t"]) > KEEP_FOR or not has_spring:
+	# (clock-ai-swarm: the Heavy Works' field keep does not time out: it is held until the yard is laid; the tech in a
+	# cramped main lets it go, _tier2)
+	if (game.clock - float(keep["t"]) > KEEP_FOR and not keep.get("fed", false)) or not has_spring:
 		_unkeep(kind)
 		if game.mlog:
 			game.mlog.add("%s lets go of the spot it kept for a %s (%s)" % [game.mlog.who(team), String(Defs.BUILDINGS[kind]["name"]), "too long" if has_spring else "no Mainspring there"])
@@ -4201,7 +4205,9 @@ func _produce() -> void:
 		# three Springers are out or Tension piles up; the Ballistas as _ballista_want says)
 		var want_p: bool = pends < mini(4, 1 + others / 6) and (springers >= 3 or flush)
 		# (clock-ai-swarm: against a swarm the Pendulums come first, without waiting for Springers: AISwarm.pend_want)
-		var swarm_p: bool = _sw() and swm().on()
+		# (and against the Brood, whose staple is light melee, two Pendulums as soon as the yard stands, swarm seen or not: its
+		# Raptors mass at home, out of sight, until they come: the swarm was "seen" at 7:00 in most test games)
+		var swarm_p: bool = _sw() and (swm().on() or (_foe() >= 0 and game.faction_of(_foe()) == "brood" and pends < 2))
 		var pend_cap: int = maxi(mini(4, 1 + others / 6), swm().pend_want()) if swarm_p else mini(4, 1 + others / 6)
 		if swarm_p:
 			want_p = pends < pend_cap
