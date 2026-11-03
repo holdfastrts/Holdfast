@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.28.4", "items": [
+		"THE SPRINGER HAS A REAL ATTACK SOUND: its shot was a tenth of a second of ratchet click, lost under the muskets. Now each shot is either a spring's twang and the clank of the screw flying, or a springy thwip with a lighter clank (the owner's two picks, from his Clockwork recordings).",
+	]},
 	{"v": "0.28.3", "items": [
 		"THE BROOD MOTHER LAYS WHILE SHE GROWS: growing to her next stage no longer stops her laying. She lays on at half her speed until she is done, and the eggs she already holds can be used to hatch creatures as before (the owner: no eggs at all for 45 to 60 seconds was too harsh).",
 	]},

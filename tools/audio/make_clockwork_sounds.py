@@ -187,9 +187,10 @@ SOUNDS = {
     "combat/clock_soldier_death_1": [crash(), clatter(), boing(1, 0.35, at=0.45)],
     "combat/clock_soldier_death_2": [crash(0.9), clatter(1.30, 0.8), boing(2, 0.35, at=0.40)],
     # the Springer: its screw shot is a quick ratchet spin; the spring presses, boings on the jump and clanks on landing
-    "combat/springer_attack_1": [ratchet(0, 0.16, pitch=1.4, fade=0.05)],
-    "combat/springer_attack_2": [ratchet(1, 0.16, pitch=1.4, fade=0.05)],
-    "combat/springer_attack_3": [ratchet(2, 0.16, pitch=1.5, fade=0.05)],
+    # (the owner, 2026-11-03: the old 0.16 s ratchet click was lost under the muskets; his picks A and C of
+    # docs/sounds_compare/springer_attack: a spring twang + the screw's clank, and a springy thwip + a lighter clank)
+    "combat/springer_attack_1": [("spring", 0.08, 0.20, 0.0, 1.0, 1.6, 0.10), cl(1, 1.3, 0.25, at=0.03, gain=0.8, fade=0.15)],
+    "combat/springer_attack_2": [boing(2, 0.22, gain=1.0, pitch=1.7), cl(3, 1.2, 0.25, at=0.04, gain=0.7, fade=0.15)],
     "combat/springer_crouch": [("spring", 0.08, 0.40, 0.0, 1.0, 0.9, 0.12)],
     "combat/springer_jump_1": [boing(1, 0.45, gain=1.0)],
     "combat/springer_jump_2": [boing(3, 0.45, gain=1.0, pitch=0.95)],
