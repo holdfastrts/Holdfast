@@ -51,7 +51,7 @@ const OVER_RATE := 3.0
 ## new shot's puffs merge into the cloud (only MERGE / count of them are made): it is fed, but not piled higher.
 const DCELL := 96.0
 const DENSE := 8.0
-const MERGE := 22.0
+const MERGE := 14.0                    # (22 before 0.26.5: past 14 a square is drawn at DENSE / count anyway, so more puffs there only cost fill)
 const THIN_MIN := 0.3
 const THIN_RATE := 0.7                 # how fast a puff's thinning follows its square's (per second)
 const AGE_K := 0.3                    # extra ageing per DENSE puffs past DENSE in its square
@@ -84,6 +84,7 @@ var _seen := PackedFloat32Array()      # 0..1: fades out where the watching side
 var _seen_to := PackedByteArray()
 var _th := PackedFloat32Array()        # 0..1: drawn thinner in a dense cloud (smoothed)
 var _al := PackedFloat32Array()        # the alpha drawn at the last tick (tests: no jumps)
+var _dal := PackedFloat32Array()       # how fast it changed then (per s): the shader carries it on till the next tick
 var _grid := PackedInt32Array()        # puffs per DCELL square, counted at the last tick (+ the ones made since)
 var _gnext := PackedInt32Array()
 var _gw := 1
@@ -95,9 +96,12 @@ var _mm: MultiMesh
 var _under: MultiMeshInstance2D
 var _veil: MultiMeshInstance2D
 var _buf := PackedFloat32Array()
+var _mat: ShaderMaterial               # (shared by both layers: "since", the time since the last tick)
+var _since := 0.0
 var _mmv: MultiMesh                    # the veil's puffs
 var _bufv := PackedFloat32Array()
 var _capv := 0
+var mesh_area := 0.828                 # (the octagon's area, as a share of the square's: tools/stress_swarm.gd's fill)
 var tick_us := 0                       # time spent moving the puffs and filling the buffers (the bench)
 var ticks := 0
 var _acc := 0.0
@@ -132,6 +136,8 @@ func setup(g: Game, lv: int) -> void:
 	_th.resize(cap)
 	_al.resize(cap)
 	_al.fill(0.0)
+	_dal.resize(cap)
+	_dal.fill(0.0)
 	_gw = int(ceil(float(Game.W * Game.T) / DCELL)) + 1
 	_gh = int(ceil(float(Game.H * Game.T) / DCELL)) + 1
 	_grid.resize(_gw * _gh)
@@ -157,6 +163,7 @@ func setup(g: Game, lv: int) -> void:
 	var tex := _atlas()
 	var mat := ShaderMaterial.new()
 	mat.shader = _shader()
+	_mat = mat
 	_under = MultiMeshInstance2D.new()
 	_under.multimesh = _mm
 	_under.texture = tex
@@ -212,6 +219,7 @@ func puff(kind: String, p: Vector2, dir := Vector2.ZERO) -> void:
 		_grid[gc] += 1
 		_th[j] = clampf(DENSE / maxf(cnt + 1.0, 1.0), THIN_MIN, 1.0)
 		_al[j] = 0.0
+		_dal[j] = 0.0
 		var f := float(i) / maxf(float(n - 1), 1.0)
 		var off := Vector2(rng.randf_range(-1, 1), rng.randf_range(-1, 1)) * float(k[7])
 		_pos[j] = p + off + d * float(k[7]) * 1.5 * f          # (a gun's puffs roll out along the shot)
@@ -262,6 +270,7 @@ func _cell(p: Vector2) -> int:
 func clear() -> void:
 	_life.fill(0.0)
 	_al.fill(0.0)
+	_dal.fill(0.0)
 	_grid.fill(0)
 	alive = 0
 	if _mm:
@@ -281,6 +290,9 @@ func _process(delta: float) -> void:
 		_acc = 0.0
 		tick_us += Time.get_ticks_usec() - _p0
 		ticks += 1
+	elif _mat and alive > 0:
+		_since = minf(_acc, step)
+		_mat.set_shader_parameter("since", _since)
 	Prof.add("powder smoke", _p0)
 
 
@@ -301,8 +313,19 @@ func tick(dt: float) -> void:
 	if check:
 		_vis_t = 0.25
 	var over := alive - int(float(cap) * SOFT)      # (near the cap: the oldest fade early)
-	var vr: Rect2 = game.view_rect.grow(110.0)       # (a grown puff's edge reaches ~100 px past its centre: no popping at the screen's edge)
-	var all_view := vr.size == Vector2.ZERO
+	# (the watching side's sight, looked up once a check, not once a puff: sees())
+	var see_all := false
+	var sv_ok := false
+	var svb := PackedByteArray()
+	var gW: int = game.W
+	var gH: int = game.H
+	if check:
+		see_all = game.sees_all() or game.fog_team() < 0
+		if not see_all:
+			var sv = game._side_vis.get(game.sides[game.fog_team()])
+			if sv != null and (sv as PackedByteArray).size() == gW * gH:
+				svb = sv
+				sv_ok = true
 	var ik := 1.0 / DCELL
 	var gw := _gw
 	var gw1 := _gw - 1
@@ -324,6 +347,7 @@ func tick(dt: float) -> void:
 			if age >= life:
 				_life[j] = 0.0
 				_al[j] = 0.0
+				_dal[j] = 0.0
 				alive -= 1
 			else:
 				_age[j] = age
@@ -338,18 +362,32 @@ func tick(dt: float) -> void:
 				_gnext[clampi(int(p.y * ik), 0, gh1) * gw + clampi(int(p.x * ik), 0, gw1)] += 1
 				_rot[j] += _spin[j] * dt
 				if check:
-					_seen_to[j] = 1 if sees(p) else 0
+					var see := true
+					if sv_ok:
+						var cx := clampi(int(p.x / Game.T), 0, gW - 1)     # (as game.cell_of)
+						var cy := clampi(int(p.y / Game.T), 0, gH - 1)
+						see = svb[cy * gW + cx] == 1
+					elif not see_all:
+						see = sees(p)
+					# (2: seen; it fades out only after two looks in a row, half a second, without sight: at the edge of
+					# a moving army's sight the cells flicker, and a puff there blinked: docs/perf_smoke.md)
+					_seen_to[j] = 2 if see else maxi(_seen_to[j] - 1, 0)
 				var sn := _seen[j]
-				if _seen_to[j] == 1:
-					sn = minf(sn + dt * 2.0, 1.0)
+				if _seen_to[j] > 0:
+					sn = minf(sn + dt * 1.5, 1.0)
 				else:
-					sn = maxf(sn - dt * 1.5, 0.0)
+					sn = maxf(sn - dt * 0.8, 0.0)
 				_seen[j] = sn
 				var x := age / life
 				var fi := minf(age / FADE_IN, 1.0)
 				var al := _a[j] * fi * fi * (3.0 - 2.0 * fi) * (1.0 - pow(x, 1.6)) * sn * th     # (thick for a while, then vanishing slowly)
+				var dal := (al - _al[j]) / dt if _al[j] > 0.0 else 0.0
 				_al[j] = al
-				if sn > 0.0 and (all_view or vr.has_point(p)):
+				_dal[j] = dal
+				# (every live puff the watching side sees is drawn, wherever the camera is: culling by the view made puffs
+				# pop in at the screen's edge while scrolling and all at once after a jump; off-screen quads cost the
+				# graphics card nothing, and the buffer is written either way)
+				if sn > 0.0:
 					var g := 1.0 - (1.0 - x) * (1.0 - x)
 					var s := (_s0[j] + (_s1[j] - _s0[j]) * g) * 27.0
 					var c := cos(_rot[j]) * s
@@ -370,12 +408,19 @@ func tick(dt: float) -> void:
 					_buf[o + 10] = gr * 0.97
 					_buf[o + 11] = al
 					_buf[o + 12] = _frame[j]
+					# (how it moves and fades till the next tick: the shader carries it on between ticks, so a puff
+					# glides at the screen's rate, not in 20 steps a second)
+					var vv := v * sqrt(damp) + wind
+					_buf[o + 13] = vv.x
+					_buf[o + 14] = vv.y
+					_buf[o + 15] = dal
 					n += 1
 					if j % VEIL_EVERY == 0 and nv < _capv:
 						var ov := nv * 16
-						for q in 13:
+						for q in 16:
 							_bufv[ov + q] = _buf[o + q]
 						_bufv[ov + 11] = al * VEIL
+						_bufv[ov + 15] = dal * VEIL
 						nv += 1
 		j += 1
 		if j >= cap:
@@ -386,7 +431,10 @@ func tick(dt: float) -> void:
 	_gnext.fill(0)
 	if _mm == null:
 		return
-	# (per instance: transform 8 floats, colour 4, custom 4: the frame, then three unused)
+	# (per instance: transform 8 floats, colour 4, custom 4: the frame, the velocity (x, y) and the alpha's rate)
+	_since = 0.0
+	if _mat:
+		_mat.set_shader_parameter("since", 0.0)
 	if n > 0:
 		_mm.buffer = _buf
 	_mm.visible_instance_count = n
@@ -398,12 +446,21 @@ func tick(dt: float) -> void:
 
 
 ## A 1x1 quad centred on 0 (the transform scales it to the puff), UVs the right way up in 2D.
+## (0.26.5: an octagon round the puff's soft circle, not a square: the shader fades every puff to nothing at half its
+## width, so the square's corners were blended for nothing. 17 % less to fill, the graphics card's real cost of THICK
+## smoke on a phone; docs/perf_smoke.md)
 static func _quad() -> ArrayMesh:
 	var arr := []
 	arr.resize(Mesh.ARRAY_MAX)
-	arr[Mesh.ARRAY_VERTEX] = PackedVector2Array([Vector2(-0.5, -0.5), Vector2(0.5, -0.5), Vector2(0.5, 0.5), Vector2(-0.5, 0.5)])
-	arr[Mesh.ARRAY_TEX_UV] = PackedVector2Array([Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)])
-	arr[Mesh.ARRAY_INDEX] = PackedInt32Array([0, 1, 2, 0, 2, 3])
+	var vs := PackedVector2Array()
+	var uv := PackedVector2Array()
+	for k in 8:
+		var v := Vector2.from_angle(PI / 8.0 + k * PI / 4.0) * (0.5 / cos(PI / 8.0))
+		vs.append(v)
+		uv.append(v + Vector2(0.5, 0.5))
+	arr[Mesh.ARRAY_VERTEX] = vs
+	arr[Mesh.ARRAY_TEX_UV] = uv
+	arr[Mesh.ARRAY_INDEX] = PackedInt32Array([0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 6, 7])
 	var m := ArrayMesh.new()
 	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
 	return m
@@ -442,11 +499,17 @@ shader_type canvas_item;
 // Powder smoke (scripts/powder_smoke.gd): each instance picks its frame of the smoke atlas
 // (INSTANCE_CUSTOM.x) and is tinted grey-white by its colour (taken in vertex(): in fragment()
 // COLOR already holds the texture at the whole atlas's UV).
+render_mode skip_vertex_transform;
+// since: seconds since the puffs were last moved (the script moves them 12 to 20 times a second); each instance carries
+// its velocity (INSTANCE_CUSTOM.yz, world px/s) and its alpha's rate (.w, per s), so it glides on between the ticks
+uniform float since = 0.0;
 varying float frame;
 varying vec4 tint;
 void vertex() {
 	frame = INSTANCE_CUSTOM.x;
 	tint = COLOR;
+	tint.a = clamp(COLOR.a + INSTANCE_CUSTOM.w * since, 0.0, 1.0);
+	VERTEX = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy + INSTANCE_CUSTOM.yz * since;
 }
 void fragment() {
 	// (the painted frames touch their edges: kept inside the frame, so no line from the next one, and faded to

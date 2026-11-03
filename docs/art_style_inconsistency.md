@@ -322,6 +322,12 @@ The owner, after playing: the legs looked silly. The painted legs are gone from 
   40%, its darkest edge pixels thinned so the grown puffs have soft edges). Hundreds of them overlap into the haze.
   Wanted, if the art rework reaches it: two or three painted soft smoke puffs made to be scaled up (wispy edges, light
   grey, no outline), and maybe a painted haze texture for a thick firing line.
+- 0.26.5 (docs/perf_smoke.md): the painted muzzle smoke itself (assets/effects/smoke.png) touched the edges of its
+  frames, so every shot's quick puff and every chimney showed straight, cut-off sides. tools/fix_smoke_edges.py now
+  FEATHERS it in code: each frame's alpha fades to nothing over 6 px toward the sides the art touches, and a soft
+  ellipse rounds the corners (the flash of frame 0 is softened on its left too). The painted original is kept in
+  art/world/smoke_effect_original.png; the tool always starts from it. Wanted: a painted smoke strip with room round
+  each puff (no edge touched), so this code feather can go.
 ## Officers and riders in white coats, recoloured in code (2026-10-27, tools/recolour_officers.py)
 - The owner (2026-10-27): "The Officer is hard to tell apart from the Musketeer." The Musketeer keeps his red coat
   (team colour) and light trousers; the Officer (assets/units/dismounted), the Armoured Officer (dismounted_armoured,
