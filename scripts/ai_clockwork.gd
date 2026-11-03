@@ -85,6 +85,7 @@ const PLANS := {
 			"16 regulator",
 			"clock_soldier 6",
 			"rush_over",
+			"turret ramp",
 			"workers 20",
 			"clocktower",
 			"mainspring",

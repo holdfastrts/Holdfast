@@ -202,6 +202,8 @@ func tick() -> void:
 			_fight()
 		"home":
 			_home_tick()
+		"contain":
+			_contain()
 	if phase in ["march", "fight"]:
 		_reinforce()
 	_crank_tick()
@@ -219,6 +221,10 @@ func _gather() -> void:
 		_phase("march")
 		prey = _prey()
 		say("rush: marching on the enemy's economy (%d Clock Soldiers)" % party.size())
+
+
+var _prey_t := -99.0
+var _prey_b: Building = null
 
 
 ## Where the workers are: the enemy's nearest hall (its economy round it); the open target of the shared computer when it
@@ -254,6 +260,11 @@ func _march() -> void:
 func _fight() -> void:
 	var T := Defs.TILE
 	var c := _centre(party)
+	if game.clock - _prey_t > 8.0:
+		_prey_t = game.clock
+		var p2 := _prey()
+		if p2.distance_to(prey) > 32.0:
+			prey = p2
 	_wall_check(c)
 	for u in party:
 		_hunt(u, T)
@@ -302,11 +313,11 @@ func _wall_check(c: Vector2) -> void:
 	if hold_now:
 		_held_seen = game.clock
 	held = hold_now or (was and game.clock - _held_seen < 8.0)
-	if held and not was:
+	if held and not was and held_t < 0.0:
 		held_t = game.clock
 		say("rush: the way in is walled and held (%d menders, %d value of guns seen): it hunts outside the wall a little, then home" % [menders, int(defv)])
-	if held and game.clock - held_t > WALL_LOOK and (game.clock - _last_kill_t > 10.0 or game.clock - held_t > 45.0):
-		_fail("the way in is walled and held (%d menders, %d value of guns behind it)" % [menders, int(defv)])
+	if held_t >= 0.0 and game.clock - held_t > WALL_LOOK and (game.clock - _last_kill_t > 10.0 or game.clock - held_t > 40.0):
+		_fail("the way in is walled and held (%d menders, %d value of guns behind it)" % [menders, int(defv)], true)
 
 
 var _held_seen := -99.0
@@ -349,6 +360,8 @@ func _hunt(u: Unit, T: float) -> void:
 		if s < bs:
 			bs = s
 			best = o
+	if held and fighting and not _reach_ok(u, tgt):
+		fighting = false          # (a Musketeer behind the wall: out of the sword's reach, he only shoots us)
 	if best != null and (not fighting or (best.order == "repair" and best.position.distance_to(u.position) < 2.5 * T)):
 		if u.order != "attack" or u.order_target != best:
 			if best.order == "repair":
@@ -359,12 +372,49 @@ func _hunt(u: Unit, T: float) -> void:
 		return
 	if held:
 		# (before a held wall: back out of the muskets' reach, toward home, and wait for the verdict)
-		var back := c + (_home() - c).normalized() * 160.0
+		var back := c + (_home() - c).normalized() * 220.0
 		if u.position.distance_to(back) > 80.0 and (u.order != "move" or u.order_point.distance_to(back) > 60.0):
 			u.cmd_move(back + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
 		return
+	if verdict == "succeeded" and u.position.distance_to(prey) < 220.0:
+		# (SUCCEEDED and at the prey with no worker in sight: the buildings, the nearest first, all on the same one)
+		if _prey_b == null or not is_instance_valid(_prey_b) or _prey_b.dead:
+			_prey_b = _near_building(c)
+		if _prey_b != null and (u.order != "attack" or u.order_target != _prey_b) and not (tgt is Building):
+			u.cmd_attack(_prey_b)
+		return
 	if u.order == "idle" or (u.order == "move" and u.order_point.distance_to(prey) > 160.0) or (u.order == "attack" and u.order_target is Unit and (u.order_target as Unit).is_worker() and (u.order_target as Unit).dead):
 		u.cmd_move(prey + Vector2(randf_range(-60, 60), randf_range(-60, 60)), true)
+
+
+## Can u walk to its target (not behind a wall)? Asked at most every 2 s a unit.
+var _reach_cache := {}
+
+
+func _reach_ok(u: Unit, tgt) -> bool:
+	if tgt == null or not is_instance_valid(tgt):
+		return true
+	var k := u.get_instance_id()
+	var e: Array = _reach_cache.get(k, [])
+	if not e.is_empty() and e[0] == tgt and game.clock - float(e[1]) < 2.0:
+		return bool(e[2])
+	var ok: bool = u._walk_reaches_point(tgt.position if tgt is Unit else (tgt as Building).center())
+	_reach_cache[k] = [tgt, game.clock, ok]
+	return ok
+
+
+## The enemy building nearest p that our side has seen (none: the enemy's hall from where it started).
+func _near_building(p: Vector2) -> Building:
+	var best: Building = null
+	var bd := INF
+	for b in game.buildings:
+		if b.dead or b.ghost or not game.hostile(b.team, team) or not game.side_sees(team, b.center()):
+			continue
+		var d: float = b.center().distance_to(p)
+		if d < bd:
+			bd = d
+			best = b
+	return best
 
 
 ## The verdict from facts (as the shared rush's, scripts/ai.gd _rush_verdict).
@@ -400,20 +450,100 @@ func _verdict(c: Vector2) -> void:
 				_fail("out of time (%d killed in %d s)" % [int(gained), int(t)])
 		return
 	# succeeded: home when it is down to a few, when the defence is too much, or after a long time without a kill
-	if party.size() <= PARTY_MIN or (defv > mine * FLEE_K and defv >= 100.0) or game.clock - _last_kill_t > 60.0:
+	if party.size() <= PARTY_MIN or (defv > mine * FLEE_K and defv >= 100.0) or (game.clock - _last_kill_t > 60.0 and _near_building(c) == null):
 		say("rush: the party comes home (%d left; %d value killed in all)" % [party.size(), int(gained)])
 		_go_home_now()
 
 
-func _fail(w: String) -> void:
+func _fail(w: String, wall := false) -> void:
 	verdict = "failed"
 	why = w
-	say("rush: FAILED (%s): everyone home; no wave before a real army, the economy goes on" % w)
 	# (the shared computer's failed-rush rules: no wave for a while, and only a proper one: _rush_failed)
 	ai._regroup_until = maxf(ai._regroup_until, game.clock + ai._lv([150.0, 120.0, 90.0]))
 	ai._attack_at = maxi(ai._attack_at, 24)
 	ai._failed += 1
+	if wall and party.size() >= CONTAIN_MIN:
+		say("rush: FAILED (%s): no wave before a real army, the economy goes on; the party watches the foot of the enemy's ramp a while (its expansion and the workers who come out)" % w)
+		_contain_begin()
+		return
+	say("rush: FAILED (%s): everyone home; no wave before a real army, the economy goes on" % w)
 	_go_home_now()
+
+
+## THE WATCH AT THE FOOT (after a held wall): the party stands out of the muskets' reach below the enemy's ramp for up to
+## CONTAIN_T s, one group, no fresh soldiers sent to it: it cuts down the workers who come out (the expansion's builders,
+## its Labourers walking out) and leaves when the enemy's army comes out stronger, or when the time is up. A held wall is
+## a lost rush, not a lost game: the Crown that holds its main while the expansion waits pays for it.
+const CONTAIN_T := 75.0
+const CONTAIN_MIN := 4
+var contain_spot := Vector2.INF
+var contain_kills := 0
+
+
+func _contain_begin() -> void:
+	contain_spot = _contain_spot()
+	if contain_spot == Vector2.INF:
+		_go_home_now()
+		return
+	held = false
+	walled = false
+	_phase("contain")
+	contain_kills = int(game.stats[team]["value_killed"])
+	for u in party:
+		u.cmd_move(contain_spot + Vector2(randf_range(-50, 50), randf_range(-50, 50)), true)
+
+
+## Out along the enemy's ramp from its foot, toward our side, 6 tiles: in sight of the way out, out of the muskets' reach
+## on the high ground.
+func _contain_spot() -> Vector2:
+	var hall: Building = null
+	var hd := INF
+	for b in game.halls_of(foe, true):
+		var d: float = (b as Building).center().distance_to(_foe_hall())
+		if d < hd:
+			hd = d
+			hall = b
+	if hall == null:
+		return Vector2.INF
+	var foot := game.ramp_foot(hall)
+	if foot == Vector2.INF:
+		return Vector2.INF
+	var fp := foot * Defs.TILE
+	var out := fp + (_home() - fp).normalized() * 6.0 * Defs.TILE
+	var c: Vector2i = game.cell_of(out)
+	if not game.open_cell(c):
+		return fp + (_home() - fp).normalized() * 3.0 * Defs.TILE
+	return out
+
+
+func _contain() -> void:
+	var T := Defs.TILE
+	var c := _centre(party)
+	var defv := _foe_near(c, 320.0)
+	if defv > _value(party) * 1.0 + 40.0 or game.clock - since > CONTAIN_T or party.size() < CONTAIN_MIN - 1:
+		say("rush: the watch at the foot ends (%s; %d value killed there)" % ["their army came out" if defv > _value(party) + 40.0 else "time up", int(game.stats[team]["value_killed"]) - contain_kills])
+		_go_home_now()
+		return
+	for u in party:
+		var tgt = u.target if u.target != null and is_instance_valid(u.target) and not u.target.dead else null
+		if tgt is Unit and _reach_ok(u, tgt) and (tgt as Unit).position.distance_to(contain_spot) < 9.0 * T:
+			continue
+		var best: Unit = null
+		var bd := 9.0 * T
+		for o in game.units_near(contain_spot, 9.0 * T):
+			if o.dead or o.off_field or not game.hostile(o.team, team) or not game.is_visible_to(team, o.position) or not u.can_hit(o):
+				continue
+			if not (o.is_worker() or ai._armed(o)):
+				continue
+			var d: float = o.position.distance_to(u.position)
+			if d < bd and _reach_ok(u, o):
+				bd = d
+				best = o
+		if best != null:
+			if u.order != "attack" or u.order_target != best:
+				u.cmd_attack(best)
+		elif u.position.distance_to(contain_spot) > 90.0 and (u.order != "move" or u.order_point.distance_to(contain_spot) > 70.0):
+			u.cmd_move(contain_spot + Vector2(randf_range(-50, 50), randf_range(-50, 50)))
 
 
 func _judge_now(w: String) -> void:
@@ -456,7 +586,7 @@ func _home_tick() -> void:
 
 ## Fresh soldiers made after the party left walk out to it, REINF_GROUP at a time (never one by one).
 func _reinforce() -> void:
-	if verdict == "failed":
+	if verdict == "failed" or held:
 		return
 	if not reinf.is_empty():
 		var c := _centre(party) if not party.is_empty() else prey
