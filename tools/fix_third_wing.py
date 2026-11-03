@@ -6,7 +6,8 @@ keeps the fix:
   - tools/import_storm_line.py (Hatchlings, Storm Challenger) and tools/import_brood_fathers.py (the Storm Sire,
     kind "pterodactyl") call fix_rows(sheet, rows) on the cut-out frames of a sheet, before the frames are shrunk;
   - their portraits go through portrait_fixed(kind) (a polygon painted out of the framed portrait with the portrait's
-    own dark background); no portrait has an entry since 0.26.16 (their bottom-left shape is the real near wing).
+    own dark background): since 0.26.22 the UPPER-LEFT wing behind the head of both portraits (the owner, asked
+    directly); their bottom-left shape is the real near wing and stays.
 
 HOW A WING IS ERASED (erase()): a hand-drawn polygon per frame (in the CUT-OUT frame's pixels: the frame's own box on
 the sheet, the numbers read off gridded zooms) covers the extra wing; inside it the frame becomes transparent; little
@@ -52,9 +53,27 @@ FRAMES = {
         "stay)"),
 }
 
-# the framed portraits (1254 px, the steel frame's inside about x 166..1090, y 166..1092): polygons on the SHEET.
-# Empty since 0.26.16: the shape at the bottom left of both portraits is the creature's near wing, not an extra one.
-PORTRAITS = {}
+# the framed portraits (1254 px, the steel frame's inside about x 166..1090, y 166..1092): kind -> (sheet, polygons on
+# the SHEET, keep_red_y, outline px, what). PORTRAIT-WING (0.26.22; the owner, asked directly, 2026-11-03): the extra wing
+# of both portraits is the UPPER-LEFT one behind the head (its bony arm, its membrane and, on the Storm Challenger, the
+# red spikes along its arm); the BOTTOM-LEFT wing is the real near wing and stays (0.26.14 wrongly erased it).
+# Inside a polygon the creature is painted out with the portrait's own backdrop (fix_portrait_px), EXCEPT red spikes at
+# or below keep_red_y (the Storm Challenger's neck/back spines run down there, over the wing; the wing's own spikes are
+# all above it); the body's new edge along the cut gets the portrait's near-black outline (outline px, about one art
+# pixel). Polygons read off gridded zooms of the sheets.
+PORTRAITS = {
+    "hatchlings": ("hatchling_portrait_chatgpt.png", [[
+        (160, 380), (350, 380), (372, 470), (384, 510), (398, 560), (412, 595), (432, 625), (456, 645), (478, 665),
+        (484, 700), (484, 740), (478, 758), (446, 762), (426, 753), (392, 754), (354, 774), (318, 810), (282, 838),
+        (246, 866), (228, 878), (200, 884), (160, 892)]], 0, 5,
+        "the upper-left wing behind the head: its arm, its shoulder knob and its membrane (the lower-left wing stays)"),
+    "storm_challenger": ("storm_challenger_portrait_chatgpt.png", [[
+        (160, 160), (565, 160), (565, 250), (545, 400), (532, 450), (540, 470), (530, 500), (512, 530), (510, 560),
+        (512, 600), (508, 640), (502, 680), (496, 720), (486, 760), (472, 790), (452, 806), (390, 809), (340, 807),
+        (300, 813), (250, 821), (160, 821)]], 460, 5,
+        "the upper-left wing behind the head: its spiked arm, claw, forearm and membrane (the neck's red spines and "
+        "the lower-left wing stay)"),
+}
 INSIDE = (166, 166, 1090, 1092)      # the portraits' steel frame's inside (x0, y0, x1, y1): nothing outside it changes
 
 OFF = False      # (True: the importers run as before this fix; for the "before" pictures)
@@ -133,27 +152,60 @@ def fix_rows(sheet, rows, quiet=False):
     return out, fixed
 
 
-def fix_portrait_px(kind, px):
-    """The framed portrait with the extra wing painted out in its own dark background."""
+def fix_portrait_px(kind, px, quiet=False):
+    """The framed portrait with the extra wing painted out in its own dark backdrop (PORTRAITS)."""
     if kind not in PORTRAITS:
         return px
-    _f, polys, what = PORTRAITS[kind]
+    _f, polys, keep_red_y, thick, what = PORTRAITS[kind]
     px = px.copy()
-    m = poly_mask(px.shape, polys)
+    h, w = px.shape[:2]
     x0, y0, x1, y1 = INSIDE
-    inside = np.zeros_like(m)
+    inside = np.zeros((h, w), bool)
     inside[y0:y1, x0:x1] = True
-    m &= inside
     rgb = px[..., :3].astype(int)
-    # (the backdrop is a near-black blue-teal: blue above red; the creature's dark shading is olive, blue far below red)
-    # (and away from the steel frame, whose inner shadow is pure black)
-    deep = np.zeros_like(m)
-    deep[y0 + 30:y1 - 30, x0 + 30:x1 - 30] = True
-    bg = deep & ~m & (rgb.max(2) < 45) & (rgb[..., 2] >= rgb[..., 0] + 6) & (rgb.sum(2) >= 30)
-    # every erased pixel takes the colour of the nearest background pixel (the dark backdrop, its soft gradient kept)
-    _, (iy, ix) = ndimage.distance_transform_edt(~bg, return_indices=True)
-    px[m, :3] = px[iy[m], ix[m], :3]
-    print(f"  third wing: {kind} portrait: {int(m.sum())} px painted over ({what})")
+    # (the backdrop is a near-black blue-teal: blue above red; the creature's dark shading is olive, blue far below
+    # red, and its outline is near black; the steel frame's inner shadow is pure black)
+    bg = inside & (rgb.max(2) < 45) & (rgb[..., 2] >= rgb[..., 0] + 6) & (rgb.sum(2) >= 30)
+    poly = poly_mask(px.shape, polys) & inside
+    # (the dark, bluish soft rim along the wing's edge passes as backdrop: only the backdrop well clear of the wing is)
+    bg &= ~poly | ndimage.binary_erosion(bg, iterations=4)
+    m = poly & ~bg
+    # the red spikes that stay (the neck's spines): red pixels at or below keep_red_y, with a dark rim round them
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    # (their shading goes down to a dark maroon, r 40..100 with no green; whole spikes only, not specks)
+    red = (r > 40) & (r > 2 * g + 10) & (r > 2 * b + 10)
+    red[:keep_red_y] = False
+    red = ndimage.binary_fill_holes(ndimage.binary_closing(red, iterations=2) | red)
+    lab, n = ndimage.label(red)
+    if n:
+        sizes = ndimage.sum(red, lab, range(1, n + 1))
+        red = np.isin(lab, 1 + np.nonzero(sizes >= 300)[0])
+    rim = ndimage.binary_dilation(red, iterations=thick - 1) & m & ~red
+    m &= ~(red | rim)
+    # loose bits of the creature left cut off by the cut (inside the frame) go too
+    cre = inside & ~bg & ~m
+    lab, n = ndimage.label(cre, structure=np.ones((3, 3)))
+    if n > 1:
+        sizes = ndimage.sum(cre, lab, range(1, n + 1))
+        near = ndimage.binary_dilation(m, iterations=6)
+        for i in range(n):
+            piece = lab == i + 1
+            if sizes[i] < 4000 and (piece & near).any():
+                m |= piece
+                rim &= ~piece
+    # the backdrop under the erased part: its soft gradient (the nearest backdrop pixel's colour, blurred wide so it
+    # leaves no seams) and its faint grain (the backdrop's own spread, seeded so a re-import gives the same pixels)
+    # (taken from backdrop well clear of the creature: the soft shadows round its edges would smear in)
+    _, (iy, ix) = ndimage.distance_transform_edt(~ndimage.binary_erosion(bg & ~m, iterations=8), return_indices=True)
+    fill = np.stack([ndimage.gaussian_filter(rgb[..., c][iy, ix].astype(float), 24.0) for c in range(3)], -1)
+    fill += np.random.default_rng(1254).normal(0.0, 0.7, (h, w, 1))
+    px[m, :3] = np.clip(np.round(fill), 0, 255)[m].astype(np.uint8)
+    # the body's new edge along the cut, and the kept spikes' rim: the portrait's near-black outline
+    dist = ndimage.distance_transform_edt(~m)
+    edge = inside & ~m & ~bg & ~red & (dist <= thick)
+    px[edge | rim, :3] = np.array([3, 3, 2], np.uint8)
+    if not quiet:
+        print(f"  third wing: {kind} portrait: {int(m.sum())} px painted over ({what})")
     return px
 
 
@@ -239,10 +291,28 @@ def shots(out_dir):
             _sheet(_frames(os.path.join("assets", "units", kind, strip + ".png"), n), z, "original").save(
                 os.path.join(out_dir, f"{kind}_{strip}.png"))
             print(f"  {out_dir}/{kind}_{strip}.png (original, restored)")
+        # the portraits (0.26.22): original on top, fixed below; the 64 px card icon x6 and the owner's sheet at 1/3
         for kind in ("hatchlings", "storm_challenger"):
-            px = np.array(Image.open(os.path.join("assets", "icons", kind + ".png")).convert("RGBA"))
-            _sheet([px], 5, "original").save(os.path.join(out_dir, f"{kind}_portrait.png"))
-            print(f"  {out_dir}/{kind}_portrait.png (original, restored)")
+            sheet = PORTRAITS[kind][0]
+            raw = ia.load(os.path.join("art", "redraws", sheet))
+            rows = []
+            for label, icon, big in (
+                    ("original", os.path.join(tmp, "assets", "icons", kind + ".png"), raw),
+                    ("fixed", os.path.join("assets", "icons", kind + ".png"), fix_portrait_px(kind, raw, quiet=True))):
+                ic = Image.open(icon).convert("RGB").resize((384, 384), Image.NEAREST)
+                bg = Image.fromarray(big[..., :3].astype(np.uint8)).resize((418, 418), Image.LANCZOS)
+                row = Image.new("RGB", (6 + 384 + 6 + 418 + 6, 18 + 418 + 6), (96, 104, 112))
+                d = ImageDraw.Draw(row)
+                row.paste(ic, (6, 18))
+                row.paste(bg, (396, 18))
+                d.text((8, 3), f"{label}: card icon (64 px, x6)", fill=(255, 235, 90))
+                d.text((398, 3), f"{label}: {sheet} (1/3)", fill=(255, 235, 90))
+                rows.append(row)
+            can = Image.new("RGB", (rows[0].width, rows[0].height * 2 + 4), (40, 40, 40))
+            can.paste(rows[0], (0, 0))
+            can.paste(rows[1], (0, rows[0].height + 4))
+            can.save(os.path.join(out_dir, f"{kind}_portrait.png"))
+            print(f"  {out_dir}/{kind}_portrait.png")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.22", "items": [
+		"THE PORTRAITS LOSE THEIR THIRD WING: the Hatchling's and the Storm Challenger's portraits (their cards and buttons) had a wing too many: the one raised at the upper left behind the head. It is gone, painted over with the portrait's own dark backdrop, and the body is outlined where it was. The wing at the bottom left is the creature's own and stays; on the Storm Challenger the red spines down its neck stay too.",
+	]},
 	{"v": "0.26.21", "items": [
 		"THE BARRACKS PLAYS THE BAND'S OWN ENDING (the owner's choice): the end of a slow piece from the fife-and-drum recording, as it was played, landing on the home note with a big drum stroke and two more strokes ringing away. The added fife notes of 0.26.19 are gone.",
 	]},
