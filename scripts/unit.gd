@@ -1766,6 +1766,11 @@ func _work_sound(delta: float) -> void:
 		_work_snd_t = 0.5
 		return
 	_work_snd_t = MILL_CYCLE if anim == "shovel" else randf_range(2.2, 3.2) if work == "manning" else 2.0
+	if kind == "winder" and work == "repairing":
+		# (the owner, 2026-11-03: his recordings) winding a soldier: a toy being wound; mending a building: a ratchet wrench
+		var wnd := order_target is Unit and is_instance_valid(order_target)
+		Sfx.play_any(["work/winder_wind" if wnd else "work/winder_repair", name], position, -3.0)
+		return
 	Sfx.play(name, position, -6.0 if work == "manning" else -3.0)
 	if kind == "labourer" and name == "work/crown_build" and BUILD_SWING.has(anim_dir):
 		_lab_build_t = lab_build_lock(anim_dir)      # (the clip's first big blow lands on a strike)

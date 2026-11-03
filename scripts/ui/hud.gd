@@ -1982,7 +1982,12 @@ const NEAR_KEYS := "QWERTASDFGZXCVB"
 const UNIT_KEYS := {"labourer": "S", "grub": "S", "winder": "S", "musketeer": "A", "guardsman": "S",
 	"horseman": "D", "cuirassier": "C", "dragoon": "F", "armoured_dragoon": "V",
 	"dismounted": "G", "dismounted_cuirassier": "B",
-	"clocktower": "T", "cog_press": "C", "movement_works": "L", "heavy_works": "H",     # (Light Works L, Heavy Works H)     # (owner, 2026-10-27: the Cog Press's G looked like a C in the font, and C built a Clocktower)
+	# the Clockwork's buildings take the key of the Crown building with the same job (the owner, 2026-11-03: no far keys
+	# like L and H; near the numbers, with a reason): hall T (Town Hall), supply C (Cottage), main resource F (Farm),
+	# second resource W (Powder Mill), defence A (Palisade), light army B (Barracks), heavy machines D (Foundry),
+	# tech Q (Armoury), the fast/flying units R (Horse Breeder)
+	"clocktower": "T", "regulator": "C", "cog_press": "F", "mainspring": "W", "ratchet_turret": "A",
+	"movement_works": "B", "heavy_works": "D", "escapement": "Q", "cuckoo_house": "R",
 	"tin_militia": "A", "scrapper": "D", "rail_rifleman": "F", "work_car": "S", "plate_wagon": "A", "heavy_loco": "D", "carrier_car": "F", "tesla_loco": "G", "storm_engine": "B"}
 const MUST_KEYS := ["ATTACK", "STOP", "HOLD", "BUILD", "REPAIR", "CANCEL", "BACK", "ABANDON"]
 ## Commands on a Ctrl key (computer): the hint shows it, and they take no letter (A stays ATTACK).

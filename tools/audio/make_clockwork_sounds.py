@@ -35,7 +35,8 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 SRC_DIR = os.path.join(ROOT, "art", "audio_src", "clockwork")
 SRC = {"bell": "old_clock_bell.mp3", "alarm": "alarm_clock.mp3", "crank": "turn_crank_loop.mp3",
        "spring": "metal_spring_scrape.mp3", "clang": "clang_group.mp3", "type": "typewriter.mp3",
-       "wobble": "liquid_wobble.mp3", "metal": "metallic_noise.mp3", "stamp": "stamp.mp3", "ostamp": "office_stamp.mp3"}
+       "wobble": "liquid_wobble.mp3", "metal": "metallic_noise.mp3", "stamp": "stamp.mp3", "ostamp": "office_stamp.mp3",
+       "wrench": "tools_ratchet.mp3", "wind": "winding_loop.mp3"}
 
 # ---- where the useful bits are (measured: loudness envelopes, onsets, spectral centroid, pitch) ----
 # clang_group: twelve bright single clangs (most of the ring 6-9 kHz), one about every 0.9 s
@@ -48,6 +49,9 @@ TICK = 1.58            # the first tick
 CRANK = [0.10, 1.76, 3.23, 5.00]
 # liquid_wobble: four springy wobbles ("boing")
 WOBBLE = [0.05, 0.76, 1.63, 2.51]
+# tools_ratchet (sent 2026-11-03): a ratchet wrench, strokes at 0.20-0.62, 1.30-1.58, 2.30-2.68, 3.30-3.48, 3.85-4.02,
+#   4.40-4.58, 4.95-5.12, a long run 6.95-7.90
+# winding_loop (sent 2026-11-03): a toy/clock being wound, one turn every ~0.45 s (0.10, 0.60, 1.00, 1.50), loopable
 # metallic_noise: a crash at 0-0.5 s, then pieces rattling and settling 0.6-2.7 s
 # metal_spring_scrape: one scrape of a spring 0.08-0.55 s, ringing on to ~3 s
 # stamp (sent 2026-10-28): a rubber stamp hit on a desk, clean single hits at 6.92 and 12.04 s (the others are double knocks)
@@ -298,6 +302,12 @@ SOUNDS = {
     "ratchet": [ratchet(1, 0.30, pitch=1.1)],
     "ratchet_1": [ratchet(3, 0.30, pitch=1.1)],
     # the Winder cranking a Cog Press (played about every 2 s): one turn of the crank each
+    # (the owner, 2026-11-03: his two new recordings) a Winder WINDING a soldier (standing or on the march): the toy
+    # winding; a Winder REPAIRING a building: a ratchet wrench's strokes
+    "work/winder_wind_1": [("wind", 0.05, 1.00, 0.0, 1.0, 1.0, 0.15)],
+    "work/winder_wind_2": [("wind", 0.92, 0.90, 0.0, 1.0, 1.05, 0.15)],
+    "work/winder_repair_1": [("wrench", 0.17, 0.48, 0.0, 1.0, 1.0, 0.08), ("wrench", 1.27, 0.34, 0.55, 0.9, 1.0, 0.08)],
+    "work/winder_repair_2": [("wrench", 2.27, 0.44, 0.0, 1.0, 1.0, 0.08), ("wrench", 3.82, 0.24, 0.50, 0.9, 1.0, 0.08)],
     "work/winder_crank": [("crank", CRANK[0], 1.60, 0.0, 1.0, 1.0, 0.25)],
     "work/winder_crank_1": [("crank", CRANK[1], 1.45, 0.0, 1.0, 1.0, 0.25)],
     "work/winder_crank_2": [("crank", CRANK[2], 1.60, 0.0, 1.0, 1.0, 0.25)],

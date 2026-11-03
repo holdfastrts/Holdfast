@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.28.5", "items": [
+		"WINDERS SOUND LIKE WHAT THEY DO (the owner's two new recordings): a Winder winding a soldier, standing or on the march, makes the sound of a toy being wound; a Winder repairing a building works a ratchet wrench. Both used the building sound before.",
+		"THE CLOCKWORK'S BUILDING KEYS FOLLOW THE CROWN'S (the owner: no far keys like L and H): each building takes the key of the Crown building with the same job, all near the number keys: Clocktower T (the Town Hall's), Regulator C (supply, the Cottage's), Cog Press F (the main resource, the Farm's), Mainspring W (the second resource, the Powder Mill's), Ratchet Turret A (defence, the Palisade's), Light Works B (the Barracks'), Heavy Works D (the Foundry's), Escapement Q (tech, the Armoury's), Clock Aviary R (the fast units, the Horse Breeder's). Keys you set yourself in INTERFACE LAYOUT & HOTKEYS still win.",
+	]},
 	{"v": "0.28.4", "items": [
 		"THE SPRINGER HAS A REAL ATTACK SOUND: its shot was a tenth of a second of ratchet click, lost under the muskets. Now each shot is either a spring's twang and the clank of the screw flying, or a springy thwip with a lighter clank (the owner's two picks, from his Clockwork recordings).",
 	]},
