@@ -1,4 +1,4 @@
-# Raid micro, and the Brood's answers (0.26.6, branch raid-micro)
+# Raid micro, and the Brood's answers (0.26.7, branch raid-micro)
 
 The owner's playtests of 2026-11-03 (v0.26.2, logs in `docs/playtests/2026-11-03/`). Six items, A to F. Design rules
 followed (docs/design_principles.md): 1 (soft counters: a slow defender is out-run, not a hard stop; fast units and
@@ -40,7 +40,7 @@ rider the whole time (the worst case: the Brood's computer is off), three Horsem
 | | grubs killed in 30 s | riders lost | kite steps |
 |---|---|---|---|
 | 0.26.5 (before) | 0 (the party rode home at once) | 0 | 0 |
-| 0.26.6 | 6 | 0 | 30 |
+| 0.26.7 | 6 | 0 | 30 |
 
 Then 8 Raptors come at them: the party rides home (about 440 px homeward in 6 s, all three alive).
 
@@ -146,7 +146,7 @@ short of supply with 300+ food, a turtle on new ground (forward) is still prefer
 Brood **at its cap with 1,500+ food** and 12+ army supply attacks whatever the plan's wave time, the alarm, a rush hold
 or the attack size say (`_nb_army`).
 
-**Measured** (the probe on the owner's seed): 0.26.5: cap 76 from 5:30 on, food 855 at 6:30 and climbing. 0.26.6: cap
+**Measured** (the probe on the owner's seed): 0.26.5: cap 76 from 5:30 on, food 855 at 6:30 and climbing. 0.26.7: cap
 88 at 6:30, 100 at 7:00, 124 at 7:30, 160 (the maximum) at 9:00. **Test** `tools/test_brood_spend.gd [supply]`: the cap
 passes 100 by 8:00 (112 at 7:30; 124 at 8:30, 184 at 9:30), it was at its cap with 1,000+ food for only 10 s, and its
 first wave left at 8:30 (13:00 in the owner's game).
