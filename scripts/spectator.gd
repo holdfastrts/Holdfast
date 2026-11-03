@@ -279,8 +279,8 @@ func _densest(list: Array) -> Vector2:
 
 ## Pan smoothly to the point; a long jump is a quick fade instead of a whip across the map.
 func _move(delta: float) -> void:
-	if poi == Vector2.INF:
-		return
+	if not poi.is_finite():
+		return              # (no point yet, or a broken one: the view is never sent to INF/NaN)
 	var cam := game.camera
 	if _fade_dir == 1:
 		fade = minf(fade + delta / FADE, 1.0)

@@ -403,6 +403,8 @@ func _camera() -> void:
 	var span := float(cb[0]) - float(ca[0])
 	var f := 1.0 if span <= 0.001 else clampf((play_t - float(ca[0])) / span, 0.0, 1.0)
 	var c := a.lerp(b, f)
+	if not c.is_finite() or c.z <= 0.0:
+		return              # (a broken recorded camera: the view stays where it is)
 	game.camera.position = Vector2(c.x, c.y)
 	game.camera.zoom = Vector2(c.z, c.z)
 

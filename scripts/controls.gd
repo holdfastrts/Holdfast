@@ -54,6 +54,11 @@ var _line_btn := ""                # which button/touch is drawing: "right", "le
 var _lmb_from := Vector2.ZERO
 var _mouse_inside := true
 var _exit_dir := Vector2.ZERO    # the edge the mouse left the window by (it keeps panning that way)
+# Edge panning only follows a REAL mouse: one that has moved over the window since it came in and since the last
+# finger touched the screen. A touch screen (a tablet or a touch laptop on computer controls, the web on a tablet)
+# never moves the mouse: Godot's mouse then sits at (0, 0), the top-left edge, and the view slid to the top-left
+# corner every frame however it was moved (0.27.1, the owner's "screen locked to the top left").
+var _mouse_real := false
 var _last_click_t := 0
 var _last_click_kind := ""
 # Shift-queued orders (computer only): MOVE / ATTACK / REPAIR and building placement stay
@@ -254,6 +259,17 @@ func _unhandled_input(event: InputEvent) -> void:
 ## _unhandled_input didn't get it (_touches still has it once the event is through), ended by _touch_lost. The mouse
 ## buttons are checked every frame (_end_lost_drags).
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and event.device != InputEvent.DEVICE_ID_EMULATION:
+		_mouse_real = true           # (a mouse really moved over the window: edge panning may follow it)
+		if (not _mouse_inside or _exit_dir != Vector2.ZERO) and game and game.is_inside_tree() \
+				and game.get_viewport().get_visible_rect().has_point((event as InputEventMouseMotion).position):
+			# moving over the window, it is inside: a lost "mouse entered" (the browser) no longer leaves the view
+			# scrolling for good toward the edge it went out by
+			_mouse_inside = true
+			_exit_dir = Vector2.ZERO
+	elif (event is InputEventScreenTouch or event is InputEventScreenDrag) and event.device != InputEvent.DEVICE_ID_EMULATION:
+		_mouse_real = false          # (a finger: no mouse resting at an edge)
+		_exit_dir = Vector2.ZERO
 	if event is InputEventKey and not (event as InputEventKey).pressed:
 		_held.erase((event as InputEventKey).keycode)        # (let go: it may fire again)
 	if event is InputEventScreenTouch and not (event as InputEventScreenTouch).pressed and _touches.has((event as InputEventScreenTouch).index):
@@ -438,9 +454,9 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_MOUSE_EXIT:
 		_mouse_inside = false
 		# left past an edge (to the browser's tabs, the taskbar...): keep scrolling that way
-		# until the mouse comes back in
+		# until the mouse comes back in (a real mouse only: a touch screen's "exit" is no edge)
 		_exit_dir = Vector2.ZERO
-		if game and game.is_inside_tree():
+		if game and game.is_inside_tree() and _mouse_real:
 			var mp := game.get_viewport().get_mouse_position()
 			var vs := game.get_viewport().get_visible_rect().size
 			const M := 60.0
@@ -451,6 +467,7 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_WM_MOUSE_ENTER:
 		_mouse_inside = true
 		_exit_dir = Vector2.ZERO
+		_mouse_real = false          # (until it moves: where it came in is not known yet)
 
 
 func _mouse(e: InputEventMouseButton) -> void:
@@ -681,7 +698,7 @@ func _process(delta: float) -> void:
 		if Input.is_key_pressed(KEY_RIGHT): k.x += 1
 		if Input.is_key_pressed(KEY_UP): k.y -= 1
 		if Input.is_key_pressed(KEY_DOWN): k.y += 1
-	if Settings.pc() and _mouse_inside and DisplayServer.window_is_focused() and not _lmb_down and mode != "place_drag":
+	if Settings.pc() and _mouse_inside and _mouse_real and DisplayServer.window_is_focused() and not _lmb_down and mode != "place_drag":
 		var mp := game.get_viewport().get_mouse_position()
 		var vs := game.get_viewport().get_visible_rect().size
 		var edge := 6.0
@@ -727,12 +744,27 @@ func _user_cam() -> void:
 		game.spectator.user_moved()
 
 
+var _cam_good := Vector2.INF       # the last view position known to be sound (a broken one goes back to it)
+
+
+## Keep the view inside the camera limits. A view that is not a number (INF or NaN: a jump to nowhere, a zoom of 0)
+## or limits that hold nothing are never accepted: they would pin the view to the top-left corner (0.27.1).
 func _clamp_camera() -> void:
 	var cam := game.camera
+	if not cam.zoom.is_finite() or cam.zoom.x <= 0.0 or cam.zoom.y <= 0.0:
+		var z := clampf(cam.zoom.x, 0.55, 2.6) if is_finite(cam.zoom.x) and cam.zoom.x > 0.0 else 1.5
+		cam.zoom = Vector2(z, z)
+	var map_c := Vector2(Game.W, Game.H) * Game.T * 0.5
+	if not cam.position.is_finite():
+		cam.position = _cam_good if _cam_good.is_finite() else map_c
+	if cam.limit_right <= cam.limit_left or cam.limit_bottom <= cam.limit_top:
+		_cam_good = cam.position
+		return              # (no limits to keep to: never squash the view into a corner)
 	var half := game.get_viewport().get_visible_rect().size * 0.5 / cam.zoom
 	var lo := Vector2(cam.limit_left, cam.limit_top) + half
 	var hi := Vector2(cam.limit_right, cam.limit_bottom) - half
 	cam.position = Vector2(clampf(cam.position.x, lo.x, maxf(lo.x, hi.x)), clampf(cam.position.y, lo.y, maxf(lo.y, hi.y)))
+	_cam_good = cam.position
 
 
 func _move_ghost(screen: Vector2) -> void:

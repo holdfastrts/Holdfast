@@ -805,6 +805,8 @@ func _minimap_to(p: Vector2) -> void:
 
 ## The camera jumps somewhere because you asked (minimap, a group, a hall...).
 func _jump(p: Vector2) -> void:
+	if not p.is_finite():
+		return          # (a jump to nowhere, INF or NaN, is ignored: the view stays; 0.27.1)
 	game.camera.position = p
 	if game.spectator:
 		game.spectator.user_moved()
