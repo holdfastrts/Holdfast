@@ -419,7 +419,10 @@ func adopt_strays(army: Array) -> void:
 		# bad idea"). Riders harass; a slow one (a Musketeer, anything that can't outrun a Raptor) found out alone walks home,
 		# unless it is clearly safe (no armed enemy seen within 15 tiles). The Clockwork's Clock Soldier is the exception the
 		# owner asked for on 2026-10-31 (docs/ai_harass.md): it harasses as before.
-		if not ai._clock() and u.speed < LONE_FAST and _alone(u) and not _clearly_safe(u):
+		# STRAY MUSKETEERS (the owner's log 2026-11-03, v0.27.0 Red Coast 4:18: three Musketeers out together were each "not
+		# alone" and went on to harass as a group): the Crown's slow soldiers are never harassers, alone or not, safe or not.
+		var crown_slow: bool = ai._crown() and u.speed < LONE_FAST and not OS.get_cmdline_user_args().has("strays:off")      # (study switch: `-- strays:off` as 0.27.0)
+		if crown_slow or (not ai._clock() and u.speed < LONE_FAST and _alone(u) and not _clearly_safe(u)):
 			if float(done.get(u, -1.0)) <= game.clock:
 				done[u] = game.clock + 30.0
 				_say(u, "comes home (out alone, too slow to harass)")
