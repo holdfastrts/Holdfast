@@ -1954,7 +1954,7 @@ const FIXED_KEYS := {"MOVE": "V", "ATTACK": "A", "STOP": "S", "HOLD": "H", "PATR
 	"STOP RESEARCH": "X", "STOP GROWING": "Z",      # (never S: the research keys stay put, 0.24.22)
 	"CANISTER": "C", "ROUND SHOT": "C",
 	"UNLIMBER": "D", "LIMBER": "D", "ROOT": "D", "UPROOT": "D", "STORM": "T", "FOG": "F", "TONGUE": "T", "MIASMA": "Q", "HARVEST": "Q", "SACRIFICE": "C", "START": "F", "END": "F",
-	"JUMP": "E", "HIGH LEAP": "E", "MORPH TO OWL": "E", "CANCEL MORPH": "X", "TICKING OWL": "E",
+	"JUMP": "E", "HIGH LEAP": "E", "SCATTER COGS": "C","MORPH TO OWL": "E", "CANCEL MORPH": "X", "TICKING OWL": "E",
 	"LOAD": "F", "UNLOAD": "G", "DROP HERE": "G", "RESTOCK": "E", "COURIER": "C", "OVERLOAD": "V", "BRACE": "E", "SHIELD FORWARD": "F", "LAND": "D", "TAKE OFF": "D", "SUPPLY": "G",
 	"ARMOUR": "E", "MATCHLOCK": "F", "FLINTLOCK": "F", "CAPLOCK": "F", "BAYONET": "W", "AUTO REFIT": "Q", "POUCH": "T",
 	"LEAD": "Q", "RELEASE": "W", "MOUNT": "T", "DISMOUNT": "T", "RELEASE HORSE": "W", "HARNESS": "Q",
@@ -3261,8 +3261,8 @@ func _draw_rest(font: Font) -> void:
 	if controls.mode in ["move", "attack", "rally", "rally_army", "rally_worker", "cast", "bombard"]:
 		var t: String = {"move": "Tap where to move", "attack": "Tap a target or place to attack-move", "rally": "Tap the rally point",
 			"bombard": "Tap the spot to attack, or drag a line to share out: they keep at it until another order",
-			"cast": "Tap the enemy to lash with the tongue" if controls.cast_spell == "tongue" else ("Tap where to JUMP (up to 5 tiles; up a cliff only with HIGH LEAP, where you can see)" if controls.cast_spell == "jump" else "Tap where to cast the %s" % {"storm": "storm (it stuns your own units too)",
-				"fog": "fog (shots from or into it miss half the time, yours too)"}.get(controls.cast_spell, controls.cast_spell)),
+			"cast": "Tap the enemy to lash with the tongue" if controls.cast_spell == "tongue" else ("Tap where to JUMP (up to 5 tiles; up a cliff only with HIGH LEAP, where you can see)" if controls.cast_spell == "jump" else ("Tap where to SCATTER COGS (enemies on the ground in the litter are slowed)" if controls.cast_spell == "scatter" else "Tap where to cast the %s" % {"storm": "storm (it stuns your own units too)",
+				"fog": "fog (shots from or into it miss half the time, yours too)"}.get(controls.cast_spell, controls.cast_spell))),
 			"rally_army": "Tap where new soldiers gather", "rally_worker": "Tap where new workers go to work"}[controls.mode]
 		if Settings.pc():
 			t = t.replace("Tap", "Click") + "  (right-click or Esc cancels)"

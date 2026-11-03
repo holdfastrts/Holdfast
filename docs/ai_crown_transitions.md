@@ -70,7 +70,7 @@ Yellow played better but its walls cost it its lead in army:
 The main ramp's Cottage wall (2 pieces, 0:22) was right on both sides: cheap, early, and it stopped the rush.
 That part is left alone (`tools/test_ai_wall_vs_rush.gd` guards it).
 
-## 4. The fix (0.26.3)
+## 4. The fix (0.26.5)
 
 **A held rush picks one transition at once** (`scripts/ai_transition.gd`, Crown computers on Normal and up). While the
 scout's verdict is "rush", it watches for the rush being held: no armed enemy within 420 px of our buildings for 10 s
@@ -149,3 +149,99 @@ part, the results are noisy. "Mid" code lacked the last two rules of section 4; 
 - The Musketeer side after EXPAND often made no attack for many minutes (14:34, 14:15, none).
 - More games per map are needed to call win rates.
 - The wall test's 160 s limit for the third Musketeer still fails by 4-7 s (known).
+
+## 7. The owner's doctrine (2026-11-03)
+
+Two more logs (`docs/playtests/2026-11-03/`): `crown_expand_workers.txt` (AI Crown v AI Brood ECONOMY, Kestrel Rise)
+and `human_crown_v_brood_econ.txt` (the owner's own Crown, on a phone with very low APM, held the Brood economy's
+first aggression easily: "so crown ai really has to step up"). The owner, verbatim:
+
+> Crown stopped making workers but brood kept making workers. Crown took forever to expand and it tried to wall in
+> immediately, this is a mistake: you expand, you keep your forces in the high ground, you saturate the expansion
+> first, then you slowly wall in. You always have your main to run with your workers, and the musketeers in the main
+> on HOLD with a cannon can hold a lot of attacks until we are ready to go down with the army. While we keep the main
+> army on the main base we still scout the map with horsemen to know what our enemy is up to, and if we can we kill
+> workers.
+
+**The doctrine, as the Crown computer now plays it** (`AI.doctrine()`: Crown, Normal and up, off under `-- tr:off`):
+
+1. **Never stop making labourers until the halls are saturated.** Why it "stopped" in the Kestrel log: it did not stop,
+   it ran out of posts. The labourer target is the posts on its farms and Mills; one hall holds about 14-16, and it had
+   one hall until 7:21 (9 labourers at 2:00-3:00, 14 at 6:00, 18 at 8:00, against the Brood's 45 and 58). So the fix is
+   the expansion (2), plus labourers **trained ahead** for a hall being saved for or going up (`SAT_PRETRAIN` = 6 over
+   the target), so its farms fill the moment they stand.
+2. **Expand when the main is saturated, not when its soil runs low.** From 2:30 on, a saturated main (`AI.saturated()`:
+   every post filled, one short allowed) with no enemy at its buildings makes `_hall_first` want a second hall now
+   (gold held for it). The match log says when the economy is saturated on 1 and on 2 halls.
+3. **Saturate first, then wall in slowly.** A new hall's palisade and gates (`AIExpandWall`) are not laid, and no gold
+   is set aside for them, until the economy is saturated; then 3 pieces every 10 s at most. **Workers and army before
+   walls** (`AI.wall_yield()`): nothing is laid while the army is short of the enemy's or under a minimum for the
+   clock (4 supply plus 1 every 30 s, at most 30).
+4. **The army stays on the main's high ground.** Once the new hall stands, no part of the army is sent to guard it
+   (`_guard_new_hall`); the army waits at the main's rally behind the ramp (as before), and the expansion's labourers
+   flee to the main when raided (the existing `_worker_safety`).
+5. **Go down only when ready**: sections 4-5 (the whole army when it is clearly bigger, or a real timing; no trickle).
+
+Not done in this pass (left as it was): a HOLD stance order for the Musketeers and a cannon at the ramp (the army
+already waits idle at the main's rally), and continuous Horseman scouting (the existing raid and harass code, 0.26.1/
+0.26.3, sends Horsemen out after workers; a dedicated 1-2 Horseman scout loop is the next step).
+
+## 8. Where the gold went: the FFA log
+
+`docs/playtests/2026-11-03/ffa3_brood_idle_crown_low.txt` (Ashfall 3-player FFA, Crown HARD BALANCED; the owner: "Why
+does Crown stay at low supply forever? They stop making workers and don't make army"). By 9:31 the Crown earned 6,080
+and spent 6,019, gold always 0-35 at the minute lines, 211 powder unspent, army never above 470. From the log's events
+and the prices:
+
+| what | count | gold | share |
+|---|---|---|---|
+| labourers | about 34 (trained 40, 6 soldiers) | ~1,700 | 28% |
+| buildings: 6 Cottages, 3 Barracks, 3 Farms, 2 Mills, Breeder, Church, Armoury, Foundry, Town Hall | 19 | ~2,550 | 42% |
+| walls: the ramp (4 pieces) and the new hall (planned 42 palisade + 2 gates; laid 58 pieces from 6:02 to 9:05, 25 at 8:03 alone) | ~62 | ~1,080 | 18% |
+| research (Matchlock, Socket Bayonet) | 2 | ~200 | 3% |
+| **army: 4 Musketeers, 2 Horsemen** | 6 | **~470** | **8%** |
+
+So the army starved behind buildings and the expansion's wall: the wall alone cost twice the whole army, laid the
+moment the hall stood (65 ways-in cells on a 3-player Ashfall), while the army stayed at 4 Musketeers for 5 minutes.
+The labourers did not stop (32 at the end); the army did. Point 3 of the doctrine is the fix: the wall waits for
+saturation and for an army that is not short, and goes down a few pieces at a time.
+
+## 9. Doctrine before and after (AI Crown v AI Brood ECONOMY, Hard, 15:00)
+
+Crown (Hard, Economy) slot 1 against the Brood (Hard, Economy), `tools/study/study_game.gd a:crown b:brood pa:economy
+pb:economy`; "before" is `-- tr:off`. "Doctrine 1" expanded only on saturation (it never came: farms added posts faster
+than the hall trained hands); "doctrine 2" also on a full main from 2:30 (too early: the 400-gold hall at 2:56 starved
+the labourers); "final" is the committed code (an unscouted enemy no longer holds the labourers; a full main expands
+from 4:00). Labourers and army at the minute lines; wall gold = new-hall pieces laid x 15.
+
+| game | labourers 6:00 / 8:00 / 10:00 | 2nd hall | 1st wall piece at new hall | Crown army 6 / 8 / 10 | Brood army 8 / 10 | wall gold | result |
+|---|---|---|---|---|---|---|---|
+| Kestrel Rise (2039763518), before | 18 / 22 / 22 | 6:11 | 6:12 | 455 / 495 / 310 | 2775 / 2450 | ~540 | Brood on lead |
+| ... doctrine 1 | 14 / 20 / 33 | 5:31 | never | 455 / 630 / 740 | 2875 / 2050 | 0 | Brood on lead |
+| ... doctrine 2 | 10 / 14 / 22 | 2:59 | never | 365 / 425 / 895 | 2200 / 2200 | 0 | even |
+| **... final** | **20 / 37 / 45** | **3:55** | never | 360 / **1050 / 1435** | 2725 / 2325 | 0 | Brood on lead |
+| Mirewood (3), before | 14 / 20 / 24 | 7:20 | 7:20 | 495 / 675 / 80 | 3925 / 4885 | ~750 | **Brood wins 11:16** |
+| ... doctrine 1 | 14 / 18 / 26 | 7:40 | never | 520 / 680 / 345 | 3475 / 3815 | 0 | Brood by gg 13:11 |
+| ... doctrine 2 | 10 / 14 / 16 | 2:56 | never | 420 / 485 / 80 | 3775 / 4640 | 0 | Brood on lead |
+| **... final** | **25 / 39 / 46** | **3:53** | never | 360 / **1110** / 235 | 4240 / 3910 | 0 | Brood on lead (survives to 15:00) |
+
+And the owner's Ashfall Crown v Crown game (seed 1864215939, P2 Horse Breeder), all the code of this branch:
+
+| run | P1 green (Mill): 2nd hall / 1st attack / labourers ~7:00 / army 5, 7, 10 | P2 yellow (Breeder) | result |
+|---|---|---|---|
+| before (`tr:off`) | 8:12 / 6:20 (10) / - / 400, 575, 610 | 7:28 / none | P1 on lead |
+| section 4 only | 7:31 / none / - / 420, 420, 930 | 7:36 / counter 6:19 (17) | P1 on lead |
+| **with the doctrine** | **3:53** / 9:30 (17) / 32 / 420, 705, **1635** | 4:32 / counter 6:59 (15) | **P1 wins (12:49, every building razed)** |
+
+Read: the Crown now keeps up in hands (about 38 labourers at 8:00 against 21) and fields twice the army at 8:00; it
+still loses on lead to the Brood economy on both maps at 15:00, but no longer dies by 11:16 on Mirewood. Walls: the
+expansion was never walled against the Brood (its army counts as bigger, so `wall_yield` holds the wall); that is the
+doctrine (main high ground first), but the "slowly wall in" half never came in these games.
+
+Tests: `tools/test_ai_wall_vs_rush.gd` default map: only the known third-Musketeer limit (165 s against 160 s), 1
+labourer lost. Ashfall: the result is a coin-flip around the gate holding: final code 0, 4 and 0 labourers lost in three
+runs (limit 2); with `tr:off` 3. `tools/test_ai_expand_wall.gd`: all pass on its three maps (its Crown is peaceful, so the doctrine is off there: the wall plan itself is unchanged).
+
+Open (doctrine): the HOLD stance with a cannon at the ramp; a dedicated 1-2 Horseman scout loop; the expansion wall
+when the Brood's rooted army keeps `army_short` true all game; `AI.saturated()` (posts minus one) is rarely reached
+while farms keep adding posts, so the "saturated" match log line seldom shows.

@@ -1,0 +1,561 @@
+[00:00] P1 Brood plays the Brood (Extreme rush)
+Working Title for RTS v0.26.2 match log  (2026-11-01 09:20:43)
+Map: Cinder Steps, 2 players  (seed 4031632555)
+  P1 Brood  side 1  colour Yellow  AI: HARD, EXTREME RUSH
+  P2 Clockwork  side 2  colour Purple  AI: HARD, RUSH
+Device: phone/tablet
+
+[00:00] P1 Brood's Brood: a grub goes to grow the Tyrant Lure
+[00:12] P1 Brood got its first Grub
+[00:12] P2 Clockwork got its first Winder
+[00:31] P1 Brood got its first Tyrant Sire
+[00:39] P2 Clockwork finished a Cog Press
+[00:45] P2 Clockwork finished a Regulator
+--- minute 1 ---
+  Performance: 88 fps avg, 1% low 24 fps, worst frame 474 ms, 14 frames over 33 ms, 3 over 50 ms, 0.3 physics steps a frame | units 19, buildings 5, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 382, objects 2917
+    busy with: units 98.5 ms/s (458 calls/s), hud draw 44.6 ms/s (52 calls/s), game 30.8 ms/s (30 calls/s), hud 23.8 ms/s (88 calls/s), hud/rest 19.6 ms/s (19 calls/s), buildings 18.6 ms/s (114 calls/s), hud/top 15.0 ms/s (9 calls/s), hud/look 11.3 ms/s (18 calls/s), ai 10.7 ms/s (60 calls/s), game/fog 10.7 ms/s (4 calls/s), game/fog/units 10.1 ms/s (4 calls/s), replay/record 7.5 ms/s (4 calls/s), unit draw 7.0 ms/s (27 calls/s), game/unit grid 4.4 ms/s (30 calls/s), hud/groups 3.7 ms/s (1 calls/s), hud/minimap 3.2 ms/s (6 calls/s), overlay draw 2.9 ms/s (4 calls/s), hud/map view 2.4 ms/s (12 calls/s), hud/hover 2.3 ms/s (10 calls/s), building draw 1.8 ms/s (4 calls/s), ai/army 1.6 ms/s (1 calls/s), ai/build 1.5 ms/s (1 calls/s), ai/workers 1.4 ms/s (1 calls/s), hud/card build 1.2 ms/s (4 calls/s), effects 1.0 ms/s (93 calls/s), ai/produce 0.9 ms/s (1 calls/s), game/paths 0.7 ms/s (30 calls/s), powder smoke 0.6 ms/s (88 calls/s), ai/econ 0.4 ms/s (1 calls/s), replay/write 0.3 ms/s (0 calls/s), hud/tip check 0.2 ms/s (18 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), hud/selection 0.2 ms/s (1 calls/s), game/path smoothing 0.1 ms/s (2 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/abil 0.1 ms/s (1 calls/s), game/pathfinder 0.1 ms/s (2 calls/s), ai/gg 0.0 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), ai/micro 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 200 biomass total, has 50 + 0 spoils | supply 10/16 | workers 6 | halls 0 | army (325 value): 1 Brood Mother, 1 Rootmaw, 1 Tyrant Sire, 1 Mound Turtle, 1 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 1 (ground 92%) | Mound Turtles rooted 0
+  P2 Clockwork: earned 440 cogs total, has 110 + 0 tension | supply 8/20 | workers 8 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | brass 95% | efficiency 80%
+[01:02] P1 Brood got its first Mound Turtle
+[01:12] P1 Brood got its first Raptors
+[01:35] P2 Clockwork finished a Light Works
+[01:48] P1 Brood's Brood: attacks with 8 supply (8 raptor)
+[01:48] P1 Brood's Brood attacks with 8 supply
+[01:49] P2 Clockwork got its first Clock Soldier
+--- minute 2 ---
+  Performance: 90 fps avg, 1% low 34 fps, worst frame 129 ms, 5 frames over 33 ms, 1 over 50 ms, 0.3 physics steps a frame | units 30, buildings 7, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 408, objects 3022
+    busy with: units 116.0 ms/s (697 calls/s), hud draw 48.6 ms/s (62 calls/s), game 40.3 ms/s (30 calls/s), hud 23.2 ms/s (90 calls/s), buildings 22.1 ms/s (167 calls/s), hud/rest 19.1 ms/s (20 calls/s), hud/top 18.0 ms/s (11 calls/s), game/fog 16.2 ms/s (4 calls/s), game/fog/units 14.9 ms/s (4 calls/s), ai 12.0 ms/s (60 calls/s), hud/look 11.1 ms/s (18 calls/s), replay/record 8.8 ms/s (4 calls/s), game/unit grid 5.4 ms/s (30 calls/s), hud/map view 3.7 ms/s (18 calls/s), hud/groups 3.3 ms/s (1 calls/s), hud/minimap 3.0 ms/s (5 calls/s), unit draw 2.9 ms/s (11 calls/s), hud/hover 2.1 ms/s (10 calls/s), overlay draw 2.1 ms/s (4 calls/s), ai/workers 1.7 ms/s (1 calls/s), ai/army 1.7 ms/s (1 calls/s), ai/build 1.5 ms/s (1 calls/s), game/paths 1.1 ms/s (30 calls/s), ai/produce 0.9 ms/s (1 calls/s), effects 0.9 ms/s (90 calls/s), hud/card build 0.7 ms/s (4 calls/s), powder smoke 0.6 ms/s (90 calls/s), game/fog/picture 0.5 ms/s (0 calls/s), hud/selection 0.5 ms/s (1 calls/s), game/path smoothing 0.5 ms/s (3 calls/s), hud/command card 0.3 ms/s (1 calls/s), game/pathfinder 0.3 ms/s (3 calls/s), ai/econ 0.3 ms/s (1 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), replay/write 0.2 ms/s (0 calls/s), hud/tip check 0.2 ms/s (18 calls/s), ai/abil 0.1 ms/s (1 calls/s), game/fog/shown 0.1 ms/s (0 calls/s), ai/gg 0.1 ms/s (1 calls/s), ai/micro 0.0 ms/s (1 calls/s), game/fog/copy 0.0 ms/s (0 calls/s), ai/loose 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s), building draw 0.0 ms/s (0 calls/s)
+  P1 Brood: earned 454 biomass total, has 54 + 0 spoils | supply 20/28 | workers 6 | halls 0 | army (575 value): 1 Brood Mother, 1 Rootmaw, 1 Tyrant Sire, 1 Mound Turtle, 10 Raptors, 1 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 1 (ground 83%) | Mound Turtles rooted 1
+  P2 Clockwork: earned 1089 cogs total, has 239 + 0 tension | supply 12/20 | workers 8 | halls 1 | army (70 value): 1 Clock Soldier | kills +0 (0) losses +0 (0) | brass 88% | efficiency 60%
+[02:15] P2 Clockwork finished a Regulator
+[02:18] P2 Clockwork finished a Light Works
+[02:18] P2 Clockwork sends its Clock Soldiers as a group to the Winders the riders hit (no chase)
+[02:22] P2 Clockwork groups its Winders up to fight the riders together (the soldiers are coming)
+[02:27] P1 Brood got its first Rootmaw
+[02:30] P1 Brood's Brood: pulls back: 75 of 200 left, 140 ahead (killed 70)
+[02:30] P1 Brood's Brood: its rush failed: it builds up (economy, tech) and comes back in force
+[02:43] P1 Brood's Brood: sends a Grub to explore the enemy's main
+[02:46] P2 Clockwork's first attack goes out (6 supply, 0 Horsemen)
+--- minute 3 ---
+  Performance: 83 fps avg, 1% low 31 fps, worst frame 87 ms, 11 frames over 33 ms, 2 over 50 ms, 0.4 physics steps a frame | units 34, buildings 8, bodies 7, corpses 7, effects 0, smoke puffs 0, nodes 442, objects 3204
+    busy with: units 134.5 ms/s (931 calls/s), game 51.7 ms/s (30 calls/s), hud draw 34.0 ms/s (61 calls/s), buildings 24.7 ms/s (225 calls/s), game/fog 24.0 ms/s (4 calls/s), game/fog/units 18.9 ms/s (4 calls/s), hud 18.8 ms/s (83 calls/s), hud/rest 17.3 ms/s (19 calls/s), ai 13.1 ms/s (60 calls/s), replay/record 10.6 ms/s (4 calls/s), hud/look 9.0 ms/s (18 calls/s), game/unit grid 6.4 ms/s (30 calls/s), hud/map view 5.5 ms/s (26 calls/s), hud/top 4.6 ms/s (3 calls/s), game/fog/picture 4.0 ms/s (4 calls/s), overlay draw 3.4 ms/s (4 calls/s), hud/minimap 3.0 ms/s (6 calls/s), unit draw 3.0 ms/s (22 calls/s), hud/groups 3.0 ms/s (1 calls/s), game/paths 2.5 ms/s (30 calls/s), ai/army 2.4 ms/s (1 calls/s), ai/workers 2.1 ms/s (1 calls/s), ai/build 1.3 ms/s (1 calls/s), game/path smoothing 1.2 ms/s (7 calls/s), ai/produce 1.1 ms/s (1 calls/s), effects 0.9 ms/s (120 calls/s), building draw 0.7 ms/s (5 calls/s), hud/card build 0.6 ms/s (4 calls/s), game/pathfinder 0.6 ms/s (7 calls/s), game/fog/shown 0.5 ms/s (4 calls/s), powder smoke 0.5 ms/s (83 calls/s), ai/econ 0.3 ms/s (1 calls/s), game/fog/copy 0.3 ms/s (4 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), replay/write 0.2 ms/s (0 calls/s), hud/tip check 0.2 ms/s (18 calls/s), ai/gg 0.2 ms/s (1 calls/s), ai/micro 0.2 ms/s (1 calls/s), ai/abil 0.2 ms/s (1 calls/s), hud/selection 0.1 ms/s (1 calls/s), hud/command card 0.0 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 706 biomass total, has 31 + 0 spoils | supply 17/28 | workers 8 | halls 0 | army (500 value): 1 Brood Mother, 2 Rootmaw, 1 Tyrant Sire, 1 Mound Turtle, 4 Raptors, 1 Egg | kills +1 (1) losses +6 (6) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 74% 95%) | Mound Turtles rooted 1
+  P2 Clockwork: earned 1507 cogs total, has 90 + 0 tension | supply 17/30 | workers 9 | halls 1 | army (490 value): 7 Clock Soldier | kills +6 (6) losses +1 (1) | brass 83% | efficiency 60%
+[03:07] P2 Clockwork finished a Ratchet Turret
+[03:10] P1 Brood's Brood: ALARM: an enemy army of 210 out of its main at 3:10: warriors, grubs pulled back, a turtle in front
+[03:21] P1 Brood's Brood: defends with 3 (3 raptor, 75) against 70 (1 clock_soldier) at home
+[03:26] P1 Brood's Brood: rush evidence: an army (210) near the Mother at 3:26: holds its army at home and lays warriors
+[03:27] P1 Brood's Brood: pulls its defenders back to the Mother: 125 against 350
+[03:30] P1 Brood's Brood: defends with 7 (7 raptor, 175) against 280 (4 clock_soldier) at home
+[03:33] P1 Brood's Brood: pulls its defenders back to the Mother: 150 against 350
+[03:34] P1 Brood's Brood: defends with 7 (6 raptor, 1 tyrannosaur, 300) against 350 (5 clock_soldier) at the Mother
+[03:44] P2 Clockwork's rush: FAILED (the wave is gone): the riders ride home, no more go out alone; it builds up and attacks only with a proper force
+[03:45] P2 Clockwork saw an enemy Raptors (fast, a Brood rush unit): evidence of a rush
+--- minute 4 ---
+  Performance: 86 fps avg, 1% low 30 fps, worst frame 51 ms, 15 frames over 33 ms, 1 over 50 ms, 0.3 physics steps a frame | units 39, buildings 8, bodies 12, corpses 12, effects 0, smoke puffs 0, nodes 466, objects 3308
+    busy with: units 138.3 ms/s (1129 calls/s), game 52.1 ms/s (30 calls/s), hud draw 49.0 ms/s (59 calls/s), buildings 23.9 ms/s (240 calls/s), hud 22.4 ms/s (86 calls/s), game/fog 20.8 ms/s (4 calls/s), game/fog/units 20.0 ms/s (4 calls/s), hud/top 17.6 ms/s (12 calls/s), hud/rest 16.1 ms/s (18 calls/s), ai 15.0 ms/s (60 calls/s), hud/look 11.9 ms/s (18 calls/s), replay/record 11.2 ms/s (4 calls/s), game/unit grid 6.6 ms/s (30 calls/s), game/paths 5.4 ms/s (30 calls/s), hud/pause 5.4 ms/s (1 calls/s), unit draw 4.2 ms/s (31 calls/s), ai/army 3.9 ms/s (1 calls/s), hud/groups 3.1 ms/s (1 calls/s), hud/minimap 3.1 ms/s (6 calls/s), hud/map view 3.0 ms/s (16 calls/s), game/path smoothing 2.9 ms/s (10 calls/s), overlay draw 2.7 ms/s (5 calls/s), hud/hover 2.7 ms/s (13 calls/s), game/pathfinder 1.8 ms/s (10 calls/s), ai/workers 1.6 ms/s (1 calls/s), ai/build 1.5 ms/s (1 calls/s), effects 0.9 ms/s (132 calls/s), ai/produce 0.9 ms/s (1 calls/s), hud/card build 0.6 ms/s (4 calls/s), powder smoke 0.5 ms/s (86 calls/s), ai/gg 0.3 ms/s (1 calls/s), ai/micro 0.3 ms/s (1 calls/s), replay/write 0.3 ms/s (0 calls/s), ai/econ 0.2 ms/s (1 calls/s), hud/tip check 0.2 ms/s (18 calls/s), ai/abil 0.2 ms/s (1 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), hud/selection 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 1126 biomass total, has 51 + 15 spoils | supply 22/28 | workers 13 | halls 0 | army (500 value): 1 Brood Mother, 2 Rootmaw, 1 Tyrant Sire, 1 Mound Turtle, 4 Raptors, 1 Egg | kills +6 (7) losses +5 (11) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 66% 87%) | Mound Turtles rooted 1 | sacrificed 1 (+15 spoils)
+  P2 Clockwork: earned 2097 cogs total, has 10 + 0 tension | supply 21/30 | workers 11 | halls 1 | army (350 value): 5 Clock Soldier | kills +5 (11) losses +6 (7) | brass 77% | efficiency 70%
+[04:30] P1 Brood's Brood: sends a Grub to explore the enemy's main
+[04:41] P2 Clockwork finished a Regulator
+[04:52] P2 Clockwork posts 3 Clock Soldiers on HOLD at the top of its ramp against the riders
+--- minute 5 ---
+  Performance: 81 fps avg, 1% low 33 fps, worst frame 38 ms, 7 frames over 33 ms, 0 over 50 ms, 0.4 physics steps a frame | units 59, buildings 9, bodies 9, corpses 8, effects 0, smoke puffs 0, nodes 505, objects 3370
+    busy with: units 138.2 ms/s (1474 calls/s), hud draw 49.9 ms/s (67 calls/s), game 49.6 ms/s (30 calls/s), buildings 25.4 ms/s (263 calls/s), game/fog 22.0 ms/s (4 calls/s), game/fog/units 21.3 ms/s (4 calls/s), hud 21.1 ms/s (81 calls/s), hud/top 20.8 ms/s (14 calls/s), hud/rest 16.3 ms/s (19 calls/s), ai 14.7 ms/s (60 calls/s), replay/record 12.4 ms/s (4 calls/s), hud/look 11.4 ms/s (18 calls/s), game/unit grid 7.4 ms/s (30 calls/s), overlay draw 3.6 ms/s (4 calls/s), hud/map view 3.3 ms/s (20 calls/s), hud/hover 3.2 ms/s (18 calls/s), hud/minimap 3.1 ms/s (6 calls/s), hud/selection 3.0 ms/s (2 calls/s), ai/army 3.0 ms/s (1 calls/s), hud/groups 2.8 ms/s (1 calls/s), ai/workers 2.1 ms/s (1 calls/s), unit draw 1.9 ms/s (13 calls/s), ai/build 1.6 ms/s (1 calls/s), game/paths 0.9 ms/s (30 calls/s), ai/produce 0.8 ms/s (1 calls/s), effects 0.8 ms/s (102 calls/s), building draw 0.7 ms/s (28 calls/s), hud/card build 0.6 ms/s (4 calls/s), powder smoke 0.4 ms/s (81 calls/s), game/path smoothing 0.3 ms/s (5 calls/s), ai/abil 0.2 ms/s (1 calls/s), replay/write 0.2 ms/s (0 calls/s), ai/econ 0.2 ms/s (1 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), ai/gg 0.2 ms/s (1 calls/s), hud/tip check 0.2 ms/s (18 calls/s), ai/micro 0.2 ms/s (1 calls/s), game/pathfinder 0.2 ms/s (5 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 1617 biomass total, has 92 + 15 spoils | supply 34/40 | workers 14 | halls 0 | army (850 value): 1 Brood Mother, 2 Rootmaw, 1 Tyrant Sire, 2 Mound Turtle, 14 Raptors, 1 Egg | kills +0 (7) losses +0 (11) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 61% 79%) | Mound Turtles rooted 2 | sacrificed 1 (+15 spoils)
+  P2 Clockwork: earned 2878 cogs total, has 291 + 0 tension | supply 27/40 | workers 14 | halls 1 | army (700 value): 10 Clock Soldier | kills +0 (11) losses +0 (7) | brass 68% | efficiency 100%
+[05:34] P2 Clockwork is expanding to fresh ore (left at its best hall: 63%), 19 tiles from its main
+[05:37] P2 Clockwork finished a Regulator
+--- minute 6 ---
+  Performance: 80 fps avg, 1% low 29 fps, worst frame 135 ms, 12 frames over 33 ms, 1 over 50 ms, 0.4 physics steps a frame | units 80, buildings 11, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 537, objects 3376
+    busy with: units 172.8 ms/s (2119 calls/s), game 53.6 ms/s (30 calls/s), hud draw 47.9 ms/s (69 calls/s), buildings 25.6 ms/s (307 calls/s), game/fog 24.6 ms/s (4 calls/s), game/fog/units 23.7 ms/s (4 calls/s), hud/top 21.5 ms/s (15 calls/s), hud 20.3 ms/s (80 calls/s), ai 18.5 ms/s (60 calls/s), hud/rest 15.2 ms/s (19 calls/s), replay/record 14.2 ms/s (4 calls/s), hud/look 11.7 ms/s (18 calls/s), game/unit grid 8.8 ms/s (30 calls/s), overlay draw 3.7 ms/s (4 calls/s), ai/build 3.4 ms/s (1 calls/s), hud/map view 3.3 ms/s (22 calls/s), ai/army 3.1 ms/s (1 calls/s), hud/minimap 3.0 ms/s (6 calls/s), hud/hover 2.9 ms/s (17 calls/s), hud/groups 2.6 ms/s (1 calls/s), unit draw 2.3 ms/s (17 calls/s), ai/workers 2.2 ms/s (1 calls/s), hud/selection 1.7 ms/s (2 calls/s), game/paths 0.8 ms/s (30 calls/s), effects 0.7 ms/s (93 calls/s), ai/produce 0.7 ms/s (1 calls/s), hud/card build 0.5 ms/s (4 calls/s), building draw 0.5 ms/s (22 calls/s), powder smoke 0.4 ms/s (80 calls/s), ai/abil 0.3 ms/s (1 calls/s), game/path smoothing 0.2 ms/s (6 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), ai/gg 0.2 ms/s (1 calls/s), replay/write 0.2 ms/s (0 calls/s), ai/micro 0.2 ms/s (1 calls/s), hud/tip check 0.2 ms/s (18 calls/s), ai/econ 0.2 ms/s (1 calls/s), game/pathfinder 0.1 ms/s (6 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 2041 biomass total, has 16 + 15 spoils | supply 45/52 | workers 13 | halls 0 | army (1300 value): 1 Brood Mother, 2 Rootmaw, 1 Tyrant Sire, 3 Mound Turtle, 28 Raptors | kills +0 (7) losses +0 (11) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 55% 71%) | Mound Turtles rooted 3 | sacrificed 1 (+15 spoils)
+  P2 Clockwork: earned 3729 cogs total, has 302 + 0 tension | supply 32/50 | workers 16 | halls 1 | army (1120 value): 16 Clock Soldier | kills +0 (11) losses +0 (7) | brass 59% | efficiency 100%
+[06:27] P1 Brood's Brood: attacks with 29 supply (29 raptor)
+[06:27] P1 Brood's Brood attacks with 29 supply
+[06:40] P2 Clockwork finished a Mainspring
+[06:46] P2 Clockwork finished a Clocktower (expansion)
+[06:50] P1 Brood's Brood: sends a Grub to explore the enemy's main
+[06:56] P2 Clockwork dropped a Cog Press: nobody was coming to start it (refunded)
+--- minute 7 ---
+  Performance: 65 fps avg, 1% low 19 fps, worst frame 250 ms, 89 frames over 33 ms, 12 over 50 ms, 0.5 physics steps a frame | units 100, buildings 13, bodies 1, corpses 2, effects 9, smoke puffs 0, nodes 601, objects 3516
+    busy with: units 215.9 ms/s (2725 calls/s), game 61.1 ms/s (30 calls/s), hud draw 57.0 ms/s (59 calls/s), buildings 31.7 ms/s (375 calls/s), game/fog 27.3 ms/s (4 calls/s), game/fog/units 26.2 ms/s (4 calls/s), ai 25.1 ms/s (60 calls/s), hud/top 22.7 ms/s (15 calls/s), hud 18.4 ms/s (65 calls/s), replay/record 17.2 ms/s (4 calls/s), hud/rest 16.9 ms/s (19 calls/s), hud/look 12.3 ms/s (17 calls/s), game/unit grid 10.5 ms/s (30 calls/s), hud/selection 10.1 ms/s (7 calls/s), ai/build 5.9 ms/s (1 calls/s), overlay draw 5.2 ms/s (5 calls/s), unit draw 3.8 ms/s (32 calls/s), ai/army 3.8 ms/s (1 calls/s), hud/minimap 3.1 ms/s (6 calls/s), ai/workers 2.7 ms/s (1 calls/s), game/paths 2.7 ms/s (30 calls/s), hud/groups 2.6 ms/s (1 calls/s), game/path smoothing 1.4 ms/s (10 calls/s), ai/econ 1.4 ms/s (1 calls/s), hud/map view 1.0 ms/s (6 calls/s), building draw 1.0 ms/s (39 calls/s), ai/produce 0.9 ms/s (1 calls/s), hud/hover 0.8 ms/s (5 calls/s), effects 0.7 ms/s (119 calls/s), game/pathfinder 0.7 ms/s (10 calls/s), hud/card build 0.5 ms/s (4 calls/s), ai/abil 0.4 ms/s (1 calls/s), powder smoke 0.3 ms/s (65 calls/s), replay/write 0.3 ms/s (0 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), ai/gg 0.3 ms/s (1 calls/s), ai/micro 0.3 ms/s (1 calls/s), hud/tip check 0.2 ms/s (17 calls/s), hud/tooltip 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.1 ms/s (1 calls/s), game/refit 0.1 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 2555 biomass total, has 30 + 30 spoils | supply 55/64 | workers 13 | halls 0 | army (1725 value): 1 Brood Mother, 2 Rootmaw, 1 Tyrant Sire, 5 Mound Turtle, 37 Raptors, 1 Egg | kills +2 (9) losses +0 (11) | Brood: Mother stage 1 rooted, 9 eggs | Rootmaws rooted 2 (ground 47% 62%) | Mound Turtles rooted 4 | sacrificed 2 (+30 spoils)
+  P2 Clockwork: earned 4594 cogs total, has 67 + 29 tension | supply 43/60 | workers 19 | halls 2 | army (1470 value): 21 Clock Soldier | kills +0 (11) losses +2 (9) | brass 49% 100% | efficiency 99%
+[07:00] P2 Clockwork finished a Regulator
+--- minute 8 ---
+  Performance: 58 fps avg, 1% low 19 fps, worst frame 72 ms, 248 frames over 33 ms, 19 over 50 ms, 0.5 physics steps a frame | units 67, buildings 13, bodies 59, corpses 59, effects 4, smoke puffs 0, nodes 648, objects 3915
+    busy with: units 235.1 ms/s (2289 calls/s), game 58.5 ms/s (30 calls/s), hud draw 45.3 ms/s (61 calls/s), buildings 27.0 ms/s (390 calls/s), game/fog 23.7 ms/s (4 calls/s), game/fog/units 22.9 ms/s (4 calls/s), ai 20.2 ms/s (60 calls/s), hud 16.0 ms/s (58 calls/s), replay/record 15.6 ms/s (4 calls/s), hud/rest 13.5 ms/s (17 calls/s), hud/selection 12.2 ms/s (10 calls/s), hud/top 11.5 ms/s (9 calls/s), hud/look 10.6 ms/s (17 calls/s), unit draw 10.4 ms/s (171 calls/s), game/unit grid 8.7 ms/s (30 calls/s), game/paths 5.2 ms/s (30 calls/s), overlay draw 3.9 ms/s (4 calls/s), ai/workers 3.7 ms/s (1 calls/s), hud/groups 3.1 ms/s (2 calls/s), ai/army 3.0 ms/s (1 calls/s), game/path smoothing 2.9 ms/s (31 calls/s), hud/minimap 2.8 ms/s (6 calls/s), ai/build 2.0 ms/s (1 calls/s), hud/map view 1.8 ms/s (13 calls/s), hud/hover 1.6 ms/s (10 calls/s), building draw 1.5 ms/s (47 calls/s), effects 1.1 ms/s (459 calls/s), ai/produce 1.1 ms/s (1 calls/s), game/pathfinder 0.8 ms/s (31 calls/s), hud/card build 0.5 ms/s (4 calls/s), replay/write 0.3 ms/s (0 calls/s), ai/econ 0.3 ms/s (1 calls/s), powder smoke 0.3 ms/s (58 calls/s), ai/abil 0.2 ms/s (1 calls/s), ai/gg 0.2 ms/s (1 calls/s), ai/micro 0.2 ms/s (1 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), hud/tip check 0.2 ms/s (17 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.1 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 3070 biomass total, has 45 + 30 spoils | supply 56/76 | workers 14 | halls 0 | army (1650 value): 1 Brood Mother, 2 Rootmaw, 1 Tyrant Sire, 5 Mound Turtle, 34 Raptors, 2 Egg | kills +38 (47) losses +19 (30) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 38% 54%) | Mound Turtles rooted 5 | sacrificed 2 (+30 spoils)
+  P2 Clockwork: earned 4866 cogs total, has 64 + 51 tension | supply 8/70 | workers 6 | halls 2 | army (140 value): 2 Clock Soldier | kills +19 (30) losses +38 (47) | brass 46% 100% | efficiency 33%
+[08:17] P1 Brood's Brood: a grub goes to grow the Venom Lure
+[08:21] P2 Clockwork lost a Clocktower to P1 Brood (raptor)
+[08:37] P2 Clockwork lost a Light Works to P1 Brood (raptor)
+[08:52] (stopped watching before the end)
+--- minute 9 ---
+  Performance: 58 fps avg, 1% low 15 fps, worst frame 110 ms, 169 frames over 33 ms, 32 over 50 ms, 0.5 physics steps a frame | units 57, buildings 11, bodies 66, corpses 62, effects 2, smoke puffs 0, nodes 640, objects 3972
+    busy with: units 226.2 ms/s (2006 calls/s), game 53.2 ms/s (30 calls/s), hud draw 41.2 ms/s (55 calls/s), buildings 24.3 ms/s (388 calls/s), game/fog 21.2 ms/s (4 calls/s), game/fog/units 20.4 ms/s (4 calls/s), hud 16.2 ms/s (58 calls/s), ai 16.2 ms/s (60 calls/s), replay/record 14.2 ms/s (4 calls/s), hud/rest 13.8 ms/s (16 calls/s), unit draw 13.0 ms/s (217 calls/s), hud/top 12.1 ms/s (9 calls/s), hud/look 10.5 ms/s (16 calls/s), game/unit grid 8.2 ms/s (30 calls/s), hud/selection 6.2 ms/s (6 calls/s), overlay draw 5.2 ms/s (5 calls/s), game/paths 3.0 ms/s (30 calls/s), hud/minimap 2.9 ms/s (6 calls/s), ai/army 2.8 ms/s (1 calls/s), ai/workers 2.6 ms/s (1 calls/s), hud/groups 2.1 ms/s (1 calls/s), hud/map view 2.0 ms/s (13 calls/s), hud/hover 1.7 ms/s (10 calls/s), ai/build 1.7 ms/s (1 calls/s), hud/pause 1.6 ms/s (1 calls/s), building draw 1.6 ms/s (47 calls/s), effects 1.3 ms/s (531 calls/s), game/path smoothing 1.2 ms/s (25 calls/s), ai/produce 0.5 ms/s (1 calls/s), hud/card build 0.5 ms/s (4 calls/s), game/pathfinder 0.4 ms/s (25 calls/s), replay/write 0.4 ms/s (0 calls/s), powder smoke 0.3 ms/s (58 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), ai/econ 0.2 ms/s (1 calls/s), hud/tip check 0.2 ms/s (16 calls/s), ai/abil 0.2 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/gg 0.1 ms/s (1 calls/s), ai/micro 0.1 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), ai/raid 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 3519 biomass total, has 294 + 20 spoils | supply 55/76 | workers 13 | halls 0 | army (1850 value): 1 Brood Mother, 2 Rootmaw, 1 Tyrant Sire, 5 Mound Turtle, 34 Raptors, 1 Venom Sire | kills +11 (58) losses +3 (33) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 2 (ground 31% 47%) | Mound Turtles rooted 5 | sacrificed 3 (+45 spoils)
+  P2 Clockwork: earned 5160 cogs total, has 175 + 51 tension | supply 0/60 | workers 0 | halls 1 | army (0 value): none | kills +3 (33) losses +11 (58) | brass 43% | efficiency 0%
+
+RESULT at 08:52: no winner
+  Performance per minute: m1 88 fps (1% low 24), m2 90 fps (1% low 34), m3 83 fps (1% low 31), m4 86 fps (1% low 30), m5 81 fps (1% low 33), m6 80 fps (1% low 29), m7 65 fps (1% low 19), m8 58 fps (1% low 19), m9 58 fps (1% low 15). Worst: minute 9 (1% low 15 fps, worst frame 110 ms).
+  P1 Brood: earned 3519, spent 3475, trained 93, built 0, killed 58, lost 33, razed 2, buildings lost 0, peak army 1925. Kills by: Raptors 55, Tyrant Sire 3
+  P2 Clockwork: earned 5160, spent 5185, trained 54, built 11, killed 33, lost 58, razed 0, buildings lost 2, peak army 1540. Kills by: Clock Soldier 15, Winder 10, Ratchet Turret 8
+
+--- SOUND LOG (every sound and music change, per second; x2 = played twice) ---
+[00:00] MUSIC brood_battle_6, AMBIENCE volcanic, brood/lay_egg
+[00:01] burrow, brood/lay_egg
+[00:02] ui/click
+[00:06] brood/grub_take
+[00:07] brood/grub_take
+[00:08] work/grub_deliver x2, brood/grub_take
+[00:09] brood/grub_take
+[00:10] work/grub_deliver
+[00:11] work/grub_deliver, brood/grub_take
+[00:12] brood/hatch, voice/grub/select, brood/grub_take
+[00:13] brood/hatch, voice/grub/select, work/grub_deliver x2
+[00:14] brood/grub_take
+[00:15] brood/grub_take, work/grub_deliver
+[00:17] work/grub_deliver, brood/grub_take x2
+[00:18] brood/grub_take, work/grub_deliver
+[00:19] brood/grub_take, work/grub_deliver
+[00:20] brood/grub_take, work/grub_deliver x2
+[00:21] brood/grub_take, work/grub_deliver
+[00:22] brood/grub_take
+[00:23] brood/grub_take x2, work/grub_deliver
+[00:24] work/grub_deliver x2
+[00:25] brood/grub_take x2, work/grub_deliver
+[00:26] work/grub_deliver
+[00:27] brood/arrive_tyrannosaur, brood/grub_take, work/grub_deliver
+[00:28] brood/grub_take
+[00:29] work/grub_deliver x2, brood/grub_take x2
+[00:30] brood/grub_take
+[00:31] brood/cocoon_split, voice/tyrannosaur/select, brood/grub_take, work/grub_deliver x2
+[00:32] work/grub_deliver x2
+[00:33] brood/grub_take
+[00:34] brood/grub_take, work/grub_deliver
+[00:35] work/grub_deliver, brood/grub_take
+[00:36] brood/grub_take, work/grub_deliver
+[00:37] work/grub_deliver, burrow
+[00:38] work/grub_deliver, brood/grub_take
+[00:39] brood/grub_take
+[00:40] work/grub_deliver x2, brood/grub_take
+[00:41] brood/grub_take
+[00:42] work/grub_deliver
+[00:43] work/grub_deliver x2, brood/grub_take
+[00:44] work/winder_crank
+[00:46] work/winder_crank
+[00:47] work/winder_crank
+[00:49] work/winder_crank
+[00:50] work/winder_crank, ratchet
+[00:51] work/winder_crank
+[00:53] work/grub_deliver
+[00:54] brood/grub_take
+[00:55] work/grub_deliver
+[00:56] brood/grub_take x2, work/grub_deliver
+[00:57] work/grub_deliver, brood/grub_take
+[00:58] work/grub_deliver
+[00:59] brood/grub_take, brood/hatch, voice/grub/select, work/grub_deliver
+[01:00] brood/grub_take, brood/lay_egg, work/grub_deliver
+[01:01] work/grub_deliver, brood/breath_tyrannosaur, brood/grub_take
+[01:02] brood/cocoon_split, voice/mound_turtle/select
+[01:03] brood/grub_take, work/grub_deliver
+[01:04] work/grub_deliver x2, brood/grub_take
+[01:05] brood/grub_take x2
+[01:06] work/grub_deliver x2
+[01:07] work/grub_deliver, brood/grub_take
+[01:08] brood/grub_take x2
+[01:09] work/grub_deliver x2
+[01:10] brood/grub_take x2
+[01:11] work/grub_deliver x2, brood/grub_take
+[01:12] work/grub_deliver, brood/hatch, voice/raptor/select, brood/lay_egg, brood/grub_take
+[01:14] work/grub_deliver x3, brood/breath_tyrannosaur
+[01:15] brood/grub_take
+[01:16] brood/grub_take
+[01:17] work/grub_deliver x2
+[01:18] brood/grub_take, work/grub_deliver
+[01:19] work/grub_deliver x2
+[01:20] work/grub_deliver
+[01:21] brood/grub_take x3
+[01:22] work/grub_deliver
+[01:23] work/grub_deliver x2, brood/grub_take
+[01:24] brood/grub_take, brood/lay_egg
+[01:25] work/grub_deliver x2, brood/hatch, voice/raptor/select, brood/breath_tyrannosaur
+[01:26] work/grub_deliver, brood/grub_take
+[01:27] brood/grub_take
+[01:28] brood/grub_take x2, work/grub_deliver x2
+[01:30] work/grub_deliver x3, brood/grub_take
+[01:32] brood/grub_take x2
+[01:33] work/grub_deliver x2
+[01:34] work/grub_deliver, brood/grub_take
+[01:35] brood/grub_take, work/grub_deliver x2, brood/lay_egg
+[01:36] brood/hatch, voice/raptor/select, brood/grub_take
+[01:37] brood/breath_tyrannosaur, brood/grub_take, work/grub_deliver
+[01:38] brood/grub_take, work/grub_deliver
+[01:39] work/grub_deliver x2, brood/grub_take
+[01:41] brood/grub_take, work/grub_deliver x2
+[01:42] work/grub_deliver
+[01:43] brood/grub_take
+[01:44] work/grub_deliver
+[01:45] brood/grub_take x2, work/grub_deliver x2
+[01:46] brood/grub_take, work/grub_deliver
+[01:47] brood/lay_egg, work/grub_deliver
+[01:48] brood/hatch, voice/raptor/select, work/grub_deliver, brood/grub_take x2, brood/breath_tyrannosaur
+[01:50] work/grub_deliver x2
+[01:52] ui/click
+[01:53] ui/click
+[01:59] voice/raptor/select
+[02:20] combat/raptor_attack x2, combat/clock_soldier_attack
+[02:21] combat/raptor_attack
+[02:22] combat/raptor_attack x3, combat/clock_soldier_attack
+[02:23] combat/raptor_attack x3, MUSIC brood_battle_9
+[02:24] combat/raptor_attack x3, combat/clock_soldier_death, combat/winder_attack x2
+[02:25] combat/raptor_attack x2, combat/clock_soldier_attack, combat/raptor_death, combat/winder_attack
+[02:26] combat/clock_soldier_attack x3, combat/raptor_attack x2, combat/winder_attack, combat/raptor_death
+[02:27] combat/raptor_attack x2, combat/winder_attack x4, voice/rootmaw/select, combat/raptor_death
+[02:28] combat/winder_attack, combat/raptor_attack x2, combat/raptor_death, combat/clock_soldier_attack, work/clock_build
+[02:29] combat/raptor_attack x2, combat/clock_soldier_attack, combat/winder_attack x2
+[02:30] combat/raptor_attack x2, combat/raptor_death, combat/winder_attack, work/clock_build
+[02:31] combat/raptor_death, combat/clock_soldier_attack, combat/winder_attack, voice/grub/select
+[02:37] work/grub_deliver x2, brood/grub_take
+[02:39] brood/grub_take, work/grub_deliver x3
+[02:40] brood/grub_take x2
+[02:41] work/grub_deliver, brood/grub_take
+[02:42] work/grub_deliver x2, brood/lay_egg
+[02:43] brood/grub_take, work/grub_deliver
+[02:44] brood/hatch, voice/grub/select, brood/grub_take, work/grub_deliver
+[02:45] brood/grub_take
+[02:46] brood/grub_take, work/grub_deliver
+[02:47] work/grub_deliver x2, brood/grub_take
+[02:48] brood/grub_take, work/grub_deliver
+[02:49] work/grub_deliver
+[02:50] brood/grub_take, work/grub_deliver
+[02:51] brood/grub_take
+[02:52] work/grub_deliver x2, brood/grub_take
+[02:53] brood/grub_take, MUSIC brood_peace_6, work/grub_deliver
+[02:54] brood/lay_egg, brood/grub_take x2, brood/hatch, voice/grub/select
+[02:55] work/grub_deliver x3, ui/click
+[02:56] brood/grub_take x2, ui/click
+[02:57] brood/grub_take x2
+[02:58] work/grub_deliver x3
+[02:59] brood/grub_take x2
+[03:00] work/grub_deliver x2, brood/grub_take
+[03:01] work/grub_deliver x2
+[03:06] voice/grub/select
+[03:15] work/clock_build
+[03:16] voice/grub/select
+[03:21] ui/click
+[03:23] voice/raptor/select, ui/click
+[03:26] MUSIC brood_battle_7, ui/click
+[03:30] voice/raptor/select, ui/back
+[03:32] combat/clock_soldier_attack, work/grub_deliver
+[03:33] brood/grub_take, combat/clock_soldier_attack x3, work/grub_deliver x2, combat/raptor_attack, combat/raptor_death
+[03:34] brood/uproot, work/grub_deliver, combat/raptor_attack x2, brood/grub_take x2, combat/clock_soldier_attack x2
+[03:35] combat/raptor_attack x2, work/grub_deliver x2, combat/raptor_death, combat/clock_soldier_attack, brood/grub_take, brood/lay_egg
+[03:36] work/grub_deliver x3, combat/clock_soldier_attack x3, brood/grub_take x2, combat/raptor_attack x3, combat/clock_soldier_death
+[03:37] combat/raptor_attack, brood/hatch, voice/raptor/select, brood/grub_take, work/grub_deliver, combat/raptor_death, combat/clock_soldier_attack
+[03:38] combat/raptor_attack x3, combat/tyrannosaur_attack, brood/grub_take, combat/clock_soldier_attack x3, brood/lay_egg, work/grub_deliver x2
+[03:39] brood/grub_take, work/grub_deliver x2, combat/raptor_attack, combat/clock_soldier_attack
+[03:40] combat/clock_soldier_death, combat/raptor_attack x2, combat/raptor_death, combat/clock_soldier_attack x2, brood/grub_take, combat/tyrannosaur_attack
+[03:41] work/grub_deliver x3, combat/raptor_attack x3, brood/grub_take, combat/clock_soldier_attack
+[03:42] brood/grub_take x2, combat/clock_soldier_attack x2, work/grub_deliver x2, combat/raptor_death, combat/raptor_attack
+[03:43] combat/raptor_attack x3, brood/grub_take x2, combat/clock_soldier_death x2, combat/tyrannosaur_attack x2, combat/clock_soldier_attack
+[03:44] work/grub_deliver x4, brood/grub_take x2, combat/clock_soldier_death, combat/tyrannosaur_attack x2, combat/raptor_attack
+[03:45] combat/raptor_attack, brood/lay_egg, work/grub_deliver x2
+[03:46] combat/raptor_attack, work/grub_deliver x2, combat/clock_soldier_death
+[03:47] brood/grub_take
+[03:48] brood/hatch, voice/grub/select, work/grub_deliver x2, brood/grub_take
+[03:49] work/grub_deliver, brood/root
+[03:50] brood/grub_take x2, brood/hatch, voice/grub/select
+[03:51] work/grub_deliver x4, brood/lay_egg
+[03:52] brood/grub_take x2
+[03:53] work/grub_deliver x2, brood/grub_take
+[03:54] brood/grub_take x2, work/grub_deliver x2
+[03:55] work/grub_deliver, brood/grub_take x2
+[03:56] work/grub_deliver x3, brood/grub_take
+[03:57] brood/grub_take x2, work/grub_deliver x2, brood/hatch, voice/grub/select
+[03:58] work/grub_deliver x3, brood/grub_take
+[03:59] brood/grub_take
+[04:00] brood/grub_take x2, work/grub_deliver x2
+[04:01] work/grub_deliver x3, brood/grub_take
+[04:02] work/grub_deliver
+[04:03] brood/grub_take x2, work/grub_deliver, brood/hatch, voice/grub/select
+[04:04] work/grub_deliver x2, brood/grub_take
+[04:05] brood/grub_take, work/grub_deliver x2
+[04:06] work/grub_deliver x3, brood/grub_take
+[04:07] work/grub_deliver, brood/grub_take
+[04:08] brood/grub_take x2, burrow, work/grub_deliver
+[04:09] work/grub_deliver x3, brood/grub_take
+[04:11] work/winder_crank
+[04:12] work/winder_crank
+[04:14] work/winder_crank
+[04:15] work/winder_crank, ratchet
+[04:16] work/winder_crank
+[04:19] work/winder_crank
+[04:20] work/winder_crank
+[04:21] ratchet
+[04:22] work/winder_crank, ratchet x3
+[04:23] work/winder_crank
+[04:24] work/winder_crank, voice/raptor/select
+[04:25] work/winder_crank
+[04:26] work/winder_crank
+[04:27] work/winder_crank
+[04:28] work/winder_crank
+[04:29] work/winder_crank
+[04:30] voice/raptor/select
+[04:31] work/winder_crank
+[04:33] work/winder_crank, voice/mound_turtle/select
+[04:34] work/winder_crank
+[04:35] work/winder_crank
+[04:36] voice/raptor/select, work/winder_crank
+[04:37] work/winder_crank
+[04:39] work/winder_crank
+[04:40] work/winder_crank
+[04:41] brood/grub_take, work/grub_deliver, brood/hatch, voice/grub/select
+[04:42] brood/grub_take, work/grub_deliver x2
+[04:43] brood/lay_egg, brood/grub_take
+[04:44] brood/grub_take x2, brood/breath_tyrannosaur, work/grub_deliver
+[04:45] work/grub_deliver x3
+[04:46] brood/grub_take
+[04:47] brood/grub_take, work/grub_deliver x3
+[04:48] brood/grub_take, work/grub_deliver x3, brood/hatch, voice/raptor/select, brood/lay_egg
+[04:49] work/grub_deliver, brood/grub_take
+[04:50] brood/grub_take x2, brood/breath_tyrannosaur, work/grub_deliver x2
+[04:51] work/grub_deliver x3, brood/grub_take x2
+[04:52] work/grub_deliver, work/clock_build
+[04:53] work/winder_crank
+[04:54] work/winder_crank
+[04:55] work/winder_crank, voice/raptor/select
+[04:56] work/winder_crank
+[04:57] work/winder_crank
+[04:59] work/winder_crank
+[05:00] work/clock_build, work/winder_crank
+[05:01] voice/raptor/select, work/winder_crank
+[05:02] work/winder_crank
+[05:04] work/winder_crank
+[05:05] work/winder_crank
+[05:06] work/winder_crank
+[05:07] work/winder_crank
+[05:08] work/winder_crank
+[05:09] work/winder_crank
+[05:10] work/winder_crank
+[05:12] work/winder_crank
+[05:13] work/winder_crank, ratchet
+[05:14] work/winder_crank
+[05:15] work/winder_crank
+[05:16] work/clock_build, work/winder_crank
+[05:17] ratchet, work/winder_crank
+[05:18] work/clock_build
+[05:19] ratchet, work/winder_crank
+[05:20] work/winder_crank, voice/raptor/select
+[05:21] work/clock_build, work/winder_crank
+[05:22] work/clock_build, work/winder_crank
+[05:23] work/clock_build, work/winder_crank
+[05:24] work/clock_build, work/winder_crank
+[05:25] work/winder_crank
+[05:26] voice/raptor/select
+[05:27] work/winder_crank
+[05:29] brood/grub_take, work/grub_deliver x2
+[05:30] brood/lay_egg, work/grub_deliver, brood/grub_take
+[05:31] work/grub_deliver x2, brood/grub_take x2, brood/breath_tyrannosaur
+[05:32] work/grub_deliver, brood/grub_take
+[05:33] brood/grub_take, work/grub_deliver x2
+[05:34] work/grub_deliver x3, brood/grub_take
+[05:35] work/grub_deliver x2, brood/grub_take
+[05:36] brood/hatch, voice/raptor/select, work/grub_deliver, brood/grub_take
+[05:37] work/grub_deliver x2, brood/grub_take
+[05:38] work/grub_deliver x2, brood/grub_take x2, brood/lay_egg
+[05:39] brood/grub_take, work/grub_deliver
+[05:40] work/grub_deliver x3, brood/grub_take x2, brood/breath_tyrannosaur
+[05:41] work/grub_deliver x3, brood/grub_take
+[05:42] brood/grub_take x2, brood/hatch, voice/raptor/select
+[05:43] brood/grub_take x2, work/grub_deliver x3
+[05:44] brood/grub_take x2, work/grub_deliver
+[05:45] work/grub_deliver x2, brood/lay_egg
+[05:46] brood/grub_take, brood/breath_tyrannosaur
+[05:47] work/grub_deliver x3, brood/grub_take x2
+[05:48] brood/grub_take, work/grub_deliver x3
+[05:49] brood/grub_take, work/grub_deliver x2
+[05:50] brood/grub_take x2
+[05:51] work/grub_deliver x2, brood/hatch, voice/raptor/select, brood/grub_take
+[05:52] brood/grub_take x2, work/grub_deliver x2
+[05:53] work/grub_deliver x2, brood/grub_take
+[05:54] work/grub_deliver x3, brood/grub_take
+[05:55] work/grub_deliver x3, brood/grub_take
+[05:56] work/grub_deliver, brood/grub_take
+[05:57] work/grub_deliver x4, brood/grub_take, brood/hatch, voice/raptor/select
+[05:58] brood/grub_take, work/grub_deliver x2
+[05:59] work/grub_deliver x3
+[06:00] brood/grub_take x2, work/grub_deliver x3
+[06:01] work/grub_deliver, brood/grub_take
+[06:02] brood/grub_take x2, work/grub_deliver x2, burrow
+[06:03] work/grub_deliver x2, brood/grub_take x2
+[06:04] brood/grub_take x3, work/grub_deliver x2, brood/lay_egg
+[06:05] work/grub_deliver x4, brood/grub_take
+[06:06] brood/breath_tyrannosaur, work/grub_deliver x2
+[06:07] brood/grub_take x2, work/grub_deliver x2, voice/brood_mother/select, ui/click
+[06:08] work/grub_deliver x2, brood/grub_take x2
+[06:09] work/grub_deliver x3, brood/grub_take x2
+[06:10] brood/grub_take x2, work/grub_deliver x3, brood/lay_egg, ui/click
+[06:11] work/grub_deliver x3, brood/grub_take
+[06:12] brood/breath_tyrannosaur, brood/grub_take x2, work/grub_deliver x2
+[06:13] voice/mound_turtle/select, ui/click, work/grub_deliver, brood/grub_take x2
+[06:14] work/grub_deliver x5, brood/grub_take x2, voice/tyrannosaur/select, ui/click
+[06:15] work/grub_deliver x2, brood/grub_take, brood/lay_egg
+[06:16] voice/mound_turtle/select, ui/click, work/grub_deliver x3, brood/grub_take x2
+[06:17] brood/breath_tyrannosaur, brood/grub_take x2, brood/hatch, voice/raptor/select, work/grub_deliver
+[06:18] work/grub_deliver x4, brood/grub_take x2
+[06:19] work/grub_deliver, work/winder_crank
+[06:20] work/clock_build
+[06:21] work/winder_crank
+[06:22] work/clock_build, work/winder_crank
+[06:23] voice/raptor/select, work/clock_build
+[06:24] work/winder_crank, work/clock_build
+[06:25] work/winder_crank
+[06:26] work/clock_build, work/winder_crank
+[06:27] work/winder_crank, voice/mound_turtle/select, work/clock_build
+[06:28] voice/raptor/select, work/winder_crank, ui/error
+[06:29] work/clock_build, work/winder_crank
+[06:30] work/winder_crank
+[06:31] ui/click, work/clock_build, work/winder_crank
+[06:32] ui/error
+[06:33] work/winder_crank x2, ui/error x2
+[06:34] voice/raptor/select
+[06:35] work/winder_crank
+[06:36] work/clock_build, work/winder_crank
+[06:37] work/winder_crank
+[06:38] work/winder_crank, ratchet
+[06:39] voice/grub/select
+[06:40] work/winder_crank, ratchet
+[06:41] work/winder_crank, ratchet x3, work/clock_build
+[06:42] work/winder_crank
+[06:43] work/winder_crank, work/clock_build
+[06:44] work/winder_crank x2, work/clock_build
+[06:45] voice/grub/select
+[06:46] work/winder_crank, work/clock_build, MUSIC ended brood_battle_7, MUSIC brood_peace
+[06:47] work/winder_crank, work/clock_build
+[06:48] work/winder_crank, work/clock_build
+[06:49] work/winder_crank x2, work/clock_build
+[06:50] work/clock_build
+[06:51] work/winder_crank x2, work/clock_build
+[06:52] voice/raptor/select
+[06:53] work/winder_crank
+[06:54] work/winder_crank
+[06:55] combat/raptor_attack x3, work/winder_crank, combat/winder_death
+[06:56] combat/raptor_attack x3, MUSIC brood_battle_10, work/winder_crank
+[06:57] combat/raptor_attack x4, work/winder_crank
+[06:58] combat/raptor_attack x4, work/winder_crank
+[06:59] combat/raptor_attack x4, combat/clock_soldier_death, work/winder_crank
+[07:00] combat/clock_soldier_attack x2, combat/raptor_attack x3, combat/clock_soldier_death
+[07:01] combat/clock_soldier_attack x2, combat/raptor_attack x3, work/winder_crank, combat/clock_soldier_death
+[07:02] combat/raptor_attack x3, work/winder_crank, combat/clock_soldier_attack x2, combat/clock_soldier_death, combat/raptor_death
+[07:03] combat/raptor_attack x4, combat/clock_soldier_attack x3, combat/clock_soldier_death x2, work/winder_crank
+[07:04] combat/raptor_attack x2, combat/clock_soldier_attack, work/winder_crank, combat/clock_soldier_death
+[07:05] combat/raptor_attack x4, work/winder_crank, combat/raptor_death, combat/clock_soldier_attack x2, combat/clock_soldier_death
+[07:06] combat/clock_soldier_attack x2, combat/raptor_attack x4, combat/clock_soldier_death, work/winder_crank
+[07:07] combat/clock_soldier_death x2, combat/raptor_attack x3, work/winder_crank
+[07:08] combat/raptor_attack x3, combat/clock_soldier_death x3, voice/grub/select, work/winder_crank
+[07:09] combat/raptor_attack x4, combat/clock_soldier_death x2
+[07:10] combat/raptor_attack x4, combat/clock_soldier_death x3, work/winder_crank
+[07:11] combat/raptor_attack x2, combat/clock_soldier_attack, work/winder_crank, combat/clock_soldier_death
+[07:12] combat/raptor_attack x2, combat/clock_soldier_attack, work/winder_crank, combat/clock_soldier_death
+[07:13] combat/ratchet_turret_attack, combat/raptor_attack x2, work/winder_crank
+[07:14] combat/clock_soldier_attack, combat/raptor_attack x3, combat/winder_death, combat/ratchet_turret_attack, combat/clock_soldier_death
+[07:15] work/winder_crank, combat/raptor_attack x3, voice/raptor/select, combat/winder_death, combat/ratchet_turret_attack
+[07:16] combat/raptor_attack x2, MUSIC brood_battle_12, combat/winder_death, work/winder_crank, combat/ratchet_turret_attack
+[07:17] combat/raptor_attack x4, voice/mound_turtle/select, combat/winder_death
+[07:18] work/winder_crank, combat/ratchet_turret_attack, combat/raptor_attack x3, combat/winder_death, work/cog_press_stamp
+[07:19] combat/raptor_attack x4, combat/ratchet_turret_attack
+[07:20] combat/raptor_attack x2, work/winder_crank, combat/raptor_death, combat/ratchet_turret_attack, voice/raptor/select, combat/winder_death
+[07:21] combat/raptor_attack x4, combat/ratchet_turret_attack
+[07:22] combat/raptor_attack x3, combat/clock_soldier_death, combat/ratchet_turret_attack
+[07:23] combat/raptor_attack x4, combat/winder_death
+[07:24] combat/ratchet_turret_attack, combat/raptor_attack x2, combat/winder_death
+[07:25] combat/raptor_attack x3, combat/ratchet_turret_attack
+[07:26] combat/raptor_attack x4, combat/ratchet_turret_attack, combat/raptor_death, combat/clock_soldier_attack
+[07:27] voice/raptor/select, combat/raptor_attack x3, combat/clock_soldier_attack, combat/winder_death, combat/clock_soldier_death, combat/raptor_death, combat/ratchet_turret_attack
+[07:28] combat/raptor_attack x4, combat/ratchet_turret_attack
+[07:29] combat/winder_attack x3, combat/raptor_attack x3
+[07:30] combat/winder_attack x3, combat/raptor_attack x3, combat/ratchet_turret_attack
+[07:31] combat/raptor_attack x2, combat/winder_death, combat/winder_attack x2, combat/ratchet_turret_attack, combat/raptor_death
+[07:32] combat/raptor_attack x2, combat/winder_death, combat/winder_attack x2, combat/raptor_death, combat/ratchet_turret_attack, voice/raptor/select
+[07:33] combat/raptor_attack x3, combat/winder_attack x2, combat/raptor_death x2, combat/winder_death, combat/ratchet_turret_attack
+[07:34] combat/raptor_attack, combat/raptor_death, combat/winder_attack, work/clock_build, combat/ratchet_turret_attack
+[07:35] combat/raptor_attack x3
+[07:36] combat/winder_death, combat/raptor_attack, combat/ratchet_turret_attack
+[07:37] combat/raptor_attack
+[07:38] combat/winder_attack x4, combat/raptor_attack x3, combat/raptor_death x2, voice/raptor/select, combat/ratchet_turret_attack, combat/clock_soldier_attack
+[07:39] combat/raptor_attack x4, combat/winder_attack x2, combat/raptor_death, combat/ratchet_turret_attack
+[07:40] combat/raptor_attack x3, combat/winder_attack x2, combat/raptor_death, combat/clock_soldier_attack, combat/ratchet_turret_attack
+[07:41] combat/raptor_attack x4, combat/winder_attack
+[07:42] combat/raptor_attack x3, combat/clock_soldier_attack
+[07:43] combat/raptor_attack x4, combat/winder_attack x2
+[07:44] combat/raptor_attack x3, voice/raptor/select, combat/winder_attack x3, combat/raptor_death x2, combat/clock_soldier_attack
+[07:45] combat/raptor_attack x3, combat/winder_attack x2, combat/raptor_death, combat/clock_soldier_attack
+[07:46] combat/raptor_attack x4
+[07:47] combat/raptor_attack x4, work/winder_crank, work/clock_build
+[07:48] combat/raptor_attack x3
+[07:49] work/winder_crank, combat/raptor_attack x4, voice/raptor/select
+[07:50] combat/raptor_attack x3, work/winder_crank
+[07:51] combat/raptor_attack x4
+[07:52] work/winder_crank, combat/raptor_attack x3
+[07:53] combat/raptor_attack x4, work/winder_crank
+[07:54] combat/raptor_attack x3, work/clock_build, work/winder_crank
+[07:55] combat/raptor_attack x3
+[07:56] combat/raptor_attack x4, work/winder_crank, voice/raptor/select, work/clock_build
+[07:57] combat/raptor_attack x3, work/winder_crank
+[07:58] combat/raptor_attack x4, work/winder_crank, work/clock_build
+[07:59] combat/raptor_attack x4, work/winder_crank
+[08:00] combat/raptor_attack x3, work/clock_build
+[08:01] combat/raptor_attack x3, work/winder_crank, voice/raptor/select
+[08:02] combat/raptor_attack x4, work/clock_build
+[08:03] work/winder_crank, combat/raptor_attack x2, work/grub_deliver, brood/grub_take
+[08:04] brood/grub_take, work/grub_deliver x2
+[08:05] work/grub_deliver x2, brood/grub_take
+[08:06] brood/grub_take x2, work/grub_deliver x2
+[08:07] work/grub_deliver x4, brood/grub_take x2, brood/hatch, voice/raptor/select
+[08:08] brood/grub_take, work/grub_deliver x2
+[08:09] work/grub_deliver x2, brood/grub_take
+[08:10] brood/grub_take x2, work/grub_deliver x3
+[08:11] combat/raptor_attack x3
+[08:12] combat/raptor_attack x3, work/winder_crank
+[08:13] combat/raptor_attack x4, work/winder_crank
+[08:14] combat/raptor_attack x4, work/winder_crank
+[08:15] combat/raptor_attack x3, work/winder_crank
+[08:16] combat/raptor_attack x4, work/winder_crank
+[08:17] combat/raptor_attack x3, work/winder_crank
+[08:18] combat/raptor_attack x4, work/winder_crank
+[08:19] combat/raptor_attack x4
+[08:20] work/winder_crank, combat/raptor_attack x3
+[08:21] combat/raptor_attack x2, combat/building_collapse, combat/explosion_big
+[08:22] work/winder_crank
+[08:24] combat/raptor_attack x2, combat/clock_soldier_attack
+[08:25] work/winder_crank, combat/raptor_attack x3, combat/raptor_death, combat/clock_soldier_attack, combat/clock_soldier_death
+[08:26] combat/raptor_attack x4, combat/clock_soldier_attack, work/winder_crank, combat/clock_soldier_death
+[08:27] combat/raptor_attack x2
+[08:28] combat/raptor_attack x4, work/winder_crank
+[08:29] combat/raptor_attack x3, work/winder_crank
+[08:30] combat/raptor_attack x4, work/winder_crank
+[08:31] combat/raptor_attack x3, work/winder_crank, combat/ratchet_turret_attack
+[08:32] combat/raptor_attack x4
+[08:33] combat/ratchet_turret_attack, combat/raptor_attack x3, work/winder_crank
+[08:34] combat/raptor_attack x4, combat/ratchet_turret_attack
+[08:35] combat/raptor_attack x3, work/winder_crank, combat/ratchet_turret_attack
+[08:36] combat/raptor_attack x4, work/winder_crank, combat/ratchet_turret_attack
+[08:37] combat/raptor_attack x3, work/winder_crank, combat/building_collapse, combat/explosion_big, combat/ratchet_turret_attack
+[08:38] combat/raptor_attack x3, work/cog_press_stamp, work/winder_crank
+[08:39] combat/raptor_attack x4, combat/ratchet_turret_attack
+[08:40] combat/raptor_attack x3, combat/ratchet_turret_attack, combat/winder_death
+[08:41] combat/raptor_attack x4, combat/winder_death x2, combat/ratchet_turret_attack
+[08:42] combat/raptor_attack x4, combat/winder_death x2, combat/ratchet_turret_attack
+[08:43] combat/raptor_attack x4, combat/winder_death, combat/ratchet_turret_attack
+[08:44] combat/raptor_attack x3, combat/winder_death
+[08:45] combat/raptor_attack x4, combat/winder_death, combat/ratchet_turret_attack
+[08:46] combat/raptor_attack x5, combat/ratchet_turret_attack
+[08:47] combat/raptor_attack x4, combat/raptor_death, combat/ratchet_turret_attack
+[08:48] combat/raptor_attack x4, combat/raptor_death, combat/ratchet_turret_attack
+[08:49] combat/raptor_attack x4, ui/click, combat/ratchet_turret_attack
+[08:50] combat/raptor_attack x4
+[08:51] combat/raptor_attack x5, combat/ratchet_turret_attack
+[08:52] combat/raptor_attack

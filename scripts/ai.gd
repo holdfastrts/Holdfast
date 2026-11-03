@@ -1397,6 +1397,10 @@ func _workers() -> void:
 		# Mainspring of 3): the rest of the supply is for the army
 		want = mini(want, (13 if Defs.gear_mode else 14) * _halls().size() + extra + 2 + _big_press_room())
 		want = mini(want, 36 if difficulty >= 3 else _lv([16, 26, 32]))
+	if doctrine():
+		saturated()             # (the match log notes when the economy is saturated on 1 and on 2 halls)
+	if doctrine() and (_hall_reserve or _busy_building(_f()["hall"]) or _bare_hall()):
+		want = mini(want + SAT_PRETRAIN, 46 if difficulty >= 3 else _lv([16, 30, 40]) + SAT_PRETRAIN)    # (DOCTRINE: hands for the new hall's farms, trained ahead)
 	var worker: String = _f()["worker"]
 	var queued := 0
 	for h in _halls():
@@ -1405,7 +1409,9 @@ func _workers() -> void:
 	var hold_gold: bool = _crown() and difficulty > 0 and labs.size() + queued >= 6 and not _mine("cottage").is_empty() and game.clock < 200.0 and \
 			((opening == "mill" and (_mine("barracks").is_empty() or _mine("powder_mill").is_empty())) or (not _walled and (_wall_wanted() or _cw_active())))
 	# (a feared rush with a Barracks standing: the first Musketeers before more labourers)
-	if _army_first() and labs.size() >= (6 if safe_opening else 8) + (4 if opening == "breeder" else 0) and not _mine("barracks").filter(func(b: Building) -> bool: return b.built).is_empty():
+	# (THE OWNER'S DOCTRINE: an unscouted enemy ("uncertain") no longer holds the labourers back, only a rush seen: the Crown
+	# sat on 9 labourers from 2:00 to 3:00 on Kestrel Rise while the Brood went from 12 to 32)
+	if _army_first() and not (doctrine() and scout.verdict != "rush") and labs.size() >= (6 if safe_opening else 8) + (4 if opening == "breeder" else 0) and not _mine("barracks").filter(func(b: Building) -> bool: return b.built).is_empty():
 		hold_gold = true
 	if _keeping() and _gold() < _hall_keep() + 50:
 		hold_gold = true            # (ai-expand: the hall plan's gold is not spent on more hands for spent land)
@@ -2172,7 +2178,9 @@ func _hall_first() -> bool:
 	if _crown():
 		need = maxi(need, mini(3, ceili(game.workers(team).size() / 16.0)))     # (three fresh halls at most: more halls only grew more hands, round 3)
 		if tr.want_hall():
-			need = maxi(need, 2)    # (AI TRANSITIONS: a held rush, the army ahead: the second hall now, its gold held for it)
+			need = maxi(need, 2)
+		if doctrine() and _halls().size() == 1 and game.clock >= SAT_EXPAND_FROM and (saturated() or (_econ_full() and game.clock >= FULL_EXPAND_FROM)) and _threat() == Vector2.INF:
+			need = maxi(need, 2)    # (THE OWNER'S DOCTRINE: the main is full: the next hall now, not when its soil runs low)    # (AI TRANSITIONS: a held rush, the army ahead: the second hall now, its gold held for it)
 	elif _clock() and Defs.gear_mode and difficulty >= 1 and (not _mine(Defs.CW_TECH).is_empty() or game.clock > 360.0):
 		# (the Clockwork too, one for every 13 Winders (0.24.0; was 15): two presses of five and a Mainspring's crew a hall; it sat on two
 		# halls with 32 Winders while its main ran dry, and the coached Crown out-earned it from 10:00, clockwork-ai.
@@ -2304,6 +2312,62 @@ func army_short() -> bool:
 			mine += float(u.d["cost"]) / maxf(1.0, float(u.d.get("spawn", 1)))
 	_short = mine < foe * ARMY_SHORT or tr._armed_near()
 	return _short
+
+
+## THE OWNER'S DOCTRINE (2026-11-03, docs/ai_crown_transitions.md section 7): "you expand, you keep your forces in the high
+## ground, you saturate the expansion first, then you slowly wall in". Saturated: every free post on our farms and Mills
+## has a labourer (one short allowed). Under `-- tr:off` none of the doctrine applies.
+const SAT_EXPAND_FROM := 150.0   # (game seconds) a saturated main expands from here on
+const FULL_EXPAND_FROM := 240.0  # ... and a main with every economy slot used (hands still coming) from here on (2:56 starved the labourers)
+const SAT_PRETRAIN := 6          # labourers trained ahead for a hall going up (its farms' posts)
+var sat_log := 0                 # halls the match log has called saturated
+
+
+## Workers and army before walls (the owner's FFA log 2026-11-03, Ashfall 3p: the Crown spent about 1,080 of its 6,080
+## gold on 62 palisade pieces and gates, 470 on soldiers): a new hall's wall waits while the army is short of the enemy's
+## (army_short) or under WALL_MIN_ARMY for the clock (4 supply plus 1 every 30 s, at most 30).
+func wall_yield() -> bool:
+	if army_short():
+		return true
+	if not doctrine():
+		return false
+	return _army_supply(game.army(team)) < mini(30, 4 + int(game.clock / 30.0))
+
+
+func doctrine() -> bool:
+	return tr.on and _crown() and difficulty >= 1 and not peaceful
+
+
+func _posts() -> int:
+	var cap := 0
+	for b in game.buildings:
+		if b.team == team and not b.dead and b.crew_max() > 0:
+			if b.kind == "farm" and b.soil_left() <= 0.0:
+				continue
+			cap += b.crew_max()
+	return cap
+
+
+## Every economy building the halls allow is up (the main's farms and Mill slots are used): its posts fill as the
+## labourers come, so the next hall is due now (a saturation count alone came late: farms added posts faster than the
+## hall trained hands, Mirewood 7:40).
+func _econ_full() -> bool:
+	for kind in Defs.econ_of(game.faction_of(team)):
+		if not Defs.build_list(game.faction_of(team)).has(kind):
+			continue
+		if game.econ_count(team, kind) < game.econ_limit(team, kind):
+			return false
+	return true
+
+
+func saturated() -> bool:
+	var cap := _posts()
+	var sat := cap > 0 and game.workers(team).size() >= cap - 1
+	var built := _halls().filter(func(h: Building) -> bool: return h.built).size()
+	if sat and built > sat_log and game.mlog:
+		sat_log = built
+		game.mlog.add("%s's economy is saturated on %d hall%s (%d labourers, %d posts)" % [game.mlog.who(team), built, "" if built == 1 else "s", game.workers(team).size(), cap])
+	return sat
 
 
 func _hide_kept() -> int:
@@ -2650,6 +2714,9 @@ func _guard_new_hall(army: Array) -> Array:
 	if _new_hall == null and not staging:
 		_guards.clear()
 		return army
+	if doctrine() and _new_hall and _new_hall.built:
+		_guards.clear()         # (DOCTRINE: the army stays on the main's high ground; the expansion's hands run up the ramp)
+		return army
 	var site: Vector2 = _new_hall.center() if _new_hall else (Vector2(_stage_spot) + Vector2(Defs.BUILDINGS[_f()["hall"]]["size"]) * 0.5) * Defs.TILE
 	if staging:
 		_guard_until = 0.0
@@ -2989,11 +3056,7 @@ func _raid_wall(prey: Vector2) -> Vector2:
 	# the pieces side by side with it (the palisade and the gate across the ramp): the riders spread over them, two to a
 	# face (a one-tile piece has room for about two horses; the rest stood behind them out of reach), and a labourer can
 	# only mend one piece at a time
-	var line: Array = [piece]
-	for b in game.buildings:
-		if b != piece and not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and game.hostile(b.team, team) \
-				and b.center().distance_to(piece.center()) < RAID_LINE:
-			line.append(b)
+	var line := _raid_line(piece)
 	var on := {}
 	for u in party:
 		if u.order == "attack" and line.has(u.order_target):
@@ -3036,12 +3099,28 @@ func _raid_wall(prey: Vector2) -> Vector2:
 	return Vector2.INF
 
 
-## The lowest share of hit points among the wall and gate pieces within RAID_LINE of `piece` (itself too).
-func _line_hp(piece: Building) -> float:
-	var low := piece.hp / piece.max_hp
+## The stretch of wall the party strikes: `piece`, the wall and gate pieces within RAID_LINE of it, and a building of
+## theirs standing in the wall right beside it (the ramp Cottage: since 0.25.28 the computer's ramp wall is a Cottage and
+## a Gate only, AI.cw_prune; a one-tile gate between the Cottage and the cliff has room for two horses, the Cottage's
+## faces for the rest, and bringing the Cottage down opens the way as well).
+func _raid_line(piece: Building) -> Array:
+	var line: Array = [piece]
 	for b in game.buildings:
-		if not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and b.team == piece.team and b.center().distance_to(piece.center()) < RAID_LINE:
-			low = minf(low, b.hp / b.max_hp)
+		if b == piece or b.dead or not b.built or b.ghost or not game.hostile(b.team, team):
+			continue
+		if b.kind == "wall" or b.kind == "gate":
+			if b.center().distance_to(piece.center()) < RAID_LINE:
+				line.append(b)
+		elif b.edge_distance(piece.center()) < float(Defs.TILE):
+			line.append(b)
+	return line
+
+
+## The lowest share of hit points along the stretch the party strikes (_raid_line).
+func _line_hp(piece: Building) -> float:
+	var low := 1.0
+	for b in _raid_line(piece):
+		low = minf(low, b.hp / b.max_hp)
 	return low
 
 
@@ -3057,6 +3136,7 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 	var menders: Array = []
 	var rep := 0.0
 	var inc := 0.0
+	var kill_hp := 0.0
 	for o in game.units_near(piece.center(), 360.0):
 		if o.dead or o.off_field or not game.hostile(o.team, team):
 			continue
@@ -3065,7 +3145,12 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 			if ((o.work == "repairing" or o.order == "repair") and o.order_target == piece or (o.work == "repairing" and piece.edge_distance(o.position) < 60.0)) \
 					and game.is_visible_to(team, o.position):
 				menders.append(o)
-				rep += maxf(float(Defs.REPAIR_RATE), piece.max_hp / maxf(float(piece.d.get("time", 10.0)), 1.0))
+				# a mender the riders can get at (out on their side of the wall, or in pistol reach of its face) is cut down
+				# first, not mended around: his hit points join the work instead of his repair counting for good
+				if party[0]._walk_reaches(o) or piece.edge_distance(o.position) <= float(Defs.PISTOL["range"]) - 20.0:
+					kill_hp += o.hp
+				else:
+					rep += maxf(float(Defs.REPAIR_RATE), piece.max_hp / maxf(float(piece.d.get("time", 10.0)), 1.0))
 			continue
 		if not o.has_attack() or not Game.fights_back(o):
 			continue
@@ -3074,7 +3159,7 @@ func _raid_weigh(piece: Building, party: Array) -> Dictionary:
 		if piece.edge_distance(o.position) <= float(o.d["range"]) + o.radius + 30.0 and game.is_visible_to(team, o.position):
 			inc += float(o.d["damage"]) / maxf(float(o.d["cooldown"]), 0.1)
 	var net := dps - rep
-	return {"t": piece.hp / net if net > 0.5 else INF, "die": hp / inc if inc > 0.1 else INF, "inc": inc,
+	return {"t": (piece.hp + kill_hp) / net if net > 0.5 else INF, "die": hp / inc if inc > 0.1 else INF, "inc": inc,
 		"menders": menders.size(), "mender_list": menders}
 
 
@@ -4714,7 +4799,10 @@ func _piece_to_break(wave: Array, c: Vector2) -> Building:
 			break
 	if rep == null:
 		return null
-	if rep._walk_reaches_point(_prey_spot(rep.position)):
+	# (the spot the caller is going for, `c`: asking _prey_spot afresh here could name another spot, a worker out on
+	# the near side of the wall that came into sight meanwhile, and a raid then found "nothing it can break" at a gate
+	# it could break: tools/test_cav_gate.gd case 6 on 0.26.1)
+	if rep._walk_reaches_point(c):
 		return null
 	var a: Vector2i = game.cell_of(rep.position)
 	if not game.open_cell(a):
@@ -6094,6 +6182,8 @@ func _great_winder_follow(c: Vector2) -> void:
 		home = (hall[0] as Building).center()
 	var behind := c + (home - c).normalized() * 60.0 if home.distance_to(c) > 1.0 else c
 	for u in gws:
+		if u.order == "cast":
+			continue              # (throwing its SCATTER COGS: CogScatter.ai_tick)
 		if u.order == "mend" or u.order == "sweep":
 			if u.position.distance_to(c) < 420.0:
 				continue          # (busy by the army: its autocast)
@@ -6542,6 +6632,7 @@ func _abilities() -> void:
 		_overloads()
 		_braces()
 		ShieldWall.think(game, team)       # (Clock Soldiers: shields up in ranged fire, down to chase or fall back)
+		CogScatter.ai_tick(game, team)     # (a Great Winder's SCATTER COGS on charging or fleeing clumps: scripts/cog_scatter.gd)
 	if not _crown():
 		return
 	if Defs.marching_band:

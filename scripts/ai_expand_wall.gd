@@ -185,7 +185,11 @@ func _lay_pieces(p: Dictionary) -> void:
 		return          # (a fight at the hall: the army first, the wall after)
 	# (AI TRANSITIONS: an army smaller than the enemy's comes first: pieces only from gold above a unit's price, a few at a
 	# time; docs/ai_crown_transitions.md)
-	var short: bool = ai.army_short()
+	if ai.doctrine() and not ai.saturated():
+		return          # (THE OWNER'S DOCTRINE: saturate the expansion first, then wall it in slowly)
+	var short: bool = ai.wall_yield()
+	if short and ai.doctrine():
+		return          # (DOCTRINE: workers and army before walls: nothing laid while the army is short or small)
 	if short:
 		keep = maxi(keep, SHORT_RESERVE)
 	var foe: Vector2 = p["foe"]
@@ -195,14 +199,14 @@ func _lay_pieces(p: Dictionary) -> void:
 	var made: Array = []
 	for e in todo:
 		var cost := int(Defs.BUILDINGS[e[0]]["cost"])
-		if ai._gold() - cost < keep or (short and made.size() >= SHORT_BATCH):
+		if ai._gold() - cost < keep or ((short or ai.doctrine()) and made.size() >= SHORT_BATCH):
 			break
 		if game.placement_problem(ai.team, e[0], e[1], true) != "":
 			continue
 		var nb: Building = game.place_building(ai.team, e[0], e[1], [])
 		if nb != null:
 			made.append(nb)
-	p["next_lay"] = game.clock + 3.0
+	p["next_lay"] = game.clock + (DOCTRINE_LAY if ai.doctrine() else 3.0)      # (DOCTRINE: slowly, a few pieces at a time)
 	if made.is_empty():
 		return
 	var at: Vector2 = (made[0] as Building).center()
@@ -272,11 +276,12 @@ func slot_for(kind: String) -> Vector2i:
 ## the palisade and gates not laid yet, up to WALL_KEEP; 0 with a fight at the hall or a bare hall's first Farm to pay.
 const WALL_KEEP := 100
 const SHORT_RESERVE := 130      # AI TRANSITIONS: gold left for units when the army is short (AI.army_short): two Musketeers
+const DOCTRINE_LAY := 10.0      # s between batches of a saturated hall's wall (THE OWNER'S DOCTRINE)
 const SHORT_BATCH := 3          # ... and at most this many pieces laid at a time then
 
 
 func keep() -> int:
-	if not active() or plans.is_empty() or _farm_first() or ai.army_short():
+	if not active() or plans.is_empty() or _farm_first() or ai.wall_yield() or (ai.doctrine() and not ai.saturated()):
 		return 0
 	var debt := 0
 	for id in plans:
