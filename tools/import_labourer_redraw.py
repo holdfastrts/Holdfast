@@ -307,11 +307,23 @@ def compose(body, legs, align=True, hem=None):
     the join is under the hem so no cut shows."""
     cut_b = (hem_row(body) if hem is None else hem) + 1
     cut_l = hem_row(legs) + 1
+    # a donor hem under row 24 is a lifted boot (its browns pass is_red: the labourer's south-east walk v4, frames 3
+    # and 6): the hem is read above row 25 and the boot's reds are kept as leg (else the leg is stretched into a box
+    # and the boot comes out hollow). No other donor has a hem that low, so nothing else changes.
+    low_boot = cut_l > 25
+    if low_boot:
+        top = legs.copy()
+        top[25:] = 0
+        cut_l = hem_row(top) + 1
     ox = 0
     if align:                                      # hips under hips
         ox = int(round(top_centre(body, cut_b) - top_centre(legs, cut_l)))
     donor = shift(legs, ox, 0)
     mask = leg_pixels(donor)
+    if low_boot:
+        r, g = donor[..., 0].astype(int), donor[..., 1].astype(int)
+        boot = (donor[..., 3] > 0) & ~((r > 165) & (g > 105)) & (np.arange(H)[:, None] >= cut_l + 2)
+        mask |= boot
     lp = donor.copy()
     lp[~mask] = 0
     rows = list(range(cut_l, H))

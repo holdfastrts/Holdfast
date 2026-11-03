@@ -14,7 +14,9 @@ import import_labourer_redraw as R  # noqa: E402
 
 U = os.path.join(ROOT, "assets/units/labourer")
 SRC = os.path.join(ROOT, "art/redraws/gait_src")
-SQUEEZE = {"se": 0.78, "s": 0.62}      # how much of the east swing shows on screen
+# RETIRED 2026-11-03 (0.26.15): the owner's ChatGPT v4 sheets (art/redraws/labourer_walk_{s,se}_v4.png) have a real
+# stride, so neither view is squeezed any more and tools/rebuild_art.sh no longer runs this script. Was {"se": 0.78, "s": 0.62}.
+SQUEEZE = {}                           # how much of the east swing shows on screen
 LIFT = {"se": 0, "s": 0}               # south: the back foot rides up a row (depth), the front foot stays down
 
 
@@ -42,7 +44,7 @@ def squeeze(img, s, lift=0):
 def run():
     os.makedirs(SRC, exist_ok=True)
     lab_e = frames(f"{U}/walk_e.png")
-    for d in ("se", "s"):
+    for d in SQUEEZE:
         cur = f"{U}/walk_{d}.png"; snap = f"{SRC}/labourer_walk_{d}_prestride.png"
         if not os.path.exists(snap):
             shutil.copy(cur, snap)

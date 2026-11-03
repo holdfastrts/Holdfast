@@ -58,9 +58,17 @@ def grid(name, ncols, nrows=5):
     """name -> rows (top to bottom) of ncols sprite dicts (sheet-size RGBA, tight crop). The sheets are
     plain grids on navy, so rows are bands of the foreground's row projection and columns its runs;
     anything else is an error (a label, a sheet with another layout)."""
-    a = np.array(Image.open(os.path.join(REDRAWS, name)).convert("RGB")).astype(int)
-    bg = a[2, 2]
-    fg = np.abs(a - bg).sum(-1) > 45
+    im = Image.open(os.path.join(REDRAWS, name))
+    a = np.array(im.convert("RGB")).astype(int)
+    al = np.array(im.convert("RGBA"))[..., 3]
+    if al[2, 2] == 0:
+        # a transparent sheet (labourer_walk_s_v4.png: shown on black it has a red glow round every man, but the
+        # glow lives only in the RGB of fully transparent pixels): key by alpha; the cut runs inside the dark
+        # outline's antialiased edge (alpha 13 -> 101 -> 226 over two sheet pixels), so no glow is kept
+        fg = al >= 128
+    else:
+        bg = a[2, 2]
+        fg = np.abs(a - bg).sum(-1) > 45
     rows = runs(fg.any(1), gap=5, minw=20)
     assert len(rows) == nrows, (name, "rows", rows)
     out = []
@@ -260,7 +268,7 @@ def walk_frames():
     return raw, out
 
 
-V3 = {"s": "labourer_walk_s_v3.png", "se": "labourer_walk_se_v3.png", "e": "labourer_walk_east_test.png",
+V3 = {"s": "labourer_walk_s_v4.png", "se": "labourer_walk_se_v4.png", "e": "labourer_walk_east_test.png",
       "ne": "labourer_walk_ne_v3.png", "n": "labourer_walk_n_v3.png"}
 
 
@@ -269,9 +277,41 @@ def walk_frames_v3():
     legs are drawn in the body's own style, so nothing is rebuilt in code. One scale for all five sheets
     (the median figure height over every frame makes the man TARGET_H rows tall)."""
     g = {d: grid(n, 6, 1)[0] for d, n in V3.items()}
-    hs = [s["h"] for row in g.values() for s in row]
-    sc = TARGET_H["walk"] / float(np.median(hs))
-    return {d: [R.drop_bright(make(s, sc, "coat")) for s in row] for d, row in g.items()}
+    # 276 = the median figure height of the five 2026-10-24 sheets, kept fixed when the s / se v4 sheets came in
+    # (2026-11-03) so the e / ne / n strips stay exactly as they were; the v4 men are drawn at the east sheet's size
+    sc = TARGET_H["walk"] / 276.0
+    out = {d: [R.drop_bright(make(s, sc, "coat")) for s in row] for d, row in g.items()}
+    # se v4 frame 6 (index 5): ChatGPT drew the back leg as a dark tangle and the two boots stacked (at game size a
+    # short grey stump on a pile of boots); it gets frame 3's passing legs (the other passing frame) under its body
+    out["se"][5] = graft_legs(out["se"][5], out["se"][2])
+    # s v4: ChatGPT lifted the same leg (his left, the viewer's right) in both halves of the cycle, a limp; frames 4-6
+    # get their own legs mirrored (a front view), so 1 / 4 are contacts on opposite feet and 3 / 6 pass opposite legs
+    out["s"][3:] = [graft_legs(f, f, mirror=True) for f in out["s"][3:]]
+    return out
+
+
+def graft_legs(body, donor, mirror=False):
+    """donor's trousers and boots (rows under the body's coat hem) under body, hips under hips (mirror: the donor
+    flipped left-right first). (R.compose reads se frame 3's hem a few rows too low, on the lifted boot's dark reds,
+    and stretches the leg into a box.)"""
+    cut = R.hem_row(body) + 1
+    if mirror:
+        donor = donor[:, ::-1].copy()
+    drgb = donor[..., :3].astype(int)
+    hands = np.arange(H)[:, None] < R.ANKLE - 1                                  # (the boots' highlights are not hands)
+    lp = (donor[..., 3] > 0) & ~((drgb[..., 0] > 165) & (drgb[..., 1] > 105) & hands)   # all but the hands (leg_pixels
+    lp[:cut] = False                                                             # takes the lifted boot's reds for coat)
+    ox = int(round(R.top_centre(body, cut) - R.top_centre(donor, cut)))
+    out = body.copy()
+    low = np.zeros(out.shape[:2], bool)
+    low[cut:] = True
+    rgb = body[..., :3].astype(int)
+    skin = (rgb[..., 0] > 165) & (rgb[..., 1] > 105) & hands    # (the hands stay; the old legs and their tangle go)
+    out[low & ~skin] = 0
+    moved = R.shift(np.where(lp[..., None], donor, 0).astype(np.uint8), ox, 0)
+    m = moved[..., 3] > 0
+    out[m] = moved[m]
+    return out
 
 
 # ---------------------------------------------------------------- candidates (never installed)

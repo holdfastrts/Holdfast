@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.15", "items": [
+		"NEW LABOURER WALKS, SOUTH AND SOUTH-EAST: the Labourer walking toward the camera and down to the right is a new drawing with a real stride, in the same style as his east walk, instead of the east walk's legs squeezed under him. The south walk now steps on alternate feet, and the south-east walk's last frame no longer shows a tangled back leg. The new legs also go under the Labourer carrying gold, a powder keg or a loaded shovel, and under the Musketeer and Guardsman walking south and south-east.",
+	]},
 	{"v": "0.26.14", "items": [
 		"NO MORE THIRD WINGS ON THE STORM LINE: a few of the painted frames had a hallucinated extra wing. The Hatchlings' south-east wing beat and five of their deaths, the Storm Challenger's south-east wing beat, the Storm Sire's south-east dive and the Hatchling and Storm Challenger portraits now show two wings. Nothing else changes: the same timing, and each body stays where it was.",
 	]},
