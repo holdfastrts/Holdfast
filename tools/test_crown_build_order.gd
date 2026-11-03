@@ -16,7 +16,7 @@ extends SceneTree
 const PAY_LATE := 60.0          # (one harvest: a farm with part of its crew pays every 40-60 s, the gold comes in lumps)
 const HALL_IDLE := 30.0
 const HALL_BY := 270.0
-const LAB_MIN := 26
+const LAB_MIN := 24              # (test_crown_farms keeps 24 too; 0.27.2 had 19-21 on its first Economy games)
 const MILL_MIN := 4
 const RUSH_BY := 300.0
 var fails := 0

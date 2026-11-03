@@ -28,7 +28,8 @@ def game(d, name):
     res = open(os.path.join(path, "result.txt")).read().split()
     over, winner, clock = res[1] == "true", res[3], float(res[5])
     result = ("W" if winner == "0" else "L") + " %d:%02d" % (int(clock) // 60, int(clock) % 60) if over else "alive at %d:%02d" % (int(clock) // 60, int(clock) % 60)
-    hall = re.search(r"(\d{4}) build order: Town Hall", ev)
+    log = open(os.path.join(path, "log.txt")).read() if os.path.exists(os.path.join(path, "log.txt")) else ""
+    hm = re.search(r"\[(\d\d):(\d\d)\] P1 Crown is expanding", log)
     att = re.search(r"(\d{4}) the first attack goes out \((\d+) supply\)", ev)
     opened = re.search(r"opening over: (.*)", ev)
 
@@ -37,7 +38,7 @@ def game(d, name):
     last = mins[max(mins)] if mins else None
     return "| %s | %s | %s | %s/%s/%s | %s/%s | %s/%s | %s | %s | %s | %s | %s | %s |" % (
         name, args.replace("COACH plan ", ""), result, at(4, 1), at(6, 1), at(8, 1), at(6, 2), at(8, 2), at(6, 3), at(8, 3),
-        at(8, 4), mm(hall.group(1)) if hall else "-", ("%s (%s)" % (mm(att.group(1)), att.group(2))) if att else "-",
+        at(8, 4), ("%d:%s" % (int(hm.group(1)), hm.group(2))) if hm else "-", ("%s (%s)" % (mm(att.group(1)), att.group(2))) if att else "-",
         ("%s / %s" % (last[5], last[6])) if last else "-", (opened.group(1)[:60] if opened else "-"), "")
 
 

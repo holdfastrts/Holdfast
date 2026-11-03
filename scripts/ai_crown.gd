@@ -112,8 +112,8 @@ const PLANS := {
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "build", "k": "barracks", "at": {"labs": 7}},
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 8}},
-			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
 			{"do": "army", "k": "cuirassier", "cap": 0, "first": true},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9, "army": 3}},
 			{"do": "wall_gate", "at": {"labs": 10}},
 			{"do": "attack", "n": 9, "at": {"army": 9}},
 		],
@@ -688,6 +688,31 @@ func _guard_new_hall(army: Array) -> Array:
 		_guards.clear()
 		return army
 	return super(army)
+
+
+## THE POWDER WAGON STAYS BY THE HALL WHILE THE ARMY IS AT HOME (round B, b01 Red Coast 7:59: the wagon stood 120 px
+## behind the ramp post, the Raptors at the gate blew it up and its 120 shots killed the Musketeers on HOLD: 706 of army
+## to 40). At home the soldiers refill at the Barracks, the Town Hall and the Mill anyway; it goes with the waves.
+func _tend_wagon() -> void:
+	if not on or _attacking or difficulty < 1:
+		super()
+		return
+	var w := _wagon()
+	if w == null:
+		return
+	var halls := _halls()
+	if halls.is_empty():
+		return
+	var home: Building = halls[0]
+	if game.starts.size() > team:
+		var st := Vector2(game.starts[team]) * Defs.TILE
+		for h in halls:
+			if h.built and h.center().distance_to(st) < home.center().distance_to(st):
+				home = h
+	if w.supplying:
+		w.set_supply(false)
+	if home.edge_distance(w.position) > 90.0 and w.order != "move":
+		w.cmd_move(game.approach_point(home, w.position))
 
 
 func _research() -> void:
