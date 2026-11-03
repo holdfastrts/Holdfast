@@ -44,6 +44,7 @@ from scipy import ndimage
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import import_art as ia  # noqa: E402
 import import_brood_new as ibn  # noqa: E402
+import fix_third_wing as ftw  # noqa: E402
 
 R = ibn.R
 DIRS = ["se", "s", "e", "ne", "n"]
@@ -95,35 +96,21 @@ def middle(im):
 
 def build(kind, stand_ins):
     pre = SHEET[kind]
-    sheets = {d: rows_of(f"{pre}_{d}_chatgpt.png") for d in DIRS}
+    raw = {d: rows_of(f"{pre}_{d}_chatgpt.png") for d in DIRS}
+    # THIRD WINGS erased (tools/fix_third_wing.py, docs/third_wing.md); the anchors stay the unfixed frames' (below)
+    sheets = {d: ftw.fix_rows(f"{pre}_{d}_chatgpt.png", rows)[0] for d, rows in raw.items()}
     w0 = sheets["se"][0][0].shape[1]
     target = HATCH_W if kind == "hatchlings" else CHALLENGER_W
     sc = target / float(w0)
     print(f"  scale {sc:.4f} (the south-east fly's first frame {w0} sheet px wide -> {target:.0f})")
-    small = {}
-    for d, rows in sheets.items():
-        fly, atk, death = rows[0], rows[1], rows[2]
-        if kind == "storm_challenger" and d == "ne":
-            atk = [rows[r][i] for r, i in NE_SWOOP]
-            print("  NE swoop: fly 1, fly 2, swoop 3, 4, 5, fly 1 (the sheet's swoop 1, 2, 6 face south-east)")
-        if kind == "storm_challenger" and d == "n":
-            atk = [np.flipud(im).copy() if i in N_FLIP else im for i, im in enumerate(atk)]
-            print("  N swoop: frames 2, 3, 4 flipped top to bottom (the beak points north)")
-        clean = []
-        for i, im in enumerate(atk):
-            im2, gone = drop_marks(im)
-            if gone:
-                print(f"  {d} attack frame {i + 1}: {gone} px of loose marks erased")
-            clean.append(im2)
-        small[("walk", d)] = [ia.snap_team(ia.shrink(im, sc)) for im in fly]
-        small[("idle", d)] = list(small[("walk", d)])
-        small[("attack", d)] = [ia.snap_team(ia.shrink(im, sc)) for im in clean]
-        small[("death", d)] = [ia.snap_team(ia.shrink(drop_marks(im)[0], sc)) for im in death]
+    small = shrunk(kind, sheets, sc)
+    plain = shrunk(kind, raw, sc, quiet=True)
     # IN THE AIR: lined up on the body's middle, the anchor FLY_DROP of the fly's height under it; the two lying death
-    # frames on their lowest pixel
+    # frames on their lowest pixel (both measured on the frames as drawn, before a third wing is erased: the body stays
+    # where it was)
     ibn.FEET.clear()
-    for (anim, d), lst in small.items():
-        H = small[("walk", d)][0].shape[0]
+    for (anim, d), lst in plain.items():
+        H = plain[("walk", d)][0].shape[0]
         for k, im in enumerate(lst):
             if anim == "death" and k >= 3:
                 ibn.FEET[((anim, d), k)] = ibn.anchor_of(im)
@@ -135,12 +122,38 @@ def build(kind, stand_ins):
     return small
 
 
+def shrunk(kind, sheets, sc, quiet=False):
+    """The game-size frames of every strip from the cut sheets."""
+    say = (lambda *a: None) if quiet else print
+    small = {}
+    for d, rows in sheets.items():
+        fly, atk, death = rows[0], rows[1], rows[2]
+        if kind == "storm_challenger" and d == "ne":
+            atk = [rows[r][i] for r, i in NE_SWOOP]
+            say("  NE swoop: fly 1, fly 2, swoop 3, 4, 5, fly 1 (the sheet's swoop 1, 2, 6 face south-east)")
+        if kind == "storm_challenger" and d == "n":
+            atk = [np.flipud(im).copy() if i in N_FLIP else im for i, im in enumerate(atk)]
+            say("  N swoop: frames 2, 3, 4 flipped top to bottom (the beak points north)")
+        clean = []
+        for i, im in enumerate(atk):
+            im2, gone = drop_marks(im)
+            if gone:
+                say(f"  {d} attack frame {i + 1}: {gone} px of loose marks erased")
+            clean.append(im2)
+        small[("walk", d)] = [ia.snap_team(ia.shrink(im, sc)) for im in fly]
+        small[("idle", d)] = list(small[("walk", d)])
+        small[("attack", d)] = [ia.snap_team(ia.shrink(im, sc)) for im in clean]
+        small[("death", d)] = [ia.snap_team(ia.shrink(drop_marks(im)[0], sc)) for im in death]
+    return small
+
+
 def portrait(kind, stand_ins):
     f = PORTRAIT[kind]
     if os.path.exists(R + f):
         # the owner's framed portrait (steel frame, as the other Brood portraits): cut as the Sires' (ibn.portrait)
         ibn.PORTRAIT[kind] = f
-        ibn.portrait(kind)
+        with ftw.portrait_fixed(kind):      # (its extra wing arm painted out: tools/fix_third_wing.py)
+            ibn.portrait(kind)
         return
     px = ia.load(R + CONCEPT)
     x0, y0, x1, y1 = HEADS[kind]

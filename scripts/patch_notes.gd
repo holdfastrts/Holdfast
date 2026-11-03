@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.14", "items": [
+		"NO MORE THIRD WINGS ON THE STORM LINE: a few of the painted frames had a hallucinated extra wing. The Hatchlings' south-east wing beat and five of their deaths, the Storm Challenger's south-east wing beat, the Storm Sire's south-east dive and the Hatchling and Storm Challenger portraits now show two wings. Nothing else changes: the same timing, and each body stays where it was.",
+	]},
 	{"v": "0.26.13", "items": [
 		"THE CROWN COMPUTER USES A HELD RUSH: once it has beaten off a rush (no armed enemy near its buildings for 10 s, its army worth at least what the enemy showed), it picks one move at once instead of sitting in its defensive build for minutes: a counter-attack with its whole army when it is worth half again the enemy's and has 12 supply or more, or else its second Town Hall right away (the gold held for it, the army at home covering it). Either way the defensive build ends: labourers and tech come back. The match log says which it chose and why.",
 		"No more trickle attacks from the Crown computer's Timing plan: when its scout has not sized the attack, the first wave waits for 16 supply (or 1.6 times the enemy army seen) instead of going out with 3 Musketeers.",
