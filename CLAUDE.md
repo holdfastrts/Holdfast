@@ -25,6 +25,12 @@
 
 ## Current work
 
+- EXPANSION SPOTS PER FACTION (owner, DECIDED 2026-11-03 22:25): each faction has its own optimal expansion spot (the Brood
+  already does: Mound Turtle spots). CROWN: 2nd and 3rd bases at the MINIMUM hall distance (Defs.HALL_SPACING 18) and close
+  together, covered by the main's high ground (Musketeer range from its edge) and easy to wall (walls join up); 4th base on:
+  the same, as close as possible to its other halls, without the main's high ground. Being built by the local job
+  crown-cliff-edge (with: Musketeers at the cliff edge above a threatened building, repairers that juke, Foundry/cannon
+  before the Horse Breeder once the Brood is scouted).
 - STATIC DEFENCE IS NOT A BUILD (owner, 2026-11-03 21:45): "Good base design should be for all builds. Static defense
   isn't a good strategy on its own: it is either a desperate attempt to hold a rush or a later security against harass so
   you can concentrate your army." So cw-builds-a's TURRET TURTLE plan is NOT to be merged as a strategy: at merge, take its
