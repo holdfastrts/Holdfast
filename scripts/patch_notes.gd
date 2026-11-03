@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.4", "items": [
+		"SCATTER COGS, THE GREAT WINDER'S SLOW FIELD (the owner's idea: a slow spell without magic): press SCATTER COGS (C) and tap a spot within 6 tiles. Its key arm winds up for half a second, then its hopper flings a shower of cogs, bolts and springs that litter a circle of 2.5 tiles for 15 s. Enemies on the ground in the litter move 40% slower (their attacks are not slowed); flyers and your own units are not slowed. It costs 40 cogs and the hopper refills in 25 s. The Clockwork computer throws it on clumps of charging melee (Raptors, Horsemen) and on armies running away.",
+	]},
 	{"v": "0.26.3", "items": [
 		"RAIDING HORSEMEN AT THE NEW RAMP WALL (Cottage and Gate): the computer's raid strikes the ramp Cottage as well as the gate, so the riders spread over both instead of queueing at a one-tile gate. A labourer mending the gate from the riders' side is ridden down first rather than counted as endless repair, and a worker coming into sight on the near side no longer makes the raid give up on a gate it could break.",
 	]},

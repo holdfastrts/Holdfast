@@ -731,6 +731,18 @@ const GREAT_WINDER := {"area": 200.0, "wind": 0.06, "look": 224.0, "reach": 30.0
 	"sweep_look": 256.0, "sweep_reach": 10.0, "sweep_near": 40.0, "stall": 1.0, "stall_out": 6.0, "skip": 10.0,
 	"sweep_time": 2.0, "share": 0.30, "danger": 300.0, "stride": 20.25, "frames": 12}
 const GREAT_WINDER_KIND := "great_winder"
+## SCATTER COGS (the owner's idea, 2026-11-01: "a slow spell for clockwork without magic": scripts/cog_scatter.gd,
+## docs/cog_scatter.md): the Great Winder's ability aimed at a spot within `range` px (6 tiles; it rolls closer first if
+## it is farther). The key arm winds for `cast` s (the telegraph), then its hopper flings cogs, bolts and springs in an arc
+## (`flight` s in the air, `parts` pieces you can see) that LITTER a circle of `radius` px (2.5 tiles; the squashed
+## ellipse of Game.in_ellipse). For `time` s from the landing, ENEMY ground units in the litter move at `slow` of their
+## speed (0.6: 40% slower; their attacks are not slowed); flyers are not slowed (`air`), nor are the Clockwork's own units
+## unless `slows_own` (the owner may switch it: one flag). Leaving the litter, the slow lasts `linger` s more. Costs `cost`
+## cogs (paid at the throw) and the Winder's spring needs `cooldown` s before the next. The computer throws it on a clump
+## of at least `ai_min` enemy ground units charging (melee) or running away (CogScatter.ai_tick). All guesses: Claude's,
+## 2026-11-01, written down to be tuned (docs/cog_scatter.md).
+const COG_SCATTER := {"range": 192.0, "radius": 80.0, "time": 15.0, "slow": 0.6, "linger": 0.25, "cost": 40,
+	"cooldown": 25.0, "cast": 0.5, "flight": 0.6, "parts": 34, "air": false, "slows_own": false, "ai_min": 4.0}
 
 
 ## The Tension a unit, building or research costs (gear mode's Clockwork: its `tension`; 0 for anything else).
@@ -1087,7 +1099,7 @@ const UNITS := {
 		"name": "Great Winder", "hp": 420, "armor": 3, "speed": 27, "cost": 175, "tension": 75, "time": 35.0, "supply": 4,
 		"sight": 8, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 26, "from": "heavy_works",
 		"requires": "escapement", "no_attack": true, "ground_only": true, "faction": "clockwork",
-		"about": "The Clockwork's winding machine on cog wheels, big and slow, with no weapon. It keeps the army around it WOUND: every construct near it (the ring on the ground) slowly winds up, so they do not run down off the gear ground, and run-down ones wake again. MEND: with its key arm it mends hurt Clockwork units one at a time, faster than a Winder (it costs cogs, like a repair). SWEEP: standing idle, it rolls to the Clockwork WRECKS near it (yours, and the enemy's against the Clockwork), sweeps them up with its rollers and turns them into COGS for you (30% of the unit's cog price), then rolls back; it keeps away from wrecks with enemies near them. Both are automatic; press them to switch them off. Made at the Heavy Works (once an Escapement works). Costs Tension.",
+		"about": "The Clockwork's winding machine on cog wheels, big and slow, with no weapon. It keeps the army around it WOUND: every construct near it (the ring on the ground) slowly winds up, so they do not run down off the gear ground, and run-down ones wake again. MEND: with its key arm it mends hurt Clockwork units one at a time, faster than a Winder (it costs cogs, like a repair). SWEEP: standing idle, it rolls to the Clockwork WRECKS near it (yours, and the enemy's against the Clockwork), sweeps them up with its rollers and turns them into COGS for you (30% of the unit's cog price), then rolls back; it keeps away from wrecks with enemies near them. Both are automatic; press them to switch them off. SCATTER COGS: its hopper flings cogs, bolts and springs onto a spot, and enemies on the ground in the litter move 40% slower for 15 s. Made at the Heavy Works (once an Escapement works). Costs Tension.",
 	},
 	"windup_soldier": {
 		"tags": ["light"],
@@ -2317,7 +2329,7 @@ const SHORT := {
 	"pendulum": "Slow and tough: its blades cut every ground enemy in its arc.",
 	"netter": "Nets one enemy for 4 s: it can't move or use abilities.",
 	"ballista": "Bolt thrower: its screw goes through the target into those behind.",
-	"great_winder": "Winds and mends the army near it; sweeps wrecks into cogs.",
+	"great_winder": "Winds and mends the army near it; sweeps wrecks into cogs; SCATTER COGS slows enemies.",
 	# Crown buildings
 	"town_hall": "Trains Labourers and haulers. Allows 2 Farms and 1 Powder Mill.",
 	"cottage": "Houses 8 more supply. The first unlocks the Barracks and palisade.",

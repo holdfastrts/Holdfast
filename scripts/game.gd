@@ -5409,7 +5409,7 @@ func _draw_fields() -> void:
 			draw_ring.call(e.position, Defs.TESLA_FIELD * T * field_mult(e.team), 0.9)
 	if controls and controls.mode == "cast" and controls.cast_spell != "tongue" and controls.cast_spell != "jump":
 		var info: Dictionary = spell_info(controls.cast_spell)
-		var col: Color = {"storm": Color(0.55, 0.8, 1.0, 0.9), "fog": Color(0.75, 0.85, 0.8, 0.9)}.get(controls.cast_spell, Color(0.6, 1.0, 0.35, 0.9))
+		var col: Color = {"storm": Color(0.55, 0.8, 1.0, 0.9), "fog": Color(0.75, 0.85, 0.8, 0.9), "scatter": Color(0.95, 0.75, 0.35, 0.9)}.get(controls.cast_spell, Color(0.6, 1.0, 0.35, 0.9))
 		var at: Vector2 = get_global_mouse_position() if Settings.pc() else camera.get_screen_center_position()
 		field_layer.draw_set_transform(at, 0.0, Vector2(1.0, FIELD_Y))
 		field_layer.draw_circle(Vector2.ZERO, float(info["radius"]), Color(col.r, col.g, col.b, 0.12))
@@ -7334,10 +7334,10 @@ var zones: Array = []
 
 ## A spell's numbers (range, radius, cast time...) and who casts it.
 static func spell_info(spell: String) -> Dictionary:
-	return {"storm": Defs.STORM, "fog": Defs.FOG, "miasma": Defs.MIASMA}.get(spell, Defs.FOG)
+	return {"storm": Defs.STORM, "fog": Defs.FOG, "miasma": Defs.MIASMA, "scatter": Defs.COG_SCATTER}.get(spell, Defs.FOG)
 
 
-const CASTERS := {"storm": "stormcaller", "fog": "mist_toad", "miasma": "mist_toad"}
+const CASTERS := {"storm": "stormcaller", "fog": "mist_toad", "miasma": "mist_toad", "scatter": "great_winder"}      # (scatter: the Great Winder's SCATTER COGS, scripts/cog_scatter.gd)
 
 
 ## Why this unit can't cast that spell now ("" = it can).
@@ -7355,6 +7355,8 @@ func spell_problem(u: Unit, spell: String) -> String:
 			return "Not enough charge: the Stormcaller recharges inside a Clockwork field."
 		if energy_stored(u.team) < int(Defs.STORM["cost2"]):
 			return "Not enough energy: a storm burns %d stored batteries." % int(Defs.STORM["cost2"])
+	elif spell == "scatter":
+		return CogScatter.problem(u)
 	elif not CASTERS.has(spell):
 		return "Nobody here can cast that."
 	return ""
@@ -7500,6 +7502,9 @@ func cast_spell(u: Unit, spell: String, p: Vector2) -> void:
 	if w != "":
 		tell(u.team, w)
 		return
+	if spell == "scatter":
+		CogScatter.throw(self, u, p)        # (the Great Winder's SCATTER COGS: its own zone and looks)
+		return
 	var z := {"kind": spell, "pos": p, "team": u.team, "age": 0.0, "fx": null, "stage": "", "caster": u}
 	if spell == "miasma":
 		u.charge -= float(Defs.MIASMA["cost"])
@@ -7533,6 +7538,8 @@ func cast_spell(u: Unit, spell: String, p: Vector2) -> void:
 ## Show the zone's effect for a stage ("in", "loop", "out"); falls back to sparks when the
 ## effect art isn't there.
 func _zone_fx(z: Dictionary, stage: String) -> void:
+	if z["kind"] == "scatter":
+		return           # (SCATTER COGS draws its own litter: CogScatter, Game.cog_layer)
 	var name: String = ("miasma_" if z["kind"] == "miasma" else "storm_") + stage
 	if z["kind"] == "fog":
 		_fog_fx(z, stage)
@@ -7824,6 +7831,9 @@ func _tick_zones(delta: float) -> void:
 			_zone_fx(z, "loop")
 		if z["kind"] == "fog":
 			_drift_fog(z, delta)
+			continue
+		if z["kind"] == "scatter":
+			CogScatter.tick_zone(self, z, delta)      # (SCATTER COGS: enemies in the litter are slowed)
 			continue
 		if z["kind"] == "miasma":
 			for u in units_near(p, r + 20.0):
@@ -8980,6 +8990,7 @@ var _human_vis := PackedByteArray()
 var body_bars: Node2D
 var occluded_layer: OccludedLook = null
 var stun_layer: StunMark = null        # the stun marks (StunMark)
+var cog_layer: CogScatter = null       # SCATTER COGS' litter and the pieces in the air (made when first needed: CogScatter.layer)
 var bodies: Array = []                   # the fallen still lying there (Unit._rest_in_peace)
 var _body_bar_t := 0.0
 

@@ -350,6 +350,13 @@ func note_net(cn: ChainNet) -> void:
 		fx.append(["n", "", cn.from, cn.target.net_id, cn.speed])
 
 
+## A Great Winder's SCATTER COGS (CogScatter.throw): the guest sees the pieces fly from `from` and lie at `to` (the host's
+## field slows; the guest's is looks only: CogScatter.show).
+func note_scatter(from: Vector2, to: Vector2, team: int, r: float, flight: float, life: float) -> void:
+	if fx.size() < FX_MAX:
+		fx.append(["k", "", from, to, team, r, flight, life])
+
+
 ## An area mark (Game.area_mark: [shape, p, a, r, h, colour, life, warn, zone, arm, smear, team]): the guest lays it by its
 ## own fog. And a "+N" for a guest's side (Game.own_float).
 func note_mark(m: Array) -> void:
@@ -375,6 +382,9 @@ func play_fx(list: Array) -> void:
 		if f[0] == "f":
 			if int(f[3]) == game.human:
 				game.float_text(p, String(f[1]), f[4])
+			continue
+		if f[0] == "k":
+			CogScatter.show_throw(game, p, f[3], int(f[4]), float(f[5]), float(f[6]), float(f[7]))      # (it lasts: laid seen or not)
 			continue
 		if f[0] == "c":
 			game.torn_at(p)          # a body the host's shell tore up (Game.tear_body): gone here too, seen or not
