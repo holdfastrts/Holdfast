@@ -591,6 +591,9 @@ func _nb_alarm(q: Unit) -> void:
 			_front_done = true
 			say("a Mound Turtle roots in front of the natural")
 			_front_t = null
+		elif _front_t.tesla_mode == "packed" and _foe_near(_front_t.position, 7.0 * Defs.TILE):
+			_front_t.cmd_deploy()          # (brood-ai-tune, round C g10: enemies reached it on its way: it roots where it is,
+			                               # a tank in their way, instead of walking on through them uprooted)
 		elif _front_t.tesla_mode == "packed" and _front_t.order != "nb_root" and _front_t.order != "move":
 			var fs = _nb_front_spot(q)
 			if fs != null:
@@ -600,6 +603,9 @@ func _nb_alarm(q: Unit) -> void:
 		return
 	if _front_done or not _alarm_on():
 		return
+	if _nb_threat(q) != Vector2.INF or _foe_near_home >= 150.0:
+		return          # (brood-ai-tune, round C g10: the attack is already at home: a turtle got up at 6:33 and walked into
+		                # 12 Clock Soldiers at the Mother, its 12 supply gone while it walked; it stays rooted now)
 	var cap := int(game.players[team]["cap"])
 	if cap - game.supply_used(team) < int(Defs.NB["turtle_supply"]) + 2:
 		return
@@ -1517,7 +1523,10 @@ func _nb_lay(q: Unit) -> void:
 	# grubs on the plan's curve ("drone": grubs a minute, from the 5 it starts with) come before warriors, unless the enemy
 	# is at the Mother or a rush is on; above the curve only with food to spare
 	var curve := 5.0 + game.clock / 60.0 * float(plan.get("drone", 4.0))
-	var danger := _nb_threat(q) != Vector2.INF or _rush_on() or _alarm_on() or (_under_armed() and grubs >= 16)
+	var danger := _nb_threat(q) != Vector2.INF or _rush_on() or ((_alarm_on() or _under_armed()) and grubs >= 16)
+	# (brood-ai-tune: the alarm's "warriors before grubs" only with 16 grubs or more: a Rush turned Balanced against the
+	# Clockwork saw its army out every minute from 4:41, so the alarm never went off and its grubs stood at 9 to 14 until
+	# 12:00, on a third of the Clockwork's income)
 	if grubs < want_grubs and (grubs < 6 or not any_father or (grubs < curve and not danger) or food - keep >= 200):
 		k = "grub"
 	# SPOILS FROM RAPTORS (the owner, 07:15: the Storm line and the Air rush are paid by offering Raptors up): while the
