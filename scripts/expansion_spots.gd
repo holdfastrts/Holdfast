@@ -34,7 +34,63 @@ var _placing := false
 
 
 func _ready() -> void:
+	_crown_rule()
 	refresh()
+
+
+# ------------------------------------------------------------------ the Crown's own spots (0.29.2)
+
+## THE CROWN'S RULE (the owner, DECIDED 2026-11-03 22:25; CrownSites, docs/expansion_spots.md): a Crown side's spots are
+## not the base sites rated above but its own: the 2nd and 3rd halls at the least hall distance from its halls, close
+## together, under cover of the main's cliff edge; from the 4th on as close as it may be to its halls. Rated on the bare map
+## at the start; worked out again when the side's halls change (for the viewer's own side and its allies; for every side
+## while watching: an enemy's new hall is not given away by its marks). The Clockwork and the rest keep the base-site rating.
+var crown_on := not OS.get_cmdline_user_args().has("crownspots:off")
+var _crown_halls := {}           # team -> the key of its halls when its spots were worked out
+
+
+func _crown_rule() -> void:
+	if not crown_on or game == null:
+		return
+	var crown_t := {}
+	for t in game.n_players():
+		if game.factions.size() > t and String(game.factions[t]) == "crown":
+			crown_t[t] = true
+	if crown_t.is_empty():
+		return
+	spots = spots.filter(func(s: Dictionary) -> bool: return not crown_t.has(int(s["team"])))
+	for s in CrownSites.rate_sides(game):
+		s["crown"] = true
+		spots.append(s)
+
+
+func _crown_update() -> void:
+	if not crown_on or game == null:
+		return
+	for t in game.n_players():
+		if game.factions.size() <= t or String(game.factions[t]) != "crown":
+			continue
+		if not (game.demo or game.replay != null or (game.human >= 0 and game.allied(t, game.human))):
+			continue
+		var halls: Array = game.halls_of(t, false)
+		var key := ""
+		for h in halls:
+			key += str(h.cell)
+		if not _crown_halls.has(t) and halls.size() <= 1:
+			_crown_halls[t] = key
+			continue            # (the main alone: the start's rating stands)
+		if String(_crown_halls.get(t, "-")) == key:
+			continue
+		_crown_halls[t] = key
+		var mids: Array = []
+		for h in halls:
+			mids.append(h.center() / float(Defs.TILE))
+		if mids.is_empty():
+			continue
+		spots = spots.filter(func(s: Dictionary) -> bool: return int(s["team"]) != t)
+		for s in CrownSites.pick(game, t, mids, PICKS):
+			s["crown"] = true
+			spots.append(s)
 
 
 ## Should the spots show at all, for this viewer.
@@ -64,6 +120,7 @@ func _process(delta: float) -> void:
 
 ## Work out which spots show now; redraw only if that changed (or the placing look did).
 func refresh() -> void:
+	_crown_update()
 	var now: Array = []
 	if active():
 		if _nb_view():

@@ -4657,6 +4657,8 @@ func _produce() -> void:
 			var k := _soldier_key(b, "musketeer")
 			var horse := army.filter(func(u: Unit) -> bool: return u.kind == "cuirassier").size()
 			var hk := _soldier_key(b, "cuirassier")
+			if _riders_wait():
+				hk = ""     # (AICrown: against the Brood the first horse goes to a Field Cannon)
 			var rush := _rush_open()
 			var hcap: int = r5.horsemen_cap()      # (round 5: two riders and no more against the Clockwork)
 			var horse_ok: bool = (horse < 3 or horse * 6 < army.size() or rush) if hcap < 0 else horse < hcap
@@ -4770,6 +4772,11 @@ func _soldier_key(b: Building, kind: String) -> String:
 ## A worker that a computer of its own keeps for a job (AIClockwork: the Springer raid's Winders): the economy, the
 ## builders, the escorts and worker safety leave him be.
 func _held_worker(_u: Unit) -> bool:
+	return false
+
+
+## No Horsemen trained for now (AICrown.rider_waits: the first horse goes to a gun).
+func _riders_wait() -> bool:
 	return false
 
 

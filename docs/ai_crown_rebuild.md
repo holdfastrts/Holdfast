@@ -59,6 +59,21 @@ the army is 6 strong) keeps working when the experiment is on, because the plan 
 
 ## 2. The plans
 
+### Crown doctrine lines (every plan, every matchup: apply them to any new plan)
+
+- **THE FOUNDRY BEFORE THE SECOND BARRACKS** (the owner, DECIDED 2026-11-03 22:33: "even in the Horseman rush, the rush is
+  done with 1 Barracks; I don't think there is any case you build the second Barracks before the Foundry"). The Field
+  Cannon's canister also hits flyers (the Crown's answer to massed air) and its round shot has the longest range in the game
+  (430). Every plan's opening and milestones list the Foundry before any second Barracks (`tools/test_crown_build_order.gd`
+  [table] checks it), and `AICrown._construct` turns any other call for a second Barracks with no Foundry (the shared rules,
+  the scout's plan, the bank) into the Foundry. The Horse Breeder comes either way (the gun needs a horse).
+- **Riders are an addition, never a reason to skip or delay the Foundry**: when the scout sees things landing in the base
+  (Springers, drops), enemy artillery (the Horsemen's bonus against cannons, Spitters, Arc Throwers), a greedy enemy to
+  punish, or for map control. Against the Brood the first horse goes to a Field Cannon (`AICrown.cannon_first`,
+  docs/crown_cliff_edge.md).
+- **The Crown's expansions** at the least hall distance, close together, under the main's cliff edge (CrownSites,
+  docs/expansion_spots.md "The Crown's rule").
+
 Every step waits for its trigger, then its price is set aside until it is paid; the labourers and the soldiers only get
 what is left. A Cottage comes first whenever the supply is about to block (two left, two more for each Barracks). The
 triggers are labourers (the hall trains one every 12 s while the gold lasts) or supply, never the clock. Times in brackets
@@ -77,8 +92,9 @@ are what the coached games showed on Hard (Red Coast, Greenhold, Kestrel Rise), 
 | the second Town Hall (safest rated site, three builders) | 15 labourers | 3:08-3:25 |
 
 Mill crew in the opening: 2 hands, 4 from 14 labourers, 6 from 18 (fewer while powder piles up). Then the milestones:
-a second Barracks at 20 labourers with two halls, the Horse Breeder (the rider scout) at 22, the Foundry (the ramp cannon)
-at 26 with two halls, the Armoury at 30, a third Barracks at 34, the Church at 40, a second Foundry at 48 with three
+the Foundry (the ramp cannon) at 20 labourers with two halls, the Horse Breeder at 20, a second Barracks at 22 with two
+halls (0.29.2: the Foundry before the second Barracks; before, the second Barracks at 20, the Breeder at 22, the Foundry at
+26), the Armoury at 30, a third Barracks at 34, the Church at 40, a second Foundry at 48 with three
 halls. The army is kept at 0.4 supply a labourer; the first wave at 34 supply (the doctrine's timing on two halls
 may send it sooner).
 
@@ -94,21 +110,22 @@ may send it sooner).
 | the Horse Breeder | 13 labourers | 3:30-4:10 |
 | the second Town Hall | 15 labourers | 4:00-5:05 |
 
-Mill crew: 3, 5 from 13 labourers, 6 from 16. Milestones: the second Barracks at 18 labourers, the Foundry at 22, the
-Armoury at 26, the third Barracks at 30, the Church at 36 with two halls, a second Foundry at 44 with three. Army 0.55
+Mill crew: 3, 5 from 13 labourers, 6 from 16. Milestones: the Foundry at 18 labourers, then the second Barracks at 18
+(0.29.2; before, the second Barracks at 18 and the Foundry at 22; against the Brood the Foundry comes before the Breeder
+in the opening, docs/crown_cliff_edge.md), the Armoury at 26, the third Barracks at 30, the Church at 36 with two halls, a second Foundry at 44 with three. Army 0.55
 supply a labourer; the first wave at 18 supply.
 
-### Timing attack (Powder Mill opening): one hall, two Barracks, one hit
+### Timing attack (Powder Mill opening): one hall, the Foundry, two Barracks, one hit
 
-| step | trigger | (when) |
+| step | trigger | (when, 0.29.0 order) |
 |---|---|---|
 | the ramp Cottage, the Gate | 5 supply | 0:22, 0:37 |
 | the Barracks and the Powder Mill | 7 labourers | 0:43 |
 | the second Farm | 9 labourers | 1:48 |
 | Musketeers from now on, no cap | - | 2:04 |
-| the second Barracks | 13 labourers | 3:45 |
+| the Foundry (a cannon with the wave) | 13 labourers | (0.29.2; was third, at 17) |
 | the Horse Breeder | 15 labourers | 4:30 |
-| the Foundry (a cannon with the wave) | 17 labourers | 5:45 |
+| the second Barracks | 17 labourers | (0.29.2; was first, at 13) |
 | the first attack: 22 supply | 22 army supply | 7:00-7:30 |
 
 The labourers stop at 19 in the opening. The wave goes only with an edge over the enemy army it knows (1.5 times against
@@ -128,7 +145,8 @@ Barracks at 28, Church at 30 with two halls, second Foundry at 40 with three. Ar
 | the first attack: 9 supply (3 Horsemen) | 9 army supply | 2:56-3:13 |
 
 The labourers stop at 12 until the rush is out. Mill crew 2 (the Mill comes as the first milestone). Milestones: the
-Powder Mill, second Barracks at 16 labourers, Foundry at 22, Armoury at 24, third Barracks at 30, Church at 34 with two
+Powder Mill, the Foundry at 16 labourers, then the second Barracks at 16 (0.29.2; before, the second Barracks at 16 and
+the Foundry at 22; the rush itself is done with one Barracks), Armoury at 24, third Barracks at 30, Church at 34 with two
 halls. The rush is judged by the shared rush rules (FAILED: home and build up; SUCCEEDED: mop up). After it the plan
 plays a full economy (all the posts, a normal expansion time: the shared Rush settings, 0.75 of the posts and a late
 hall, held it at 16 labourers till 6:00).

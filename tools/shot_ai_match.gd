@@ -402,7 +402,9 @@ func _event_shots(c: float) -> void:
 		if c >= float(e[0]):
 			_later.remove_at(i)
 			var who = e[2]
-			if is_instance_valid(who) and not who.dead:
+			if who is Vector2:
+				pending.append([e[1], who, 1.15])       # (a spot: tools/play_crown_1.gd's cliff edge)
+			elif is_instance_valid(who) and not who.dead:
 				var at: Vector2 = who.position if who is Unit else who.center()
 				pending.append([e[1], at, 1.15])
 
