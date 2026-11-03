@@ -174,6 +174,8 @@ static func size_of(map_id: String) -> Vector2i:
 		return Vector2i(int(sz[0]), int(sz[1]))
 	if map_id.begins_with("custom:"):
 		return custom_size(load_custom(map_id.substr(7)))
+	if map_id.begins_with("campaign:"):
+		return custom_size(Campaign.map_data(map_id.substr(9)))
 	if map_id.begins_with("blank:"):
 		var p := map_id.substr(6).split("x")
 		if p.size() == 2:
@@ -193,6 +195,8 @@ static func mode_of(map_id: String) -> String:
 		return String(MapData.NAMED[map_id]["mode"])
 	if map_id.begins_with("custom:"):
 		return custom_mode(load_custom(map_id.substr(7)))
+	if map_id.begins_with("campaign:"):
+		return custom_mode(Campaign.map_data(map_id.substr(9)))
 	return "1v1"
 
 
@@ -201,6 +205,8 @@ static func max_players(map_id: String) -> int:
 		return int(String(MapData.NAMED[map_id]["mode"]).substr(0, 1)) * 2
 	if map_id.begins_with("custom:"):
 		return (load_custom(map_id.substr(7)).get("starts", []) as Array).size()
+	if map_id.begins_with("campaign:"):
+		return 8           # (a campaign map: the mission places its own teams)
 	return 4
 
 
@@ -209,6 +215,8 @@ static func display_name(map_id: String) -> String:
 		return String(MapData.NAMED[map_id]["name"])
 	if MAPS.has(map_id):
 		return String(MAPS[map_id][0])
+	if map_id.begins_with("campaign:"):
+		return String(Campaign.map_data(map_id.substr(9)).get("name", map_id.substr(9)))
 	return map_id
 
 
@@ -309,6 +317,12 @@ func generate(map_id: String) -> Array:
 		if not data.is_empty():
 			apply_custom(data)
 			return ["custom", data.get("biome", "grass")]
+		map_id = "random"
+	if map_id.begins_with("campaign:"):
+		var cdata := Campaign.map_data(map_id.substr(9))
+		if not cdata.is_empty():
+			apply_custom(cdata)       # (a campaign map is a map editor map kept in campaign/maps)
+			return ["custom", cdata.get("biome", "grass")]
 		map_id = "random"
 	if MapData.NAMED.has(map_id):
 		return _named(map_id)

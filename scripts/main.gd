@@ -464,12 +464,7 @@ func _menu_button(id: String, save: Dictionary, pc: bool) -> Button:
 	var b: Button
 	match id:
 		"campaign":
-			b = _button("CAMPAIGN", func() -> void: pass)
-			b.disabled = true
-			b.text = Loc.t("CAMPAIGN") + "\n" + Loc.t("coming later")
-			b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-			b.tooltip_text = "The campaign is coming later."
-			b.set_meta("fs", 16 if pc else 18)
+			b = _button("CAMPAIGN", func() -> void: show_campaign())
 		"skirmish":
 			b = _button("SKIRMISH", func() -> void: show_skirmish())
 			UiStyle.primary(b)
@@ -629,6 +624,11 @@ func _on_web_back(_args: Array) -> void:
 
 
 ## ONLINE: host a game or join one by room code (ui/multiplayer_menu.gd).
+## CAMPAIGN: the storyline's hub, its war table, briefings (scripts/campaign/campaign_menu.gd).
+func show_campaign() -> void:
+	CampaignMenu.show(self)
+
+
 func show_online() -> void:
 	var root := _page()
 	var mm := MultiplayerMenu.new()
@@ -2534,8 +2534,8 @@ func _autosave(steps := false) -> void:
 	_save_job = null                      # (one at once replaces one still being written)
 	if game == null or game.over or game.demo or game.edit_mode:
 		return
-	if game.net:
-		# an online match can't be continued (no save), but its log is kept as it goes, like any match's
+	if game.net or game.mission:
+		# an online match or a campaign mission can't be continued (no save), but its log is kept as it goes, like any match's
 		if game.mlog:
 			_write_log("user://logs/unfinished.txt", game.mlog.text())
 		return
@@ -2748,10 +2748,21 @@ func start(cfg: Dictionary = {}) -> void:
 	game.map_id = cfg.get("map", "random")
 	game.sandbox = cfg.get("sandbox", false) and not watching
 	game.puppet = (cfg.has("net") and cfg["net"].get("role", "") == "guest") or watching      # online guest: the host runs the match
+	# a CAMPAIGN mission (scripts/campaign/mission_run.gd): it lays out the start, runs the triggers and decides the end
+	# (an online guest's only shows what the host's sends; a replay has none)
+	var camp: Dictionary = cfg.get("campaign", {})
+	if not camp.is_empty() and not watching:
+		var mr := MissionRun.new()
+		mr.name = "Mission"
+		mr.game = game
+		mr.setup(Campaign.mission(String(camp.get("mission", ""))), String(camp.get("mode", "solo")), cfg, game.puppet)
+		game.mission = mr
 	game.process_mode = Node.PROCESS_MODE_PAUSABLE
 	game.rng.seed = int(cfg["seed"])
 	_mark_running("match on %s: %s (seed %d)%s" % [game.map_id, " vs ".join(facs), int(cfg["seed"]), " (continued)" if cfg.has("resume") else ""])
 	add_child(game)
+	if game.mission:
+		game.add_child(game.mission)
 	print("[match] map ready")
 	if watching and game.mlog:
 		game.mlog.queue_free()     # (a replay keeps no match log of its own)
@@ -2759,8 +2770,8 @@ func start(cfg: Dictionary = {}) -> void:
 	sfx.camera = game.camera
 	sfx.game = game
 	for t in slots.size():
-		if t == human or game.puppet or slots[t]["who"] == "remote":
-			continue         # (a friend online plays that side; a guest's game runs no computers)
+		if t == human or game.puppet or slots[t]["who"] == "remote" or slots[t]["who"] == "script":
+			continue         # (a friend online plays that side; a guest's game runs no computers; a campaign's scripted side has none)
 		var ai: AI = AIBroodNew.new() if facs[t] == "brood" else AI.new()      # (the Brood's own plan: scripts/ai_brood_new.gd)
 		ai.game = game
 		ai.team = t
@@ -2819,6 +2830,11 @@ func start(cfg: Dictionary = {}) -> void:
 		st.game = game
 		game.ai_story = st
 		game.add_child(st)
+	if game.mission:
+		var mui := MissionUi.new()        # the mission's dialogue box and objectives (scripts/campaign/mission_ui.gd)
+		mui.game = game
+		mui.run = game.mission
+		ui_layer.add_child(mui)
 	if game.sandbox:
 		var sbx := SandboxPanel.new()
 		sbx.game = game
@@ -2912,6 +2928,14 @@ func _on_end(winner: int) -> void:
 	await get_tree().create_timer(1.2, true, false, true).timeout
 	if game == null:
 		return
+	if game.mission:
+		CampaignMenu.mission_end(self, game, winner, rp_path)      # (won / lost, the story's branch, then the report if wanted)
+		return
+	show_battle_report(winner, rp_path)
+
+
+## The battle report over the finished match (a campaign mission's end screen opens it on request).
+func show_battle_report(winner: int, rp_path: String) -> void:
 	var o := preload("res://scripts/ui/battle_report.gd").new()
 	o.game = game
 	o.winner = winner

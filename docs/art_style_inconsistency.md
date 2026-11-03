@@ -553,3 +553,15 @@ redraw could ask ChatGPT for a diagonal run at the straight pieces' stake size, 
 - THE ICON (tools/make_cog_scatter_icon.py, PIL): the Clockwork icon frame of ab_sweep.png, the Great Winder's own idle
   frame (mirrored, shrunk) and code-drawn cogs and a bolt along a dotted arc onto a heap. A ChatGPT icon in the
   Clockwork icon style wanted: docs/cog_scatter.md, prompt 3.
+
+## The campaign's placeholders (code, 0.30.0; scripts/campaign/still_view.gd, docs/campaign_engine.md)
+
+The campaign's art is not decided yet (owner, 2026-11-03): until it is, these are drawn in code and meant to be replaced.
+- PLACEHOLDER STILLS (StillView): a parchment card with a dawn sky, two hills, a banner in the side's colour and the
+  still's caption. Every still a mission or a hub names (briefings, debriefs, lines with a still, the hub scenes) shows
+  this until its picture exists: give the still an "image" (e.g. res://campaign/stills/<id>.png) and it is drawn instead.
+- PORTRAITS (StillView.Portrait): a framed oval in the side's colour with the speaker's initials, in the dialogue box
+  and the hub's talks; a speaker's "portrait" picture replaces it.
+- THE HUB'S HOTSPOTS: framed translucent boxes with a label over the hub's still (in the drawn scene they would sit on
+  the war table, the people and the doors); their places are fractions of the still, in campaign/campaign.json.
+- THE OBJECTIVES PANEL's tick and cross boxes are drawn lines.

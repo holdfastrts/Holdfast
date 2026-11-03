@@ -28,6 +28,9 @@ var online := false                       # connected and (guest) seated
 var refused := ""
 var version: String = ProjectSettings.get_setting("application/config/version", "dev")
 var strategy_ai := "hard"
+## A CAMPAIGN room (docs/campaign_engine.md): {"mission", "mode" ("coop" / "versus"), "seat" (the host's: "p1" / "p2")};
+## the slots come from the mission's teams and the map is the mission's. Empty: a skirmish room.
+var campaign := {}
 var denied := 0                          # host: how many colour / team picks were refused
 ## The same delay for both players (the host's choice, on unless turned off): the host's own orders wait as long as a
 ## guest's take to reach it (NetSession.hold_ms), so neither side reacts faster.
@@ -113,6 +116,27 @@ func _preset(m: String) -> void:
 			slots[i]["peer"] = old[i].get("peer", -1)
 			if _is_computer(old[i]):
 				slots[i]["who"] = old[i]["who"]
+	changed.emit()
+	_send_lobby()
+
+
+## Host: make this a campaign room for a mission played in co-op or versus (Campaign.make_cfg lays out the slots).
+func set_campaign(mission_id: String, md: String, seat := "p1") -> void:
+	if not is_host:
+		return
+	campaign = {"mission": mission_id, "mode": md, "seat": seat}
+	var cfg := Campaign.make_cfg(mission_id, md, seat, true)
+	var old_peer := -1
+	for s in slots:
+		if s["who"] == "remote" and int(s.get("peer", -1)) >= 0:
+			old_peer = int(s["peer"])
+	slots = []
+	for s in cfg["slots"]:
+		var c: Dictionary = s.duplicate()
+		c["peer"] = old_peer if c["who"] == "remote" else -1
+		slots.append(c)
+	map = String(cfg["map"])
+	mode = "campaign"
 	changed.emit()
 	_send_lobby()
 
@@ -255,7 +279,7 @@ func _send_lobby() -> void:
 		return
 	for i in slots.size():
 		if slots[i]["who"] == "remote" and int(slots[i].get("peer", -1)) >= 0:
-			link.send({"t": "lobby", "map": map, "mode": mode, "slots": _public_slots(), "you": i, "same": same_delay}, int(slots[i]["peer"]))
+			link.send({"t": "lobby", "map": map, "mode": mode, "slots": _public_slots(), "you": i, "same": same_delay, "camp": campaign}, int(slots[i]["peer"]))
 
 
 ## Start the match (host). Main.start(cfg) builds the game and calls begin() with the resolved cfg.
@@ -265,7 +289,10 @@ func make_cfg() -> Dictionary:
 		var c: Dictionary = s.duplicate()
 		c.erase("here")
 		sl.append(c)
-	return {"map": map, "slots": sl, "seed": randi(), "net": {"role": "host", "lobby": self}}
+	var cfg := {"map": map, "slots": sl, "seed": randi(), "net": {"role": "host", "lobby": self}}
+	if not campaign.is_empty():
+		cfg["campaign"] = campaign.duplicate()
+	return cfg
 
 
 # ------------------------------------------------------------------ both
@@ -290,6 +317,8 @@ func begin(game: Game, cfg: Dictionary) -> void:
 
 func _guest_cfg(cfg: Dictionary, team: int) -> Dictionary:
 	var c := {"map": cfg["map"], "seed": cfg["seed"], "slots": []}
+	if cfg.has("campaign"):
+		c["campaign"] = cfg["campaign"].duplicate()      # (the guest's mission only shows what the host's sends)
 	for i in cfg["slots"].size():
 		var s: Dictionary = cfg["slots"][i].duplicate()
 		s.erase("peer")
@@ -437,7 +466,8 @@ func _on_message(from: int, m: Dictionary) -> void:
 			map = String(m.get("map", map))
 			mode = String(m.get("mode", mode))
 			same_delay = bool(m.get("same", same_delay))
-			var hs := hash([m.get("map"), m.get("mode"), m.get("same"), m.get("slots"), m.get("you")])
+			campaign = m.get("camp", {}) if m.get("camp", {}) is Dictionary else {}
+			var hs := hash([m.get("map"), m.get("mode"), m.get("same"), m.get("slots"), m.get("you"), m.get("camp")])
 			if _got_lobby and hs == _lobby_hash:
 				return                  # (the host's regular resend: nothing new, the page is left as it is)
 			_lobby_hash = hs

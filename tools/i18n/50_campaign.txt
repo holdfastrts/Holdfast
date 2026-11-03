@@ -1,0 +1,106 @@
+# THE CAMPAIGN ENGINE (0.30.0, docs/campaign_engine.md): the hub, the war table, the briefing, the dialogue box, the
+# objectives, the mission's end. The missions' own texts are in tools/i18n/campaign/<mission>.txt.
+
+> SKIP
+pt PULAR
+es SALTAR
+
+> SOLO
+pt SOLO
+es SOLO
+
+> VERSUS
+pt VERSUS
+es VERSUS
+
+> BRIEFING
+pt INSTRUÇÕES
+es INSTRUCCIONES
+
+> OBJECTIVES
+pt OBJETIVOS
+es OBJETIVOS
+
+> (optional)
+pt (opcional)
+es (opcional)
+
+> PLACEHOLDER STILL
+pt IMAGEM PROVISÓRIA
+es IMAGEN PROVISIONAL
+
+> OPEN AN ONLINE ROOM
+pt ABRIR UMA SALA ONLINE
+es ABRIR UNA SALA EN LÍNEA
+
+> YOU PLAY:
+pt VOCÊ JOGA COM:
+es JUEGAS CON:
+
+> You against the computer.
+pt Você contra o computador.
+es Tú contra la computadora.
+
+> You and a friend online on the same side, against the computer.
+pt Você e um amigo online do mesmo lado, contra o computador.
+es Tú y un amigo en línea del mismo lado, contra la computadora.
+
+> You and a friend online on opposite sides: the story follows whoever wins.
+pt Você e um amigo online em lados opostos: a história segue quem vencer.
+es Tú y un amigo en línea en lados opuestos: la historia sigue a quien gane.
+
+> Opens after: %s
+pt Abre depois de: %s
+es Se abre después de: %s
+
+> The missions are being written.
+pt As missões estão sendo escritas.
+es Las misiones se están escribiendo.
+
+> (locked)
+pt (bloqueado)
+es (bloqueado)
+
+> (won by %s)
+pt (vencida por %s)
+es (ganada por %s)
+
+> You lead: %s
+pt Você comanda: %s
+es Tú diriges: %s
+
+> %s WIN
+pt %s VENCEM
+es %s GANAN
+
+> The story goes on: %s
+pt A história continua: %s
+es La historia continúa: %s
+
+> New storylines open: %s
+pt Novas histórias se abrem: %s
+es Se abren nuevas historias: %s
+
+> The next mission is being written.
+pt A próxima missão está sendo escrita.
+es La próxima misión se está escribiendo.
+
+> Try again: the story waits for a victory.
+pt Tente de novo: a história espera uma vitória.
+es Inténtalo de nuevo: la historia espera una victoria.
+
+> NEXT MISSION
+pt PRÓXIMA MISSÃO
+es SIGUIENTE MISIÓN
+
+> WAR TABLE
+pt MESA DE GUERRA
+es MESA DE GUERRA
+
+> GO TO
+pt IR PARA
+es IR A
+
+> Tell your friend the room code: they join from ONLINE with it.
+pt Diga o código da sala ao seu amigo: ele entra pelo ONLINE com ele.
+es Dile a tu amigo el código de la sala: entra desde ONLINE con él.

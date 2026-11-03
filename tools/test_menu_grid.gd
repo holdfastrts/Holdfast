@@ -59,7 +59,7 @@ func _run() -> void:
 	var miss := fixed.filter(func(id: String) -> bool: return not b.has(id))
 	_check("the 8 fixed slots", miss.is_empty(), miss)
 	_check("slot order", main.MENU_SLOTS == ["campaign", "skirmish", "online", "help", "replays", "editor", "continue", "settings", "exit"], main.MENU_SLOTS)
-	_check("CAMPAIGN disabled", b["campaign"].disabled and b["campaign"].tooltip_text != "", b["campaign"].text)
+	_check("CAMPAIGN enabled (0.30.0)", not b["campaign"].disabled, b["campaign"].text)
 	_check("SKIRMISH text", b["skirmish"].text == "SKIRMISH", b["skirmish"].text)
 	_check("no Esc on the main menu", main._esc_button == null, main._esc_button)
 	var save: Dictionary = SaveGame.peek()

@@ -1105,6 +1105,9 @@ func _on_message(from: int, m: Dictionary) -> void:
 		"rp":
 			if not is_host:
 				_replay_part(m)
+		"camp":
+			if not is_host and game.mission:
+				game.mission.on_net(m)      # (a campaign mission: lines, objectives, reveals from the host's: MissionRun)
 		"cam":
 			if is_host and game.rec != null and m.get("c") is Vector3:
 				game.rec.note_cam(int(peer_team.get(from, -1)), m["c"])

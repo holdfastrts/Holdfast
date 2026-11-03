@@ -1,0 +1,58 @@
+{
+	"title": "THE CAMPAIGN",
+	"storylines": [
+		{"id": "prologue", "title": "Prologue: The Revolt",
+			"about": "The year 2500. The world has fallen back to muskets and sail. A revolt flares against the Crown.",
+			"missions": ["p01_revolt"],
+			"hub": {
+				"title": "The Crown's Camp",
+				"still": {"caption": "The Crown's camp on the east bank: tents, a map table under an awning, the sergeant by the fire."},
+				"colour": 1,
+				"hotspots": [
+					{"id": "war_table", "kind": "war_table", "label": "WAR TABLE", "rect": [0.08, 0.30, 0.30, 0.34]},
+					{"id": "sergeant", "kind": "talk", "label": "SERGEANT WICK", "talk": "sergeant", "rect": [0.45, 0.40, 0.18, 0.36]},
+					{"id": "captain", "kind": "talk", "label": "CAPTAIN HALE", "talk": "captain", "rect": [0.68, 0.34, 0.18, 0.42]},
+					{"id": "armoury", "kind": "room", "label": "ARMOURY", "room": "armoury", "rect": [0.84, 0.08, 0.14, 0.24]}
+				],
+				"talks": {
+					"sergeant": {"name": "Sergeant Wick", "colour": 1, "entries": [
+						{"after": "", "lines": ["Farmers with muskets, sir. They have courage, I'll grant the varlets that.", "Mind the ford: it's narrow, and they'll be waiting on the far bank."]},
+						{"after": "p01_revolt", "lines": ["Quiet as a churchyard, that village, now.", "There's talk in the camp, sir: of things under the earth, and clocks that walk."]}
+					]},
+					"captain": {"name": "Captain Hale", "colour": 1, "entries": [
+						{"after": "", "lines": ["The Crown wants this revolt ended, and quickly. Zounds, I'd rather be home.", "Study the war table, then we march."]},
+						{"after": "p01_revolt", "lines": ["Well done. By my troth, the Crown has stranger troubles than farmers now.", "Two letters came: one from an explorer of the deep earth, one from a clockmaker. Read them both."]}
+					]}
+				}
+			}},
+		{"id": "explorer", "title": "The Explorer", "requires": "p01_revolt",
+			"about": "A Catholic explorer goes down into the deep earth and finds the Brood. (Being written.)",
+			"missions": [],
+			"hub": {
+				"title": "The Explorer's Ship",
+				"still": {"caption": "A ship's cabin lit by a lantern: charts of caverns, a crucifix, a cage of strange eggs."},
+				"colour": 2,
+				"hotspots": [
+					{"id": "war_table", "kind": "war_table", "label": "CHARTS", "rect": [0.10, 0.35, 0.30, 0.30]},
+					{"id": "armoury", "kind": "room", "label": "ARMOURY", "room": "armoury", "rect": [0.70, 0.30, 0.20, 0.30]}
+				],
+				"talks": {}
+			}},
+		{"id": "clockmaker", "title": "The Clockmaker", "requires": "p01_revolt",
+			"about": "A clockmaker grows afraid of his own Clockwork. (Being written.)",
+			"missions": [],
+			"hub": {
+				"title": "The Clockmaker's Workshop",
+				"still": {"caption": "A workshop of gears and springs; a half-built Clock Soldier on the bench, a priest at the door."},
+				"colour": 5,
+				"hotspots": [
+					{"id": "war_table", "kind": "war_table", "label": "PLANS", "rect": [0.10, 0.35, 0.30, 0.30]},
+					{"id": "armoury", "kind": "room", "label": "ARMOURY", "room": "armoury", "rect": [0.70, 0.30, 0.20, 0.30]}
+				],
+				"talks": {}
+			}}
+	],
+	"rooms": {
+		"armoury": {"title": "ARMOURY", "text": "Upgrades between missions will be bought here. (Not decided yet: a placeholder.)"}
+	}
+}

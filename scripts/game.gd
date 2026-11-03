@@ -21,6 +21,7 @@ var net: NetSession = null           # online: the session (host or guest), else
 var rec: ReplayRecorder = null       # the replay being recorded (scripts/replay/replay_recorder.gd), else null
 var net_next := 1                    # the next net id (NetSession.assign: the online session and the recorder share it)
 var replay: ReplayPlayer = null      # watching a replay: this game is a puppet fed from the file (replay_player.gd)
+var mission: MissionRun = null       # a campaign mission (scripts/campaign/mission_run.gd): its start, triggers and end
 var factions: Array = ["crown", "crown"]
 var colours: Array = [0, 1]                 # each player's index into Defs.PALETTE
 var sides: Array = [0, 1]                   # players on the same side are allies
@@ -2022,7 +2023,11 @@ func _paint_ramps(img: Image, area := Rect2i(0, 0, W, H)) -> void:
 
 
 func _start_positions() -> void:
+	if mission:
+		mission.before_start()       # (a campaign mission: its teams' hall spots)
 	for t in n_players():
+		if mission and not mission.standard_start(t):
+			continue                 # (a mission team that starts with only what the mission gives it)
 		if BroodNew.on(self, t):
 			BroodNew.start(self, t, starts[t])       # (the Brood: the Mother, a Rootmaw, grubs; no buildings)
 			continue
@@ -2051,6 +2056,8 @@ func _start_positions() -> void:
 		players[t]["gold"] = int(f.get("start_gold", Defs.START_GOLD))
 		if factions[t] == "clockwork" and Defs.line_mode:
 			line_net.lay_start(t)       # a finished main from the Clocktower to its first buildings
+	if mission:
+		mission.after_start()        # (the mission's own units, buildings and resources)
 	_update_swamp()
 
 
@@ -8790,6 +8797,8 @@ func _update_vis() -> void:
 				_fog_runs_add(u.team, c, u.sight)
 	_fog_runs_flush()
 	_stamp_shot_reveals()
+	if mission:
+		mission.stamp_reveals()      # (areas a campaign mission shows)
 	_fog_mode = 0
 	Prof.add("game/fog/units", _z)
 	_z = Time.get_ticks_usec()
@@ -9350,6 +9359,9 @@ func _tick_game(delta: float) -> void:
 ## A player with no buildings left is out; the match ends when one side is left
 ## (or, when you're playing, when you're out).
 func _check_end() -> void:
+	if mission:
+		mission.check_end()          # (a campaign mission ends by its objectives: MissionRun.check_end)
+		return
 	var alive: Array = []
 	alive.resize(n_players())
 	alive.fill(0)

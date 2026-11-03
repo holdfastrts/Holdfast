@@ -27,7 +27,8 @@ def gd(s):
 def parse():
     entries = {}
     errors = []
-    for path in sorted(glob.glob(os.path.join(HERE, "i18n", "*.txt"))):
+    # (the campaign's texts: one file per mission or for the campaign itself, tools/i18n/campaign/*.txt)
+    for path in sorted(glob.glob(os.path.join(HERE, "i18n", "*.txt"))) + sorted(glob.glob(os.path.join(HERE, "i18n", "campaign", "*.txt"))):
         cur = None
         for n, line in enumerate(open(path, encoding="utf-8").read().split("\n"), 1):
             where = "%s:%d" % (os.path.basename(path), n)

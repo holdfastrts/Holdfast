@@ -145,6 +145,9 @@ func _on_failed(_why: String) -> void:
 
 func _draw_room() -> void:
 	var l := _lobby()
+	if not l.campaign.is_empty():
+		_draw_campaign_room(l)
+		return
 	var host := l.is_host
 	# Title, room code and the quick set-ups (the skirmish's top bar)
 	var top := HBoxContainer.new()
@@ -420,3 +423,103 @@ func _slot_row(l: NetLobby, i: int) -> Control:
 	tb.disabled = not l.is_host
 	h.add_child(tb)
 	return h
+
+
+## A CAMPAIGN room (a mission played in co-op or versus, made from the CAMPAIGN page): the mission, the mode, who
+## plays which side; no faction, colour or map choices (the mission sets them). The host starts.
+func _draw_campaign_room(l: NetLobby) -> void:
+	var host := l.is_host
+	var mid := String(l.campaign.get("mission", ""))
+	var md := String(l.campaign.get("mode", "coop"))
+	var m := Campaign.mission(mid)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 8)
+	_box.add_child(top)
+	var t := UiStyle.heading(Loc.t("ROOM") + "  " + l.code, 38, Color(1, 0.9, 0.55))
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	top.add_child(t)
+	var cp: Button
+	cp = main._button("COPY", func() -> void:
+		DisplayServer.clipboard_set(l.code)
+		cp.text = Loc.t("COPIED"))
+	cp.custom_minimum_size = Vector2(130, 44)
+	top.add_child(cp)
+	var body := HBoxContainer.new()
+	body.add_theme_constant_override("separation", 14)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_box.add_child(body)
+	var pp := PanelContainer.new()
+	pp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_child(pp)
+	var pv := VBoxContainer.new()
+	pv.add_theme_constant_override("separation", 10)
+	pp.add_child(pv)
+	pv.add_child(UiStyle.text(Loc.t("CAMPAIGN") + ": " + Loc.t(Campaign.MODE_LABEL.get(md, md)), 16, UiStyle.MUTED, HORIZONTAL_ALIGNMENT_LEFT, true))
+	pv.add_child(UiStyle.heading(Loc.t(String(m.get("title", mid))), 30, UiStyle.TRIM))
+	var sm := UiStyle.text(String(m.get("summary", "")), 17, UiStyle.TEXT, HORIZONTAL_ALIGNMENT_LEFT)
+	sm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pv.add_child(sm)
+	# who plays what: the host's seat and the friend's
+	for i in l.slots.size():
+		var s: Dictionary = l.slots[i]
+		var who := String(s["who"])
+		if who != "you" and who != "remote":
+			continue
+		var mine := (host and who == "you") or (not host and i == l.my_slot)
+		var here: bool = who == "you" or ((int(s.get("peer", -1)) >= 0) if host else bool(s.get("here", false)))
+		var nm := ("YOU" if mine else ("HOST" if who == "you" else "FRIEND")) if here else "waiting..."
+		var side_id := ""
+		for tm in m.get("teams", []):
+			if String(tm["id"]) == String(s.get("team_id", "")):
+				side_id = String(tm["side"])
+		var row := UiStyle.text(Loc.t(nm) + "  ·  " + Loc.t(Campaign.side_name(m, side_id)), 20, Defs.colour_of(int(s.get("colour", 0))).lightened(0.35), HORIZONTAL_ALIGNMENT_LEFT, true)
+		pv.add_child(row)
+	var st := UiStyle.text(l.status, 15, UiStyle.BAD if l.refused != "" or not l.online else UiStyle.TEXT, HORIZONTAL_ALIGNMENT_LEFT)
+	st.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pv.add_child(st)
+	var hint := UiStyle.text("Tell your friend the room code: they join from ONLINE with it.", 15, UiStyle.MUTED, HORIZONTAL_ALIGNMENT_LEFT)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pv.add_child(hint)
+	var mp := PanelContainer.new()
+	mp.custom_minimum_size = Vector2(360, 0)
+	body.add_child(mp)
+	var bv := VBoxContainer.new()
+	mp.add_child(bv)
+	var my_side := ""
+	var me := l.my_slot
+	if host:
+		for i in l.slots.size():
+			if String(l.slots[i]["who"]) == "you":
+				me = i
+	for tm in m.get("teams", []):
+		var sl: Dictionary = l.slots[clampi(me, 0, l.slots.size() - 1)]
+		if String(tm["id"]) == String(sl.get("team_id", "")):
+			my_side = String(tm["side"])
+	var br: Dictionary = m.get("briefing", {}).get(my_side, {})
+	var sv := StillView.make(m.get("stills", {}).get(String(br.get("still", "")), {}), Color(0.7, 0.2, 0.2))
+	sv.custom_minimum_size = Vector2(340, 200)
+	sv.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bv.add_child(sv)
+	var row2 := HBoxContainer.new()
+	row2.add_theme_constant_override("separation", 16)
+	row2.alignment = BoxContainer.ALIGNMENT_CENTER
+	_box.add_child(row2)
+	var back: Button = main._button("LEAVE", func() -> void:
+		l.dispose()
+		main.net_lobby = null
+		_draw())
+	back.custom_minimum_size = Vector2(200, 60)
+	row2.add_child(back)
+	var problem := l.problem() if host else ""
+	var go: Button = main._button("START", func() -> void:
+		Sfx.play_any(["ui/start_match"])
+		main.start(l.make_cfg()))
+	go.custom_minimum_size = Vector2(300, 60)
+	go.add_theme_font_size_override("font_size", 28)
+	UiStyle.primary(go)
+	go.disabled = (not host) or problem != ""
+	row2.add_child(go)
+	if problem != "":
+		row2.add_child(UiStyle.text(problem, 16, UiStyle.BAD))
+	elif not host:
+		row2.add_child(UiStyle.text("The host starts the game.", 16, UiStyle.MUTED))

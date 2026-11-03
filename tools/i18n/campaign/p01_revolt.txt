@@ -1,0 +1,158 @@
+# Mission p01_revolt (campaign/missions/p01_revolt.json): the test mission's texts. PLACEHOLDER story: replace freely.
+# Town Hall = Prefeitura / Ayuntamiento (as in the game).
+
+> The Revolt at the Ford
+pt A Revolta no Vau
+es La Revuelta del Vado
+
+> A short first mission: the Crown's column crosses the ford and puts down a village revolt.
+pt Uma primeira missão curta: a coluna da Coroa atravessa o vau e esmaga a revolta de uma aldeia.
+es Una primera misión corta: la columna de la Corona cruza el vado y aplasta la revuelta de una aldea.
+
+> The Rebels
+pt Os Rebeldes
+es Los Rebeldes
+
+> The Crown's column, sent to put down the revolt.
+pt A coluna da Coroa, enviada para esmagar a revolta.
+es La columna de la Corona, enviada a aplastar la revuelta.
+
+> The villagers who have risen against the Crown.
+pt Os aldeões que se levantaram contra a Coroa.
+es Los aldeanos que se han alzado contra la Corona.
+
+> Burn the rebels' Town Hall.
+pt Queime a Prefeitura dos rebeldes.
+es Quema el Ayuntamiento de los rebeldes.
+
+> Captain Hale must live.
+pt O Capitão Hale deve sobreviver.
+es El Capitán Hale debe sobrevivir.
+
+> Take the ford with five men.
+pt Tome o vau com cinco homens.
+es Toma el vado con cinco hombres.
+
+> Bring down the ringleader.
+pt Derrube o cabecilha.
+es Abate al cabecilla.
+
+> Hold the village: the whole county will rise with you.
+pt Segure a aldeia: o condado inteiro se levantará com vocês.
+es Resiste en la aldea: todo el condado se alzará con vosotros.
+
+> Your Town Hall must stand.
+pt Sua Prefeitura deve ficar de pé.
+es Tu Ayuntamiento debe seguir en pie.
+
+> Kill the Crown's captain.
+pt Mate o capitão da Coroa.
+es Mata al capitán de la Corona.
+
+> Cornet Ashby
+pt Alferes Ashby
+es Alférez Ashby
+
+> Tom Drury
+pt Tom Drury
+es Tom Drury
+
+> Zounds, Sergeant, a whole village in arms against the Crown! Over the ford, and we'll have this done by supper.
+pt Com mil diabos, Sargento, uma aldeia inteira em armas contra a Coroa! Atravessamos o vau e acabamos com isto até a ceia.
+es ¡Voto a tal, Sargento, una aldea entera en armas contra la Corona! Cruzamos el vado y lo acabamos antes de la cena.
+
+> Farmers with muskets, sir. By my troth, they'll run at the first volley. Most of them.
+pt Lavradores com mosquetes, senhor. Por minha fé, vão fugir na primeira descarga. A maioria.
+es Granjeros con mosquetes, señor. Por mi fe, huirán a la primera descarga. Casi todos.
+
+> Pick your men with a box, sir, and right-click the ground to march them. The ford is to the west.
+pt Escolha seus homens com uma caixa, senhor, e clique com o botão direito no chão para marchar. O vau fica a oeste.
+es Elige a tus hombres con un recuadro, señor, y haz clic derecho en el suelo para que marchen. El vado está al oeste.
+
+> The Crown's lobsters are at the ford, lads. Hold this village and the whole county rises with us!
+pt As lagostas da Coroa estão no vau, rapazes. Seguremos esta aldeia e o condado inteiro se levanta conosco!
+es Las langostas de la Corona están en el vado, muchachos. ¡Resistamos en esta aldea y todo el condado se alzará con nosotros!
+
+> Keep the Town Hall standing. Train what men you can at the barracks.
+pt Mantenham a Prefeitura de pé. Treinem os homens que puderem no quartel.
+es Mantened el Ayuntamiento en pie. Entrenad a los hombres que podáis en el cuartel.
+
+> They're firing from the far bank, the knaves!
+pt Estão atirando da outra margem, os patifes!
+es ¡Disparan desde la otra orilla, los bellacos!
+
+> Keep the muskets in a line, sir, and let the rascals come to us. Right-click a man to shoot at him.
+pt Mantenha os mosquetes em linha, senhor, e deixe os malandros virem até nós. Clique com o botão direito num homem para atirar nele.
+es Mantén los mosquetes en línea, señor, y deja que los granujas vengan a nosotros. Haz clic derecho en un hombre para dispararle.
+
+> Out, out! Drive the poltroons back into the river!
+pt Fora, fora! Joguem os covardes de volta no rio!
+es ¡Fuera, fuera! ¡Echad a esos cobardes de vuelta al río!
+
+> The ford is ours. On to the village, and burn their hall!
+pt O vau é nosso. Para a aldeia, e queimem a prefeitura deles!
+es El vado es nuestro. ¡A la aldea, y quemad su ayuntamiento!
+
+> The Crown's horse, Captain! Point us at the rapscallions!
+pt A cavalaria da Coroa, Capitão! Aponte-nos os tratantes!
+es ¡La caballería de la Corona, Capitán! ¡Señálenos a esos truhanes!
+
+> Hold, lads! Hold for the county!
+pt Firmes, rapazes! Firmes pelo condado!
+es ¡Firmes, muchachos! ¡Firmes por el condado!
+
+> Their ringleader is down! The varlets are wavering, sir!
+pt O cabecilha caiu! Os velhacos estão vacilando, senhor!
+es ¡Ha caído el cabecilla! ¡Los bribones vacilan, señor!
+
+> The Crown's column musters on the east bank at dawn; the rebel village smokes across the river.
+pt A coluna da Coroa se reúne na margem leste ao amanhecer; a aldeia rebelde fumega do outro lado do rio.
+es La columna de la Corona forma en la orilla este al amanecer; la aldea rebelde humea al otro lado del río.
+
+> Villagers with muskets and scythes under a home-made banner, the Town Hall behind them.
+pt Aldeões com mosquetes e foices sob um estandarte caseiro, a Prefeitura atrás deles.
+es Aldeanos con mosquetes y guadañas bajo un estandarte casero, el Ayuntamiento tras ellos.
+
+> The rebels' Town Hall burns; the Crown's colours fly over the ford.
+pt A Prefeitura dos rebeldes arde; as cores da Coroa tremulam sobre o vau.
+es El Ayuntamiento de los rebeldes arde; los colores de la Corona ondean sobre el vado.
+
+> Beacons on every hill: the county has risen against the Crown.
+pt Fogueiras em cada colina: o condado se levantou contra a Coroa.
+es Hogueras en cada colina: el condado se ha alzado contra la Corona.
+
+> The year 2500. The great machines are long gone; the world fights with muskets and sail again.
+pt O ano 2500. As grandes máquinas se foram há muito; o mundo luta de novo com mosquetes e velas.
+es El año 2500. Las grandes máquinas desaparecieron hace mucho; el mundo lucha otra vez con mosquetes y velas.
+
+> A village by the ford has risen against the Crown. You lead the column sent to end it.
+pt Uma aldeia junto ao vau se levantou contra a Coroa. Você comanda a coluna enviada para acabar com isso.
+es Una aldea junto al vado se ha alzado contra la Corona. Tú diriges la columna enviada a acabar con ello.
+
+> Cross the ford and burn the rebels' Town Hall. Keep Captain Hale alive.
+pt Atravesse o vau e queime a Prefeitura dos rebeldes. Mantenha o Capitão Hale vivo.
+es Cruza el vado y quema el Ayuntamiento de los rebeldes. Mantén con vida al Capitán Hale.
+
+> Your village has risen against the Crown, and the Crown's column is at the ford.
+pt Sua aldeia se levantou contra a Coroa, e a coluna da Coroa está no vau.
+es Tu aldea se ha alzado contra la Corona, y la columna de la Corona está en el vado.
+
+> Hold the village for eight minutes and the whole county will rise with you.
+pt Segure a aldeia por oito minutos e o condado inteiro se levantará com vocês.
+es Resiste en la aldea ocho minutos y todo el condado se alzará con vosotros.
+
+> The revolt is crushed
+pt A revolta foi esmagada
+es La revuelta ha sido aplastada
+
+> The village is quiet again. But the Crown's eyes turn to stranger troubles: things in the deep earth, and machines that tick.
+pt A aldeia está quieta de novo. Mas os olhos da Coroa se voltam para problemas mais estranhos: coisas nas profundezas da terra, e máquinas que fazem tique-taque.
+es La aldea vuelve a estar tranquila. Pero los ojos de la Corona se vuelven hacia problemas más extraños: cosas en las profundidades de la tierra, y máquinas que hacen tictac.
+
+> The county rises
+pt O condado se levanta
+es El condado se alza
+
+> The column fell back over the ford, and beacons burn on every hill. The Crown has bigger troubles coming.
+pt A coluna recuou pelo vau, e fogueiras ardem em cada colina. A Coroa tem problemas maiores pela frente.
+es La columna retrocedió por el vado, y arden hogueras en cada colina. A la Corona le esperan problemas mayores.

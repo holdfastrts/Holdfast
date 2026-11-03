@@ -1,0 +1,129 @@
+{
+	"id": "p01_revolt",
+	"title": "The Revolt at the Ford",
+	"summary": "A short first mission: the Crown's column crosses the ford and puts down a village revolt.",
+	"map": "campaign:ford_village",
+	"modes": ["solo", "coop", "versus"],
+
+	"sides": [
+		{"id": "crown", "name": "The Crown", "about": "The Crown's column, sent to put down the revolt."},
+		{"id": "rebels", "name": "The Rebels", "about": "The villagers who have risen against the Crown."}
+	],
+
+	"teams": [
+		{"id": "column", "side": "crown", "faction": "crown", "colour": 1, "start": "none", "camera": "camp", "gold": 150,
+			"control": {"solo": "p1", "coop": "p1", "versus": "p1"}},
+		{"id": "horse", "side": "crown", "faction": "crown", "colour": 3, "start": "none", "camera": "camp",
+			"control": {"solo": "script", "coop": "p2", "versus": "script"}},
+		{"id": "rebels", "side": "rebels", "faction": "crown", "colour": 0, "start": "standard", "hall": [14, 28],
+			"hall_tag": "rebel_hall", "gold": 200, "camera": "village",
+			"control": {"solo": "script", "coop": "script", "versus": "p2"}}
+	],
+
+	"areas": {
+		"village": [10, 22, 26, 18],
+		"ford_west": [42, 27, 9, 9],
+		"ford": [52, 27, 14, 10],
+		"camp": [72, 22, 20, 16],
+		"east_road": [89, 27, 6, 10]
+	},
+
+	"units": [
+		{"team": "column", "kind": "dismounted", "count": 1, "at": "camp", "tag": "captain"},
+		{"team": "column", "kind": "musketeer", "count": 8, "at": "camp", "tag": "column_foot"},
+		{"team": "column", "kind": "cuirassier", "count": 2, "at": "camp"},
+		{"team": "horse", "kind": "cuirassier", "count": 3, "at": "camp", "modes": ["coop"]},
+		{"team": "rebels", "kind": "musketeer", "count": 5, "at": "ford_west", "tag": "ford_guard", "order": "hold"},
+		{"team": "rebels", "kind": "musketeer", "count": 4, "at": "village", "tag": "militia", "order": "hold"},
+		{"team": "rebels", "kind": "dismounted", "count": 1, "at": "village", "tag": "ringleader", "order": "hold"}
+	],
+	"buildings": [
+		{"team": "rebels", "kind": "cottage", "at": "village"},
+		{"team": "rebels", "kind": "barracks", "at": "village"}
+	],
+
+	"wiped_out": {"crown": 0, "rebels": 0},
+
+	"objectives": [
+		{"id": "burn", "side": "crown", "primary": true, "kind": "destroy", "tag": "rebel_hall",
+			"text": "Burn the rebels' Town Hall."},
+		{"id": "captain", "side": "crown", "primary": true, "kind": "protect", "tag": "captain",
+			"text": "Captain Hale must live."},
+		{"id": "ford", "side": "crown", "primary": false, "kind": "reach", "side_units": "crown", "area": "ford", "count": 5,
+			"text": "Take the ford with five men."},
+		{"id": "ringleader", "side": "crown", "primary": false, "kind": "destroy", "tag": "ringleader",
+			"text": "Bring down the ringleader."},
+		{"id": "hold", "side": "rebels", "primary": true, "kind": "survive", "time": 480,
+			"text": "Hold the village: the whole county will rise with you."},
+		{"id": "hall", "side": "rebels", "primary": true, "kind": "protect", "tag": "rebel_hall",
+			"text": "Your Town Hall must stand."},
+		{"id": "kill_captain", "side": "rebels", "primary": false, "kind": "destroy", "tag": "captain",
+			"text": "Kill the Crown's captain."}
+	],
+
+	"triggers": [
+		{"id": "intro", "when": {"time": 1}, "do": [{"say": ["i1", "i2", "tip1"]}]},
+		{"id": "intro_rebels", "when": {"time": 1}, "modes": ["versus"], "do": [{"say": ["r1", "r2"]}]},
+		{"id": "at_ford", "when": {"count": {"side": "crown", "area": "ford", "at_least": 3}}, "do": [{"say": ["f1", "tip2"]}]},
+		{"id": "militia_go", "when": {"fired": "at_ford"}, "delay": 10, "do": [
+			{"order": {"tag": "militia", "do": "attack", "to": "ford_west"}},
+			{"say": ["m1"]}]},
+		{"id": "ford_taken", "when": {"done": "ford"}, "do": [
+			{"say": ["ft1"]},
+			{"reveal": {"area": "village", "side": "crown", "secs": 20}},
+			{"ping": {"area": "village"}}]},
+		{"id": "horse", "when": {"time": 120}, "do": [
+			{"spawn": {"team": "horse", "kind": "cuirassier", "count": 4, "at": "east_road", "tag": "relief"}},
+			{"order": {"tag": "relief", "do": "attack", "to": "ford_west"}},
+			{"say": ["h1"]}]},
+		{"id": "hall_hurt", "when": {"hurt": "rebel_hall"}, "do": [{"say": ["b1"]}]},
+		{"id": "ringleader_down", "when": {"dead": "ringleader"}, "do": [{"say": ["rd1"]}]}
+	],
+
+	"speakers": {
+		"captain": {"name": "Captain Hale", "side": "crown"},
+		"sergeant": {"name": "Sergeant Wick", "side": "crown"},
+		"cornet": {"name": "Cornet Ashby", "side": "crown"},
+		"ringleader": {"name": "Tom Drury", "side": "rebels"}
+	},
+
+	"lines": {
+		"i1": {"who": "captain", "text": "Zounds, Sergeant, a whole village in arms against the Crown! Over the ford, and we'll have this done by supper."},
+		"i2": {"who": "sergeant", "text": "Farmers with muskets, sir. By my troth, they'll run at the first volley. Most of them."},
+		"tip1": {"who": "sergeant", "to": "crown", "text": "Pick your men with a box, sir, and right-click the ground to march them. The ford is to the west."},
+		"r1": {"who": "ringleader", "to": "rebels", "text": "The Crown's lobsters are at the ford, lads. Hold this village and the whole county rises with us!"},
+		"r2": {"who": "ringleader", "to": "rebels", "text": "Keep the Town Hall standing. Train what men you can at the barracks."},
+		"f1": {"who": "sergeant", "text": "They're firing from the far bank, the knaves!"},
+		"tip2": {"who": "sergeant", "to": "crown", "text": "Keep the muskets in a line, sir, and let the rascals come to us. Right-click a man to shoot at him."},
+		"m1": {"who": "ringleader", "text": "Out, out! Drive the poltroons back into the river!"},
+		"ft1": {"who": "captain", "text": "The ford is ours. On to the village, and burn their hall!"},
+		"h1": {"who": "cornet", "text": "The Crown's horse, Captain! Point us at the rapscallions!"},
+		"b1": {"who": "ringleader", "text": "Hold, lads! Hold for the county!"},
+		"rd1": {"who": "sergeant", "text": "Their ringleader is down! The varlets are wavering, sir!"}
+	},
+
+	"stills": {
+		"muster": {"caption": "The Crown's column musters on the east bank at dawn; the rebel village smokes across the river."},
+		"rebel_banner": {"caption": "Villagers with muskets and scythes under a home-made banner, the Town Hall behind them."},
+		"hall_burns": {"caption": "The rebels' Town Hall burns; the Crown's colours fly over the ford."},
+		"county_rises": {"caption": "Beacons on every hill: the county has risen against the Crown."}
+	},
+
+	"briefing": {
+		"crown": {"still": "muster", "text": [
+			"The year 2500. The great machines are long gone; the world fights with muskets and sail again.",
+			"A village by the ford has risen against the Crown. You lead the column sent to end it.",
+			"Cross the ford and burn the rebels' Town Hall. Keep Captain Hale alive."]},
+		"rebels": {"still": "rebel_banner", "text": [
+			"The year 2500. The great machines are long gone; the world fights with muskets and sail again.",
+			"Your village has risen against the Crown, and the Crown's column is at the ford.",
+			"Hold the village for eight minutes and the whole county will rise with you."]}
+	},
+
+	"debrief": {
+		"crown": {"still": "hall_burns", "title": "The revolt is crushed", "text": "The village is quiet again. But the Crown's eyes turn to stranger troubles: things in the deep earth, and machines that tick."},
+		"rebels": {"still": "county_rises", "title": "The county rises", "text": "The column fell back over the ford, and beacons burn on every hill. The Crown has bigger troubles coming."}
+	},
+
+	"next": {"crown": "", "rebels": ""}
+}

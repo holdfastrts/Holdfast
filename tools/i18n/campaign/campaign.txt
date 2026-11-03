@@ -1,0 +1,115 @@
+# The campaign's own texts (campaign/campaign.json): storylines, hubs, talks, rooms. PLACEHOLDER story (the real one
+# is being written with the owner): replace freely. Period words: knave = patife / bellaco, varlet = velhaco / bribón,
+# zounds = com mil diabos / ¡voto a tal!, by my troth = por minha fé / por mi fe.
+
+> THE CAMPAIGN
+pt A CAMPANHA
+es LA CAMPAÑA
+
+> Prologue: The Revolt
+pt Prólogo: A Revolta
+es Prólogo: La Revuelta
+
+> The year 2500. The world has fallen back to muskets and sail. A revolt flares against the Crown.
+pt O ano 2500. O mundo voltou aos mosquetes e às velas. Uma revolta explode contra a Coroa.
+es El año 2500. El mundo ha vuelto a los mosquetes y las velas. Una revuelta estalla contra la Corona.
+
+> The Crown's Camp
+pt O Acampamento da Coroa
+es El Campamento de la Corona
+
+> The Crown's camp on the east bank: tents, a map table under an awning, the sergeant by the fire.
+pt O acampamento da Coroa na margem leste: tendas, uma mesa de mapas sob um toldo, o sargento junto ao fogo.
+es El campamento de la Corona en la orilla este: tiendas, una mesa de mapas bajo un toldo, el sargento junto al fuego.
+
+> SERGEANT WICK
+pt SARGENTO WICK
+es SARGENTO WICK
+
+> CAPTAIN HALE
+pt CAPITÃO HALE
+es CAPITÁN HALE
+
+> Sergeant Wick
+pt Sargento Wick
+es Sargento Wick
+
+> Captain Hale
+pt Capitão Hale
+es Capitán Hale
+
+> Farmers with muskets, sir. They have courage, I'll grant the varlets that.
+pt Lavradores com mosquetes, senhor. Coragem eles têm, isso eu concedo aos velhacos.
+es Granjeros con mosquetes, señor. Valor tienen, eso se lo concedo a los bribones.
+
+> Mind the ford: it's narrow, and they'll be waiting on the far bank.
+pt Cuidado com o vau: é estreito, e eles vão esperar na outra margem.
+es Cuidado con el vado: es estrecho, y nos esperarán en la otra orilla.
+
+> Quiet as a churchyard, that village, now.
+pt Quieta como um cemitério, aquela aldeia, agora.
+es Tranquila como un camposanto, esa aldea, ahora.
+
+> There's talk in the camp, sir: of things under the earth, and clocks that walk.
+pt Falam no acampamento, senhor: de coisas debaixo da terra, e de relógios que andam.
+es Se habla en el campamento, señor: de cosas bajo la tierra, y de relojes que caminan.
+
+> The Crown wants this revolt ended, and quickly. Zounds, I'd rather be home.
+pt A Coroa quer esta revolta acabada, e depressa. Com mil diabos, eu preferia estar em casa.
+es La Corona quiere esta revuelta acabada, y pronto. ¡Voto a tal!, preferiría estar en casa.
+
+> Study the war table, then we march.
+pt Estude a mesa de guerra, e então marchamos.
+es Estudia la mesa de guerra, y luego marchamos.
+
+> Well done. By my troth, the Crown has stranger troubles than farmers now.
+pt Muito bem. Por minha fé, a Coroa tem problemas mais estranhos que lavradores agora.
+es Bien hecho. Por mi fe, la Corona tiene ahora problemas más extraños que granjeros.
+
+> Two letters came: one from an explorer of the deep earth, one from a clockmaker. Read them both.
+pt Chegaram duas cartas: uma de um explorador das profundezas da terra, outra de um relojoeiro. Leia as duas.
+es Llegaron dos cartas: una de un explorador de las profundidades de la tierra, otra de un relojero. Lee ambas.
+
+> The Explorer
+pt O Explorador
+es El Explorador
+
+> A Catholic explorer goes down into the deep earth and finds the Brood. (Being written.)
+pt Um explorador católico desce às profundezas da terra e encontra a Ninhada. (Sendo escrita.)
+es Un explorador católico baja a las profundidades de la tierra y encuentra la Nidada. (Se está escribiendo.)
+
+> The Explorer's Ship
+pt O Navio do Explorador
+es El Barco del Explorador
+
+> A ship's cabin lit by a lantern: charts of caverns, a crucifix, a cage of strange eggs.
+pt Uma cabine de navio à luz de lanterna: cartas de cavernas, um crucifixo, uma gaiola de ovos estranhos.
+es Un camarote a la luz de un farol: cartas de cavernas, un crucifijo, una jaula de huevos extraños.
+
+> CHARTS
+pt CARTAS
+es CARTAS
+
+> The Clockmaker
+pt O Relojoeiro
+es El Relojero
+
+> A clockmaker grows afraid of his own Clockwork. (Being written.)
+pt Um relojoeiro passa a temer o seu próprio Mecanismo. (Sendo escrita.)
+es Un relojero empieza a temer a su propio Mecanismo. (Se está escribiendo.)
+
+> The Clockmaker's Workshop
+pt A Oficina do Relojoeiro
+es El Taller del Relojero
+
+> A workshop of gears and springs; a half-built Clock Soldier on the bench, a priest at the door.
+pt Uma oficina de engrenagens e molas; um Soldado-Relógio meio montado na bancada, um padre à porta.
+es Un taller de engranajes y muelles; un Soldado Reloj a medio montar en el banco, un cura en la puerta.
+
+> PLANS
+pt PLANOS
+es PLANOS
+
+> Upgrades between missions will be bought here. (Not decided yet: a placeholder.)
+pt Aqui se comprarão melhorias entre as missões. (Ainda não decidido: provisório.)
+es Aquí se comprarán mejoras entre misiones. (Aún no decidido: provisional.)
