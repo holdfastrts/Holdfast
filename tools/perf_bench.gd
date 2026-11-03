@@ -173,7 +173,7 @@ func _start() -> void:
 		if Music.me:
 			Music.me._faction = ""         # (no music in the match: its pieces end by the wall clock)
 	# player 1 is "you", played by a computer
-	var ai: AI = AIBroodNew.new() if facs[0] == "brood" else AI.new()      # (the Brood has its own computer, as in a match: main.gd)
+	var ai: AI = AIBroodNew.new() if facs[0] == "brood" else (AIClockwork.new() if facs[0] == "clockwork" else AI.new())      # (the Brood has its own computer, as in a match: main.gd)
 	ai.game = g
 	ai.team = 0
 	ai.difficulty = main.LEVELS.find(level)

@@ -233,7 +233,7 @@ func _pick() -> Unit:
 		return null
 	var pick: Unit = null
 	for u in labs:
-		if u.order == "build" or u.carrying > 0 or ai._escort.has(u) or u == sentry:
+		if u.order == "build" or u.carrying > 0 or ai._escort.has(u) or u == sentry or ai._held_worker(u):
 			continue
 		if pick == null or (u.order == "idle" and pick.order != "idle"):
 			pick = u

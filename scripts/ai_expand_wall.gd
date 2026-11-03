@@ -67,7 +67,10 @@ func tick() -> void:
 	_main_id = main.get_instance_id()
 	for id in plans.keys():
 		var p: Dictionary = plans[id]
-		if not is_instance_valid(p["hall"]) or (p["hall"] as Building).dead:
+		# (a hall with no wall plan has an empty one: it is dropped once the hall is gone; it used to fail here every think)
+		if not is_instance_valid(p.get("hall")) or (p["hall"] as Building).dead:
+			if p.is_empty() and is_instance_valid(instance_from_id(id)) and not (instance_from_id(id) as Building).dead:
+				continue
 			plans.erase(id)
 	for h in halls:
 		var id: int = h.get_instance_id()

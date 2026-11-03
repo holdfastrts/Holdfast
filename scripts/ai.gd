@@ -32,6 +32,10 @@ const STRATEGIES := {
 	# soon as it hatches. A gamble: a wall, a few Musketeers and the workers stop it (then it
 	# falls back to a normal game).
 	"xrush": {"name": "Extreme rush", "wave": 6, "step": 2, "expand": 99.0, "halls": 1, "tech": 99.0, "workers": 0.4, "brood_only": true},
+	# THE SPRINGER TIMING (the owner's plan, 2026-11-03; scripts/ai_clockwork.gd, docs/clockwork_ai_rebuild.md): a written
+	# opening build (4 Springers, HIGH LEAP and a Swift as soon as possible, the economy growing behind it), the Springers
+	# leap into the enemy's main by the Swift's sight, then the computer plays on as Balanced (these numbers).
+	"springer": {"name": "Springer timing", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
 }
 
 
@@ -40,6 +44,8 @@ static func strategies_for(faction: String) -> Array:
 	var out: Array = []
 	for k in STRATEGIES:
 		if STRATEGIES[k].get("brood_only", false) and faction != "brood":
+			continue
+		if STRATEGIES[k].get("clock_only", false) and faction != "clockwork":
 			continue
 		out.append(k)
 	return out
@@ -1585,7 +1591,7 @@ func _workers() -> void:
 	_repair_wall()
 	_worker_safety()
 	for u in labs:
-		if u.order == "idle" and u.can_gather() and not _escort.has(u) and not _fled.has(u):
+		if u.order == "idle" and u.can_gather() and not _escort.has(u) and not _fled.has(u) and not _held_worker(u):
 			var site := _farm_first(u) if _crown() else null
 			if site == null:
 				site = _safe_site(u)
@@ -1752,7 +1758,7 @@ func _raid_workers(c: Dictionary, labs: Array, army: Array, stand: Dictionary) -
 	var centre: Vector2 = c["c"]
 	var near: Array = labs.filter(func(w: Unit) -> bool: return foes.any(func(o: Unit) -> bool: return o.position.distance_to(w.position) < FLEE_R))
 	# (a labourer mending the ramp wall behind it stays while _repair_wall finds him safe there)
-	near = near.filter(func(w: Unit) -> bool: return not (_repairers.has(w) and w.order == "repair") and not _escort_stays(w))
+	near = near.filter(func(w: Unit) -> bool: return not (_repairers.has(w) and w.order == "repair") and not _escort_stays(w) and not _held_worker(w))
 	if near.is_empty():
 		return
 	if r5.worker_raid(c, labs, stand):
@@ -2024,7 +2030,7 @@ func _tend_sites(labs: Array) -> void:
 		var best: Unit = null
 		var bd := INF
 		for u in labs:
-			if u.dead or u.order == "build" or _escort.has(u):
+			if u.dead or u.order == "build" or _escort.has(u) or _held_worker(u):
 				continue
 			var dd: float = u.position.distance_to(at)
 			if dd < bd:
@@ -4319,7 +4325,7 @@ func _construct(kind: String, at := Vector2i(-1, -1)) -> void:
 	# counts is to the nearest Clocktower and on to the site (Defs.CRATE)
 	var towers: Array = _halls().filter(func(h: Building) -> bool: return h.built and h.kind == "clocktower") if _clock() else []
 	for u in game.workers(team):
-		if u.order == "build" or _escort.has(u) or (scout != null and scout.is_scout(u)):
+		if u.order == "build" or _escort.has(u) or (scout != null and scout.is_scout(u)) or _held_worker(u):
 			continue
 		var trip: float = u.position.distance_to(target)
 		if not towers.is_empty():
@@ -4742,6 +4748,12 @@ func _soldier_key(b: Building, kind: String) -> String:
 
 ## Units busy with something of their own the army orders must leave alone: a balloon
 ## drop, an Ornithopter fetching or delivering a battery.
+## A worker that a computer of its own keeps for a job (AIClockwork: the Springer raid's Winders): the economy, the
+## builders, the escorts and worker safety leave him be.
+func _held_worker(_u: Unit) -> bool:
+	return false
+
+
 func _on_errand(u: Unit) -> bool:
 	if u.order in ["courier", "overload", "board", "unload", "heal", "revive", "refit", "restock"]:
 		return true
@@ -6278,7 +6290,7 @@ func _follow_with_escort(army: Array) -> void:
 		var pick: Unit = null
 		var pd := INF
 		for u in game.workers(team):
-			if _escort.has(u) or u.order == "build" or u.crate_site != null or (scout != null and scout.is_scout(u)) or _fled.has(u):
+			if _escort.has(u) or u.order == "build" or u.crate_site != null or (scout != null and scout.is_scout(u)) or _fled.has(u) or _held_worker(u):
 				continue
 			# (the nearest free hand; one already idle first)
 			var dd: float = u.position.distance_to(c) - (100000.0 if u.order == "idle" else 0.0)
@@ -7401,7 +7413,8 @@ func _micro() -> void:
 			_attacking = false
 			_release_escort()
 			for u in army:
-				u.cmd_move(home.lerp(c, 0.25) + Vector2(randf_range(-50, 50), randf_range(-50, 50)))
+				if not _on_errand(u):
+					u.cmd_move(home.lerp(c, 0.25) + Vector2(randf_range(-50, 50), randf_range(-50, 50)))
 			return
 	for k in _kite.keys():
 		if not is_instance_valid(k) or k.dead:
