@@ -5983,6 +5983,9 @@ func separation(u: Unit) -> Vector2:
 	var lim := rr + slack
 	var lim2 := lim * lim
 	var sp_most: float = Defs.SPACING_FOE if u_work or u_sq else Defs.SPACING
+	var u_steed = u.steed
+	var u_crew = u.crew_of
+	var cwr := Defs.cw_roster
 	for y in range(maxi(c0.y, 0), mini(c1.y, _grid_h - 1) + 1):
 		var row := y * gw
 		for x in range(maxi(c0.x, 0), mini(c1.x, gw - 1) + 1):
@@ -5996,26 +5999,30 @@ func separation(u: Unit) -> Vector2:
 				var md: float = (ur + _grad[j]) * sp_most + slack
 				if d2 > md * md:
 					continue
-				# (_sep_push, written out: this is the hottest loop of a big fight)
+				# (_sep_push, written out: this is the hottest loop of a big fight. What it asks of u, and of o more than
+				# once, is read once: the same values, perf_units)
 				var o = _gunits[j]
 				if o == u or not is_instance_valid(o):
 					continue
 				var dvec: Vector2 = p - o.position
 				var dist := dvec.length()
-				var min_d: float = (ur + o.radius) * (Defs.SPACING if o.team == ut and not u_work and not o._k_worker and not u_sq and not o.squeezed else Defs.SPACING_FOE)
+				var ot: int = o.team
+				var min_d: float = (ur + o.radius) * (Defs.SPACING if ot == ut and not u_work and not o._k_worker and not u_sq and not o.squeezed else Defs.SPACING_FOE)
 				if dist >= min_d or dist > rr:
 					continue
 				if o.dead or o.off_field or (o._air_k and o.net_t <= 0.0) != air:      # (o.is_air())
 					continue
 				if o._k_still:
 					continue          # (a Brood egg or food pile lies on the ground: it shoves nobody)
-				if o._k_shell and o.team == u.team and o.tesla_mode != "packed":
+				if o._k_shell and ot == ut and o.tesla_mode != "packed":
 					continue          # (a rooted Mound Turtle: its own side climbs over the shell, BroodNew.push_out)
-				if o == u.steed or u == o.steed:
+				if o == u_steed or u == o.steed:
 					continue
-				if (u.crew_of != null and (o == u.crew_of or o.crew_of == u.crew_of)) or (o.crew_of != null and o.crew_of == u):
+				var oc = o.crew_of
+				if (u_crew != null and (o == u_crew or oc == u_crew)) or (oc != null and oc == u):
 					continue
-				if u_rail and o.team == u.team and Defs.CW_RAIL.has(o.kind):
+				var ok: String = o.kind
+				if u_rail and ot == ut and Defs.CW_RAIL.has(ok):
 					continue
 				if u_mill and o._mill_in and o.home_mine == u.home_mine:
 					continue
@@ -6024,9 +6031,9 @@ func separation(u: Unit) -> Vector2:
 					dist = 0.01
 				var strength := (min_d - dist) / min_d
 				var k := 140.0
-				if o.team == u.team and o.velocity.length() > 15.0 and u_still:
+				if ot == ut and o.velocity.length() > 15.0 and u_still:
 					k = 260.0
-				var mo: float = (12.0 if o.kind == "cannon" or o.kind == "mortar" or (Defs.cw_roster and Defs.CW_RAIL.has(o.kind)) else 1.0) * o.nb_mass
+				var mo: float = (12.0 if ok == "cannon" or ok == "mortar" or (cwr and Defs.CW_RAIL.has(ok)) else 1.0) * o.nb_mass
 				push += dvec / dist * strength * k * (2.0 * mo / (mu + mo))
 	return push
 
@@ -8518,6 +8525,137 @@ func _stamp_inside(v: PackedByteArray, sv: PackedByteArray, c: Vector2i, r: int,
 		_fog_w = fw
 
 
+## The fog's runs (docs/perf_units.md): per team, each row of each sight disk to stamp as one int,
+## y << 32 | first x << 16 | last x, cut to the map (_update_vis).
+var _fog_runs := {}
+## How many high-ground cells are in each corner rectangle of the map ((W + 1) x (H + 1), a summed-area table), and
+## the height map it was made from: is there any high ground in a box, in four look-ups (_high_near).
+var _high_sum := PackedInt32Array()
+var _high_src := PackedByteArray()
+
+
+func _high_sum_check() -> void:
+	if _high_src.size() == height.size() and _high_src == height and _high_sum.size() == (W + 1) * (H + 1):
+		return
+	_high_src = height.duplicate()
+	_high_sum = PackedInt32Array()
+	_high_sum.resize((W + 1) * (H + 1))
+	var w1 := W + 1
+	for y in H:
+		var run := 0
+		for x in W:
+			if height[y * W + x] == 1:
+				run += 1
+			_high_sum[(y + 1) * w1 + x + 1] = _high_sum[y * w1 + x + 1] + run
+
+
+## Any high ground in the square of cells round c out to r (cut to the map)?
+func _high_near(c: Vector2i, r: int) -> bool:
+	var x0 := maxi(c.x - r, 0)
+	var y0 := maxi(c.y - r, 0)
+	var x1 := mini(c.x + r, W - 1) + 1
+	var y1 := mini(c.y + r, H - 1) + 1
+	if x0 >= x1 or y0 >= y1:
+		return false
+	var w1 := W + 1
+	return _high_sum[y1 * w1 + x1] - _high_sum[y0 * w1 + x1] - _high_sum[y1 * w1 + x0] + _high_sum[y0 * w1 + x0] > 0
+
+
+## A sight disk (radius r round c, every cell of it: no high ground hidden) as runs for team t.
+func _fog_runs_add(t: int, c: Vector2i, r: int) -> void:
+	var lst = _fog_runs.get(t)
+	if lst == null:
+		lst = PackedInt64Array()
+	_fog_runs[t] = _EMPTY_I64          # (out of the dictionary while it grows: no copy on write)
+	var spans := _disk_rows(r)
+	var w1 := W - 1
+	for si in range(0, spans.size(), 2):
+		var y := c.y + spans[si]
+		if y < 0 or y >= H:
+			continue
+		var hw := spans[si + 1]
+		var a := maxi(c.x - hw, 0)
+		var b := mini(c.x + hw, w1)
+		if a <= b:
+			lst.append((y << 32) | (a << 16) | b)
+	_fog_runs[t] = lst
+
+
+var _EMPTY_I64 := PackedInt64Array()
+
+
+## Every team's runs, merged where they touch or overlap, set seen (and explored, and cut out of the fog picture, on your
+## side): exactly what _stamp would have set for each disk.
+func _fog_runs_flush() -> void:
+	for t in _fog_runs.keys():
+		var arr: PackedInt64Array = _fog_runs[t]
+		if arr.is_empty():
+			continue
+		arr.sort()
+		var v: PackedByteArray = vis[t]
+		vis[t] = _EMPTY
+		var sd: int = sides[t]
+		var sv: PackedByteArray = _side_vis[sd]
+		_side_vis[sd] = _EMPTY
+		var mine := allied(t, human)
+		var mode := 0
+		var fw: PackedByteArray = _EMPTY
+		var ex: PackedByteArray = _EMPTY
+		var sw := _swamp_any
+		var swn := sw.size() == W * H
+		var new_swamp := false
+		if mine:
+			mode = _fog_mode if _fog_base.size() == W * H * 2 else 0
+			if mode == 1:
+				fw = _fog_bld
+				_fog_bld = _EMPTY
+			elif mode == 2:
+				fw = _fog_w
+				_fog_w = _EMPTY
+			ex = explored
+			explored = _EMPTY
+		var n := arr.size()
+		var k := 0
+		while k < n:
+			var key: int = arr[k]
+			var y := key >> 32
+			var a := (key >> 16) & 65535
+			var b := key & 65535
+			k += 1
+			while k < n:
+				var nk: int = arr[k]
+				if nk >> 32 != y or ((nk >> 16) & 65535) > b + 1:
+					break
+				b = maxi(b, nk & 65535)
+				k += 1
+			var row := y * W
+			if not mine:
+				for i in range(row + a, row + b + 1):
+					v[i] = 1
+					sv[i] = 1
+				continue
+			for i in range(row + a, row + b + 1):
+				v[i] = 1
+				sv[i] = 1
+				if ex[i] == 0:
+					ex[i] = 1
+					if swn and sw[i] == 1:
+						new_swamp = true
+				if mode != 0:
+					fw[i * 2 + 1] = 0
+		vis[t] = v
+		_side_vis[sd] = sv
+		if mine:
+			explored = ex
+			if mode == 1:
+				_fog_bld = fw
+			elif mode == 2:
+				_fog_w = fw
+		if new_swamp:
+			_swamp_seen = true
+	_fog_runs.clear()
+
+
 ## Your fog picture (LA8: alpha FOG_GREY where your side doesn't see now, 0 where it does).
 ## One grey only, as in StarCraft 2: the whole map's ground (cliffs, ramps, water, trees, rocks,
 ## the resource spots) is known from the start and shows under it; what an enemy has put there
@@ -8626,17 +8764,30 @@ func _update_vis() -> void:
 		_fog_mode = 2
 	# units standing in the same cell see the same thing: stamp each spot once
 	var done := {}
+	# (docs/perf_units.md: a crowd's sight disks overlap almost wholly. Each disk goes in as its rows, a run of cells
+	# each, and every team's runs are merged and written once (_fog_runs_flush): the same cells set as stamping disk by
+	# disk, since setting a cell seen twice is setting it once. A disk seen from low ground with high ground near it
+	# (where the far cells up the cliff stay hidden) and the spectator's explored maps go the old way.)
+	_fog_runs.clear()
+	_high_sum_check()
 	for u in units:
 		if not u.dead and not u.off_field and u.team >= 0:      # (a loose horse is nobody's eyes)
 			var c := cell_of(u.position)
-			var key: int = ((u.team * 64 + u.sight) * 2 + int(u.is_air())) * 1048576 + c.y * W + c.x
+			var air: bool = u.is_air()
+			var key: int = ((u.team * 64 + u.sight) * 2 + int(air)) * 1048576 + c.y * W + c.x
 			if done.has(key):
 				continue
 			done[key] = true
-			if u.is_air():
-				_reveal_air(u.team, c, u.sight)
-			else:
+			if demo:
+				if air:
+					_reveal_air(u.team, c, u.sight)
+				else:
+					_reveal(u.team, c, u.sight)
+			elif not air and in_map(c) and height[idx(c)] == 0 and _high_near(c, u.sight):
 				_reveal(u.team, c, u.sight)
+			else:
+				_fog_runs_add(u.team, c, u.sight)
+	_fog_runs_flush()
 	_stamp_shot_reveals()
 	_fog_mode = 0
 	Prof.add("game/fog/units", _z)

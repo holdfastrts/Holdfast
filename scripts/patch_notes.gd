@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.12", "items": [
+		"SMOOTHER BIG BATTLES (a first pass at the units' own work): what each army sees is worked out in one pass over all its men instead of man by man (the fog's update, 4 times a second, 15 to 45% lighter on average, with smaller spikes); the command card of a big selected army is rebuilt on a frame without a game tick, so it no longer adds to a tick's frame; the units' pictures skip work that changed nothing (a sprite set to what it already showed). The units' own tick is about as heavy as before: the next big savings would change how they move and fight a little, and are the owner's call. The game plays out exactly the same: whole-state traces of every test battle and of computer matches are identical before and after.",
+	]},
 	{"v": "0.26.11", "items": [
 		"NO MORE STANDING AT A HALF-BUILT WALL: soldiers on an attack-move no longer stop to hack or shoot at an enemy palisade they can walk round (only when the place they were sent to is walled off do they break a piece); after killing a man on the way they go on to where they were sent instead of stopping there; standing idle they only hit a wall piece already in reach, rather than walking up to one. A piece still going up can be broken when it is what shuts them out, and a soldier that makes no headway for 3 seconds (a crowd jostling at a wall) looks for a fresh way. (A playtest: five Musketeers stood at the computer's half-built diagonal wall for good though its end was open.)",
 	]},
