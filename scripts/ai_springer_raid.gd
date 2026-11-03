@@ -51,6 +51,12 @@ var _econ: Dictionary = {}       # enemy economy building -> position (seen)
 var _swift_seen := false         # the Swift has had its first look at the enemy main
 var _known_at_pick := 0           # economy buildings and guns known when the spot was picked
 var launched := false
+## THE DIVERSION (the owner: "plus whatever army escorts them, if that helps"): the plan's few Clock Soldiers walk to the
+## foot of the enemy's ramp, in sight of its gate but out of its muskets' reach, while the Springers walk round to their
+## stage: the Crown's computer holds its ramp against them, and the leap at the back of its main comes when they are there.
+var decoys: Array = []
+var decoy_spot := Vector2.INF
+const DECOY_BACK := 300.0       # px from the ramp's top, out along the ramp (the Musketeer reaches 190)
 
 
 func _init(a) -> void:
@@ -60,7 +66,7 @@ func _init(a) -> void:
 
 
 func has(u: Unit) -> bool:
-	return u == swift or springers.has(u) or cranks.has(u)
+	return u == swift or springers.has(u) or cranks.has(u) or decoys.has(u)
 
 
 func say(s: String) -> void:
@@ -82,11 +88,12 @@ func launch() -> bool:
 		return false
 	springers = sp.slice(0, want)
 	swift = sw[0]
+	decoys = game.army(team).filter(func(u: Unit) -> bool: return u.kind == "clock_soldier" and not u.dead).slice(0, int(ai.plan.get("decoys", 4)))
 	_pick_cranks()
 	launched = true
 	kill0 = int(game.stats[team]["value_killed"])
 	_phase("gather")
-	say("attack: the Springer raid goes out (%d Springers, a Swift, %d Winders) at %d supply" % [springers.size(), cranks.size(), game.supply_used(team)])
+	say("attack: the Springer raid goes out (%d Springers, a Swift, %d Winders, %d Clock Soldiers for the diversion) at %d supply" % [springers.size(), cranks.size(), decoys.size(), game.supply_used(team)])
 	return true
 
 
@@ -155,6 +162,69 @@ func tick() -> void:
 			_go_home()
 	_swift_tick()
 	_crank_tick()
+	_decoy_tick()
+
+
+## The diversion: to its spot below the ramp, a little before the Springers reach their stage; it holds there (fights what
+## comes out to it if that is weaker, else falls back toward home); it goes home with the raid, and after the opening
+## its Clock Soldiers go back to the shared army.
+func _decoy_tick() -> void:
+	decoys = decoys.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
+	if leaps == 0 and phase in ["gather", "march", "set"] and decoys.size() < int(ai.plan.get("decoys", 4)):
+		# (the Clock Soldiers made for it after the raid set off join it on the way)
+		for u in game.army(team):
+			if u.kind == "clock_soldier" and not u.dead and not decoys.has(u) and not ai._on_errand(u) and decoys.size() < int(ai.plan.get("decoys", 4)):
+				decoys.append(u)
+	if decoys.is_empty():
+		return
+	if not ai.bo_on and (phase == "home" or game.clock - float(log_t.get("decoy_t", game.clock)) > 150.0):
+		say("the diversion goes back to the army (%d Clock Soldiers)" % decoys.size())
+		decoys.clear()
+		return
+	if not log_t.has("decoy_t"):
+		log_t["decoy_t"] = game.clock
+	if decoy_spot == Vector2.INF:
+		decoy_spot = _decoy_spot()
+		if decoy_spot == Vector2.INF:
+			decoys.clear()
+			return
+	var go: bool = phase in ["march", "set", "raid", "out"]
+	var c := _centre(decoys)
+	var at := decoy_spot if go else _home().lerp(_foe_hall(), 0.18)
+	if go and _foe_near(c, 240.0) > _value(decoys) * 1.2 + 40.0:
+		at = c + (_home() - c).normalized() * 200.0          # (pressed: back a little, out of reach, still in sight)
+	for u in decoys:
+		if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.position.distance_to(at) < 260.0:
+			continue
+		if u.position.distance_to(at) > 50.0 and (u.order != "move" or u.order_point.distance_to(at) > 40.0):
+			u.cmd_move(at + Vector2(randf_range(-30, 30), randf_range(-30, 30)), u.position.distance_to(at) < 200.0)
+
+
+func decoys_there() -> bool:
+	if decoys.is_empty():
+		return true
+	return _centre(decoys).distance_to(decoy_spot) < 160.0
+
+
+## Below the enemy's ramp, out along it from its top: the first walkable low cell our side reaches, DECOY_BACK out.
+func _decoy_spot() -> Vector2:
+	var hc: Vector2i = game.cell_of(_foe_hall())
+	var lv := int(game.height[game.idx(hc)]) if game.in_map(hc) else 0
+	var ramps := _ramp_tops(hc, lv)
+	if ramps.is_empty():
+		return Vector2.INF
+	var rc := Vector2.ZERO
+	for r in ramps:
+		rc += r
+	rc /= ramps.size()
+	var out := (rc - _foe_hall()).normalized()
+	var fl := _walkable()
+	for k in range(0, 8):
+		var q := rc + out * (DECOY_BACK + 24.0 * k)
+		var c: Vector2i = game.cell_of(q)
+		if _open(c) and fl[game.idx(c)] != 0 and int(game.height[game.idx(c)]) < lv:
+			return q
+	return Vector2.INF
 
 
 ## What our side sees of the enemy: its armed units (where the guns are) and its economy buildings.
@@ -309,6 +379,8 @@ func _ready_to_leap() -> void:
 			say("out: no sight of the landing spot (no Swift): home")
 			_phase("home")
 		return
+	if not decoys_there() and game.clock - since < 20.0:
+		return                    # (the diversion is not at the ramp yet)
 	var theirs := _foe_near(land, 240.0)
 	var coming := maxf(_foe_near(land, 460.0), _guns_near(land, 620.0))   # (Musketeers walk 620 px in about 10 s, a spring's wind: they would be there before it can leap out)
 	if theirs * 1.1 > _value(ready) or coming > _value(ready) * RAID_FLEE + 40.0:
@@ -427,8 +499,11 @@ func _down_spot(u: Unit) -> Vector2:
 
 ## Up there, near the landing (LEASH: within a jump of the edge, ready to leap out): the armed enemies in reach first,
 ## the most hurt (focus fire: a Musketeer reloads slowly, four Springers kill one in about three seconds), then the
-## workers, then the soft buildings (its Powder Mill, Farms, the Breeder; a building still going up first).
+## workers IN REACH (the most hurt: they run from Springers as fast as Springers walk, so they are not chased), then the
+## economy that cannot run (a Farm, the Powder Mill, the Horse Breeder: the one nearest the landing, all on the same one),
+## then any building by it.
 const LEASH := 210.0
+const ECON_KINDS := ["farm", "powder_mill", "horse_breeder"]
 
 
 func _shoot(u: Unit) -> bool:
@@ -446,9 +521,9 @@ func _shoot(u: Unit) -> bool:
 				continue
 			sc = o.hp / maxf(1.0, o.max_hp) * 100.0 - 400.0
 		else:
-			if o.position.distance_to(land) > LEASH:
+			if dd > u._range() + 10.0 or o.position.distance_to(land) > LEASH + 60.0:
 				continue
-			sc = dd
+			sc = o.hp - 200.0
 		if sc < bs:
 			bs = sc
 			best = o
@@ -456,10 +531,10 @@ func _shoot(u: Unit) -> bool:
 		for b in game.buildings:
 			if b.team != foe or b.dead or not game.hostile(b.team, team) or b.kind in ["wall", "gate"]:
 				continue
-			var dd: float = b.edge_distance(u.position)
-			if b.center().distance_to(land) > LEASH + 60.0 or not game.is_visible_to(team, b.center()):
+			var dl: float = b.edge_distance(land)
+			if dl > LEASH or not game.is_visible_to(team, b.center()):
 				continue
-			var w: float = dd + (0.0 if b.kind in ["powder_mill", "farm", "horse_breeder"] else 120.0) + (0.0 if b.built else -60.0)
+			var w: float = dl + (0.0 if b.kind in ECON_KINDS else 300.0) + (0.0 if b.built else -60.0)
 			if w < bs:
 				bs = w
 				best = b
@@ -764,6 +839,7 @@ func _pick_spot(quiet := false) -> bool:
 					s += (LAND_GAP - ud) * 3.0
 			if prev_stage != Vector2.INF:
 				s += p.distance_to(prev_stage) * 0.8      # (the next spot along the same cliff: a short walk, out of the way)
+				s += maxf(0.0, st.distance_to(prev_stage) - 520.0) * 3.0     # (not round the main: that walk passes its ramp)
 			if s < bs:
 				bs = s
 				best = p

@@ -109,10 +109,12 @@ func _run(p: Dictionary) -> void:
 	for s in p["slots"]:
 		if s["closed"]:
 			continue
-		var b: Building = s.get("b")
-		if b != null and (not is_instance_valid(b) or b.dead):
+		var b0 = s.get("b")          # (untyped first: a slot's building freed since cannot be assigned to a typed variable)
+		var b: Building = null
+		if b0 != null and is_instance_valid(b0) and not b0.dead:
+			b = b0
+		else:
 			s["b"] = null
-			b = null
 		if b == null:
 			b = _building_at(s["cell"], s["size"])
 			s["b"] = b

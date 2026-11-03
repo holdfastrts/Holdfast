@@ -127,6 +127,8 @@ func _coach() -> void:
 		if s.begins_with("leap:") and r != null:
 			_later.append([g.clock + 1.5, "leap_%s.png" % _mmss(g.clock), r.land])
 			_later.append([g.clock + 8.0, "up_%s.png" % _mmss(g.clock), r.land])
+			if not r.decoys.is_empty() and r.decoy_spot != Vector2.INF:
+				_later.append([g.clock + 3.0, "diversion_%s.png" % _mmss(g.clock), r.decoy_spot])
 			if not _shots_t.has("clip_first_leap"):
 				_shots_t["clip_first_leap"] = g.clock
 				_clips.append(["first_leap", r.stage.lerp(r.land, 0.6), 46, 6, 1.25])

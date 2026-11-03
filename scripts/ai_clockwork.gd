@@ -38,9 +38,13 @@ const SpringerRaid := preload("res://scripts/ai_springer_raid.gd")
 ##  workers0       Winders at the start of the build (before the "workers" steps)
 ##  raid           Springers the raid wants before it goes; raid_winders: the Winders at the cliff foot that wind them
 ##  raid_keep      Springers the raid is topped up to from the army at home, after the opening (re-supply)
+##  decoys         Clock Soldiers the raid takes for its diversion at the enemy's ramp
+## The Springer timing's Mainspring is on its BIG ring with 6 Winders (2.6 Tension a second, stores 400): Tension is what
+## holds the plan back (HIGH LEAP 100, the Aviary 50, 4 Springers 100, the Swift 15: 265 in about two minutes); the small
+## ring (2.0 a second with 3) made it ready at 4:41 on Greenhold, the big one at 4:19.
 const PLANS := {
 	"springer": {
-		"workers0": 14, "raid": 4, "raid_winders": 2, "raid_keep": 6,
+		"workers0": 14, "raid": 4, "raid_winders": 2, "raid_keep": 6, "decoys": 4,
 		"steps": [
 			"7 cog_press",
 			"8 movement_works",
@@ -55,6 +59,7 @@ const PLANS := {
 			"springer 4",
 			"18 regulator",
 			"cuckoo 1",
+			"clock_soldier 4",
 			"attack",
 			"workers 21",
 			"clocktower",
