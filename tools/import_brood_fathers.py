@@ -40,6 +40,7 @@ from scipy import ndimage
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import import_art as ia  # noqa: E402
 import import_brood_new as ibn  # noqa: E402
+import fix_third_wing as ftw  # noqa: E402
 
 R = ibn.R
 DIRS = ["s", "e", "ne", "n"]
@@ -279,7 +280,11 @@ def pterodactyl(stand_ins):
     dv = rows_of("pterodactyl_fly_dive_se_chatgpt.png")
     dive = dv[1] if len(dv) > 1 else dv[0]
     scd = TARGET_W[kind] / dive[0].shape[1]           # (its first frame is the same wings-up pose as the fly's first)
-    small[("attack", "se")] = shrink_all(dive, scd)
+    # THIRD WINGS erased (tools/fix_third_wing.py, docs/third_wing.md: the dive's 5th frame); the anchors are taken
+    # from the frames as drawn (plain), so the body stays where it was
+    plain = {("attack", "se"): shrink_all(dive, scd)}
+    dvf = ftw.fix_rows("pterodactyl_fly_dive_se_chatgpt.png", dv)[0]
+    small[("attack", "se")] = shrink_all(dvf[1] if len(dvf) > 1 else dvf[0], scd)
     # (the other directions: their first frame as wide as the south-east fly's)
     for prefix, anim in (("pterodactyl_fly", "walk"), ("pterodactyl_dive", "attack")):
         for d in DIRS:
@@ -320,7 +325,7 @@ def pterodactyl(stand_ins):
     # FLY_DROP of the fly's height under that middle.
     for (anim, d), lst in small.items():
         if anim in ("walk", "idle", "attack"):
-            for k, im in enumerate(lst):
+            for k, im in enumerate(plain.get((anim, d), lst)):
                 ys, xs = np.nonzero(im[..., 3] > 0)
                 ibn.FEET[((anim, d), k)] = (float(xs.mean()), float(ys.mean()) + FLY_DROP * H)
     small[("glow_rooted", "se")] = [ibn.glow_of("tyrannosaur", im) for im in small[("rooted", "se")]]

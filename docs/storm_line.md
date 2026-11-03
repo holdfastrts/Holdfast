@@ -92,7 +92,7 @@ The owner's frame check, as done:
   would make the view consistent.
 - Every death ends lying sideways facing east: accepted (the owner).
 - Portraits: the owner's framed portraits (art/redraws/hatchling_portrait_chatgpt.png, storm_challenger_portrait_chatgpt.png,
-  cut as the Sires'; each draws an extra wing, accepted for now, docs/art_style_inconsistency.md "COULD BE BETTER"); the
+  cut as the Sires'; each drew an extra wing, painted out in code since 0.26.10, docs/third_wing.md); the
   importer falls back to crops of the growth concept's heads without them.
 
 ## Sounds
