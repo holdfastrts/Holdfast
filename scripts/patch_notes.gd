@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.16", "items": [
+		"THE RIGHT WINGS THIS TIME: 0.26.14 erased the wrong wing in a few Storm line frames. In the south-east wing beat of the Hatchlings and the Storm Challenger, the downstroke now keeps both wings swept down and loses the stray wing raised at the top left instead. The Hatchling and Storm Challenger portraits, the Hatchlings' deaths and the Storm Sire's south-east dive are back as they were drawn.",
+	]},
 	{"v": "0.26.15", "items": [
 		"THE BARRACKS RECRUITS TO REAL FIFE AND DRUMS: its call is no longer put together note by note with an added echo and drum tap. It is now a piece of a real fife-and-drum band recording, as it was played: the fifes over a rolling snare climb to a held F and walk down F, E flat, D onto the home note B flat, which the drum marks, and the band stops there. Nothing added, no echo. Two other places in the recording to compare are in docs/sounds_compare/flute/.",
 	]},

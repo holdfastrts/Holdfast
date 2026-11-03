@@ -5,21 +5,21 @@ Storm line with THREE wings. This module erases the extra wing from the owner's 
 keeps the fix:
   - tools/import_storm_line.py (Hatchlings, Storm Challenger) and tools/import_brood_fathers.py (the Storm Sire,
     kind "pterodactyl") call fix_rows(sheet, rows) on the cut-out frames of a sheet, before the frames are shrunk;
-  - their portraits go through portrait_fixed(kind) (the extra wing arm painted out of the framed portrait with the
-    portrait's own dark background).
+  - their portraits go through portrait_fixed(kind) (a polygon painted out of the framed portrait with the portrait's
+    own dark background); no portrait has an entry since 0.26.16 (their bottom-left shape is the real near wing).
 
 HOW A WING IS ERASED (erase()): a hand-drawn polygon per frame (in the CUT-OUT frame's pixels: the frame's own box on
 the sheet, the numbers read off gridded zooms) covers the extra wing; inside it the frame becomes transparent; little
 pieces left cut off from the body by the cut (a wing tip, a claw) go too; the creature's new edge along the cut gets the
 sheet's dark outline (OUTLINE source px thick, about one game pixel), so it reads as drawn. The rest of each frame stays
-pixel for pixel as drawn. Every fix here is off the body (the wing lay outside it or over the background), so nothing
-had to be painted back in behind it; no frame needed replacing.
+pixel for pixel as drawn. Both fixes (the SE downstroke's raised top-left wing) lie above the back, so the cut becomes
+the back's outline and nothing had to be painted back in behind it; no frame needed replacing.
 
 ANCHORS AND TIMING stay: the importers line the flying frames up on the body's middle (the mean of its pixels), which
 an erased wing would move; they take the anchors from the UNFIXED frames (the body stays where it was), and every
 frame keeps its place in its strip.
 
-Contact sheets for the owner (before on top, after below, enlarged, frame numbers):
+Contact sheets for the owner (original on top, fixed below, enlarged, frame numbers; restored strips one row):
   python3 -I tools/fix_third_wing.py --shots docs/shots/third_wing
 (run after the importers; it reads the game strips and rebuilds the "before" from the sheets without the fix).
 """
@@ -35,49 +35,26 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import import_art as ia  # noqa: E402
 
 # (sheet, row, frame), 0-based as the importer cuts them -> (polygons in the cut-out frame's px, outline px, what it is)
+# THIRD-WING-2 (0.26.16; the owner, 2026-11-03: "You deleted the wrong wings."): the SE downstroke (fly 3) keeps its two
+# DOWN wings (the near wing down-left, the far wing down-right) and loses the wing raised at the TOP LEFT (the upstroke's
+# wing, drawn in by mistake). The 0.26.14 entries for the portraits (their bottom-left shape is the real near wing), the
+# Hatchling lying deaths (SE/S/E/NE 5), the falling N death 1 and the Storm Sire's dive 5 were removed: those frames are
+# as drawn again (docs/third_wing.md says why each one is left for the owner).
 FRAMES = {
     # HATCHLINGS (tools/import_storm_line.py; game strips 34 px tall, the sheet about 6.5x bigger)
     ("hatchling_se_chatgpt.png", 0, 2): (
-        [[(0, 54), (36, 54), (48, 57), (60, 65), (72, 75), (76, 92), (76, 175), (0, 175)]], 4,
-        "fly 3 (walk_se/idle_se frame 3): a second NEAR wing hanging down at the lower left (the raised near wing and "
-        "the far wing down under the head stay)"),
-    ("hatchling_se_chatgpt.png", 2, 4): (
-        [[(-1, 50), (30, 41), (50, 37), (62, 33), (84, 34), (97, 38), (92, 50), (82, 58), (70, 66), (-1, 70)]], 4,
-        "death 5: a second left wing stretched out to the far left (the folded left wing over the body stays)"),
-    ("hatchling_s_chatgpt.png", 2, 4): (
-        [[(-1, 40), (30, 30), (50, 22), (60, 9), (78, 9), (88, 20), (96, 28), (86, 38), (74, 48), (62, 58), (-1, 62)]], 4,
-        "death 5: a second left wing stretched out to the far left"),
-    ("hatchling_e_chatgpt.png", 2, 4): (
-        [[(-1, 40), (30, 33), (50, 26), (68, 24), (88, 28), (92, 34), (84, 40), (72, 46), (60, 52), (-1, 54)]], 4,
-        "death 5: a second left wing stretched out to the far left"),
-    ("hatchling_ne_chatgpt.png", 2, 4): (
-        [[(-1, 46), (30, 36), (50, 30), (64, 26), (84, 26), (94, 32), (86, 40), (76, 48), (64, 56), (-1, 60)]], 4,
-        "death 5: a second left wing stretched out to the far left"),
-    ("hatchling_n_chatgpt.png", 2, 0): (
-        [[(66, -1), (100, -1), (124, 22), (124, 44), (114, 47), (104, 46), (94, 44), (84, 41), (74, 34), (64, 14)]], 4,
-        "death 1: a third wing raised at the top middle (the left wing and the wing at the lower right stay)"),
+        [[(-1, -1), (78, -1), (78, 14), (77, 28), (75, 38), (69, 45), (58, 49), (48, 52), (42, 55), (-1, 55)]], 3,
+        "fly 3 (walk_se/idle_se frame 3, the downstroke): the wing raised at the top left (both down wings stay)"),
     # STORM CHALLENGER (tools/import_storm_line.py; the sheet about 2.4x the game)
     ("storm_challenger_se_chatgpt.png", 0, 2): (
-        [[(12, 52), (36, 47), (48, 50), (56, 58), (62, 72), (68, 84), (76, 92), (81, 100), (81, 182), (12, 182)]], 3,
-        "fly 3 (walk_se/idle_se frame 3): a second NEAR wing hanging down at the lower left"),
-    # STORM SIRE (tools/import_brood_fathers.py, kind "pterodactyl"; the dive sheet about 2x the game)
-    ("pterodactyl_fly_dive_se_chatgpt.png", 1, 4): (
-        [[(10, 4), (50, 12), (100, 38), (140, 66), (158, 90), (162, 116), (150, 112), (132, 100), (100, 84),
-          (60, 68), (22, 52), (8, 44)]], 2,
-        "dive 5 (attack_se frame 5): a second left wing raised behind the first"),
+        [[(-1, -1), (100, -1), (100, 38), (96, 41), (88, 42), (78, 44), (68, 46), (60, 50), (56, 57), (-1, 57)]], 3,
+        "fly 3 (walk_se/idle_se frame 3, the downstroke): the spiked wing raised at the top left (both down wings "
+        "stay)"),
 }
 
-# the framed portraits (1254 px, the steel frame's inside about x 166..1090, y 166..1092): polygons on the SHEET
-PORTRAITS = {
-    "hatchlings": ("hatchling_portrait_chatgpt.png",
-                   [[(140, 865), (340, 815), (440, 785), (475, 790), (470, 860), (455, 920), (450, 1000),
-                     (445, 1100), (140, 1100)]],
-                   "the second wing ARM and its membrane at the bottom left (the raised wing stays)"),
-    "storm_challenger": ("storm_challenger_portrait_chatgpt.png",
-                         [[(140, 820), (340, 820), (400, 810), (470, 815), (495, 840), (490, 900), (480, 1100),
-                           (140, 1100)]],
-                         "the second wing ARM (with its spikes) and membrane at the bottom left"),
-}
+# the framed portraits (1254 px, the steel frame's inside about x 166..1090, y 166..1092): polygons on the SHEET.
+# Empty since 0.26.16: the shape at the bottom left of both portraits is the creature's near wing, not an extra one.
+PORTRAITS = {}
 INSIDE = (166, 166, 1090, 1092)      # the portraits' steel frame's inside (x0, y0, x1, y1): nothing outside it changes
 
 OFF = False      # (True: the importers run as before this fix; for the "before" pictures)
@@ -243,25 +220,29 @@ def shots(out_dir):
         me.OFF = False
         ia.OUT, sys.argv, sys.stdout = keep_out, keep_argv, keep_stdout
     try:
-        strips = [("hatchlings", "walk_se", 6, 6), ("hatchlings", "death_se", 5, 6), ("hatchlings", "death_s", 5, 6),
-                  ("hatchlings", "death_e", 5, 6), ("hatchlings", "death_ne", 5, 6), ("hatchlings", "death_n", 5, 6),
-                  ("storm_challenger", "walk_se", 6, 3), ("pterodactyl", "attack_se", 6, 2)]
+        # the fixed strips: original (as drawn) on top, fixed (the game's) below
+        strips = [("hatchlings", "walk_se", 6, 6), ("storm_challenger", "walk_se", 6, 3)]
         for kind, strip, n, z in strips:
             before = _frames(os.path.join(tmp, "assets", "units", kind, strip + ".png"), n)
             after = _frames(os.path.join("assets", "units", kind, strip + ".png"), n)
-            a = _sheet(before, z, "before")
-            b = _sheet(after, z, "after")
+            a = _sheet(before, z, "original")
+            b = _sheet(after, z, "fixed")
             can = Image.new("RGB", (max(a.width, b.width), a.height + b.height + 4), (40, 40, 40))
             can.paste(a, (0, 0))
             can.paste(b, (0, a.height + 4))
             can.save(os.path.join(out_dir, f"{kind}_{strip}.png"))
             print(f"  {out_dir}/{kind}_{strip}.png")
-        for kind in PORTRAITS:
-            before = np.array(Image.open(os.path.join(tmp, "assets", "icons", kind + ".png")).convert("RGBA"))
-            after = np.array(Image.open(os.path.join("assets", "icons", kind + ".png")).convert("RGBA"))
-            can = _sheet([before, after], 5, "before / after")
-            can.save(os.path.join(out_dir, f"{kind}_portrait.png"))
-            print(f"  {out_dir}/{kind}_portrait.png")
+        # the strips and portraits put back as drawn (0.26.16): the game's art, one row, for the owner to judge
+        back = [("hatchlings", "death_se", 5, 6), ("hatchlings", "death_s", 5, 6), ("hatchlings", "death_e", 5, 6),
+                ("hatchlings", "death_ne", 5, 6), ("hatchlings", "death_n", 5, 6), ("pterodactyl", "attack_se", 6, 2)]
+        for kind, strip, n, z in back:
+            _sheet(_frames(os.path.join("assets", "units", kind, strip + ".png"), n), z, "original").save(
+                os.path.join(out_dir, f"{kind}_{strip}.png"))
+            print(f"  {out_dir}/{kind}_{strip}.png (original, restored)")
+        for kind in ("hatchlings", "storm_challenger"):
+            px = np.array(Image.open(os.path.join("assets", "icons", kind + ".png")).convert("RGBA"))
+            _sheet([px], 5, "original").save(os.path.join(out_dir, f"{kind}_portrait.png"))
+            print(f"  {out_dir}/{kind}_portrait.png (original, restored)")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
