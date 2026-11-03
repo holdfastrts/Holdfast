@@ -226,6 +226,9 @@ func _under_armed() -> bool:
 		# watching grub saw little of the Clockwork army gathering in its main, and 1,600 of Clock Soldiers took the
 		# Mother. What every player knows of the Clockwork's tempo is a floor: 2 of army a second from 2:00, up to 800)
 		need = maxf(need, clampf((game.clock - 120.0) * 2.0, 0.0, 800.0))
+	elif _foe_is("crown"):
+		need = maxf(need, clampf((game.clock - 180.0) * 0.8, 0.0, 500.0))      # (round D g07: 3 Raptors from 4:00 to 8:00
+		                                                                          # while the Crown's army grew in its main)
 	return need > 0.0 and _value_of(_nb_army_units()) < need
 
 
@@ -1871,8 +1874,8 @@ var _explored := {}
 var _explore_cands: Array = []
 
 
-## The places it looks: round the enemy starts (10, 18, 26 tiles), then a coarse grid over the whole map (every 14
-## tiles), walkable ones only. Marked seen as its creatures see them (_nb_mark_explored, every think).
+## The places it looks: round the enemy starts (10, 18, 26 tiles), then a grid over the whole map (every 10
+## tiles; 10 since the hunt: a Raptor sees 7), walkable ones only. Marked seen as its creatures see them (_nb_mark_explored, every think).
 func _nb_explore_cands(foes: Array) -> Array:
 	if _explore_cands.is_empty():
 		var pts: Array = []
@@ -1884,8 +1887,8 @@ func _nb_explore_cands(foes: Array) -> Array:
 			for r in [10.0, 18.0, 26.0]:
 				for i in 8:
 					pts.append(st + Vector2.from_angle(TAU * i / 8.0) * r * Defs.TILE)
-		for gx in range(7, Game.W - 3, 14):
-			for gy in range(7, Game.H - 3, 14):
+		for gx in range(5, Game.W - 2, 10):
+			for gy in range(5, Game.H - 2, 10):
 				pts.append((Vector2(gx, gy) + Vector2(0.5, 0.5)) * Defs.TILE)
 		for p in pts:
 			if _nb_on_map(p) and game._walkable(game.cell_of(p)):
@@ -1897,6 +1900,77 @@ func _nb_mark_explored() -> void:
 	for p in _explore_cands:
 		if game.is_visible_to(team, p):
 			_explored[str(game.cell_of(p))] = game.clock
+
+
+var _nb_hunting := false
+var _pack_of := {}                # wave creature -> its pack (the hunt)
+var _pack_at := {}                # pack -> the place it is sent to
+var _hunt_step_t := 0.0
+
+
+## Anything of an enemy still in the game known (a building it has seen standing, a wall piece too).
+func _nb_foe_known() -> bool:
+	for b in _foe_blds:
+		if is_instance_valid(b) and not b.dead and game.hostile(b.team, team):
+			return true
+	return false
+
+
+## Every 3 s: a pack at its place (or idle there) gets the nearest place not looked at lately that no other pack has.
+func _nb_hunt_step(now: bool) -> void:
+	if not now and game.clock - _hunt_step_t < 3.0:
+		return
+	_hunt_step_t = game.clock
+	_nb_mark_explored()
+	var members := {}
+	for u in _wave:
+		if is_instance_valid(u) and not u.dead:
+			var k: int = int(_pack_of.get(u, 0))
+			if not members.has(k):
+				members[k] = []
+			members[k].append(u)
+	var taken: Array = []
+	for k in _pack_at:
+		taken.append(_pack_at[k])
+	for k in members:
+		var pk: Array = members[k]
+		var c := Vector2.ZERO
+		for u in pk:
+			c += (u as Unit).position
+		c /= maxf(1.0, pk.size())
+		var at: Vector2 = _pack_at.get(k, Vector2.INF)
+		var arrived := at == Vector2.INF or c.distance_to(at) < 5.0 * Defs.TILE \
+			or pk.all(func(u) -> bool: return (u as Unit).order == "idle" or (u as Unit).order == "hold") \
+			or game.clock - float(_explored.get(str(game.cell_of(at)), -999.0)) < 150.0
+		if not arrived:
+			continue
+		taken.erase(at)
+		var p := _nb_explore_point_not(c, taken)
+		if p == Vector2.INF:
+			p = _nb_explore_point_not(c, [])
+		if p == Vector2.INF:
+			continue
+		_pack_at[k] = p
+		taken.append(p)
+		for u in pk:
+			if (u as Unit).target == null or (u as Unit).order in ["idle", "hold", "move"]:
+				(u as Unit).cmd_move(p, true)
+
+
+## Creatures that joined the wave during the hunt go with the nearest pack.
+func _nb_hunt_join(_army: Array) -> void:
+	for u in _wave:
+		if _pack_of.has(u) or _pack_at.is_empty():
+			continue
+		var best := -1
+		var bd := INF
+		for k in _pack_at:
+			var d: float = (u as Unit).position.distance_to(_pack_at[k])
+			if d < bd:
+				bd = d
+				best = k
+		_pack_of[u] = best
+		(u as Unit).cmd_move(_pack_at[best], true)
 
 
 ## The nearest place not looked at lately, at least 12 tiles from the places other packs were sent.
@@ -2069,6 +2143,23 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		say("pulls back: %d of %d left, %d ahead (killed %d)" % [int(left), int(_wave_v0), int(ahead), gained])
 		_wave_end_nb(q, gained < _wave_v0 * 0.6)
 		return
+	# THE HUNT (brood-ai-tune): packs sweep for a building it has not seen; once anything of the enemy is seen again the
+	# wave gathers on it
+	if _nb_hunting:
+		if _nb_foe_known():
+			_nb_hunting = false
+			_pack_of.clear()
+			var found := _nb_next_goal(q, mid)
+			if found != Vector2.INF:
+				_wave_target = found
+				for u in _wave:
+					u.cmd_move(_wave_target, true)
+				say("found the enemy again: its wave gathers there (%d tiles)" % int(mid.distance_to(found) / Defs.TILE))
+		else:
+			_nb_hunt_step(false)
+			_nb_hunt_join(army)
+			_nb_hold_rest(army)
+			return
 	# AT THE GOAL WITH NOTHING TO FIGHT (the owner's playtest 2026-11-03, Ashfall FFA: the Brood razed the Clockwork's
 	# main and its whole army, 160/160 supply and 4,000 food banked, stood on that spot for a minute while the
 	# Clockwork's new hall stood a few screens away): the wave goes on to the next target (_nb_next_goal)
@@ -2080,26 +2171,17 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 			for u in _wave:
 				if u.target == null or u.order == "idle" or u.order == "hold" or u.order == "move":
 					u.cmd_attack(wall)
-		elif nxt != Vector2.INF and _nb_wall_piece(mid) == null and not _foe_blds.keys().any(func(b) -> bool: return is_instance_valid(b) and not b.dead) \
-				and _wave.size() >= 16:
+		elif nxt != Vector2.INF and not _nb_foe_known() and _wave.size() >= 16:
 			# nothing of the enemy known at all: the wave splits into packs of 8 that sweep the nearest places not looked
 			# at lately, each its own (a hidden cottage kept the Crown alive for four minutes against 135 Raptors)
-			_wave_target = nxt
-			var taken: Array = []
+			_nb_hunting = true
+			_pack_of.clear()
 			var packs := _wave.size() / 8
 			for i in packs:
-				var pk: Array = _wave.slice(i * 8, (i + 1) * 8 if i < packs - 1 else _wave.size())
-				var c := Vector2.ZERO
-				for u in pk:
-					c += u.position
-				c /= maxf(1.0, pk.size())
-				var p := _nb_explore_point_not(c, taken)
-				if p == Vector2.INF:
-					p = nxt
-				taken.append(p)
-				for u in pk:
-					if u.target == null or u.order == "idle" or u.order == "hold" or u.order == "move":
-						u.cmd_move(p, true)
+				for u in _wave.slice(i * 8, (i + 1) * 8 if i < packs - 1 else _wave.size()):
+					_pack_of[u] = i
+			_pack_at.clear()
+			_nb_hunt_step(true)
 			say("nothing of the enemy in sight: its wave splits into %d packs to look for it" % packs)
 		elif nxt != Vector2.INF and nxt.distance_to(_wave_target) > 5.0 * Defs.TILE:
 			_wave_target = nxt
@@ -2128,6 +2210,9 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 ## gives it time to build (a failed rush becomes a Balanced game).
 func _wave_end_nb(q: Unit, failed: bool) -> void:
 	_attacking = false
+	_nb_hunting = false
+	_pack_of.clear()
+	_pack_at.clear()
 	var home := _nb_stage_point(q)
 	for u in _wave:
 		if is_instance_valid(u) and not u.dead:
