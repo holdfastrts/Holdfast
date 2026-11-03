@@ -96,7 +96,8 @@ morph 50. That is about 450 Tension by 5:30. The big Mainspring winds 2.6 a seco
 - **After the opening** the flock is topped up to six Owls: a Swift trained and morphed at home, from what the bank can
   spare, one at a time. New Owls fly to where the flock rests and join it there.
 - The shared computer no longer turns a Swift that a plan uses (the Springer raid's scout, the Owl raids' Swifts) into a
-  Ticking Owl (`AI._air` skips `_on_errand` units). This was the known issue in docs/clockwork_ai_rebuild.md.
+  Ticking Owl (`AI._air` skips `_on_errand` units). This was the known issue in docs/clockwork_ai_rebuild.md. Checked
+  in a 15-minute Springer timing game on Greenhold against the Hard Crown: the raid's Swift stayed a Swift to the end.
 
 ## The coaching (round A and round B)
 
@@ -124,7 +125,8 @@ Round A (Greenhold against the Hard Crown and the Hard Brood, three filmed games
 
 Round B is the measured games below and two filmed games on Kestrel Rise (pictures 08 to 14). One more fix came from them:
 after a post was found, five new posts were picked in a second, each next to the enemies that had found the last one. Now
-a post is never picked where enemies are seen.
+a post is never picked where enemies are seen. (The tables below were measured just before that last fix; the test
+was run again after it and passes.)
 
 ## The numbers
 
