@@ -134,6 +134,22 @@ func _ready() -> void:
 		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))   # (the first 3 Horsemen ride out together)
 
 
+## HOOKS FOR A FACTION'S OWN COMPUTER (scripts/ai_crown.gd: AICrown overrides them; the shared computer keeps these answers).
+## The hall trains labourers by the shared rule (_workers).
+func _base_trains_labs() -> bool:
+	return true
+
+
+## The Crown's Barracks, Foundry, Armoury and Church come from the plan's milestones, not the shared clock rule (_build_up).
+func _plan_tech() -> bool:
+	return false
+
+
+## A build order owns the gold now (the opening of AICrown): the scout's defence builds nothing meanwhile.
+func bo_owns() -> bool:
+	return false
+
+
 func _foe_is(fac: String) -> bool:
 	for t in game.enemies_of(team):
 		if game.faction_of(t) == fac:
@@ -1583,7 +1599,7 @@ func _workers() -> void:
 		hold_gold = true            # (the Winders wait for the Works' 200)
 	_lab_short = _crown() and not hold_gold and labs.size() + queued < want and _halls().any(func(h: Building) -> bool: return h.built and h.queue.is_empty())
 	for h in _halls():
-		if h.built and not hold_gold and labs.size() + queued < want and h.queue.size() < 2:
+		if h.built and not hold_gold and labs.size() + queued < want and h.queue.size() < 2 and _base_trains_labs():
 			if game.train(h, worker) == "":
 				queued += 1
 	# Everyone idle goes to a post with room (escorts excepted).
@@ -2253,6 +2269,9 @@ func _build_up() -> void:
 				return
 		var barracks := _mine("barracks").size()
 		# the Barracks (and the palisade) need a Cottage
+		# (THE CROWN'S OWN COMPUTER, scripts/ai_crown.gd: its plan's milestones put up the tech instead: _plan_tech)
+		if _plan_tech():
+			barracks = -1
 		if barracks == 0 and labs >= _lv([7, 6, 5]) and _mine("cottage").is_empty():
 			_construct("cottage")
 		if barracks == 0 and (labs >= _lv([9, 8, 7]) or (difficulty > 0 and labs >= 5 and _walled and opening == "mill")):
@@ -2261,14 +2280,14 @@ func _build_up() -> void:
 			_construct("barracks")
 		elif barracks == 2 and difficulty >= 2 and t > _lv([9999.0, 9999.0, 330.0]) and gold > 300 and not _econ_wait():
 			_construct("barracks")
-		if _tech_wait() or _econ_wait():
+		if _tech_wait() or _econ_wait() or _plan_tech():
 			pass          # (soldiers before tech: the Musketeers' gold is not spent on buildings)
 		elif _mine("foundry").is_empty() and game.requirement_met(team, "foundry") and t > _lv([480.0, 260.0, 200.0]):
 			_construct("foundry")
 		# the Armoury: all the Crown's research (and a second place to refit at)
-		if _mine("armoury").is_empty() and game.requirement_met(team, "armoury") and (t > _lv([450.0, 240.0, 180.0]) or gold > 400) and gold >= 150 and not _rushing() and not _tech_wait() and not _econ_wait():
+		if not _plan_tech() and _mine("armoury").is_empty() and game.requirement_met(team, "armoury") and (t > _lv([450.0, 240.0, 180.0]) or gold > 400) and gold >= 150 and not _rushing() and not _tech_wait() and not _econ_wait():
 			_construct("armoury")
-		if _mine("church").is_empty() and game.requirement_met(team, "church") and t > _lv([500.0, 280.0, 220.0]) and not _tech_wait() and not _econ_wait():
+		if not _plan_tech() and _mine("church").is_empty() and game.requirement_met(team, "church") and t > _lv([500.0, 280.0, 220.0]) and not _tech_wait() and not _econ_wait():
 			_construct("church")
 		_tend_wall()
 	_bank_spend()

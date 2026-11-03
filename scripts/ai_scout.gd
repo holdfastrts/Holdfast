@@ -999,6 +999,8 @@ func timing_ok(value: float) -> bool:
 func _defence() -> void:
 	if verdict != "rush" and verdict != "uncertain":
 		return
+	if ai.bo_owns():
+		return          # (the Crown's build order owns the gold in its opening: scripts/ai_crown.gd)
 	if ai._hall_reserve or ai._saving:
 		return
 	# (the wall first, it is cheap and must stand before the enemy is here)

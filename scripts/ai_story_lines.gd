@@ -20,6 +20,14 @@ const RULES := [
 	["^opens with a Horse Breeder", "%s opens with a Horse Breeder: it plans an early Horseman rush.", 3, "plan"],
 	["^opens with a Powder Mill", "%s opens with a Powder Mill: Musketeers first, a steady line of fire.", 3, "plan"],
 	["^plays the Brood", "", 1, "plan"],
+	# ---- the Crown's own computer (scripts/ai_crown.gd): its build order and milestones
+	["^'s plan: (.+?), a build order of (\\d+) steps", "%s follows its own %s build order: %s steps, then its milestones.", 3, "plan"],
+	["^'s build order: (?:Town Hall|the ramp)", "", 1, "build"],
+	["^'s build order: (.+?) \\(supply", "%s's build order: %s.", 1, "build"],
+	["^'s plan: the opening is over", "%s's opening is over: its milestones and its doctrine take over.", 2, "plan"],
+	["^'s plan: milestone: (.+?) \\(", "%s puts up its next milestone: %s.", 2, "tech"],
+	["^'s plan: the wave waits", "%s holds its wave back: the enemy army it knows is bigger.", 2, "attack"],
+	["^'s plan: ", "", 1, "build"],
 	# ---- scouting and what it decides from it
 	["^scouted: rush \\(", "%s's scout saw a rush coming: it switches to defence, army and walls first, then a counter-attack.", 3, "plan"],
 	["^scouted: greedy economy \\(.*\\), switching to a timing attack at (\\d+:\\d+) \\((\\d+) supply\\)", "%s's scout saw a greedy enemy: it plans one big attack at %s with %s supply.", 3, "plan"],

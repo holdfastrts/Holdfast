@@ -2781,7 +2781,7 @@ func start(cfg: Dictionary = {}) -> void:
 	for t in slots.size():
 		if t == human or game.puppet or slots[t]["who"] == "remote" or slots[t]["who"] == "script":
 			continue         # (a friend online plays that side; a guest's game runs no computers; a campaign's scripted side has none)
-		var ai: AI = AIBroodNew.new() if facs[t] == "brood" else (AIClockwork.new() if facs[t] == "clockwork" else AI.new())      # (the Brood's own plan: scripts/ai_brood_new.gd; the Clockwork's: scripts/ai_clockwork.gd)
+		var ai: AI = AIBroodNew.new() if facs[t] == "brood" else (AIClockwork.new() if facs[t] == "clockwork" else (AICrown.new() if facs[t] == "crown" else AI.new()))      # (each faction's own computer: ai_brood_new.gd, ai_clockwork.gd, ai_crown.gd)
 		ai.game = game
 		ai.team = t
 		ai.difficulty = maxi(0, LEVELS.find(slots[t]["who"]))
