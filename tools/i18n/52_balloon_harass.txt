@@ -1,0 +1,5 @@
+# crown-builds-c: the Crown computer's Balloon harass plan (scripts/ai_crown_balloon.gd, docs/crown_builds_c.md)
+
+> Balloon harass
+pt Assédio de balões
+es Acoso con globos

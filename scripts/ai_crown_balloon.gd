@@ -27,6 +27,8 @@ extends RefCounted
 ## it knows where the enemy started (every computer does).
 
 const HOME_KEEP := 2             # Musketeers kept at home at least (the ramp post) when a party is formed
+const HOME_KEEP_BROOD := 5       # ... against the Brood (round A: its Timing attack at 5:45-6:30 took every main that sent
+                                 # eight of its Musketeers away on two balloons)
 const PARTY_MIN := 3             # a party goes with this many Musketeers or more
 const PARTY_MAX := 4             # (Defs.DROPSHIP capacity)
 const AA_MEM := 75.0             # (s) an anti-air unit seen this long ago is still feared where it was
@@ -264,8 +266,15 @@ func _targets() -> Array:
 			"brood_mother": s = 20.0
 			"cog_press", "farm", "powder_mill": s = 20.0
 		out.append([e[0], s, kind])
-	if out.is_empty():
-		out.append([(Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE, 12.0, "their start"])
+	if out.size() < 3:
+		# little seen yet: their start, and its flanks 13 tiles out (where a worker line or the next hall may be)
+		var st: Vector2 = (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE
+		out.append([st, 12.0, "their start"])
+		var size := Vector2(Game.W, Game.H) * Defs.TILE
+		for k in 4:
+			var q: Vector2 = st + Vector2.RIGHT.rotated(TAU * k / 4.0 + 0.4) * 13.0 * Defs.TILE
+			if q.x > 64 and q.y > 64 and q.x < size.x - 64 and q.y < size.y - 64:
+				out.append([q, 9.0, "the flank of their main"])
 	return out
 
 
@@ -284,7 +293,7 @@ func _pick_target(party: Dictionary) -> Vector2:
 	var val := _party_value(party)
 	for t in _targets():
 		var p: Vector2 = t[0]
-		var s: float = float(t[1]) + 8.0 * float(_prey_near(p))
+		var s: float = float(t[1]) + 8.0 * float(mini(_prey_near(p), 5))
 		var aav := aa_at(p)
 		s -= aav / maxf(val, 1.0) * 60.0
 		if aav >= val * FLEE_K:
@@ -292,7 +301,7 @@ func _pick_target(party: Dictionary) -> Vector2:
 		s -= army_at(p, 500.0) / maxf(val, 1.0) * 25.0
 		for o in parties:
 			if o != party and o["at"] != Vector2.INF and (o["at"] as Vector2).distance_to(p) < SPOT_GAP:
-				s -= 30.0
+				s -= 60.0 if (o["at"] as Vector2).distance_to(p) < 200.0 else 25.0     # (another party is there)
 		for u in used:
 			if (u[0] as Vector2).distance_to(p) < USED_GAP and game.clock - float(u[1]) < USED_FOR:
 				s -= 25.0
@@ -363,8 +372,17 @@ func _free_men() -> Array:
 			and u.target == null and not ai._raiders.has(u) and not ai._det.has(u) and not (ai._attacking and ai._wave_set.has(u)) \
 			and not (ai.harass != null and ai.harass.has(u)) and not ai._on_errand(u))
 	pool.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.distance_to(home) < b.position.distance_to(home))
-	var room := all.size() - HOME_KEEP
+	var room := all.size() - home_keep()
 	return pool.slice(0, clampi(room, 0, PARTY_MAX))
+
+
+func home_keep() -> int:
+	return HOME_KEEP_BROOD if ai._foe_is("brood") else HOME_KEEP
+
+
+## A big attack at home (worth more than the army there): a loaded party comes back from anywhere to fire down on it.
+func _big_threat(thr: Vector2) -> bool:
+	return thr != Vector2.INF and army_at(thr, 450.0) > maxf(float(ai.ch.home_value()), DEFEND_MIN)
 
 
 func tick() -> void:
@@ -449,9 +467,9 @@ func _party(p: Dictionary) -> void:
 	var b: Unit = p["b"]
 	var t := game.clock - float(p["since"])
 	# home under attack: a loaded party near home fires down on the attackers from behind our line
-	if p["phase"] in ["fly", "home", "load"] and not _aboard(p).is_empty():
+	if p["phase"] in ["fly", "home", "load", "strike", "evade"] and not _aboard(p).is_empty():
 		var thr: Vector2 = ai._threat()
-		if thr != Vector2.INF and b.position.distance_to(_home()) < DEFEND_R * Defs.TILE and aa_at(thr) < _party_value(p) * FLEE_K \
+		if thr != Vector2.INF and (b.position.distance_to(_home()) < DEFEND_R * Defs.TILE or _big_threat(thr)) and aa_at(thr) < _party_value(p) * FLEE_K \
 				and army_at(thr, 450.0) >= DEFEND_MIN:
 			_phase(p, "defend")
 			p["at"] = thr
@@ -460,7 +478,7 @@ func _party(p: Dictionary) -> void:
 		"load":
 			var walking: Array = (p["men"] as Array).filter(func(u: Unit) -> bool: return u.aboard == null)
 			var spot := _board_spot()
-			if b.position.distance_to(spot) < 40.0 and b.velocity.length() < 4.0:
+			if (b.position.distance_to(spot) < 60.0 and (b.order == "idle" or b.velocity.length() < 10.0)) or t > 20.0:
 				for m in walking:
 					if m.order != "board":
 						game.load_order([m], [b])

@@ -2,13 +2,13 @@ extends SceneTree
 ## THE BALLOON HARASS (scripts/ai_crown_balloon.gd, the Crown computer's Balloon harass plan; docs/crown_builds_c.md):
 ##   godot --headless --fixed-fps 30 --script res://tools/test_crown_balloon.gd [-- trace]
 ## A Hard Crown computer on the Balloon harass plan against a Brood that stands still (its computer off): a rooted Rootmaw
-## by the Mother with grubs working it. The Crown is given two balloons and eight Musketeers at home.
+## by the Mother with grubs working it. The Crown is given two balloons and twelve Musketeers at home.
 ##  [plan]    the plan is there (a Crown-only strategy with its name) and the harass is made only on it
 ##  [party]   a party forms (a balloon, 3-4 Musketeers) and the men climb into the basket
 ##  [strike]  it flies to the Brood's economy and strikes (hover: the basket fires) within STRIKE_BY s, and kills grubs
 ##  [split]   the second balloon takes the next party to ANOTHER target (SPOT_GAP apart), or waits for men
 ##  [home]    the harass keeps HOME_KEEP Musketeers at home, and the army's orders leave the parties alone (_on_errand)
-##  [aa]      anti-air at the target (four Skywings): the party does not hover over it (it backs off or drops its men away
+##  [aa]      anti-air at the target (six Skywings, worth more than a party): the party does not hover over it (it backs off or drops its men away
 ##            from it) and its balloon is not lost within AA_WATCH s
 ##  [switch]  the Balanced plan has no harass, and its balloons go on the shared drop as before
 const STRIKE_BY := 150.0
@@ -112,12 +112,12 @@ func _start(strategy: String) -> void:
 	for u in g.workers(1):
 		if not grubs.has(u):
 			grubs.append(u)          # (the Mother's own grubs count too)
-	# the Crown: two balloons and eight Musketeers by its hall
+	# the Crown: two balloons and twelve Musketeers by its hall
 	var hall: Building = ai._halls()[0]
 	for i in 2:
 		g._add_unit("balloon", 0, hall.center() + Vector2(-60 + 120 * i, 120))
-	for i in 8:
-		g._add_unit("musketeer", 0, _free(hall.center() + Vector2(-90 + 25 * i, 150)))
+	for i in 12:
+		g._add_unit("musketeer", 0, _free(hall.center() + Vector2(-140 + 25 * i, 150)))
 	await wait(1.0)
 
 
@@ -174,7 +174,7 @@ func _run() -> void:
 	check(boarded >= 0.0, "[party] three Musketeers or more climbed into the basket (%.0f s)" % boarded)
 	# [home]
 	var home_musk := g.army(0).filter(func(u: Unit) -> bool: return u.kind == "musketeer" and not bl.has(u)).size()
-	check(home_musk >= bl.HOME_KEEP, "[home] %d Musketeers or more kept at home (%d)" % [bl.HOME_KEEP, home_musk])
+	check(home_musk >= bl.home_keep(), "[home] %d Musketeers or more kept at home (%d)" % [bl.home_keep(), home_musk])
 	var errand := true
 	for p in bl.parties:
 		if not ai._on_errand(p["b"]):
@@ -195,14 +195,15 @@ func _run() -> void:
 	for p in bl.parties:
 		if p["at"] != Vector2.INF and String(p["phase"]) != "load":
 			targets.append(p["at"])
+	check(bl.parties.size() >= 2, "[split] two parties are out (%d)" % bl.parties.size())
 	var apart := targets.size() < 2 or (targets[0] as Vector2).distance_to(targets[1]) >= 200.0
 	check(apart, "[split] two parties out go to different targets (%s)" % str(targets))
 	# [aa]
 	await _start("balloon")
 	bl = ai.bl
 	var sky: Array = []
-	for i in 4:
-		var s: Unit = g._add_unit("skywing", 1, _free(q.position + Vector2(float(i - 2) * 30.0, -60.0)))
+	for i in 6:
+		var s: Unit = g._add_unit("skywing", 1, _free(q.position + Vector2(float(i - 3) * 30.0, -60.0)))
 		s.cmd_hold()
 		sky.append(s)
 	var hovered_over := 0.0
