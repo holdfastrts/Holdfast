@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.8", "items": [
+		"THE BARRACKS' FIFE ENDS CLEANLY: when the Barracks recruits a soldier, the fife's last long note no longer stutters (it was one short piece of the recording repeated five times, with the band's drum in it) and no longer stops short. It is now a real held note from the fifer, fading out smoothly, and the low drum thump and hum under the tune are gone.",
+	]},
 	{"v": "0.26.7", "items": [
 		"THE COMPUTER'S HORSEMEN STAY AND RAID (the owner's playtest): a Tyrant Sire, the Brood Mother or a Rootmaw on foot can't catch a Horseman, so the Crown's raid no longer rides home from one. The riders keep out of its bite, ride round it to the grubs it can't reach in time and cut them down, their loaded pistols for the grubs, not the Sire. They still ride home from what can catch or shoot them (Raptors in numbers, Spitters, more than the party) or when badly hurt, and a Crown behind in economy raids longer. A lone Musketeer that chased something far out now comes home instead of harassing alone.",
 		"THE BROOD AGAINST HORSEMEN: the Brood's computer no longer sends its Tyrant Sire after fast riders (he never catches them). Grubs a rider is at gang up on him when they are enough to win, else run to the warriors, a turtle or the Mother, and go back to work when he is gone. With riders about it grows the Venom Sire at once and lays a Spitter for every Raptor.",
