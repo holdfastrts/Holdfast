@@ -4,7 +4,7 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
-	{"v": "0.30.0", "items": [
+	{"v": "0.28.0", "items": [
 		"THE CAMPAIGN OPENS (its engine, with one short test mission): CAMPAIGN on the main menu leads to the HUB of a storyline, a scene (a placeholder picture for now) with places to click: the WAR TABLE to pick a mission, people to talk to (what they say changes after each mission) and an ARMOURY that is a placeholder for later. The same places are listed beside the scene, with big buttons for phones. Storylines open as the story goes: after the prologue, the Explorer's and the Clockmaker's stories (their missions are being written).",
 		"THE FIRST MISSION, THE REVOLT AT THE FORD (a test: its story will be replaced): the year 2500, a village has risen against the Crown; lead the Crown's column over the ford and burn the rebels' Town Hall, keeping Captain Hale alive. A briefing with a still, lines of dialogue in the period's words in a box at the top right (NEXT and SKIP; nothing pauses), the objectives at the top left (ticked, crossed, the time left), a counter-attack, horse that comes to help, and an end screen that says where the story goes. SOLO against the computer, CO-OP (a friend online on your side, with the Crown's horse) and VERSUS (a friend online plays the rebels: the story follows whoever wins) from an online room the CAMPAIGN page opens.",
 	]},
