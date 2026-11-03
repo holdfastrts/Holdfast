@@ -75,10 +75,10 @@ const PLANS := {
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
-			{"do": "build", "k": "barracks", "at": {"labs": 5}},
-			{"do": "build", "k": "powder_mill", "at": {"labs": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
 			{"do": "army", "k": "musketeer", "cap": 8},
-			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 8}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 14}},
 			{"do": "hall", "n": 2, "at": {"labs": 17}},
 		],
@@ -88,13 +88,13 @@ const PLANS := {
 		"s": {"wave": 18, "step": 8}},
 	# Timing attack: one hall, two Barracks, the Breeder, the Foundry (a cannon goes with the wave) and the first wave of
 	# 22 supply (about 5:30); the second hall goes down behind it (the milestones)
-	"timing": {"opening": "mill", "labs": 19, "mill": [[0, 3], [12, 6]],
+	"timing": {"opening": "mill", "labs": 19, "mill": [[0, 3], [14, 5]],
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
-			{"do": "build", "k": "barracks", "at": {"labs": 5}},
-			{"do": "build", "k": "powder_mill", "at": {"labs": 5}},
-			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 8}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
 			{"do": "army", "k": "musketeer", "cap": 0},
 			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 13}},
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 15}},
@@ -462,8 +462,51 @@ func _st_do(st: Dictionary) -> String:
 			_attack_at = int(st["n"])
 			bo_army = true
 			bo_army_cap = 0
+			if _att_ready_t < 0.0:
+				_att_ready_t = game.clock
+			elif game.clock - _att_ready_t > ATTACK_WAIT and not _attacking:
+				# (the wave was held back: their army is bigger than ours, _wave_worth; the plan expands instead)
+				_attack_at = int(_s("wave"))
+				_bo_end("the timing was called off: the enemy army it knows is bigger")
 			return "wait"
 	return ""
+
+
+const ATTACK_WAIT := 45.0       # (s) an opening's attack held back this long (_wave_worth) is called off
+var _att_ready_t := -1.0
+
+
+## A WAVE GOES ONLY WITH AN EDGE over the enemy army it knows (coached game a03, Kestrel Rise: the Timing plan's 22 supply
+## went at 6:59 into a Brood economy with 3,150 of army and died; the shared rule weighed the enemy only for the Clockwork):
+## the army ready is worth CR_EDGE_BROOD (the Brood: its creatures rooted at home fight too) or CR_EDGE times the enemy's
+## mobile army seen in the last two minutes (AICrownHold.foe_known); nothing known, a big army or the supply cap: it goes.
+const CR_EDGE := 1.1
+const CR_EDGE_BROOD := 1.5
+
+
+func _wave_worth(ready: Array) -> bool:
+	if not super(ready):
+		return false
+	if not on or difficulty < 1 or strategy == "rush" or not doctrine():
+		return true
+	if _army_supply(ready) >= 60 or game.supply_used(team) >= game.max_supply(team) - 4:
+		return true
+	var known: float = ch.foe_known()
+	if known <= 0.0:
+		return true
+	var mine := 0.0
+	for u in ready:
+		mine += float(Game.unit_value(u))
+	var edge := CR_EDGE_BROOD if _foe_is("brood") else CR_EDGE
+	if mine >= known * edge:
+		return true
+	if game.clock - _held_said > 60.0:
+		_held_said = game.clock
+		say("the wave waits: %d of army against the %d it knows (it wants %.1f times)" % [int(mine), int(known), edge])
+	return false
+
+
+var _held_said := -99.0
 
 
 ## The second hall of the opening: the safest rated site (AI._safe_hall_spot), three labourers build it together.
@@ -505,15 +548,65 @@ func _mill_cap() -> int:
 		return 0
 	var mills := _mine("powder_mill").filter(func(m: Building) -> bool: return m.built).size()
 	if bo_done:
-		if _res2() > 300.0 and _gold() < 150:
-			return super()
-		return 6 * mills          # (a full crew on every Mill: the shared 99 sent nobody over, _balance_mill)
+		return _mill_feedback(mills)
 	var labs := game.workers(team).size()
 	var per := 0
 	for e in plan.get("mill", [[0, 3]]):
 		if labs >= int(e[0]):
 			per = int(e[1])
-	return per * maxi(1, mills)
+	if per <= 0 or mills == 0:
+		return per * maxi(1, mills)
+	return mini(per * mills, _mill_feedback(mills))      # (the plan's most; fewer while the powder piles up)
+
+
+## After the opening the Mill's crew follows the powder bank (coached game a01: with six hands on each Mill 300 powder lay
+## unspent while the gold, 0-45 at every minute, held the Musketeers back; the shared rule's 1-3 hands before 5:00 starved
+## them the other way): a bank over twice POWDER_WANT sends a hand back to the farms, one under it brings one over (the
+## shared _balance_mill moves them, two at a time). POWDER_WANT: 30, and 15 more for each Barracks or Foundry.
+const POWDER_WANT := 30.0
+const MILL_STEP_T := 8.0         # (s) one hand more or less at most this often (a think each time swung it 6 -> 1 -> 6)
+var _mill_n := -1
+var _mill_t := -99.0
+
+
+func _mill_feedback(mills: int) -> int:
+	var crew := 0
+	for m in _mine("powder_mill"):
+		if m.built:
+			crew += m.crew.size()
+	if _mill_n < 0:
+		_mill_n = crew
+	if game.clock - _mill_t >= MILL_STEP_T:
+		_mill_t = game.clock
+		var want := POWDER_WANT + 15.0 * (_mine("barracks").size() + _mine("foundry").size())
+		if _res2() > want * 2.0:
+			_mill_n = maxi(mills, mini(_mill_n, crew) - 1)
+		elif _res2() < want:
+			_mill_n = mini(6 * mills, maxi(_mill_n, crew) + 1)
+	return clampi(_mill_n, mills, 6 * mills)
+
+
+## No new hall while the enemy's army is at our buildings or clearly bigger than ours on our side of the map (coached game
+## a01, Red Coast 6:36: the third hall was laid 35 tiles out during the Brood's attack, its guards walked out to it and
+## died; the hall was dropped). A dry main still goes (the shared rule's "urgent").
+func _hall_first() -> bool:
+	if not on or not bo_done or difficulty < 1 or _halls().size() < 2:
+		return super()
+	if _best_soil() >= DRY_LAND and (_threat() != Vector2.INF or ch.foe_near() > ch.home_value() * 1.2):
+		_hall_reserve = false
+		_saving = false
+		return false
+	return super()
+
+
+## THE ARMY STAYS ON THE MAIN'S HIGH GROUND (the doctrine): no part of it walks out to stand over a hall site being saved
+## for or going up (the shared rule sent guards to the staging spot; a01's walked 35 tiles into a Brood attack). The
+## labourers build it alone and run home if raided.
+func _guard_new_hall(army: Array) -> Array:
+	if on and doctrine():
+		_guards.clear()
+		return army
+	return super(army)
 
 
 func _research() -> void:
