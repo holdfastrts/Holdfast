@@ -590,8 +590,10 @@ func _b_keep() -> void:
 			break           # (the first one short waits for its cogs and Tension: not the next)
 	var want: int = int(plan.get("front", 0)) + (int(push.pushes) * FRONT_STEP if push != null else 0)
 	var soldiers: int = queued.call("clock_soldier")
+	# (the push's own front first, whatever the heavy machine waits for: then the rest, after its cogs)
+	var first: int = int((plan.get("push", {}) as Dictionary).get("need", {}).get("front", 0))
 	for w in _mine(_works()):
-		if soldiers >= want or _gold() - hold < int(Defs.UNITS["clock_soldier"]["cost"]):
+		if soldiers >= want or _gold() - (hold if soldiers >= first else 0) < int(Defs.UNITS["clock_soldier"]["cost"]):
 			break
 		if w.built and (w.queue as Array).size() < 2 and game.can_train(w, "clock_soldier") == "" and game.train(w, "clock_soldier") == "":
 			soldiers += 1
@@ -644,3 +646,18 @@ func _b_rewind() -> void:
 			if game.clock - float(_rewind_t.get("said", -99.0)) > 20.0:
 				_rewind_t["said"] = game.clock
 				note("a Winder walks out to wind a run-down %s" % String(u.d["name"]))
+
+
+## RANDOM PLAN (cw-builds-b): against the Brood the Pendulums half the time (its staple is the Raptor swarm, which the
+## Pendulums' blades answer: the owner's playtests), else evenly among the rest.
+const PENDULUM_VS_BROOD := 0.5
+
+
+func random_plan(allowed: Array) -> String:
+	var brood := false
+	for t in game.enemies_of(team):
+		if game.faction_of(t) == "brood":
+			brood = true
+	if brood and allowed.has("pendulum") and randf() < PENDULUM_VS_BROOD:
+		return "pendulum"
+	return super.random_plan(allowed)

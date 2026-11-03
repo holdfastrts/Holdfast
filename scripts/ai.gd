@@ -55,6 +55,12 @@ static func strategies_for(faction: String) -> Array:
 	return out
 
 
+## A RANDOM PLAN's pick (main.gd, before _ready; game, team and every slot's faction are set): one of `allowed`, evenly.
+## (AIClockwork weighs it by the matchup: Pendulums preferred against the Brood.)
+func random_plan(allowed: Array) -> String:
+	return String(allowed[randi() % allowed.size()])
+
+
 func _s(key: String) -> Variant:
 	if scout != null and scout.mod.has(key):
 		return scout.mod[key]       # (what the scout's report changed: AIScout)

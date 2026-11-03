@@ -19,18 +19,22 @@ extends RefCounted
 ## Reinforcements: fighters made after it left gather at home and join as a group of JOIN_SUPPLY supply or more.
 ## No cheating: it sees what its side sees (Game.is_visible_to) and knows where the enemy started (every computer does).
 
-const STEP := 150.0             # px the anchor walks at a time
-const FRONT_AT := 110.0         # the front is "at" the anchor within this
+const STEP := 200.0             # px the anchor walks at a time
+const FRONT_AT := 140.0         # the front is "at" the anchor within this
 const BACK_BAL := 120.0         # px the Ballistas stand behind the anchor
 const BACK_GW := 190.0          # px the Great Winder stands behind it
-const HEAVY_LAG := 260.0        # the anchor waits for the Ballistas and the Great Winder within this of their spot
+const HEAVY_LAG := 320.0        # the anchor waits for the Ballistas and the Great Winder within this of their spot
 const LOOK := 380.0             # px round the front: armed enemies here start a fight
-const CALM := 4.0               # s with no armed enemy near the front before the march goes on
+const CALM := 3.0               # s with no armed enemy near the front before the march goes on
+const SCREEN_R := 260.0        # px from the anchor: the front meets the enemies within this, holds against the rest
+const LEASH := 520.0           # px: a front unit farther than this from the anchor in a fight walks back to it
 const GUARD_R := 130.0          # an enemy this close to a Ballista: it rolls back, two front units meet it
 const SIEGE_SEE := 340.0        # a wall or gate this close ahead of the anchor stops the march: the siege
 const SIEGE_FRONT := 215.0      # the front stands this far from the piece (a Musketeer reaches 190 from behind it)
 const SIEGE_BAL := 255.0        # the Ballistas this far (they reach 300)
 const SIEGE_MAX := 150.0        # s at one piece at most
+const OUTNUMBERED := 1.4       # retreat at once from armed enemies near worth this many times the push
+const MAIN_K := 1.3            # it goes for the enemy's main only worth this many times the enemy army seen lately (else it holds)
 const RETREAT_K := 0.65         # retreat when the push is worth less than this share of the armed enemies near it ...
 const LOST_SHARE := 0.33        # ... and it has lost this share of what went out
 const MIN_LEFT := 3             # fewer fighters than this left: home
@@ -227,7 +231,33 @@ func _join() -> void:
 # ------------------------------------------------------------------ where it goes
 
 ## The Brood's rooted creatures and grubs seen (their economy), remembered while they live.
+## The enemy's army seen lately: every armed unit seen in the last MEM_T s that still lives, each once (the push's own
+## count; an army is never all in sight at once).
+const MEM_T := 120.0
+var _mem := {}                  # id -> [Unit, value, clock]
+
+
+func _remember_army() -> void:
+	for o in game.army(foe):
+		if o.off_field or not ai._armed(o) or BroodNew.rooted(o) or not game.is_visible_to(team, o.position):
+			continue
+		_mem[o.get_instance_id()] = [o, ai._unit_value(o), game.clock]
+	for id in _mem.keys():
+		var e: Array = _mem[id]
+		if not is_instance_valid(e[0]) or e[0].dead or game.clock - float(e[2]) > MEM_T:
+			_mem.erase(id)
+
+
+func foe_mem() -> float:
+	var v := 0.0
+	for id in _mem:
+		v += float(_mem[id][1])
+	return v
+
+
 func _remember_brood() -> void:
+	if Engine.get_physics_frames() % 6 == 0:
+		_remember_army()
 	if not _vs_brood() or Engine.get_physics_frames() % 6 != 0:
 		return
 	for u in game.units:
@@ -295,6 +325,14 @@ func _pick_goal() -> void:
 			goal = Vector2(game.starts[foe]) * Defs.TILE
 	else:
 		goal = ai._enemy_base()
+		if _done_goals.any(func(q: Vector2) -> bool: return q.distance_to(goal) < 200.0):
+			# (nothing seen there any more: the enemy's start, then its other halls the side knows)
+			goal = Vector2(game.starts[foe]) * Defs.TILE
+			for b in game.buildings:
+				if b.team == foe and not b.dead and not b.ghost and game.side_sees(team, b.center()) \
+						and not _done_goals.any(func(q: Vector2) -> bool: return q.distance_to(b.center()) < 200.0):
+					goal = b.center()
+					break
 	if old == Vector2.INF or old.distance_to(goal) > 120.0:
 		path_t = -99.0
 		stats["goals"] = int(stats["goals"]) + 1
@@ -338,17 +376,68 @@ func _march() -> void:
 		var back := BACK_GW if h.kind == Defs.GREAT_WINDER_KIND else BACK_BAL
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
-	if at and not lag and anchor.distance_to(goal) > 60.0:
+	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
+	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and _value(units) < foe_mem() * MAIN_K:
+		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
+		# it took, and the reinforcements join it (Greenhold 11: the push razed the Crown's expansion, walked on up to its
+		# main and met its whole army, 25 Musketeers, at the ramp: 3,100 value lost in a minute)
+		_note_once("contain", "holds short of the enemy's main: worth %d, the enemy's army seen lately %d" % [int(_value(units)), int(foe_mem())], 40.0)
+		at = false
+	if at and not lag and not arrived:
 		_advance()
 		dir = _dir()
-	# the goal reached (a Brood target): the front goes for it
-	if goal_e != null and anchor.distance_to(goal) < 220.0:
-		for u in front:
-			if u.target != goal_e and u.can_hit(goal_e):
-				u.cmd_attack(goal_e)
+		arrived = path_i >= path.size() or anchor.distance_to(goal) < 160.0
+	if arrived:
+		_assault(front)
 	else:
+		_arrive_t = -1.0
 		_place_front(front, anchor, dir, true)
 	_place_heavies(heavies, anchor, dir)
+
+
+## At the goal (the end of the path): the front goes for the goal itself (a Brood creature), else for the enemy's buildings
+## seen near it, the nearest first; nothing left there for ARRIVE_IDLE s: the goal is done, the next one is picked.
+const ARRIVE_IDLE := 12.0
+var _arrive_t := -1.0
+var _done_goals: Array = []
+
+
+func _assault(front: Array) -> void:
+	if _arrive_t < 0.0:
+		_arrive_t = game.clock
+		_note_once("arrive", "is at its goal %s: the front goes in" % _where(goal), 20.0)
+	var tgt: Entity = null
+	if goal_e != null and is_instance_valid(goal_e) and not goal_e.dead:
+		tgt = goal_e
+	else:
+		var bd := 420.0
+		for b in game.buildings:
+			if b.dead or b.ghost or not game.hostile(b.team, team) or not game.side_sees(team, b.center()):
+				continue
+			var dd: float = b.center().distance_to(goal)
+			if dd < bd:
+				bd = dd
+				tgt = b
+	if tgt == null:
+		if game.clock - _arrive_t > ARRIVE_IDLE:
+			_done_goals.append(goal)
+			say("nothing left at %s: on to the next goal" % _where(goal))
+			goal = Vector2.INF
+			goal_e = null
+			path_t = -99.0
+			_arrive_t = -1.0
+		else:
+			_place_front(front, goal, _dir(), true)
+		return
+	_arrive_t = game.clock
+	for u in front:
+		if _guards.has(u) or not u.can_hit(tgt):
+			continue
+		if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.target is Unit and u.target.kind != "brood_mother" \
+				and not BroodNew.rooted(u.target) and u.position.distance_to(u.target.position) < 120.0:
+			continue          # (fighting a defender beside it: on with that first; not the Mother when the goal is her Rootmaw)
+		if u.target != tgt:
+			u.cmd_attack(tgt)
 
 
 func _advance() -> void:
@@ -364,9 +453,7 @@ func _advance() -> void:
 		else:
 			p = p + (nxt - p).normalized() * left
 			left = 0.0
-	if path_i >= path.size() and p.distance_to(goal) > 1.0 and left > 0.0:
-		p = p.move_toward(goal, left)
-	anchor = p
+	anchor = p          # (never past the path's end: a goal behind a cliff or a footprint is reached by the front itself)
 
 
 ## The front in a loose line across the way at point p (attack-move: it fights what it meets).
@@ -428,16 +515,30 @@ func _fight(foes: Array) -> void:
 	var front: Array = units.filter(func(u: Unit) -> bool: return _front_kind(u))
 	var heavies: Array = units.filter(func(u: Unit) -> bool: return _heavy(u) or u.kind == Defs.GREAT_WINDER_KIND)
 	var fcen := _centre(foes)
-	# the front attack-moves at the enemy (a short way past its middle: it fights all it meets)
+	# THE SCREEN: the front meets what comes within SCREEN_R of the line, else it holds the line in front of the machines
+	# (the Ballistas outrange the Musketeers: charging them only fed the Clock Soldiers to the muskets one by one, 7:34
+	# Greenhold 11); a foe that keeps out of reach is the Ballistas' (or the front walks on once it is calm)
+	var close: Array = foes.filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) < SCREEN_R)
+	var ccen := _centre(close) if not close.is_empty() else Vector2.INF
+	var dir := _dir()
 	for u in front:
 		if _guards.has(u):
 			continue
+		if u.position.distance_to(anchor) > LEASH:
+			_order(u, anchor, false, 60.0)        # (too far after a chase: back to the block, not on into the fog)
+			continue
 		if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.position.distance_to(u.target.position) < 220.0:
 			continue
-		_order(u, fcen, true, 60.0)
+		if ccen != Vector2.INF:
+			_order(u, ccen, true, 60.0)
+	if close.is_empty():
+		_place_front(front, anchor, dir, true)
+		# (nothing in reach of the line: when no machine of ours reaches them either, it walks on toward them)
+		var reach := units.any(func(u: Unit) -> bool: return _heavy(u) and foes.any(func(o: Unit) -> bool: return o.position.distance_to(u.position) < float(u.d["range"]) + 30.0))
+		if not reach and game.clock - since > 6.0 and fcen.distance_to(anchor) > 80.0:
+			anchor = anchor.move_toward(fcen, 60.0)
 	_guard_ballistas(front, foes)
 	# the Ballistas hold where they are (behind), the Great Winder behind them
-	var dir := _dir()
 	for h in heavies:
 		if h.kind == Defs.GREAT_WINDER_KIND:
 			if h.order == "cast" or h.order == "mend" or h.order == "sweep":
@@ -583,6 +684,9 @@ func _should_retreat() -> bool:
 	var now := _value(units)
 	var foes := _foes_near(_front_centre(), LOOK + 120.0)
 	var fv := _value(foes)
+	if fv > now * OUTNUMBERED and fv > 300.0:
+		_retreat("the enemy's army comes, worth %d against its %d" % [int(fv), int(now)])
+		return true
 	if now < value0 * (1.0 - LOST_SHARE) and now < fv * RETREAT_K:
 		_retreat("worth %d against %d near it, %d of %d lost" % [int(now), int(fv), int(value0 - now), int(value0)])
 		return true
@@ -654,3 +758,8 @@ func _note_once(key: String, s: String, gap: float) -> void:
 		return
 	log_t[key] = game.clock
 	say(s)
+
+
+## The goal is the enemy's main: its start (a Crown or Clockwork main hall, the Brood Mother's nest).
+func _main_goal() -> bool:
+	return foe >= 0 and goal.distance_to(Vector2(game.starts[foe]) * Defs.TILE) < 700.0

@@ -1,0 +1,9 @@
+# cw-builds-b: the Clockwork computer's PENDULUMS and HEAVY WORKS PUSH plans (scripts/ai_cw_builds_b.gd, docs/clockwork_builds_b.md)
+
+> Pendulums
+pt Pêndulos
+es Péndulos
+
+> Heavy Works push
+pt Avanço da Oficina Pesada
+es Avance del Taller Pesado

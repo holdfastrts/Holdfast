@@ -2788,7 +2788,7 @@ func start(cfg: Dictionary = {}) -> void:
 		var strat: String = String(slots[t].get("strategy", "balanced"))
 		var allowed := AI.strategies_for(facs[t])
 		if strat == "random" or not allowed.has(strat):
-			strat = "balanced" if strat != "random" else allowed[randi() % allowed.size()]
+			strat = "balanced" if strat != "random" else ai.random_plan(allowed)      # (cw-builds-b: a computer may weigh its pick by the matchup)
 		ai.strategy = strat
 		ai.peaceful = bool(cfg.get("lab", false))     # (the LAB's computer never attacks)
 		last_cfg["slots"][t]["strategy"] = strat

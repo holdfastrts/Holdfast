@@ -137,9 +137,12 @@ func _minute() -> void:
 	for u in g.army(0):
 		kinds[u.kind] = int(kinds.get(u.kind, 0)) + 1
 	var p = _ai.get("push") if _ai else null
-	_min_lines.append("%s | CW winders %d earned %d bank %d T %d supply %d/%d army %d %s | push %s (%d out) | foe workers %d earned %d army %d | killed %d lost %d" % [
+	var where := ""
+	if p != null and p.phase != "":
+		where = " anchor %s front %s goal %s" % [str(g.cell_of(p.anchor)), str(g.cell_of(p._front_centre())), str(g.cell_of(p.goal)) if p.goal != Vector2.INF else "-"]
+	_min_lines.append("%s | CW winders %d earned %d bank %d T %d supply %d/%d army %d %s | push %s (%d out)%s | foe workers %d earned %d army %d | killed %d lost %d" % [
 		_mmss(g.clock), g.worker_count(0), int(g.stats[0]["gold"]), int(g.players[0]["gold"]), int(g.tension(0)), g.supply_used(0),
-		int(g.players[0]["cap"]), _army_val(0), str(kinds), (p.phase if p != null else "-"), (p.pushes if p != null else 0),
+		int(g.players[0]["cap"]), _army_val(0), str(kinds), (p.phase if p != null else "-"), (p.pushes if p != null else 0), where,
 		g.worker_count(1), int(g.stats[1]["gold"]), _army_val(1), int(g.stats[0]["value_killed"]), int(g.stats[1]["value_killed"])])
 	print("MIN " + _min_lines[-1])
 
