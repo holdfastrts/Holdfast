@@ -36,6 +36,9 @@ const STRATEGIES := {
 	# opening build (4 Springers, HIGH LEAP and a Swift as soon as possible, the economy growing behind it), the Springers
 	# leap into the enemy's main by the Swift's sight, then the computer plays on as Balanced (these numbers).
 	"springer": {"name": "Springer timing", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
+	# THE SIEGE PUSH (crown-builds-b; scripts/ai_crown_siege.gd, docs/crown_builds_b.md): cannons and mortars behind a Musketeer
+	# line break a turtle. The Crown's own computer plays it (its plan's push); Easy and the shared computer play these numbers.
+	"siege": {"name": "Siege push", "wave": 18, "step": 8, "expand": 1.0, "halls": 3, "tech": 0.9, "workers": 1.0, "crown_only": true},
 }
 
 
@@ -46,6 +49,8 @@ static func strategies_for(faction: String) -> Array:
 		if STRATEGIES[k].get("brood_only", false) and faction != "brood":
 			continue
 		if STRATEGIES[k].get("clock_only", false) and faction != "clockwork":
+			continue
+		if STRATEGIES[k].get("crown_only", false) and faction != "crown":
 			continue
 		out.append(k)
 	return out
