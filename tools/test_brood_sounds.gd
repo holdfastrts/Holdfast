@@ -8,7 +8,8 @@ extends SceneTree
 ##   godot --headless --fixed-fps 30 --script res://tools/test_brood_sounds.gd
 ## The creatures still to come (no Defs.UNITS entry yet): their files are checked all the same.
 const LATER := ["hatchlings", "storm_challenger"]
-## The kinds that keep older blows: the Skywing's spines (the Raptor and the Grub bite with the 2026-10-30 pack's chomps).
+## The kinds that keep older blows: the Skywing's spines (the Grub bites with the 2026-10-30 pack's chomps; the
+## Raptor has its older computer-made bite back since 0.26.9, a file all the same).
 const OLD_BLOW := ["skywing"]
 ## The owner's 2026-10-30 pack: sounds that must be heard in the match (wings, a glob landing, rooting, the error grunt).
 const PACK_HEARD := ["brood/wings_big", "brood/wings_small", "combat/spitter_hit", "brood/root", "brood/uproot", "brood/error"]

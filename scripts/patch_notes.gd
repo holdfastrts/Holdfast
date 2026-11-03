@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.9", "items": [
+		"THE BARRACKS' FIFE ENDS LIKE A TUNE: the fife's little call when the Barracks recruits no longer stops on a note that sounds like a question. It now steps down home, D, C, then the home note B flat, held and dying away, with one drum stroke on it.",
+		"THE RAPTOR'S OLD BITE IS BACK (the owner's choice): the quick swish and snap the Raptor had before 0.24.6. The other Brood creatures keep their bites.",
+	]},
 	{"v": "0.26.8", "items": [
 		"THE BARRACKS' FIFE ENDS CLEANLY: when the Barracks recruits a soldier, the fife's last long note no longer stutters (it was one short piece of the recording repeated five times, with the band's drum in it) and no longer stops short. It is now a real held note from the fifer, fading out smoothly, and the low drum thump and hum under the tune are gone.",
 	]},
