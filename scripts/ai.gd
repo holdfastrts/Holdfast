@@ -2950,6 +2950,8 @@ func _raid() -> void:
 			if _raiders.size() < 4:
 				_raiders.append(u)
 		_raid_peak = _raiders.size()
+		_raid_piece = null              # (a new party weighs any wall up afresh: _raid_wall)
+		raid_wall_said = ""
 		if rush_raid and _rush_state == "":
 			_rush_begin(_raiders, true)
 			_rush_log("goes out (%d Horsemen together)" % _raiders.size())
@@ -2991,8 +2993,222 @@ func _raid() -> void:
 				u.cmd_move(home + Vector2(randf_range(-60, 60), randf_range(-60, 60)))
 		return
 	var best := hz_.work_line(c)
+	# (a shut wall between the party and the workers: it breaks in, or rides for workers it can get at: _raid_wall)
+	best = _raid_wall(best)
+	if best == Vector2.INF:
+		return
 	for u in _raiders:
 		_hunt(u, best)
+
+
+# ---- RAIDERS AT A SHUT WALL (the owner's playtest 2026-11-01, AI Crown v AI Crown on Ashfall, 0.25.25: yellow's
+# Horsemen galloped into green's shut ramp gate and stood pressed against it, never striking it, with green's army away;
+# docs/cav_gate.md). The party weighs the wall up as one, each second, like the wave's siege (_siege_plan) but simpler:
+#  * the time to bring the piece down: the riders' blows on it, less the menders' repair, against
+#  * the time the defenders that reach the piece's face (muskets on the wall, a gun) need to cut the riders down.
+# Worth it (down in RAID_BREAK_MAX s, and well before they would die), every rider goes for that one piece; a rider with
+# his pistol loaded shoots a mender at the piece first, and a mender in sabre reach across the gate is cut at too
+# (docs/design_principles.md 5: a ramp wall costs the defender something while a rush lasts; a gate left with nobody but
+# a labourer to mend it must be a real risk). Not worth it, or stalled (RAID_STALL s on and the piece hardly scratched):
+# the party rides for workers it can walk up to (an expansion, a farm outside the wall), else home, and the raid waits.
+const RAID_BREAK_MAX := 45.0     # (s) the longest a party spends breaking a piece (repair counted)
+const RAID_STALL := 30.0         # (s) at the piece this long with it still above RAID_STALL_HP: given up
+const RAID_STALL_HP := 0.8
+const RAID_SHUT_FOR := 90.0      # (s) a wall given up is left be this long; no party forms again before RAID_BLOCK
+const RAID_BLOCK := 45.0
+const RAID_LINE := 100.0         # (px) wall and gate pieces this close to the chosen one are struck too
+var _raid_piece: Building = null # the piece the party is breaking
+var _raid_piece_t := 0.0         # (clock) since when
+var _raid_shut := {}             # Building -> clock until which the raid leaves that wall be
+## (tests) the last raid-at-a-wall decision: "", "break", "elsewhere", "home"
+var raid_wall_said := ""
+var raid_wall_log: Array = []    # (tests) [clock, text] of each decision
+
+
+func _raid_say(kind: String, msg: String) -> void:
+	if raid_wall_said == kind:
+		return
+	raid_wall_said = kind
+	raid_wall_log.append([game.clock, msg])
+	if game.mlog:
+		game.mlog.add("%s's raid %s" % [game.mlog.who(team), msg])
+
+
+## Where the raiders ride now: `prey` if they can walk up to it; else (a shut wall in the way) they break the wall in
+## the way and Vector2.INF is returned (the orders are given here), or they ride for other prey they can reach (its
+## spot), or home (Vector2.INF).
+func _raid_wall(prey: Vector2) -> Vector2:
+	var party: Array = _raiders.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and not u.off_field and not u.is_air())
+	if party.is_empty():
+		return prey
+	var piece: Building = _raid_piece if is_instance_valid(_raid_piece) and not _raid_piece.dead else null
+	if piece == null:
+		if _raid_piece != null:
+			_raid_piece = null          # (down: through the gap after the workers)
+			_raid_say("through", "is through the wall: after the workers")
+			return prey
+		if party[0]._walk_reaches_point(prey):
+			return prey
+		for k in _raid_shut.keys():
+			if not is_instance_valid(k) or float(_raid_shut[k]) <= game.clock:
+				_raid_shut.erase(k)
+		piece = _piece_to_break(party, prey)
+		if piece != null and float(_raid_shut.get(piece, -1.0)) > game.clock:
+			piece = null
+		if piece == null:
+			return _raid_elsewhere(party, prey, "walled with nothing it can break")
+	var w := _raid_weigh(piece, party)
+	var stalled := piece == _raid_piece and game.clock - _raid_piece_t > RAID_STALL and _line_hp(piece) > RAID_STALL_HP
+	if stalled or float(w["t"]) > RAID_BREAK_MAX or float(w["t"]) > float(w["die"]) * 0.6:
+		_raid_shut[piece] = game.clock + RAID_SHUT_FOR
+		_raid_piece = null
+		var why := "it hardly scratched the %s in %d s" % [String(piece.d["name"]).to_lower(), int(RAID_STALL)] if stalled else \
+			("the %s would take ~%s s (%d menders) under %d dps of fire" % [String(piece.d["name"]).to_lower(),
+			"forever" if float(w["t"]) == INF else str(int(w["t"])), int(w["menders"]), int(w["inc"])])
+		return _raid_elsewhere(party, prey, why)
+	if piece != _raid_piece:
+		_raid_piece = piece
+		_raid_piece_t = game.clock
+	_raid_say("break", "breaks in at the %s in the way: down in ~%d s (%d menders, %d dps of fire on it)" % [String(piece.d["name"]).to_lower(),
+		int(w["t"]), int(w["menders"]), int(w["inc"])])
+	var menders: Array = w["mender_list"]
+	# the pieces side by side with it (the palisade and the gate across the ramp): the riders spread over them, two to a
+	# face (a one-tile piece has room for about two horses; the rest stood behind them out of reach), and a labourer can
+	# only mend one piece at a time
+	var line: Array = [piece]
+	for b in game.buildings:
+		if b != piece and not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and game.hostile(b.team, team) \
+				and b.center().distance_to(piece.center()) < RAID_LINE:
+			line.append(b)
+	var on := {}
+	for u in party:
+		if u.order == "attack" and line.has(u.order_target):
+			on[u.order_target] = int(on.get(u.order_target, 0)) + 1
+	for u in party:
+		if u.order == "mount" or u.order == "dismount" or _on_errand(u):
+			continue
+		# a mender he can SEE: his loaded pistol's mark (fired in passing, RideBy), or one in sabre reach across the piece
+		# (seen only: from the foot of a ramp the high ground behind the wall is hidden, game._stamp; menders he can't see
+		# show as a piece that won't go down: RAID_STALL)
+		var m: Unit = null
+		var md := INF
+		for o in menders:
+			if not game.target_seen(team, o, u.position):
+				continue
+			var gap: float = o.edge_distance(u.position) - u.radius
+			var reach: float = float(Defs.PISTOL["range"]) if u.pistol and not u.hold_fire else float(u.d["range"])
+			if gap <= reach + 6.0 and gap < md and u.can_hit(o):
+				md = gap
+				m = o
+		if m != null:
+			if u.order != "attack" or u.order_target != m:
+				u.cmd_attack(m)
+			continue
+		if u.order == "attack" and line.has(u.order_target) and is_instance_valid(u.order_target) and not u.order_target.dead:
+			continue              # (at his piece already)
+		var best_b: Building = null
+		var bs := INF
+		for b in line:
+			if not u.can_hit(b):
+				continue
+			var sc: float = b.edge_distance(u.position) + 60.0 * float(on.get(b, 0)) + (0.0 if b == piece else 20.0)
+			if sc < bs:
+				bs = sc
+				best_b = b
+		if best_b == null:
+			best_b = piece
+		on[best_b] = int(on.get(best_b, 0)) + 1
+		u.cmd_attack(best_b)
+	return Vector2.INF
+
+
+## The lowest share of hit points among the wall and gate pieces within RAID_LINE of `piece` (itself too).
+func _line_hp(piece: Building) -> float:
+	var low := piece.hp / piece.max_hp
+	for b in game.buildings:
+		if not b.dead and b.built and (b.kind == "wall" or b.kind == "gate") and b.team == piece.team and b.center().distance_to(piece.center()) < RAID_LINE:
+			low = minf(low, b.hp / b.max_hp)
+	return low
+
+
+## The race at one piece: {"t": s to bring it down (INF: never), "die": s the defenders need to cut the party down,
+## "inc": their dps, "menders", "mender_list"}.
+func _raid_weigh(piece: Building, party: Array) -> Dictionary:
+	var dps := 0.0
+	var hp := 0.0
+	for u in party:
+		if u.has_attack() and u.can_hit(piece):
+			dps += maxf(1.0, float(u.d["damage"]) * float(u.d.get("building_bonus", 1.0)) - piece.armor) / maxf(float(u.d["cooldown"]), 0.1)
+		hp += u.hp
+	var menders: Array = []
+	var rep := 0.0
+	var inc := 0.0
+	for o in game.units_near(piece.center(), 360.0):
+		if o.dead or o.off_field or not game.hostile(o.team, team):
+			continue
+		if o.is_worker():
+			# (only menders it can see: no counting what is hidden on the high ground)
+			if ((o.work == "repairing" or o.order == "repair") and o.order_target == piece or (o.work == "repairing" and piece.edge_distance(o.position) < 60.0)) \
+					and game.is_visible_to(team, o.position):
+				menders.append(o)
+				rep += maxf(float(Defs.REPAIR_RATE), piece.max_hp / maxf(float(piece.d.get("time", 10.0)), 1.0))
+			continue
+		if not o.has_attack() or not Game.fights_back(o):
+			continue
+		# (a defender it can see that reaches the piece's outer face, where the riders stand; hidden ones show as riders
+		# lost: the danger check in _raid sends the party home)
+		if piece.edge_distance(o.position) <= float(o.d["range"]) + o.radius + 30.0 and game.is_visible_to(team, o.position):
+			inc += float(o.d["damage"]) / maxf(float(o.d["cooldown"]), 0.1)
+	var net := dps - rep
+	return {"t": piece.hp / net if net > 0.5 else INF, "die": hp / inc if inc > 0.1 else INF, "inc": inc,
+		"menders": menders.size(), "mender_list": menders}
+
+
+## The wall is not worth breaking: the party rides for workers (or their buildings) it can walk up to; with none it
+## rides home, and no party forms for RAID_BLOCK s.
+func _raid_elsewhere(party: Array, prey: Vector2, why: String) -> Vector2:
+	var alt := _open_prey(party[0], prey)
+	if alt != Vector2.INF:
+		_raid_say("elsewhere", "finds the way to the workers shut (%s): it rides for workers it can get at" % why)
+		return alt
+	_raid_say("home", "finds the way to the workers shut (%s): it rides home and comes again later" % why)
+	_raid_piece = null
+	var rest := _raiders.duplicate()
+	_raiders.clear()
+	_raid_peak = 0
+	_rush_recall(rest)
+	_raid_block = maxf(_raid_block, game.clock + RAID_BLOCK)
+	return Vector2.INF
+
+
+## Prey the rider can walk up to (enemy workers he can see, else their economy buildings), not `shut` (the walled-off
+## spot), the best first as in _prey_spot; at most 8 path checks. Vector2.INF: none.
+func _open_prey(rep: Unit, shut: Vector2) -> Vector2:
+	var foe := _foe()
+	if foe < 0:
+		return Vector2.INF
+	var their_main: Vector2 = Vector2(game.starts[foe]) * Defs.TILE if game.starts.size() > foe else rep.position
+	var spots: Array = []
+	for o in game.units:
+		if o.dead or o.off_field or not game.hostile(o.team, team) or not o.is_worker() or not game.is_visible_to(team, o.position):
+			continue
+		spots.append([o.position.distance_to(their_main) - o.position.distance_to(rep.position) * 0.5, o.position])
+	for b in game.buildings:
+		if b.dead or b.ghost or not game.hostile(b.team, team) or not Defs.is_econ(b.kind):
+			continue
+		spots.append([b.center().distance_to(their_main) - b.center().distance_to(rep.position) * 0.5 - 200.0, b.center()])
+	spots.sort_custom(func(a, b) -> bool: return a[0] > b[0])
+	var checked := 0
+	for s in spots:
+		var p: Vector2 = s[1]
+		if p.distance_to(shut) < 160.0:
+			continue
+		checked += 1
+		if checked > 8:
+			break
+		if rep._walk_reaches_point(p):
+			return p
+	return Vector2.INF
 
 
 ## Where cavalry finds its prey: the enemy's workers we can see (the farther from its main
@@ -3063,6 +3279,14 @@ func _hunt(u: Unit, prey: Vector2) -> void:
 	if fighting or (u.order == "attack" and u.order_target is Unit and not AIHarass.is_static(u.order_target)):
 		return                           # (soldiers: the fight goes on; a worker: run him down)
 	var far := u.position.distance_to(prey) > 5.0 * T
+	# (riding at prey behind an enemy wall or shut gate on a plain move, he only pressed against it for good (the owner's
+	# playtest 2026-11-01, docs/cav_gate.md): up against the piece and with no way round, he goes on attack-move, and the
+	# unit's own wall rule (Unit._walled_check) breaks the piece in the way)
+	if far and u.siege_t <= 0.0 and (u.order == "move" or (u.order == "amove" and tgt is Building)) and game.blocking_wall(u) != null \
+			and not u._walk_reaches_point(prey):
+		if u.order == "move":
+			u.cmd_move(prey, true)
+		return                           # (hacking at the piece, or the building beside it: left to it)
 	if far and (tgt is Building or AIHarass.is_static(tgt) or u.order == "idle" or u.order_point.distance_to(prey) > 160.0 or u.order == "attack"):
 		# (a plain ride past the buildings on the way, but never with its back to a soldier: with one
 		# in reach it goes on attack-move and fights him; the computer (almost) never uses plain MOVE)
@@ -3344,7 +3568,10 @@ func plan_cottage_wall() -> Dictionary:
 					break
 			if not gets_home:
 				continue
-			var score := float(rest.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(tl) + Vector2(csize) * 0.5).distance_to(mid) + float(tx + ty * 1000) * 0.00001
+			# (only pieces that close a gap: a band cell nothing can reach, such as one that only
+			# touches the ramp's corner past the cliff and the Cottage, gets no palisade)
+			walls = cw_prune(b0["ramp"], fp, gates, walls)
+			var score := float(gates.size() + walls.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(tl) + Vector2(csize) * 0.5).distance_to(mid) + float(tx + ty * 1000) * 0.00001
 			if score < best_score:
 				best_score = score
 				var pieces: Array = []
@@ -3366,8 +3593,10 @@ func plan_cottage_wall() -> Dictionary:
 		var m: Vector2 = bands[i]["mid"]
 		cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return Vector2(a).distance_to(m) < Vector2(b).distance_to(m))
 		var gates2: Array = _gate_cells(cells)
+		var walls2: Array = cw_prune(bands[i]["ramp"], {}, gates2, cells.filter(func(c: Vector2i) -> bool: return not gates2.has(c)))
 		for c in cells:
-			extra.append(["gate" if gates2.has(c) else "wall", c])
+			if gates2.has(c) or walls2.has(c):
+				extra.append(["gate" if gates2.has(c) else "wall", c])
 	for e in extra:
 		best["pieces"].append(e)
 		best["cost"] = int(best["cost"]) + int(Defs.BUILDINGS[e[0]]["cost"])
@@ -3384,6 +3613,48 @@ func _gate_cells(cells: Array) -> Array:
 		if (c - gates[gates.size() - 1]).length() <= 1.01:
 			gates.append(c)
 	return gates
+
+
+## Does the flood from the ramp (gates shut) reach the high ground of the base? (cw_reach)
+func cw_leaks(ramp_cells: Array, blocked: Dictionary, gates: Array) -> bool:
+	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
+	for c in cw_reach(ramp_cells, blocked, gates, false):
+		if game.height[game.idx(c)] == 1 and game.ramp[game.idx(c)] == 0 and Vector2(c).distance_to(home) < 24.0:
+			return true
+	return false
+
+
+## The palisade cells of a ramp wall that actually close a gap: each piece (farthest from the
+## ramp first) is dropped when the wall still seals the ramp without it. A band cell that only
+## touches the ramp's corner, with the cliff and the Cottage on the two sides of that diagonal,
+## can't be reached (no corner cutting) and gets no piece (owner's playtest 2026-11-01:
+## "an extra useless palisade in the ramp wall"). `fixed`: other cells that block (the Cottage).
+## If the full line doesn't seal either, it is returned as it is.
+func cw_prune(ramp_cells: Array, fixed: Dictionary, gates: Array, walls: Array) -> Array:
+	var blocked := fixed.duplicate()
+	for c in walls:
+		blocked[c] = true
+	if cw_leaks(ramp_cells, blocked, gates):
+		return walls
+	var mid := Vector2.ZERO
+	for rc in ramp_cells:
+		mid += Vector2(rc)
+	mid /= maxi(1, ramp_cells.size())
+	var order := walls.duplicate()
+	order.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var da := Vector2(a).distance_to(mid)
+		var db := Vector2(b).distance_to(mid)
+		if absf(da - db) > 0.001:
+			return da > db
+		return a.x + a.y * 1000 < b.x + b.y * 1000)
+	var keep := walls.duplicate()
+	for c in order:
+		blocked.erase(c)
+		if cw_leaks(ramp_cells, blocked, gates):
+			blocked[c] = true
+		else:
+			keep.erase(c)
+	return keep
 
 
 func _cw_touches(c: Vector2i, fp: Dictionary) -> bool:
@@ -3522,8 +3793,10 @@ func _wall_off() -> bool:
 		# (a two-wide gate: the army files out to meet a raid without jamming; test_ai_army_response
 		# fails with a one-tile gate)
 		var gates: Array = _gate_cells(cells)
+		var walls: Array = cw_prune(ramp_cells, {}, gates, cells.filter(func(c: Vector2i) -> bool: return not gates.has(c)))
 		for c in cells:
-			plan.append(["gate" if gates.has(c) else "wall", c])
+			if gates.has(c) or walls.has(c):
+				plan.append(["gate" if gates.has(c) else "wall", c])
 	if plan.is_empty():
 		_walled = true
 		return false

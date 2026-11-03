@@ -1271,7 +1271,7 @@ static func _teeth_arc(ci: CanvasItem, g: Vector2, r: float, phi: float, col: Co
 
 
 ## THE GEAR VIEW (owner, 2026-10-27): over the rings, the whole network. The drivers (Clocktowers, Mainsprings) glow bright
-## gold; every other ring is washed by how well it works (full green, 90% yellow, 80% orange, 70% red-orange; idle or
+## gold; every other ring is washed by how well it works (full green, 90% lime, 80% yellow, 70% orange; idle or
 ## unlinked red); each Mainspring's ring is outlined dashed (its Tension flows through its whole network).
 ## The controlled side's buildings (or everyone's when watching).
 func _draw_view() -> void:
@@ -1301,15 +1301,16 @@ func view_colour(b: Building) -> Color:
 	if b.kind == "clocktower" or (b.kind == "mainspring" and linked.has(b)):
 		return Color(1.0, 0.97, 0.78, 0.7)          # (a driver: bright white gold)
 	var m := speed_mult(b) / maxf(tempo(b), 0.01)
+	# (owner, 2026-11-01: 70% and stopped were both red; now each step its own colour, stopped alone is red)
 	if enforce and (not linked.has(b) or m <= 0.0):
-		return Color(1.0, 0.2, 0.18, 0.6)
+		return Color(1.0, 0.08, 0.12, 0.7)          # stopped: red
 	if m >= 0.99:
-		return Color(0.3, 1.0, 0.4, 0.5)
+		return Color(0.3, 1.0, 0.4, 0.5)            # 100%: green
 	if m >= 0.89:
-		return Color(0.85, 1.0, 0.25, 0.5)
+		return Color(0.7, 1.0, 0.2, 0.5)            # 90%: lime
 	if m >= 0.79:
-		return Color(1.0, 0.62, 0.15, 0.55)
-	return Color(1.0, 0.38, 0.18, 0.6)
+		return Color(1.0, 0.92, 0.2, 0.55)          # 80%: yellow
+	return Color(1.0, 0.55, 0.1, 0.6)               # 70%: orange
 
 
 ## A dashed ellipse on the ground: a circle of radius r in gear space round world point c.

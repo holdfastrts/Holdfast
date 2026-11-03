@@ -19,8 +19,11 @@ extends AI
 ##  - a SCOUT (a grub, later a Raptor) looks at the enemy's base; what it and every creature sees is remembered (the fog
 ##    of war: Game.is_visible_to): an early army or fast riders = RUSH evidence (it holds its army at home, delays its
 ##    growth and lays warriors), enemy flyers = the Storm Sire first, a wall = Brutes and Battering Horns;
-##  - DEFENCE: anything at the Mother is fought by every creature that walks and by the Sires (they get up), a wave out
-##    is called home when the attack at her is big;
+##  - DEFENCE AS A SWARM (0.25.27, docs/brood_ai_swarm.md): the army at home HOLDS at a rally (no fights picked by
+##    sight); enemies at home get a squad sized to them, sent all at once (the Tyrant Sire for a small harass with no
+##    warriors to spare, everything near her at the Mother); too strong away from her, the army falls back to her side;
+##    the Mother gets up only for a real reason (_nb_mother_up); a rooted Rootmaw struck uproots and bites back or backs
+##    off, then roots again (_nb_maw_guard); a wave out is called home when the attack at her is big;
 ##  - WAVES: the army gathers at a staging point on the way, attacks together, the new hatched join only in groups, and
 ##    it RETREATS when the fight is lost (what it sees against what it has); Hatchlings stay home unless the enemy flies.
 ## No cheating: it knows where the enemy started (as every computer does) and otherwise only what its creatures see.
@@ -152,6 +155,7 @@ func _tick_ai(delta: float) -> void:
 		_nb_scout(q)
 	_nb_mother(q)
 	_nb_grow(q)
+	_nb_maw_guard(q)
 	_nb_rootmaws(q)
 	_nb_turtles(q)
 	if _eco():
@@ -353,7 +357,7 @@ func _nb_scout(q: Unit) -> void:
 					break
 		else:
 			for u in _nb_army_units():
-				if u.kind == "raptor" and not _wave.has(u) and u.target == null:
+				if u.kind == "raptor" and not _wave.has(u) and not _def.has(u) and u.target == null:
 					pick = u
 					break
 		if pick == null:
@@ -628,7 +632,55 @@ var _q_guard := {}
 func _nb_mother(q: Unit) -> void:
 	if q.team != team or bool(plan.get("mother_free", false)):
 		return          # (mother_free: a coach walks her itself, tools/play_brood_3.gd)
+	_q_guard["stay"] = _nb_mother_up(q) == ""
 	BroodNew.mother_guard(game, q, _q_guard, [1.6, 1.0, 0.6, 0.4][clampi(difficulty, 0, 3)])
+
+
+## THE MOTHER GETS UP ONLY FOR A REAL REASON (the owner's playtest, 2026-11-01: two Clock Soldiers near her got her up
+## at 3:03; her swamp went with her and two Rootmaws lost theirs and uprooted, and she got up again at 3:30). Rooted she
+## has 3 more armour and takes a quarter less: two Clock Soldiers need five minutes to bring her down, and her squad or
+## the Tyrant Sire comes for them (_nb_defend). The reasons (docs/brood_ai_swarm.md), "" = none, she stays rooted:
+##  "big"   a real attack at her (MOTHER_BIG value or more within 8 tiles of her body) that the army near her (14 tiles)
+##          does not match: she is the strongest fighter it has;
+##  "alone" she is under 80% health, enemies strike her and nobody of hers fights them near her;
+##  "last"  a last stand: under 40% health with enemies at her.
+## Never for a scout, a lone raider, a small harass, flyers, or enemies only passing near.
+const MOTHER_BIG := 250.0
+
+
+func _nb_mother_up(q: Unit) -> String:
+	var at := 0.0
+	var strikes := false
+	for u in game.units_near(q.position, 14.0 * Defs.TILE):
+		if not game.hostile(u.team, team) or u.dead or u.off_field or u.is_air() or not u.has_attack():
+			continue
+		if q.edge_distance(u.position) > 8.0 * Defs.TILE and u.target != q:
+			continue
+		if not u.is_worker():
+			at += float(Game.unit_value(u))
+		if u.target == q:
+			strikes = true
+	if at <= 0.0 and not strikes:
+		return ""
+	if strikes and q.hp < q.max_hp * 0.4:
+		return "last"
+	var mine := 0.0
+	var fighting := false
+	for u in _nb_army_units():
+		if u.position.distance_to(q.position) < 14.0 * Defs.TILE:
+			mine += float(Game.unit_value(u))
+			if is_instance_valid(u.target) and not u.target.dead:
+				fighting = true
+	for fk in BroodNew.FATHERS:
+		var f := BroodNew.father(game, team, fk)
+		if f and f.tesla_mode == "packed" and is_instance_valid(f.target) and f.position.distance_to(q.position) < 14.0 * Defs.TILE:
+			fighting = true
+			mine += float(Game.unit_value(f))
+	if at >= MOTHER_BIG and mine < at:
+		return "big"
+	if strikes and q.hp < q.max_hp * 0.8 and not fighting:
+		return "alone"
+	return ""
 
 
 # ------------------------------------------------------------------ the economy
@@ -942,7 +994,7 @@ func _nb_rootmaws(q: Unit) -> void:
 		if BroodNew.rooted(m) and float(m.nb.get("food", 0.0)) < 1.0 and BroodNew.ground_left(game, m) < 1.0:
 			BroodNew.uproot(m, true)          # spent: off to fresh ground
 			continue
-		if m.tesla_mode != "packed" or m.target != null or m.order == "nb_root" or held.has(m):
+		if m.tesla_mode != "packed" or m.target != null or m.order == "nb_root" or held.has(m) or _maw_fight.has(m):
 			continue
 		var goal = _nb_find_spot(q, m)
 		if goal != null:
@@ -1079,8 +1131,8 @@ func _nb_father(q: Unit) -> void:
 
 
 func _nb_one_father(q: Unit, f: Unit) -> void:
-	if f in _wave or BroodRoot.in_cocoon(f):
-		return
+	if f in _wave or BroodRoot.in_cocoon(f) or _def.has(f):
+		return          # (in the defence squad: _nb_defend gets him up and sends him; he roots again after)
 	var d := f.position.distance_to(q.position)
 	var reach := float(Defs.NB["father_r"]) * Defs.TILE
 	var threat := _nb_threat(q) != Vector2.INF
@@ -1556,27 +1608,16 @@ func _nb_army(q: Unit) -> void:
 	var army := _nb_army_units()
 	if _scout != null:
 		army.erase(_scout)
-	# defence: anything at the Mother is fought by every creature that walks, and by the Sires, who get up from their
-	# nests for a real attack (rooted creatures don't attack: the Rootmaws and turtles stay rooted, the Mother:
-	# BroodNew.mother_guard). A wave out is called home when the attack at her is big and the home guard can't hold it.
-	var threat := _nb_threat(q)
-	if threat != Vector2.INF:
-		var defenders := army.filter(func(u: Unit) -> bool: return not _wave.has(u) or not _attacking or u.position.distance_to(q.position) < 30.0 * Defs.TILE)
-		if _nb_sires_needed(q):
-			for fk in BroodNew.FATHERS:
-				var f := BroodNew.father(game, team, fk)
-				if f and f.tesla_mode == "packed" and not BroodRoot.in_cocoon(f):
-					defenders.append(f)      # (rooted on his nest he gets up: _nb_one_father)
-			if _attacking and _foe_near_home > _value_of(defenders) * 0.8:
-				say("calls its wave home: an attack at the Mother (%d)" % int(_foe_near_home))
-				_wave_end_nb(q, false)
-				defenders = army
-		for u in defenders:
-			if u.kind == "hatchlings" and seen_air == 0:
-				continue
-			if u.target == null and (u.order == "idle" or u.order == "nb_root" or u.order == "move" or u in _wave):
-				u.cmd_move(threat, true)
+	# a wave out is called home when the attack at the Mother is big and the creatures at home can't hold it
+	if _attacking and _nb_threat(q) != Vector2.INF and _nb_sires_needed(q):
+		var home_v := _value_of(army.filter(func(u: Unit) -> bool: return not _wave.has(u)))
+		if _foe_near_home > home_v * 0.8:
+			say("calls its wave home: an attack at the Mother (%d)" % int(_foe_near_home))
+			_wave_end_nb(q, false)
+	# DEFENCE AS A SWARM (docs/brood_ai_swarm.md): enemies at home are fought by a squad sized to them, all at once
+	if _nb_defend(q, army.filter(func(u: Unit) -> bool: return not _wave.has(u))):
 		if not _attacking:
+			_nb_hold_rest(army)
 			return
 	var sup := 0
 	for u in army:
@@ -1586,10 +1627,9 @@ func _nb_army(q: Unit) -> void:
 		_nb_wave_tick(q, army)
 		return
 	var home := _nb_stage_point(q)
-	# Hatchlings guard the Mother's sky; everyone else gathers at the staging point
-	for u in army:
-		if u.order == "idle" and u.target == null and u.position.distance_to(home) > 200.0:
-			u.cmd_move(home, true)          # (gathering at the staging point: on attack-move)
+	_rally = home
+	# everyone gathers at the staging point and HOLDS there (no drifting off one by one by sight: _nb_hold_rest)
+	_nb_hold_rest(army)
 	if peaceful or game.clock < _retreat_until or game.clock < float(plan["wave_t"]) or _rush_on() or _alarm_on():
 		return
 	if sup < _attack_at:
@@ -1689,19 +1729,17 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		if u.order == "idle" and u.target == null:
 			u.cmd_move(_wave_target, true)
 	# reinforcements: a group gathered at home joins
-	var home := _nb_stage_point(q)
-	var fresh := army.filter(func(u: Unit) -> bool: return not _wave.has(u) and u.order == "idle" and u.target == null and u.moult_t < 0.0 \
-		and (u.kind != "hatchlings" or seen_air > 0) and u.position.distance_to(home) < 9.0 * Defs.TILE)
+	var home := _rally
+	var fresh := army.filter(func(u: Unit) -> bool: return not _wave.has(u) and not _def.has(u) and (u.order == "idle" or u.order == "hold") \
+		and u.target == null and u.moult_t < 0.0 and (u.kind != "hatchlings" or seen_air > 0) and u.position.distance_to(home) < 9.0 * Defs.TILE)
 	var fs := 0
 	for u in fresh:
 		fs += int(u.d["supply"])
-	if fs >= 6:
+	if fs >= 6 and not _def_on():
 		for u in fresh:
 			_wave.append(u)
 			u.cmd_move(_wave_target, true)
-	for u in army:
-		if not _wave.has(u) and u.order == "idle" and u.target == null and u.position.distance_to(home) > 200.0:
-			u.cmd_move(home, true)          # (gathering at the staging point: on attack-move)
+	_nb_hold_rest(army)
 
 
 ## The wave is over (pulled back or called home): back to the staging point; a lost wave makes the next bigger and
@@ -1747,3 +1785,328 @@ func _kinds_of(list: Array) -> String:
 func _nb_mother_ground(q: Unit) -> Rect2:
 	var home: Vector2 = _q_guard.get("home", q.position)
 	return BroodRoot.rect_for(BroodNew.QUEEN, home, BroodRoot.scale_of(q)).grow(Defs.TILE)
+
+
+# ------------------------------------------------------------------ defence as a swarm (docs/brood_ai_swarm.md)
+
+## THE OWNER'S PLAYTEST (2026-11-01, Clockwork rush v Brood economy, 5:23): idle Raptors at the staging point went for
+## Clock Soldiers one by one as each saw them (an idle creature picks its own fight in sight, Unit "idle"), and each
+## Raptor hatched went on attack-move into the fight alone: a trickle, eaten one at a time. Now:
+##  - idle army creatures at home walk to the RALLY (the staging point) and HOLD there: they fight only what reaches
+##    their claws, never by sight;
+##  - enemies at home (HOME_R tiles of the Mother, or SITE_R of one of its rooted creatures) are looked at as a group
+##    (the one nearest the Mother, DEF_CLUSTER_R round it), and a DEFENCE SQUAD sized to it goes all at once: the nearest
+##    creatures until the fight is won on paper (_fight_wins), the Tyrant Sire for a small harass with no warriors to
+##    spare, the whole army for a bigger attack, and at the Mother everything near her joins at once;
+##  - an attack too strong for what it has, away from the Mother: nobody goes; the rally falls back to the Mother (her
+##    side of the fight) and the army gathers there;
+##  - creatures hatched or come home meanwhile join the squad at once near the fight (JOIN_R), otherwise from the rally
+##    only as a group (JOIN_GROUP supply);
+##  - the squad stops when nothing is left at home (no chase across the map: DEF_LEASH) and goes back to the rally.
+const HOME_R := 26.0
+const SITE_R := 9.0
+const DEF_CLUSTER_R := 10.0
+const JOIN_R := 12.0
+const JOIN_GROUP := 4
+const DEF_LEASH := 14.0
+const SMALL_HARASS := 250.0         # (value: up to three Clock Soldiers or Musketeers, two Horsemen)
+var _def: Array = []                # the defence squad
+var _def_at := Vector2.INF          # where it fights (the group it was sent at)
+var _rally := Vector2.INF           # where the army at home gathers and holds
+
+
+func _def_on() -> bool:
+	return not _def.is_empty()
+
+
+## The enemies at home its creatures see (fighters only; flyers only when it has Hatchlings to hit them).
+func _nb_home_foes(q: Unit) -> Array:
+	var sites: Array = [q.position]
+	for u in game.units:
+		if u.team == team and not u.dead and BroodNew.ROOTERS.has(u.kind) and BroodNew.rooted(u) and u != q:
+			sites.append(u.position)
+	var anti_air := BroodNew.count_of(game, team, "hatchlings") > 0
+	var out: Array = []
+	for u in game.units_near(q.position, (HOME_R + 40.0) * Defs.TILE):
+		if u.dead or u.off_field or u.team < 0 or not game.hostile(u.team, team) or not u.has_attack() or u.is_worker():
+			continue
+		if u.kind == BroodNew.EGG or (u.is_air() and not anti_air) or not game.is_visible_to(team, u.position):
+			continue
+		if u.position.distance_to(q.position) < HOME_R * Defs.TILE:
+			out.append(u)
+			continue
+		for s in sites:
+			if (s as Vector2).distance_to(u.position) < SITE_R * Defs.TILE:
+				out.append(u)
+				break
+	return out
+
+
+## The group to answer: the enemy nearest the Mother and every enemy at home within DEF_CLUSTER_R tiles of it.
+func _nb_cluster(q: Unit, foes: Array) -> Array:
+	var first: Unit = null
+	for u in foes:
+		if first == null or u.position.distance_to(q.position) < first.position.distance_to(q.position):
+			first = u
+	if first == null:
+		return []
+	var c: Array = []
+	for u in foes:
+		if u.position.distance_to(first.position) < DEF_CLUSTER_R * Defs.TILE:
+			c.append(u)
+	return c
+
+
+static func _mid(list: Array) -> Vector2:
+	var p := Vector2.ZERO
+	for u in list:
+		p += (u as Unit).position
+	return p / maxf(1.0, list.size())
+
+
+## Does this group of its creatures beat that group of enemies in a stand-up fight? (On paper: its hits pooled, each
+## enemy killed in turn while the rest hit back; armour off each blow. `margin`: the share of its health it may lose.)
+## Its own armour is its kind's (a rooted creature's extra armour is gone once it is up).
+static func _fight_wins(mine: Array, foes: Array, margin := 0.6) -> bool:
+	if mine.is_empty():
+		return false
+	if foes.is_empty():
+		return true
+	var hp := 0.0
+	var my_armor := 0.0
+	for u in mine:
+		hp += (u as Unit).hp
+		my_armor += float((u as Unit).d.get("armor", 0))
+	my_armor /= mine.size()
+	var their: Array = []
+	var their_dps := 0.0
+	for f in foes:
+		var fu := f as Unit
+		var dps := maxf(1.0, float(fu.d.get("damage", 0)) - my_armor) / maxf(0.3, float(fu.d.get("cooldown", 1.0)))
+		their.append([fu.hp, dps, fu.armor])
+		their_dps += dps
+	their.sort_custom(func(a, b) -> bool: return a[0] < b[0])
+	var taken := 0.0
+	for e in their:
+		var my_dps := 0.0
+		for u in mine:
+			var mu := u as Unit
+			my_dps += maxf(1.0, float(mu.d.get("damage", 0)) - float(e[2])) / maxf(0.3, float(mu.d.get("cooldown", 1.0)))
+		taken += their_dps * float(e[0]) / maxf(0.1, my_dps)
+		their_dps -= float(e[1])
+	return taken < hp * margin
+
+
+## Defence: true while it is answering (or holding back from) enemies at home.
+func _nb_defend(q: Unit, army: Array) -> bool:
+	_rally = _nb_stage_point(q)
+	_def = _def.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
+	var foes := _nb_home_foes(q)
+	var group := _nb_cluster(q, foes)
+	if group.is_empty():
+		if _def_on():
+			_nb_stand_down(q)
+		return false
+	var at := _mid(group)
+	var e := _value_of(group)
+	var at_mother := at.distance_to(q.position) < 14.0 * Defs.TILE
+	var air := group.any(func(f) -> bool: return (f as Unit).is_air())
+	var avail := army.filter(func(u: Unit) -> bool: return u.moult_t < 0.0 and not held.has(u) and (u.kind != "hatchlings" or air))
+	if _def_on():
+		# the squad fights on; the ones near join at once, the rest from the rally as a group
+		_def_at = at
+		var join: Array = []
+		var at_rally: Array = []
+		var rs := 0
+		for u in avail:
+			if _def.has(u):
+				continue
+			if u.position.distance_to(at) < JOIN_R * Defs.TILE or (at_mother and u.position.distance_to(q.position) < 16.0 * Defs.TILE):
+				join.append(u)
+			elif u.position.distance_to(_rally) < 9.0 * Defs.TILE:
+				at_rally.append(u)
+				rs += int(u.d["supply"])
+		if rs >= JOIN_GROUP or not _fight_wins(_def, group, 0.9):
+			join.append_array(at_rally)
+		for u in join:
+			_def.append(u)
+			u.cmd_move(at, true)
+		# losing it away from the Mother: back to her (a lost fight is lost ground, not the army)
+		if not at_mother and not _fight_wins(_def, group, 1.0) and not _fight_wins(avail, group, 1.0):
+			say("pulls its defenders back to the Mother: %d against %d" % [int(_value_of(_def)), int(e)])
+			_rally = _nb_fallback(q, at)
+			_nb_stand_down(q)
+			return true
+		for u in _def:
+			var cu := u as Unit
+			if cu.tesla_mode == "deployed":
+				continue
+			var far: bool = cu.position.distance_to(at) > DEF_LEASH * Defs.TILE and cu.position.distance_to(q.position) > HOME_R * Defs.TILE
+			if far or (cu.target == null and (cu.order == "idle" or cu.order == "hold" or cu.order == "move")):
+				cu.cmd_move(at, true)
+		return true
+	# a new squad: the nearest until the fight is won on paper
+	avail.sort_custom(func(a, b) -> bool: return (a as Unit).position.distance_to(at) < (b as Unit).position.distance_to(at))
+	var squad: Array = []
+	if e <= SMALL_HARASS:
+		for u in avail:
+			squad.append(u)
+			if squad.size() >= 2 and _fight_wins(squad, group):
+				break
+		if not _fight_wins(squad, group) and at.distance_to(q.position) < 22.0 * Defs.TILE:
+			var f := BroodNew.father(game, team, BroodNew.FATHER)
+			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f):
+				squad.append(f)       # (the Tyrant Sire: 1,000 health, a terrible bite; he roots again after)
+	elif at_mother or _fight_wins(avail, group, 0.8):
+		squad = avail
+		if at_mother and _nb_sires_needed(q):
+			for fk in BroodNew.FATHERS:
+				var f2 := BroodNew.father(game, team, fk)
+				if f2 and not BroodRoot.in_cocoon(f2) and not _wave.has(f2):
+					squad.append(f2)
+	if squad.is_empty() or (not at_mother and not _fight_wins(squad, group, 1.0)):
+		# too strong to meet away from her: the army gathers on her side and waits (no trickle)
+		_rally = _nb_fallback(q, at)
+		return true
+	_def = squad
+	_def_at = at
+	for u in _def:
+		var cu := u as Unit
+		if cu.tesla_mode == "deployed":
+			cu.cmd_uproot(false)          # (a Sire: sent on once he is up, above; _nb_one_father leaves him be meanwhile)
+		else:
+			cu.cmd_move(at, true)
+	say("defends with %d (%s, %d) against %d (%s) at %s" % [_def.size(), _kinds_of(_def), int(_value_of(_def)), int(e), _kinds_of(group), "the Mother" if at_mother else "home"])
+	return true
+
+
+func in_defence(u: Unit) -> bool:
+	return _def.has(u)
+
+
+## The rally when an attack at home is too strong to meet: on the Mother's far side from it.
+func _nb_fallback(q: Unit, from: Vector2) -> Vector2:
+	var p: Vector2 = q.position + (q.position - from).normalized() * (BroodNew.drawn_r(q) + 70.0)
+	if _nb_on_map(p) and game._walkable(game.cell_of(p)):
+		return p
+	return q.position + Vector2(0, BroodNew.drawn_r(q) + 70.0)
+
+
+func _nb_stand_down(_q: Unit) -> void:
+	for u in _def:
+		if not is_instance_valid(u) or u.dead:
+			continue
+		if BroodNew.FATHERS.has(u.kind):
+			u.cmd_stop()              # (back to his nest: _nb_one_father)
+		elif not _wave.has(u):
+			u.cmd_move(_rally)
+	_def.clear()
+	_def_at = Vector2.INF
+
+
+## Idle army creatures at home: to the rally and HOLD there (no fight picked by sight).
+func _nb_hold_rest(army: Array) -> void:
+	if _rally == Vector2.INF:
+		return
+	for u in army:
+		if _wave.has(u) or _def.has(u) or u == _scout or held.has(u) or u.target != null or u.moult_t >= 0.0:
+			continue
+		if u.order != "idle" and u.order != "hold":
+			continue
+		if u.position.distance_to(_rally) > 200.0:
+			u.cmd_move(_rally)
+		elif u.order == "idle":
+			u.cmd_hold()
+
+
+# ------------------------------------------------------------------ a rooted Rootmaw under attack
+
+## THE OWNER'S PLAYTEST (2026-11-01, 5:23): a Rootmaw rooted at the expansion sat taking blows from one or two Clock
+## Soldiers (no rooted creature attacks). Now a rooted Rootmaw struck (or its grubs struck beside it) by enemies it
+## beats on paper (_fight_wins, uprooted: its armour off) UPROOTS keeping its food (HAUL) and bites back; against more
+## than it beats it uproots SPILLING its food (a pile its grubs collect: at full speed, 80, it outruns a Clock
+## Soldier's 68) and backs off to the Mother. Either way it roots again on its own spot once nothing is near it for
+## MAW_SAFE s.
+const MAW_SAFE := 4.0
+var _maw_fight := {}                # Rootmaw -> {"spot", "mode": "fight" / "back", "t", "calm"}
+var _maw_calm_t := 0.0
+
+
+func maw_fighting(m: Unit) -> bool:
+	return _maw_fight.has(m)
+
+
+func _nb_maw_guard(q: Unit) -> void:
+	var dt := clampf(game.clock - _maw_calm_t, 0.0, 2.0)
+	_maw_calm_t = game.clock
+	for m in _nb_mine(BroodNew.MAW):
+		if _maw_fight.has(m) or held.has(m) or not BroodNew.rooted(m) or BroodRoot.in_cocoon(m):
+			continue
+		if game.clock - m.hit_clock > 2.0:
+			var grub_hit := false
+			for u in game.units_near(m.position, 4.0 * Defs.TILE):
+				if game.hostile(u.team, team) and not u.dead and is_instance_valid(u.target) and u.target is Unit \
+						and (u.target as Unit).team == team and (u.target as Unit).kind == "grub":
+					grub_hit = true
+					break
+			if not grub_hit:
+				continue
+		var foes := _maw_foes(m)
+		if foes.is_empty():
+			continue
+		var win := _fight_wins([m], foes, 0.8)
+		_maw_fight[m] = {"spot": m.position, "mode": "fight" if win else "back", "t": game.clock, "calm": 0.0}
+		BroodNew.uproot(m, not win)
+		say("a Rootmaw under attack uproots to %s (%s)" % ["fight back" if win else "back off", _kinds_of(foes)])
+	for m in _maw_fight.keys():
+		if not is_instance_valid(m) or m.dead:
+			_maw_fight.erase(m)
+			continue
+		var s: Dictionary = _maw_fight[m]
+		if m.tesla_mode != "packed":
+			if BroodNew.rooted(m) and game.clock - float(s["t"]) > 3.0:
+				_maw_fight.erase(m)          # (rooted again: done)
+			continue
+		var spot: Vector2 = s["spot"]
+		var foes := _maw_foes(m)
+		var near_spot := false
+		for u in game.units_near(spot, 7.0 * Defs.TILE):
+			if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_air() and not u.is_worker():
+				near_spot = true
+				break
+		if foes.is_empty() and not near_spot:
+			s["calm"] = float(s["calm"]) + dt
+			if float(s["calm"]) >= MAW_SAFE and m.order != "nb_root":
+				_root_last.erase(m.get_instance_id())
+				_root_to(m, spot)            # (back on its own spot: its ground kept what was left)
+		else:
+			s["calm"] = 0.0
+		if game.clock - float(s["t"]) > 90.0:
+			_maw_fight.erase(m)              # (its spot still taken: _nb_rootmaws finds it another)
+			continue
+		if foes.is_empty():
+			continue
+		if s["mode"] == "fight" and not _fight_wins([m], foes, 0.9):
+			s["mode"] = "back"
+		if s["mode"] == "fight":
+			if m.position.distance_to(spot) > 8.0 * Defs.TILE:
+				m.cmd_move(spot)            # (no chase: back to its spot)
+			elif m.target == null or m.order == "idle" or m.order == "move" or m.order == "nb_root":
+				var near: Unit = foes[0]
+				for f in foes:
+					if (f as Unit).position.distance_to(m.position) < near.position.distance_to(m.position):
+						near = f
+				m.cmd_attack(near)
+		else:
+			var back := _nb_fallback(q, _mid(foes))
+			if m.order != "move" or m.order_point.distance_to(back) > 3.0 * Defs.TILE:
+				m.cmd_move(back)
+
+
+## The enemies about a Rootmaw (ground fighters within 6 tiles).
+func _maw_foes(m: Unit) -> Array:
+	var out: Array = []
+	for u in game.units_near(m.position, 6.0 * Defs.TILE):
+		if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_air() and not u.is_worker():
+			out.append(u)
+	return out

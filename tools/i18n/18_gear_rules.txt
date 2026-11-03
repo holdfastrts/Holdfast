@@ -138,13 +138,13 @@ es VISTA DE ENGRANAJES
 pt Vista das engrenagens
 es Vista de engranajes
 
-> Shows the whole gear network: the drivers glow gold, every ring is tinted by how well it works (green full speed, yellow 90%, orange 80%, red 70% or idle), each Mainspring's reach is outlined and the turrets' circles are drawn. Key: `
-pt Mostra toda a rede de engrenagens: os motores brilham dourados, cada anel ganha uma cor conforme trabalha (verde velocidade total, amarelo 90%, laranja 80%, vermelho 70% ou parado), o alcance de cada Mola Real é contornado e os círculos das torretas são desenhados. Tecla: `
-es Muestra toda la red de engranajes: los motores brillan dorados, cada anillo se tiñe según trabaja (verde a toda velocidad, amarillo 90%, naranja 80%, rojo 70% o parado), el alcance de cada Muelle Real se perfila y se dibujan los círculos de las torretas. Tecla: `
+> Shows the whole gear network: the drivers glow gold, every ring is tinted by how well it works (green full speed, lime 90%, yellow 80%, orange 70%, red stopped), each Mainspring's reach is outlined and the turrets' circles are drawn. Key: `
+pt Mostra toda a rede de engrenagens: os motores brilham dourados, cada anel ganha uma cor conforme trabalha (verde velocidade total, verde-limão 90%, amarelo 80%, laranja 70%, vermelho parado), o alcance de cada Mola Real é contornado e os círculos das torretas são desenhados. Tecla: `
+es Muestra toda la red de engranajes: los motores brillan dorados, cada anillo se tiñe según trabaja (verde a toda velocidad, lima 90%, amarillo 80%, naranja 70%, rojo parado), el alcance de cada Muelle Real se perfila y se dibujan los círculos de las torretas. Tecla: `
 
-> GEAR VIEW: green full speed, yellow 90%, orange 80%, red 70% or idle.
-pt VISTA DAS ENGRENAGENS: verde velocidade total, amarelo 90%, laranja 80%, vermelho 70% ou parado.
-es VISTA DE ENGRANAJES: verde a toda velocidad, amarillo 90%, naranja 80%, rojo 70% o parado.
+> GEAR VIEW: green full speed, lime 90%, yellow 80%, orange 70%, red stopped.
+pt VISTA DAS ENGRENAGENS: verde velocidade total, verde-limão 90%, amarelo 80%, laranja 70%, vermelho parado.
+es VISTA DE ENGRANAJES: verde a toda velocidad, lima 90%, amarillo 80%, naranja 70%, rojo parado.
 
 > Gear view off.
 pt Vista das engrenagens desligada.

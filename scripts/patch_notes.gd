@@ -4,6 +4,22 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.2", "items": [
+		"THE BROOD COMPUTER DEFENDS AS A SWARM: its army at home gathers at a rally and holds there, so Raptors no longer run off one by one at every enemy they see. Enemies at home get a group sized to them, sent all at once: a few Raptors, or the Tyrant Sire for a small harass when there are no warriors to spare, the whole army for a real attack, and everything near the Mother when the fight is at her. An attack too strong to meet away from her makes the army gather on her side instead. The Mother stays rooted for a scout or a small harass (her swamp and the Rootmaws on it stay) and gets up only for a real attack, when hurt with nobody fighting for her, or as a last stand. A rooted Rootmaw that is struck gets up and bites back when it can win, or backs off to the Mother when it can't, then roots again on its spot.",
+	]},
+	{"v": "0.26.1", "items": [
+		"HORSEMEN BREAK A SHUT GATE: the computer's Horsemen out raiding no longer gallop into a shut enemy gate and stand pressed against it. When a wall is between them and the workers, the party weighs it up: if it can bring a piece down in time and nothing shoots them hard there, every rider sets about the gate or the palisade beside it, spread over the pieces (two to a face), and a rider with his pistol loaded shoots a labourer mending it that he can see. If the piece won't go down (menders hidden behind it on the high ground, or muskets on the wall), they ride off after workers they can reach, or home, and come again later. A Horseman riding at prey behind a wall breaks the piece in the way instead of pushing at it.",
+	]},
+	{"v": "0.26.0", "items": [
+		"WINDERS WIND THE ARMY ON THE MARCH (the owner's idea): a Winder now winds a Clockwork soldier that is walking, walking just behind it at its pace and cranking as he goes (his new winding-while-walking animation), until it is full; then he goes to the next one, and once none needs it, back to his own move. Its charge fills at the usual rate and the soldier is never slowed (a Winder is faster than a Clock Soldier). Right-click (REPAIR) a walking soldier to do it by hand; with automatic repair on (the default), Winders moving with the army (move, attack-move or follow) do it by themselves for the walking soldiers near them under 80% charge, lowest first, two Winders never on the same one. A marching army with Winders now arrives wound instead of run down. The computer's Winders do the same. A soldier being wound says Winding up on its card.",
+		"A box over your army keeps the Winders that are winding soldiers in the selection.",
+	]},
+	{"v": "0.25.28", "items": [
+		"THE CROWN COMPUTER'S RAMP WALL HAS NO USELESS PALISADE: it lays only the pieces that close a gap. A high-ground cell that only touches the ramp's corner, with the cliff on one side and the Cottage (or another piece) on the other, can't be walked into, so it no longer gets a palisade; on Ashfall the wall is now just the Cottage and the Gate. The same goes for the palisade line on any other ramp up to the main.",
+	]},
+	{"v": "0.25.27", "items": [
+		"GEAR VIEW COLOURS (Clockwork): each step has its own colour, so a ring at 70% no longer looks stopped: green 100%, lime 90%, yellow 80%, orange 70%, and red only for a ring that is stopped (unlinked or idle).",
+	]},
 	{"v": "0.25.26", "items": [
 		"THE ANDROID APP'S NEW-VERSION BOX speaks to a phone: when a newer version is out, the main menu says to download it and install it over this app (the Windows program still says to replace its copy).",
 	]},
