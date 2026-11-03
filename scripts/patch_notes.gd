@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.26.18", "items": [
+		"THE RIGHT WINGS THIS TIME: 0.26.14 erased the wrong wing in a few Storm line frames. In the south-east wing beat of the Hatchlings and the Storm Challenger, the downstroke now keeps both wings swept down and loses the stray wing raised at the top left instead. The Hatchling and Storm Challenger portraits, the Hatchlings' deaths and the Storm Sire's south-east dive are back as they were drawn.",
+	]},
 	{"v": "0.26.17", "items": [
 		"NEW LABOURER WALKS, SOUTH AND SOUTH-EAST: the Labourer walking toward the camera and down to the right is a new drawing with a real stride, in the same style as his east walk, instead of the east walk's legs squeezed under him. The south walk now steps on alternate feet, and the south-east walk's last frame no longer shows a tangled back leg. The new legs also go under the Labourer carrying gold, a powder keg or a loaded shovel, and under the Musketeer and Guardsman walking south and south-east.",
 	]},
