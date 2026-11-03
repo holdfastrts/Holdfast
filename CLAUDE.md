@@ -27,7 +27,7 @@
 
 - COACHED BUILDS, "do it all" (owner, 2026-11-03 20:32): running now as cloud jobs: cw-builds-a (Clock Soldier rush,
   Turret turtle), cw-builds-b (Pendulums v Brood, Heavy Works push), cw-builds-c (air: Swifts -> Ticking Owls), plus
-  brood-ai-tune, perf-stutter, perf-armies (big-army throughput), crown-builds-a (Dragoon raids, Balloon drops),
+  brood-ai-tune, perf-stutter, perf-armies (big-army throughput), crown-builds-a (Dragoon raids), crown-builds-c (Balloon harass: a separate build, owner),
   crown-builds-b (siege push); crown-ai-rebuild MERGED 0.29.0 (scripts/ai_crown.gd AICrown). QUEUED: when brood-ai-tune is
   merged, Brood builds: a Spitter timing (Venom Sire) and a Brute siege (wall breaking). Later: the computer picks its build
   by matchup and switches on what its scout sees. Springer balance proposals waiting on the owner: jump recharge 10 -> 6-7 s,
