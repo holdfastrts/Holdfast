@@ -1,0 +1,3 @@
+The Brood's announcer: the campaign's scientist (ElevenLabs, eleven v3, the owner, 2026-11-04).
+Files are named by line number (docs: the 21 announcer keys, 01 unit_ready ... 21 sire_lost).
+Matched from the files' mood tags and first words plus a speech-shape comparison; 15 confirmed by the owner. All 21 in.

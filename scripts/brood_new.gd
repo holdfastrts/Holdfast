@@ -1463,6 +1463,10 @@ static func on_death(g: Game, u: Unit) -> void:
 		g.swamp_dirty = true
 	if u.kind == QUEEN and g.mlog:
 		g.mlog.add("%s's Brood Mother has fallen" % g.mlog.who(u.team))
+	# "Oh dear. A Sire has fallen.": a father of ours killed once he has come (not a lure still ripening)
+	if is_father(u.kind) and u.team == g.human and not g.demo and not g.over and u.hp <= 0.0 \
+			and (not u.nb.has("coc") or BroodRoot.sire_come(u)):
+		Sfx.announce("brood", "sire_lost", 8.0)
 
 
 # ------------------------------------------------------------------ grubs

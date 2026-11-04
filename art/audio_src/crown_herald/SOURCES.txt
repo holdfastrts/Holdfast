@@ -1,0 +1,2 @@
+The Crown announcer: a royal herald (ElevenLabs, eleven v3, voice designed by the owner, 2026-11-04).
+Files are named by line number (01 unit_ready ... 21 horse_stolen; docs/announcers.md once written). All 21 in.

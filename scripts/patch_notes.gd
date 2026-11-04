@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.9", "items": [
+		"NEW ANNOUNCERS, RECORDED: the Crown's is now a royal herald (\"To arms! The town is under attack!\", \"Victory! God save the King!\") and the Brood's is the campaign's scientist, a gentleman who admires the creatures (\"Good heavens, they are attacking the nest!\", \"Another splendid specimen.\"). Both are the owner's recordings, levelled to the Clockwork's announcer. They speak English in every language for now.",
+		"The Brood's scientist has two lines of his own: \"The Mother! Someone protect the Mother!\" when your Brood Mother is attacked, and \"Oh dear. A Sire has fallen.\" when one of your fathers is killed. The Crown's herald now says \"Our men are out of powder!\" when your Musketeers or guns run dry.",
+	]},
 	{"v": "0.29.8", "items": [
 		"A NEW PLAN FOR THE CLOCKWORK COMPUTER, OWL RAIDS: a written opening build (the Light Works, the Mainspring on its big ring, the Escapement, two Clock Aviaries, TICKING OWL researched in one while the other makes Swifts), the first Ticking Owl at about 5:05, the economy growing behind it. Two Winders walk out with the Owls to a post near the enemy, out of sight, to wind them (an Owl runs down in about 80 seconds off its gear field), and the Owls strike its Farms, Mills, new Town Halls and workers from there, away from the anti-air seen, and fly back when it comes. A Swift scouts ahead. A real attack on the base calls the Owls home: Raptors, Horsemen and Clock Soldiers cannot hit them. Against the Brood it is the best Clockwork plan so far; against the Crown its Musketeers drive the Owls off. A computer on RANDOM PLAN can pick it.",
 		"Fixed: the Clockwork computer could turn the Springer raid's scouting Swift into a Ticking Owl late in the game.",
