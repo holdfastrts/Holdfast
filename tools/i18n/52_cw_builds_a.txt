@@ -1,0 +1,9 @@
+# cw-builds-a: the Clockwork computer's Clock Soldier rush and Turret turtle (scripts/ai_cw_builds_a.gd, docs/clockwork_builds_a.md)
+
+> Clock Soldier rush
+pt Ataque de Soldados-Relógio
+es Ataque de Soldados Reloj
+
+> Turret turtle
+pt Tartaruga de Torretas
+es Tortuga de Torretas

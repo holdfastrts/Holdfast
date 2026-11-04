@@ -1780,7 +1780,7 @@ func _slot_row(i: int) -> Control:
 	# strategy (computer players)
 	if sl["who"] != "you":
 		var st: String = String(sl.get("strategy", "balanced"))
-		var opts: Array = ["random"] + AI.STRATEGIES.keys()
+		var opts: Array = ["random"] + AI.listed_strategies()
 		var st_opts: Array = []
 		for o in opts:
 			st_opts.append(["RANDOM PLAN" if o == "random" else String(AI.STRATEGIES[o]["name"]).to_upper(), o, false])
@@ -2787,6 +2787,8 @@ func start(cfg: Dictionary = {}) -> void:
 		ai.difficulty = maxi(0, LEVELS.find(slots[t]["who"]))
 		var strat: String = String(slots[t].get("strategy", "balanced"))
 		var allowed := AI.strategies_for(facs[t])
+		if bool(cfg.get("hidden_plans", false)) and AI.strategies_for(facs[t], true).has(strat):
+			allowed = allowed + [strat]      # (a coaching tool's hidden plan, the Turret turtle: never a lobby's or RANDOM PLAN's)
 		if strat == "random" or not allowed.has(strat):
 			strat = "balanced" if strat != "random" else allowed[randi() % allowed.size()]
 		ai.strategy = strat

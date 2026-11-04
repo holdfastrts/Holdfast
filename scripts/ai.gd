@@ -36,19 +36,36 @@ const STRATEGIES := {
 	# opening build (4 Springers, HIGH LEAP and a Swift as soon as possible, the economy growing behind it), the Springers
 	# leap into the enemy's main by the Swift's sight, then the computer plays on as Balanced (these numbers).
 	"springer": {"name": "Springer timing", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
+	# THE CLOCK SOLDIER RUSH and THE TURRET TURTLE (cw-builds-a; scripts/ai_cw_builds_a.gd, docs/clockwork_builds_a.md):
+	# written openings of the Clockwork's own computer; after them it plays on these numbers (the rush's as Balanced: its
+	# failed rush already held the waves back; the turtle's later and bigger first wave, more Winders, sooner halls).
+	"cs_rush": {"name": "Clock Soldier rush", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
+	# THE TURTLE IS NOT OFFERED ("hidden"): the owner, 2026-11-03: static defence is not a build of its own, it is a desperate
+	# answer to a rush or a later guard against harass. No lobby, RANDOM PLAN or computer picks it; only the coaching tools can
+	# (a match cfg with "hidden_plans"). Its base layout and reactive turrets are to become shared Clockwork rules
+	# (docs/clockwork_builds_a.md).
+	"turtle": {"name": "Turret turtle", "wave": 24, "step": 10, "expand": 0.8, "halls": 3, "tech": 0.9, "workers": 1.15, "clock_only": true, "hidden": true},
 }
 
 
-## Which strategies this faction can use ("air" needs flyers: only the Brood has them).
-static func strategies_for(faction: String) -> Array:
+## Which strategies this faction can use ("air" needs flyers: only the Brood has them). Plans marked "hidden" (the Turret
+## turtle) are left out unless `hidden` (a plan already set by a coaching tool).
+static func strategies_for(faction: String, hidden := false) -> Array:
 	var out: Array = []
 	for k in STRATEGIES:
+		if STRATEGIES[k].get("hidden", false) and not hidden:
+			continue
 		if STRATEGIES[k].get("brood_only", false) and faction != "brood":
 			continue
 		if STRATEGIES[k].get("clock_only", false) and faction != "clockwork":
 			continue
 		out.append(k)
 	return out
+
+
+## The plans a lobby offers (every faction's, the hidden ones left out).
+static func listed_strategies() -> Array:
+	return STRATEGIES.keys().filter(func(k) -> bool: return not STRATEGIES[k].get("hidden", false))
 
 
 func _s(key: String) -> Variant:
@@ -113,7 +130,7 @@ var r6_sites := r6 and not OS.get_cmdline_user_args().has("r6:nosites")
 
 
 func _ready() -> void:
-	if not strategies_for(game.faction_of(team)).has(strategy):
+	if not strategies_for(game.faction_of(team), true).has(strategy):
 		strategy = "balanced"
 	_opened = strategy
 	if game.faction_of(team) == "crown" and (strategy == "rush" or randf() < r5.breeder_chance(0.3)):

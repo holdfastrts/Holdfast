@@ -238,7 +238,7 @@ func set_level(i: int, lvl: String) -> void:
 
 ## The host sets the plan (strategy) of the computer in slot `i`; it travels in the slots to the guest and in make_cfg to the match.
 func set_strategy(i: int, st: String) -> void:
-	if is_host and i >= 0 and i < slots.size() and _is_computer(slots[i]) and (st == "random" or AI.STRATEGIES.has(st)):
+	if is_host and i >= 0 and i < slots.size() and _is_computer(slots[i]) and (st == "random" or AI.listed_strategies().has(st)):
 		slots[i]["strategy"] = st
 		changed.emit()
 		_send_lobby()

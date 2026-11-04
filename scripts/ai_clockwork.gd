@@ -23,6 +23,9 @@ extends AI
 ## No cheating: it knows where the enemy started (as every computer does) and otherwise only what its side sees.
 
 const SpringerRaid := preload("res://scripts/ai_springer_raid.gd")
+## (cw-builds-a: the Clock Soldier rush and the Turret turtle, scripts/ai_cw_builds_a.gd, docs/clockwork_builds_a.md)
+const BuildsA := preload("res://scripts/ai_cw_builds_a.gd")
+var bta = null
 
 ## THE PLANS. "steps": the build order, read in order (see _do_step):
 ##   "N kind[:big]"         at N supply (used, queued included), lay a building (a Clockwork building kind)
@@ -33,6 +36,7 @@ const SpringerRaid := preload("res://scripts/ai_springer_raid.gd")
 ##   "unit N"               train N of that unit (every building that can make it, one in each queue at a time)
 ##   "attack"               the raid takes the Springers and the Swift once the plan's raid force is out (ai_springer_raid)
 ##   "end"                  the opening is over: the shared computer plays on
+##   (cw-builds-a, scripts/ai_cw_builds_a.gd: "rush", "rush_over", "turret ramp|hall2", "ramp_regulator", "works_back")
 ## A step waiting for a building or for Tension does not stop the next ones: they may go with the cogs left after its price
 ## (a player reads ahead the same way); a step waiting for COGS, or for its supply, stops the reading there.
 ##  workers0       Winders at the start of the build (before the "workers" steps)
@@ -63,6 +67,54 @@ const PLANS := {
 			"attack",
 			"workers 21",
 			"clocktower",
+			"end",
+		],
+	},
+	# THE CLOCK SOLDIER RUSH (cw-builds-a; scripts/ai_cw_builds_a.gd, docs/clockwork_builds_a.md): two Light Works early,
+	# Clock Soldiers from both; the first `rush` go at the enemy's workers with `rush_winders` Winders to wind them; fresh
+	# ones follow in groups; once the rush is judged the build turns to the economy (no trickling).
+	"cs_rush": {
+		"workers0": 11, "rush": 6, "rush_winders": 2,
+		"steps": [
+			"6 movement_works",
+			"7 cog_press",
+			"9 regulator",
+			"9 movement_works",
+			"workers 12",
+			"clock_soldier 6",
+			"rush",
+			"16 regulator",
+			"clock_soldier 6",
+			"rush_over",
+			"turret ramp",
+			"mainspring",
+			"crew mainspring 3",
+			"workers 20",
+			"clocktower",
+			"escapement",
+			"end",
+		],
+	},
+	# THE TURRET TURTLE (cw-builds-a): a Ratchet Turret each side of the main's ramp top, a FAST second Clocktower behind
+	# them and a turret by it, then the Mainspring and the Escapement; the shared computer plays on with a later, bigger
+	# first wave (the "turtle" row of AI.STRATEGIES).
+	"turtle": {
+		"workers0": 14,
+		"steps": [
+			"7 cog_press",
+			"8 ramp_regulator",
+			"works_back",
+			"turret ramp",
+			"workers 16",
+			"clocktower",
+			"turret ramp",
+			"clock_soldier 2",
+			"workers 22",
+			"turret hall2",
+			"mainspring",
+			"crew mainspring 3",
+			"escapement",
+			"workers 26",
 			"end",
 		],
 	},
@@ -113,6 +165,7 @@ func _make_plan() -> void:
 	done.fill(false)
 	worker_goal = int(plan["workers0"])
 	raid = SpringerRaid.new(self)
+	bta = BuildsA.new(self)
 
 
 func note(s: String) -> void:
@@ -123,11 +176,11 @@ func note(s: String) -> void:
 
 ## The plan's own Springers (the raid's), its Swift and its Winders at the cliff foot are not the shared computer's.
 func _on_errand(u: Unit) -> bool:
-	return super._on_errand(u) or (raid != null and raid.has(u))
+	return super._on_errand(u) or (raid != null and raid.has(u)) or (bta != null and bta.has(u))
 
 
 func _held_worker(u: Unit) -> bool:
-	return raid != null and raid.has(u)
+	return (raid != null and raid.has(u)) or (bta != null and bta.has(u))
 
 
 # ------------------------------------------------------------------ the shared computer's parts, off while the build runs
@@ -174,6 +227,8 @@ func _army() -> void:
 		_attack_at = 99999
 	if raid != null:
 		raid.tick()
+	if bta != null:
+		bta.tick()
 	super._army()
 
 
@@ -263,6 +318,10 @@ func _do_step(i: int) -> Dictionary:
 			return _do_research(String(parts[1]))
 		"attack":
 			return {"st": "done"} if raid.launch() else {"st": "wait"}
+	if bta != null:
+		var ra: Dictionary = bta.step(i, parts)
+		if not ra.is_empty():
+			return ra
 	if parts.size() >= 2 and Defs.UNITS.has(head):
 		return _do_units(i, head, int(parts[1]))
 	var big := head.ends_with(":big")
