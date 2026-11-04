@@ -1,0 +1,22 @@
+# clockwork-eco: the Clockwork computer's Economy and Balanced openings and its own expansion spots (scripts/ai_cw_eco.gd,
+# scripts/clock_sites.gd, docs/clockwork_eco.md): the AI STORY's sentences (scripts/ai_story_lines.gd).
+
+> %s opens for its economy: Winders non-stop and a fast second Clocktower, no army before it without a reason.
+pt %s abre pela economia: Enroladores sem parar e uma segunda Torre do Relógio rápida, nenhum exército antes dela sem motivo.
+es %s abre por la economía: Dadores de cuerda sin parar y una segunda Torre del Reloj rápida, ningún ejército antes de ella sin motivo.
+
+> %s saw a rush coming: a Light Works and Clock Soldiers first, then back to its economy.
+pt %s viu um ataque rápido chegando: uma Oficina Leve e Soldados-Relógio primeiro, depois de volta à economia.
+es %s vio venir un ataque rápido: un Taller Ligero y Soldados Reloj primero, luego de vuelta a su economía.
+
+> %s lays a Ratchet Turret by its ramp: an emergency against the rush.
+pt %s põe uma Torreta de Catraca junto à rampa: uma emergência contra o ataque rápido.
+es %s pone una Torreta de Trinquete junto a su rampa: una emergencia contra el ataque rápido.
+
+> %s picks its next Clocktower's spot where its ring of buildings fits (%s of them).
+pt %s escolhe o ponto da próxima Torre do Relógio onde cabe o anel de edifícios dela (%s deles).
+es %s elige el sitio de su próxima Torre del Reloj donde cabe su anillo de edificios (%s de ellos).
+
+> %s lays a Cog Press by its new Clocktower.
+pt %s põe uma Prensa de Engrenagens junto à nova Torre do Relógio.
+es %s pone una Prensa de Engranajes junto a su nueva Torre del Reloj.

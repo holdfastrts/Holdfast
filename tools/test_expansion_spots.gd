@@ -10,6 +10,9 @@ extends SceneTree
 ##    other side, both within CrownSites.WALK_NEAR steps of the ramp's foot (when any legal spot there is), the 2nd as near
 ##    the map's border as any legal spot on its side as near the main and the ramp (3 tiles of slack); each map is run all-Crown and all-Clockwork
 ##    (twins are rated by the same rule); a new Crown hall makes its side's marks be worked out again,
+##  - THE CLOCKWORK'S RULE (ClockSites, clockwork-eco 0.30.10): a Clockwork side's marks a hall's spacing from its main and
+##    each other, with room for CLOCK_RING_MIN of its Clocktower's ring buildings, and on each side's best one the game lets
+##    CLOCK_PLACED of the 8 ring buildings be laid (ClockSites.fill_ring); a Clockwork player's own spots are the Clockwork's;
 ##  - shown to a Crown and a Clockwork player and when watching; hidden for a Brood player, hidden once a building the
 ##    viewer knows of stands on it, and hidden with Settings.expansion_spots off.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_expansion_spots.gd [-- ids...]   (prints each map's spots)
@@ -33,6 +36,24 @@ func _make(id: String, facs: Array, demo := true) -> Game:
 	g.colours = range(facs.size())
 	root.add_child(g)
 	return g
+
+
+## THE CLOCKWORK'S RULE (clockwork-eco): a marked spot has room for this many of its ring's 3x3 buildings (ClockSites.ring_fit,
+## 9 on open ground), and the game itself lets at least CLOCK_PLACED of the 8 kinds of ClockSites.FULL_RING be laid meshing with a
+## Clocktower on each side's best spot (ClockSites.fill_ring: the gear rules, the level rule, the margins).
+const CLOCK_RING_MIN := 7
+const CLOCK_PLACED := 6
+
+
+## Lay a Clocktower on each side's best Clockwork spot and its ring as the game allows it: at least CLOCK_PLACED of 8.
+func _clock_ring_check(g: Game, bad: Array) -> void:
+	var best: Array = g.exp_spots.spots.filter(func(s: Dictionary) -> bool: return s.get("clock", false) and int(s["rank"]) == 1)
+	for s in best:
+		var tw: Building = g._add_building("clocktower", int(s["team"]), s["c"], true)
+		var ring: Array = ClockSites.fill_ring(g, int(s["team"]), tw)
+		print("    ring at p%d %s: %d of %d laid (%s)" % [int(s["team"]), str(s["c"]), ring.size(), ClockSites.FULL_RING.size(), ", ".join(ring.map(func(e): return String(e[0])))])
+		if ring.size() < CLOCK_PLACED:
+			bad.append("clockwork p%d %s: only %d of the ring's %d buildings could be laid" % [int(s["team"]), str(s["c"]), ring.size(), ClockSites.FULL_RING.size()])
 
 
 func _fmt(s: Dictionary) -> String:
@@ -64,8 +85,20 @@ func _check_map(g: Game, bad: Array) -> void:
 			bad.append("%s and its twin %s differ: %s / %s" % [c, tw, _fmt(s), _fmt(at[tw])])
 		if g.starts.has(c):
 			bad.append("%s is a player's start" % c)
-		if not s.get("crown", false) and not g.base_sites.has(c):
+		if not s.get("crown", false) and not s.get("clock", false) and not g.base_sites.has(c):
 			bad.append("%s is not a base site" % c)
+		if s.get("clock", false):
+			# THE CLOCKWORK'S RULE (ClockSites, clockwork-eco 0.30.10): a hall's spacing from its main and the other mark, and
+			# room for its Clocktower's ring of buildings on its own level
+			var cm := Vector2(c) + Vector2(MapGen.HALL) * 0.5
+			var ct := int(s["team"])
+			if cm.distance_to(Vector2(g.starts[ct]) + Vector2(2.5, 2.0)) < Defs.HALL_SPACING - 0.01:
+				bad.append("clockwork %s: nearer its main than a hall's spacing" % c)
+			for o in sp:
+				if o != s and int(o["team"]) == ct and cm.distance_to(Vector2(o["c"]) + Vector2(MapGen.HALL) * 0.5) < Defs.HALL_SPACING - 0.01:
+					bad.append("clockwork %s and %s are nearer each other than a hall's spacing" % [c, o["c"]])
+			if int(s["slots"]) < CLOCK_RING_MIN:
+				bad.append("clockwork %s: room for only %d of its ring's buildings (want %d+)" % [c, int(s["slots"]), CLOCK_RING_MIN])
 		if s.get("crown", false):
 			# THE CROWN'S RULE (CrownSites): at the least hall distance from its main (18) and the 2nd from the 1st too
 			var mid := Vector2(c) + Vector2(MapGen.HALL) * 0.5
@@ -162,6 +195,8 @@ func _run(ids: Array) -> void:
 			await process_frame
 			var bad: Array = []
 			_check_map(g, bad)
+			if rn[1] == "clockwork":
+				_clock_ring_check(g, bad)
 			print("%-18s %d players %-9s: %d spots  %s" % [id, n, rn[1], g.exp_spots.spots.size(), "ok" if bad.is_empty() else "FAIL"])
 			for s in g.exp_spots.spots:
 				if int(s["team"]) < 2 or n == 2:
@@ -214,6 +249,8 @@ func _viewer_checks() -> void:
 					"a new Crown hall: the next spots are worked out from both halls (%d shown, spaced %s)" % [mine2.size(), str(spaced)])
 			h2.dead = true
 		if fac == "clockwork":
+			var own_ck := g.exp_spots.spots.filter(func(s: Dictionary) -> bool: return int(s["team"]) == 0)
+			_expect(not own_ck.is_empty() and own_ck.all(func(s: Dictionary) -> bool: return s.get("clock", false)), "a Clockwork player's own spots are the Clockwork's (ClockSites)")
 			# taken (base-site spots): a hall of ours on our best spot, an unseen enemy building on another, then seen
 			var mine: Dictionary = {}
 			var other: Dictionary = {}
@@ -238,18 +275,21 @@ func _viewer_checks() -> void:
 			cs = g.exp_spots.shown.map(func(s: Dictionary) -> Vector2i: return s["c"])
 			_expect(cs.has(other["c"]), "the spot shows again when the building is gone")
 			# a hall built NEAR a spot, not on it, claims it too (the owner, 2026-10-29)
+			# (the enemy's spot: our own are worked out again from our halls, ClockSites, so ours would move away)
 			var second: Dictionary = {}
 			for s in g.exp_spots.spots:
-				if int(s["team"]) == 0 and int(s["rank"]) == 2:
+				if int(s["team"]) == 1 and int(s["rank"]) == 2:
 					second = s
 			if not second.is_empty():
 				# (the owner: touching the tinted tiles hides it; completely off them, it still shows)
-				var nb: Building = g._add_building("town_hall", 0, second["c"] + Vector2i(MapGen.HALL.x - 1, 0), true)
+				var nb: Building = g._add_building("town_hall", 1, second["c"] + Vector2i(MapGen.HALL.x - 1, 0), true)
+				nb.seen_by_human = true
 				g.exp_spots.refresh()
 				cs = g.exp_spots.shown.map(func(s: Dictionary) -> Vector2i: return s["c"])
 				_expect(not cs.has(second["c"]), "a hall overlapping the spot by one column hides it")
 				nb.dead = true
-				var fb: Building = g._add_building("town_hall", 0, second["c"] + Vector2i(MapGen.HALL.x + 1, 0), true)
+				var fb: Building = g._add_building("town_hall", 1, second["c"] + Vector2i(MapGen.HALL.x + 1, 0), true)
+				fb.seen_by_human = true
 				g.exp_spots.refresh()
 				cs = g.exp_spots.shown.map(func(s: Dictionary) -> Vector2i: return s["c"])
 				_expect(cs.has(second["c"]), "a hall completely off the spot leaves it shown")

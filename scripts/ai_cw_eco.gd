@@ -115,9 +115,18 @@ func step(i: int, parts: Array) -> Dictionary:
 
 ## "press_new": a Cog Press at a Clocktower that stands and has a press short of its two (the newest first). Waits (never
 ## skipped) while the new Clocktower is going up: AIClockwork._do_build would call it "over the limit" and drop it.
+## A press site lost before it stood (the enemy at the new Clocktower: an Extreme rush's Raptors killed eleven in a row on
+## Cinder Steps) waits PRESS_RETRY s, and no press goes by a Clocktower with an enemy soldier within PRESS_SAFE px.
+const PRESS_RETRY := 25.0
+const PRESS_SAFE := 360.0
+var _press_lost := {}            # step index -> when its site was last lost
+
+
 func _press_new(i: int) -> Dictionary:
 	if ai._placed.has(i):
 		return {"st": "done"}
+	if game.clock - float(_press_lost.get(i, -999.0)) < PRESS_RETRY:
+		return {"st": "wait"}
 	var kind := Defs.GEAR_PRESS
 	var cost: int = game.build_price(team, kind)
 	if game.econ_count(team, kind) >= game.econ_limit(team, kind):
@@ -129,6 +138,8 @@ func _press_new(i: int) -> Dictionary:
 	var halls: Array = ai._halls().filter(func(h: Building) -> bool: return h.built)
 	halls.sort_custom(func(a: Building, b: Building) -> bool: return a.lode_left() > b.lode_left())
 	for h in halls:
+		if ai._enemy_near(h.center(), PRESS_SAFE):
+			continue            # (the enemy is at that Clocktower: not now)
 		var c: Vector2i = GearEcon.room_spot(game, team, kind, [h], [], Vector2.INF, true)
 		if c.x < 0:
 			continue
@@ -138,12 +149,17 @@ func _press_new(i: int) -> Dictionary:
 			say("lays a Cog Press by its %s Clocktower at %d supply (step %d: press_new)" % ["new" if h != halls[-1] or halls.size() == 1 else "old", game.supply_used(team), i + 1])
 			return {"st": "done"}
 	var c2: Vector2i = ai._econ_spot(kind)
-	if c2.x >= 0:
+	if c2.x >= 0 and not ai._enemy_near(Vector2(c2) * Defs.TILE, PRESS_SAFE):
 		var b2: Building = ai._lay(kind, c2, false)
 		if b2 != null:
 			ai._placed[i] = b2
 			return {"st": "done"}
 	return {"st": "wait", "cost": cost, "t": 0.0}
+
+
+## A step's building was lost before it stood (AIClockwork._watch_sites).
+func lost(i: int) -> void:
+	_press_lost[i] = game.clock
 
 
 ## THE RUSH REACTION (called by AIClockwork._bo_tick before the steps, so its cogs come first): once the scout's verdict is

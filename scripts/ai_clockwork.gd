@@ -553,6 +553,8 @@ func _watch_sites() -> void:
 		if not is_instance_valid(b) or b.dead:
 			_placed.erase(i)
 			done[i] = false
+			if bte != null:
+				bte.lost(i)         # (clockwork-eco: a press lost to the enemy waits before it is laid again)
 			note("its %s was lost before it stood: laid again (step %d)" % [String(steps[i]), i + 1])
 		elif b.built:
 			_stood[i] = true
@@ -795,8 +797,10 @@ func _safe_hall_spot() -> Vector2i:
 		key += str(h.cell)
 	if mids.is_empty():
 		return super()
+	key += "/%d/%d" % [_hall_bad.size(), _lost_spots.size()]      # (a spot lost lately: worked out again at once)
 	var hall: String = _f()["hall"]
-	if key == _ck_key and game.clock - _ck_t < CK_CACHE and _ck_pick.x >= 0 and game.placement_problem(team, hall, _ck_pick, true) == "":
+	if key == _ck_key and game.clock - _ck_t < CK_CACHE and _ck_pick.x >= 0 and game.placement_problem(team, hall, _ck_pick, true) == "" \
+			and float(_hall_bad.get(_ck_pick, -1.0)) <= game.clock:
 		return _ck_pick
 	if _ck_steps.is_empty():
 		var foes: Array = []
