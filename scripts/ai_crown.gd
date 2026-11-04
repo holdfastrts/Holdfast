@@ -837,7 +837,8 @@ func _train_dragoons() -> bool:
 	if _keeping() and _gold() < 30:
 		return false
 	var army := game.army(team)
-	if (_saving or (_reserve > 0 and _gold() < _reserve + 60)) and _army_supply(army) >= 8:
+	var minimum := mini(40, 6 + int(game.clock / 20.0))     # (the line's minimum, as AI._produce: round B, b06, a milestone's
+	if (_saving or (_reserve > 0 and _gold() < _reserve + 60)) and _army_supply(army) >= minimum:     # gold held the riders back till 11:00)
 		return false
 	var r: Dictionary = plan.get("raid", {"musk": 4, "from": 14, "per": 8})
 	var musk := army.filter(func(u: Unit) -> bool: return u.kind == "musketeer" and not u.auto_mount).size()

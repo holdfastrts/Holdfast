@@ -46,6 +46,8 @@ const BROOD_WAIT := 75.0        # (s) against the Brood a group waits at home th
 const OUT_V := 250.0            # (value) the enemy's army on our side of the map this big: it is out, the raids go
 const SLOW_X := 1.5             # slow defenders worth this much more than the group: it leaves too
 const MAIN_NO := 750.0          # (px) a site this close to the enemy's main is never picked (unless its army is out)
+const HOME_R := 1100.0          # (px) danger this close to our hall is the line's: the group waits for it to clear
+const EXIT_R := 900.0           # (px) armed enemies this close to the rally point: no group sets out
 const LOOK_T := 2.0             # (s) between looks at the map (sites, armies)
 
 var ai                          # the AICrown
@@ -481,6 +483,13 @@ func _steer(g: Dictionary) -> void:
 		return
 	# riding or striking: a real defender coming and it leaves at once
 	var d2 := danger(units, c) if st != "leave" else ""
+	if d2 != "" and st == "ride" and c.distance_to(home) < HOME_R:
+		# (the danger is at our own door: the group waits at the front behind the line, nothing counted against the site)
+		say("group %d waits at home: %s at the door" % [int(g["id"]), d2])
+		g["rally"] = ai._front()
+		_state(g, "gather")
+		_move_all(units, g["rally"], 60.0)
+		return
 	if d2 != "":
 		var key := String(g["site"])
 		if key != "":
@@ -675,6 +684,10 @@ func micro() -> void:
 			if not is_instance_valid(u) or u.dead or u.kind == "dragoon" or u.order == "mount" or u.order == "dismount":
 				continue
 			if st == "leave":
+				if u.order == "mount" and (u.steed == null or not is_instance_valid(u.steed) or u.steed.dead \
+						or u.steed.position.distance_to(u.position) > 8.0 * Defs.TILE):
+					u.cmd_move(g["flee"])         # (the horse he runs after got away: on foot, away; the test's [leave])
+					continue
 				if u.order != "move":
 					u.cmd_move(g["flee"])         # (on his horse if it is near: Unit._try_remount)
 				if u.kind != "dragoon" and u.order == "move" and u.steed != null and is_instance_valid(u.steed) and not u.steed.dead \
@@ -700,6 +713,9 @@ func micro() -> void:
 ## doctrine's line holds the high ground while the riders hit the grubs it left), or after BROOD_WAIT s at home.
 func _may_go(g: Dictionary) -> bool:
 	var foe: int = ai._foe()
+	# (a clear way out first: round B, b01 and b02, the counter-raid rode down our own ramp into the Raptors at the door)
+	if _blocked(g["rally"]):
+		return false
 	if foe < 0 or game.faction_of(foe) != "brood":
 		return true
 	if ai.ch.foe_near() >= OUT_V:
@@ -708,3 +724,11 @@ func _may_go(g: Dictionary) -> bool:
 			say("group %d goes while the enemy's army is on our side (a counter-raid)" % int(g["id"]))
 		return true
 	return game.clock - float(g["t_state"]) > BROOD_WAIT
+
+
+## Armed enemies on our doorstep (within EXIT_R of the rally point, seen): the group would ride into them.
+func _blocked(p: Vector2) -> bool:
+	for o in game.units_near(p, EXIT_R):
+		if game.hostile(o.team, ai.team) and AIHarass.is_defender(o) and game.is_visible_to(ai.team, o.position):
+			return true
+	return false

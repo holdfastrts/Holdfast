@@ -6,17 +6,19 @@ extends SceneTree
 ##  [strike]  a group of four Dragoons sent to grubs working a rooted Rootmaw (a rooted Mound Turtle on the way in, the
 ##            Brood's computer off): within STRIKE_IN s the grubs are hurt (GRUB_LOSS hit points or more), the riders got
 ##            off to shoot, and never set about the turtle or the Rootmaw
-##  [leave]   a Tyrant Sire comes at them: within LEAVE_IN s the group rides off (its state "leave" or "home") with every
-##            rider back in the saddle by MOUNT_IN s; LIVE_MIN of the four still alive after 20 s
+##  [leave]   a Tyrant Sire comes at them: within LEAVE_IN s the group rides off (its state "leave" or "home") with the
+##            riders back in the saddle by MOUNT_IN s (all but one at most: a horse may have wandered); LIVE_MIN of the four
+##            still alive after 20 s
 ##  [plan]    a Hard Crown on the plan against a Brood that stands still: the Horse Breeder and the second hall by 6:00,
-##            four Dragoons or more and a group out (it formed and rode for a site) by PLAN_BY
+##            four Dragoons or more and a group out (it formed and rode for a site) by PLAN_BY (the Brood's army never comes
+##            out here: the group goes after BROOD_WAIT s at home)
 ##  [others]  the Balanced plan has no raids (no DragoonRaid made)
 const STRIKE_IN := 45.0
 const GRUB_LOSS := 80.0
 const LEAVE_IN := 6.0
 const MOUNT_IN := 8.0
 const LIVE_MIN := 3
-const PLAN_BY := 480.0
+const PLAN_BY := 690.0
 const T := Defs.TILE
 var fails := 0
 var main: Node
@@ -227,12 +229,13 @@ func _run() -> void:
 		if left_t < 0.0 and st in ["leave", "home"] and int(grp["strikes"]) > 0:
 			left_t = g.clock - t0
 		if left_t >= 0.0 and mounted_t < 0.0:
-			var all_up := party.all(func(u) -> bool: return not is_instance_valid(u) or u.dead or u.kind == "dragoon")
+			var off_n := party.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and u.kind != "dragoon").size()
+			var all_up := off_n <= 1        # (one whose horse got away may run for it on foot: Unit's own remount rule)
 			if all_up:
 				mounted_t = g.clock - t0
 	var live := party.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead).size()
 	check(left_t >= 0.0 and left_t <= LEAVE_IN, "[leave] the group rides off from the Sire within %d s (%.1f s)" % [int(LEAVE_IN), left_t])
-	check(mounted_t >= 0.0 and mounted_t <= MOUNT_IN, "[leave] every rider back in the saddle within %d s (%.1f s)" % [int(MOUNT_IN), mounted_t])
+	check(mounted_t >= 0.0 and mounted_t <= MOUNT_IN, "[leave] the riders back in the saddle (all but one at most) within %d s (%.1f s)" % [int(MOUNT_IN), mounted_t])
 	check(live >= LIVE_MIN, "[leave] %d of the 4 riders alive after 20 s (%d)" % [LIVE_MIN, live])
 	# [plan]
 	await _start("dragoon", "red_coast", 4291306512)
@@ -253,6 +256,8 @@ func _run() -> void:
 			formed = formed or int(ai.dr.stats["groups"]) > 0
 			rode = rode or ai.dr.log_lines.any(func(e) -> bool: return String(e[1]).contains("rides for"))
 	check(breeder_t >= 0.0 and breeder_t <= 360.0 and hall_t >= 0.0 and hall_t <= 360.0, "[plan] the Horse Breeder (%d s) and the second hall (%d s) by 6:00" % [int(breeder_t), int(hall_t)])
+	if ai.dr != null and not rode:
+		print("   raid log: %s" % str(ai.dr.log_lines.slice(0, 12)))
 	check(most >= 4 and formed and rode, "[plan] four Dragoons or more (%d) and a group out by %d s (formed %s, rode %s)" % [most, int(PLAN_BY), str(formed), str(rode)])
 	# [others]
 	await _start("balanced", "red_coast", 4291306512)
