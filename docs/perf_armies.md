@@ -195,6 +195,10 @@ low, and times a fixed piece of GDScript (tools/perf_calib.gd) before and after,
 divided by that time is the score; more than 1.35 times the baseline's score is a FAIL. Run it on a quiet machine, and
 again before believing a FAIL (a busy machine makes the battle slower more than the fixed piece).
 
+The baseline (tools/perf_armies_baseline.json, this cloud machine, 0.29.5): the fixed piece 14.4 ms; melee 200 units
+6.53 ms a tick (units 6.00), 223 fps, 1% low 35.5, score 0.45; clockbrood 200 units 8.31 ms a tick (units 7.51), 180 fps,
+1% low 30.5, score 0.58.
+
 ## 5. What is left, and what the owner could choose
 
 ### What would change what the units do (each would change the game a little: the owner's call)
@@ -237,7 +241,10 @@ Measured costs from section 1; savings are estimates for a 300-unit battle.
 ## 6. Tests
 
 - The owner's match before and after 2.1 and 2.4: the same file (17,810 lines). The six stress scenarios: the same files.
-- test_determinism (Clockwork v Brood on Hollowfen, 5 minutes): two runs of this branch print the same HASH lines.
+- test_determinism (Clockwork v Brood on Hollowfen, 5 minutes, with `budget`): two runs of main 0.29.4 already part at
+  20 s, two runs of this branch at 30 s (the test keeps the sounds, which go by the wall clock and draw from the game's
+  random numbers, docs/pathfinding_audit.md). Not caused here: the tools that silence the sounds (perf_bench,
+  stress_swarm) give the same file run after run, and the same file as main where the computers' timing is unchanged.
 - test_replay: ALL OK. test_brood_new: 0 failures. test_clockwork_springer_timing check:1: PASS (0 failed).
 - test_crown_farms: PASS. (It failed once with "a free Farm slot waited at most 60 s (worst 60 s)"; main 0.29.4 fails
   the same check at 70 s: it goes by the wall clock and is borderline on both.)
