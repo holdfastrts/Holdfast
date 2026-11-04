@@ -1,0 +1,6 @@
+The owner's ChatGPT sprite sheets for the campaign's rebels (the Free Assembly, green and black), 2026-11-04:
+militia_chatgpt.png     - militiaman, drawn over the Musketeer sheet's layout (art/crown/musketeer.png)
+pikeman_chatgpt.png     - pikeman, frame by frame over the retired Pikeman sheet (art/crown/pikeman.png)
+torchbearer_chatgpt.png - torch-bearer (idle, walk, set fire, crouch/throw, death), 5 direction columns
+varenne_chatgpt.png     - Etienne Varenne (idle, walk, shout, pistol, sabre, death), 5 direction columns
+To be cut and wired over the campaign-m1 stand-ins (docs/campaign_m1_build.md).
