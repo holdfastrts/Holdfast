@@ -73,10 +73,10 @@ her stage 2 at 8:38 to 8:57, the Venom Sire at 8:07 to 8:25, food by 6:00 2,000 
   Timing adds a second Barracks, the Breeder and the Foundry and attacks with 22 supply (7:00-7:30). Rush: Barracks 0:36,
   Breeder 0:49, the first Horseman 1:52-2:04, three out at 2:56-3:13 (`tools/test_crown_build_order.gd`).
 - Since 0.30.9 (crown-owner-eco, docs/crown_owner_eco.md) Economy and Balanced play THE OWNER'S OPENING: the ramp Cottage
-  and Gate, the second Farm (Economy at 7 labourers, Balanced after the scout's first look), the SECOND HALL at 11
-  labourers (laid ~1:30, standing ~2:05), a Farm at it at once; Economy: the Mill at 15, the Barracks at 17 after the
-  hall (~3:10), Musketeers from then on, the Foundry at 21, the Breeder at 23; Balanced: the Barracks and the Mill at 14
-  after the hall, or right after the scout's first look when it saw nothing. A scouted rush puts the Barracks and the Mill
+  and Gate, the second Farm at 7 labourers, the SECOND HALL at 11 labourers (laid ~1:30, standing ~2:05), a Farm at it at
+  once; Economy: the Mill at 15, the Barracks at 17 after the hall (~3:10), Musketeers from then on, the Foundry at 21, the
+  Breeder at 23; Balanced: the Barracks and the Mill at 14 after the hall (the Foundry, the second Barracks and the Breeder
+  are milestones), or right after the scout's first look when it saw nothing. A scouted rush puts the Barracks and the Mill
   up at once (both plans); against the Brood Balanced keeps the Barracks and the Mill at 7 labourers (its fastest rush
   comes before any look). The scout leaves at the start on both plans.
 - Counter-play to a Brood rush: the wall and 3 Musketeers by 2:40 (`tools/test_ai_wall_vs_rush.gd`: 2:38 default map,

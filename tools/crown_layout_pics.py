@@ -29,7 +29,7 @@ def font(size):
     return ImageFont.load_default()
 
 
-def crop(d, r=22, m=2):
+def crop(d, r=26, m=2):
     """The main's plateau only: the bounding box of its level's cells within r tiles of its start (with a margin)."""
     rows = d["rows"]
     sx, sy = d.get("sx"), d.get("sy")
@@ -95,7 +95,7 @@ def main():
     ims = [draw_base(d, plan_only) for _, d in pairs]
     f = font(22)
     fs = font(17)
-    W = sum(im.width for im in ims) + 30 * (len(ims) + 1)
+    W = max(640, sum(im.width for im in ims) + 30 * (len(ims) + 1))
     per = max(2, min(5, (W - 30) // 150))
     H = max(im.height for im in ims) + 70 + 26 * ((10 + per - 1) // per)
     can = Image.new("RGB", (W, H), (24, 22, 20))
