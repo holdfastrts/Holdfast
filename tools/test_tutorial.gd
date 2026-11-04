@@ -316,6 +316,42 @@ func _brood() -> void:
 	}, {"turtle": 150.0, "rootmaw": 150.0, "sire": 160.0, "raptors": 120.0})
 
 
+## A practice game: an Easy computer plays, the hints follow what you do, and it ends as a skirmish does (the enemy
+## wiped out: a win, the lesson ticked; your own side wiped out: TRY AGAIN, no tick).
+func _practice(id: String, worker: String, more_workers: Callable) -> void:
+	await _start(id)
+	check("%s: started, with a computer" % id, r != null and g.ais.size() == 1, str(g.ais.size()))
+	check("%s: the computer is Easy" % id, not g.ais.is_empty() and g.ais[0].difficulty == 0)
+	var ok := await _until_started("start", 20.0)
+	check("%s: the first hint" % id, ok and r.said_ids.size() >= 2)
+	await more_workers.call()
+	ok = await _until_done("start", 90.0)
+	check("%s: the first hint is done once you have more %ss" % [id, worker], ok)
+	ok = await _until_started("build", 20.0)
+	check("%s: then the next hint" % id, ok)
+	await _until_done("never", 20.0)
+	check("%s: not over while the enemy stands" % id, not g.over)
+	# the enemy falls: everything of theirs destroyed
+	var foe := r.team_index("foe")
+	for b in g.buildings.duplicate():
+		if b.team == foe and not b.dead:
+			b.take_damage(9999999.0, null)
+	for u in g.units.duplicate():
+		if u.team == foe and not u.dead:
+			u.die()
+	var t0 := g.clock
+	while not g.over and g.clock - t0 < 10.0:
+		await physics_frame
+	check("%s: the enemy wiped out: won" % id, g.over and g.winner == g.human, "%s %s" % [g.over, g.winner])
+	Engine.time_scale = 1.0
+	await create_timer(1.6).timeout
+	Engine.time_scale = 4.0
+	check("%s: LESSON DONE, ticked" % id, main.ui_layer.find_child("LessonEnd", true, false) != null and Tutorial.done(id))
+	check("%s: the battle report is offered" % id, main.ui_layer.find_child("End_BATTLE_REPORT", true, false) != null)
+	main._to_menu()
+	await process_frame
+
+
 func _menu_checks() -> void:
 	main.show_menu()
 	await process_frame
@@ -345,17 +381,45 @@ func _run() -> void:
 	Engine.time_scale = 4.0
 	if only == "" or only == "t01_basics":
 		await _basics()
+		# the list shows the tick, and picks the next lesson not done
+		main.show_tutorial()
+		await process_frame
+		var tick = main.menu.find_child("Tick_t01_basics", true, false)
+		check("the list ticks a finished lesson", tick != null and tick.on)
+		check("the list picks the next lesson not done", TutorialMenu.pick == "t10_crown", TutorialMenu.pick)
+		TutorialMenu.pick = ""
 	if only == "" or only == "t10_crown":
 		await _crown()
 	if only == "" or only == "t20_clockwork":
 		await _clockwork()
 	if only == "" or only == "t30_brood":
 		await _brood()
-	# the list shows the tick
+	if only == "" or only == "practice":
+		await _practice("t19_crown_practice", "labourer", func() -> void: await _train("labourer", "town_hall", 3))
+		await _practice("t29_clockwork_practice", "winder", func() -> void: await _train("winder", "clocktower", 3))
+		await _practice("t39_brood_practice", "grub", func() -> void:
+			for i in 3:
+				var why := "?"
+				var t0 := g.clock
+				while why != "" and g.clock - t0 < 60.0:
+					why = BroodNew.lay(g, BroodNew.queen(g, g.human), "grub")
+					if why != "":
+						await physics_frame)
+		# a practice game lost: TRY AGAIN, no tick
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(Tutorial.PROGRESS))
+		await _start("t19_crown_practice")
+		for b in g.buildings.duplicate():
+			if b.team == g.human and not b.dead:
+				b.take_damage(9999999.0, null)
+		var t0 := g.clock
+		while not g.over and g.clock - t0 < 10.0:
+			await physics_frame
+		check("practice lost: over, the computer won", g.over and g.winner != g.human, "%s %s" % [g.over, g.winner])
+		Engine.time_scale = 1.0
+		await create_timer(1.6).timeout
+		Engine.time_scale = 4.0
+		check("practice lost: TRY AGAIN, no tick", main.ui_layer.find_child("LessonEnd", true, false) != null and not Tutorial.done("t19_crown_practice"))
+		main._to_menu()
+		await process_frame
 	Engine.time_scale = 1.0
-	main.show_tutorial()
-	await process_frame
-	var tick = main.menu.find_child("Tick_t01_basics", true, false)
-	if only == "" or only == "t01_basics":
-		check("the list ticks a finished lesson", tick != null and tick.on)
 	_finish()

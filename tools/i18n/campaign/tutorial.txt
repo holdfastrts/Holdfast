@@ -1,0 +1,890 @@
+# The TUTORIAL's lessons (campaign/tutorial.json, campaign/missions/t*.json): every text of the lessons.
+# Names as in the game: Town Hall = Prefeitura / Ayuntamiento, Winder = Enrolador / Dador de cuerda, Rootmaw = Bocarraiz / Bocarraíz.
+
+> Learn the game one step at a time. Each lesson waits for you to do what it asks.
+pt Aprenda o jogo passo a passo. Cada lição espera você fazer o que ela pede.
+es Aprende el juego paso a paso. Cada lección espera a que hagas lo que pide.
+
+> Basics
+pt Básico
+es Lo básico
+
+> The Basics
+pt O Básico
+es Lo Básico
+
+> Move the view, pick your soldiers, march them, fight, and use the command card, the minimap and control groups. The controls are the same for every faction.
+pt Mova a vista, escolha seus soldados, faça-os marchar e lutar, e use o cartão de comandos, o minimapa e os grupos. Os controles são os mesmos para todas as facções.
+es Mueve la vista, elige a tus soldados, hazlos marchar y luchar, y usa la tarjeta de órdenes, el minimapa y los grupos. Los controles son los mismos para todas las facciones.
+
+> Bandits
+pt Bandidos
+es Bandidos
+
+> Move the view (screen edge, arrow keys or middle button).
+pt Mova a vista (borda da tela, setas ou botão do meio).
+es Mueve la vista (borde de la pantalla, flechas o botón central).
+
+> Move the view (drag with two fingers).
+pt Mova a vista (arraste com dois dedos).
+es Mueve la vista (arrastra con dos dedos).
+
+> Zoom with the mouse wheel.
+pt Dê zoom com a roda do mouse.
+es Haz zoom con la rueda del ratón.
+
+> Zoom by pinching.
+pt Dê zoom fazendo pinça.
+es Haz zoom pellizcando.
+
+> Click one Musketeer.
+pt Clique em um Mosqueteiro.
+es Haz clic en un Mosquetero.
+
+> Tap one Musketeer.
+pt Toque em um Mosqueteiro.
+es Toca un Mosquetero.
+
+> Select all five Musketeers.
+pt Selecione os cinco Mosqueteiros.
+es Selecciona a los cinco Mosqueteros.
+
+> Move your Musketeers to the gold ring.
+pt Leve seus Mosqueteiros ao anel dourado.
+es Lleva a tus Mosqueteros al anillo dorado.
+
+> Defeat the bandits.
+pt Derrote os bandidos.
+es Derrota a los bandidos.
+
+> Select your Musketeers and press HOLD (H).
+pt Selecione seus Mosqueteiros e aperte FIRME (H).
+es Selecciona a tus Mosqueteros y pulsa MANTENER (H).
+
+> Select your Musketeers and tap HOLD.
+pt Selecione seus Mosqueteiros e toque em FIRME.
+es Selecciona a tus Mosqueteros y toca MANTENER.
+
+> Click the minimap.
+pt Clique no minimapa.
+es Haz clic en el minimapa.
+
+> Tap the minimap.
+pt Toque no minimapa.
+es Toca el minimapa.
+
+> Select your Musketeers and press Ctrl+1.
+pt Selecione seus Mosqueteiros e aperte Ctrl+1.
+es Selecciona a tus Mosqueteros y pulsa Ctrl+1.
+
+> Select your Musketeers and hold the 1 on the bar.
+pt Selecione seus Mosqueteiros e segure o 1 na barra.
+es Selecciona a tus Mosqueteros y mantén pulsado el 1 de la barra.
+
+> Press 1 to select group 1.
+pt Aperte 1 para selecionar o grupo 1.
+es Pulsa 1 para seleccionar el grupo 1.
+
+> Tap 1 to select group 1.
+pt Toque no 1 para selecionar o grupo 1.
+es Toca el 1 para seleccionar el grupo 1.
+
+> Sergeant Holt
+pt Sargento Holt
+es Sargento Holt
+
+> Welcome, recruit. I am Sergeant Holt, and I will teach you to command.
+pt Bem-vindo, recruta. Sou o Sargento Holt e vou ensinar você a comandar.
+es Bienvenido, recluta. Soy el sargento Holt y te enseñaré a mandar.
+
+> First, look around. Push the mouse to an edge of the screen, use the arrow keys, or hold the middle button and drag.
+pt Primeiro, olhe em volta. Leve o mouse até a borda da tela, use as setas ou segure o botão do meio e arraste.
+es Primero, mira a tu alrededor. Lleva el ratón al borde de la pantalla, usa las flechas o mantén el botón central y arrastra.
+
+> First, look around. Drag the map with two fingers.
+pt Primeiro, olhe em volta. Arraste o mapa com dois dedos.
+es Primero, mira a tu alrededor. Arrastra el mapa con dos dedos.
+
+> Good. Now roll the mouse wheel to zoom in and out.
+pt Bom. Agora gire a roda do mouse para aproximar e afastar.
+es Bien. Ahora gira la rueda del ratón para acercar y alejar.
+
+> Good. Now pinch with two fingers to zoom in and out.
+pt Bom. Agora faça pinça com dois dedos para aproximar e afastar.
+es Bien. Ahora pellizca con dos dedos para acercar y alejar.
+
+> These are your Musketeers. Click one to select it.
+pt Estes são seus Mosqueteiros. Clique em um para selecioná-lo.
+es Estos son tus Mosqueteros. Haz clic en uno para seleccionarlo.
+
+> These are your Musketeers. Tap one to select it.
+pt Estes são seus Mosqueteiros. Toque em um para selecioná-lo.
+es Estos son tus Mosqueteros. Toca uno para seleccionarlo.
+
+> Now take them all: hold the left button and drag a box round them. A double-click picks every one of that kind on screen.
+pt Agora pegue todos: segure o botão esquerdo e arraste uma caixa em volta deles. Um clique duplo pega todos desse tipo na tela.
+es Ahora tómalos a todos: mantén el botón izquierdo y arrastra un recuadro a su alrededor. Un doble clic elige a todos los de ese tipo en pantalla.
+
+> Now take them all: double-tap one to pick every Musketeer on screen.
+pt Agora pegue todos: toque duas vezes em um para pegar todos os Mosqueteiros na tela.
+es Ahora tómalos a todos: toca dos veces uno para elegir a todos los Mosqueteros en pantalla.
+
+> March! Right-click the ground by the gold ring to move them there.
+pt Marchem! Clique com o botão direito no chão junto ao anel dourado para levá-los até lá.
+es ¡En marcha! Haz clic derecho en el suelo junto al anillo dorado para llevarlos allí.
+
+> March! Tap the ground by the gold ring to move them there.
+pt Marchem! Toque no chão junto ao anel dourado para levá-los até lá.
+es ¡En marcha! Toca el suelo junto al anillo dorado para llevarlos allí.
+
+> Bandits, over there! Shooters fire by themselves when an enemy comes in range.
+pt Bandidos, ali! Atiradores disparam sozinhos quando um inimigo entra no alcance.
+es ¡Bandidos, allí! Los tiradores disparan solos cuando un enemigo entra en su alcance.
+
+> Right-click an enemy to attack it. Or press A, then click a spot: they attack everything on the way.
+pt Clique com o botão direito num inimigo para atacá-lo. Ou aperte A e clique num ponto: eles atacam tudo pelo caminho.
+es Haz clic derecho en un enemigo para atacarlo. O pulsa A y haz clic en un punto: atacarán todo lo que haya en el camino.
+
+> Tap an enemy to attack it. Or tap ATTACK on the card, then a spot: they attack everything on the way.
+pt Toque num inimigo para atacá-lo. Ou toque em ATACAR no cartão e depois num ponto: eles atacam tudo pelo caminho.
+es Toca un enemigo para atacarlo. O toca ATACAR en la tarjeta y luego un punto: atacarán todo lo que haya en el camino.
+
+> Well shot. The command card, bottom right, holds every order for what you selected. Each button has a key: hover it to see. Press HOLD, or H.
+pt Belo tiro. O cartão de comandos, embaixo à direita, tem todas as ordens do que você selecionou. Cada botão tem uma tecla: passe o mouse para ver. Aperte FIRME, ou H.
+es Buen disparo. La tarjeta de órdenes, abajo a la derecha, tiene todas las órdenes de lo que elegiste. Cada botón tiene una tecla: pasa el ratón para verla. Pulsa MANTENER, o H.
+
+> Well shot. The command card, bottom right, holds every order for what you selected. Tap HOLD.
+pt Belo tiro. O cartão de comandos, embaixo à direita, tem todas as ordens do que você selecionou. Toque em FIRME.
+es Buen disparo. La tarjeta de órdenes, abajo a la derecha, tiene todas las órdenes de lo que elegiste. Toca MANTENER.
+
+> Holding men stay where they stand and shoot what comes.
+pt Homens firmes ficam onde estão e atiram no que vier.
+es Los hombres que mantienen la posición se quedan donde están y disparan a lo que venga.
+
+> The minimap shows the whole map. Click it to jump the view there.
+pt O minimapa mostra o mapa inteiro. Clique nele para levar a vista até lá.
+es El minimapa muestra todo el mapa. Haz clic en él para llevar la vista allí.
+
+> The minimap shows the whole map. Tap it to jump the view there.
+pt O minimapa mostra o mapa inteiro. Toque nele para levar a vista até lá.
+es El minimapa muestra todo el mapa. Tócalo para llevar la vista allí.
+
+> Last, control groups. Select your Musketeers and press Ctrl+1: they become group 1.
+pt Por fim, os grupos. Selecione seus Mosqueteiros e aperte Ctrl+1: eles viram o grupo 1.
+es Por último, los grupos. Selecciona a tus Mosqueteros y pulsa Ctrl+1: serán el grupo 1.
+
+> Last, control groups. Select your Musketeers, then hold the 1 on the bar above the card: they become group 1.
+pt Por fim, os grupos. Selecione seus Mosqueteiros e segure o 1 na barra acima do cartão: eles viram o grupo 1.
+es Por último, los grupos. Selecciona a tus Mosqueteros y mantén pulsado el 1 de la barra sobre la tarjeta: serán el grupo 1.
+
+> Now press 1 to pick the group again, from anywhere. Press it twice to jump the view to them.
+pt Agora aperte 1 para pegar o grupo de novo, de qualquer lugar. Aperte duas vezes para levar a vista até eles.
+es Ahora pulsa 1 para volver a elegir el grupo, desde cualquier sitio. Púlsalo dos veces para llevar la vista hasta ellos.
+
+> Now tap the 1 to pick the group again, from anywhere. Tap it twice to jump the view to them.
+pt Agora toque no 1 para pegar o grupo de novo, de qualquer lugar. Toque duas vezes para levar a vista até eles.
+es Ahora toca el 1 para volver a elegir el grupo, desde cualquier sitio. Tócalo dos veces para llevar la vista hasta ellos.
+
+> That is the basics, recruit. Every faction is commanded the same way.
+pt Esse é o básico, recruta. Todas as facções se comandam do mesmo jeito.
+es Eso es lo básico, recluta. Todas las facciones se mandan igual.
+
+> Next, learn a faction: the Crown, the Clockwork or the Brood.
+pt Agora aprenda uma facção: a Coroa, o Mecanismo ou a Ninhada.
+es Ahora aprende una facción: la Corona, el Mecanismo o la Nidada.
+
+> You can move the view, select, march, fight and use the card, the minimap and control groups.
+pt Você já sabe mover a vista, selecionar, marchar, lutar e usar o cartão, o minimapa e os grupos.
+es Ya sabes mover la vista, seleccionar, marchar, luchar y usar la tarjeta, el minimapa y los grupos.
+
+> Moving and zooming the view
+pt Mover e aproximar a vista
+es Mover y acercar la vista
+
+> Selecting units
+pt Selecionar unidades
+es Seleccionar unidades
+
+> Moving and attacking
+pt Mover e atacar
+es Mover y atacar
+
+> The command card and its keys
+pt O cartão de comandos e suas teclas
+es La tarjeta de órdenes y sus teclas
+
+> The minimap
+pt O minimapa
+es El minimapa
+
+> Control groups
+pt Grupos de controle
+es Grupos de control
+
+> Build the Crown's economy and its army: gold from the Farm, powder from the Mill, Musketeers, a wall on the ramp and a cannon. Then hold the high ground.
+pt Monte a economia e o exército da Coroa: ouro da Fazenda, pólvora do Moinho, Mosqueteiros, uma muralha na rampa e um canhão. Depois defenda o terreno alto.
+es Levanta la economía y el ejército de la Corona: oro de la Granja, pólvora del Molino, Mosqueteros, una muralla en la rampa y un cañón. Después defiende el terreno alto.
+
+> Raiders
+pt Saqueadores
+es Saqueadores
+
+> Select your Town Hall.
+pt Selecione sua Prefeitura.
+es Selecciona tu Ayuntamiento.
+
+> Train a Labourer.
+pt Treine um Operário.
+es Entrena un Peón.
+
+> Build a Cottage.
+pt Construa um Casebre.
+es Construye una Cabaña.
+
+> Build a Powder Mill.
+pt Construa um Moinho de Pólvora.
+es Construye un Molino de Pólvora.
+
+> Put 2 Labourers in the Powder Mill.
+pt Ponha 2 Operários no Moinho de Pólvora.
+es Pon 2 Peones en el Molino de Pólvora.
+
+> Build a Barracks.
+pt Construa um Quartel.
+es Construye un Cuartel.
+
+> Train 3 Musketeers.
+pt Treine 3 Mosqueteiros.
+es Entrena 3 Mosqueteros.
+
+> Wall the top of the ramp, with a gate in it.
+pt Feche o alto da rampa com uma muralha e um portão.
+es Cierra lo alto de la rampa con una muralla y una puerta.
+
+> Build a Foundry.
+pt Construa uma Fundição.
+es Construye una Fundición.
+
+> Train a Field Cannon.
+pt Treine um Canhão de Campanha.
+es Entrena un Cañón de Campaña.
+
+> Put 3 Musketeers on the ridge above the ramp.
+pt Ponha 3 Mosqueteiros na crista acima da rampa.
+es Pon 3 Mosqueteros en la cresta sobre la rampa.
+
+> Beat the raiders.
+pt Derrote os saqueadores.
+es Derrota a los saqueadores.
+
+> Welcome to the Crown, commander. That is your Town Hall, and beside it its Farm.
+pt Bem-vindo à Coroa, comandante. Aquela é sua Prefeitura e, ao lado, a Fazenda dela.
+es Bienvenido a la Corona, comandante. Ese es tu Ayuntamiento y, a su lado, su Granja.
+
+> Labourers hoe the Farm. Each harvest brings in gold.
+pt Operários cuidam da Fazenda. Cada colheita traz ouro.
+es Los Peones trabajan la Granja. Cada cosecha trae oro.
+
+> Train a Labourer: press LABOURER on the card, or its key.
+pt Treine um Operário: aperte OPERÁRIO no cartão, ou a tecla dele.
+es Entrena un Peón: pulsa PEÓN en la tarjeta, o su tecla.
+
+> Train a Labourer: tap LABOURER on the card.
+pt Treine um Operário: toque em OPERÁRIO no cartão.
+es Entrena un Peón: toca PEÓN en la tarjeta.
+
+> A full Farm ripens about every forty seconds.
+pt Uma Fazenda cheia amadurece a cada quarenta segundos, mais ou menos.
+es Una Granja llena madura cada cuarenta segundos, más o menos.
+
+> Mind the Soil on your hall: the land runs out in time. Then you must build a new Town Hall on fresh ground.
+pt Fique de olho no Solo da sua Prefeitura: a terra se esgota com o tempo. Então você precisa de uma nova Prefeitura em terra nova.
+es Vigila el Suelo de tu Ayuntamiento: la tierra se agota con el tiempo. Entonces necesitarás un Ayuntamiento nuevo en tierra fresca.
+
+> Men need room. A Cottage gives supply.
+pt Homens precisam de espaço. Um Casebre dá suprimento.
+es Los hombres necesitan sitio. Una Cabaña da suministro.
+
+> Select a Labourer, press BUILD (B), pick the COTTAGE and click where it goes.
+pt Selecione um Operário, aperte CONSTRUIR (B), escolha o CASEBRE e clique onde ele fica.
+es Selecciona un Peón, pulsa CONSTRUIR (B), elige la CABAÑA y haz clic donde va.
+
+> Select a Labourer, tap BUILD, pick the COTTAGE and tap where it goes.
+pt Selecione um Operário, toque em CONSTRUIR, escolha o CASEBRE e toque onde ele fica.
+es Selecciona un Peón, toca CONSTRUIR, elige la CABAÑA y toca donde va.
+
+> Musketeers need black powder. Build a Powder Mill near the hall: each hall allows one.
+pt Mosqueteiros precisam de pólvora. Construa um Moinho de Pólvora perto da Prefeitura: cada uma permite um.
+es Los Mosqueteros necesitan pólvora. Construye un Molino de Pólvora cerca del Ayuntamiento: cada uno permite uno.
+
+> Now put Labourers to work in it: select some and right-click the Mill.
+pt Agora ponha Operários para trabalhar nele: selecione alguns e clique com o botão direito no Moinho.
+es Ahora pon Peones a trabajar en él: selecciona algunos y haz clic derecho en el Molino.
+
+> Now put Labourers to work in it: select some and tap the Mill.
+pt Agora ponha Operários para trabalhar nele: selecione alguns e toque no Moinho.
+es Ahora pon Peones a trabajar en él: selecciona algunos y toca el Molino.
+
+> It grinds the hall's saltpetre into powder. Saltpetre runs out too.
+pt Ele mói o salitre da Prefeitura em pólvora. O salitre também se esgota.
+es Muele el salitre del Ayuntamiento en pólvora. El salitre también se agota.
+
+> Now a Barracks. It needs the Cottage you built. Here is some gold from the treasury.
+pt Agora um Quartel. Ele precisa do Casebre que você construiu. Aqui vai um pouco de ouro do tesouro.
+es Ahora un Cuartel. Necesita la Cabaña que construiste. Aquí tienes algo de oro del tesoro.
+
+> Select the Barracks and train three Musketeers. Each costs gold and ten powder.
+pt Selecione o Quartel e treine três Mosqueteiros. Cada um custa ouro e dez de pólvora.
+es Selecciona el Cuartel y entrena tres Mosqueteros. Cada uno cuesta oro y diez de pólvora.
+
+> Your base sits on high ground, and the ramp is the only way up.
+pt Sua base fica no terreno alto, e a rampa é o único caminho para subir.
+es Tu base está en terreno alto, y la rampa es el único camino para subir.
+
+> Close it: select a Labourer, BUILD, PALISADE, and drag across the top of the ramp. Then place a GATE in the line.
+pt Feche-a: selecione um Operário, CONSTRUIR, PALIÇADA, e arraste pelo alto da rampa. Depois ponha um PORTÃO na linha.
+es Ciérrala: selecciona un Peón, CONSTRUIR, EMPALIZADA, y arrastra por lo alto de la rampa. Luego pon una PUERTA en la línea.
+
+> Close it: select a Labourer, tap BUILD, PALISADE, and drag across the top of the ramp. Then place a GATE in the line.
+pt Feche-a: selecione um Operário, toque em CONSTRUIR, PALIÇADA, e arraste pelo alto da rampa. Depois ponha um PORTÃO na linha.
+es Ciérrala: selecciona un Peón, toca CONSTRUIR, EMPALIZADA, y arrastra por lo alto de la rampa. Luego pon una PUERTA en la línea.
+
+> Gates open for your side only.
+pt Portões abrem só para o seu lado.
+es Las puertas solo se abren para tu bando.
+
+> Now the guns. Build a Foundry: it needs the Barracks.
+pt Agora os canhões. Construa uma Fundição: ela precisa do Quartel.
+es Ahora los cañones. Construye una Fundición: necesita el Cuartel.
+
+> Cannons are drawn by horses. Your Horse Breeder trains them, and one click at the Foundry pays for both.
+pt Canhões são puxados por cavalos. Seu Criador de Cavalos os treina, e um clique na Fundição paga os dois.
+es Los cañones van tirados por caballos. Tu Criador de Caballos los entrena, y un clic en la Fundición paga ambos.
+
+> Train a Field Cannon. Round shot reaches farther than anything.
+pt Treine um Canhão de Campanha. A bala rasa alcança mais longe que tudo.
+es Entrena un Cañón de Campaña. La bala rasa llega más lejos que nada.
+
+> Hold the high ground. Men below a cliff cannot see up onto it, but you can shoot down.
+pt Defenda o terreno alto. Quem está abaixo de um penhasco não enxerga lá em cima, mas você atira para baixo.
+es Defiende el terreno alto. Quien está bajo un acantilado no ve arriba, pero tú disparas hacia abajo.
+
+> Raiders at the foot of the ramp! Let them come to your wall.
+pt Saqueadores ao pé da rampa! Deixe que venham até sua muralha.
+es ¡Saqueadores al pie de la rampa! Deja que lleguen a tu muralla.
+
+> That is the Crown's way: a strong economy, a wall on the ramp, and shot from the high ground.
+pt Esse é o jeito da Coroa: uma economia forte, uma muralha na rampa e tiros do terreno alto.
+es Esa es la manera de la Corona: una economía fuerte, una muralla en la rampa y disparos desde lo alto.
+
+> Now try it in a practice game against the computer.
+pt Agora experimente numa partida de treino contra o computador.
+es Ahora pruébalo en una partida de práctica contra el ordenador.
+
+> You built the Crown's economy, walled your ramp, trained Musketeers and a cannon, and held the high ground.
+pt Você montou a economia da Coroa, fechou sua rampa, treinou Mosqueteiros e um canhão e defendeu o terreno alto.
+es Levantaste la economía de la Corona, cerraste tu rampa, entrenaste Mosqueteros y un cañón y defendiste el terreno alto.
+
+> Labourers and the Farm (gold)
+pt Operários e a Fazenda (ouro)
+es Peones y la Granja (oro)
+
+> The Powder Mill (powder); soil and saltpetre run out
+pt O Moinho de Pólvora (pólvora); solo e salitre se esgotam
+es El Molino de Pólvora (pólvora); el suelo y el salitre se agotan
+
+> Cottages (supply)
+pt Casebres (suprimento)
+es Cabañas (suministro)
+
+> The Barracks and Musketeers
+pt O Quartel e os Mosqueteiros
+es El Cuartel y los Mosqueteros
+
+> Walls and a gate on the ramp
+pt Muralhas e um portão na rampa
+es Murallas y una puerta en la rampa
+
+> The Foundry and the cannon
+pt A Fundição e o canhão
+es La Fundición y el cañón
+
+> Holding the high ground
+pt Defender o terreno alto
+es Defender el terreno alto
+
+> Practice: the Crown
+pt Treino: a Coroa
+es Práctica: la Corona
+
+> A small game against an Easy computer playing the Clockwork, with hints along the way. Destroy every enemy building to win.
+pt Uma partida curta contra um computador Fácil jogando com o Mecanismo, com dicas pelo caminho. Destrua todos os prédios inimigos para vencer.
+es Una partida corta contra un ordenador Fácil que juega con el Mecanismo, con pistas por el camino. Destruye todos los edificios enemigos para ganar.
+
+> Destroy every enemy building.
+pt Destrua todos os prédios inimigos.
+es Destruye todos los edificios enemigos.
+
+> Train 3 more Labourers.
+pt Treine mais 3 Operários.
+es Entrena 3 Peones más.
+
+> Have 6 Musketeers.
+pt Tenha 6 Mosqueteiros.
+es Ten 6 Mosqueteros.
+
+> Your soil is running low by now. Build a second Town Hall at the foot of your ramp: fresh land.
+pt A esta altura seu solo está acabando. Construa uma segunda Prefeitura ao pé da rampa: terra nova.
+es A estas alturas tu suelo se está agotando. Construye un segundo Ayuntamiento al pie de tu rampa: tierra fresca.
+
+> A real game now, against an easy computer playing the Clockwork. I will give you hints.
+pt Agora uma partida de verdade, contra um computador fácil jogando com o Mecanismo. Eu vou dar dicas.
+es Ahora una partida de verdad, contra un ordenador fácil que juega con el Mecanismo. Te daré pistas.
+
+> Win by destroying every enemy building. First, more Labourers.
+pt Vença destruindo todos os prédios inimigos. Primeiro, mais Operários.
+es Gana destruyendo todos los edificios enemigos. Primero, más Peones.
+
+> Good. Now a Cottage, a Powder Mill with Labourers in it, and a Barracks.
+pt Bom. Agora um Casebre, um Moinho de Pólvora com Operários e um Quartel.
+es Bien. Ahora una Cabaña, un Molino de Pólvora con Peones y un Cuartel.
+
+> Keep the Barracks busy: Musketeers, one after another. An idle Barracks wins no wars.
+pt Mantenha o Quartel ocupado: Mosqueteiros, um atrás do outro. Quartel parado não ganha guerra.
+es Mantén el Cuartel ocupado: Mosqueteros, uno tras otro. Un Cuartel parado no gana guerras.
+
+> Wall your ramp, and build a Foundry for cannons. The Clockwork's machines fear round shot.
+pt Feche sua rampa e construa uma Fundição para os canhões. As máquinas do Mecanismo temem a bala rasa.
+es Cierra tu rampa y construye una Fundición para los cañones. Las máquinas del Mecanismo temen la bala rasa.
+
+> The enemy is in the far corner. Gather your army, press A and click their base.
+pt O inimigo está no canto oposto. Junte seu exército, aperte A e clique na base dele.
+es El enemigo está en la esquina opuesta. Reúne tu ejército, pulsa A y haz clic en su base.
+
+> The enemy is in the far corner. Gather your army, tap ATTACK and tap their base.
+pt O inimigo está no canto oposto. Junte seu exército, toque em ATACAR e toque na base dele.
+es El enemigo está en la esquina opuesta. Reúne tu ejército, toca ATACAR y toca su base.
+
+> Keep training while you fight.
+pt Continue treinando enquanto luta.
+es Sigue entrenando mientras luchas.
+
+> You won a whole game. You are ready for a skirmish, or the campaign.
+pt Você venceu uma partida inteira. Está pronto para uma escaramuça ou para a campanha.
+es Has ganado una partida entera. Ya estás listo para una escaramuza o para la campaña.
+
+> A whole game, with hints
+pt Uma partida inteira, com dicas
+es Una partida entera, con pistas
+
+> Win by destroying the enemy
+pt Vencer destruindo o inimigo
+es Ganar destruyendo al enemigo
+
+> The computer won this time. Build up, defend your ramp, and try again.
+pt O computador venceu desta vez. Cresça, defenda sua rampa e tente de novo.
+es Esta vez ganó el ordenador. Crece, defiende tu rampa y vuelve a intentarlo.
+
+> Run the Clockwork's machine: Winders, the Clocktower and its gear rings, the Cog Presses for cogs and the Mainspring for Tension, then the Light Works and its Clock Soldiers.
+pt Faça a máquina do Mecanismo andar: Enroladores, a Torre do Relógio e seus anéis de engrenagens, as Prensas de Engrenagens para as engrenagens e a Mola Real para a Tensão, depois a Oficina Leve e seus Soldados-Relógio.
+es Pon en marcha la máquina del Mecanismo: los Dadores de cuerda, la Torre del Reloj y sus anillos de engranajes, las Prensas de Engranajes para los engranajes y el Muelle Real para la Tensión, y después el Taller Ligero y sus Soldados Reloj.
+
+> Nobody
+pt Ninguém
+es Nadie
+
+> Select the Clocktower.
+pt Selecione a Torre do Relógio.
+es Selecciona la Torre del Reloj.
+
+> Train a Winder.
+pt Treine um Enrolador.
+es Entrena un Dador de cuerda.
+
+> Open the GEAR VIEW.
+pt Abra a VISTA DAS ENGRENAGENS.
+es Abre la VISTA DE ENGRANAJES.
+
+> Close the GEAR VIEW.
+pt Feche a VISTA DAS ENGRENAGENS.
+es Cierra la VISTA DE ENGRANAJES.
+
+> Build a second Cog Press.
+pt Construa uma segunda Prensa de Engrenagens.
+es Construye una segunda Prensa de Engranajes.
+
+> Put 2 Winders on each Cog Press.
+pt Ponha 2 Enroladores em cada Prensa de Engrenagens.
+es Pon 2 Dadores de cuerda en cada Prensa de Engranajes.
+
+> Build a Mainspring.
+pt Construa uma Mola Real.
+es Construye un Muelle Real.
+
+> Crank the Mainspring to 10 Tension.
+pt Dê corda na Mola Real até 10 de Tensão.
+es Da cuerda al Muelle Real hasta 10 de Tensión.
+
+> Build a Light Works.
+pt Construa uma Oficina Leve.
+es Construye un Taller Ligero.
+
+> Make 2 Clock Soldiers.
+pt Faça 2 Soldados-Relógio.
+es Fabrica 2 Soldados Reloj.
+
+> Master Tock
+pt Mestre Tock
+es Maestro Tock
+
+> Welcome to the Clockwork. I am Master Tock, and this is your Clocktower.
+pt Bem-vindo ao Mecanismo. Sou o Mestre Tock, e esta é sua Torre do Relógio.
+es Bienvenido al Mecanismo. Soy el maestro Tock, y esta es tu Torre del Reloj.
+
+> Beside it stands a Cog Press. Its Winders turn it, and it presses cogs: your money.
+pt Ao lado fica uma Prensa de Engrenagens. Os Enroladores a giram, e ela prensa engrenagens: o seu dinheiro.
+es A su lado hay una Prensa de Engranajes. Los Dadores de cuerda la hacen girar, y prensa engranajes: tu dinero.
+
+> Train a Winder. Winders wind the machines, carry the building crates and repair.
+pt Treine um Enrolador. Enroladores dão corda nas máquinas, carregam os caixotes das construções e consertam.
+es Entrena un Dador de cuerda. Dan cuerda a las máquinas, llevan las cajas de las obras y reparan.
+
+> Every Clockwork building stands on a ring of ground gears. A ring must mesh with your others, or it never turns.
+pt Todo prédio do Mecanismo fica sobre um anel de engrenagens no chão. O anel precisa engrenar com os outros, ou nunca gira.
+es Todo edificio del Mecanismo se alza sobre un anillo de engranajes en el suelo. El anillo debe engranar con los demás, o nunca gira.
+
+> Press the ` key, under Esc, or GEAR VIEW on a building's card, to see the whole network.
+pt Aperte a tecla `, embaixo do Esc, ou VISTA DAS ENGRENAGENS no cartão de um prédio, para ver a rede inteira.
+es Pulsa la tecla `, bajo Esc, o VISTA DE ENGRANAJES en la tarjeta de un edificio, para ver toda la red.
+
+> Tap GEAR VIEW on a building's card to see the whole network.
+pt Toque em VISTA DAS ENGRENAGENS no cartão de um prédio para ver a rede inteira.
+es Toca VISTA DE ENGRANAJES en la tarjeta de un edificio para ver toda la red.
+
+> Green rings turn at full speed. Red ones are stopped: they mesh with nothing.
+pt Anéis verdes giram a toda velocidade. Os vermelhos estão parados: não engrenam com nada.
+es Los anillos verdes giran a toda velocidad. Los rojos están parados: no engranan con nada.
+
+> Close the view again the same way.
+pt Feche a vista do mesmo jeito.
+es Cierra la vista del mismo modo.
+
+> Each Clocktower takes two Cog Presses. Build the second.
+pt Cada Torre do Relógio aceita duas Prensas de Engrenagens. Construa a segunda.
+es Cada Torre del Reloj admite dos Prensas de Engranajes. Construye la segunda.
+
+> Select a Winder, press BUILD (B), pick the COG PRESS. While placing, G picks its ring: SMALL or BIG GEAR.
+pt Selecione um Enrolador, aperte CONSTRUIR (B) e escolha a PRENSA DE ENGRENAGENS. Ao posicionar, G escolhe o anel: ENGRENAGEM PEQUENA ou GRANDE.
+es Selecciona un Dador de cuerda, pulsa CONSTRUIR (B) y elige la PRENSA DE ENGRANAJES. Al colocarla, G elige su anillo: ENGRANAJE PEQUEÑO o GRANDE.
+
+> Select a Winder, tap BUILD, pick the COG PRESS. While placing, the gear button picks its ring: SMALL or BIG.
+pt Selecione um Enrolador, toque em CONSTRUIR e escolha a PRENSA DE ENGRENAGENS. Ao posicionar, o botão da engrenagem escolhe o anel: PEQUENA ou GRANDE.
+es Selecciona un Dador de cuerda, toca CONSTRUIR y elige la PRENSA DE ENGRANAJES. Al colocarla, el botón del engranaje elige su anillo: PEQUEÑO o GRANDE.
+
+> Place it so its ring meshes with the others. A Winder carries its crate there.
+pt Ponha-a de modo que o anel engrene com os outros. Um Enrolador leva o caixote até lá.
+es Colócala de modo que su anillo engrane con los demás. Un Dador de cuerda lleva allí su caja.
+
+> A press with nobody on it presses nothing. Select Winders and right-click the new press.
+pt Uma prensa sem ninguém não prensa nada. Selecione Enroladores e clique com o botão direito na prensa nova.
+es Una prensa sin nadie no prensa nada. Selecciona Dadores de cuerda y haz clic derecho en la prensa nueva.
+
+> A press with nobody on it presses nothing. Select Winders and tap the new press.
+pt Uma prensa sem ninguém não prensa nada. Selecione Enroladores e toque na prensa nova.
+es Una prensa sin nadie no prensa nada. Selecciona Dadores de cuerda y toca la prensa nueva.
+
+> Each Winder adds the same share of cogs. Train more Winders if you run short.
+pt Cada Enrolador soma a mesma parte de engrenagens. Treine mais Enroladores se faltarem.
+es Cada Dador de cuerda suma la misma parte de engranajes. Entrena más si te faltan.
+
+> Cogs are your money. TENSION is your second resource, and the Mainspring winds it.
+pt Engrenagens são seu dinheiro. A TENSÃO é seu segundo recurso, e a Mola Real a acumula.
+es Los engranajes son tu dinero. La TENSIÓN es tu segundo recurso, y el Muelle Real la acumula.
+
+> Build a Mainspring. Each Clocktower takes one.
+pt Construa uma Mola Real. Cada Torre do Relógio aceita uma.
+es Construye un Muelle Real. Cada Torre del Reloj admite uno.
+
+> Put Winders on the Mainspring to crank it. Its Tension flows through every meshed ring.
+pt Ponha Enroladores na Mola Real para dar corda. A Tensão corre por todos os anéis engrenados.
+es Pon Dadores de cuerda en el Muelle Real para darle cuerda. Su Tensión corre por todos los anillos engranados.
+
+> Now the army. Build a Light Works: it assembles Clock Soldiers.
+pt Agora o exército. Construa uma Oficina Leve: ela monta Soldados-Relógio.
+es Ahora el ejército. Construye un Taller Ligero: monta Soldados Reloj.
+
+> Select the Light Works and make two Clock Soldiers: quick swords behind a shield.
+pt Selecione a Oficina Leve e faça dois Soldados-Relógio: espadas rápidas atrás de um escudo.
+es Selecciona el Taller Ligero y fabrica dos Soldados Reloj: espadas rápidas tras un escudo.
+
+> Machines run down away from a Clocktower or a Spring Tower. Winders crank them up again, and repair them.
+pt Máquinas perdem a corda longe de uma Torre do Relógio ou de uma Torre de Mola. Enroladores dão corda de novo e as consertam.
+es Las máquinas se quedan sin cuerda lejos de una Torre del Reloj o de una Torre de Resorte. Los Dadores de cuerda les dan cuerda otra vez y las reparan.
+
+> Cogs, Tension and meshing rings: that is the Clockwork. Try it in a practice game.
+pt Engrenagens, Tensão e anéis engrenados: esse é o Mecanismo. Experimente numa partida de treino.
+es Engranajes, Tensión y anillos engranados: eso es el Mecanismo. Pruébalo en una partida de práctica.
+
+> You trained a Winder, read the gear network, wound the presses and the Mainspring, and made Clock Soldiers.
+pt Você treinou um Enrolador, leu a rede de engrenagens, deu corda nas prensas e na Mola Real e fez Soldados-Relógio.
+es Entrenaste un Dador de cuerda, leíste la red de engranajes, diste cuerda a las prensas y al Muelle Real y fabricaste Soldados Reloj.
+
+> The Clocktower and the gear rings (meshing, the GEAR VIEW)
+pt A Torre do Relógio e os anéis de engrenagens (engrenar, a VISTA DAS ENGRENAGENS)
+es La Torre del Reloj y los anillos de engranajes (engranar, la VISTA DE ENGRANAJES)
+
+> Cog Presses (cogs) and the Mainspring (Tension)
+pt Prensas de Engrenagens (engrenagens) e a Mola Real (Tensão)
+es Prensas de Engranajes (engranajes) y el Muelle Real (Tensión)
+
+> Winding the machines
+pt Dar corda nas máquinas
+es Dar cuerda a las máquinas
+
+> The Light Works and Clock Soldiers
+pt A Oficina Leve e os Soldados-Relógio
+es El Taller Ligero y los Soldados Reloj
+
+> Practice: the Clockwork
+pt Treino: o Mecanismo
+es Práctica: el Mecanismo
+
+> A small game against an Easy computer playing the Brood, with hints along the way. Kill the Brood Mother to win.
+pt Uma partida curta contra um computador Fácil jogando com a Ninhada, com dicas pelo caminho. Mate a Mãe da Ninhada para vencer.
+es Una partida corta contra un ordenador Fácil que juega con la Nidada, con pistas por el camino. Mata a la Madre de la Camada para ganar.
+
+> Kill the enemy's Brood Mother.
+pt Mate a Mãe da Ninhada inimiga.
+es Mata a la Madre de la Camada enemiga.
+
+> Train 3 more Winders.
+pt Treine mais 3 Enroladores.
+es Entrena 3 Dadores de cuerda más.
+
+> Have 6 Clock Soldiers.
+pt Tenha 6 Soldados-Relógio.
+es Ten 6 Soldados Reloj.
+
+> Your brass runs out in time. Build a second Clocktower at the foot of your ramp: fresh ground.
+pt Seu latão acaba com o tempo. Construa uma segunda Torre do Relógio ao pé da rampa: terreno novo.
+es Tu latón se acaba con el tiempo. Construye una segunda Torre del Reloj al pie de tu rampa: terreno fresco.
+
+> A real game now, against an easy computer playing the Brood. I will give you hints.
+pt Agora uma partida de verdade, contra um computador fácil jogando com a Ninhada. Eu vou dar dicas.
+es Ahora una partida de verdad, contra un ordenador fácil que juega con la Nidada. Te daré pistas.
+
+> The Brood has no buildings: kill its Brood Mother to win. First, more Winders.
+pt A Ninhada não tem prédios: mate a Mãe da Ninhada para vencer. Primeiro, mais Enroladores.
+es La Nidada no tiene edificios: mata a su Madre de la Camada para ganar. Primero, más Dadores de cuerda.
+
+> Good. A second Cog Press, a Mainspring with Winders on it, and a Light Works. Mind the rings mesh.
+pt Bom. Uma segunda Prensa de Engrenagens, uma Mola Real com Enroladores e uma Oficina Leve. Cuide para os anéis engrenarem.
+es Bien. Una segunda Prensa de Engranajes, un Muelle Real con Dadores de cuerda y un Taller Ligero. Que los anillos engranen.
+
+> Keep the Light Works busy: Clock Soldiers, one after another.
+pt Mantenha a Oficina Leve ocupada: Soldados-Relógio, um atrás do outro.
+es Mantén el Taller Ligero ocupado: Soldados Reloj, uno tras otro.
+
+> The Brood nests in the far corner. Gather your army, press A and click there. Strike the Mother.
+pt A Ninhada se aninha no canto oposto. Junte seu exército, aperte A e clique lá. Ataque a Mãe.
+es La Nidada anida en la esquina opuesta. Reúne tu ejército, pulsa A y haz clic allí. Golpea a la Madre.
+
+> The Brood nests in the far corner. Gather your army, tap ATTACK and tap there. Strike the Mother.
+pt A Ninhada se aninha no canto oposto. Junte seu exército, toque em ATACAR e toque lá. Ataque a Mãe.
+es La Nidada anida en la esquina opuesta. Reúne tu ejército, toca ATACAR y toca allí. Golpea a la Madre.
+
+> Winders go with the army to repair it.
+pt Enroladores vão com o exército para consertá-lo.
+es Los Dadores de cuerda van con el ejército para repararlo.
+
+> Raise the Brood: the Mother lays the eggs, grubs carry the food, rooted creatures are your buildings. Root a Mound Turtle and a Rootmaw on new ground, then a Sire, and hatch Raptors.
+pt Crie a Ninhada: a Mãe põe os ovos, as larvas carregam a comida, as criaturas enraizadas são seus prédios. Enraíze uma Tartaruga-Montículo e uma Bocarraiz em terreno novo, depois um Sire, e choque Raptores.
+es Cría la Nidada: la Madre pone los huevos, las larvas llevan la comida, las criaturas arraigadas son tus edificios. Arraiga una Tortuga Montículo y una Bocarraíz en terreno nuevo, luego un Señor, y haz eclosionar Raptores.
+
+> Select the Brood Mother.
+pt Selecione a Mãe da Ninhada.
+es Selecciona a la Madre de la Camada.
+
+> Lay a grub egg.
+pt Ponha um ovo de larva.
+es Pon un huevo de larva.
+
+> Root a Mound Turtle at the foot of the ramp.
+pt Enraíze uma Tartaruga-Montículo ao pé da rampa.
+es Arraiga una Tortuga Montículo al pie de la rampa.
+
+> Root a Rootmaw on the turtle's swamp.
+pt Enraíze uma Bocarraiz no pântano da tartaruga.
+es Arraiga una Bocarraíz en el pantano de la tortuga.
+
+> Put 2 grubs on each Rootmaw.
+pt Ponha 2 larvas em cada Bocarraiz.
+es Pon 2 larvas en cada Bocarraíz.
+
+> Root a Tyrant Sire beside the Mother.
+pt Enraíze um Sire Tirano ao lado da Mãe.
+es Arraiga un Señor Tirano junto a la Madre.
+
+> Hatch Raptors.
+pt Choque Raptores.
+es Haz eclosionar Raptores.
+
+> The Old Hunger
+pt A Velha Fome
+es El Hambre Antigua
+
+> The Brood has no buildings, only creatures. Hear me, little one.
+pt A Ninhada não tem prédios, só criaturas. Escute, pequenino.
+es La Nidada no tiene edificios, solo criaturas. Escúchame, pequeño.
+
+> This is your Brood Mother, the heart of the swarm. If she dies, you lose.
+pt Esta é sua Mãe da Ninhada, o coração do enxame. Se ela morrer, você perde.
+es Esta es tu Madre de la Camada, el corazón del enjambre. Si muere, pierdes.
+
+> Only she lays eggs. Pick a GRUB on her card: she lays its egg at once.
+pt Só ela põe ovos. Escolha LARVA no cartão dela: ela põe o ovo na hora.
+es Solo ella pone huevos. Elige LARVA en su tarjeta: pone el huevo al instante.
+
+> Grubs carry food from the Rootmaw to her. Food is your money: watch it on the top bar.
+pt Larvas levam comida da Bocarraiz até ela. Comida é seu dinheiro: veja na barra de cima.
+es Las larvas le llevan comida desde la Bocarraíz. La comida es tu dinero: mírala en la barra de arriba.
+
+> A new grub goes to work by itself when it hatches.
+pt Uma larva nova vai trabalhar sozinha quando nasce.
+es Una larva nueva se pone a trabajar sola al nacer.
+
+> Room for more creatures is supply. She gives 16, and each ROOTED Mound Turtle 12 more.
+pt Espaço para mais criaturas é o suprimento. Ela dá 16, e cada Tartaruga-Montículo ENRAIZADA mais 12.
+es El sitio para más criaturas es el suministro. Ella da 16, y cada Tortuga Montículo ARRAIGADA 12 más.
+
+> A turtle also spreads swamp round it: new ground for your Rootmaws.
+pt A tartaruga também espalha pântano em volta: terreno novo para suas Bocarraízes.
+es La tortuga también extiende pantano a su alrededor: terreno nuevo para tus Bocarraíces.
+
+> Select a grub, press BUILD (B), pick the MOUND TURTLE and place it at the foot of your ramp.
+pt Selecione uma larva, aperte CONSTRUIR (B), escolha a TARTARUGA-MONTÍCULO e ponha ao pé da rampa.
+es Selecciona una larva, pulsa CONSTRUIR (B), elige la TORTUGA MONTÍCULO y colócala al pie de tu rampa.
+
+> Select a grub, tap BUILD, pick the MOUND TURTLE and place it at the foot of your ramp.
+pt Selecione uma larva, toque em CONSTRUIR, escolha a TARTARUGA-MONTÍCULO e ponha ao pé da rampa.
+es Selecciona una larva, toca CONSTRUIR, elige la TORTUGA MONTÍCULO y colócala al pie de tu rampa.
+
+> The turtle's swamp is fresh ground. A Rootmaw rooted there drinks its food.
+pt O pântano da tartaruga é terreno novo. Uma Bocarraiz enraizada ali bebe a comida dele.
+es El pantano de la tortuga es terreno fresco. Una Bocarraíz arraigada allí bebe su comida.
+
+> Turn a grub into a Rootmaw on that swamp. Farther from her, each trip pays more.
+pt Transforme uma larva numa Bocarraiz nesse pântano. Quanto mais longe dela, mais rende cada viagem.
+es Convierte una larva en una Bocarraíz en ese pantano. Cuanto más lejos de ella, más rinde cada viaje.
+
+> Send grubs to it: select some and right-click the new Rootmaw.
+pt Mande larvas para lá: selecione algumas e clique com o botão direito na Bocarraiz nova.
+es Envíale larvas: selecciona algunas y haz clic derecho en la Bocarraíz nueva.
+
+> Send grubs to it: select some and tap the new Rootmaw.
+pt Mande larvas para lá: selecione algumas e toque na Bocarraiz nova.
+es Envíale larvas: selecciona algunas y toca la Bocarraíz nueva.
+
+> Keep two on each Rootmaw. Lay more grubs if you need them.
+pt Deixe duas em cada Bocarraiz. Ponha mais larvas se precisar.
+es Deja dos en cada Bocarraíz. Pon más larvas si las necesitas.
+
+> Your warriors need a father. A grub becomes the Tyrant Sire, the father of the Raptors.
+pt Seus guerreiros precisam de um pai. Uma larva vira o Sire Tirano, o pai dos Raptores.
+es Tus guerreros necesitan un padre. Una larva se convierte en el Señor Tirano, el padre de los Raptores.
+
+> Root him beside the Mother, inside the father range she shows.
+pt Enraíze-o ao lado da Mãe, dentro do alcance do pai que ela mostra.
+es Arráigalo junto a la Madre, dentro del alcance del padre que ella muestra.
+
+> Now select the Mother and lay a RAPTOR egg. The Sire breathes on it in his nest, and it hatches.
+pt Agora selecione a Mãe e ponha um ovo de RAPTOR. O Sire sopra nele no ninho, e ele choca.
+es Ahora selecciona a la Madre y pon un huevo de RAPTOR. El Señor lo alienta en su nido, y eclosiona.
+
+> Rooted creatures are your buildings: they never fight. UPROOT gets one up to walk and bite.
+pt Criaturas enraizadas são seus prédios: nunca lutam. DESENRAIZAR as levanta para andar e morder.
+es Las criaturas arraigadas son tus edificios: nunca luchan. DESARRAIGAR las levanta para andar y morder.
+
+> GROW the Mother for more eggs, and guard her above all. Now try a practice game.
+pt Faça a Mãe CRESCER para ter mais ovos, e proteja-a acima de tudo. Agora experimente uma partida de treino.
+es Haz CRECER a la Madre para tener más huevos, y protégela por encima de todo. Ahora prueba una partida de práctica.
+
+> You laid eggs, rooted a Mound Turtle and a Rootmaw on new ground, rooted a Sire and hatched Raptors.
+pt Você pôs ovos, enraizou uma Tartaruga-Montículo e uma Bocarraiz em terreno novo, enraizou um Sire e chocou Raptores.
+es Pusiste huevos, arraigaste una Tortuga Montículo y una Bocarraíz en terreno nuevo, arraigaste un Señor e hiciste eclosionar Raptores.
+
+> The Brood Mother and her eggs
+pt A Mãe da Ninhada e seus ovos
+es La Madre de la Camada y sus huevos
+
+> Grubs and food
+pt Larvas e comida
+es Larvas y comida
+
+> Mound Turtles: supply, swamp and new ground
+pt Tartarugas-Montículo: suprimento, pântano e terreno novo
+es Tortugas Montículo: suministro, pantano y terreno nuevo
+
+> Rooting a Rootmaw
+pt Enraizar uma Bocarraiz
+es Arraigar una Bocarraíz
+
+> The Sires: the fathers of your warriors
+pt Os Sires: os pais dos seus guerreiros
+es Los Señores: los padres de tus guerreros
+
+> Hatching Raptors
+pt Chocar Raptores
+es Hacer eclosionar Raptores
+
+> Practice: the Brood
+pt Treino: a Ninhada
+es Práctica: la Nidada
+
+> A small game against an Easy computer playing the Crown, with hints along the way. Destroy every enemy building to win.
+pt Uma partida curta contra um computador Fácil jogando com a Coroa, com dicas pelo caminho. Destrua todos os prédios inimigos para vencer.
+es Una partida corta contra un ordenador Fácil que juega con la Corona, con pistas por el camino. Destruye todos los edificios enemigos para ganar.
+
+> Lay 3 more grubs.
+pt Ponha mais 3 larvas.
+es Pon 3 larvas más.
+
+> Root a Tyrant Sire.
+pt Enraíze um Sire Tirano.
+es Arraiga un Señor Tirano.
+
+> Have 10 Raptors.
+pt Tenha 10 Raptores.
+es Ten 10 Raptores.
+
+> Your Rootmaws drink their ground dry in time. Root a turtle on new ground and a Rootmaw on its swamp.
+pt Suas Bocarraízes secam o terreno com o tempo. Enraíze uma tartaruga em terreno novo e uma Bocarraiz no pântano dela.
+es Tus Bocarraíces secan su terreno con el tiempo. Arraiga una tortuga en terreno nuevo y una Bocarraíz en su pantano.
+
+> A real game now, against an easy computer playing the Crown. I will give you hints.
+pt Agora uma partida de verdade, contra um computador fácil jogando com a Coroa. Eu vou dar dicas.
+es Ahora una partida de verdad, contra un ordenador fácil que juega con la Corona. Te daré pistas.
+
+> Win by destroying every enemy building. First, more grubs from the Mother.
+pt Vença destruindo todos os prédios inimigos. Primeiro, mais larvas da Mãe.
+es Gana destruyendo todos los edificios enemigos. Primero, más larvas de la Madre.
+
+> Good. Root a Mound Turtle for supply, and a Tyrant Sire beside the Mother.
+pt Bom. Enraíze uma Tartaruga-Montículo para o suprimento e um Sire Tirano ao lado da Mãe.
+es Bien. Arraiga una Tortuga Montículo para el suministro y un Señor Tirano junto a la Madre.
+
+> Now lay Raptor eggs, again and again. The swarm wins by numbers.
+pt Agora ponha ovos de Raptor, de novo e de novo. O enxame vence pelo número.
+es Ahora pon huevos de Raptor, una y otra vez. El enjambre gana por número.
+
+> The Crown sits in the far corner, behind its wall. Gather the swarm, press A and click their base.
+pt A Coroa está no canto oposto, atrás da muralha. Junte o enxame, aperte A e clique na base dela.
+es La Corona está en la esquina opuesta, tras su muralla. Reúne el enjambre, pulsa A y haz clic en su base.
+
+> The Crown sits in the far corner, behind its wall. Gather the swarm, tap ATTACK and tap their base.
+pt A Coroa está no canto oposto, atrás da muralha. Junte o enxame, toque em ATACAR e toque na base dela.
+es La Corona está en la esquina opuesta, tras su muralla. Reúne el enjambre, toca ATACAR y toca su base.
+
+> Keep the Mother home and keep her laying.
+pt Mantenha a Mãe em casa e pondo ovos.
+es Mantén a la Madre en casa y poniendo huevos.

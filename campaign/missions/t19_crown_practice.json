@@ -1,0 +1,172 @@
+{
+ "id": "t19_crown_practice",
+ "tutorial": true,
+ "normal_end": true,
+ "steps_end": "",
+ "title": "Practice: the Crown",
+ "summary": "A small game against an Easy computer playing the Clockwork, with hints along the way. Destroy every enemy building to win.",
+ "learn": [
+  "A whole game, with hints",
+  "Win by destroying the enemy"
+ ],
+ "map": "kestrel_rise",
+ "modes": [
+  "solo"
+ ],
+ "sides": [
+  {
+   "id": "you",
+   "name": "The Crown"
+  },
+  {
+   "id": "foe",
+   "name": "The Clockwork"
+  }
+ ],
+ "teams": [
+  {
+   "id": "you",
+   "side": "you",
+   "faction": "crown",
+   "colour": 1,
+   "start": "standard",
+   "control": "p1"
+  },
+  {
+   "id": "foe",
+   "side": "foe",
+   "faction": "clockwork",
+   "colour": 0,
+   "start": "standard",
+   "control": "ai:easy:balanced"
+  }
+ ],
+ "areas": {
+  "enemy_base": [
+   66,
+   66,
+   16,
+   16
+  ],
+  "natural": [
+   3,
+   24,
+   10,
+   7
+  ]
+ },
+ "objectives": [
+  {
+   "id": "win",
+   "side": "you",
+   "primary": true,
+   "kind": "manual",
+   "text": "Destroy every enemy building."
+  }
+ ],
+ "speakers": {
+  "teacher": {
+   "name": "Sergeant Holt",
+   "side": "you"
+  }
+ },
+ "teacher": "teacher",
+ "steps": [
+  {
+   "id": "start",
+   "say": [
+    "A real game now, against an easy computer playing the Clockwork. I will give you hints.",
+    "Win by destroying every enemy building. First, more Labourers."
+   ],
+   "task": "Train 3 more Labourers.",
+   "wait": {
+    "more": {
+     "kind": "labourer",
+     "count": 3
+    }
+   }
+  },
+  {
+   "id": "build",
+   "say": [
+    "Good. Now a Cottage, a Powder Mill with Labourers in it, and a Barracks."
+   ],
+   "task": "Build a Barracks.",
+   "wait": {
+    "built": {
+     "kind": "barracks"
+    }
+   }
+  },
+  {
+   "id": "army",
+   "say": [
+    "Keep the Barracks busy: Musketeers, one after another. An idle Barracks wins no wars."
+   ],
+   "task": "Have 6 Musketeers.",
+   "wait": {
+    "count": {
+     "mine": true,
+     "kind": "musketeer",
+     "at_least": 6
+    }
+   }
+  },
+  {
+   "id": "foundry",
+   "say": [
+    "Wall your ramp, and build a Foundry for cannons. The Clockwork's machines fear round shot."
+   ],
+   "task": "Build a Foundry.",
+   "wait": {
+    "built": {
+     "kind": "foundry"
+    }
+   }
+  },
+  {
+   "id": "attack",
+   "say": [
+    {
+     "pc": "The enemy is in the far corner. Gather your army, press A and click their base.",
+     "phone": "The enemy is in the far corner. Gather your army, tap ATTACK and tap their base."
+    },
+    "Keep training while you fight."
+   ],
+   "task": "Destroy every enemy building.",
+   "point": {
+    "area": "enemy_base"
+   },
+   "wait": {
+    "time": 99999
+   }
+  }
+ ],
+ "lines": {
+  "late1": {
+   "who": "teacher",
+   "text": "Your soil is running low by now. Build a second Town Hall at the foot of your ramp: fresh land."
+  }
+ },
+ "triggers": [
+  {
+   "id": "late_hint",
+   "when": {
+    "time": 420
+   },
+   "do": [
+    {
+     "say": [
+      "late1"
+     ]
+    }
+   ]
+  }
+ ],
+ "lost": "The computer won this time. Build up, defend your ramp, and try again.",
+ "debrief": {
+  "you": {
+   "text": "You won a whole game. You are ready for a skirmish, or the campaign."
+  }
+ }
+}

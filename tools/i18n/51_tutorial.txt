@@ -1,0 +1,42 @@
+# THE TUTORIAL (docs/tutorial.md): the main menu's button, the lesson list, the lesson's panel and its end.
+# The lessons' own texts are in tools/i18n/campaign/tutorial.txt.
+
+> TUTORIAL
+pt TUTORIAL
+es TUTORIAL
+
+> START LESSON
+pt COMEÇAR A LIÇÃO
+es EMPEZAR LA LECCIÓN
+
+> LESSON DONE
+pt LIÇÃO CONCLUÍDA
+es LECCIÓN TERMINADA
+
+> TRY AGAIN
+pt TENTE DE NOVO
+es INTÉNTALO DE NUEVO
+
+> NEXT LESSON
+pt PRÓXIMA LIÇÃO
+es SIGUIENTE LECCIÓN
+
+> YOU WILL LEARN
+pt VOCÊ VAI APRENDER
+es APRENDERÁS
+
+> LESSON
+pt LIÇÃO
+es LECCIÓN
+
+> Next: %s
+pt A seguir: %s
+es Después: %s
+
+> Lesson done. Play it again any time.
+pt Lição concluída. Jogue de novo quando quiser.
+es Lección terminada. Juégala otra vez cuando quieras.
+
+> Every soldier loses a battle. Try it again.
+pt Todo soldado perde uma batalha. Tente de novo.
+es Todo soldado pierde una batalla. Inténtalo otra vez.
