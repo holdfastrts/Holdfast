@@ -1,0 +1,310 @@
+[00:00] P1 Brood plays the Brood (Economy)
+[00:00] P2 Crown opens with a Horse Breeder (Horseman rush)
+[00:00] P2 Crown's plan: Rush, a build order of 7 steps (scripts/ai_crown.gd)
+Working Title for RTS v0.30.5 match log  (2026-11-04 15:00:52)
+Map: Thornwood Maze, 2 players  (seed 2103718835)
+  P1 Brood  side 1  colour Purple  AI: HARD, ECONOMY
+  P2 Crown  side 2  colour Red  AI: HARD, RUSH
+Device: computer
+
+[00:00] P2 Crown's build order: the ramp Cottage (supply 5, 4 labourers, 150 gold)
+[00:00] P1 Brood's Brood: a grub goes to root a Mound Turtle on new ground, 23 tiles out
+[00:00] slow frame 93 ms: hud draw 27.3, hud/rest 20.0, units 9.8, game 4.1, hud/groups 3.3, hud/top 3.1, game/fog 1.8, game/fog/units 1.7, the rest 47.9
+[00:02] slow frame 52 ms: hud draw 28.6, hud/rest 22.3, hud/groups 4.1, hud/top 1.3, units 1.2, the rest 20.9
+[00:11] slow frame 75 ms: units 3.3, hud 1.2, hud/look 1.2, the rest 68.3
+[00:12] slow frame 61 ms: game 7.7, game/fog 7.1, game/fog/units 7.0, hud 1.2, hud/look 1.1, the rest 51.3
+[00:12] P2 Crown got its first Labourer
+[00:12] P1 Brood got its first Grub
+[00:12] slow frame 109 ms: hud draw 80.2, hud/rest 47.0, hud/groups 25.9, ai 4.8, ai/brood 4.7, units 3.8, ai/brood/lay 3.2, hud/top 3.1, the rest 16.8
+[00:13] slow frame 102 ms: units 11.5 (slowest unit: grub 7.5 ms, gather), hud draw 9.4, hud/rest 7.9, game 6.6, game/fog 5.7, game/fog/units 5.5, hud/top 1.5, hud 1.0, the rest 72.9
+[00:13] slow frame 50 ms: hud draw 33.4, hud/rest 33.4, units 1.6, the rest 13.1
+[00:13] slow frame 59 ms: hud draw 44.3, hud/rest 32.3, hud/groups 6.9, units 3.8, hud/minimap 3.1, hud/top 1.4, the rest 8.6
+[00:23] P2 Crown finished a Cottage
+[00:33] P1 Brood got its first Mound Turtle
+[00:36] P2 Crown's build order: Barracks 1 (supply 8, 7 labourers, 230 gold)
+[00:49] P2 Crown's build order: Horse Breeder 1 (supply 9, 8 labourers, 80 gold)
+[00:49] P2 Crown's build order: Horsemans from now on (supply 9, 8 labourers, 80 gold)
+[00:51] P1 Brood got its first Rootmaw
+--- minute 1 ---
+  Performance: 87 fps avg, 1% low 21 fps, worst frame 109 ms, 79 frames over 33 ms, 13 over 50 ms, 0.3 physics steps a frame | units 20, buildings 5, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 915, objects 4204
+    busy with: hud draw 72.0 ms/s (36 calls/s), units 58.3 ms/s (496 calls/s), hud/rest 54.7 ms/s (6 calls/s), hud 33.1 ms/s (88 calls/s), game 24.9 ms/s (30 calls/s), hud/look 19.5 ms/s (19 calls/s), ai 13.8 ms/s (60 calls/s), game/fog 10.5 ms/s (4 calls/s), game/fog/units 9.8 ms/s (4 calls/s), hud/tip check 9.6 ms/s (18 calls/s), buildings 8.2 ms/s (108 calls/s), hud/groups 6.7 ms/s (1 calls/s), ai/brood 6.5 ms/s (6 calls/s), hud/top 4.5 ms/s (3 calls/s), game/unit grid 4.1 ms/s (30 calls/s), overlay draw 3.8 ms/s (5 calls/s), ai/build 3.3 ms/s (1 calls/s), hud/hover 3.0 ms/s (12 calls/s), hud/map view 2.8 ms/s (14 calls/s), hud/minimap 2.7 ms/s (6 calls/s), ai/brood/morphs 1.9 ms/s (2 calls/s), unit draw 1.7 ms/s (3 calls/s), ai/workers 1.6 ms/s (1 calls/s), building draw 1.3 ms/s (18 calls/s), hud/card build 1.3 ms/s (4 calls/s), ai/brood/army 1.1 ms/s (2 calls/s), game/paths 1.1 ms/s (30 calls/s), ai/brood/lay 0.9 ms/s (2 calls/s), ai/micro 0.7 ms/s (1 calls/s), ai/army 0.6 ms/s (1 calls/s), replay/key 0.6 ms/s (0 calls/s), powder smoke 0.6 ms/s (88 calls/s), effects 0.5 ms/s (52 calls/s), ai/brood/research 0.5 ms/s (2 calls/s), ai/brood/essence 0.4 ms/s (2 calls/s), ai/raid 0.3 ms/s (1 calls/s), ai/brood/mother 0.3 ms/s (2 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), ai/brood/maw_guard 0.2 ms/s (2 calls/s), ai/brood/grubs_vs_riders 0.2 ms/s (2 calls/s), game/path smoothing 0.2 ms/s (2 calls/s), hud/selection 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/brood/observe 0.1 ms/s (2 calls/s), game/pathfinder 0.1 ms/s (2 calls/s), ai/brood/scout 0.1 ms/s (2 calls/s), ai/brood/father 0.1 ms/s (2 calls/s), ai/produce 0.1 ms/s (1 calls/s), ai/brood/alarm 0.1 ms/s (2 calls/s), ai/brood/mature 0.1 ms/s (2 calls/s), ai/brood/grow 0.1 ms/s (2 calls/s), ai/brood/rootmaws 0.1 ms/s (2 calls/s), ai/brood/root_watch 0.0 ms/s (2 calls/s), ai/brood/turtles 0.0 ms/s (2 calls/s), hud/chat 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 197 biomass total, has 22 + 0 spoils | supply 8/28 | workers 7 | halls 0 | army (250 value): 1 Brood Mother, 2 Rootmaw, 1 Mound Turtle, 1 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 8 eggs | Rootmaws rooted 2 (ground 92% 99%) | Mound Turtles rooted 1
+  P2 Crown: earned 380 gold total, has 80 + 0 powder | supply 9/18 | workers 8 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | soil 96% | saltpetre 100% | efficiency 60%
+[01:10] P1 Brood's Brood: sends a Grub to watch the foot of the enemy's ramp
+[01:15] P2 Crown finished a Horse Breeder
+[01:18] P2 Crown finished a Barracks
+[01:30] P2 Crown's build order: a Cottage (supply 14/18) (supply 14, 8 labourers, 65 gold)
+[01:44] P2 Crown got its first Horse
+[01:50] P2 Crown's first horse hauled by a hauler
+[01:51] P2 Crown got its first Horseman
+[01:53] P2 Crown finished a Cottage
+--- minute 2 ---
+  Performance: 89 fps avg, 1% low 25 fps, worst frame 47 ms, 65 frames over 33 ms, 0 over 50 ms, 0.3 physics steps a frame | units 31, buildings 6, bodies 0, corpses 0, effects 0, smoke puffs 0, nodes 950, objects 4422
+    busy with: units 75.3 ms/s (733 calls/s), hud draw 57.3 ms/s (25 calls/s), hud/rest 45.2 ms/s (5 calls/s), hud 29.4 ms/s (89 calls/s), game 27.4 ms/s (30 calls/s), hud/look 17.8 ms/s (19 calls/s), game/fog 12.8 ms/s (4 calls/s), game/fog/units 12.0 ms/s (4 calls/s), buildings 11.4 ms/s (165 calls/s), ai 10.7 ms/s (60 calls/s), hud/tip check 9.0 ms/s (18 calls/s), ai/brood 5.1 ms/s (6 calls/s), game/unit grid 4.7 ms/s (30 calls/s), hud/groups 4.2 ms/s (1 calls/s), hud/top 4.0 ms/s (3 calls/s), overlay draw 3.2 ms/s (4 calls/s), hud/minimap 2.5 ms/s (6 calls/s), ai/workers 1.9 ms/s (1 calls/s), building draw 1.3 ms/s (25 calls/s), ai/brood/army 1.0 ms/s (2 calls/s), ai/micro 0.9 ms/s (1 calls/s), game/paths 0.8 ms/s (30 calls/s), hud/map view 0.8 ms/s (4 calls/s), ai/build 0.8 ms/s (1 calls/s), ai/brood/lay 0.7 ms/s (2 calls/s), hud/hover 0.7 ms/s (3 calls/s), ai/army 0.7 ms/s (1 calls/s), ai/brood/morphs 0.7 ms/s (2 calls/s), unit draw 0.6 ms/s (3 calls/s), effects 0.6 ms/s (78 calls/s), hud/card build 0.6 ms/s (4 calls/s), ai/produce 0.6 ms/s (1 calls/s), ai/brood/research 0.5 ms/s (2 calls/s), powder smoke 0.5 ms/s (89 calls/s), replay/key 0.4 ms/s (0 calls/s), ai/brood/essence 0.3 ms/s (2 calls/s), ai/brood/maw_guard 0.2 ms/s (2 calls/s), game/path smoothing 0.2 ms/s (3 calls/s), ai/brood/scout 0.2 ms/s (2 calls/s), ai/brood/mother 0.2 ms/s (2 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), ai/brood/grubs_vs_riders 0.2 ms/s (2 calls/s), game/pathfinder 0.2 ms/s (3 calls/s), ai/raid 0.1 ms/s (1 calls/s), ai/brood/observe 0.1 ms/s (2 calls/s), hud/selection 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/brood/father 0.1 ms/s (2 calls/s), ai/brood/alarm 0.1 ms/s (2 calls/s), ai/brood/rootmaws 0.1 ms/s (2 calls/s), ai/brood/grow 0.1 ms/s (2 calls/s), ai/brood/mature 0.1 ms/s (2 calls/s), ai/brood/root_watch 0.0 ms/s (2 calls/s), ai/brood/turtles 0.0 ms/s (2 calls/s), game/refit 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 529 biomass total, has 29 + 0 spoils | supply 12/28 | workers 10 | halls 0 | army (325 value): 1 Brood Mother, 3 Rootmaw, 1 Mound Turtle, 2 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 9 eggs | Rootmaws rooted 3 (ground 84% 89% 96%) | Mound Turtles rooted 1
+  P2 Crown: earned 760 gold total, has 15 + 0 powder | supply 15/26 | workers 12 | halls 1 | army (155 value): 1 Horseman, 1 Horse | kills +0 (0) losses +0 (0) | soil 92% | saltpetre 100% | efficiency 92%
+[02:20] slow frame 84 ms: units 9.1, ai 1.9, game 1.5, hud 1.3, buildings 1.3, hud/look 1.3, ai/army 1.2, the rest 68.6
+[02:26] slow frame 67 ms: hud draw 41.4, hud/rest 26.6, hud/groups 10.7, units 8.0, hud/top 4.0, hud 3.5, hud/look 3.5, overlay draw 2.4, the rest 9.6
+[02:38] P1 Brood's Brood: a grub goes to grow the Tyrant Lure
+[02:38] slow frame 141 ms: ai 115.4, ai/brood 113.1, ai/brood/morphs 111.6, game 7.5, game/fog 6.7, game/fog/units 6.5, units 5.1, ai/workers 2.2, the rest 11.8
+[02:38] slow frame 52 ms: hud draw 40.0, hud/rest 34.6, hud/groups 3.8, units 3.6, the rest 7.0
+[02:39] slow frame 67 ms: hud draw 36.2, hud/rest 36.2, ai 9.2, ai/army 8.6, units 6.7, game 4.8, game/fog 4.0, game/fog/units 3.3, the rest 8.3
+[02:43] slow frame 53 ms: hud draw 12.3, hud/rest 12.3, units 3.4, hud 1.2, hud/look 1.2, the rest 34.7
+[02:44] slow frame 58 ms: hud draw 43.7, hud/rest 34.8, hud/groups 6.4, units 4.1, hud/top 1.2, the rest 8.4
+[02:50] slow frame 55 ms: hud draw 35.7, hud/rest 30.2, game 4.4, game/fog 3.6, hud/groups 3.6, game/fog/units 3.5, units 3.2, ai 1.4, the rest 9.5
+[02:51] P2 Crown's build order: a Cottage (supply 23/26) (supply 23, 8 labourers, 265 gold)
+[02:52] P2 Crown's build order: Farm 2 (supply 26, 9 labourers, 10 gold)
+[02:56] P2 Crown's first attack goes out (9 supply, 3 Horsemen)
+[02:56] P2 Crown's plan: the opening is over (the first attack is out): the milestones take over
+--- minute 3 ---
+  Performance: 87 fps avg, 1% low 20 fps, worst frame 141 ms, 84 frames over 33 ms, 11 over 50 ms, 0.3 physics steps a frame | units 41, buildings 8, bodies 0, corpses 0, effects 3, smoke puffs 0, nodes 982, objects 4496
+    busy with: units 93.7 ms/s (1050 calls/s), hud draw 72.1 ms/s (34 calls/s), hud/rest 57.0 ms/s (5 calls/s), game 35.0 ms/s (30 calls/s), hud 31.1 ms/s (87 calls/s), hud/look 19.2 ms/s (19 calls/s), game/fog 17.9 ms/s (4 calls/s), game/fog/units 17.2 ms/s (4 calls/s), ai 16.2 ms/s (60 calls/s), buildings 13.1 ms/s (188 calls/s), hud/tip check 9.6 ms/s (18 calls/s), ai/brood 7.5 ms/s (6 calls/s), game/unit grid 6.0 ms/s (30 calls/s), overlay draw 4.9 ms/s (4 calls/s), hud/groups 4.9 ms/s (1 calls/s), hud/top 4.8 ms/s (4 calls/s), hud/minimap 2.7 ms/s (6 calls/s), building draw 2.6 ms/s (37 calls/s), ai/brood/morphs 2.5 ms/s (2 calls/s), ai/army 2.3 ms/s (1 calls/s), ai/workers 2.3 ms/s (1 calls/s), hud/map view 2.1 ms/s (12 calls/s), hud/hover 1.8 ms/s (8 calls/s), game/paths 1.4 ms/s (30 calls/s), ai/micro 1.2 ms/s (1 calls/s), ai/build 1.2 ms/s (1 calls/s), effects 1.0 ms/s (144 calls/s), ai/brood/lay 1.0 ms/s (2 calls/s), ai/brood/army 0.9 ms/s (2 calls/s), ai/brood/research 0.7 ms/s (2 calls/s), ai/produce 0.6 ms/s (1 calls/s), hud/card build 0.6 ms/s (4 calls/s), powder smoke 0.5 ms/s (87 calls/s), replay/key 0.5 ms/s (0 calls/s), ai/brood/essence 0.4 ms/s (2 calls/s), game/path smoothing 0.4 ms/s (5 calls/s), game/pathfinder 0.3 ms/s (5 calls/s), ai/brood/maw_guard 0.3 ms/s (2 calls/s), ai/brood/mother 0.2 ms/s (2 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), ai/brood/observe 0.2 ms/s (2 calls/s), ai/raid 0.2 ms/s (1 calls/s), ai/brood/grubs_vs_riders 0.2 ms/s (2 calls/s), unit draw 0.2 ms/s (1 calls/s), ai/brood/father 0.2 ms/s (2 calls/s), ai/brood/scout 0.1 ms/s (2 calls/s), hud/selection 0.1 ms/s (1 calls/s), ai/brood/alarm 0.1 ms/s (2 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/brood/rootmaws 0.1 ms/s (2 calls/s), ai/brood/root_watch 0.1 ms/s (2 calls/s), ai/brood/grow 0.1 ms/s (2 calls/s), ai/brood/mature 0.1 ms/s (2 calls/s), ai/brood/turtles 0.1 ms/s (2 calls/s), ai/horses 0.0 ms/s (0 calls/s), ai/econ 0.0 ms/s (0 calls/s), game/refit 0.0 ms/s (1 calls/s), ai/abil 0.0 ms/s (0 calls/s), ai/build/supply 0.0 ms/s (0 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/gg 0.0 ms/s (0 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), ai/workers/wall 0.0 ms/s (0 calls/s), ai/workers/xwall 0.0 ms/s (0 calls/s), hud/pause 0.0 ms/s (1 calls/s), ai/build/econ 0.0 ms/s (0 calls/s), ai/loose 0.0 ms/s (0 calls/s)
+  P1 Brood: earned 1102 biomass total, has 27 + 0 spoils | supply 21/28 | workers 14 | halls 0 | army (550 value): 1 Brood Mother, 4 Rootmaw, 1 Mound Turtle, 1 Tyrant Sire, 3 Egg | kills +0 (0) losses +0 (0) | Brood: Mother stage 1 rooted, 9 eggs | Rootmaws rooted 4 (ground 76% 79% 90% 95%) | Mound Turtles rooted 1
+  P2 Crown: earned 1520 gold total, has 10 + 0 powder | supply 26/26 | workers 13 | halls 1 | army (385 value): 3 Horseman, 1 Horse | kills +0 (0) losses +0 (0) | soil 83% | saltpetre 100% | efficiency 83%
+[03:00] P2 Crown's first pistol shot (Horseman)
+[03:01] slow frame 52 ms: hud draw 34.4, hud/rest 28.6, units 6.5, hud/groups 3.2, hud/top 1.2, overlay draw 1.2, the rest 7.5
+[03:06] slow frame 54 ms: hud draw 36.8, hud/rest 27.0, game 5.0, hud/groups 4.5, units 4.4, game/fog 4.2, game/fog/units 4.0, hud/selection 2.7, the rest 7.0
+[03:07] slow frame 51 ms: hud draw 34.2, hud/rest 28.7, game 5.0, game/fog 4.4, game/fog/units 4.2, hud/groups 3.2, units 3.2, ai 1.8, the rest 6.6
+[03:09] P1 Brood got its first Tyrant Sire
+[03:10] slow frame 53 ms: hud draw 30.7, hud/rest 30.4, units 6.4, game 4.9, game/fog 4.2, game/fog/units 4.0, ai 3.1, ai/workers 1.6, the rest 5.8
+[03:10] slow frame 58 ms: hud draw 33.4, hud/rest 28.9, units 6.0, replay/key 4.9, ai 3.4, hud/selection 3.0, hud/top 1.3, game 1.2, the rest 12.2
+[03:10] slow frame 50 ms: hud draw 36.6, hud/rest 28.3, units 5.0, hud/groups 3.3, hud/selection 2.5, hud/top 1.7, the rest 7.1
+[03:13] P2 Crown finished a Cottage
+[03:14] slow frame 54 ms: hud draw 35.5, hud/rest 28.5, game 5.1, units 5.0, game/fog 4.3, hud/groups 4.3, game/fog/units 4.1, hud/top 1.6, the rest 7.4
+[03:16] slow frame 52 ms: hud draw 33.4, hud/rest 26.3, units 5.6, game 5.1, hud/groups 4.7, game/fog 4.2, game/fog/units 4.1, hud/top 1.3, the rest 7.0
+[03:17] P2 Crown finished a Farm
+[03:23] P1 Brood's Brood: ALARM: an enemy army of 230 out of its main at 3:23: warriors, grubs pulled back, a turtle in front
+[03:23] P1 Brood's Brood: rush evidence: 2 fast riders seen at 3:23: holds its army at home and lays warriors
+[03:25] P1 Brood's Brood: a Rootmaw under attack uproots to back off (3 cuirassier)
+[03:30] P1 Brood got its first Raptors
+[03:31] P1 Brood's Brood: defends with 2 (2 raptor, 50) against 345 (3 cuirassier) at the Mother
+[03:32] P1 Brood: a Rootmaw lost its swamp and uprooted
+[03:32] P2 Crown walled its ramp with a Cottage (1 pieces, 2 labourers on it, feared rush)
+[03:34] P1 Brood: a Rootmaw lost its swamp and uprooted
+[03:35] P2 Crown's rush: SUCCEEDED, mop-up: the riders regroup at home; a force of 14+ supply goes out as one group
+[03:39] P1 Brood's Brood: pulls its defenders back to the Mother: 100 against 345
+[03:42] P1 Brood's Brood: ALARM: a Mound Turtle gets up to root in front of the natural
+[03:49] P2 Crown's ramp wall stands (1 pieces, 16 s after it was laid)
+[03:54] P2 Crown finished a Cottage
+[03:54] (stopped watching before the end)
+--- minute 4 ---
+  Performance: 73 fps avg, 1% low 15 fps, worst frame 91 ms, 295 frames over 33 ms, 85 over 50 ms, 0.4 physics steps a frame | units 48, buildings 11, bodies 2, corpses 2, effects 0, smoke puffs 0, nodes 1029, objects 4663
+    busy with: hud draw 178.1 ms/s (36 calls/s), hud/rest 156.4 ms/s (5 calls/s), units 125.5 ms/s (1384 calls/s), game 37.3 ms/s (30 calls/s), hud 26.6 ms/s (73 calls/s), ai 20.0 ms/s (60 calls/s), game/fog 18.9 ms/s (4 calls/s), game/fog/units 18.2 ms/s (4 calls/s), hud/look 17.8 ms/s (19 calls/s), buildings 11.8 ms/s (277 calls/s), ai/brood 9.3 ms/s (6 calls/s), hud/tip check 8.3 ms/s (18 calls/s), unit draw 6.5 ms/s (30 calls/s), hud/groups 6.3 ms/s (2 calls/s), game/unit grid 6.2 ms/s (30 calls/s), overlay draw 6.1 ms/s (6 calls/s), hud/top 4.7 ms/s (4 calls/s), hud/selection 3.1 ms/s (2 calls/s), ai/army 2.7 ms/s (1 calls/s), hud/minimap 2.6 ms/s (6 calls/s), game/paths 2.4 ms/s (30 calls/s), hud/pause 2.4 ms/s (1 calls/s), hud/map view 2.2 ms/s (13 calls/s), ai/workers 1.9 ms/s (1 calls/s), hud/hover 1.8 ms/s (9 calls/s), ai/brood/rootmaws 1.5 ms/s (2 calls/s), ai/brood/lay 1.4 ms/s (2 calls/s), ai/produce 1.2 ms/s (1 calls/s), ai/brood/army 1.0 ms/s (2 calls/s), ai/brood/morphs 0.9 ms/s (2 calls/s), powder smoke 0.9 ms/s (73 calls/s), ai/econ 0.9 ms/s (1 calls/s), ai/horses 0.8 ms/s (1 calls/s), game/path smoothing 0.7 ms/s (8 calls/s), ai/build 0.7 ms/s (1 calls/s), ai/brood/observe 0.7 ms/s (2 calls/s), ai/build/supply 0.7 ms/s (1 calls/s), replay/key 0.6 ms/s (0 calls/s), hud/card build 0.6 ms/s (4 calls/s), ai/brood/essence 0.5 ms/s (2 calls/s), ai/brood/grubs_vs_riders 0.5 ms/s (2 calls/s), ai/brood/mother 0.5 ms/s (2 calls/s), ai/brood/father 0.5 ms/s (2 calls/s), ai/abil 0.5 ms/s (1 calls/s), game/pathfinder 0.4 ms/s (8 calls/s), ai/brood/research 0.4 ms/s (2 calls/s), building draw 0.4 ms/s (7 calls/s), ai/brood/alarm 0.4 ms/s (2 calls/s), ai/brood/maw_guard 0.3 ms/s (2 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), effects 0.2 ms/s (37 calls/s), ai/raid 0.2 ms/s (1 calls/s), ai/workers/wall 0.2 ms/s (1 calls/s), ai/gg 0.1 ms/s (1 calls/s), ai/micro 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/brood/root_watch 0.1 ms/s (2 calls/s), ai/brood/scout 0.1 ms/s (2 calls/s), game/refit 0.1 ms/s (1 calls/s), ai/brood/turtles 0.1 ms/s (2 calls/s), ai/build/econ 0.1 ms/s (1 calls/s), ai/workers/xwall 0.1 ms/s (1 calls/s), ai/brood/mature 0.1 ms/s (2 calls/s), ai/brood/grow 0.0 ms/s (2 calls/s), ai/loose 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s)
+  P1 Brood: earned 1574 biomass total, has 49 + 24 spoils | supply 24/28 | workers 12 | halls 0 | army (800 value): 1 Brood Mother, 4 Rootmaw, 2 Mound Turtle, 1 Tyrant Sire, 6 Raptors, 1 Egg | kills +0 (0) losses +8 (8) | Brood: Mother stage 1 rooted, 10 eggs | Rootmaws rooted 1 (ground 89%) | Mound Turtles rooted 1
+  P2 Crown: earned 1900 gold total, has 40 + 0 powder | supply 28/42 | workers 15 | halls 1 | army (500 value): 4 Horseman, 1 Horse | kills +8 (8) losses +0 (0) | soil 79% | saltpetre 100% | efficiency 49%
+
+RESULT at 03:54: no winner
+  Performance per minute: m1 87 fps (1% low 21), m2 89 fps (1% low 25), m3 87 fps (1% low 20), m4 73 fps (1% low 15). Worst: minute 4 (1% low 15 fps, worst frame 91 ms).
+  P1 Brood: earned 1574, spent 1775, trained 33, built 0, killed 0, lost 8, razed 0, buildings lost 0, peak army 800. Kills by: -
+  P2 Crown: earned 1900, spent 2160, trained 20, built 9, killed 8, lost 0, razed 0, buildings lost 0, peak army 460. Kills by: Horseman 8 Haulers brought 4 horses and 0 powder kegs.
+
+--- SOUND LOG (every sound and music change, per second; x2 = played twice) ---
+[00:00] MUSIC brood_battle_7, AMBIENCE autumn, brood/lay_egg
+[00:02] brood/lay_egg
+[00:04] work/crown_build
+[00:06] work/crown_build
+[00:08] work/hoe, work/crown_build
+[00:10] work/crown_build, work/hoe
+[00:11] work/hoe x2
+[00:12] select/town_hall, voice/grub/select, work/crown_build
+[00:13] work/hoe
+[00:14] voice/grub/select x2, work/hoe x2, work/crown_build
+[00:16] work/hoe x2, work/crown_build
+[00:17] work/hoe x2
+[00:18] work/crown_build
+[00:19] work/hoe x2
+[00:20] work/hoe, work/crown_build
+[00:22] work/crown_build, work/hoe
+[00:25] work/grub_deliver
+[00:26] work/grub_deliver x2
+[00:27] work/hoe x2
+[00:28] work/hoe
+[00:29] work/hoe
+[00:30] work/hoe x2
+[00:31] work/hoe x2
+[00:32] work/hoe
+[00:33] work/hoe x2, voice/mound_turtle/select
+[00:34] work/hoe x2
+[00:35] work/hoe x2
+[00:36] work/hoe x2, select/town_hall, work/farm_harvest
+[00:37] work/hoe
+[00:38] work/hoe x2
+[00:39] work/hoe x2
+[00:40] work/crown_build
+[00:41] work/hoe x2
+[00:42] work/hoe x2, work/crown_build
+[00:43] work/hoe
+[00:44] work/hoe, work/crown_build
+[00:47] work/hoe
+[00:48] work/crown_build, work/hoe, select/town_hall
+[00:49] work/hoe x3
+[00:50] work/hoe, work/crown_build
+[00:51] work/hoe x2, work/crown_build, voice/rootmaw/select
+[00:52] work/hoe
+[00:53] work/hoe x2, voice/grub/select, work/crown_build
+[00:54] work/hoe
+[00:55] work/crown_build, work/hoe
+[00:56] work/hoe x2
+[00:57] work/hoe, work/crown_build
+[00:58] work/hoe x2
+[00:59] work/hoe, work/crown_build
+[01:00] work/hoe
+[01:01] work/hoe x2, select/town_hall, work/crown_build
+[01:02] work/hoe x2
+[01:03] work/hoe x3, work/crown_build
+[01:04] work/hoe x2
+[01:05] work/hoe, work/crown_build, voice/grub/select
+[01:06] work/hoe x2
+[01:07] work/crown_build, work/hoe
+[01:08] work/hoe x2
+[01:09] work/hoe x3, work/crown_build
+[01:11] work/hoe x2, work/crown_build
+[01:12] work/hoe x2
+[01:13] select/town_hall, work/hoe, work/crown_build
+[01:14] work/hoe x2
+[01:15] work/hoe x2, work/crown_build
+[01:16] work/hoe
+[01:17] work/hoe x2, voice/grub/select
+[01:18] work/hoe x3, work/crown_build
+[01:19] work/hoe x2
+[01:20] work/hoe x3
+[01:21] work/hoe
+[01:22] work/hoe x3
+[01:23] work/hoe x2
+[01:24] work/hoe
+[01:25] work/hoe x4
+[01:26] work/hoe
+[01:27] work/hoe x2
+[01:28] work/hoe x4
+[01:29] work/farm_harvest, work/hoe
+[01:30] work/hoe x2
+[01:31] work/hoe x2, combat/cuirassier_attack
+[01:32] combat/cuirassier_attack, work/hoe
+[01:33] work/crown_build, work/hoe x2
+[01:34] work/hoe
+[01:35] work/hoe x3, work/crown_build, combat/cuirassier_attack
+[01:36] work/hoe x2, combat/cuirassier_attack
+[01:37] work/hoe, work/crown_build
+[01:38] work/hoe x3
+[01:39] work/crown_build, work/hoe, combat/cuirassier_attack
+[01:40] combat/cuirassier_attack, work/hoe
+[01:41] work/hoe x3, work/crown_build
+[01:42] select/town_hall, work/hoe x2, voice/grub/select
+[01:43] work/hoe x2, work/crown_build
+[01:44] combat/cuirassier_attack x2, work/hoe x3
+[01:45] work/crown_build, work/hoe
+[01:47] work/hoe, work/crown_build, work/grub_deliver
+[01:48] brood/cocoon_split, voice/rootmaw/select, brood/grub_take
+[01:49] work/grub_deliver x2, brood/lay_egg, brood/grub_take
+[01:50] work/grub_deliver x2, brood/grub_take
+[01:51] brood/grub_take, work/grub_deliver x2, brood/hatch, voice/grub/select
+[01:52] work/grub_deliver, brood/grub_take
+[01:53] work/grub_deliver, brood/grub_take x2
+[01:54] work/grub_deliver x2, brood/grub_take
+[01:55] brood/grub_take, work/grub_deliver x2
+[01:56] work/grub_deliver x2, brood/lay_egg, brood/grub_take
+[01:57] brood/grub_take, work/grub_deliver
+[01:58] brood/grub_take, work/grub_deliver x2
+[01:59] work/hoe
+[02:00] work/hoe x3
+[02:01] work/hoe, voice/grub/select
+[02:02] work/hoe x2
+[02:03] work/hoe x3
+[02:04] work/hoe
+[02:05] work/hoe x3
+[02:06] work/hoe
+[02:07] work/hoe x2
+[02:08] work/hoe x3, voice/grub/select
+[02:09] work/hoe x2
+[02:10] work/hoe
+[02:11] work/hoe x2, work/farm_harvest
+[02:12] work/hoe
+[02:13] work/hoe, combat/cuirassier_attack
+[02:14] work/hoe x4, combat/cuirassier_attack
+[02:15] voice/grub/select
+[02:16] work/hoe x2
+[02:17] work/hoe x3, combat/cuirassier_attack
+[02:18] combat/cuirassier_attack
+[02:19] work/hoe x2
+[02:20] work/hoe x2
+[02:21] work/hoe
+[02:22] combat/cuirassier_attack x2, work/hoe x3
+[02:23] work/hoe
+[02:24] work/hoe x2, select/town_hall
+[02:25] work/hoe x2
+[02:26] work/hoe x2, combat/cuirassier_attack x2
+[02:27] work/hoe x3
+[02:28] work/hoe x2
+[02:29] work/hoe
+[02:30] work/hoe x2, combat/cuirassier_attack
+[02:31] combat/cuirassier_attack, work/hoe x4
+[02:32] work/hoe x2
+[02:33] work/hoe
+[02:34] work/hoe x3, combat/cuirassier_attack
+[02:35] work/hoe x2, combat/cuirassier_attack
+[02:36] work/hoe x2
+[02:37] work/hoe x4
+[02:38] work/hoe, voice/grub/select, combat/cuirassier_attack
+[02:39] work/hoe x2, combat/cuirassier_attack
+[02:40] work/hoe x2
+[02:41] work/hoe
+[02:42] work/hoe x3, combat/cuirassier_attack
+[02:43] work/hoe x2, combat/cuirassier_attack, voice/rootmaw/select
+[02:44] work/hoe x4
+[02:45] work/hoe x2
+[02:46] work/hoe
+[02:47] combat/cuirassier_attack x2, work/hoe x3
+[02:48] work/hoe x2
+[02:49] work/hoe x2, voice/grub/select
+[02:50] work/hoe x2
+[02:51] work/hoe x2, combat/cuirassier_attack, work/farm_harvest
+[02:52] combat/cuirassier_attack, work/hoe x2
+[02:53] work/crown_build
+[02:54] work/hoe
+[02:55] work/hoe, combat/cuirassier_attack, voice/grub/select, work/crown_build
+[02:56] work/hoe x2, combat/cuirassier_attack
+[02:57] work/hoe x2, work/crown_build
+[02:58] work/hoe x3
+[02:59] work/crown_build, work/hoe x2, combat/cuirassier_attack
+[03:00] work/hoe x2, combat/musketeer_attack, combat/cuirassier_attack, voice/grub/select
+[03:01] combat/grub_death, combat/musketeer_attack, work/hoe, work/crown_build
+[03:02] work/hoe
+[03:03] work/crown_build, select/town_hall, combat/cuirassier_attack
+[03:04] work/hoe, combat/cuirassier_attack
+[03:05] voice/grub/select, work/hoe
+[03:09] voice/tyrannosaur/select
+[03:10] voice/grub/select
+[03:15] voice/grub/select, work/crown_build, work/hoe
+[03:16] work/hoe x2
+[03:17] work/hoe x2, work/crown_build, combat/cuirassier_attack
+[03:18] work/hoe x2
+[03:19] work/hoe, work/grub_deliver, MUSIC ended brood_battle_7, MUSIC brood_peace_4, brood/grub_take, brood/breath_tyrannosaur
+[03:20] brood/grub_take, brood/hatch, voice/grub/select, work/grub_deliver
+[03:21] work/grub_deliver x2, brood/grub_take
+[03:22] brood/lay_egg, brood/grub_take
+[03:23] work/grub_deliver x2, brood/breath_tyrannosaur
+[03:24] brood/lay_egg
+[03:25] brood/grub_take, work/grub_deliver, brood/uproot, acid
+[03:26] brood/breath_tyrannosaur, work/grub_deliver
+[03:27] work/grub_deliver x2, brood/grub_take x2
+[03:28] work/grub_deliver x3, brood/grub_take
+[03:29] work/grub_deliver x3, brood/uproot, brood/grub_take
+[03:30] combat/cuirassier_attack, brood/grub_take, brood/hatch, voice/raptor/select
+[03:31] combat/cuirassier_attack x2, brood/grub_take x2, work/grub_deliver, combat/grub_death, brood/lay_egg, combat/musketeer_attack
+[03:32] work/grub_deliver x2, combat/cuirassier_attack x2, brood/grub_take, brood/uproot
+[03:33] work/grub_deliver x2, brood/breath_tyrannosaur, combat/grub_death, combat/cuirassier_attack x2, combat/raptor_attack, brood/grub_take
+[03:34] combat/cuirassier_attack x3, combat/raptor_death x2, brood/hatch, voice/raptor/select, combat/brood_mother_attack, combat/raptor_attack, brood/uproot
+[03:35] combat/cuirassier_attack x2, MUSIC brood_battle_8, combat/grub_death
+[03:36] combat/cuirassier_attack
+[03:37] brood/hatch, voice/raptor/select, work/grub_deliver
+[03:38] work/grub_deliver, combat/cuirassier_attack x3, brood/lay_egg, combat/grub_death
+[03:39] combat/cuirassier_attack x2
+[03:40] combat/grub_death, combat/cuirassier_attack, brood/uproot
+[03:41] brood/cocoon_split, voice/mound_turtle/select
+[03:42] brood/uproot
+[03:43] work/grub_deliver, brood/root
+[03:44] brood/hatch, voice/raptor/select, work/grub_deliver x2
+[03:48] brood/breath_tyrannosaur
+[03:51] ui/click
+[03:53] brood/grub_take
+[03:54] brood/grub_take x2

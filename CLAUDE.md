@@ -50,7 +50,9 @@
   raids), crown-builds-a 0.29.9 (Dragoon raids), crown-builds-b 0.29.11 (Siege push), crown-builds-c 0.29.14 (Balloon
   harass); the Crown plans keep the Foundry before the second Barracks. RUNNING: cloud job brood-builds (Spitter timing,
   Brute siege; merge on "DONE: brood-builds:"). Later: the computer picks its build by matchup and switches on what its
-  scout sees. Proposals waiting on the owner: Brood FOOD_BONUS 1.5 -> 0.8 (it out-earns both Hard computers 1.4-2x);
+  scout sees. Brood FOOD_BONUS 1.5 -> 0.8 (it out-earns both Hard computers 1.4-2x): NOT YET (owner, 2026-11-04 15:05: "the
+  Crown AI is still too stupid to make that judgement"; maybe the Balloon harass is just bad v the Brood; the Horseman rush
+  is extremely effective v the Brood Economy). Proposals waiting on the owner:
   Springer: jump recharge 10 -> 6-7 s, range 5 -> 6-7 tiles, Springer range 170 -> 190, High Leap 100 -> 50 Tension; the
   build reports' own proposals (docs/clockwork_builds_*.md, docs/crown_builds_*.md).
 
