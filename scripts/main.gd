@@ -2790,7 +2790,7 @@ func start(cfg: Dictionary = {}) -> void:
 		if bool(cfg.get("hidden_plans", false)) and AI.strategies_for(facs[t], true).has(strat):
 			allowed = allowed + [strat]      # (a coaching tool's hidden plan, the Turret turtle: never a lobby's or RANDOM PLAN's)
 		if strat == "random" or not allowed.has(strat):
-			strat = "balanced" if strat != "random" else allowed[randi() % allowed.size()]
+			strat = "balanced" if strat != "random" else ai.random_plan(allowed)      # (cw-builds-b: a computer may weigh its pick by the matchup)
 		ai.strategy = strat
 		ai.peaceful = bool(cfg.get("lab", false))     # (the LAB's computer never attacks)
 		last_cfg["slots"][t]["strategy"] = strat

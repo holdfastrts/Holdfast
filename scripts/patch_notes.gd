@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.7", "items": [
+		"TWO NEW PLANS FOR THE CLOCKWORK COMPUTER, BUILT ROUND THE HEAVY WORKS. PENDULUMS, the answer to the Brood's Raptor swarms: two Clock Soldiers early, the Heavy Works as soon as the Escapement works, three Pendulums with the expansion behind them, then a slow push of Pendulums and Clock Soldiers, with Winders behind them, to the Brood's Rootmaws, its father and then its Mother. HEAVY WORKS PUSH: Clock Soldiers in front, Spring Ballistas behind them and the Great Winder behind those: a slow push that razes expansions from out of musket reach, breaks a wall in its way, waits short of the enemy's main until it is strong enough, and pulls back before it is wiped out. A computer on RANDOM PLAN picks the Pendulums half the time against the Brood.",
+		"The Clockwork computer on these plans sends a Winder out to wind its machines that ran down at home.",
+	]},
 	{"v": "0.29.6", "items": [
 		"A NEW PLAN FOR THE CLOCKWORK COMPUTER, THE CLOCK SOLDIER RUSH (a written opening): a Light Works at 6 supply and a second one soon after, six Clock Soldiers out at about 2:45 with two Winders behind them to wind and mend them, straight at the enemy's workers. A wall held by guns or menders is not charged: the soldiers back out of the muskets' reach, watch the foot of the enemy's ramp for a while (its expansion, the workers who come out), and then the computer turns to its economy (a turret, the Mainspring, a second Clocktower) with no trickle of soldiers. Pick it as a Clockwork computer's plan (RANDOM PLAN can pick it too). A second plan from the same work, the TURRET TURTLE, is not offered: static defence is not a build of its own (the owner). Its base layout and its turrets as an answer to a rush or to harass are to become rules for every Clockwork plan. The numbers, the films and what is still weak (the rush against the Brood) are in docs/clockwork_builds_a.md.",
 	]},
