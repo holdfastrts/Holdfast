@@ -3,7 +3,10 @@ extends SceneTree
 ## many as it holds:
 ##  - every player has at least one marked spot, and every side has the same number of each rank,
 ##  - mirror-fair: each marked spot's twin (the map turned through its middle) is marked too, with the same rank and score,
-##  - a marked spot is free, buildable ground for a hall (nobody's start; no blocked cell, no ramp),
+##  - a marked spot is free, buildable ground for a hall (nobody's start; no blocked cell, no ramp), a base site for the
+##    Clockwork; for the Crown (CrownSites, 0.29.2) any ground at the least hall distance from its main (its best no more
+##    than CrownSites.SLACK past it) and its two spots a hall's spacing apart; each map is run all-Crown and all-Clockwork
+##    (twins are rated by the same rule); a new Crown hall makes its side's marks be worked out again,
 ##  - shown to a Crown and a Clockwork player and when watching; hidden for a Brood player, hidden once a building the
 ##    viewer knows of stands on it, and hidden with Settings.expansion_spots off.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_expansion_spots.gd [-- ids...]   (prints each map's spots)

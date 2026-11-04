@@ -84,7 +84,7 @@ func tick() -> void:
 	if mine < maxf(foe, 60.0) * EVEN:
 		return              # (not held yet: the defence goes on, AIScout.DEFEND_FOR)
 	var why := "the rush held (%s), its army %d against the %d it saw" % ["no rider near for %d s" % int(quiet) if _fight else "nothing came", int(mine), int(foe)]
-	if mine >= maxf(foe, 60.0) * ATTACK_EDGE and sup >= ATTACK_MIN_SUP:
+	if mine >= maxf(foe, 60.0) * ATTACK_EDGE and sup >= ATTACK_MIN_SUP and (not ai.has_method("counter_ok") or ai.counter_ok()):
 		_pick("counter")
 		ai._regroup_until = 0.0
 		ai._pull_until = 0.0

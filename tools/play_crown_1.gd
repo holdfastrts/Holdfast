@@ -23,6 +23,9 @@ const COACH := {
 	"eco_late": {"strategy": "economy", "set": {"labs": 99}},
 }
 var coach_plan := "economy"
+var raid_t := -1.0              # raid:SECONDS:N the coach's staged attack: N Raptors (of the enemy) appear 9 tiles out from the
+var raid_n := 24                # Crown's newest hall below its main at that time and go for it (the owner's 6:19 on Thornwood)
+var raid_done := false
 var me := 0                     # cslot:1 the Crown plays in the second slot (the owner's log had it as P2)
 var fo := 1
 var sb := "balanced"
@@ -58,6 +61,10 @@ func _initialize() -> void:
 				fo = 1 - me
 			"sb": sb = kv[1]
 			"hand": hands = kv[1]
+			"raid":
+				var rp := kv[1].split(":")
+				raid_t = float(rp[0])
+				raid_n = int(rp[1]) if rp.size() > 1 else 24
 			"set":
 				for pair in kv[1].split(","):
 					var p := pair.split("=", true, 1)
@@ -209,8 +216,45 @@ var _halls_seen := {}
 var hall_lines: Array = []
 
 
+var _raid_hall: Building = null
+var _raid_k0 := [0, 0]
+var _raid_said := false
+
+
 func _cliff_watch() -> void:
 	var ch = _ai.ch
+	if _raid_hall != null and not _raid_said and g.clock >= raid_t + 60.0:
+		_raid_said = true
+		var ok: bool = is_instance_valid(_raid_hall) and not _raid_hall.dead
+		hall_lines.append("staged raid of %d Raptors at %s: after 60 s the hall %s; value killed %d by the Crown, %d by the raiders' side" % [raid_n, _mmss(raid_t),
+			("stands at %d/%d" % [int(_raid_hall.hp), int(_raid_hall.max_hp)]) if ok else "is LOST",
+			int(g.stats[me]["value_killed"]) - int(_raid_k0[0]), int(g.stats[fo]["value_killed"]) - int(_raid_k0[1])])
+	if raid_t >= 0.0 and not raid_done and g.clock >= raid_t:
+		raid_done = true
+		var hall: Building = null
+		for h in _ai._halls():
+			if h.center().distance_to(_home()) > 10.0 * Defs.TILE and (hall == null or h.center().distance_to(_home()) < hall.center().distance_to(_home())):
+				hall = h
+		if hall == null:
+			say("the staged raid: no hall below the main to go for")
+		else:
+			var away: Vector2 = (hall.center() - _home()).normalized()
+			var at: Vector2 = hall.center() + away * 9.0 * Defs.TILE
+			var n := 0
+			for i in raid_n:
+				var p: Vector2 = at + Vector2(float(i % 6 - 3) * 22.0, float(i / 6 - 2) * 22.0)
+				var c: Vector2i = g.nearest_free(g.cell_of(p), 6)
+				if c.x < 0:
+					continue
+				var r: Unit = g._add_unit("raptor", fo, g.cell_center(c))
+				r.cmd_attack(hall)
+				n += 1
+			say("the staged raid: %d Raptors at the hall at %s (%s, %d/%d hp)" % [n, str(hall.cell), "built" if hall.built else "going up", int(hall.hp), int(hall.max_hp)])
+			_raid_hall = hall
+			_raid_k0 = [int(g.stats[me]["value_killed"]), int(g.stats[fo]["value_killed"])]
+			clip("raid", hall.center(), 30, 6, 1.0)
+			_later.append([g.clock + 10.0, "raid_%s.png" % _mmss(g.clock), hall.center()])
+			_later.append([g.clock + 20.0, "raid_%s.png" % _mmss(g.clock + 10.0), hall.center()])
 	if ch.edge_moves > _edge_seen:
 		_edge_seen = ch.edge_moves
 		var mid := Vector2.ZERO
@@ -245,8 +289,9 @@ func _cliff_watch() -> void:
 	for h in _halls_seen.keys():
 		if is_instance_valid(h) and h.dead and _halls_seen[h]:
 			_halls_seen[h] = false
-			hall_lines.append("%s hall LOST at %s" % [_mmss(g.clock), str(h.cell)])
-			say("the hall at %s is lost" % str(h.cell))
+			var how := "LOST" if h.built else "site gone (dropped or razed unbuilt)"
+			hall_lines.append("%s hall %s at %s" % [_mmss(g.clock), how, str(h.cell)])
+			say("the hall at %s: %s" % [str(h.cell), how])
 
 
 func _kinds(list: Array) -> String:

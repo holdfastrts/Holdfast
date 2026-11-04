@@ -125,7 +125,8 @@ func _run() -> void:
 			es.append([e.x, e.y])
 		var f := FileAccess.open(out.path_join("%s.json" % map), FileAccess.WRITE)
 		f.store_string(JSON.stringify({"map": map, "lo": [lo.x, lo.y], "grid": grid, "edge": es, "main": [g.starts[crown].x, g.starts[crown].y],
-			"old": [pick.x, pick.y], "new": [newp.x, newp.y], "marks": marks.map(func(m): return [m["c"].x, m["c"].y]), "size": [size.x, size.y],
+			"old": [pick.x, pick.y], "new": [newp.x, newp.y],
+			"oldmarks": ExpansionSpots.rate_all(g).filter(func(s): return int(s["team"]) == crown and int(s["rank"]) > 0).map(func(s): return [s["c"].x, s["c"].y]), "marks": marks.map(func(m): return [m["c"].x, m["c"].y]), "size": [size.x, size.y],
 			"reach": CrownSites.REACH / T}))
 		f.close()
 	quit(0)

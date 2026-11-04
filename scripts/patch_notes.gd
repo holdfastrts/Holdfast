@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.2", "items": [
+		"THE CROWN COMPUTER HOLDS THE CLIFF EDGE (the owner's playtest on Thornwood Maze, where its new Town Hall below the main fell while its Musketeers stood behind the ramp wall): when the enemy is at one of its buildings under the main's cliff, its Musketeers and guns move to the high ground's edge above it, within musket range, spread along it on HOLD, and shoot down; they never step down the ramp, and they walk back to the ramp when the threat is gone. Two to four labourers go to repair the building meanwhile; one a Raptor goes for runs to the cliff's foot under the line and comes back when it is clear. None are sent when the building would fall anyway.",
+		"CANNONS FIRST AGAINST THE BROOD: once the Crown computer sees the Brood, its Foundry comes before its Horse Breeder and its first gun is a Field Cannon (its canister into the Raptors at the ramp or from the cliff edge); the rider scout comes after the cannon. And in every Crown plan, against anyone, the Foundry now comes before the second Barracks (the owner's rule: the cannon's canister also hits flyers and its round shot has the longest range in the game).",
+		"THE CROWN'S OWN EXPANSION SPOTS: for the Crown the gold OPTIMAL EXPANSION SPOT marks now show its 2nd and 3rd halls at the least distance a hall allows (18 tiles), close together and right under the main's cliff, where Musketeers on the edge can shoot over the new hall and the walls can join up; from the 4th hall on, as close as possible to its other halls. They are worked out again whenever you place a hall. The Crown computer expands to the same spots. The Clockwork's marks stay as they were.",
+	]},
 	{"v": "0.29.1", "items": [
 		"POWDER SMOKE: SHORTER, STAYS WHERE IT WAS FIRED, NO BLINK (the owner): every puff now lives about 3 seconds, solid for 2 and fading over the last 1 (it lingered 10 to 20 seconds, mostly too thin to see, and drifted far). The shot's push carries it less far. Its fade reaches nothing a moment before it goes, so it no longer blinks at the end, and a thick cloud no longer makes its puffs age in sudden jumps.",
 	]},

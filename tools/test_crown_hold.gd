@@ -180,6 +180,11 @@ func _edge_check(muskets: Array, gun: Unit, band: Vector2) -> void:
 	var gun_edge := false
 	var menders_max := 0
 	var sicced := false
+	var sic_t := -99.0
+	var sic_pairs: Array = []
+	var reached := false
+	var lip_best := 0
+	var edge: Array = CrownSites.edge_cells(g, 0)
 	while g.clock - t0 < 40.0:
 		await wait(0.5)
 		for u in live:
@@ -192,18 +197,35 @@ func _edge_check(muskets: Array, gun: Unit, band: Vector2) -> void:
 		if g.clock - t0 <= EDGE_BY + 20.0:
 			var near := live.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and hall.edge_distance(u.position) < EDGE_NEAR).size()
 			near_best = maxi(near_best, near)
+			var lip := live.filter(func(u) -> bool:
+				if not is_instance_valid(u) or u.dead:
+					return false
+				var cu: Vector2i = g.cell_of(u.position)
+				for e in edge:
+					if Vector2(e).distance_to(Vector2(cu)) <= 1.5:
+						return true
+				return false).size()
+			lip_best = maxi(lip_best, lip)
 			if is_instance_valid(gun) and not gun.dead and hall.edge_distance(gun.position) < EDGE_NEAR + 60.0 and g.level_of(gun.position) == ch._home_h:
 				gun_edge = true
 		menders_max = maxi(menders_max, ch._menders.size())
-		if not sicced and not ch._menders.is_empty():
-			# (two Raptors sent at a mender: he must run)
+		if ch.mend_dodges == 0 and not ch._menders.is_empty() and g.clock - sic_t > 3.0:
+			# (two Raptors sent at a mender: he must run; again every 3 s until one does, a mender may be let go meanwhile)
+			sic_t = g.clock
 			var w: Unit = ch._menders.keys()[0]
 			var n := 0
 			for r in raptors:
 				if is_instance_valid(r) and not r.dead and n < 2:
 					r.cmd_attack(w)
+					sic_pairs.append([r, w])
 					n += 1
-			sicced = n > 0
+			sicced = sicced or n > 0
+		for pr in sic_pairs:
+			var r0 = pr[0]
+			var w0 = pr[1]
+			if is_instance_valid(r0) and not r0.dead and is_instance_valid(w0) and not w0.dead and ch.is_mender(w0) and r0.target == w0 \
+					and r0.position.distance_to(w0.position) < 200.0:
+				reached = true
 		if raptors.all(func(r) -> bool: return not is_instance_valid(r) or r.dead) or hall.dead:
 			break
 	print("  (edge: moves %d, %d Musketeers near the hall at best, menders sent %d, at most %d at once, dodges %d, hall %d/%d%s, %d Raptors left)" % [
@@ -211,11 +233,12 @@ func _edge_check(muskets: Array, gun: Unit, band: Vector2) -> void:
 		raptors.filter(func(r) -> bool: return is_instance_valid(r) and not r.dead).size()])
 	check(ch.edge_moves > m0, "[edge] the line moved to the cliff edge above the hall (%d)" % (ch.edge_moves - m0))
 	check(near_best >= mini(4, live.size()), "[edge] ... %d Musketeers within %d px of the hall's side at best" % [near_best, int(EDGE_NEAR)])
+	check(lip_best >= mini(4, live.size()), "[edge] ... %d of them on the cliff's lip at best (within 1.5 cells of an edge cell)" % lip_best)
 	check(left_main == 0, "[edge] no Musketeer stepped off the main's level (%d looks off it)" % left_main)
 	check(gun_edge, "[edge] the cannon went to the edge too")
 	check(ch.mend_sent >= 2 and menders_max <= 4, "[edge] 2-4 labourers mended the hall (%d sent, at most %d at once)" % [ch.mend_sent, menders_max])
 	check(not hall.dead, "[edge] the hall stands (%d / %d)" % [int(hall.hp), int(hall.max_hp)])
-	check(not sicced or ch.mend_dodges > 0, "[edge] a mender the Raptors went for ran (dodges %d)" % ch.mend_dodges)
+	check(not reached or ch.mend_dodges > 0, "[edge] a mender the Raptors went for ran (dodges %d; a Raptor sent at one came near: %s)" % [ch.mend_dodges, str(reached)])
 	for r in raptors:
 		if is_instance_valid(r) and not r.dead:
 			r.die()

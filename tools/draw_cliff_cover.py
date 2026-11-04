@@ -3,7 +3,7 @@
 tools/measure_cliff_cover.gd writes (out:DIR). One picture a map, 1200 px wide, JPEG.
     python3 -I tools/draw_cliff_cover.py IN.json OUT.jpg ["title"]
 Low ground light, high ground darker, cliffs black, ramps tan, trees/rocks green-grey; the edge cells orange, the ground
-within musket reach of them (CrownSites.REACH) washed blue; the main hall white, the OLD pick red, the NEW Crown marks gold
+within musket reach of them (CrownSites.REACH) washed blue; the main hall white, the computer's OLD pick red, the old gold marks (base sites) purple, the NEW Crown marks gold
 (#1 bright, #2 faint)."""
 import json
 import math
@@ -61,13 +61,16 @@ try:
 except OSError:
     FONT = FONT_S = ImageFont.load_default()
 box(d["main"], (255, 255, 255), 4, (255, 255, 255, 90), "MAIN")
-box(d["old"], (220, 30, 30), 5, (220, 30, 30, 70), "OLD")
+for i, m in enumerate(d.get("oldmarks", [])):
+    if m != d["old"]:
+        box(m, (200, 60, 160), 3, (200, 60, 160, 50), "OLD MARK #%d" % (i + 1))
+box(d["old"], (220, 30, 30), 5, (220, 30, 30, 70), "OLD PICK")
 marks = d.get("marks", [])
 for i, m in enumerate(marks):
     box(m, (255, 200, 60), 5 if i == 0 else 3, (255, 200, 60, 110 if i == 0 else 60), "NEW #%d" % (i + 1))
 y0 = H * C + 8
 dr.text((10, y0), title, fill=(240, 240, 240), font=FONT)
-dr.text((10, y0 + 28), "orange: the main's cliff edge   blue: musket reach from it   red: the old hall pick   gold: the Crown's new spots",
+dr.text((10, y0 + 28), "orange: cliff edge   blue: musket reach   red: old pick (= old mark #1)   purple: old mark #2   gold: new Crown spots",
         fill=(200, 200, 200), font=FONT_S)
 if img.width != 1200:
     img = img.resize((1200, int(img.height * 1200 / img.width)), Image.LANCZOS)

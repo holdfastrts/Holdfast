@@ -11,6 +11,8 @@ extends Node2D
 ## and Mill, the Clockwork's gear field, which meshes only on one level), the ways in (gaps through which an army
 ## walks up to it), the walk from its own main, and how much nearer it is to its own main than to the enemy's. The
 ## two best of each side are marked. The map is turned through its middle, so twin spots score the same.
+## A CROWN side's marks follow its own rule instead (0.29.2, CrownSites: the least hall distance, close together, under the
+## main's cliff edge; _crown_rule below). The Brood's are its Mound Turtle spots (nb_pick).
 ##
 ## Shown to every player (a Brood player sees its best Mound Turtle spots, nb_pick), with a small label (_label), and when watching
 ## (spectator, replay). A spot hides once a building the viewer knows of stands on it (his own and his allies', an
