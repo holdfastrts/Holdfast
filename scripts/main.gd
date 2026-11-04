@@ -2698,6 +2698,8 @@ func start(cfg: Dictionary = {}) -> void:
 	if cfg.is_empty():
 		cfg = last_cfg
 	var watching := bool(cfg.get("replay", false))     # a replay (start_replay): a puppet fed from the file
+	# (a MIXED replay, format 3: the real game runs from its keyframes with the recorded commands: ReplayMix)
+	var mixed := watching and ReplayFile.is_mixed(_replay_data)
 	var kept_cfg := last_cfg.duplicate(true)
 	if not cfg.has("seed"):
 		cfg["seed"] = randi()
@@ -2755,8 +2757,8 @@ func start(cfg: Dictionary = {}) -> void:
 	game.sides = sides
 	game.income_mult = mult
 	game.map_id = cfg.get("map", "random")
-	game.sandbox = cfg.get("sandbox", false) and not watching
-	game.puppet = (cfg.has("net") and cfg["net"].get("role", "") == "guest") or watching      # online guest: the host runs the match
+	game.sandbox = cfg.get("sandbox", false) and (not watching or mixed)
+	game.puppet = (cfg.has("net") and cfg["net"].get("role", "") == "guest") or (watching and not mixed)      # online guest: the host runs the match
 	# a CAMPAIGN mission (scripts/campaign/mission_run.gd): it lays out the start, runs the triggers and decides the end
 	# (an online guest's only shows what the host's sends; a replay has none)
 	var camp: Dictionary = cfg.get("campaign", {})
@@ -2779,7 +2781,7 @@ func start(cfg: Dictionary = {}) -> void:
 	sfx.camera = game.camera
 	sfx.game = game
 	for t in slots.size():
-		if t == human or game.puppet or slots[t]["who"] == "remote" or slots[t]["who"] == "script":
+		if t == human or game.puppet or watching or slots[t]["who"] == "remote" or slots[t]["who"] == "script":
 			continue         # (a friend online plays that side; a guest's game runs no computers; a campaign's scripted side has none)
 		var ai: AI = AIBroodNew.new() if facs[t] == "brood" else (AIClockwork.new() if facs[t] == "clockwork" else (AICrown.new() if facs[t] == "crown" else AI.new()))      # (each faction's own computer: ai_brood_new.gd, ai_clockwork.gd, ai_crown.gd)
 		ai.game = game
@@ -2869,7 +2871,7 @@ func start(cfg: Dictionary = {}) -> void:
 		hud.count_hold = cfg.has("net")      # online: held until every player has loaded (NetSession "ready"/"go")
 	if watching:
 		last_cfg = kept_cfg
-		var rp := ReplayPlayer.play(game, _replay_data)
+		var rp: ReplayPlayer = ReplayMix.play_mixed(game, _replay_data) if mixed else ReplayPlayer.play(game, _replay_data)
 		_replay_data = {}
 		var bar := ReplayBar.new()
 		bar.game = game
@@ -2886,7 +2888,10 @@ func start(cfg: Dictionary = {}) -> void:
 		# was sent: its own view, kept until the host's whole replay comes)
 		# Settings REPLAY RECORDING: FULL, LIGHT (fewer pictures) or OFF (none; online the host still records, at LIGHT)
 		var online_host := game.net != null and game.net.is_host
-		ReplayRecorder.start(game, last_cfg, human, game.puppet, ReplayRecorder.rate_for(Settings.replay_mode(), online_host))
+		if Settings.replay_mode() == "mixed" and not game.puppet:
+			ReplayMixRecorder.start_mixed(game, last_cfg, human)      # (MIXED: the commands and a keyframe every 10 s: docs/replay_mixed.md)
+		else:
+			ReplayRecorder.start(game, last_cfg, human, game.puppet, ReplayRecorder.rate_for(Settings.replay_mode(), online_host))
 
 
 func _to_menu() -> void:

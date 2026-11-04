@@ -3065,11 +3065,19 @@ func _own_hall(t: int) -> Building:
 ## returns). Everywhere else (the host, single player) false and the call runs as always.
 func net_forward(who: Object, fn: String, args: Array) -> bool:
 	if net == null:
+		if replay != null:
+			if input_cmd:
+				return true      # (a mixed replay runs the real game: the viewer's clicks order nothing; ReplayMix)
+			replay.nested(fn)    # (a recorded command calling others: they were recorded too, and are not run twice)
+		if rec != null and input_cmd:
+			rec.note_cmd(who, fn, args)      # (a mixed replay keeps the players' commands: ReplayMixRecorder)
 		return false
 	if puppet:
 		return NetCommands.forward(net, who, fn, args)
 	if input_cmd and net_cmd_team < 0 and net.hold_ms() > 0:
 		return NetCommands.hold(net, who, fn, args)     # (online host, the same delay for both: it waits as a guest's order does)
+	if rec != null and (input_cmd or net_cmd_team >= 0 or net_quiet):
+		rec.note_cmd(who, fn, args)
 	return false
 
 
@@ -3079,6 +3087,10 @@ func net_set(e: Object, prop: String, v) -> void:
 	if puppet and net != null and net.predict != null and net.predict.on:
 		NetCommands.forward(net, e, "@" + prop, [v])     # (shown at once by the click's prediction, taken back if refused)
 		return
+	if replay != null and not puppet:
+		return                   # (a mixed replay: the viewer sets nothing)
+	if rec != null and not puppet:
+		rec.note_cmd(e, "@" + prop, [v])
 	e.set(prop, v)
 	if puppet and net != null:
 		NetCommands.forward(net, e, "@" + prop, [v])

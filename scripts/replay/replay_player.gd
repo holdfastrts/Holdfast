@@ -125,6 +125,11 @@ func send_cmd(_c: Dictionary) -> void:
 	pass
 
 
+## A mixed replay's command calling the command funnel again (ReplayMix.nested); pictures have none.
+func nested(_fn: String) -> void:
+	pass
+
+
 func chat_out(_team: int, _text: String, _from_peer: int) -> void:
 	pass
 

@@ -147,6 +147,8 @@ static func _apply(s: NetSession, team: int, c: Dictionary) -> String:
 			var prop := fn.substr(1)
 			if not PROPS.has(prop) or args.size() != 1:
 				return "bad property"
+			if game.rec != null:
+				game.rec.note_cmd(e, fn, args)      # (a mixed replay keeps it: ReplayMixRecorder)
 			e.set(prop, args[0])
 			return ""
 		if not ENTITY.has(fn) or not e.has_method(fn):
