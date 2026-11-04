@@ -265,7 +265,7 @@ static func next_of(id: String, side_id: String) -> String:
 
 ## A mission ended: who won (the side id), in which mode, and which side this player played. A win for your side (or
 ## any end of a versus match: the story follows who won) unlocks the branch it leads to.
-static func record(id: String, mode: String, winner_side: String, my_side: String) -> String:
+static func record(id: String, mode: String, winner_side: String, my_side: String, flags: Dictionary = {}) -> String:
 	var p := progress()
 	var counts := winner_side != "" and (winner_side == my_side or mode == "versus")
 	var nxt := next_of(id, winner_side) if counts else ""
@@ -275,11 +275,29 @@ static func record(id: String, mode: String, winner_side: String, my_side: Strin
 		e["won_by"] = winner_side
 		e["mode"] = mode
 		e["played"] = int(e.get("played", 0)) + 1
+		if not flags.is_empty():
+			e["flags"] = flags.duplicate()      # (the story's choices, for the missions after it: flag())
 		done[id] = e
 		if nxt != "" and not (p["reached"] as Array).has(nxt):
 			(p["reached"] as Array).append(nxt)
 		save_progress(p)
 	return nxt
+
+
+## A flag a finished mission left (its choices: MissionRun.flags), or null. Later missions read it with the "past"
+## condition, e.g. {"past": {"p01_leaf.families": "save"}}.
+static func flag(mission_id: String, name: String) -> Variant:
+	var e: Dictionary = (progress()["done"] as Dictionary).get(mission_id, {})
+	return e.get("flags", {}).get(name, null)
+
+
+## A mission's OPENING or ENDING (StillShow): its pages [{"still", "lines": [line ids]}] (the ending: for the side that
+## won, `side`).
+static func show_pages(m: Dictionary, which: String, side := "") -> Array:
+	var v: Variant = m.get(which, [])
+	if v is Dictionary:
+		v = (v as Dictionary).get(side, [])
+	return v if v is Array else []
 
 
 # ------------------------------------------------------------------ text
@@ -328,6 +346,13 @@ static func strings_of(m: Dictionary) -> Array:
 	for k in m.get("debrief", {}):
 		out.append(String(m["debrief"][k].get("title", "")))
 		out.append(String(m["debrief"][k].get("text", "")))
+	for tr in m.get("triggers", []):
+		for a in tr.get("do", []):
+			if a is Dictionary and a.has("choice"):
+				out.append(String(a["choice"].get("title", "")))
+				for o in a["choice"].get("options", []):
+					out.append(String(o.get("label", "")))
+					out.append(String(o.get("about", "")))
 	for x in m.get("learn", []):
 		out.append(String(x))          # (a TUTORIAL lesson's list of what it teaches, and its words after a loss)
 	out.append(String(m.get("lost", "")))
@@ -377,6 +402,8 @@ static func problems(m: Dictionary) -> Array:
 				out.append("%s: unknown kind %s" % [list_key, k])
 			if it.get("at") is String and not areas.has(String(it["at"])):
 				out.append("%s: unknown area %s" % [list_key, it["at"]])
+			if it.has("as") and String(Rebels.role(String(it["as"])).get("kind", "")) != k:
+				out.append("%s: role %s doesn't fit kind %s" % [list_key, it["as"], k])
 	for k in lines:
 		var ln: Dictionary = lines[k]
 		if not (m.get("speakers", {}) as Dictionary).has(String(ln.get("who", ""))):
@@ -385,6 +412,21 @@ static func problems(m: Dictionary) -> Array:
 			out.append("line %s: unknown side %s" % [k, ln["to"]])
 		if ln.has("still") and not (m.get("stills", {}) as Dictionary).has(String(ln["still"])):
 			out.append("line %s: unknown still %s" % [k, ln["still"]])
+	for which in ["opening", "ending"]:
+		var all: Array = []
+		if m.get(which) is Dictionary:
+			for sd in m[which]:
+				if not sides.has(String(sd)):
+					out.append("%s: unknown side %s" % [which, sd])
+				all.append_array(m[which][sd])
+		elif m.get(which) is Array:
+			all = m[which]
+		for pg in all:
+			if not (m.get("stills", {}) as Dictionary).has(String(pg.get("still", ""))):
+				out.append("%s: unknown still %s" % [which, pg.get("still")])
+			for lid in pg.get("lines", []):
+				if not lines.has(String(lid)):
+					out.append("%s: unknown line %s" % [which, lid])
 	for o in m.get("objectives", []):
 		if not sides.has(String(o.get("side", ""))):
 			out.append("objective %s: unknown side" % o["id"])
@@ -411,7 +453,7 @@ static func _check_cond(c: Variant, where: String, out: Array, sides: Array, tea
 		return
 	for k in c:
 		match String(k):
-			"time", "dead", "hurt":
+			"time", "dead", "hurt", "flag", "past":
 				pass
 			# the TUTORIAL's conditions (what the player did: docs/tutorial.md)
 			"selected", "camera_moved", "zoomed", "more", "built", "rooted", "crew", "group", "did", "gear_view", \
@@ -455,9 +497,17 @@ static func _check_action(a: Variant, where: String, out: Array, m: Dictionary, 
 			for id in v:
 				if not lines.has(String(id)):
 					out.append("%s: unknown line %s" % [where, id])
-		"spawn":
+		"spawn", "build":
 			if not teams.has(String(v.get("team", ""))):
-				out.append("%s: spawn for unknown team" % where)
+				out.append("%s: %s for unknown team" % [where, k])
+			if k == "build":
+				if not Defs.BUILDINGS.has(String(v.get("kind", ""))):
+					out.append("%s: build of unknown kind %s" % [where, v.get("kind")])
+				if v.get("at") is String and not areas.has(String(v["at"])):
+					out.append("%s: unknown area %s" % [where, v["at"]])
+				return
+			if v.has("as") and String(Rebels.role(String(v["as"])).get("kind", "")) != String(v.get("kind", "")):
+				out.append("%s: role %s doesn't fit kind %s" % [where, v["as"], v.get("kind")])
 			if not Defs.UNITS.has(String(v.get("kind", ""))):
 				out.append("%s: spawn of unknown kind %s" % [where, v.get("kind")])
 			if v.get("at") is String and not areas.has(String(v["at"])):
@@ -479,8 +529,26 @@ static func _check_action(a: Variant, where: String, out: Array, m: Dictionary, 
 		"win", "lose":
 			if not sides.has(String(v)):
 				out.append("%s: unknown side %s" % [where, v])
-		"mark":
+		"mark", "flag":
 			pass
+		"hurt":
+			if not (v is Dictionary and v.has("tag")):
+				out.append("%s: hurt needs a tag" % where)
+		"light":
+			var to := String(v.get("to", "")) if v is Dictionary else String(v)
+			if not MissionRun.LIGHTS.has(to):
+				out.append("%s: unknown light %s" % [where, to])
+		"choice":
+			if not (v is Dictionary) or String(v.get("id", "")) == "" or (v.get("options", []) as Array).is_empty():
+				out.append("%s: a choice needs an id and options" % where)
+			elif v.has("line") and not lines.has(String(v["line"])):
+				out.append("%s: choice line %s unknown" % [where, v["line"]])
+			elif v.has("side") and not sides.has(String(v["side"])):
+				out.append("%s: choice for unknown side %s" % [where, v["side"]])
+			else:
+				for o in v["options"]:
+					for a2 in o.get("do", []):
+						_check_action(a2, where + " (choice %s)" % o.get("id", "?"), out, m, sides, teams, areas, lines, objs)
 		"point":
 			if v is Dictionary and v.has("area") and not areas.has(String(v["area"])):
 				out.append("%s: point at unknown area %s" % [where, v["area"]])

@@ -949,6 +949,18 @@ const UNITS := {
 		"requires": "horse_breeder", "sabre": {"damage": 18.0, "cooldown": 1.1}, "faction": "crown",
 		"about": "A Horseman on foot: his flintlock pistol (one shot, 30 damage, a little over half a musket's reach) and the same sabre as in the saddle up close (about a plain bayonet's match). On foot he reloads the pistol by himself (4 s, a little powder: his charges refill like a Musketeer's). MOUNT a horse and he rides as a Horseman.",
 	},
+	# the PIKEMAN, back for the campaign only (campaign-m1, 2026-11-04): the rebels' pikeman in mission 1 (scripts/campaign/rebels.gd).
+	# Retired from the Crown's roster (the Musketeer's bayonet does his job); no building trains him and no lobby lists him.
+	# His old numbers were lost with the history, so these are new: a cheap melee man whose pike reaches twice a bayonet's
+	# length and hurts horses. His strips came back from "old units obsolete for now/pikeman" (thrust -> attack).
+	"pikeman": {
+		"tags": ["light"],
+		"name": "Pikeman", "hp": 85, "armor": 1, "speed": 58, "cost": 50, "time": 14.0, "supply": 1,
+		"sight": 7, "range": 46, "damage": 13, "cooldown": 1.5, "aim": 0.25, "radius": 10, "from": "",
+		"bonus": {"cuirassier": 2.0, "dragoon": 2.0, "messenger": 2.0, "horse": 2.0}, "plain_attack": true,
+		"faction": "crown", "campaign_only": true,
+		"about": "A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket.",
+	},
 	"balloon": {
 		"tags": ["light"],
 		"name": "Observation Balloon", "hp": 180, "armor": 0, "speed": 46, "cost": 125, "cost2": 20, "time": 25.0, "supply": 2,

@@ -9,6 +9,7 @@ extends Node
 signal said(line: Dictionary)        # a line of dialogue for this screen: {"id", "who", "name", "side", "text", "still"}
 signal objectives_changed
 signal pointer_changed               # the TUTORIAL's pointer moved (MissionUi draws it): `pointer`
+signal choice_offered(ch: Dictionary) # a CHOICE for this screen's player (MissionUi shows its buttons): the "choice" action
 
 const TICK := 0.25                   # seconds between trigger and objective checks
 const SYNC_EVERY := 2.0              # host: the objectives are sent to the guests again this often (a lost message heals)
@@ -37,6 +38,12 @@ var talk_busy := false               # MissionUi: a line is still being read (th
 var _cam0 := Vector2.ZERO
 var _zoom0 := Vector2.ONE
 var _base := {}                      # kind -> how many the player had at the mark (the "more" condition)
+# the story's CHOICES and FLAGS (campaign-m1): flags are kept with the mission's progress (Campaign.record) for later
+# missions ("past" condition); a choice offered and not yet answered waits in `choice_open`
+var flags := {}                      # name -> value (a choice's answer: its option id)
+var choice_open := {}                # the choice on offer ({} none): its data plus "until" (game clock: then the default)
+var light_node: CanvasModulate = null
+var light_name := "day"
 
 
 func setup(m: Dictionary, md: String, cfg: Dictionary, guest := false) -> void:
@@ -242,6 +249,10 @@ func _spawn(it: Dictionary) -> Array:
 		var u := game._add_unit(k, t, spots[i % spots.size()])
 		if it.has("tag"):
 			_tag(String(it["tag"]), u)
+		if it.has("as"):
+			Rebels.apply(u, String(it["as"]))       # (a rebel's role: its art, name, torch: scripts/campaign/rebels.gd)
+		if it.has("name"):
+			u.set_meta("mission_name", String(it["name"]))
 		out.append(u)
 	var ord: Variant = it.get("order", null)
 	if ord is String:
@@ -297,6 +308,17 @@ func _ready() -> void:
 	var tm := team_data(game.human)
 	if tm.has("camera") and game.camera:
 		game.camera.position = area_rect(String(tm["camera"])).get_center()
+	if data.has("light"):
+		set_light(String(data["light"]), 0.0)      # (the scene's light at the start: "night", "dawn", "day")
+
+
+func _process(_delta: float) -> void:
+	# (a torch's flame flickers: the few torch-bearers redraw every frame)
+	if game == null:
+		return
+	for u in game.units:
+		if not u.dead and u.has_meta("torch"):
+			u.queue_redraw()
 
 
 func _physics_process(delta: float) -> void:
@@ -306,6 +328,9 @@ func _physics_process(delta: float) -> void:
 	if _t > 0.0:
 		return
 	_t = TICK
+	Rebels.tick(self, TICK)
+	if not choice_open.is_empty() and game.clock >= float(choice_open.get("until", INF)):
+		choose(String(choice_open["id"]), String(choice_open.get("default", "")))      # (nobody answered: the default)
 	_run_triggers()
 	_check_objectives()
 	_sync_t -= TICK
@@ -375,6 +400,15 @@ func cond(c: Variant) -> bool:
 					ok = ok or cond(s)
 			"not":
 				ok = not cond(v)
+			"flag":
+				# {"flag": {"name": value}}: this mission's flags (a choice's answer)
+				for fk in v:
+					ok = ok and flags.has(String(fk)) and str(flags[String(fk)]) == str(v[fk])
+			"past":
+				# {"past": {"<mission>.<flag>": value}}: a flag kept from a mission played before (Campaign.flag)
+				for fk in v:
+					var pr := String(fk).split(".")
+					ok = ok and pr.size() == 2 and str(Campaign.flag(pr[0], pr[1])) == str(v[fk])
 			"selected", "camera_moved", "zoomed", "more", "built", "rooted", "crew", "group", "did", "gear_view", \
 					"placing", "order", "res", "talked":
 				ok = _tutorial_cond(String(k), v)
@@ -464,6 +498,21 @@ func act(a: Dictionary) -> void:
 			"point":
 				pointer = v if v is Dictionary else {}
 				pointer_changed.emit()
+			"build":
+				_place_building(v)
+			"hurt":
+				# {"hurt": {"tag", "amount"}}: damage to everything with the tag (a farm set alight by the story)
+				for e in tagged(String(v.get("tag", ""))):
+					e.take_damage(float(v.get("amount", 100.0)), null)
+			"flag":
+				for fk in v:
+					flags[String(fk)] = v[fk]
+			"choice":
+				offer_choice(v)
+			"light":
+				var lv: Dictionary = v if v is Dictionary else {"to": String(v)}
+				set_light(String(lv.get("to", "day")), float(lv.get("secs", 0.0)))
+				_send({"k": "light", "to": String(lv.get("to", "day")), "secs": float(lv.get("secs", 0.0))})
 			"win":
 				finish(String(v))
 			"lose":
@@ -490,6 +539,85 @@ func _order(us: Array, v: Dictionary) -> void:
 		"patrol":
 			for u in us:
 				u.cmd_patrol(p)
+
+
+## THE LIGHT (campaign-m1): the scene tinted for the time of day ("night" blue and dim, "dawn" warm, "day" as
+## painted), over `secs` seconds. A CanvasModulate on the Game: the world only, never the HUD.
+const LIGHTS := {"night": Color(0.40, 0.45, 0.66), "dusk": Color(0.78, 0.66, 0.70), "dawn": Color(1.0, 0.83, 0.70), "day": Color(1, 1, 1)}
+
+
+func set_light(to: String, secs: float) -> void:
+	light_name = to
+	if game == null:
+		return
+	if light_node == null:
+		light_node = CanvasModulate.new()
+		light_node.name = "MissionLight"
+		light_node.color = Color(1, 1, 1)
+		game.add_child(light_node)
+	var col: Color = LIGHTS.get(to, Color(1, 1, 1))
+	if secs <= 0.0 or not light_node.is_inside_tree():
+		light_node.color = col
+		return
+	var tw := light_node.create_tween()
+	tw.tween_property(light_node, "color", col, secs)
+
+
+## A CHOICE (campaign-m1): {"id", "side", "line": a line id said with it, "options": [{"id", "label", "about", "do":
+## [actions]}], "default": an option id, "time": seconds before the default is taken (90)}. The player of that side on
+## this machine gets the buttons (MissionUi); a side no one here plays takes its default at once (online, the host
+## decides: if the guest plays the choosing side, the default is taken; docs/campaign_m1_build.md).
+func offer_choice(ch: Dictionary) -> void:
+	if remote or flags.has(String(ch.get("id", ""))):
+		return
+	if ch.has("line"):
+		say([String(ch["line"])])
+	var side := String(ch.get("side", ""))
+	if side != "" and side != my_side():
+		choose(String(ch["id"]), String(ch.get("default", "")))
+		return
+	choice_open = ch.duplicate()
+	choice_open["until"] = game.clock + float(ch.get("time", 90.0))
+	if game.mlog:
+		game.mlog.add("(mission) choice %s offered" % ch.get("id", ""))
+	choice_offered.emit(choice_open)
+
+
+## The answer to a choice: its flag is set and the option's actions run (an unknown option: the default, else the first).
+func choose(cid: String, opt_id: String) -> void:
+	if flags.has(cid):
+		return
+	var ch: Dictionary = choice_open if String(choice_open.get("id", "")) == cid else _find_choice(cid)
+	var opts: Array = ch.get("options", [])
+	var opt := _opt(opts, opt_id)
+	if opt.is_empty():
+		opt = _opt(opts, String(ch.get("default", "")))
+	if opt.is_empty() and not opts.is_empty():
+		opt = opts[0]
+	flags[cid] = String(opt.get("id", opt_id))
+	if String(choice_open.get("id", "")) == cid:
+		choice_open = {}
+	if game and game.mlog:
+		game.mlog.add("(mission) choice %s: %s" % [cid, flags[cid]])
+	for a in opt.get("do", []):
+		act(a)
+	objectives_changed.emit()
+
+
+func _opt(opts: Array, oid: String) -> Dictionary:
+	for o in opts:
+		if String(o.get("id", "")) == oid:
+			return o
+	return {}
+
+
+## A choice's data by id, wherever a trigger offers it.
+func _find_choice(cid: String) -> Dictionary:
+	for tr in data.get("triggers", []):
+		for a in tr.get("do", []):
+			if a is Dictionary and a.has("choice") and String(a["choice"].get("id", "")) == cid:
+				return a["choice"]
+	return {}
 
 
 ## Lines of dialogue: shown here (those meant for this player's side) and sent to the friends online.
@@ -771,6 +899,8 @@ func on_net(m: Dictionary) -> void:
 				reveals.append(r)
 		"ping":
 			game._ping(m.get("p", Vector2.ZERO), Color(1, 0.85, 0.3))
+		"light":
+			set_light(String(m.get("to", "day")), float(m.get("secs", 0.0)))
 		"cam":
 			var s := String(m.get("s", ""))
 			if s == "" or s == my_side():

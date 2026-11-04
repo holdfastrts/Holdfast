@@ -7908,6 +7908,23 @@ func _draw() -> void:
 	Prof.add("unit draw", _p0)
 
 
+## A campaign mission's marks (scripts/campaign/rebels.gd): a named man's name over his bar, a torch-bearer's flame.
+func _draw_mission_marks(top: float) -> void:
+	if has_meta("mission_name"):
+		var nm := Loc.t(String(get_meta("mission_name")))
+		var f := UiStyle.bold_font()
+		draw_string_outline(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, 3, Color(0, 0, 0, 0.85))
+		draw_string(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, Color(0.75, 1.0, 0.7))
+	if has_meta("torch"):
+		var t := Time.get_ticks_msec() / 1000.0 + float(serial) * 0.37
+		var p := Vector2(9, -30) * Vector2(-1.0 if anim_flip else 1.0, 1.0)
+		draw_line(p + Vector2(0, 14), p, Color(0.35, 0.22, 0.1), 2.0)
+		var fl := 1.0 + 0.25 * sin(t * 17.0) + 0.15 * sin(t * 29.0)
+		draw_circle(p + Vector2(0, -2), 9.0 * fl, Color(1.0, 0.55, 0.15, 0.18))
+		draw_circle(p + Vector2(0, -1), 4.0 * fl, Color(1.0, 0.55, 0.12, 0.9))
+		draw_circle(p + Vector2(0, 0), 2.2 * fl, Color(1.0, 0.92, 0.5))
+
+
 func _draw_unit() -> void:
 	if dead and CwAir.falling(self):
 		CwAir.draw_fall_shadow(self)
@@ -7947,6 +7964,8 @@ func _draw_unit() -> void:
 	var sy := top                            # (the secondary bars: flush under the health bar, or where it would be)
 	if kind != BroodNew.PILE:
 		sy = draw_health(top, bw, true)
+	if has_meta("mission_name") or has_meta("torch"):
+		_draw_mission_marks(top)        # (a campaign mission's named man, a rebel's torch: scripts/campaign/rebels.gd)
 	if _k_nb and BroodNew.ROOTERS.has(kind) and _nb_top > -9000.0:
 		sy = top - SUB_H - 1.0      # (a rooting creature: its reload bar ABOVE its health bar, clear of its picture: BroodNew.stack)
 	if _k_nb:

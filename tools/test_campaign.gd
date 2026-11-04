@@ -3,7 +3,9 @@ extends SceneTree
 ## text has its Portuguese and Spanish, the setups for solo / co-op / versus seat the right players, and the test
 ## mission plays: the start is laid out, the triggers fire (lines, a counter-attack, reinforcements, a hurt hall), the
 ## mission is won (the rebels' hall burned: the storylines open), lost (the captain killed) and won by the other side
-## (versus: the rebels hold out). The hub's talks change after the mission.
+## (versus: the rebels hold out). The hub's talks change after the mission. Since campaign-m1 the engine's test mission
+## p01_revolt is no longer in the storylines (the prologue is p01_leaf: tools/test_campaign_m1.gd); it stays as the
+## engine's test bed.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_campaign.gd
 ## Prints CHECK lines, then "campaign: N failures"; exit code 1 on a failure. (Leaves user://campaign.json as it was.)
 var main: Node
@@ -38,11 +40,11 @@ func _finish() -> void:
 
 
 func _data() -> void:
-	for id in Campaign.mission_ids():
+	for id in Campaign.mission_ids() + ["p01_revolt"]:
 		var pr := Campaign.problems(Campaign.mission(id))
 		check("mission %s: data checks out" % id, pr.is_empty(), "; ".join(pr))
 	var texts: Array = Campaign.index_strings()
-	for id in Campaign.mission_ids():
+	for id in Campaign.mission_ids() + ["p01_revolt"]:
 		texts.append_array(Campaign.strings_of(Campaign.mission(id)))
 	var miss: Array = []
 	for t in texts:
@@ -61,7 +63,7 @@ func _data() -> void:
 	check("crown and rebels on opposite sides", c["slots"][0]["side"] != c["slots"][2]["side"] and c["slots"][0]["side"] == c["slots"][1]["side"])
 	# a campaign-only faction plays its stand-in until it exists
 	check("campaign-only faction -> stand-in", Campaign.engine_faction({"factions": {"tribes": {"stand_in": "crown"}}}, "tribes") == "crown")
-	check("only the prologue is open at first", Campaign.unlocked("p01_revolt") and not Campaign.storyline_open(Campaign.storylines()[1]))
+	check("only the prologue is open at first", Campaign.unlocked("p01_leaf") and not Campaign.storyline_open(Campaign.storylines()[1]))
 
 
 func _start(mode: String, seat := "p1") -> Game:
@@ -140,10 +142,14 @@ func _run() -> void:
 	await create_timer(1.6).timeout
 	check("the mission's end screen shows", main.ui_layer.find_child("MissionEnd", true, false) != null)
 	var p := Campaign.progress()
-	check("progress: the prologue is done", (p["done"] as Dictionary).has("p01_revolt"))
-	check("the explorer and clockmaker storylines open", Campaign.storyline_open(Campaign.storylines()[1]) and Campaign.storyline_open(Campaign.storylines()[2]))
-	var tk: Dictionary = Campaign.storylines()[0]["hub"]["talks"]["captain"]
-	check("the captain's talk changed after the mission", String(CampaignMenu.talk_lines(tk, p)[0]).begins_with("Well done"))
+	check("progress: the test mission is done", (p["done"] as Dictionary).has("p01_revolt"))
+	check("the test mission opens no storyline", not Campaign.storyline_open(Campaign.storylines()[1]))
+	Campaign.record("p01_leaf", "solo", "crown", "crown", {"families": "save"})
+	p = Campaign.progress()
+	check("the prologue won: the explorer and clockmaker storylines open", Campaign.storyline_open(Campaign.storylines()[1]) and Campaign.storyline_open(Campaign.storylines()[2]))
+	check("the prologue's choice is kept for later missions", Campaign.flag("p01_leaf", "families") == "save")
+	var tk: Dictionary = Campaign.storylines()[0]["hub"]["talks"]["fairleigh"]
+	check("the Governor's talk changed after the mission", String(CampaignMenu.talk_lines(tk, p)[0]).begins_with("It is done"))
 	# ---------------------------------------------------------------- solo, lost: the captain killed
 	main._to_menu()
 	g = await _start("solo")
@@ -192,11 +198,11 @@ func _run() -> void:
 	await process_frame
 	main.show_campaign()
 	await process_frame
-	check("the hub has its hotspots", main.menu.find_child("Hotspot_war_table", true, false) != null and main.menu.find_child("HotspotList_captain", true, false) != null)
+	check("the hub has its hotspots", main.menu.find_child("Hotspot_war_table", true, false) != null and main.menu.find_child("HotspotList_fairleigh", true, false) != null)
 	CampaignMenu.war_table(main)
 	await process_frame
-	check("the war table lists the mission", main.menu.find_child("Mission_p01_revolt", true, false) != null)
-	CampaignMenu.briefing(main, "p01_revolt")
+	check("the war table lists the mission", main.menu.find_child("Mission_p01_leaf", true, false) != null)
+	CampaignMenu.briefing(main, "p01_leaf")
 	await process_frame
 	check("the briefing has START", main.menu.find_child("Briefing_Start", true, false) != null)
 	_finish()
