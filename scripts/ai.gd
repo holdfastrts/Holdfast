@@ -207,6 +207,12 @@ func bo_owns() -> bool:
 	return false
 
 
+## (clockwork-eco) True when a scout that saw nothing ("uncertain") is no reason for an early army (AIScout._defence):
+## the Clockwork's Economy and Balanced openings (AIClockwork).
+func eco_calm() -> bool:
+	return false
+
+
 func _foe_is(fac: String) -> bool:
 	for t in game.enemies_of(team):
 		if game.faction_of(t) == fac:
