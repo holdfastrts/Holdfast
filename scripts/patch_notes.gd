@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.10", "items": [
+		"THE CROWN WEARS PURPLE: the main menu painting is repainted with the Crown's army in royal purple and gold (it was blue), the Crown's new standard colour.",
+	]},
 	{"v": "0.29.9", "items": [
 		"A NEW CROWN COMPUTER PLAN, DRAGOON RAIDS (pick it in the lobby, or a random plan may land on it): the safe Musketeer opening and the second hall, then Dragoons, Musketeers on horseback, ride out in groups of four to the enemy's workers: grubs at their Rootmaws, Winders at their presses, Labourers at their farms. They pick an expansion away from the enemy's army, ride round the side of its main, get off to shoot, and mount and ride off as soon as a real defender comes (a Tyrant Sire, a pack of Raptors, an army bigger than the group). The Musketeer line holds the main's high ground meanwhile. Against the Brood a group waits at home for the Brood's army to come out, then raids the grubs it left behind.",
 	]},
