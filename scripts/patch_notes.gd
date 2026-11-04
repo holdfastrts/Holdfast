@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.13", "items": [
+		"The main menu painting shows the three faction colours: the Crown purple, the Clockwork red, the Brood green.",
+	]},
 	{"v": "0.29.12", "items": [
 		"EACH FACTION HAS ITS OWN COLOUR: the Crown PURPLE, the Clockwork RED, the Brood GREEN. The menus, faction cards and buttons follow (the Crown was red and the Clockwork blue there).",
 	]},
