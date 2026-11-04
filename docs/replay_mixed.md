@@ -2,7 +2,7 @@
 
 Version 0.29.5 (branch replay-mixed). Settings > GAMEPLAY > REPLAY RECORDING has a new choice, MIXED, and it is the
 default on phones and tablets. A mixed replay is recorded the way StarCraft 2 records one, plus a whole picture every
-ten seconds. It costs almost nothing while you play, and the file is about a quarter of the size. The price is that it
+ten seconds. It costs almost nothing while you play, and the file is a quarter to a third of the size. The price is that it
 plays the match again rather than showing pictures of it, so it is close to what happened but not exact.
 
 ## What is recorded
@@ -17,10 +17,13 @@ plays the match again rather than showing pictures of it, so it is close to what
    down what changed: a new order (move here, attack that, gather there, hold), a new queue, a new building site. A
    unit stopping because it got where it was going is left out (it stops by itself in the replay too), and so is a
    soldier picking its next target in a fight.
-3. **A keyframe every 10 seconds**: the whole match as a saved game keeps it (SaveGame.capture: every unit and
+3. **Every death**, any side's, in the same look twice a second: in the replay that unit falls then too. Without it a
+   big fight drifted four times as far: the soldiers that had died in the match kept fighting in the replay until the
+   next keyframe, and the fights around them went another way.
+4. **A keyframe every 10 seconds**: the whole match as a saved game keeps it (SaveGame.capture: every unit and
    building with its health, queue, kit and the rest, every player's resources and research), plus each unit's id,
    its order and, for a worker, where it is in its round (on its way, at work, carrying back).
-4. The chat, the AI STORY lines, who was out and who won, and the recording player's camera twice a second (and
+5. The chat, the AI STORY lines, who was out and who won, and the recording player's camera twice a second (and
    online every friend's), as before.
 
 The file is the same kind of .hfr file, format 3, with two new kinds of record: a keyframe (zstd packed) and the
@@ -71,11 +74,11 @@ the same way on the same version.
 | | FULL | LIGHT | MIXED |
 |---|---|---|---|
 | normal, 2:00 to 5:00 (26 to 97 units) | 6.55 | 3.34 | 0.65 |
-| big battle, about 125 units (the whole 5 minutes) | 9.67 | 4.61 | 1.28 |
-| big battle, about 215 units (the whole 4 minutes) | 11.36 | 5.95 | 1.55 |
+| big battle, about 125 units (the whole 5 minutes) | 9.67 | 4.61 | 1.32 |
+| big battle, about 215 units (the whole 4 minutes) | 11.36 | 5.95 | 1.50 |
 
-MIXED's cost in the 215-unit battle: keyframes 0.36, packing and writing them 0.24, the computers' decisions 0.85 (looking
-at every computer unit twice a second), the players' commands 0.09. A keyframe there takes about 6 ms in one frame
+MIXED's cost in the 215-unit battle: keyframes 0.43, packing and writing them 0.24, the computers' decisions and the deaths 0.75
+(looking at every unit twice a second), the players' commands 0.08. A keyframe there takes about 6 ms in one frame
 every 10 seconds (the pictures' keyframes took about as long). In the big battles the test's own marching orders (50
 soldiers a side sent somewhere every 4 seconds, as a player would) are about a third of the commands and the
 decisions; a normal match writes far fewer. A phone is about four times slower: about 40 ms a second at FULL and 20 at LIGHT in a big
@@ -86,8 +89,8 @@ battle (2 to 4% of its time, where FULL already drops toward 3 pictures a second
 | | FULL | LIGHT | MIXED |
 |---|---|---|---|
 | normal, 5 minutes | 101 | 64 | 27 |
-| big battle, about 125 units | 172 | 110 | 58 |
-| big battle, about 215 units | 227 | 154 | 74 |
+| big battle, about 125 units | 172 | 110 | 57 |
+| big battle, about 215 units | 227 | 154 | 70 |
 
 ### Drift: how far a unit is from where it really was
 
@@ -95,11 +98,43 @@ From the middle of a 5-minute big battle (about 125 units, spawn:50), at three k
 corrections turned off, then 30 seconds with them (three keyframes). Each unit with an id, twice a second, against
 its true place in the match at that moment.
 
-DRIFTTABLE
+Distance from the true place (px; a tile is 32 px, a soldier about 30 px tall): mean / 95% of units within / worst.
+
+| | about 125 units | about 215 units |
+|---|---|---|
+| half a second after a keyframe | 4 / 19 / 86 | 10 / 64 / 128 |
+| 1 s after, no correction | 9 / 33 / 115 | 11 / 42 / 96 |
+| 2 s after, no correction | 14 / 44 / 96 | 19 / 72 / 207 |
+| 5 s after, no correction | 22 / 56 / 120 | 29 / 100 / 512 |
+| 9.5 s after, no correction | 37 / 170 / 260 | 31 / 110 / 664 |
+| with the corrections, every sample over 30 s | 27 / 104 / 499 | 27 / 112 / 962 |
+| ...1 s after each keyframe (its glide done) | 13 / 49 / 201 | 12 / 50 / 335 |
+
+So without the keyframes a replay drifts about half a tile on average in 10 seconds of a big battle, with one unit
+in twenty off by 3 to 5 tiles (in a fight that went another way). The keyframes keep it there: on average under a
+tile, and right after each one about a third of a tile. Half the soldiers are within half a tile all the time
+(the median, not shown: 12 px). In a normal match (few soldiers, mostly workers) it is about the same: 95% within
+112 px 10 s after a keyframe, 73 px with the corrections; the workers on a farm wander there differently, which is
+most of it.
+
+How the first versions did, in the 125-unit battle, 10 s after a keyframe (95% within): the AI run again instead of
+its decisions recorded: 263 px (mean 93); the decisions recorded four times a second: 82 px, at twice the cost of
+looking (1.5 ms a second instead of 0.7); without the deaths recorded, at 215 units: 493 px (a big fight went
+another way within seconds: the units that had died in the match kept fighting in the replay).
 
 ### Seeking
 
-SEEKTEXT
+A jump runs the game forward from the keyframe before it, about 4 to 8 times as fast as the match on this machine:
+
+| | about 125 units | about 215 units |
+|---|---|---|
+| 5 s past a keyframe | 1.1 s | 1.9 s |
+| 9.5 s past a keyframe (the longest) | 3.2 s | 3.0 s |
+
+A jump onto a keyframe itself takes about a tenth of a second (putting it on the map). On a phone, about four times
+slower, a jump in a big battle can take several seconds; the picture replays jump in 0.07 s here (they only read
+pictures forward). Keyframes every 5 seconds would halve the jumps for about 0.5 ms more a second of recording: a
+choice for the owner.
 
 ## Old replays
 

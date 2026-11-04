@@ -5,7 +5,7 @@ extends RefCounted
 
 const NOTES := [
 	{"v": "0.29.5", "items": [
-		"MIXED REPLAYS (Settings > GAMEPLAY > REPLAY RECORDING > MIXED, now the default on phones and tablets): instead of pictures of every unit several times a second, the replay keeps every player's orders with their times, the computers' decisions (their units' new orders and their buildings' queues, twice a second) and one whole picture of the match every 10 seconds. Recording costs about a tenth of FULL (in a big battle about 1 ms per second of match instead of 10) and the file is about a quarter of the size.",
+		"MIXED REPLAYS (Settings > GAMEPLAY > REPLAY RECORDING > MIXED, now the default on phones and tablets): instead of pictures of every unit several times a second, the replay keeps every player's orders with their times, the computers' decisions (their units' new orders and their buildings' queues, twice a second), every death and one whole picture of the match every 10 seconds. Recording costs about a tenth of FULL (in a big battle about 1 ms per second of match instead of 10) and the file is a quarter to a third of the size.",
 		"Watching a mixed replay runs the real game: it starts from the whole picture before the moment you pick and plays the match on from there with the recorded orders; every 10 seconds the next whole picture puts right whatever drifted (units glide back to where they really were). It is close to the match but not exact: in a big battle a unit is usually within a tile of where it really was. A jump on the timeline plays up to 10 seconds forward as fast as the device can. Replays recorded as pictures (FULL, LIGHT) play exactly as before.",
 	]},
 	{"v": "0.29.4", "items": [
