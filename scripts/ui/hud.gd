@@ -3398,6 +3398,10 @@ func _draw_minimap() -> void:
 		if b.visible or (b.team == game.human and not game.demo):
 			var r: Rect2 = b.rect()
 			_ci.draw_rect(Rect2(m.position + r.position * k, r.size * k), game.team_colour(b.team).lightened(0.2))
+	if game.fog_mem and not game.demo:
+		for gr in game.fog_mem.minimap_rects():          # (enemy buildings remembered under the fog: as last seen, darker)
+			var r: Rect2 = gr[0]
+			_ci.draw_rect(Rect2(m.position + r.position * k, r.size * k), gr[1])
 	for u in game.units:
 		if u.visible and not u.dead:
 			_ci.draw_rect(Rect2(m.position + u.position * k - Vector2(1.5, 1.5), Vector2(3, 3)), u.cloth_colour().lightened(0.35))     # (a loose horse: nobody's brown)

@@ -88,6 +88,7 @@ var swamp_layer_b: Node2D      # (the second player's swamp: its own layer so it
 var field_layer: Node2D                  # Clockwork fields of the selected / placed building
 var line_net: LineNetwork                # the Clockwork Line: pipe segments and pressure (scripts/line.gd; shelved: Defs.line_mode)
 var gear_net: GearNet                    # the Clockwork gear field: rings of ground gears, connection graph (scripts/gear.gd)
+var fog_mem: FogMemory                   # enemy buildings remembered under your fog as last seen (scripts/fog_memory.gd)
 var swamp_img: Image                     # the swamp of every Brood player, for the minimap
 var swamp_tex: ImageTexture
 var _swamp_t := 0.0
@@ -270,6 +271,7 @@ func _ready() -> void:
 	add_child(line_net)
 	gear_net = GearNet.new()
 	gear_net.game = self
+	fog_mem = FogMemory.new(self)
 	gear_net.z_index = -17
 	add_child(gear_net)
 	ground_marks = GroundMarks.new()
@@ -3745,6 +3747,8 @@ func on_building_died(b: Building) -> void:
 	if line:
 		relink_walls(b.cell)          # (the ruin keeps the picture it had)
 	stats[b.team]["bld_lost"] += 1
+	if fog_mem and not demo and not allied(b.team, human):
+		fog_mem.add_ruin(b)           # (its ruin shows only while seen: FogMemory)
 	var k := _killer(b)
 	if mlog and (b.built or k >= 0):
 		mlog.add("%s lost a %s%s%s" % [mlog.who(b.team), b.d["name"], "" if b.built else " (unfinished)", (" to " + mlog.who(k) + (" (" + b.last_hit_by + ")" if b.last_hit_by != "" else "")) if k >= 0 else ""])
@@ -8862,6 +8866,8 @@ func _update_vis() -> void:
 	_swamp_view()
 	if sees_all():
 		fog_sprite.visible = false
+		if fog_mem and (not fog_mem.mem.is_empty() or not fog_mem.ruins.is_empty()):
+			fog_mem.clear(true)
 		for u in units:
 			u.visible = not u.off_field
 		for b in buildings:
@@ -8903,9 +8909,17 @@ func _update_vis() -> void:
 	for o in n_players():
 		if allied(o, ft):
 			side_mask |= 1 << o
+	var fm := fog_mem if not demo else null      # (your own screen: rooted Brood creatures remembered as buildings)
+	var fm_on := fm != null and (not fm.mem.is_empty() or not fm._shown_rooted.is_empty())
 	for u in units:
 		if not allied(u.team, ft):
-			u.visible = hv[idx(cell_of(u.position))] == 1 and not u.off_field
+			if fm != null and u._k_nb and FogMemory.rooted_like(u):
+				u.visible = fm.rooted_visible(u, hv)
+				fm_on = true
+			else:
+				u.visible = hv[idx(cell_of(u.position))] == 1 and not u.off_field
+				if fm_on:
+					fm.walker(u)
 		elif demo:
 			u.visible = not u.off_field     # (the side looked through before may have been hidden)
 	for c in crates:
@@ -8922,22 +8936,19 @@ func _update_vis() -> void:
 		for tr in line_net.rails.trains:
 			if is_instance_valid(tr):
 				tr.visible = allied(tr.team, ft) or hv[idx(cell_of(tr.global_position))] == 1     # (the Line's trains: like units)
-	for b in buildings:
-		if not allied(b.team, ft):
-			if b.ghost:
-				b.visible = false            # another side's planned site: unseen
-				continue
-			if demo:
+	if not demo:
+		# your own screen: an enemy building shows while any of it is seen; seen and left, its picture as last seen
+		# stays under the fog (FogMemory) until that ground is seen again
+		fog_mem.update_buildings(hv, ft)
+	else:
+		for b in buildings:
+			if not allied(b.team, ft):
+				if b.ghost:
+					b.visible = false            # another side's planned site: unseen
+					continue
 				b.visible = (b.seen_mask & side_mask) != 0
-				continue
-			if not b.seen_by_human:
-				var cc := cell_of(b.rect().get_center())
-				if hv[idx(cc)] == 1:
-					b.seen_by_human = true
-					_unknown_dirty = true
-			b.visible = b.seen_by_human
-		elif demo:
-			b.visible = true
+			else:
+				b.visible = true
 	_show_waiting()
 	Prof.add("game/fog/shown", _z)
 

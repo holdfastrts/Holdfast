@@ -839,33 +839,18 @@ func _draw() -> void:
 	var ft := game.fog_team()
 	var all := game.sees_all()
 	var items: Array = []
-	var cols: Dictionary = Defs.GEAR["col"]
 	for b in game.buildings:
 		if not is_instance_valid(b) or not has_gear(b):
 			continue
 		if b.dead and b.rubble_t > 24.0:
 			continue
 		if not all and ft >= 0 and not game.allied(ft, b.team) and not b.visible:
-			continue        # (an enemy building whose side's eyes you look through haven't seen it: watching computers too)
-		var c: Vector2 = b.center()
-		var n: int = b_n(b)
-		var rp := radius_of_teeth(n)
-		if not game.view_rect.grow(rp + 60.0).has_point(c):
+			continue        # (an enemy building unseen, or only remembered under the fog: FogMemory draws that ring, below)
+		if not game.view_rect.grow(radius_of_teeth(b_n(b)) + 60.0).has_point(b.center()):
 			continue
-		var s := 1.0
-		# state colours: connected (full), unlinked (dull red), a site (faint), dead (dark)
-		var m := Color(1, 1, 1, 1)
-		if b.dead:
-			m = Color(cols["dead"].r * 1.4, cols["dead"].g * 1.4, cols["dead"].b * 1.4, 0.7)
-		elif not b.built or b.ghost:
-			m = Color(1, 1, 1, 0.45)
-		elif enforce and not linked.has(b):
-			m = Color(1.0, 0.6, 0.52, 0.85)
-		items.append([ring_kind(b.kind, b.gear_big), n, c, float(ang.get(b, 0.0)), s, m, brass_plate(b.kind)])
-		var idl: Dictionary = idler_of.get(b, {})
-		if not idl.is_empty() and linked.has(b):
-			var ip: Vector2 = idl["pos"]
-			items.append(["idler", int(idl["n"]), Vector2(ip.x, ip.y * FY), float(idler_ang.get(b, 0.0)), 1.0, m])
+		items.append_array(ring_items(b))
+	if game.fog_mem != null and not all:
+		items.append_array(game.fog_mem.gear_items(game.view_rect))      # (remembered enemy buildings: their rings as last seen)
 	# the floor plates first: the fixed decks the rings turn round (under the ring's edge and the building)
 	for it in items:
 		if it[0] != "idler":
@@ -887,6 +872,26 @@ func _draw() -> void:
 	if placing != "" and Defs.BUILDINGS[placing]["faction"] == "clockwork":
 		draw_ghost(self, game.human, placing, ctl.ghost_cell, game.gear_big_for(game.human, placing))      # (at the size picked: GEAR PICK)
 	draw_set_transform(Vector2.ZERO)
+
+
+## A building's ring (and its idler) as _draw draws them: [kind, teeth, centre, angle, scale, tint, brass plate]. Also
+## what FogMemory keeps of an enemy building as it was last seen (the ring stops turning under the fog).
+func ring_items(b: Building) -> Array:
+	var cols: Dictionary = Defs.GEAR["col"]
+	# state colours: connected (full), unlinked (dull red), a site (faint), dead (dark)
+	var m := Color(1, 1, 1, 1)
+	if b.dead:
+		m = Color(cols["dead"].r * 1.4, cols["dead"].g * 1.4, cols["dead"].b * 1.4, 0.7)
+	elif not b.built or b.ghost:
+		m = Color(1, 1, 1, 0.45)
+	elif enforce and not linked.has(b):
+		m = Color(1.0, 0.6, 0.52, 0.85)
+	var out: Array = [[ring_kind(b.kind, b.gear_big), b_n(b), b.center(), float(ang.get(b, 0.0)), 1.0, m, brass_plate(b.kind)]]
+	var idl: Dictionary = idler_of.get(b, {})
+	if not idl.is_empty() and linked.has(b):
+		var ip: Vector2 = idl["pos"]
+		out.append(["idler", int(idl["n"]), Vector2(ip.x, ip.y * FY), float(idler_ang.get(b, 0.0)), 1.0, m])
+	return out
 
 
 ## TURNING GEARS, made readable (docs/gear_turn.md; code-drawn: docs/art_style_inconsistency.md): little dust puffs kicked
