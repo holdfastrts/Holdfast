@@ -1,6 +1,7 @@
 extends SceneTree
 ## THE MAIN MENU'S FLAT GRID (the owner's layout, 2026-10-31): 3 x 3 slots, row by row
-##   CAMPAIGN (disabled) SKIRMISH ONLINE / HOW TO PLAY REPLAYS EDITOR / CONTINUE (only with a save) SETTINGS EXIT (not on the web)
+##   TUTORIAL CAMPAIGN SKIRMISH ONLINE / HOW TO PLAY REPLAYS EDITOR SETTINGS / CONTINUE (only with a save) EXIT (not on the web)
+## (4 x 3 since the TUTORIAL, 0.30)
 ## all inside the painting's top-left sky; Esc does nothing on the menu; every page's BACK returns to it;
 ## MATCH LOGS is on the REPLAYS page.
 ##   godot --headless --script res://tools/test_menu_grid.gd
@@ -55,11 +56,12 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	var b: Dictionary = main.menu_buttons
-	var fixed := ["campaign", "skirmish", "online", "help", "replays", "editor", "settings", "exit"]
+	var fixed := ["tutorial", "campaign", "skirmish", "online", "help", "replays", "editor", "settings", "exit"]
 	var miss := fixed.filter(func(id: String) -> bool: return not b.has(id))
-	_check("the 8 fixed slots", miss.is_empty(), miss)
-	_check("slot order", main.MENU_SLOTS == ["campaign", "skirmish", "online", "help", "replays", "editor", "continue", "settings", "exit"], main.MENU_SLOTS)
+	_check("the 9 fixed slots", miss.is_empty(), miss)
+	_check("slot order", main.MENU_SLOTS == ["tutorial", "campaign", "skirmish", "online", "help", "replays", "editor", "settings", "continue", "exit"], main.MENU_SLOTS)
 	_check("CAMPAIGN enabled (0.30.0)", not b["campaign"].disabled, b["campaign"].text)
+	_check("TUTORIAL next to CAMPAIGN (same row)", b["tutorial"].text == "TUTORIAL" and absf(b["tutorial"].position.y - b["campaign"].position.y) < 1.0 and b["tutorial"].position.x < b["campaign"].position.x, [b["tutorial"].position, b["campaign"].position])
 	_check("SKIRMISH text", b["skirmish"].text == "SKIRMISH", b["skirmish"].text)
 	_check("no Esc on the main menu", main._esc_button == null, main._esc_button)
 	var save: Dictionary = SaveGame.peek()
@@ -86,16 +88,17 @@ func _run() -> void:
 		for j in range(i + 1, rects.size()):
 			lap = lap or (rects[i] as Rect2).intersects(rects[j])
 	_check("no two buttons overlap", not lap, rects)
-	_check("button size ~10.5% x 8.5%", absf(b["online"].size.x / vs.x - 0.105) < 0.01 and absf(b["online"].size.y / vs.y - 0.085) < 0.01, b["online"].size / vs)
-	_check("SETTINGS in row 3, column 2", absf(b["settings"].position.x / vs.x - 0.12) < 0.01 and absf(b["settings"].position.y / vs.y - 0.33) < 0.01, b["settings"].position / vs)
+	_check("button size ~8.2% x 8.5% (or the computer's minimum width)", (absf(b["online"].size.x / vs.x - 0.082) < 0.01 or b["online"].size.x == main.MENU_MIN_PC.x) and absf(b["online"].size.y / vs.y - 0.085) < 0.01, b["online"].size / vs)
+	_check("SETTINGS in row 2, column 4", absf(b["settings"].position.y - b["help"].position.y) < 1.0 and b["settings"].position.x > b["editor"].position.x, b["settings"].position / vs)
+	_check("EXIT in row 3", b["exit"].position.y > b["settings"].position.y, b["exit"].position / vs)
 	_check("title box", main._menu_title.position.x <= vs.x * 0.01 and main._menu_title.size.x <= vs.x * 0.53 + 1, Rect2(main._menu_title.position, main._menu_title.size))
 	# a phone (2400 x 1080 shows 1600 x 720) and a 4:3 tablet: no smaller than the mobile minimum, still compact
 	for ph in [Vector2(1600, 720), Vector2(1280, 960)]:
 		var g: Array = main.menu_geometry(ph, false)
 		var bs: Vector2 = g[0]
-		var far: Vector2 = g[2] + 2.0 * (bs + g[1]) + bs
+		var far: Vector2 = g[2] + Vector2(main.MENU_COLS - 1, 2) * (bs + g[1]) + bs
 		_check("phone %s: min size" % ph, bs.x >= main.MENU_MIN_MOBILE.x and bs.y >= main.MENU_MIN_MOBILE.y, bs)
-		_check("phone %s: grid compact" % ph, far.x <= ph.x * 0.42 and far.y <= ph.y * 0.5, far / ph)
+		_check("phone %s: grid compact" % ph, far.x <= ph.x * 0.46 and far.y <= ph.y * 0.5, far / ph)
 	# EXIT hidden on the web (its slot empty)
 	main.menu_web = true
 	main.show_menu()
@@ -122,6 +125,7 @@ func _run() -> void:
 		await process_frame
 		_check("logs BACK -> main menu", _on_menu(), "")
 	# every page's BACK comes back to the main menu
+	await _back_from("TUTORIAL", func() -> void: main.menu_buttons["tutorial"].pressed.emit())
 	await _back_from("SKIRMISH", func() -> void: main.menu_buttons["skirmish"].pressed.emit())
 	await _back_from("HOW TO PLAY", func() -> void: main.menu_buttons["help"].pressed.emit())
 	await _back_from("REPLAYS", func() -> void: main.menu_buttons["replays"].pressed.emit())

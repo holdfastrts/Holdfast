@@ -1,0 +1,8 @@
+{"title": "TUTORIAL",
+ "about": "Learn the game one step at a time. Each lesson waits for you to do what it asks.",
+ "groups": [
+  {"id": "basics", "title": "Basics", "faction": "", "lessons": ["t01_basics"]},
+  {"id": "crown", "title": "The Crown", "faction": "crown", "lessons": ["t10_crown", "t19_crown_practice"]},
+  {"id": "clockwork", "title": "The Clockwork", "faction": "clockwork", "lessons": ["t20_clockwork", "t29_clockwork_practice"]},
+  {"id": "brood", "title": "The Brood", "faction": "brood", "lessons": ["t30_brood", "t39_brood_practice"]}
+ ]}

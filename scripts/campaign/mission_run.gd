@@ -8,6 +8,7 @@ extends Node
 
 signal said(line: Dictionary)        # a line of dialogue for this screen: {"id", "who", "name", "side", "text", "still"}
 signal objectives_changed
+signal pointer_changed               # the TUTORIAL's pointer moved (MissionUi draws it): `pointer`
 
 const TICK := 0.25                   # seconds between trigger and objective checks
 const SYNC_EVERY := 2.0              # host: the objectives are sent to the guests again this often (a lost message heals)
@@ -29,6 +30,13 @@ var winner_side := ""
 var _side_had := {}                  # side id -> true once it had a unit or a building
 var _t := 0.0
 var _sync_t := 0.0
+# the TUTORIAL (docs/tutorial.md): what the player did since the step began ("mark": the camera, the counts, the notes)
+var pointer := {}                    # where the teacher points: {"area"}, {"tag"}, {"kind"}, {"ui"} ({} none)
+var noted := {}                      # action name -> times since the mark: "minimap", "group_set", "group_select", "hotkey"
+var talk_busy := false               # MissionUi: a line is still being read (the "talked" condition waits for it)
+var _cam0 := Vector2.ZERO
+var _zoom0 := Vector2.ONE
+var _base := {}                      # kind -> how many the player had at the mark (the "more" condition)
 
 
 func setup(m: Dictionary, md: String, cfg: Dictionary, guest := false) -> void:
@@ -101,6 +109,8 @@ func objectives_for(side_id: String) -> Array:
 		if String(o.get("side", "")) == side_id and st != "hidden":
 			var c: Dictionary = o.duplicate()
 			c["state"] = st
+			if c.has("phone") and not Settings.pc():
+				c["text"] = c["phone"]
 			out.append(c)
 	return out
 
@@ -111,8 +121,11 @@ func line(lid: String) -> Dictionary:
 		return {}
 	var who := String(ln.get("who", ""))
 	var sp: Dictionary = data.get("speakers", {}).get(who, {})
+	var txt := String(ln.get("text", ""))
+	if ln.has("phone") and not Settings.pc():
+		txt = String(ln["phone"])          # (a line with its own words for a phone: the controls differ)
 	return {"id": lid, "who": who, "name": String(sp.get("name", who)), "side": String(sp.get("side", "")),
-		"portrait": String(sp.get("portrait", "")), "text": String(ln.get("text", "")), "still": String(ln.get("still", "")),
+		"portrait": String(sp.get("portrait", "")), "text": txt, "still": String(ln.get("still", "")),
 		"to": String(ln.get("to", ""))}
 
 
@@ -362,6 +375,9 @@ func cond(c: Variant) -> bool:
 					ok = ok or cond(s)
 			"not":
 				ok = not cond(v)
+			"selected", "camera_moved", "zoomed", "more", "built", "rooted", "crew", "group", "did", "gear_view", \
+					"placing", "order", "res", "talked":
+				ok = _tutorial_cond(String(k), v)
 			_:
 				ok = false
 		if not ok:
@@ -380,6 +396,8 @@ func count(q: Dictionary) -> int:
 		var teams: Array = []
 		if q.has("team"):
 			teams = [team_index(String(q["team"]))]
+		elif bool(q.get("mine", false)):
+			teams = [game.human]
 		elif q.has("side"):
 			teams = teams_of_side(String(q["side"]))
 		for u in game.units:
@@ -389,9 +407,12 @@ func count(q: Dictionary) -> int:
 			for b in game.buildings:
 				if not b.dead and not b.ghost and teams.has(b.team):
 					list.append(b)
+	var kinds: Array = (q["kind"] if q["kind"] is Array else [q["kind"]]) if q.has("kind") else []
 	var n := 0
 	for e in list:
 		if q.has("area") and not area.has_point(e.position if e is Unit else e.center()):
+			continue
+		if not kinds.is_empty() and not kinds.has(e.kind):
 			continue
 		n += 1
 	return n
@@ -438,6 +459,11 @@ func act(a: Dictionary) -> void:
 				if t >= 0:
 					game.players[t]["gold"] = int(game.players[t]["gold"]) + int(v.get("gold", 0))
 					game.players[t]["res2"] = float(game.players[t]["res2"]) + float(v.get("powder", 0))
+			"mark":
+				mark()
+			"point":
+				pointer = v if v is Dictionary else {}
+				pointer_changed.emit()
 			"win":
 				finish(String(v))
 			"lose":
@@ -591,6 +617,112 @@ func finish(side_id: String) -> void:
 ## The winner of a finished match, as a side id (a guest learns the team from the snapshot).
 func winner_side_of(team: int) -> String:
 	return winner_side if winner_side != "" else side_of_team(team)
+
+
+# ------------------------------------------------------------------ the TUTORIAL (docs/tutorial.md)
+
+## A step begins: what the player does from now on is measured against this moment.
+func mark() -> void:
+	noted.clear()
+	if game.camera:
+		_cam0 = game.camera.position
+		_zoom0 = game.camera.zoom
+	_base = _my_counts()
+
+
+## Something the player did that the map can't show (the HUD and the hotkey bar call it): "minimap", "group_set",
+## "group_select". Game.note_tutorial passes it on.
+func note(what: String) -> void:
+	noted[what] = int(noted.get(what, 0)) + 1
+
+
+## The player's units and buildings by kind (buildings placed but not yet started count: a ghost site).
+func _my_counts() -> Dictionary:
+	var out := {}
+	for u in game.units:
+		if u.team == game.human and not u.dead:
+			out[u.kind] = int(out.get(u.kind, 0)) + 1
+	for b in game.buildings:
+		if b.team == game.human and not b.dead:
+			out[b.kind] = int(out.get(b.kind, 0)) + 1
+	return out
+
+
+func _kinds(q: Variant) -> Array:
+	if q is String:
+		return [q]
+	if q is Dictionary and q.has("kind"):
+		return q["kind"] if q["kind"] is Array else [q["kind"]]
+	return ["any"]
+
+
+func _kind_ok(e: Entity, kinds: Array) -> bool:
+	if kinds.has("any") or kinds.has(e.kind):
+		return true
+	return kinds.has("army") and e is Unit and not (e as Unit).is_worker()
+
+
+func _need(q: Variant) -> int:
+	return int(q.get("count", 1)) if q is Dictionary else 1
+
+
+func _tutorial_cond(k: String, v: Variant) -> bool:
+	match k:
+		"selected":
+			var sel: Array = game.selection.filter(func(e) -> bool: return is_instance_valid(e) and not e.dead and e.team == game.human)
+			if v is Dictionary and bool(v.get("none", false)):
+				return sel.is_empty()
+			var kinds := _kinds(v)
+			return sel.filter(func(e) -> bool: return _kind_ok(e, kinds)).size() >= _need(v)
+		"camera_moved":
+			return game.camera != null and game.camera.position.distance_to(_cam0) >= float(v)
+		"zoomed":
+			return game.camera != null and absf(game.camera.zoom.x - _zoom0.x) >= 0.08
+		"more":
+			var now := _my_counts()
+			var n := 0
+			for kk in _kinds(v):
+				n += int(now.get(kk, 0)) - int(_base.get(kk, 0))
+			return n >= _need(v)
+		"built":
+			var kinds := _kinds(v)
+			return game.buildings.filter(func(b) -> bool: return b.team == game.human and not b.dead and b.built and kinds.has(b.kind)).size() >= _need(v)
+		"rooted":
+			var kinds := _kinds(v)
+			return game.units.filter(func(u) -> bool: return u.team == game.human and not u.dead and kinds.has(u.kind) and BroodNew.rooted(u)).size() >= _need(v)
+		"crew":
+			var kinds := _kinds(v)
+			var at_least := int(v.get("at_least", 1)) if v is Dictionary else 1
+			var n := 0
+			for e in game.buildings + game.units:
+				if e.team == game.human and not e.dead and kinds.has(e.kind) and WorkerLabels.workers(game, e).size() >= at_least:
+					n += 1
+			return n >= _need(v)
+		"group":
+			for gr in game.groups:
+				if (gr as Array).filter(func(x) -> bool: return is_instance_valid(x) and not x.dead).size() >= int(v):
+					return true
+			return false
+		"did":
+			var what := String(v.get("name", "")) if v is Dictionary else String(v)
+			return int(noted.get(what, 0)) >= _need(v)
+		"gear_view":
+			return game.gear_net != null and game.gear_net.view == bool(v)
+		"placing":
+			var c := game.controls
+			if c == null:
+				return false
+			var kinds := _kinds(v)
+			return c.mode in ["place", "nb_root"] and (kinds.has("any") or kinds.has(String(c.place_kind)))
+		"order":
+			var us := tagged(String(v.get("tag", "")))
+			return us.filter(func(u) -> bool: return u is Unit and String(u.order) == String(v.get("is", ""))).size() >= _need(v)
+		"res":
+			var p: Dictionary = game.players[game.human]
+			return float(p.get("gold", 0)) >= float(v.get("gold", 0)) and float(p.get("res2", 0)) >= float(v.get("res2", 0))
+		"talked":
+			return not talk_busy
+	return false
 
 
 # ------------------------------------------------------------------ fog: revealed areas (Game._update_vis)
