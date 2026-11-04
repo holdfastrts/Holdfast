@@ -63,7 +63,7 @@ def fmt(rows):
                 broke[k] = broke.get(k, 0) + v
             kl[0] += max(0, int(p[8]))
             kl[1] += max(0, int(p[9]))
-        res = r["result"] if r["result"] != "alive" else "alive %s" % r["end"]
+        res = ("L %s" % r["end"]) if r["result"].startswith("L") else ("W %s" % r["end"] if r["result"] == "W" else "alive %s" % r["end"])
         out.append("| %s | %s | %s %s | %s | %s | %s | %s | %s | %s | %s | %s |" % (
             r["game"], r["foe"], r["map"].replace("_", " ").title(), r["seed"], res, labs, gold, army,
             ", ".join(outs) or r.get("wave", "-"), ", ".join("%d %s" % (v, k.replace("_", " ")) for k, v in broke.items()) or "-",

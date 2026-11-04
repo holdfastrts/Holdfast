@@ -5,7 +5,9 @@ extends RefCounted
 ## that mend it, or a Brood nest of rooted creatures (Rootmaws, Mound Turtles, the Brood Mother). AICrown (scripts/ai_crown.gd)
 ## owns it (`siege`) and calls it from its think; everything here is the push itself:
 ##  - GO: the guns (GUNS_GO, at least one cannon) and the line (LINE_GO Musketeers) at home, the army worth the enemy army it
-##    knows (EDGE / EDGE_BROOD), nothing at our buildings; never into a bigger army (the doctrine), at most every COOL s.
+##    knows (EDGE / EDGE_BROOD, a gun counted GUN_WEIGHT times), no enemy force at our buildings for QUIET s; at most every
+##    COOL s. The guns come first: while one is wanted its price is kept from the rest (gun_due, AICrown._think_stage).
+##    Distances are measured from the push's MAIN BODY (_core_mid), not the reinforcements walking out to it.
 ##  - MARCH: the line goes first on attack-move; the guns follow LIMBERED on the line's trail (GUN_TRAIL px behind it); the
 ##    line waits while the guns lag (GUN_LAG); the Powder Wagon follows far behind (WAGON_TRAIL), never among the men (its
 ##    blast kills friends: docs/ai_crown_rebuild.md round B).

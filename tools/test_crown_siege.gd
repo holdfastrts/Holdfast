@@ -88,6 +88,12 @@ func _run() -> void:
 	check(AI.strategies_for("crown").has("siege") and not AI.strategies_for("brood").has("siege") and not AI.strategies_for("clockwork").has("siege"),
 		"[plan] Siege push is a Crown plan only")
 	check(AICrown.PLANS.has("siege") and bool(AICrown.PLANS["siege"].get("siege", false)), "[plan] AICrown.PLANS has the siege plan")
+	var dos := ["wall_cottage", "wall_gate", "build", "army", "labs", "hall", "attack"]
+	var bad: Array = []
+	for st in AICrown.PLANS["siege"].get("bo_brood", []):
+		if not dos.has(String(st["do"])) or (String(st["do"]) == "build" and not Defs.BUILDINGS.has(String(st["k"]))):
+			bad.append(str(st))
+	check(AICrown.PLANS["siege"].has("bo_brood") and bad.is_empty(), "[plan] its opening against the Brood is well formed %s" % ("" if bad.is_empty() else str(bad)))
 	await _start("brood", "economy", "greenhold", 3)
 	check(ai != null and ai.siege != null and ai.siege_on(), "[plan] a Hard Crown on Siege push has its push (AICrown.siege)")
 	if ai == null or ai.siege == null:

@@ -150,7 +150,7 @@ const PLANS := {
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 13}},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
-			{"do": "build", "k": "foundry", "at": {"labs": 17}},
+			{"do": "build", "k": "foundry", "at": {"labs": 21}},      # (17 left 4 Musketeers at 6:00 on Greenhold, d08)
 		],
 		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {}], ["barracks", 2, {"labs": 21, "halls": 2}],
 			["armoury", 1, {"labs": 28}], ["foundry", 2, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 34}],
