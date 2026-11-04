@@ -62,6 +62,12 @@ const STRATEGIES := {
 	# BALLOON HARASS (crown-builds-c; scripts/ai_crown.gd PLANS["balloon"], scripts/ai_crown_balloon.gd, docs/crown_builds_c.md):
 	# Observation Balloons carry Musketeers to the enemy's workers, several small strikes at once; the army plays Balanced
 	"balloon": {"name": "Balloon harass", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "crown_only": true},
+	# THE BROOD'S WRITTEN BUILDS (brood-builds; scripts/ai_brood_new.gd PLANS["spitter"] / ["brute"], scripts/ai_brood_builds.gd,
+	# docs/brood_builds.md): a SPITTER TIMING (the Venom Sire early, a Spitter-backed wave at 6:00, the economy growing behind
+	# it) and a BRUTE SIEGE (Brutes with Battering Horns break the wall or the turret line, the army goes in through the
+	# breach). The Brood's own computer plays them; these shared numbers are Balanced's.
+	"spitter": {"name": "Spitter timing", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "brood_only": true},
+	"brute": {"name": "Brute siege", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "brood_only": true},
 }
 
 

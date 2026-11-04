@@ -78,7 +78,22 @@ const PLANS := {
 	"air": {"drone": 6.0, "sire_g": 11, "sire_t": 110.0, "grubs0": 0, "grubs": 44, "maws": [2, 85.0, 9], "grow": [180.0, 420.0],
 		"venom": 600.0, "storm": 150.0, "far": [[0.0, 1], [360.0, 2]], "eco": true, "spoils_bank": 120.0, "storm_want": 8, "wave": 18, "wave_t": 420.0, "step": 8, "pack": false,
 		"mix": "tyrant", "mature": "push", "home_guard": 3},
+	# THE WRITTEN BUILDS (brood-builds, scripts/ai_brood_builds.gd, docs/brood_builds.md): "build" names the push of its own.
+	# SPITTER TIMING: the Venom Sire right after the Tyrant Sire, Spitters ahead (one a Raptor), the line's Bigger Clutch and
+	# Long Spit, the timing at 6:00 once 10 Spitters stand; the economy grows behind it (an eco plan: grubs on the curve,
+	# the natural and new ground)
+	"spitter": {"drone": 6.5, "sire_g": 11, "sire_t": 120.0, "grubs0": 0, "grubs": 46, "maws": [2, 85.0, 9], "grow": [240.0, 540.0],
+		"venom": 150.0, "storm": 660.0, "far": [[0.0, 1], [330.0, 2], [540.0, 3]], "eco": true, "wave": 22, "wave_t": 360.0, "step": 8, "pack": false,
+		"mix": "venom", "mature": "push", "home_guard": 3, "build": "spitter"},
+	# BRUTE SIEGE: her stage 3 early (Brutes need it), 4 Brutes and Battering Horns, then the push breaks the wall or the
+	# turret line in the way and the army goes in through the breach
+	"brute": {"drone": 7.0, "sire_g": 12, "sire_t": 140.0, "grubs0": 0, "grubs": 50, "maws": [2, 80.0, 10], "grow": [190.0, 360.0],
+		"venom": 300.0, "storm": 720.0, "far": [[0.0, 1], [300.0, 2], [540.0, 3]], "eco": true, "wave": 28, "wave_t": 450.0, "step": 10, "pack": true,
+		"mix": "mixed", "mature": "push", "home_guard": 3, "build": "brute", "brutes": 6},
 }
+## The written build's push (scripts/ai_brood_builds.gd), when this game's plan has one ("build").
+const BroodBuilds := preload("res://scripts/ai_brood_builds.gd")
+var bb = null                    # (an AIBroodBuilds, or null)
 
 
 ## (a computer made by hand, as the tests do, has its plan from the start: Balanced until it is told otherwise)
@@ -114,7 +129,9 @@ func _make_plan() -> void:
 		return
 	if _foe_is("crown") and String(plan["mix"]) == "tyrant" and not strategy in ["xrush", "rush"]:
 		plan["mix"] = "mixed"          # (the Crown walls its ramp: claws alone never go in, the wall rule waits for Spitters)
-	if _foe_is("clockwork") and not strategy in ["xrush", "rush"]:
+	if _foe_is("clockwork") and plan.has("build"):
+		plan["edge"] = 0.4            # (the written builds keep their own timing against the Clockwork's bigger early army)
+	elif _foe_is("clockwork") and not strategy in ["xrush", "rush"]:
 		plan["wave"] = mini(int(plan["wave"]), 14)
 		plan["wave_t"] = minf(float(plan["wave_t"]), 300.0 if difficulty > 0 else 420.0)
 		plan["step"] = mini(int(plan["step"]), 4)
@@ -125,6 +142,11 @@ func _make_plan() -> void:
 	for k in over:
 		plan[k] = over[k]
 	_attack_at = int(plan["wave"])
+	if plan.has("build"):
+		if bb == null or bb.kind != String(plan["build"]):
+			bb = BroodBuilds.new(self, String(plan["build"]))
+	else:
+		bb = null
 
 
 func say(s: String) -> void:
@@ -1457,7 +1479,9 @@ func _nb_spoils_want(q: Unit) -> float:
 	if float(plan.get("spoils_bank", 0.0)) > 0.0 and BroodNew.count_of(game, team, BroodNew.FATHER) > 0 and game.clock >= 150.0:
 		want = maxf(want, float(plan["spoils_bank"]))     # (the air rush: the Storm line's spoils, from offered-up Raptors)
 	if _nb_rich() and BroodNew.stage(q) >= 1 and not _attacking:
-		want = maxf(want, RICH_SPOILS)          # (rich: spoils for maturing, Brutes and the lines' research)
+		want = maxf(want, RICH_SPOILS)
+	if bb != null:
+		want = maxf(want, bb.spoils_want(q))          # (the written build: Spitter eggs, Brutes and their horns)          # (rich: spoils for maturing, Brutes and the lines' research)
 	return want
 
 
@@ -1599,7 +1623,9 @@ func _nb_warrior(spend: int) -> String:
 			return "hatchlings"
 	if toads_ok and spoils >= 25.0 and spend >= 100 and toads < mini(3, army / 12):
 		return "mist_toad"
-	if brutes_ok and spoils >= 20.0 and spend >= 150 and brutes < (6 if seen_wall else 4) and brutes * 6 < raptors + spitters + 2:
+	var bcap: int = bb.brute_cap() if bb != null else 0
+	if brutes_ok and spoils >= 20.0 and spend >= 150 and ((bcap > 0 and brutes < bcap) \
+			or (brutes < (6 if seen_wall else 4) and brutes * 6 < raptors + spitters + 2)):
 		return "brute"
 	var venom_share := {"tyrant": 4, "mixed": 2, "venom": 1}.get(String(plan["mix"]), 2) as int      # (one Spitter for this many Raptors)
 	if _wall_foe() and String(plan["mix"]) != "tyrant":
@@ -1688,6 +1714,8 @@ func _nb_research(q: Unit) -> void:
 	var line := func(k: String) -> int: return BroodNew.count_of(game, team, k)
 	var soon: bool = _attacking or sup * 10 >= _attack_at * 5
 	var want: Array = []
+	if not sire_busy and bb != null:
+		want.append_array(bb.research_first())          # (the written build's research first)
 	if not sire_busy:
 		if bool(plan["pack"]) and soon and line.call("raptor") + line.call("tyrant_challenger") >= 6:
 			want.append("nb_pack_hunt")
@@ -1715,7 +1743,7 @@ func _nb_research(q: Unit) -> void:
 			continue
 		var info: Dictionary = Defs.RESEARCH[key]
 		# (the army's own research, Bigger Clutch, Pack Hunt and Battering Horns, never waits for her stage's spoils)
-		var k2 := 0.0 if key in ["nb_clutch_raptor", "nb_pack_hunt", "nb_battering_horns"] else keep2
+		var k2 := 0.0 if key in ["nb_clutch_raptor", "nb_pack_hunt", "nb_battering_horns"] or (bb != null and bb.research_first().has(key)) else keep2
 		if food < int(info["cost"]) + keep or spoils < float(info.get("cost2", 0)) + k2:
 			continue
 		var at: String = info["at"]
@@ -2050,7 +2078,10 @@ func _nb_army(q: Unit) -> void:
 	var banked := capped0 and _food() >= 1500 and sup >= 12
 	if peaceful or game.clock < _retreat_until or (not banked and (game.clock < float(plan["wave_t"]) or _rush_on() or _alarm_on())):
 		return
-	if sup < _attack_at and not banked:
+	var by_build: bool = bb != null and bb.decides() and not banked
+	if by_build and not bb.may_go(q, army, sup):
+		return
+	if sup < _attack_at and not banked and not by_build:
 		return
 	# not into a hopeless fight: its army's value against the biggest enemy army it has seen lately (fading; 0.6 of it is
 	# enough: round 3's best game, g20, traded 11,020 for 4,345 with Pack Hunt Raptors against a bigger Clockwork army), unless
@@ -2064,16 +2095,16 @@ func _nb_army(q: Unit) -> void:
 		# its own, so the Raptors stay home as its defence and the economy starts now
 		_rush_to_balanced("calls its rush off: an enemy army of %d seen against its %d" % [int(seen_army), int(mine_v)])
 		return
-	if not first_rush and not capped and mine_v < seen_army * float(plan.get("edge", 0.6)):
+	if not first_rush and not capped and not by_build and mine_v < seen_army * float(plan.get("edge", 0.6)):
 		return
 	# a wall seen (the Crown's ramp wall): not with claws alone (round 3: Raptor waves into Musketeers behind a wall lost
 	# three to four times what they killed); Brutes with Battering Horns or a real line of Spitters first, or at the cap
-	if seen_wall and not first_rush and not capped:
+	if seen_wall and not first_rush and not capped and not by_build:
 		var br := BroodNew.count_of(game, team, "brute")
 		var sp := BroodNew.count_of(game, team, "spitter") + BroodNew.count_of(game, team, "venom_challenger")
 		if not ((br >= 2 and game.has_tech(team, "nb_battering_horns")) or sp >= 8):
 			return
-	if bool(plan["pack"]) and not game.has_tech(team, "nb_pack_hunt") and (BroodResearch.in_hand(game, team, "nb_pack_hunt") \
+	if bool(plan["pack"]) and not by_build and not game.has_tech(team, "nb_pack_hunt") and (BroodResearch.in_hand(game, team, "nb_pack_hunt") \
 			or (game.clock < float(plan["wave_t"]) + 60.0 and BroodNew.father_near(game, team, BroodNew.FATHER))):
 		return          # (Pack Hunt first: it is coming, or wanted and a minute's grace)
 	var stage2 := BroodNew.stage(q) >= 2 and seen_wall and not game.has_tech(team, "nb_battering_horns") and BroodResearch.in_hand(game, team, "nb_battering_horns")
@@ -2122,6 +2153,8 @@ func _nb_army(q: Unit) -> void:
 	for u in _wave:
 		u.cmd_move(goal, true)
 	say("attacks with %d supply (%s)" % [_wave_sup, _kinds_of(_wave)])
+	if bb != null:
+		bb.started(q, _wave, goal)          # (the written build's push: its march, its siege)
 	if game.mlog:
 		game.mlog.add("%s's Brood attacks with %d supply" % [game.mlog.who(team), _wave_sup])
 
@@ -2149,6 +2182,16 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		say("pulls back: %d of %d left, %d ahead (killed %d)" % [int(left), int(_wave_v0), int(ahead), gained])
 		_wave_end_nb(q, gained < _wave_v0 * 0.6)
 		return
+	# THE WRITTEN BUILD'S PUSH (scripts/ai_brood_builds.gd): the timing's march at the Spitters' pace, the Brutes' siege
+	if bb != null:
+		var steer: int = bb.tick(q, _wave, mid)
+		if steer == 2:
+			_wave_end_nb(q, gained < _wave_v0 * 0.6)
+			return
+		if steer == 1:
+			_nb_join_fresh(army)
+			_nb_hold_rest(army)
+			return
 	# THE HUNT (brood-ai-tune): packs sweep for a building it has not seen; once anything of the enemy is seen again the
 	# wave gathers on it
 	if _nb_hunting:
@@ -2198,7 +2241,12 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 	for u in _wave:
 		if u.order == "idle" and u.target == null:
 			u.cmd_move(_wave_target, true)
-	# reinforcements: a group gathered at home joins
+	_nb_join_fresh(army)
+	_nb_hold_rest(army)
+
+
+## Reinforcements: a group gathered at home (6 supply or more) joins the wave out.
+func _nb_join_fresh(army: Array) -> void:
 	var home := _rally
 	var fresh := army.filter(func(u: Unit) -> bool: return not _wave.has(u) and not _def.has(u) and (u.order == "idle" or u.order == "hold") \
 		and u.target == null and u.moult_t < 0.0 and (u.kind != "hatchlings" or seen_air > 0) and u.position.distance_to(home) < 9.0 * Defs.TILE)
@@ -2209,12 +2257,13 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		for u in fresh:
 			_wave.append(u)
 			u.cmd_move(_wave_target, true)
-	_nb_hold_rest(army)
 
 
 ## The wave is over (pulled back or called home): back to the staging point; a lost wave makes the next bigger and
 ## gives it time to build (a failed rush becomes a Balanced game).
 func _wave_end_nb(q: Unit, failed: bool) -> void:
+	if bb != null:
+		bb.ended("failed" if failed else "home")
 	_attacking = false
 	_nb_hunting = false
 	_pack_of.clear()
