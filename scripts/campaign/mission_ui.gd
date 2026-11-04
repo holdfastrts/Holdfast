@@ -345,7 +345,8 @@ class Pointer extends Control:
 			_arrow(tip - dir * (8.0 * pulse), dir, s)
 			return
 		var p: Vector2 = tg[1]
-		var inside := Rect2(Vector2.ZERO, vs).grow(-40.0 * s).has_point(p)
+		var view := _view_rect(vs)
+		var inside := view.grow(-24.0 * s).has_point(p)
 		if inside:
 			var rad := (26.0 + 10.0 * pulse) * s
 			_ring(p, rad, Color(0, 0, 0, 0.55), 7.0 * s)
@@ -353,11 +354,28 @@ class Pointer extends Control:
 			_ring(p, rad * 0.55, Color(GOLD, 0.5), 2.0 * s)
 			_arrow(p - Vector2(0, rad + (10.0 + 12.0 * pulse) * s), Vector2.DOWN, s)
 		else:
-			var c := vs * 0.5
+			var c := view.get_center()
 			var dir := (p - c).normalized()
-			var box := Rect2(Vector2.ZERO, vs).grow(-70.0 * s)
+			var box := view.grow(-56.0 * s)
 			var tip := _edge_of(box, dir, c)
 			_arrow(tip + dir * (6.0 * pulse * s), dir, s)
+
+	## The part of the screen where the map is seen: under the top bar, above the HUD's bottom row (the group bar,
+	## the command card, the minimap). A spot behind the HUD counts as out of view: the arrow at the edge shows the way.
+	func _view_rect(vs: Vector2) -> Rect2:
+		var top := 44.0 * ui._scale
+		var bottom := vs.y
+		var hud: Control = ui.game.hud if is_instance_valid(ui.game) else null
+		if hud != null:
+			var rects: Dictionary = hud._layout()
+			var xf: Transform2D = hud.get_global_transform()
+			for k in ["hotbar", "card", "mini"]:
+				if rects.has(k):
+					var r: Rect2 = rects[k]
+					var y: float = (xf * r.position).y
+					if y > vs.y * 0.45:
+						bottom = minf(bottom, y)
+		return Rect2(0, top, vs.x, maxf(80.0, bottom - top))
 
 	## Where a ray from the rect's middle (or `from`) along `dir` leaves it.
 	func _edge_of(r: Rect2, dir: Vector2, from := Vector2.INF) -> Vector2:

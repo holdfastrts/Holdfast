@@ -133,7 +133,6 @@
     },
     "Keep training while you fight."
    ],
-   "task": "Destroy every enemy building.",
    "point": {
     "area": "enemy_base"
    },

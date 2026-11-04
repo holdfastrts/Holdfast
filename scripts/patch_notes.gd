@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.0", "items": [
+		"A TUTORIAL BUTTON beside CAMPAIGN on the main menu (the owner: Tutorial is for learning the game, Campaign for people who know how to play and want the story). Seven short lessons, step by step: each step waits for you to do it, the teacher says one thing at a time in the dialogue box, the task stays on the LESSON panel, and a gold ring or arrow shows where to look (the map, the command card, the minimap, the group bar).",
+		"THE BASICS (played with the Crown, the same for every faction): moving and zooming the view, selecting, moving and attacking, the command card and its keys, the minimap, control groups; computer and phone each get their own words.",
+		"THE CROWN: the Farm and Labourers, the Powder Mill, soil and saltpetre running out, the Cottage, the Barracks and Musketeers, a wall and a gate on the ramp, the Foundry and a cannon, then holding the high ground against raiders. THE CLOCKWORK: Winders, the gear rings and the GEAR VIEW, a second Cog Press, the Mainspring and Tension, the Light Works and Clock Soldiers. THE BROOD: the Mother's eggs, food, a Mound Turtle on new ground with a Rootmaw on its swamp, the Tyrant Sire and Raptors.",
+		"Each faction ends with a PRACTICE GAME against an Easy computer, with hints as you go. A finished lesson gets a tick on the list, and NEXT LESSON leads on. The main menu is now four buttons wide.",
+	]},
 	{"v": "0.29.8", "items": [
 		"A NEW PLAN FOR THE CLOCKWORK COMPUTER, OWL RAIDS: a written opening build (the Light Works, the Mainspring on its big ring, the Escapement, two Clock Aviaries, TICKING OWL researched in one while the other makes Swifts), the first Ticking Owl at about 5:05, the economy growing behind it. Two Winders walk out with the Owls to a post near the enemy, out of sight, to wind them (an Owl runs down in about 80 seconds off its gear field), and the Owls strike its Farms, Mills, new Town Halls and workers from there, away from the anti-air seen, and fly back when it comes. A Swift scouts ahead. A real attack on the base calls the Owls home: Raptors, Horsemen and Clock Soldiers cannot hit them. Against the Brood it is the best Clockwork plan so far; against the Crown its Musketeers drive the Owls off. A computer on RANDOM PLAN can pick it.",
 		"Fixed: the Clockwork computer could turn the Springer raid's scouting Swift into a Ticking Owl late in the game.",

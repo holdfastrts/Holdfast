@@ -123,6 +123,8 @@ static func lesson_end(main: Node, game: Game, winner: int, rp_path: String) -> 
 	if won:
 		Tutorial.mark_done(id)
 	var nxt := Tutorial.next_of(id)
+	if won and nxt != "":
+		pick = nxt             # (back on the list, the next lesson is the one chosen)
 	var o := Control.new()
 	o.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	o.theme = UiStyle.theme()

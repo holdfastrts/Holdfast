@@ -149,17 +149,21 @@ es Haz clic derecho en un enemigo para atacarlo. O pulsa A y haz clic en un punt
 pt Toque num inimigo para atacá-lo. Ou toque em ATACAR no cartão e depois num ponto: eles atacam tudo pelo caminho.
 es Toca un enemigo para atacarlo. O toca ATACAR en la tarjeta y luego un punto: atacarán todo lo que haya en el camino.
 
-> Well shot. The command card, bottom right, holds every order for what you selected. Each button has a key: hover it to see. Press HOLD, or H.
-pt Belo tiro. O cartão de comandos, embaixo à direita, tem todas as ordens do que você selecionou. Cada botão tem uma tecla: passe o mouse para ver. Aperte FIRME, ou H.
-es Buen disparo. La tarjeta de órdenes, abajo a la derecha, tiene todas las órdenes de lo que elegiste. Cada botón tiene una tecla: pasa el ratón para verla. Pulsa MANTENER, o H.
-
-> Well shot. The command card, bottom right, holds every order for what you selected. Tap HOLD.
-pt Belo tiro. O cartão de comandos, embaixo à direita, tem todas as ordens do que você selecionou. Toque em FIRME.
-es Buen disparo. La tarjeta de órdenes, abajo a la derecha, tiene todas las órdenes de lo que elegiste. Toca MANTENER.
+> Well shot. The command card, bottom right, holds every order for what you selected.
+pt Belo tiro. O cartão de comandos, embaixo à direita, tem todas as ordens do que você selecionou.
+es Buen disparo. La tarjeta de órdenes, abajo a la derecha, tiene todas las órdenes de lo que elegiste.
 
 > Holding men stay where they stand and shoot what comes.
 pt Homens firmes ficam onde estão e atiram no que vier.
 es Los hombres que mantienen la posición se quedan donde están y disparan a lo que venga.
+
+> Each button has a key: hover it to see. Press HOLD, or H.
+pt Cada botão tem uma tecla: passe o mouse para ver. Aperte FIRME, ou H.
+es Cada botón tiene una tecla: pasa el ratón para verla. Pulsa MANTENER, o H.
+
+> Tap HOLD.
+pt Toque em FIRME.
+es Toca MANTENER.
 
 > The minimap shows the whole map. Click it to jump the view there.
 pt O minimapa mostra o mapa inteiro. Clique nele para levar a vista até lá.
@@ -317,6 +321,10 @@ es Selecciona un Peón, toca CONSTRUIR, elige la CABAÑA y toca donde va.
 pt Mosqueteiros precisam de pólvora. Construa um Moinho de Pólvora perto da Prefeitura: cada uma permite um.
 es Los Mosqueteros necesitan pólvora. Construye un Molino de Pólvora cerca del Ayuntamiento: cada uno permite uno.
 
+> It grinds the hall's saltpetre into powder. Saltpetre runs out too.
+pt Ele mói o salitre da Prefeitura em pólvora. O salitre também se esgota.
+es Muele el salitre del Ayuntamiento en pólvora. El salitre también se agota.
+
 > Now put Labourers to work in it: select some and right-click the Mill.
 pt Agora ponha Operários para trabalhar nele: selecione alguns e clique com o botão direito no Moinho.
 es Ahora pon Peones a trabajar en él: selecciona algunos y haz clic derecho en el Molino.
@@ -324,10 +332,6 @@ es Ahora pon Peones a trabajar en él: selecciona algunos y haz clic derecho en 
 > Now put Labourers to work in it: select some and tap the Mill.
 pt Agora ponha Operários para trabalhar nele: selecione alguns e toque no Moinho.
 es Ahora pon Peones a trabajar en él: selecciona algunos y toca el Molino.
-
-> It grinds the hall's saltpetre into powder. Saltpetre runs out too.
-pt Ele mói o salitre da Prefeitura em pólvora. O salitre também se esgota.
-es Muele el salitre del Ayuntamiento en pólvora. El salitre también se agota.
 
 > Now a Barracks. It needs the Cottage you built. Here is some gold from the treasury.
 pt Agora um Quartel. Ele precisa do Casebre que você construiu. Aqui vai um pouco de ouro do tesouro.
@@ -341,6 +345,10 @@ es Selecciona el Cuartel y entrena tres Mosqueteros. Cada uno cuesta oro y diez 
 pt Sua base fica no terreno alto, e a rampa é o único caminho para subir.
 es Tu base está en terreno alto, y la rampa es el único camino para subir.
 
+> Gates open for your side only.
+pt Portões abrem só para o seu lado.
+es Las puertas solo se abren para tu bando.
+
 > Close it: select a Labourer, BUILD, PALISADE, and drag across the top of the ramp. Then place a GATE in the line.
 pt Feche-a: selecione um Operário, CONSTRUIR, PALIÇADA, e arraste pelo alto da rampa. Depois ponha um PORTÃO na linha.
 es Ciérrala: selecciona un Peón, CONSTRUIR, EMPALIZADA, y arrastra por lo alto de la rampa. Luego pon una PUERTA en la línea.
@@ -348,10 +356,6 @@ es Ciérrala: selecciona un Peón, CONSTRUIR, EMPALIZADA, y arrastra por lo alto
 > Close it: select a Labourer, tap BUILD, PALISADE, and drag across the top of the ramp. Then place a GATE in the line.
 pt Feche-a: selecione um Operário, toque em CONSTRUIR, PALIÇADA, e arraste pelo alto da rampa. Depois ponha um PORTÃO na linha.
 es Ciérrala: selecciona un Peón, toca CONSTRUIR, EMPALIZADA, y arrastra por lo alto de la rampa. Luego pon una PUERTA en la línea.
-
-> Gates open for your side only.
-pt Portões abrem só para o seu lado.
-es Las puertas solo se abren para tu bando.
 
 > Now the guns. Build a Foundry: it needs the Barracks.
 pt Agora os canhões. Construa uma Fundição: ela precisa do Quartel.
@@ -585,6 +589,10 @@ es Selecciona un Dador de cuerda, toca CONSTRUIR y elige la PRENSA DE ENGRANAJES
 pt Ponha-a de modo que o anel engrene com os outros. Um Enrolador leva o caixote até lá.
 es Colócala de modo que su anillo engrane con los demás. Un Dador de cuerda lleva allí su caja.
 
+> Each Winder adds the same share of cogs. Train more Winders if you run short.
+pt Cada Enrolador soma a mesma parte de engrenagens. Treine mais Enroladores se faltarem.
+es Cada Dador de cuerda suma la misma parte de engranajes. Entrena más si te faltan.
+
 > A press with nobody on it presses nothing. Select Winders and right-click the new press.
 pt Uma prensa sem ninguém não prensa nada. Selecione Enroladores e clique com o botão direito na prensa nova.
 es Una prensa sin nadie no prensa nada. Selecciona Dadores de cuerda y haz clic derecho en la prensa nueva.
@@ -592,10 +600,6 @@ es Una prensa sin nadie no prensa nada. Selecciona Dadores de cuerda y haz clic 
 > A press with nobody on it presses nothing. Select Winders and tap the new press.
 pt Uma prensa sem ninguém não prensa nada. Selecione Enroladores e toque na prensa nova.
 es Una prensa sin nadie no prensa nada. Selecciona Dadores de cuerda y toca la prensa nueva.
-
-> Each Winder adds the same share of cogs. Train more Winders if you run short.
-pt Cada Enrolador soma a mesma parte de engrenagens. Treine mais Enroladores se faltarem.
-es Cada Dador de cuerda suma la misma parte de engranajes. Entrena más si te faltan.
 
 > Cogs are your money. TENSION is your second resource, and the Mainspring winds it.
 pt Engrenagens são seu dinheiro. A TENSÃO é seu segundo recurso, e a Mola Real a acumula.

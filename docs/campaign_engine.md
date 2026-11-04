@@ -218,3 +218,9 @@ are close (red and orange, blue and teal) would be hard to tell apart: pick dist
 - More than two sides in one mission (the end logic hands a loss to "the other side").
 - Voice lines for the dialogue (text only).
 - Hotspots on the hub are boxes over the placeholder; with real art they would become invisible areas with a glow.
+
+## The TUTORIAL (0.30.0)
+
+The TUTORIAL button's lessons run on this engine: missions with "tutorial": true and "steps" (written out by
+Campaign.expand_steps), listed in campaign/tutorial.json and never in the storylines. They add conditions on what the
+player did (selected, camera_moved, built, rooted, crew, did...) and the `point` action. See docs/tutorial.md.
