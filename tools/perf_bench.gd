@@ -53,6 +53,7 @@ var _win := {}
 var _win_n := 0
 var _wins: Array = []
 var _worst_ms := 0.0
+var _hits0 := 0
 var _worst_zones := ""
 var mouse := true                # a moving mouse and a changing selection, as a player has (HUD hover and panels)
 var _sel_t := 0.0
@@ -378,6 +379,9 @@ func _minute_row(g: Game) -> void:
 	for z in ZONES:
 		row[z] = float(_acc.get(z, 0)) / 1000.0 / arr.size()      # ms a frame
 	row["paths"] = int(_acc_calls.get("game/pathfinder", 0))
+	var hits = g.get("_pq_hits")
+	row["paths_shared"] = int(hits) - _hits0 if hits != null else 0      # (paths the queue shared: Game.find_path)
+	_hits0 = int(hits) if hits != null else 0
 	for z in MED_ZONES:
 		var vals: Array = _wins.map(func(w: Dictionary) -> float: return float(w.get(z, 0)) / 1000.0 / 60.0)
 		vals.sort()
@@ -392,8 +396,8 @@ func _minute_row(g: Game) -> void:
 		zs.append("%s %.2f" % [z, row[z]])
 	print("PERF worst frame %.0f ms: %s" % [_worst_ms, _worst_zones])
 	_worst_ms = 0.0
-	print("PERF min %2d | %5.1f fps avg, 1%% low %5.1f, worst %6.1f ms, >33ms %4d, >50ms %4d | cpu %.1f s | paths %d | units %d bodies %d fx %d proj %d nodes %d objs %d | ms/frame: %s" % [
-		row["min"], row["fps"], row["low1_fps"], row["worst_ms"], over33, over50, row["cpu_s"], row["paths"], units, row["n_bodies"], row["n_effects"], row["n_projectiles"],
+	print("PERF min %2d | %5.1f fps avg, 1%% low %5.1f, worst %6.1f ms, >33ms %4d, >50ms %4d | cpu %.1f s | paths %d (shared %d) | units %d bodies %d fx %d proj %d nodes %d objs %d | ms/frame: %s" % [
+		row["min"], row["fps"], row["low1_fps"], row["worst_ms"], over33, over50, row["cpu_s"], row["paths"], row["paths_shared"], units, row["n_bodies"], row["n_effects"], row["n_projectiles"],
 		row["nodes"], row["objects"], ", ".join(zs)])
 	_frames = PackedFloat32Array()
 

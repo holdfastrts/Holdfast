@@ -137,75 +137,70 @@ func _tick_ai(delta: float) -> void:
 	if game == null or game.over:
 		return
 	_nb_think -= delta
+	if _nb_stage < NB_STAGES:
+		_nb_think_stage(_nb_stage)      # (a think goes on over the next ticks, a part each: docs/perf_armies.md)
+		_nb_stage += 1
+		return
 	if _nb_think > 0.0:
 		return
 	_nb_think = [1.6, 1.0, 0.6, 0.4][clampi(difficulty, 0, 3)]
+	_nb_think_stage(0)
+	_nb_stage = 1
+
+
+## A think in parts on consecutive physics ticks, as the other computers' (AI._think_stage): in one tick a late-game think
+## made a long frame every 0.4 s (126 ms a second in the owner's Cinder Steps log, 2026-11-03). Each part sees what the
+## parts before it did, in the same order as before.
+const NB_STAGES := 4
+var _nb_stage := NB_STAGES
+
+
+func _nb_think_stage(i: int) -> void:
 	var _pb := Time.get_ticks_usec()
-	if strategy != _plan_of and PLANS.has(strategy):
+	if i == 0 and strategy != _plan_of and PLANS.has(strategy):
 		var aa := _attack_at
 		_make_plan()
 		_attack_at = mini(aa, _attack_at) if aa > 0 else _attack_at
 	var q := BroodNew.queen(game, team)
 	if q == null:
+		_nb_stage = NB_STAGES
 		return
-	var _t__nb_observe := Time.get_ticks_usec()
-	_nb_observe(q)
-	Prof.add("ai/brood/observe", _t__nb_observe)
-	if int(q.nb.get("eggs", 0)) <= EGG_LOW and float(q.nb.get("grow_t", 0.0)) <= 0.0:
-		_egg_low_t = game.clock          # (her clutch run down: eggs hold the Brood back, _nb_grow_time)
-	var _t__nb_root_watch := Time.get_ticks_usec()
-	_nb_root_watch()
-	Prof.add("ai/brood/root_watch", _t__nb_root_watch)
-	if difficulty >= 1:
-		var _t__nb_scout := Time.get_ticks_usec()
-		_nb_scout(q)
-		Prof.add("ai/brood/scout", _t__nb_scout)
-	var _t__nb_mother := Time.get_ticks_usec()
-	_nb_mother(q)
-	Prof.add("ai/brood/mother", _t__nb_mother)
-	var _t__nb_grow := Time.get_ticks_usec()
-	_nb_grow(q)
-	Prof.add("ai/brood/grow", _t__nb_grow)
-	var _t__nb_maw_guard := Time.get_ticks_usec()
-	_nb_maw_guard(q)
-	Prof.add("ai/brood/maw_guard", _t__nb_maw_guard)
-	var _t__nb_rootmaws := Time.get_ticks_usec()
-	_nb_rootmaws(q)
-	Prof.add("ai/brood/rootmaws", _t__nb_rootmaws)
-	var _t__nb_turtles := Time.get_ticks_usec()
-	_nb_turtles(q)
-	Prof.add("ai/brood/turtles", _t__nb_turtles)
-	var _t__nb_grubs_vs_riders := Time.get_ticks_usec()
-	_nb_grubs_vs_riders(q)
-	Prof.add("ai/brood/grubs_vs_riders", _t__nb_grubs_vs_riders)
-	if _eco():
-		var _t__nb_alarm := Time.get_ticks_usec()
-		_nb_alarm(q)
-		Prof.add("ai/brood/alarm", _t__nb_alarm)
-	var _t__nb_father := Time.get_ticks_usec()
-	_nb_father(q)
-	Prof.add("ai/brood/father", _t__nb_father)
-	var _t__nb_morphs := Time.get_ticks_usec()
-	_nb_morphs(q)
-	Prof.add("ai/brood/morphs", _t__nb_morphs)
-	var _t__nb_lay := Time.get_ticks_usec()
-	_nb_lay(q)
-	Prof.add("ai/brood/lay", _t__nb_lay)
-	var _t__nb_essence := Time.get_ticks_usec()
-	_nb_essence(q)
-	Prof.add("ai/brood/essence", _t__nb_essence)
-	var _t__nb_mature := Time.get_ticks_usec()
-	_nb_mature(q)
-	Prof.add("ai/brood/mature", _t__nb_mature)
-	var _t__nb_research := Time.get_ticks_usec()
-	_nb_research(q)
-	Prof.add("ai/brood/research", _t__nb_research)
-	var _t__nb_army := Time.get_ticks_usec()
-	_nb_army(q)
-	Prof.add("ai/brood/army", _t__nb_army)
-	if difficulty >= 1:
-		_spells()           # (the Mist Toads' FOG and TONGUE, as the old Brood's computer: AI._toad)
+	match i:
+		0:
+			_lap_nb("observe", _nb_observe.bind(q))
+			if int(q.nb.get("eggs", 0)) <= EGG_LOW and float(q.nb.get("grow_t", 0.0)) <= 0.0:
+				_egg_low_t = game.clock          # (her clutch run down: eggs hold the Brood back, _nb_grow_time)
+			_lap_nb("root_watch", _nb_root_watch)
+			if difficulty >= 1:
+				_lap_nb("scout", _nb_scout.bind(q))
+			_lap_nb("mother", _nb_mother.bind(q))
+			_lap_nb("grow", _nb_grow.bind(q))
+		1:
+			_lap_nb("maw_guard", _nb_maw_guard.bind(q))
+			_lap_nb("rootmaws", _nb_rootmaws.bind(q))
+			_lap_nb("turtles", _nb_turtles.bind(q))
+			_lap_nb("grubs_vs_riders", _nb_grubs_vs_riders.bind(q))
+			if _eco():
+				_lap_nb("alarm", _nb_alarm.bind(q))
+		2:
+			_lap_nb("father", _nb_father.bind(q))
+			_lap_nb("morphs", _nb_morphs.bind(q))
+			_lap_nb("lay", _nb_lay.bind(q))
+			_lap_nb("essence", _nb_essence.bind(q))
+		3:
+			_lap_nb("mature", _nb_mature.bind(q))
+			_lap_nb("research", _nb_research.bind(q))
+			_lap_nb("army", _nb_army.bind(q))
+			if difficulty >= 1:
+				_spells()           # (the Mist Toads' FOG and TONGUE, as the old Brood's computer: AI._toad)
 	Prof.add("ai/brood", _pb)
+
+
+## One part of the think, timed for the match log's lag lines (ai/brood/<part>).
+func _lap_nb(part: String, f: Callable) -> void:
+	var t0 := Time.get_ticks_usec()
+	f.call()
+	Prof.add("ai/brood/" + part, t0)
 
 
 func in_wave(u: Unit) -> bool:

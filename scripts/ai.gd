@@ -793,6 +793,12 @@ func _meshed_none() -> bool:
 	return not _mine(_works()).any(func(b: Building) -> bool: return game.gear_net.spring_for(b) != null)
 
 
+## The first Mainspring's search (its spot by every Works and hall, the room for the Escapement and the Heavy Works beside
+## it, then the plain spot search: 100 to 175 ms in one frame in a crowded base) waits this long after it found no room,
+## instead of the usual 3 s (docs/perf_armies.md: a freeze every few seconds for minutes in the owner's Cinder Steps game).
+const SPRING_NONE_WAIT := 8.0
+
+
 func _tier2(t: float) -> void:
 	# (the clock, not only the plan's tech factor: a scout report of a "rush" (a Horseman, a Musketeer line at home) put
 	# the tech off by a quarter, and melee alone is what loses to that defence)
@@ -851,6 +857,8 @@ func _tier2(t: float) -> void:
 				if ce.x >= 0 and game.requirement_met(team, Defs.CW_TECH):
 					_construct(Defs.CW_TECH, ce)
 					break
+			if not _busy_building("mainspring"):
+				_tier2_t = game.clock + SPRING_NONE_WAIT      # (no room found for it: the search waits a little longer)
 			if msc.x >= 0 and _busy_building("mainspring"):
 				# (0.14.94: the spots by the new Mainspring are KEPT for what goes beside it: the Escapement, when it could
 				# not be laid with it (a ring touching only the Mainspring's site does not link until it stands, and its room
@@ -2344,6 +2352,10 @@ var _guards: Array = []         # Crown: the part of the army guarding it
 const HALL_FIRST_SOIL := 0.65   # Crown: the next hall comes first from this share of soil left
 const FRESH_CROWN := 0.4        # round 6, Crown: a hall with less soil left than this is not fresh (the next one is due)
 var _stage_spot := Vector2i(-1, -1)   # where the next hall goes (the escort walks there first)
+## When no hall spot was free, the search (every spot on the map rated: 15 to 20 ms a think in a big late game, on every
+## think while none was found) waits this long before it looks again (docs/perf_armies.md).
+const HALL_NONE_WAIT := 4.0
+var _hall_none_t := -1.0
 var _stage_t := 0.0
 
 
@@ -2389,11 +2401,16 @@ func _hall_first() -> bool:
 	_saving = true
 	var cost := int(Defs.BUILDINGS[hall]["cost"]) + (_first_econ_cost() if _dry() else 0)     # (dry land: the Farm / press too)
 	if _stage_spot.x < 0 or game.placement_problem(team, hall, _stage_spot, true) != "":
+		if game.clock < _hall_none_t:
+			_hall_reserve = false
+			_saving = false
+			return false            # (no free hall spot a moment ago: the search waits a little, docs/perf_armies.md)
 		_stage_spot = _safe_hall_spot()
 		if _stage_spot.x < 0 and _best_soil() < DRY_LAND:
 			_stage_spot = _last_resort_spot()
 		_stage_t = game.clock
 		if _stage_spot.x < 0:
+			_hall_none_t = game.clock + HALL_NONE_WAIT
 			_hall_reserve = false
 			_saving = false
 			return false
