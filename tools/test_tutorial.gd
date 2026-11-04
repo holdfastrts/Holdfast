@@ -186,6 +186,136 @@ func _basics() -> void:
 	}, {"move": 60.0, "attack": 90.0})
 
 
+## Place a building as the player does (BUILD, then a click): the game's own spot finder near the hall picks the
+## cell, the given workers go and build it. Returns the site (null: nothing placed, with a FAIL).
+func _build(kind: String, workers: Array, near: Building = null, lo := 3, hi := 14) -> Building:
+	if near == null:
+		near = _my_b(g.faction_hall(g.human))[0]
+	var c := g.find_spot(g.human, kind, near, lo, hi)
+	var b: Building = g.place_building(g.human, kind, c, workers) if c.x >= 0 else null
+	check("placed a %s" % kind, b != null, "at %s, gold %s, problem '%s'" % [c, g.players[g.human]["gold"], g.placement_problem(g.human, kind, c) if c.x >= 0 else "no spot"])
+	return b
+
+
+## Train as the player does (the card's button), waiting for the price as a player would (up to 60 s of game time).
+func _train(kind: String, from: String, n := 1) -> void:
+	for i in n:
+		var why := "?"
+		var t0 := g.clock
+		while why != "" and g.clock - t0 < 60.0:
+			why = g.train(_my_b(from)[0], kind)
+			if why != "":
+				await physics_frame
+		if why != "":
+			check("train a %s" % kind, false, why)
+
+
+func _idle_workers(kind: String, n: int) -> Array:
+	var ws := _mine(kind)
+	ws.sort_custom(func(a, b) -> bool: return (a.order == "idle") and not (b.order == "idle"))
+	return ws.slice(0, n)
+
+
+func _crown() -> void:
+	var lab := func(n: int) -> Array: return _idle_workers("labourer", n)
+	await _play("t10_crown", {
+		"hall": func() -> void: g.set_selection(r.tagged("hall")),
+		"labourer": func() -> void: await _train("labourer", "town_hall"),
+		"cottage": func() -> void: _build("cottage", lab.call(2)),
+		"mill": func() -> void: _build("powder_mill", lab.call(2)),
+		"mill_crew": func() -> void:
+			for u in lab.call(3):
+				u.cmd_gather(_my_b("powder_mill")[0]),
+		"barracks": func() -> void: _build("barracks", lab.call(2)),
+		"musketeers": func() -> void: await _train("musketeer", "barracks", 3),
+		"wall": func() -> void:
+			var ws: Array = lab.call(2)
+			var a := Vector2i(7, 19)
+			var b := Vector2i(9, 19)
+			var n := g.place_line(g.human, "wall", a, b, ws)
+			check("laid a palisade across the ramp", n >= 3, str(n))
+			var gt := g.place_building(g.human, "gate", Vector2i(8, 19), ws)
+			check("put a gate in it", gt != null, g.placement_problem(g.human, "gate", Vector2i(8, 19))),
+		"foundry": func() -> void: _build("foundry", lab.call(2)),
+		"cannon": func() -> void: await _train("cannon", "foundry"),
+		"ridge": func() -> void: g.group_move(_mine("musketeer"), _area_mid("ridge"), false),
+	}, {"cottage": 120.0, "mill": 120.0, "barracks": 150.0, "foundry": 160.0, "cannon": 150.0, "wall": 120.0, "raid": 120.0, "mill_crew": 60.0})
+
+
+func _clockwork() -> void:
+	var wind := func(kind: String, n: int) -> void:
+		# n Winders onto the building of `kind` with the fewest (taken from wherever they are, the busiest first)
+		var bs := _my_b(kind)
+		bs.sort_custom(func(a, b) -> bool: return a.crew.size() < b.crew.size())
+		var site: Building = bs[0]
+		var ws := _mine("winder").filter(func(u) -> bool: return not site.crew.has(u))
+		ws.sort_custom(func(a, b) -> bool: return a.order == "idle" and b.order != "idle")
+		for u in ws.slice(0, maxi(0, n - site.crew.size())):
+			u.cmd_gather(site)
+	await _play("t20_clockwork", {
+		"tower": func() -> void: g.set_selection(r.tagged("tower")),
+		"winder": func() -> void: await _train("winder", "clocktower"),
+		"gear_view": func() -> void: g.toggle_gear_view(),
+		"gear_view_off": func() -> void: g.toggle_gear_view(),
+		"press": func() -> void: _build("cog_press", _idle_workers("winder", 1)),
+		"press_crew": func() -> void: wind.call("cog_press", 2),
+		"mainspring": func() -> void: _build("mainspring", _idle_workers("winder", 1)),
+		"tension": func() -> void: wind.call("mainspring", 2),
+		"works": func() -> void: _build("movement_works", _idle_workers("winder", 1)),
+		"soldiers": func() -> void: await _train("clock_soldier", "movement_works", 2),
+	}, {"press": 150.0, "mainspring": 150.0, "works": 160.0, "tension": 90.0, "press_crew": 60.0})
+
+
+## A spot where a grub may turn into `k` (BroodRoot.place_problem says ""), searched outward from `around`.
+func _root_spot(k: String, around: Vector2, gr: Unit, reach := 14) -> Vector2:
+	for rad in range(0, reach + 1):
+		for dy in range(-rad, rad + 1):
+			for dx in range(-rad, rad + 1):
+				if maxi(absi(dx), absi(dy)) != rad:
+					continue
+				var p := BroodRoot.feet_at(k, g.cell_of(around) + Vector2i(dx, dy))
+				if BroodRoot.place_problem(g, g.human, k, p, gr) == "":
+					return p
+	return Vector2.INF
+
+
+## BUILD on a grub's card, the creature picked and placed: the grub walks there and morphs (the HUD's own order).
+func _morph(k: String, around: Vector2, reach := 14) -> void:
+	var gr: Unit = _idle_workers("grub", 1)[0]
+	var p := _root_spot(k, around, gr, reach)
+	check("a spot for a %s" % k, p.is_finite(), "near %s: %s" % [g.cell_of(around), BroodRoot.place_problem(g, g.human, k, BroodRoot.feet_at(k, g.cell_of(around)), gr)])
+	if p.is_finite():
+		gr.give({"o": "nb_morph", "k": k, "p": p})
+
+
+func _brood() -> void:
+	var q := func() -> Unit: return BroodNew.queen(g, g.human)
+	await _play("t30_brood", {
+		"mother": func() -> void: g.set_selection([q.call()]),
+		"eggs": func() -> void:
+			var why := BroodNew.lay(g, q.call(), "grub")
+			check("the Mother lays a grub egg", why == "", why),
+		"turtle": func() -> void: _morph("mound_turtle", _area_mid("natural")),
+		"rootmaw": func() -> void:
+			var t: Unit = _mine("mound_turtle")[0]
+			var t0 := g.clock
+			while g.clock - t0 < 30.0 and not _root_spot("rootmaw", t.position, null, 9).is_finite():
+				await physics_frame          # (the turtle's swamp spreads)
+			_morph("rootmaw", t.position, 9),
+		"rootmaw_crew": func() -> void:
+			var maws := _mine("rootmaw").filter(func(u) -> bool: return WorkerLabels.workers(g, u).size() < 2)
+			if not maws.is_empty():
+				var new_maw: Unit = maws[0]
+				var free := _mine("grub").filter(func(gr) -> bool: return gr.home_mine != new_maw)
+				for gr in free.slice(0, 2 - WorkerLabels.workers(g, new_maw).size()):
+					gr.cmd_gather(new_maw),
+		"sire": func() -> void: _morph("tyrannosaur", q.call().position, 12),
+		"raptors": func() -> void:
+			var why := BroodNew.lay(g, q.call(), "raptor")
+			check("the Mother lays a Raptor egg", why == "", why),
+	}, {"turtle": 150.0, "rootmaw": 150.0, "sire": 160.0, "raptors": 120.0})
+
+
 func _menu_checks() -> void:
 	main.show_menu()
 	await process_frame
@@ -215,6 +345,12 @@ func _run() -> void:
 	Engine.time_scale = 4.0
 	if only == "" or only == "t01_basics":
 		await _basics()
+	if only == "" or only == "t10_crown":
+		await _crown()
+	if only == "" or only == "t20_clockwork":
+		await _clockwork()
+	if only == "" or only == "t30_brood":
+		await _brood()
 	# the list shows the tick
 	Engine.time_scale = 1.0
 	main.show_tutorial()

@@ -719,7 +719,10 @@ func _tutorial_cond(k: String, v: Variant) -> bool:
 			return us.filter(func(u) -> bool: return u is Unit and String(u.order) == String(v.get("is", ""))).size() >= _need(v)
 		"res":
 			var p: Dictionary = game.players[game.human]
-			return float(p.get("gold", 0)) >= float(v.get("gold", 0)) and float(p.get("res2", 0)) >= float(v.get("res2", 0))
+			for key in v:          # ("gold", "res2": powder or spoils, "tension": the Clockwork's)
+				if float(p.get(String(key), 0)) < float(v[key]):
+					return false
+			return true
 		"talked":
 			return not talk_busy
 	return false
