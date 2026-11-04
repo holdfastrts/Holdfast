@@ -1779,13 +1779,15 @@ func _slot_row(i: int) -> Control:
 	h.add_child(cb)
 	# strategy (computer players)
 	if sl["who"] != "you":
+		var opts: Array = ["random"] + AI.lobby_plans(f)
+		if not opts.has(String(sl.get("strategy", "balanced"))):
+			sl["strategy"] = "balanced"         # (a plan of another faction, kept from before the faction changed)
 		var st: String = String(sl.get("strategy", "balanced"))
-		var opts: Array = ["random"] + AI.listed_strategies()
 		var st_opts: Array = []
 		for o in opts:
 			st_opts.append(["RANDOM PLAN" if o == "random" else String(AI.STRATEGIES[o]["name"]).to_upper(), o, false])
 		var sb := _dropdown("RANDOM PLAN" if st == "random" else String(AI.STRATEGIES[st]["name"]).to_upper(), 150, st_opts, func(v) -> void: sl["strategy"] = v)
-		sb.tooltip_text = "How this computer player plays. Air rush and Extreme rush are Brood only, Springer timing is Clockwork only, Siege push is Crown only (others play Balanced)."
+		sb.tooltip_text = "How this computer player plays. The list shows the plans of this player's faction."
 		h.add_child(sb)
 	else:
 		var sp := Control.new()

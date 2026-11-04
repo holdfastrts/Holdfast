@@ -1,0 +1,5 @@
+# 0.29.16: a lobby row's PLAN list shows only the plans of that player's faction
+
+> How this computer player plays. The list shows the plans of this player's faction.
+pt Como este jogador do computador joga. A lista mostra os planos da facção deste jogador.
+es Cómo juega este jugador del ordenador. La lista muestra los planes de la facción de este jugador.

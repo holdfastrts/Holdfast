@@ -82,6 +82,15 @@ static func strategies_for(faction: String, hidden := false) -> Array:
 	return out
 
 
+## The plans a lobby row offers for its faction (the owner, 2026-11-04: a Brood computer must not be offered the
+## Springer timing): that faction's own and the shared ones; a RANDOM faction gets only the shared ones.
+static func lobby_plans(faction: String) -> Array:
+	if faction in ["crown", "clockwork", "brood"]:
+		return strategies_for(faction)
+	return listed_strategies().filter(func(k) -> bool: return not (STRATEGIES[k].get("brood_only", false)
+		or STRATEGIES[k].get("clock_only", false) or STRATEGIES[k].get("crown_only", false)))
+
+
 ## The plans a lobby offers (every faction's, the hidden ones left out).
 static func listed_strategies() -> Array:
 	return STRATEGIES.keys().filter(func(k) -> bool: return not STRATEGIES[k].get("hidden", false))

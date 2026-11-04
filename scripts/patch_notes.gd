@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.16", "items": [
+		"Fixed: a computer player's PLAN list in the lobby offered every faction's plans (the Springer timing for a Brood computer, say). It now shows only the plans of that player's faction, and a plan left over from another faction turns back to Balanced; a RANDOM faction gets only the shared plans.",
+	]},
 	{"v": "0.29.15", "items": [
 		"NEW ANNOUNCERS, RECORDED: the Crown's is now a royal herald (\"To arms! The town is under attack!\", \"Victory! God save the King!\") and the Brood's is the campaign's scientist, a gentleman who admires the creatures (\"Good heavens, they are attacking the nest!\", \"Another splendid specimen.\"). Both are the owner's recordings, levelled to the Clockwork's announcer. They speak English in every language for now.",
 		"The Brood's scientist has two lines of his own: \"The Mother! Someone protect the Mother!\" when your Brood Mother is attacked, and \"Oh dear. A Sire has fallen.\" when one of your fathers is killed. The Crown's herald now says \"Our men are out of powder!\" when your Musketeers or guns run dry.",

@@ -2759,6 +2759,7 @@ const T := {
 	"%s's Dragoons get off their horses and shoot at the workers.": "Los Dragones de %s desmontan y disparan a los trabajadores.",
 	"%s's Dragoons mount and ride off before the defenders reach them.": "Los Dragones de %s montan y se marchan antes de que los defensores los alcancen.",
 	"Owl raids": "Ataque de Búhos",
+	"How this computer player plays. The list shows the plans of this player's faction.": "Cómo juega este jugador del ordenador. La lista muestra los planes de la facción de este jugador.",
 	"THE CAMPAIGN": "LA CAMPAÑA",
 	"Prologue: The Revolt": "Prólogo: La Revuelta",
 	"The year 2500. The world has fallen back to muskets and sail. A revolt flares against the Crown.": "El año 2500. El mundo ha vuelto a los mosquetes y las velas. Una revuelta estalla contra la Corona.",

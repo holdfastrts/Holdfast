@@ -398,12 +398,15 @@ func _slot_row(l: NetLobby, i: int) -> Control:
 	h.add_child(cb)
 	# plan (computers only; the host sets it)
 	if who != "you" and who != "remote":
+		var plans: Array = ["random"] + AI.lobby_plans(f)
 		var stg := String(s.get("strategy", "balanced"))
+		if not plans.has(stg):
+			stg = "balanced"                    # (shown as Balanced; the host's start falls back the same way)
 		var st_opts: Array = []
-		for o in ["random"] + AI.listed_strategies():
+		for o in plans:
 			st_opts.append(["RANDOM PLAN" if o == "random" else String(AI.STRATEGIES[o]["name"]).to_upper(), o, false])
 		var sb: Button = main._dropdown("RANDOM PLAN" if stg == "random" else String(AI.STRATEGIES[stg]["name"]).to_upper(), 150, st_opts, func(v) -> void: l.set_strategy(i, String(v)), 240.0, "", _nothing)
-		sb.tooltip_text = "How this computer player plays. Air rush and Extreme rush are Brood only, Springer timing is Clockwork only, Siege push is Crown only (others play Balanced)."
+		sb.tooltip_text = "How this computer player plays. The list shows the plans of this player's faction."
 		sb.add_theme_color_override("font_disabled_color", UiStyle.TEXT)
 		sb.disabled = not l.is_host
 		h.add_child(sb)
