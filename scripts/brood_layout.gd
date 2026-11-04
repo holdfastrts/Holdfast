@@ -522,23 +522,28 @@ static func exit_cell(g: Game, p: Vector2, t: int) -> Vector2:
 	var start := g.cell_of(p)
 	if not g.in_map(start):
 		return Vector2.INF
-	var seen := {start: true}
-	var q: Array = [start]
+	g.region_of(start)          # (the regions worked out first: region_of below reads them as they are)
+	var W := Game.W
+	var seen := PackedByteArray()
+	seen.resize(W * Game.H)
+	var q := PackedInt32Array([g.idx(start)])
+	seen[q[0]] = 1
 	var head := 0
-	while head < q.size() and head < 4000:
-		var c: Vector2i = q[head]
+	while head < q.size() and head < 6000:
+		var i := q[head]
 		head += 1
-		var i := g.idx(c)
-		if c != start and g._walkable(c) and g.region_of(c) == main and not BroodRoot.own_cell(g, i, t):
-			return g.cell_center(c)
-		for dv in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-			var nc: Vector2i = c + dv
-			if seen.has(nc) or not g.in_map(nc):
+		var v := int(g.solid[i])
+		var free := (v == 0 or v == 5) and g.cliff[i] == 0
+		if head > 1 and free and g._region[i] == main:
+			return g.cell_center(Vector2i(i % W, i / W))
+		var x := i % W
+		for ni in [i - 1 if x > 0 else -1, i + 1 if x < W - 1 else -1, i - W, i + W]:
+			if ni < 0 or ni >= seen.size() or seen[ni] == 1:
 				continue
-			seen[nc] = true
-			var ni := g.idx(nc)
-			if g._walkable(nc) or BroodRoot.own_cell(g, ni, t):
-				q.append(nc)
+			seen[ni] = 1
+			var nv := int(g.solid[ni])
+			if ((nv == 0 or nv == 5) and g.cliff[ni] == 0) or BroodRoot.own_cell(g, ni, t):
+				q.append(ni)
 	return Vector2.INF
 
 

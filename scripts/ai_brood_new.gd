@@ -780,13 +780,20 @@ func _nb_pull_back(_q: Unit) -> void:
 ## turtle (BroodRoot.place_problem for the computer: not on or by a ramp, no pocket closed, BroodLayout): in the
 ## Redrock Canyon study game (Spitter timing against the Clockwork, seed 5) it rooted at its main's ramp at 5:42 and
 ## shut its whole base in, 42 units at once, 69 by 10:00. Elsewhere it walks on to its spot.
+var _front_ok := [Vector2i(-1, -1), -99.0, false]      # (the last answer: its cell, when, yes or no: asked at most every 2 s a cell)
+
+
 func _front_may_root_here() -> bool:
 	if BroodLayout.off:
 		return true
 	var p := _front_t.position
-	if BroodRoot.place_problem(game, team, BroodNew.TURTLE, p, _front_t, true) != "":
-		return false
-	return BroodLayout.exact(game, team, BroodNew.TURTLE, p, _front_t) == ""
+	var c := game.cell_of(p)
+	if _front_ok[0] == c and game.clock - float(_front_ok[1]) < 2.0:
+		return bool(_front_ok[2])
+	var ok := BroodRoot.place_problem(game, team, BroodNew.TURTLE, p, _front_t, true) == "" \
+			and BroodLayout.exact(game, team, BroodNew.TURTLE, p, _front_t) == ""
+	_front_ok = [c, game.clock, ok]
+	return ok
 
 
 ## In front of the natural: 6 tiles out from its turtle toward the enemy (or where the alarm saw the army), on a spot a
@@ -1329,6 +1336,7 @@ func _layout_ok(k: String, p: Vector2, me: Unit) -> bool:
 var _unstick_t := -99.0
 var unstuck_uproots := 0           # (the study)
 var unstuck_passes := 0
+var _in_pocket := {}               # units seen in a pocket on the last check
 
 
 func _nb_unstick(_q: Unit) -> void:
@@ -1336,6 +1344,18 @@ func _nb_unstick(_q: Unit) -> void:
 		return
 	_unstick_t = game.clock
 	var pk := BroodLayout.pockets(game, team)
+	var seen := {}
+	for r in pk.keys():
+		# (only a pocket seen on two checks in a row: a unit pushed aside by a creature rooting by it, a hatchling in the
+		# nest, is out again by itself in a moment)
+		var again := false
+		for u in pk[r]:
+			seen[u] = true
+			if _in_pocket.has(u):
+				again = true
+		if not again:
+			pk.erase(r)
+	_in_pocket = seen
 	for r in pk:
 		var units: Array = pk[r]
 		var b := BroodLayout.blocker(game, team, r)
@@ -1351,10 +1371,10 @@ func _nb_unstick(_q: Unit) -> void:
 			say("layout: a %s uproots to let %d of its own out of a pocket" % [String(Defs.UNITS[b.kind]["name"]), units.size()])
 			continue
 		var sent := 0
+		var ex := BroodLayout.exit_cell(game, (units[0] as Unit).position, team)      # (one way out for the pocket)
+		if ex == Vector2.INF:
+			continue
 		for u in units:
-			var ex := BroodLayout.exit_cell(game, (u as Unit).position, team)
-			if ex == Vector2.INF:
-				continue
 			var cu := u as Unit
 			var goal := cu.path_goal
 			cu.nb_pass = BroodRoot.PASS_TIME
