@@ -30,6 +30,53 @@ Code: `scripts/expansion_spots.gd`, `ExpansionSpots.rate`. It runs on the bare m
    - Ways in: minus 6 points for each way in after the first. A way in is a gap in the open land 12 tiles round the spot. Minus a little more for a very wide open front.
 4. The two best of each side are marked.
 
+This is the rule for the Clockwork (and any side that is not the Crown or the Brood). The Brood has its own (Mound Turtle
+spots, above). The Crown has its own since 0.29.2 (below).
+
+## The Crown's rule (0.29.2; the owner, DECIDED 2026-11-03 22:25)
+
+The owner: "As Crown I think the optimal expansion positions will be as close as possible to each other because of walls
+and trying to use the high ground to our advantage." Each faction gets its own optimal spot. Code: `scripts/crown_sites.gd`
+(`CrownSites.pick`), used by the gold marks of a Crown side (`ExpansionSpots._crown_rule`, `_crown_update`) and by the
+Crown computer's hall pick (`AICrown._safe_hall_spot`).
+
+1. The candidates are any free ground, not only the map's base sites: every hall's land holds the same fresh reserve.
+   A spot needs its 5 x 4 cells and the ring round them free, on one level, no ramp within two cells (the computer keeps
+   its ramps clear), the economy room round it (`_room` 45% or more), no nearer the enemy by land than us (4 steps of
+   margin), and no lode drawn out by a fallen hall.
+2. **The 2nd and 3rd bases**: at the least hall distance from the Crown's halls (`Defs.HALL_SPACING`, 18 tiles; looked at
+   up to 9 tiles past it), close together, and **under cover of the main's high ground**. The main's EDGE is its
+   high-ground cells next to a drop (`CrownSites.edge_cells`: joined to the main on its level, not over the ramp, not by
+   it). A spot is covered by the share of the cells round its sides (where an attacker stands) within Musketeer reach of an
+   edge cell (200 px: the musket's 190 and the bodies). Score: 40 x room + 60 x cover - 3 a tile past the least distance -
+   1 a tile of the mean distance to the other halls past it + a little for being farther from the enemy - 4 a way in past
+   the first. The 3rd is picked with the 2nd counted as a hall (so it is 18+ tiles from both and close to both).
+3. **The 4th base on**: the same without the cover term (as close to the Crown's halls as it may be, to wall them
+   together).
+4. The marks are worked out on the bare map at the start, and again whenever the side's halls change (for your own side
+   and your allies; for every side while watching: an enemy's new hall is not given away by its marks).
+5. The 18-tile rule is kept as it is. (Proposal, not made: nothing seen says it is wrong; at 18 tiles the new hall's farms
+   and the main's still have their own ground, and two halls' walls can join.)
+
+The Crown computer picks the same spot (one pick at a time, its own halls counted, built or not), skipping a spot where
+its builders were just chased off, where it may not build, on the enemy's side by land, or with enemy soldiers in sight
+within 14 tiles; nothing found: the shared pick. Its line holds the cliff edge above a hall under attack there
+(docs/crown_cliff_edge.md).
+
+### Measured (tools/measure_cliff_cover.gd, the Crown's main; 2 players)
+
+| map | old pick (computer) | its nearest side from the edge | covered | new spot | from the main | nearest side from the edge | covered | legal low-ground spots with a side in reach |
+|---|---|---|---|---|---|---|---|---|
+| Thornwood Maze (the owner's game, P2) | 23 tiles out | 8 tiles | 0% | (88, 66) | 18.0 | 2.4 tiles | 45% | 95 of 665 |
+| Greenhold | 22 | 9 | 0% | (27, 14) | 18.0 | 2.0 | 54% | 154 of 910 |
+| Red Coast | 23 | 10 | 0% | (28, 7) | 18.0 | 2.0 | 63% | 133 of 853 |
+| Kestrel Rise | 20 | 7 | 0% | (24, 8) | 18.1 | 2.0 | 54% | 96 of 783 |
+
+So on every map a legal hall spot right under the cliff existed (the owner's question): the old pick (the map's natural,
+the gold mark #1) stood 7-10 tiles from the edge, out of the Musketeers' reach (190 px is 6 tiles). No spot is covered
+on all sides: the cliff covers the side facing it and half of the two ends (45-63%); the far side needs the hall's own
+wall. The 3rd base is usually 18 tiles from both and 0-36% covered. Pictures: docs/shots/crown_cliff_edge/spots_*.jpg.
+
 Resources: every hall's land holds the same fresh reserve on a new map. So resources do not change the pick at the start. A spot whose lode a fallen hall drew out is hidden.
 
 The maps are turned through their middle, so twin spots get the same score. The test checks this on every map.

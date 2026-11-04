@@ -10,7 +10,16 @@ extends SceneTree
 ##  [below]   30 Raptors (750: they come in pairs at 50) come at a labourer working below the main (at the hall site nearest the ramp's foot): the army
 ##            (worth less than BEAT times them) holds the top (holds > 0, the Musketeers still on the main) and the
 ##            labourer runs up onto the main within 30 s (or dies trying: then the check reports it)
+##  [edge]    THE CLIFF EDGE (0.29.2): a Town Hall of ours below the main's cliff, at the Crown's own spot (CrownSites.pick,
+##            under the edge), and 16 Raptors at it: within EDGE_BY s the musket line has moved to the cliff's edge above it
+##            (edge_moves; 4+ Musketeers within EDGE_NEAR px of the hall's side), every one of them stays on the main's level
+##            the whole time (never down the ramp), the cannon is on the edge too and on HOLD; 2-4 labourers mend the hall
+##            (never more), a mender a Raptor goes for runs (dodges), and once the Raptors are gone the line walks back to
+##            the ramp post (within POST_R tiles of the band) and the menders are let go
 const POST_R := 7.0
+const EDGE_BY := 15.0
+const EDGE_NEAR := 230.0
+const EDGE_KEEP_WAIT := 8.0
 const SCOUT_FAR := 25.0
 const T := 32.0
 var fails := 0
@@ -137,5 +146,104 @@ func _run() -> void:
 	var stayed: int = muskets.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and ch.on_main(u.position)).size()
 	check(stayed >= 5, "[below] the Musketeers stay on the main (%d of 6)" % stayed)
 	check(up, "[below] the labourer runs up onto the main (%s)" % ("alive" if is_instance_valid(lab) and not lab.dead else "dead"))
+	# (the raid is over: the Raptors of [below] go)
+	for u in g.army(1):
+		if u.kind == "raptor" and not u.dead:
+			u.die()
+	await wait(EDGE_KEEP_WAIT)
+	await _edge_check(muskets, gun, band)
 	print("test_crown_hold: %s (%d failed)" % ["ALL PASS" if fails == 0 else "FAILED", fails])
 	quit(1 if fails > 0 else 0)
+
+
+func _edge_check(muskets: Array, gun: Unit, band: Vector2) -> void:
+	var ch = ai.ch
+	var picks: Array = CrownSites.pick(g, 0, [Vector2(g.starts[0]) + Vector2(2.5, 2.0)], 1)
+	check(not picks.is_empty() and float(picks[0]["share"]) > 0.2, "[edge] (set-up) the Crown's spot is under the edge (%s)" % (str(picks[0]) if not picks.is_empty() else "none"))
+	if picks.is_empty():
+		return
+	var hall: Building = g._add_building("town_hall", 0, picks[0]["c"], true)
+	var lab: Unit = g._add_unit("labourer", 0, _free(hall.center() + Vector2(0, 90)))
+	await wait(2.0)
+	# (more Musketeers for the edge: 6 on the post already)
+	var live: Array = muskets.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
+	var foot: Vector2 = hall.center() + (hall.center() - band).normalized() * 9.0 * T
+	var raptors: Array = []
+	for i in 16:
+		var r: Unit = g._add_unit("raptor", 1, _free(foot + Vector2(float(i % 4 - 2) * 24.0, float(i / 4 - 2) * 24.0)))
+		r.cmd_attack(hall)
+		raptors.append(r)
+	var m0: int = ch.edge_moves
+	var t0 := g.clock
+	var left_main := 0
+	var near_best := 0
+	var gun_edge := false
+	var menders_max := 0
+	var sicced := false
+	var sic_t := -99.0
+	var sic_pairs: Array = []
+	var reached := false
+	var lip_best := 0
+	var edge: Array = CrownSites.edge_cells(g, 0)
+	while g.clock - t0 < 40.0:
+		await wait(0.5)
+		for u in live:
+			if is_instance_valid(u) and not u.dead and g.level_of(u.position) != ch._home_h:
+				left_main += 1
+				if left_main <= 6:
+					var cc: Vector2i = g.cell_of(u.position)
+					print("  (off the main: %s at %s cell %s height %d ramp %d cliff %d solid %d, order %s, mode %s, target %s)" % [u.kind, str(u.position), str(cc),
+						int(g.height[g.idx(cc)]), int(g.ramp[g.idx(cc)]), int(g.cliff[g.idx(cc)]), int(g.solid[g.idx(cc)]), u.order, u.mode, str(u.target)])
+		if g.clock - t0 <= EDGE_BY + 20.0:
+			var near := live.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and hall.edge_distance(u.position) < EDGE_NEAR).size()
+			near_best = maxi(near_best, near)
+			var lip := live.filter(func(u) -> bool:
+				if not is_instance_valid(u) or u.dead:
+					return false
+				var cu: Vector2i = g.cell_of(u.position)
+				for e in edge:
+					if Vector2(e).distance_to(Vector2(cu)) <= 1.5:
+						return true
+				return false).size()
+			lip_best = maxi(lip_best, lip)
+			if is_instance_valid(gun) and not gun.dead and hall.edge_distance(gun.position) < EDGE_NEAR + 60.0 and g.level_of(gun.position) == ch._home_h:
+				gun_edge = true
+		menders_max = maxi(menders_max, ch._menders.size())
+		if ch.mend_dodges == 0 and not ch._menders.is_empty() and g.clock - sic_t > 3.0:
+			# (two Raptors sent at a mender: he must run; again every 3 s until one does, a mender may be let go meanwhile)
+			sic_t = g.clock
+			var w: Unit = ch._menders.keys()[0]
+			var n := 0
+			for r in raptors:
+				if is_instance_valid(r) and not r.dead and n < 2:
+					r.cmd_attack(w)
+					sic_pairs.append([r, w])
+					n += 1
+			sicced = sicced or n > 0
+		for pr in sic_pairs:
+			var r0 = pr[0]
+			var w0 = pr[1]
+			if is_instance_valid(r0) and not r0.dead and is_instance_valid(w0) and not w0.dead and ch.is_mender(w0) and r0.target == w0 \
+					and r0.position.distance_to(w0.position) < 200.0:
+				reached = true
+		if raptors.all(func(r) -> bool: return not is_instance_valid(r) or r.dead) or hall.dead:
+			break
+	print("  (edge: moves %d, %d Musketeers near the hall at best, menders sent %d, at most %d at once, dodges %d, hall %d/%d%s, %d Raptors left)" % [
+		ch.edge_moves - m0, near_best, ch.mend_sent, menders_max, ch.mend_dodges, int(hall.hp), int(hall.max_hp), " DEAD" if hall.dead else "",
+		raptors.filter(func(r) -> bool: return is_instance_valid(r) and not r.dead).size()])
+	check(ch.edge_moves > m0, "[edge] the line moved to the cliff edge above the hall (%d)" % (ch.edge_moves - m0))
+	check(near_best >= mini(4, live.size()), "[edge] ... %d Musketeers within %d px of the hall's side at best" % [near_best, int(EDGE_NEAR)])
+	check(lip_best >= mini(4, live.size()), "[edge] ... %d of them on the cliff's lip at best (within 1.5 cells of an edge cell)" % lip_best)
+	check(left_main == 0, "[edge] no Musketeer stepped off the main's level (%d looks off it)" % left_main)
+	check(gun_edge, "[edge] the cannon went to the edge too")
+	check(ch.mend_sent >= 2 and menders_max <= 4, "[edge] 2-4 labourers mended the hall (%d sent, at most %d at once)" % [ch.mend_sent, menders_max])
+	check(not hall.dead, "[edge] the hall stands (%d / %d)" % [int(hall.hp), int(hall.max_hp)])
+	check(not reached or ch.mend_dodges > 0, "[edge] a mender the Raptors went for ran (dodges %d; a Raptor sent at one came near: %s)" % [ch.mend_dodges, str(reached)])
+	for r in raptors:
+		if is_instance_valid(r) and not r.dead:
+			r.die()
+	await wait(EDGE_KEEP_WAIT + 12.0)
+	var back := live.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and u.position.distance_to(band) < POST_R * T).size()
+	var alive := live.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead).size()
+	check(back == alive, "[edge] the threat gone, the line is back at the ramp post (%d of %d)" % [back, alive])
+	check(ch._menders.is_empty(), "[edge] ... and the menders are let go (%d)" % ch._menders.size())

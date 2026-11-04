@@ -23,6 +23,11 @@ const COACH := {
 	"eco_late": {"strategy": "economy", "set": {"labs": 99}},
 }
 var coach_plan := "economy"
+var raid_t := -1.0              # raid:SECONDS:N the coach's staged attack: N Raptors (of the enemy) appear 9 tiles out from the
+var raid_n := 24                # Crown's newest hall below its main at that time and go for it (the owner's 6:19 on Thornwood)
+var raid_done := false
+var me := 0                     # cslot:1 the Crown plays in the second slot (the owner's log had it as P2)
+var fo := 1
 var sb := "balanced"
 var sets := {}
 var hands := ""
@@ -51,8 +56,15 @@ func _initialize() -> void:
 			continue
 		match kv[0]:
 			"coach": coach_plan = kv[1]
+			"cslot":
+				me = int(kv[1])
+				fo = 1 - me
 			"sb": sb = kv[1]
 			"hand": hands = kv[1]
+			"raid":
+				var rp := kv[1].split(":")
+				raid_t = float(rp[0])
+				raid_n = int(rp[1]) if rp.size() > 1 else 24
 			"set":
 				for pair in kv[1].split(","):
 					var p := pair.split("=", true, 1)
@@ -68,11 +80,16 @@ func _process(delta: float) -> bool:
 		if t > 0.2:
 			seed(seed_)
 			var c: Dictionary = COACH.get(coach_plan, COACH["economy"])
-			main.start({"map": map, "seed": seed_, "slots": [
+			var slots: Array = [
 				{"who": da, "faction": "crown", "colour": 0, "side": 0, "strategy": String(c["strategy"])},
-				{"who": db, "faction": fb, "colour": 1, "side": 1, "strategy": sb}]})
+				{"who": db, "faction": fb, "colour": 1, "side": 1, "strategy": sb}]
+			if me == 1:
+				# (the Crown in the second slot, as in a log where it was P2: the enemy first, its colour and side kept)
+				slots = [{"who": db, "faction": fb, "colour": 1, "side": 0, "strategy": sb},
+					{"who": da, "faction": "crown", "colour": 0, "side": 1, "strategy": String(c["strategy"])}]
+			main.start({"map": map, "seed": seed_, "slots": slots})
 			for a in main.game.ais:
-				if a.team == 0 and a is AICrown:
+				if a.team == me and a is AICrown:
 					_ai = a
 					var o: Dictionary = (c["set"] as Dictionary).duplicate(true)
 					for k in sets:
@@ -114,11 +131,11 @@ func clip(name: String, who, frames := 30, step := 4, zoom := 1.2) -> void:
 
 
 func _home() -> Vector2:
-	return (Vector2(g.starts[0]) + Vector2(2.5, 2.0)) * Defs.TILE
+	return (Vector2(g.starts[me]) + Vector2(2.5, 2.0)) * Defs.TILE
 
 
 func _foe_home() -> Vector2:
-	return (Vector2(g.starts[1]) + Vector2(2.5, 2.0)) * Defs.TILE
+	return (Vector2(g.starts[fo]) + Vector2(2.5, 2.0)) * Defs.TILE
 
 
 # ------------------------------------------------------------------ the coach
@@ -165,7 +182,7 @@ func _coach() -> void:
 	if thr != Vector2.INF and g.clock - _def_t > 60.0:
 		var n := 0
 		for u in g.units_near(thr, 400.0):
-			if u.team == 1 and not u.dead and not u.is_worker() and not BroodNew.is_nb(u.kind):
+			if u.team == fo and not u.dead and not u.is_worker() and not BroodNew.is_nb(u.kind):
 				n += 1
 		if n >= 5:
 			_def_t = g.clock
@@ -184,8 +201,97 @@ func _coach() -> void:
 			say("the first attack goes out (%d supply)" % _ai._army_supply(_ai._wave_set.keys().filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)))
 			clip("first_attack", lead, 30, 5, 1.1)
 			_later.append([g.clock + 40.0, "wave_%s.png" % _mmss(g.clock), lead])
+	_cliff_watch()
 	if hands.contains("scoutall"):
 		pass          # (the shared loop takes the riders it wants: AICrownHold._want)
+
+
+## THE CLIFF EDGE (0.29.2, docs/crown_cliff_edge.md): the line at the edge (edge_MMSS.png, and 5 s later), the menders
+## (mend_MMSS.png, clip_mend), the first Field Cannon and its first canister shot (cannon_MMSS.png), every hall laid / lost.
+var _edge_seen := 0
+var _mend_seen := false
+var cannon_t := -1.0
+var canister_t := -1.0
+var _halls_seen := {}
+var hall_lines: Array = []
+
+
+var _raid_hall: Building = null
+var _raid_k0 := [0, 0]
+var _raid_said := false
+
+
+func _cliff_watch() -> void:
+	var ch = _ai.ch
+	if _raid_hall != null and not _raid_said and g.clock >= raid_t + 60.0:
+		_raid_said = true
+		var ok: bool = is_instance_valid(_raid_hall) and not _raid_hall.dead
+		hall_lines.append("staged raid of %d Raptors at %s: after 60 s the hall %s; value killed %d by the Crown, %d by the raiders' side" % [raid_n, _mmss(raid_t),
+			("stands at %d/%d" % [int(_raid_hall.hp), int(_raid_hall.max_hp)]) if ok else "is LOST",
+			int(g.stats[me]["value_killed"]) - int(_raid_k0[0]), int(g.stats[fo]["value_killed"]) - int(_raid_k0[1])])
+	if raid_t >= 0.0 and not raid_done and g.clock >= raid_t:
+		raid_done = true
+		var hall: Building = null
+		for h in _ai._halls():
+			if h.center().distance_to(_home()) > 10.0 * Defs.TILE and (hall == null or h.center().distance_to(_home()) < hall.center().distance_to(_home())):
+				hall = h
+		if hall == null:
+			say("the staged raid: no hall below the main to go for")
+		else:
+			var away: Vector2 = (hall.center() - _home()).normalized()
+			var at: Vector2 = hall.center() + away * 9.0 * Defs.TILE
+			var n := 0
+			for i in raid_n:
+				var p: Vector2 = at + Vector2(float(i % 6 - 3) * 22.0, float(i / 6 - 2) * 22.0)
+				var c: Vector2i = g.nearest_free(g.cell_of(p), 6)
+				if c.x < 0:
+					continue
+				var r: Unit = g._add_unit("raptor", fo, g.cell_center(c))
+				r.cmd_attack(hall)
+				n += 1
+			say("the staged raid: %d Raptors at the hall at %s (%s, %d/%d hp)" % [n, str(hall.cell), "built" if hall.built else "going up", int(hall.hp), int(hall.max_hp)])
+			_raid_hall = hall
+			_raid_k0 = [int(g.stats[me]["value_killed"]), int(g.stats[fo]["value_killed"])]
+			clip("raid", hall.center(), 30, 6, 1.0)
+			_later.append([g.clock + 10.0, "raid_%s.png" % _mmss(g.clock), hall.center()])
+			_later.append([g.clock + 20.0, "raid_%s.png" % _mmss(g.clock + 10.0), hall.center()])
+	if ch.edge_moves > _edge_seen:
+		_edge_seen = ch.edge_moves
+		var mid := Vector2.ZERO
+		for p in ch._edge_spots:
+			mid += p
+		if not ch._edge_spots.is_empty():
+			mid /= float(ch._edge_spots.size())
+			say("the line moves to the cliff edge (%d): %s" % [_edge_seen, String(ch.edge_log[-1][1]) if not ch.edge_log.is_empty() else ""])
+			var at: Vector2 = mid.lerp(ch._edge_aim, 0.4) if ch._edge_aim != Vector2.INF else mid
+			if _edge_seen <= 4:
+				_later.append([g.clock + 5.0, "edge_%s.png" % _mmss(g.clock), at])
+	if not _mend_seen and ch.mend_sent > 0 and ch._edge_b != null and is_instance_valid(ch._edge_b):
+		_mend_seen = true
+		say("labourers mend the %s under fire (%d sent)" % [ch._edge_b.kind, ch.mend_sent])
+		shot("mend", ch._edge_b, 1.3, 5.0)
+		clip("mend", ch._edge_b.center(), 24, 4, 1.3)
+	for u in g.army(me):
+		if u.kind != "cannon" or u.dead:
+			continue
+		if cannon_t < 0.0:
+			cannon_t = g.clock
+			say("the first Field Cannon is out")
+		if canister_t < 0.0 and u.mode == "canister" and u.target != null and is_instance_valid(u.target):
+			canister_t = g.clock
+			say("the cannon fires canister (%s, %s)" % [u.order, "unlimbered" if u.tesla_mode != "packed" else "limbered"])
+			shot("cannon", u, 1.4, 5.0)
+	for h in _ai._halls():
+		if not _halls_seen.has(h):
+			_halls_seen[h] = true
+			var dd: float = h.center().distance_to(_home()) / Defs.TILE
+			hall_lines.append("%s hall laid at %s, %.1f tiles from the main" % [_mmss(g.clock), str(h.cell), dd])
+	for h in _halls_seen.keys():
+		if is_instance_valid(h) and h.dead and _halls_seen[h]:
+			_halls_seen[h] = false
+			var how := "LOST" if h.built else "site gone (dropped or razed unbuilt)"
+			hall_lines.append("%s hall %s at %s" % [_mmss(g.clock), how, str(h.cell)])
+			say("the hall at %s: %s" % [str(h.cell), how])
 
 
 func _kinds(list: Array) -> String:
@@ -199,22 +305,22 @@ func _kinds(list: Array) -> String:
 
 
 func _minute() -> void:
-	var st: Dictionary = g.stats[0]
-	var fs: Dictionary = g.stats[1]
-	var labs := g.workers(0)
+	var st: Dictionary = g.stats[me]
+	var fs: Dictionary = g.stats[fo]
+	var labs := g.workers(me)
 	var idle := labs.filter(func(u: Unit) -> bool: return u.order == "idle").size()
 	var farms := _ai._mine("farm").size()
 	var mills := _ai._mine("powder_mill").size()
 	var mill_crew := 0
 	for m in _ai._mine("powder_mill"):
 		mill_crew += m.crew.size()
-	var army := g.army(0)
-	var foe := g.army(1).filter(func(u: Unit) -> bool: return not BroodNew.is_nb(u.kind) or not u.is_worker())
+	var army := g.army(me)
+	var foe := g.army(fo).filter(func(u: Unit) -> bool: return not BroodNew.is_nb(u.kind) or not u.is_worker())
 	var state := ("opening step %d/%d (reserve %d)" % [_ai.bo_i + 1, _ai._bo_plan.size(), _ai.bo_reserve]) if not _ai.bo_done else "milestones"
 	var line := "%s labourers %d (idle %d) | halls %d farms %d mills %d (crew %d) | gold %d powder %d | earned this minute %d gold %d powder | supply %d/%d | army %d (%s) | enemy army %d (%s) | killed %d lost %d | enemy earned %d | %s | attack_at %d%s" % [
-		_mmss(g.clock), labs.size(), idle, _ai._halls().size(), farms, mills, mill_crew, int(g.players[0]["gold"]), int(g.players[0]["res2"]),
-		int(st["gold"]) - _earned0[0], int(float(st["res2_in"]) - _powder0), g.supply_used(0), int(g.players[0]["cap"]),
-		g.army_value(0), _kinds(army), g.army_value(1), _kinds(foe).left(160), int(st["value_killed"]), int(fs["value_killed"]),
+		_mmss(g.clock), labs.size(), idle, _ai._halls().size(), farms, mills, mill_crew, int(g.players[me]["gold"]), int(g.players[me]["res2"]),
+		int(st["gold"]) - _earned0[0], int(float(st["res2_in"]) - _powder0), g.supply_used(me), int(g.players[me]["cap"]),
+		g.army_value(me), _kinds(army), g.army_value(fo), _kinds(foe).left(160), int(st["value_killed"]), int(fs["value_killed"]),
 		int(fs["gold"]) - _earned0[1], state, _ai._attack_at, " ATTACKING" if _ai._attacking else ""]
 	_earned0 = [int(st["gold"]), int(fs["gold"])]
 	_powder0 = float(st["res2_in"])
@@ -262,3 +368,16 @@ func _finish() -> void:
 	if _ai:
 		e.store_line("opening over: %s" % _ai.bo_why)
 	e.close()
+	if _ai:
+		var c := FileAccess.open(out.path_join("cliff.txt"), FileAccess.WRITE)
+		for l in hall_lines:
+			c.store_line(l)
+		var st: Dictionary = g.stats[me]
+		var fs: Dictionary = g.stats[fo]
+		c.store_line("first Field Cannon %s, first canister shot %s, cannon first vs the Brood %s" % [_mmss(cannon_t) if cannon_t >= 0.0 else "-",
+			_mmss(canister_t) if canister_t >= 0.0 else "-", _mmss(_ai.cannon_first_t) if _ai.cannon_first else "no"])
+		c.store_line("edge moves %d, menders sent %d, dodges %d, Crown site picks %d" % [_ai.ch.edge_moves, _ai.ch.mend_sent, _ai.ch.mend_dodges, _ai.site_picks])
+		c.store_line("value killed by the Crown %d, by the enemy %d, at %s" % [int(st["value_killed"]), int(fs["value_killed"]), _mmss(g.clock)])
+		for l in _ai.ch.edge_log:
+			c.store_line("%s %s" % [_mmss(float(l[0])), String(l[1])])
+		c.close()

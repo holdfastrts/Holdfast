@@ -52,9 +52,13 @@ const LAB_COST := 50
 ## A step whose trigger is a moment away (sup / labs within one or two) already has its gold set aside.
 ## "mid" (after the opening): [kind, how many, {trigger}] in order; one is put up a think.
 ## "s": the shared plan settings it plays with (AI.STRATEGIES keys: wave, step, expand, halls, tech, workers).
+## THE FOUNDRY BEFORE THE SECOND BARRACKS, in every plan and matchup (the owner, DECIDED 2026-11-03 22:33: "even in the
+## Horseman rush, the rush is done with 1 Barracks; I don't think there is any case you build the second Barracks before
+## the Foundry"): the cannon's canister also hits flyers and its round shot has the longest range in the game. The plans
+## below are written so, and _construct holds it for every other caller (the shared rules, the scout's plan, the bank).
 const PLANS := {
 	# the Economy plan: the second Farm at 7 labourers, the Gate, the Barracks and the Mill at 8, six Musketeers, then the
-	# second hall at 15 labourers (about 3:10); the second Barracks with it; the army waits on the high ground
+	# second hall at 15 labourers (about 3:10); the Foundry, then the second Barracks; the army waits on the high ground
 	"economy": {"opening": "mill", "labs": 99, "army": 0.4, "mill": [[0, 2], [14, 4], [18, 6]],
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
@@ -65,8 +69,8 @@ const PLANS := {
 			{"do": "army", "k": "musketeer", "cap": 6},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
 		],
-		"mid": [["barracks", 1, {}], ["barracks", 2, {"labs": 20, "halls": 2}], ["horse_breeder", 1, {"labs": 22}],
-			["foundry", 1, {"labs": 26, "halls": 2}], ["armoury", 1, {"labs": 30}], ["barracks", 3, {"labs": 34}],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {"labs": 20, "halls": 2}], ["horse_breeder", 1, {"labs": 20}],
+			["barracks", 2, {"labs": 22, "halls": 2}], ["armoury", 1, {"labs": 30}], ["barracks", 3, {"labs": 34}],
 			["church", 1, {"labs": 40, "halls": 2}], ["foundry", 2, {"labs": 48, "halls": 3}]],
 		"s": {"wave": 34, "step": 10}},
 	# Balanced: the safe Musketeer opening (the ramp Cottage and its Gate, the Barracks and the Mill at once: three Musketeers
@@ -83,11 +87,11 @@ const PLANS := {
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 13}},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
 		],
-		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {"labs": 18}], ["foundry", 1, {"labs": 22}],
+		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {"labs": 18}], ["barracks", 2, {"labs": 18}],
 			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
 			["foundry", 2, {"labs": 44, "halls": 3}]],
 		"s": {"wave": 18, "step": 8}},
-	# Timing attack: one hall, two Barracks, the Breeder, the Foundry (a cannon goes with the wave) and the first wave of
+	# Timing attack: one hall, the Foundry, the Breeder, the second Barracks (a cannon goes with the wave) and the first wave of
 	# 22 supply (about 5:30); the second hall goes down behind it (the milestones)
 	"timing": {"opening": "mill", "labs": 19, "army": 0.7, "mill": [[0, 3], [14, 5]],
 		"bo": [
@@ -97,12 +101,12 @@ const PLANS := {
 			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
 			{"do": "army", "k": "musketeer", "cap": 0},
-			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 13}},
+			{"do": "build", "k": "foundry", "at": {"labs": 13}},
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 15}},
-			{"do": "build", "k": "foundry", "at": {"labs": 17}},
+			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 17}},
 			{"do": "attack", "n": 22, "at": {"army": 22}},
 		],
-		"mid": [["barracks", 2, {}], ["horse_breeder", 1, {}], ["foundry", 1, {}], ["armoury", 1, {"labs": 20}],
+		"mid": [["foundry", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {}], ["armoury", 1, {"labs": 20}],
 			["church", 1, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 28}], ["foundry", 2, {"labs": 40, "halls": 3}]],
 		"s": {"wave": 22, "step": 8, "timing": 0.0, "expand": 0.6}},
 	# Rush: the Horse Breeder opening. The ramp Cottage, the Barracks at 7, the Breeder at 8, the second Farm, Horsemen
@@ -117,8 +121,8 @@ const PLANS := {
 			{"do": "wall_gate", "at": {"labs": 10}},
 			{"do": "attack", "n": 9, "at": {"army": 9}},
 		],
-		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["powder_mill", 1, {}], ["barracks", 2, {"labs": 16}],
-			["foundry", 1, {"labs": 22}], ["armoury", 1, {"labs": 24}], ["church", 1, {"labs": 34, "halls": 2}],
+		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["powder_mill", 1, {}], ["foundry", 1, {"labs": 16}],
+			["barracks", 2, {"labs": 16}], ["armoury", 1, {"labs": 24}], ["church", 1, {"labs": 34, "halls": 2}],
 			["barracks", 3, {"labs": 30}]],
 		"s": {"wave": 9, "step": 6, "workers": 1.0, "expand": 1.0, "halls": 3}},     # (after the rush, a full economy: the
 		# shared Rush settings, 0.75 of the posts and a late hall, held 2 farms' worth of labourers till 6:00, ba3 Red Coast)
@@ -195,6 +199,16 @@ func hold_beat() -> float:
 	return 1.3
 
 
+## NO COUNTER-ATTACK INTO THE BROOD AFTER A HELD RUSH (AITransition asks; coached games rc_after, rc7_after, Red Coast v the
+## Brood's Timing, 0.29.2): the transition weighs our army against the part of the Brood's it saw at our door (475) and,
+## with the first Field Cannon adding to ours, sent the whole army out at 6:28-6:31 into 2,400-3,000 of creatures (most of
+## them rooted at home, never seen); the line died and the main fell at 9:05-9:31, where the games without the cannon
+## never counter-attacked and kept their main. Against the Brood the doctrine holds the high ground and goes down by its
+## own timing (AICrownHold.timing, _wave_worth's 1.5 edge over what it knows).
+func counter_ok() -> bool:
+	return not (on and doctrine() and _foe_is("brood"))
+
+
 func bo_owns() -> bool:
 	return on and not bo_done
 
@@ -240,6 +254,8 @@ func _plan_tech() -> bool:
 # ------------------------------------------------------------------ the think
 
 func _think_stage(i: int) -> void:
+	if i == 1 and not cannon_first:
+		_cannon_check()         # (CANNONS AGAINST THE BROOD, below)
 	if not bo_owns():
 		super(i)
 		return
@@ -267,6 +283,8 @@ func _think_stage(i: int) -> void:
 				_research_off = true
 				_produce()
 				_research_off = false
+			elif _gun_waiting() and _gun_can():
+				_first_gun()        # (the opening's army cap does not hold the first Field Cannon back: rc_after, 6:36)
 			pt = _lap("ai/produce", pt)
 			ch.tick()
 			if difficulty >= 1 and not peaceful:
@@ -482,6 +500,8 @@ func _st_done(st: Dictionary) -> bool:
 func _st_ready(st: Dictionary) -> bool:
 	if String(st["do"]) == "hall" and _defending():
 		return false            # (no new hall while a rush is feared: AITransition says when it is held)
+	if String(st["do"]) == "hall" and _hall_waits_gun():
+		return false            # (CANNONS AGAINST THE BROOD: the first Field Cannon before the new hall)
 	if String(st["do"]) == "hall" and tr.done and tr.choice == "expand":
 		return true             # (the rush held: the next hall at once, the doctrine)
 	var at: Dictionary = st.get("at", {})
@@ -501,6 +521,8 @@ func _st_near(st: Dictionary) -> bool:
 	var at: Dictionary = st.get("at", {})
 	if at.has("army") or at.has("has"):
 		return false
+	if String(st["do"]) == "hall" and _hall_waits_gun():
+		return false            # (the gun's gold is not set aside for the hall)
 	if at.has("sup") and game.supply_used(team) < int(at["sup"]) - 1:
 		return false
 	if at.has("labs") and game.workers(team).size() < int(at["labs"]) - 1:
@@ -727,6 +749,203 @@ func _research() -> void:
 	super()
 
 
+# ------------------------------------------------------------------ the cliff edge (0.29.2, docs/crown_cliff_edge.md)
+
+## THE CROWN'S HALL SPOT (the owner, DECIDED 2026-11-03 22:25): its 2nd and 3rd halls at the least hall distance, close
+## together and under the main's cliff edge (in Musketeer reach of it); its 4th on as close to its other halls as it may
+## (CrownSites.pick). Not where its builders were chased off lately (_hall_bad), not where the computer may not build
+## (placement_problem), not on the enemy's side by land, not with enemy soldiers in sight near it. Nothing found: the shared
+## pick. `-- sites:off` (or sites_on false) plays the shared pick (comparison games, tools/measure_cliff_cover.gd).
+var sites_on := not OS.get_cmdline_user_args().has("sites:off")
+var _cs_field := {}
+var _cs_steps: Array = []
+var site_picks := 0             # (tests, the coach) halls placed by the Crown's rule
+
+
+func _safe_hall_spot() -> Vector2i:
+	if not on or not sites_on or difficulty < 1 or not doctrine():
+		return super()
+	var mids: Array = []
+	for h in _halls():
+		mids.append(h.center() / float(Defs.TILE))
+	if mids.is_empty():
+		return super()
+	if _cs_field.is_empty():
+		_cs_field = CrownSites.edge_field(game, CrownSites.edge_cells(game, team))
+	if _cs_steps.is_empty():
+		var foes: Array = []
+		for o in game.enemies_of(team):
+			if game.starts.size() > o:
+				foes.append(ExpansionSpots._steps(game, game.starts[o]))
+		_cs_steps = [ExpansionSpots._steps(game, game.starts[team]), foes]
+	var avoid := {}
+	for c in _hall_bad:
+		if float(_hall_bad[c]) > game.clock:
+			avoid[c] = true
+	var hall: String = _f()["hall"]
+	var check := func(c: Vector2i) -> bool:
+		if game.placement_problem(team, hall, c, true) != "":
+			return false
+		if r6_sites and _enemy_side(c):
+			return false
+		var cc := (Vector2(c) + Vector2(MapGen.HALL) * 0.5) * float(Defs.TILE)
+		for u in game.units_near(cc, 14.0 * Defs.TILE):
+			if game.hostile(u.team, team) and not u.dead and not u.is_worker() and u.has_attack() and game.is_visible_to(team, u.position):
+				return false
+		return true
+	var picks: Array = CrownSites.pick(game, team, mids, 1, _cs_steps, avoid, check, _cs_field)
+	if picks.is_empty():
+		return super()
+	site_picks += 1
+	return picks[0]["c"]
+
+
+## The labourers mending a building under the cliff while the line shoots from the edge are not pulled away by the
+## workers' flight (AI._raid_workers): AICrownHold dodges them itself.
+func _held_worker(u: Unit) -> bool:
+	return ch.is_mender(u)
+
+
+## CANNONS AGAINST THE BROOD (the owner, 2026-11-03: "cannons are so important for the Crown; I think it was a mistake to
+## go Horseman"): once the Brood's creatures are seen (any Raptor or other soldier of it) or a rush is scouted against the
+## Brood, the Balanced and Economy plans put the Foundry before the Horse Breeder (the Breeder still comes: the gun needs
+## its horse) and the first horse goes to a Field Cannon for the ramp post / the cliff edge; the rider scout waits for the
+## gun (a labourer scouts meanwhile). Against the Crown and the Clockwork the order stays. `-- cannon:off` plays without it.
+var cannon_on := not OS.get_cmdline_user_args().has("cannon:off")
+var cannon_first := false
+var cannon_first_t := -1.0
+const RIDER_WAIT_MAX := 420.0   # (s) from the Brood seen: the waits for the first gun end by then whatever happens
+
+
+func _cannon_check() -> void:
+	if not on or not cannon_on or difficulty < 1 or not (strategy == "balanced" or strategy == "economy") or not _foe_is("brood"):
+		return
+	var seen := ch.foe_known() > 0.0 or (scout != null and scout.verdict == "rush")
+	if not seen:
+		# (any creature of the Brood in sight: the scout at its Mother counts; coached game kr_timing, Kestrel Rise v the
+		# Brood's Timing: no Raptor was seen before its attack at 6:47, and the cannon came after it)
+		for o in game.enemies_of(team):
+			if game.faction_of(o) != "brood":
+				continue
+			for u in game.army(o):
+				if not u.dead and game.is_visible_to(team, u.position):
+					seen = true
+					break
+	if not seen:
+		return
+	cannon_first = true
+	cannon_first_t = game.clock
+	# the opening: a Horse Breeder step still to come is preceded by the Foundry (at the Breeder's trigger)
+	for k in range(bo_i, _bo_plan.size()):
+		var st: Dictionary = _bo_plan[k]
+		if String(st["do"]) == "build" and String(st["k"]) == "horse_breeder":
+			if _mine("foundry").is_empty():
+				_bo_plan.insert(k, {"do": "build", "k": "foundry", "at": st.get("at", {})})
+				_bo_plan[k + 1]["at"] = {"has": "foundry"}
+			break
+	# the milestones: the Foundry before the Breeder (the Balanced plan: with no labourer count; the Economy plan, which
+	# expands and fills its farms first, keeps its count: its opening has no Breeder, the Foundry is its first milestone
+	# after the second Barracks' place, 0.29.2)
+	var mid: Array = plan.get("mid", [])
+	var fi := -1
+	for k in mid.size():
+		if String(mid[k][0]) == "foundry" and int(mid[k][1]) == 1 and fi < 0:
+			fi = k
+	if fi >= 0:
+		var fm: Array = mid[fi]
+		mid.remove_at(fi)
+		var hi2 := -1
+		for k in mid.size():
+			if String(mid[k][0]) == "horse_breeder":
+				hi2 = k
+				break
+		mid.insert(fi if hi2 < 0 else mini(fi, hi2), ["foundry", 1, fm[2] if strategy == "economy" else {}])
+	over["mid"] = mid
+	plan["mid"] = mid
+	say("the Brood is seen (%s): the Foundry before the Horse Breeder, a Field Cannon for the ramp post first" % ("a rush scouted" if scout != null and scout.verdict == "rush" else ("its army in sight" if ch.foe_known() > 0.0 else "its creatures in sight")))
+
+
+func _riders_wait() -> bool:
+	return rider_waits()
+
+
+## THE FIRST GUN'S WAIT: against the Brood, until the first Field Cannon is out or ordered, once the Foundry and the
+## Breeder stand (GUN_WAIT s at most from then; RIDER_WAIT_MAX s at most from the Brood seen): the opening's new hall (the
+## Balanced plan; the Economy plan expands first), the milestones and the riders wait, so its gold comes (coached game
+## kr_timing: with the waits counted from the Brood seen at 0:57 a Horseman came at 5:38 and the cannon at 8:17).
+const GUN_WAIT := 90.0
+var _gun_ready_t := -1.0
+
+
+func _gun_waiting() -> bool:
+	if not cannon_first or game.clock - cannon_first_t > RIDER_WAIT_MAX or not _gun_first():
+		return false
+	for u in game.army(team):
+		if u.kind == "cannon" and not u.dead:
+			return false
+	if _gun_ready_t < 0.0 and _gun_can():
+		_gun_ready_t = game.clock
+	return _gun_ready_t < 0.0 or game.clock - _gun_ready_t <= GUN_WAIT
+
+
+func _first_gun() -> void:
+	for f in _mine("foundry"):
+		if f.built and f.queue.is_empty() and game.can_train(f, "cannon") == "":
+			game.train(f, "cannon")
+			return
+
+
+func _gun_can() -> bool:
+	return _mine("foundry").any(func(b: Building) -> bool: return b.built) and _mine("horse_breeder").any(func(b: Building) -> bool: return b.built)
+
+
+func _hall_waits_gun() -> bool:
+	return hall_waits_gun and strategy == "balanced" and _gun_waiting() and _gun_can()
+
+
+## (off: coached games rc7_after / rc7_nocannon, Red Coast v the Brood's Timing: with the new hall waiting for the gun it
+## went down at 5:53 instead of 5:05 and the main fell at 9:51; with the hall first the line held. The gun follows the hall.)
+var hall_waits_gun := OS.get_cmdline_user_args().has("hallgun:on")
+
+
+## THE GUN'S GOLD: the Barracks save for the first Field Cannon and the milestones wait for it (`-- gunsave:off` lets
+## the soldiers and the milestones spend as before: the gun then comes from what is left).
+var gun_saves := not OS.get_cmdline_user_args().has("gunsave:off")
+
+
+func _gun_save() -> bool:
+	return gun_saves and _gun_first()
+
+
+func _gun_first() -> bool:
+	if not cannon_first:
+		return false
+	for f in _mine("foundry"):
+		if (f.queue as Array).has("cannon"):
+			return false
+	return true
+
+
+## THE FOUNDRY BEFORE THE SECOND BARRACKS (the owner's rule, above PLANS): a second Barracks asked for (by a step, a
+## milestone, the shared rules or the scout's plan) while no Foundry stands or is going up puts the Foundry up instead.
+## `-- foundry1:off` plays without it.
+var foundry_rule_on := not OS.get_cmdline_user_args().has("foundry1:off")
+var foundry_swaps := 0          # (tests)
+
+
+func _construct(kind: String, at := Vector2i(-1, -1)) -> void:
+	if on and foundry_rule_on and kind == "barracks" and not _mine("barracks").is_empty() and _mine("foundry").is_empty() and game.requirement_met(team, "foundry"):
+		foundry_swaps += 1
+		super("foundry")
+		return
+	super(kind, at)
+
+
+## (AICrownHold.wants_rider asks: against the Brood with the cannon first, the rider waits for the first gun)
+func rider_waits() -> bool:
+	return _gun_waiting()
+
+
 # ------------------------------------------------------------------ after the opening: the milestones
 
 func _build_up() -> void:
@@ -737,6 +956,8 @@ func _build_up() -> void:
 
 
 func _mid_tick() -> void:
+	if gun_saves and _gun_waiting() and _gun_can():
+		return                  # (the first Field Cannon's gold first: CANNONS AGAINST THE BROOD)
 	var labs := game.workers(team).size()
 	var halls := _halls().filter(func(h: Building) -> bool: return h.built).size()
 	var army := _army_supply(game.army(team))

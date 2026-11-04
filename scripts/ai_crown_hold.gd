@@ -73,6 +73,7 @@ var _spots: Array = []          # musket spots (pixels), front row first
 var _gun_spots: Array = []
 var _spots_t := -999.0
 var _slot := {}                 # Unit -> slot index (musket spots) or -1 - index (gun spots)
+var _slot_mode := "ramp"        # the spots the slots index: "ramp" (the ramp post) or "edge" (the cliff edge, section 5)
 var _hold_said := -999.0
 var holds := 0                  # (tests, the study) times the post held the top against a bigger force below
 
@@ -137,6 +138,357 @@ func tick() -> void:
 	_was_attacking = ai._attacking
 	if scouting():
 		_scouts()
+	if active():
+		_mend_tick()
+
+
+# ============================================================ 5. THE CLIFF EDGE (0.29.2, docs/crown_cliff_edge.md)
+# The owner (2026-11-03, Thornwood Maze, watching 0.29.0): "Crown did the right thing holding the high ground, but he could
+# have abused the high ground better: the musketeers were behind the wall, far from the limit of the high ground; it could
+# have been hugging the high ground, gaining more range to defend the town hall and not lose it. Also sending a few workers
+# to repair it and juke around, trying to repair while the musketeers killed the Raptors."
+#  - THE EDGE POST: while the army holds the top (hold_top) against a force below that is at a building of ours below the
+#    main (not by the ramp: then the ramp post holds as before), the musket line and the guns move to the main's
+#    high-ground cells nearest that building, within Musketeer reach of it (the cliff's lip), spread along it, on HOLD,
+#    facing down. Only cells joined to the post on the main's level are used (never down the ramp). The enemy below sees
+#    up a cliff only a cell (Game._stamp): the line shoots, the claws below cannot climb to it. It walks back to the ramp
+#    post EDGE_KEEP s after the threat below is gone.
+#  - REPAIR UNDER FIRE: while the edge post guards a hurt building, MEND_MIN-MEND_MAX labourers (never more than
+#    MEND_SHARE of them) repair it; one a claw comes at runs to the cliff's foot under the line (or away), and goes back to
+#    mend when it is clear. None go when the building falls anyway before the line can kill what is on it (_hopeless),
+#    when the force there is HOPELESS times the line, or after MEND_LOSS of them died on it (for MEND_REST s).
+# Study switch: `-- edge:off` (the ramp post only, no menders).
+const EDGE_RAMP := 6.0          # (tiles) a threat this near the ramp's top: the ramp post holds as before
+const EDGE_KEEP := 4.0          # (s) the edge post lasts this long after the last look that wanted it
+const EDGE_EVERY := 1.5         # (s) the edge line planned again this often
+const EDGE_SHOT := 185.0        # (px) a spot within this of the building's side (the musket's 190, a margin)
+const EDGE_GAP := 0.95          # (tiles) between muskets on the edge
+const EDGE_GUN_GAP := 1.5       # (tiles) between a gun and anything else
+const EDGE_R := 30.0            # (tiles) the main's high ground looked at round its hall
+const EDGE_MIN := 4             # musket spots in reach at least (fewer: the line stays where it is)
+const MEND_MIN := 2
+const MEND_MAX := 4
+const MEND_SHARE := 0.2         # of the labourers at most
+const MEND_LOSS := 2            # menders dead on one building: no more for MEND_REST s
+const MEND_REST := 30.0
+const DODGE_R := 70.0           # (px) a claw going for a mender within 3 times this: he runs
+const DODGE_CLOSE := 30.0       # (px) ... or any claw this near him (one busy on the building beside him is let be)
+const DODGE_T := 1.6            # (s) he runs this long at least before he goes back
+const HOPELESS := 3.0           # the force at the building worth this times the line in reach of it: no menders
+const MEND_SENT_MAX := 8        # menders sent to one building at most (then a rest of MEND_REST s)
+const MEND_SITE_HP := 0.4       # a site going up is mended only above this share of its hit points
+var edge_on := not OS.get_cmdline_user_args().has("edge:off")
+var _edge_until := -99.0
+var _edge_t := -99.0
+var _edge_b: Building = null    # the building the edge post guards
+var _edge_aim := Vector2.INF    # (px) where it looks
+var _edge_spots: Array = []     # musket spots (px), nearest the building first
+var _edge_guns: Array = []
+var _edge_foot := Vector2.INF   # (px) the low ground under the line: where a mender runs
+var edge_moves := 0             # (tests, the coach) times the post moved to an edge
+var edge_log: Array = []        # [clock, text]
+var _menders := {}              # Unit -> {"dodge": clock until which he runs, "run": bool}
+var _mend_b: Building = null
+var _mend_lost := 0
+var _mend_sent_b := 0
+var _mend_stop := -99.0
+var _mend_said := -99.0
+var mend_sent := 0              # (tests, the coach)
+var mend_dodges := 0
+var mend_hp := 0.0              # hit points mended (tests, the coach)
+
+
+func edge_live() -> bool:
+	return edge_on and game.clock < _edge_until and not _edge_spots.is_empty()
+
+
+func is_mender(u: Unit) -> bool:
+	return _menders.has(u)
+
+
+## The main's high-ground cells joined to the ramp post on its level now (buildings, walls and the ramp's top left out).
+func _main_cells() -> Array:
+	var out: Array = []
+	var T := float(Defs.TILE)
+	var home := Vector2(game.starts[ai.team]) + Vector2(2.5, 2.0)
+	var start: Vector2i = game.cell_of((_bc + _in * LINE_BACK) * T)
+	if not game.in_map(start) or int(game.height[game.idx(start)]) != _home_h or not game.passable(start, ai.team):
+		start = game.nearest_free(Vector2i(int(home.x), int(home.y) + 3), 6)
+	if not game.in_map(start) or int(game.height[game.idx(start)]) != _home_h:
+		return out
+	var seen := {start: true}
+	var q: Array = [start]
+	var head := 0
+	while head < q.size():
+		var p: Vector2i = q[head]
+		head += 1
+		out.append(p)
+		for dd in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n: Vector2i = p + dd
+			if seen.has(n) or not game.in_map(n):
+				continue
+			var i: int = game.idx(n)
+			if int(game.height[i]) != _home_h or game.ramp[i] != 0 or game.cliff[i] != 0 or not game.passable(n, ai.team):
+				continue
+			if (Vector2(n) + Vector2(0.5, 0.5)).distance_to(home) > EDGE_R:
+				continue
+			seen[n] = true
+			q.append(n)
+	return out
+
+
+## Called by hold_top: the threat below is at a building of ours under the main's cliff: the line goes to the edge above it.
+func _edge_plan(home: Array, spots: Array) -> void:
+	if not edge_on or _bc == Vector2.INF:
+		return
+	if game.clock - _edge_t < EDGE_EVERY:
+		if edge_live():
+			_edge_until = game.clock + EDGE_KEEP
+		return
+	_edge_t = game.clock
+	var T := float(Defs.TILE)
+	var below: Array = []
+	for sp in spots:
+		if (sp as Vector2).distance_to(_bc * T) >= EDGE_RAMP * T:
+			below.append(sp)
+	if below.is_empty():
+		return                  # (the fight is at the ramp: the ramp post is the place; an edge post still on runs out)
+	# the building it is at: ours, below the main's level, the hall first, a hurt one first
+	var hall_k: String = game.faction_hall(ai.team)
+	var best: Building = null
+	var bs := INF
+	for b in game.buildings:
+		if b.team != ai.team or b.dead or game.level_of(b.center()) == _home_h:
+			continue
+		for sp in below:
+			var d: float = b.edge_distance(sp)
+			if d > 330.0:
+				continue
+			var sc: float = d - (300.0 if b.kind == hall_k else 0.0) - (150.0 if game.clock - b.hit_clock < 5.0 else 0.0)
+			if sc < bs:
+				bs = sc
+				best = b
+	var aim: Vector2 = best.center() if best != null else below[0]
+	# (claws at the ramp too: the edge only when most of them are at the building, the gate holds the rest a while)
+	var at_ramp := _armed_value(_bc * T, EDGE_RAMP * T)
+	if at_ramp > 0.0 and at_ramp > 0.5 * _armed_value(aim, 330.0):
+		return
+	# the spots: the main's cells within a musket's reach of it, nearest the claws at it first (they often hit its far
+	# side: the cells by its corners reach round it), else nearest it
+	var claws: Array = []
+	for o in game.units_near(aim, 330.0):
+		if game.hostile(o.team, ai.team) and not o.dead and not o.off_field and ai._armed(o) and ai._sighted(o) and not o.is_air():
+			claws.append(o.position)
+	var cands: Array = []
+	for c in _main_cells():
+		var p: Vector2 = game.cell_center(c)
+		if not on_main(p):
+			continue            # (the ramp's top and the far main left out)
+		var d: float = best.edge_distance(p) if best != null else INF
+		for sp in below:
+			d = minf(d, p.distance_to(sp) + 20.0)
+		var dc := INF
+		for q in claws:
+			dc = minf(dc, p.distance_to(q))
+		if d <= EDGE_SHOT or dc <= EDGE_SHOT + 15.0:
+			cands.append([minf(d + 40.0, dc) if dc < INF else d, p])
+	if cands.is_empty():
+		_edge_spots.clear()
+		_edge_guns.clear()
+		_edge_until = -99.0
+		return
+	cands.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]) or (float(a[0]) == float(b[0]) and (a[1] as Vector2).x < (b[1] as Vector2).x))
+	var n_gun := 0
+	var n_musk := 0
+	for u in home:
+		if u.kind in GUN_KINDS:
+			n_gun += 1
+		elif u.kind in HOLD_KINDS:
+			n_musk += 1
+	var guns: Array = []
+	var muskets: Array = []
+	for e in cands:
+		if guns.size() >= n_gun:
+			break
+		var p: Vector2 = e[1]
+		if guns.all(func(q: Vector2) -> bool: return q.distance_to(p) >= EDGE_GUN_GAP * T):
+			guns.append(p)
+	for e in cands:
+		if muskets.size() >= maxi(n_musk, 1):
+			break
+		var p: Vector2 = e[1]
+		if muskets.all(func(q: Vector2) -> bool: return q.distance_to(p) >= EDGE_GAP * T) and guns.all(func(q: Vector2) -> bool: return q.distance_to(p) >= EDGE_GUN_GAP * T * 0.8):
+			muskets.append(p)
+	if muskets.size() < mini(EDGE_MIN, maxi(1, n_musk)):
+		return                  # (a corner of the edge with room for one or two: the line stays where it is)
+	var was := edge_live()
+	var moved: bool = not was or _edge_b != best or (not _edge_spots.is_empty() and (_edge_spots[0] as Vector2).distance_to(muskets[0]) > 3.0 * T)
+	_edge_spots = muskets
+	_edge_guns = guns
+	_edge_b = best
+	_edge_aim = aim
+	_edge_until = game.clock + EDGE_KEEP
+	_edge_foot = _foot_under(muskets, aim)
+	if moved:
+		edge_moves += 1
+		var what := ("its %s" % String(Defs.BUILDINGS[best.kind]["name"])) if best != null else "the enemy below"
+		var txt := "moves its musket line to the cliff edge above %s: %d spots on the high ground, the nearest %d px from it" % [what, muskets.size(), int(float(cands[0][0]))]
+		edge_log.append([game.clock, txt])
+		_say(txt)
+
+
+func _armed_value(p: Vector2, r: float) -> float:
+	var v := 0.0
+	for o in game.units_near(p, r):
+		if game.hostile(o.team, ai.team) and not o.dead and not o.off_field and ai._armed(o) and ai._sighted(o):
+			v += ai._unit_value(o)
+	return v
+
+
+## The low ground at the cliff's foot under the line, toward the building (a mender runs there: the claws after him are shot).
+func _foot_under(line: Array, aim: Vector2) -> Vector2:
+	var mid := Vector2.ZERO
+	for p in line:
+		mid += p
+	mid /= float(line.size())
+	var dir := (aim - mid).normalized()
+	for k in range(1, 12):
+		var p := mid + dir * float(k) * Defs.TILE * 0.5
+		var c: Vector2i = game.cell_of(p)
+		if game.in_map(c) and int(game.height[game.idx(c)]) < _home_h and game.passable(c, ai.team) and game.ramp[game.idx(c)] == 0:
+			return game.cell_center(c)
+	return Vector2.INF
+
+
+## REPAIR UNDER FIRE, every think: menders for the building the edge post guards, each dodging the claws.
+func _mend_tick() -> void:
+	for u in _menders.keys():
+		if not is_instance_valid(u) or u.dead:
+			_menders.erase(u)
+			_mend_lost += 1
+	var b: Building = _edge_b
+	var ok: bool = edge_on and edge_live() and b != null and is_instance_valid(b) and not b.dead and b.hp < b.max_hp - 1.0 and game.clock >= _mend_stop
+	if ok and b != _mend_b:
+		_mend_b = b
+		_mend_lost = 0
+		_mend_sent_b = 0
+	var why := ""
+	if ok and _mend_lost >= MEND_LOSS:
+		ok = false
+		_mend_stop = game.clock + MEND_REST
+		why = "%d of its menders died there" % _mend_lost
+	if ok and _mend_sent_b >= MEND_SENT_MAX and _menders.is_empty():
+		ok = false
+		_mend_stop = game.clock + MEND_REST
+		why = "%d sent to it already" % _mend_sent_b
+	if ok and not b.built and b.hp < b.max_hp * MEND_SITE_HP:
+		ok = false              # (a site going up, still weak: its builders' business, not a mending party's)
+	if ok:
+		why = _hopeless(b)
+		ok = why == ""
+		if not ok:
+			_mend_stop = game.clock + MEND_REST * 0.5      # (no coming and going on every look)
+	if not ok:
+		if not _menders.is_empty():
+			if why != "" and game.clock - _mend_said > 20.0:
+				_mend_said = game.clock
+				_say("calls its menders off (%s)" % why)
+			for u in _menders.keys():
+				if is_instance_valid(u) and not u.dead:
+					u.cmd_stop()        # (idle: the economy puts him back to work)
+			_menders.clear()
+		return
+	var labs: Array = game.workers(ai.team)
+	var want: int = MEND_MIN + (1 if b.hp < b.max_hp * 0.6 else 0) + (1 if b.hp < b.max_hp * 0.4 else 0)
+	want = mini(mini(want, MEND_MAX), maxi(mini(MEND_MIN, labs.size() / 3), int(float(labs.size()) * MEND_SHARE)))
+	if _menders.size() < want:
+		var free: Array = labs.filter(func(w: Unit) -> bool:
+			return not w.dead and not _menders.has(w) and w.order != "build" and not w.keg and w.crate_site == null \
+					and not (ai.scout != null and ai.scout.is_scout(w)) and not ai._escort.has(w) and not ai._fighters.has(w))
+		free.sort_custom(func(x: Unit, y: Unit) -> bool: return b.edge_distance(x.position) < b.edge_distance(y.position))
+		var first := _menders.is_empty()
+		for w in free:
+			if _menders.size() >= want:
+				break
+			_menders[w] = {"dodge": 0.0, "run": false, "hp0": b.hp}
+			ai._fled.erase(w)
+			mend_sent += 1
+			_mend_sent_b += 1
+			_mend(w, b)
+		if first and not _menders.is_empty():
+			_say("sends %d labourers to mend its %s under the line's fire" % [_menders.size(), String(Defs.BUILDINGS[b.kind]["name"])])
+	for w in _menders.keys():
+		var e: Dictionary = _menders[w]
+		var claw := _claw_on(w)
+		if claw != null:
+			if not bool(e["run"]):
+				e["run"] = true
+				mend_dodges += 1
+			e["dodge"] = game.clock + DODGE_T
+			var to := _edge_foot
+			if to == Vector2.INF or claw.position.distance_to(to) < w.position.distance_to(to) or w.position.distance_to(to) < 24.0:
+				to = w.position + (w.position - claw.position).normalized() * 150.0
+				if not game.passable(game.cell_of(to), ai.team):
+					to = _edge_foot if _edge_foot != Vector2.INF else (_bc + _in * (GUN_BACK + 2.0)) * Defs.TILE
+			if w.order != "move" or w.order_point.distance_to(to) > 40.0:
+				w.cmd_move(to)
+		elif game.clock >= float(e["dodge"]):
+			e["run"] = false
+			if not (w.order in ["repair", "build"] and w.order_target == b):
+				_mend(w, b)
+
+
+func _mend(w: Unit, b: Building) -> void:
+	if b.built:
+		w.cmd_repair(b)
+	else:
+		w.cmd_build(b)
+
+
+## An enemy claw at a mender: one going for him within 3 times DODGE_R, or any within DODGE_CLOSE.
+func _claw_on(w: Unit) -> Unit:
+	for o in game.units_near(w.position, DODGE_R * 3.0):
+		if not game.hostile(o.team, ai.team) or o.dead or o.off_field or o.is_worker() or not o.has_attack() or o.is_air():
+			continue
+		var d: float = o.position.distance_to(w.position)
+		if d < DODGE_CLOSE or (o.target == w and d < DODGE_R * 3.0):
+			return o
+	return null
+
+
+## Why mending this building is no use now ("" when it is worth it): nothing of ours shoots at what is on it, the force
+## there is HOPELESS times the line, or it falls before the line can kill that force.
+func _hopeless(b: Building) -> String:
+	var foe_v := 0.0
+	var foe_hp := 0.0
+	var foe_dps := 0.0
+	for o in game.units_near(b.center(), 330.0):
+		if not game.hostile(o.team, ai.team) or o.dead or o.off_field or not ai._armed(o) or b.edge_distance(o.position) > 120.0:
+			continue
+		foe_v += ai._unit_value(o)
+		foe_hp += o.hp
+		foe_dps += maxf(0.5, float(o.d.get("damage", 0)) - float(b.d.get("armor", 0))) / maxf(0.3, float(o.d.get("cooldown", 1.0)))
+	if foe_v <= 0.0:
+		return ""
+	var line_v := 0.0
+	var line_dps := 0.0
+	for u in game.army(ai.team):
+		if u.dead or not u.has_attack() or u.is_worker():
+			continue
+		var rng := float(u.d.get("range", 0))
+		if rng < 100.0 or b.edge_distance(u.position) > rng + 40.0:
+			continue
+		line_v += ai._unit_value(u)
+		line_dps += float(u.d.get("damage", 0)) / maxf(0.5, float(u.d.get("cooldown", 1.0)))
+	if line_dps <= 0.0:
+		return "nothing of ours shoots at what is on it"
+	if foe_v > line_v * HOPELESS:
+		return "the force there (%d) is more than %.0f times the line in reach (%d)" % [int(foe_v), HOPELESS, int(line_v)]
+	var kill_t := foe_hp / line_dps
+	var fall_t := b.hp / maxf(0.1, foe_dps)
+	if fall_t < kill_t * 0.5:
+		return "it falls in %d s, the line needs %d s" % [int(fall_t), int(kill_t)]
+	return ""
 
 
 # ============================================================ what we know of the enemy army
@@ -327,8 +679,19 @@ func place(units: Array) -> Array:
 	if not active():
 		return units
 	_layout()
-	if _spots.is_empty():
+	var spots_m: Array = _spots
+	var spots_g: Array = _gun_spots
+	var mode := "ramp"
+	if edge_live():
+		spots_m = _edge_spots       # (5. THE CLIFF EDGE: the line on the high ground's lip above the threatened building)
+		spots_g = _edge_guns
+		mode = "edge"
+	if mode != _slot_mode:
+		_slot.clear()
+		_slot_mode = mode
+	if spots_m.is_empty():
 		return units
+	var face: Vector2 = -_in if mode == "ramp" else Vector2.INF
 	for u in _slot.keys():
 		if not is_instance_valid(u) or u.dead or not units.has(u):
 			_slot.erase(u)
@@ -342,7 +705,7 @@ func place(units: Array) -> Array:
 			rest.append(u)
 			continue
 		if not _slot.has(u):
-			var n: int = _gun_spots.size() if gun else _spots.size()
+			var n: int = spots_g.size() if gun else spots_m.size()
 			var got := -9999
 			for i in n:
 				var key: int = (-1 - i) if gun else i
@@ -351,22 +714,25 @@ func place(units: Array) -> Array:
 					break
 			if got == -9999:
 				# (more than the spots: the extra ones stand with the guns, or join the back row)
-				got = (-1 - (used.size() % maxi(1, _gun_spots.size()))) if (gun and not _gun_spots.is_empty()) else (used.size() % _spots.size())
+				got = (-1 - (used.size() % maxi(1, spots_g.size()))) if (gun and not spots_g.is_empty()) else (used.size() % spots_m.size())
 			_slot[u] = got
 			used[got] = true
 		var s: int = _slot[u]
 		var spot: Vector2
 		if s < 0:
-			spot = _gun_spots[(-1 - s) % _gun_spots.size()] if not _gun_spots.is_empty() else _spots[_spots.size() - 1]
+			spot = spots_g[(-1 - s) % spots_g.size()] if not spots_g.is_empty() else spots_m[spots_m.size() - 1]
 		else:
-			spot = _spots[s % _spots.size()]
-		_post(u, spot)
+			spot = spots_m[s % spots_m.size()]
+		_post(u, spot, face if face != Vector2.INF else (_edge_aim - spot).normalized(), mode == "edge")
 	return rest
 
 
-func _post(u: Unit, spot: Vector2) -> void:
+func _post(u: Unit, spot: Vector2, face := Vector2.INF, edge := false) -> void:
 	if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.order != "move":
-		return          # (busy fighting: left be)
+		# (busy fighting: left be; on the way to the edge only a fight at hand keeps him: a gun shooting from the ramp post
+		# at something far below goes to the edge, where the claws at the building are)
+		if not edge or u.target.position.distance_to(u.position) < 200.0 or u.position.distance_to(spot) < 16.0:
+			return
 	var d: float = u.position.distance_to(spot)
 	if d > 16.0:
 		if u.order == "move" and u.order_point.distance_to(spot) < 8.0:
@@ -375,7 +741,7 @@ func _post(u: Unit, spot: Vector2) -> void:
 			u.cmd_move(spot)
 	elif u.order != "hold":
 		u.cmd_hold()
-		u.facing = -_in      # (facing down the ramp)
+		u.facing = face if face != Vector2.INF and face != Vector2.ZERO else -_in      # (facing down the ramp, or down the cliff)
 
 
 ## A threat while the army waits at home. On the main's high ground: the usual defence (false). Below (the expansion, the
@@ -395,13 +761,24 @@ func hold_top(army: Array, spots: Array) -> bool:
 	for u in home:
 		mine += ai._unit_value(u)
 	if mine >= foe * _beat():
-		return false
+		# (5. THE CLIFF EDGE: a force it could beat below, but the edge covers where it is: it shoots from the high ground
+		# instead of going down; the claws below cannot climb to it)
+		if not edge_on:
+			return false
+		_edge_plan(home, spots)
+		if not edge_live():
+			return false
+		if not ai._det.is_empty():
+			ai._end_defence()
+		place(home)
+		return true
 	if game.clock - _hold_said > 30.0:
 		_hold_said = game.clock
 		holds += 1
 		_say("holds the top of its ramp: the force below (%d) is more than its army at home (%d) can beat; the labourers there run up" % [int(foe), int(mine)])
 	if not ai._det.is_empty():
 		ai._end_defence()
+	_edge_plan(home, spots)
 	var rest := place(home)
 	var front: Vector2 = (_bc + _in * (GUN_BACK + 1.0)) * float(Defs.TILE)
 	for u in rest:
@@ -510,6 +887,8 @@ func is_scout(u: Unit) -> bool:
 func wants_rider() -> bool:
 	if not scouting() or game.clock < 150.0:
 		return false
+	if ai.has_method("rider_waits") and ai.rider_waits():
+		return false        # (AICrown: against the Brood the first horse goes to a Field Cannon)
 	for u in game.army(ai.team):
 		if u.kind == "cuirassier" and not u.dead:
 			return false

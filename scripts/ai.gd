@@ -4650,6 +4650,8 @@ func _produce() -> void:
 		for f in _mine("foundry"):
 			if f.built and f.queue.is_empty() and game.horses_at(f) > 0 and (cannons * 4 < army.size() + 2 or mortars < mini(2, int(muskets / 6.0))):
 				gun_wait = true
+	if not gun_wait and not short_powder and cannons == 0 and _gun_save() and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40:
+		gun_wait = _mine("foundry").any(func(f: Building) -> bool: return f.built and f.queue.is_empty())     # (AICrown: the first gun's gold)
 	for b in _mine("barracks"):
 		if gun_wait:
 			break
@@ -4661,6 +4663,8 @@ func _produce() -> void:
 			var k := _soldier_key(b, "musketeer")
 			var horse := army.filter(func(u: Unit) -> bool: return u.kind == "cuirassier").size()
 			var hk := _soldier_key(b, "cuirassier")
+			if _riders_wait():
+				hk = ""     # (AICrown: against the Brood the first horse goes to a Field Cannon)
 			var rush := _rush_open()
 			var hcap: int = r5.horsemen_cap()      # (round 5: two riders and no more against the Clockwork)
 			var horse_ok: bool = (horse < 3 or horse * 6 < army.size() or rush) if hcap < 0 else horse < hcap
@@ -4675,6 +4679,12 @@ func _produce() -> void:
 	for f in _mine("foundry"):
 		if not f.built or short_powder:
 			continue
+		if cannons == 0 and _gun_first():
+			# (AICrown: against the Brood the first gun is a Field Cannon, before a Mortar or a wagon: it waits for its gold)
+			if f.queue.is_empty() and game.can_train(f, "cannon") == "":
+				game.train(f, "cannon")
+				cannons += 1
+			continue
 		# a Mortar or two behind the musketeers (one per 6 of them, 2 at most)
 		if f.queue.size() < 2 and mortars < mini(2, int(muskets / 6.0)) and not f.queue.has("mortar") and game.can_train(f, "mortar") == "":
 			game.train(f, "mortar")
@@ -4682,7 +4692,7 @@ func _produce() -> void:
 		elif f.queue.size() < (2 if _gold() > 600 else 1) and cannons * 4 < army.size() + 2:
 			game.train(f, "cannon")
 	# one Powder Wagon once there's a real firing line (6+ musketeers) to keep in powder
-	if _wagon() == null and army.filter(func(u: Unit) -> bool: return u.kind == "musketeer").size() >= 6:
+	if _wagon() == null and army.filter(func(u: Unit) -> bool: return u.kind == "musketeer").size() >= 6 and not (cannons == 0 and _gun_first()):
 		var queued := false
 		for f in _mine("foundry"):
 			queued = queued or f.queue.has("powder_wagon")
@@ -4774,6 +4784,21 @@ func _soldier_key(b: Building, kind: String) -> String:
 ## A worker that a computer of its own keeps for a job (AIClockwork: the Springer raid's Winders): the economy, the
 ## builders, the escorts and worker safety leave him be.
 func _held_worker(_u: Unit) -> bool:
+	return false
+
+
+## No Horsemen trained for now (AICrown.rider_waits: the first horse goes to a gun).
+func _riders_wait() -> bool:
+	return false
+
+
+## The Foundry's first gun is a Field Cannon (AICrown: against the Brood).
+func _gun_first() -> bool:
+	return false
+
+
+## ... and the Barracks save their gold for it (AICrown).
+func _gun_save() -> bool:
 	return false
 
 

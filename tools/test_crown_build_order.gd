@@ -74,6 +74,24 @@ func _table() -> void:
 			if not Defs.BUILDINGS.has(String(m[0])):
 				bad.append("%s: milestone %s" % [p, m[0]])
 	check(bad.is_empty(), "[table] the plans are well formed %s" % ("" if bad.is_empty() else str(bad)))
+	# THE FOUNDRY BEFORE THE SECOND BARRACKS (the owner, 2026-11-03 22:33), in every plan's opening and milestones
+	var order_bad: Array = []
+	for p in AICrown.PLANS:
+		var pl: Dictionary = AICrown.PLANS[p]
+		var foundry := false
+		for st in pl["bo"]:
+			if String(st["do"]) == "build" and String(st["k"]) == "foundry":
+				foundry = true
+			if String(st["do"]) == "build" and String(st["k"]) == "barracks" and int(st.get("n", 1)) >= 2 and not foundry:
+				order_bad.append("%s: opening" % p)
+		for m in pl.get("mid", []):
+			if String(m[0]) == "foundry":
+				foundry = true
+			if String(m[0]) == "barracks" and int(m[1]) >= 2 and not foundry:
+				order_bad.append("%s: milestones" % p)
+			if String(m[0]) == "barracks" and int(m[1]) >= 2:
+				break
+	check(order_bad.is_empty(), "[table] every plan puts the Foundry before its second Barracks %s" % ("" if order_bad.is_empty() else str(order_bad)))
 
 
 func _start(strategy: String) -> void:
@@ -118,6 +136,8 @@ func _run() -> void:
 	var idle_t := -1.0
 	var idle_worst := 0.0
 	var mill_best := 0
+	var b2_t := -1.0
+	var f_t := -1.0
 	while g.clock < 360.0:
 		await wait(1.0)
 		if not ai.bo_done:
@@ -139,6 +159,10 @@ func _run() -> void:
 				idle_worst = maxf(idle_worst, g.clock - idle_t)
 			else:
 				idle_t = -1.0
+		if b2_t < 0.0 and ai._mine("barracks").size() >= 2:
+			b2_t = g.clock
+		if f_t < 0.0 and not ai._mine("foundry").is_empty():
+			f_t = g.clock
 		var crew := 0
 		for m in ai._mine("powder_mill"):
 			crew = maxi(crew, m.crew.size())
@@ -191,6 +215,7 @@ func _run() -> void:
 	check(not ai._mine("barracks").is_empty() and not ai._mine("powder_mill").is_empty() and ai._halls().size() >= 2,
 		"[over] the Barracks, the Mill and a second hall by 6:00")
 	check(mill_best >= MILL_MIN, "[over] a Mill had %d hands or more (%d)" % [MILL_MIN, mill_best])
+	check(b2_t < 0.0 or (f_t >= 0.0 and f_t <= b2_t), "[foundry] no second Barracks before the Foundry (Foundry %d s, 2nd Barracks %d s)" % [int(f_t), int(b2_t)])
 	# [rush]
 	await _start("rush")
 	var out_t := -1.0

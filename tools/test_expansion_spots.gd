@@ -3,7 +3,10 @@ extends SceneTree
 ## many as it holds:
 ##  - every player has at least one marked spot, and every side has the same number of each rank,
 ##  - mirror-fair: each marked spot's twin (the map turned through its middle) is marked too, with the same rank and score,
-##  - a marked spot is free, buildable ground for a hall (nobody's start; no blocked cell, no ramp),
+##  - a marked spot is free, buildable ground for a hall (nobody's start; no blocked cell, no ramp), a base site for the
+##    Clockwork; for the Crown (CrownSites, 0.29.2) any ground at the least hall distance from its main (its best no more
+##    than CrownSites.SLACK past it) and its two spots a hall's spacing apart; each map is run all-Crown and all-Clockwork
+##    (twins are rated by the same rule); a new Crown hall makes its side's marks be worked out again,
 ##  - shown to a Crown and a Clockwork player and when watching; hidden for a Brood player, hidden once a building the
 ##    viewer knows of stands on it, and hidden with Settings.expansion_spots off.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_expansion_spots.gd [-- ids...]   (prints each map's spots)
@@ -58,8 +61,18 @@ func _check_map(g: Game, bad: Array) -> void:
 			bad.append("%s and its twin %s differ: %s / %s" % [c, tw, _fmt(s), _fmt(at[tw])])
 		if g.starts.has(c):
 			bad.append("%s is a player's start" % c)
-		if not g.base_sites.has(c):
+		if not s.get("crown", false) and not g.base_sites.has(c):
 			bad.append("%s is not a base site" % c)
+		if s.get("crown", false):
+			# THE CROWN'S RULE (CrownSites): at the least hall distance from its main (18) and the 2nd from the 1st too
+			var mid := Vector2(c) + Vector2(MapGen.HALL) * 0.5
+			var t := int(s["team"])
+			var md: float = mid.distance_to(Vector2(g.starts[t]) + Vector2(2.5, 2.0))
+			if md < Defs.HALL_SPACING - 0.01 or (int(s["rank"]) == 1 and md > Defs.HALL_SPACING + CrownSites.SLACK):
+				bad.append("%s: %.1f tiles from its main" % [c, md])
+			for o in sp:
+				if o != s and int(o["team"]) == t and mid.distance_to(Vector2(o["c"]) + Vector2(MapGen.HALL) * 0.5) < Defs.HALL_SPACING - 0.01:
+					bad.append("%s and %s are nearer each other than a hall's spacing" % [c, o["c"]])
 		for y in MapGen.HALL.y:
 			for x in MapGen.HALL.x:
 				var cc := c + Vector2i(x, y)
@@ -75,15 +88,20 @@ func _run(ids: Array) -> void:
 		var counts: Array = [2]
 		if MapGen.max_players(id) > 2:
 			counts.append(MapGen.max_players(id))
+		var runs: Array = []
 		for n in counts:
+			for fac in ["crown", "clockwork"]:
+				runs.append([n, fac])
+		for rn in runs:
+			var n: int = rn[0]
 			var facs: Array = []
 			for i in n:
-				facs.append(["crown", "clockwork"][i % 2])
+				facs.append(rn[1])       # (one faction a run: the twin of a spot is rated by the same rule)
 			var g := _make(id, facs)
 			await process_frame
 			var bad: Array = []
 			_check_map(g, bad)
-			print("%-18s %d players: %d spots  %s" % [id, n, g.exp_spots.spots.size(), "ok" if bad.is_empty() else "FAIL"])
+			print("%-18s %d players %-9s: %d spots  %s" % [id, n, rn[1], g.exp_spots.spots.size(), "ok" if bad.is_empty() else "FAIL"])
 			for s in g.exp_spots.spots:
 				if int(s["team"]) < 2 or n == 2:
 					print("    ", _fmt(s))
@@ -119,7 +137,23 @@ func _viewer_checks() -> void:
 		else:
 			_expect(n == g.exp_spots.spots.size() and n > 0, "a %s player sees every spot (%d of %d)" % [fac, n, g.exp_spots.spots.size()])
 		if fac == "crown":
-			# taken: a hall of ours on our best spot, an unseen enemy building on another, then seen
+			# THE CROWN'S RULE: a hall of ours on our best spot: the marks are worked out again from both halls
+			var best0: Dictionary = {}
+			for s in g.exp_spots.spots:
+				if int(s["team"]) == 0 and int(s["rank"]) == 1:
+					best0 = s
+			_expect(best0.get("crown", false), "a Crown player's own spots are the Crown's (CrownSites)")
+			var h2: Building = g._add_building("town_hall", 0, best0["c"], true)
+			g.exp_spots.refresh()
+			var mine2: Array = g.exp_spots.shown.filter(func(s: Dictionary) -> bool: return int(s["team"]) == 0)
+			var spaced := mine2.all(func(s: Dictionary) -> bool:
+				var m := Vector2(s["c"]) + Vector2(MapGen.HALL) * 0.5
+				return m.distance_to(h2.center() / float(Defs.TILE)) >= Defs.HALL_SPACING - 0.01 and m.distance_to(Vector2(g.starts[0]) + Vector2(2.5, 2.0)) >= Defs.HALL_SPACING - 0.01)
+			_expect(not mine2.is_empty() and spaced and not mine2.any(func(s: Dictionary) -> bool: return s["c"] == best0["c"]),
+					"a new Crown hall: the next spots are worked out from both halls (%d shown, spaced %s)" % [mine2.size(), str(spaced)])
+			h2.dead = true
+		if fac == "clockwork":
+			# taken (base-site spots): a hall of ours on our best spot, an unseen enemy building on another, then seen
 			var mine: Dictionary = {}
 			var other: Dictionary = {}
 			for s in g.exp_spots.spots:
