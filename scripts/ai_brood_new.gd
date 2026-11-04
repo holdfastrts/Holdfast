@@ -80,14 +80,14 @@ const PLANS := {
 		"mix": "tyrant", "mature": "push", "home_guard": 3},
 	# THE WRITTEN BUILDS (brood-builds, scripts/ai_brood_builds.gd, docs/brood_builds.md): "build" names the push of its own.
 	# SPITTER TIMING: the Venom Sire right after the Tyrant Sire, Spitters ahead (one a Raptor), the line's Bigger Clutch and
-	# Long Spit, the timing at 6:00 once 10 Spitters stand; the economy grows behind it (an eco plan: grubs on the curve,
+	# Long Spit, the timing at 7:00 once 10 Spitters stand; the economy grows behind it (an eco plan: grubs on the curve,
 	# the natural and new ground)
-	"spitter": {"drone": 6.5, "sire_g": 11, "sire_t": 120.0, "grubs0": 0, "grubs": 46, "maws": [2, 85.0, 9], "grow": [240.0, 540.0],
-		"venom": 150.0, "storm": 660.0, "far": [[0.0, 1], [330.0, 2], [540.0, 3]], "eco": true, "wave": 22, "wave_t": 360.0, "step": 8, "pack": false,
+	"spitter": {"drone": 5.5, "sire_g": 10, "sire_t": 100.0, "grubs0": 0, "grubs": 46, "maws": [2, 85.0, 9], "grow": [240.0, 540.0],
+		"venom": 120.0, "storm": 660.0, "far": [[0.0, 1], [330.0, 2], [540.0, 3]], "eco": true, "wave": 22, "wave_t": 420.0, "step": 8, "pack": false,
 		"mix": "venom", "mature": "push", "home_guard": 3, "build": "spitter"},
 	# BRUTE SIEGE: her stage 3 early (Brutes need it), 4 Brutes and Battering Horns, then the push breaks the wall or the
 	# turret line in the way and the army goes in through the breach
-	"brute": {"drone": 7.0, "sire_g": 12, "sire_t": 140.0, "grubs0": 0, "grubs": 50, "maws": [2, 80.0, 10], "grow": [190.0, 360.0],
+	"brute": {"drone": 7.0, "sire_g": 12, "sire_t": 140.0, "grubs0": 0, "grubs": 50, "maws": [2, 80.0, 10], "grow": [190.0, 360.0], "grow_now": true,
 		"venom": 300.0, "storm": 720.0, "far": [[0.0, 1], [300.0, 2], [540.0, 3]], "eco": true, "wave": 28, "wave_t": 450.0, "step": 10, "pack": true,
 		"mix": "mixed", "mature": "push", "home_guard": 3, "build": "brute", "brutes": 6},
 }
@@ -1059,6 +1059,8 @@ func _nb_next_father(q: Unit) -> String:
 		var at := _sire_at(f) if f == BroodNew.DILO else minf(storm_t, _sire_at(f))
 		if game.clock < at or BroodNew.count_of(game, team, f) > 0:
 			continue
+		if f == BroodNew.DILO and bb != null and bb.sire_first() and BroodRoot.morph_problem(game, team, f) == "Not enough biomass.":
+			return f          # (the written build: the food is saved for him, _nb_morphs)
 		if BroodNew.stage(q) < BroodNew.father_stage(f) or BroodRoot.morph_problem(game, team, f) != "":
 			if f == BroodNew.PTERO and seen_air >= 2:
 				return ""          # (wait for him: her stage 2 and his spoils come first)
@@ -1434,6 +1436,8 @@ func _sire_at(f: String) -> float:
 	var at := float(plan["venom"]) if f == BroodNew.DILO else float(plan["storm"])
 	if f == BroodNew.DILO and riders_about():
 		return 0.0
+	if f == BroodNew.PTERO and bb != null and bb.hold_storm():
+		return at          # (the written build: the Storm Sire waits for its push, unless flyers are seen)
 	if _nb_egg_bound() and BroodNew.count_of(game, team, BroodNew.FATHER) > 0 and not (int(plan["grubs0"]) > 0 and not _first_out):
 		return minf(at, game.clock)
 	return at
@@ -1446,6 +1450,9 @@ func _nb_spoils_keep(q: Unit) -> float:
 	# was ever offered up for them: Balanced, Timing and Economy got no Venom Sire and no stage 3 in 15 minutes. The
 	# spoils are kept now whatever the bank; food is never what waits for them)
 	var st := BroodNew.stage(q)
+	if bb != null and bb.spoils_first():
+		st = -1          # (the written build: its own line's spoils before her stage 3's: the first Spitter timing trial
+		                 # kept 75 for her stage 3 and laid no Spitter in the minute before its timing)
 	if st == 1 and _nb_egg_bound() and _food() >= int(Defs.NB["stages"][2]["cost"]) - 150:
 		keep = maxf(keep, float(Defs.NB["stages"][2]["cost2"]))
 	if st == 1 and game.clock >= float(plan["grow"][1]) - 60.0 and _food() >= int(Defs.NB["stages"][2]["cost"]) - 150:
@@ -1454,6 +1461,8 @@ func _nb_spoils_keep(q: Unit) -> float:
 		keep = maxf(keep, float(Defs.UNITS[BroodNew.PTERO].get("cost2", 0)))
 	if BroodNew.count_of(game, team, BroodNew.DILO) == 0 and _sire_at(BroodNew.DILO) - 45.0 <= game.clock and float(Defs.UNITS[BroodNew.DILO].get("cost2", 0)) > 0.0:
 		keep = maxf(keep, float(Defs.UNITS[BroodNew.DILO].get("cost2", 0)))      # (the Venom Sire's spoils, when he costs any)
+	if bb != null:
+		keep = maxf(keep, bb.spoils_keep(q))          # (the written build: the Brutes' and their horns' spoils)
 	return keep
 
 
@@ -1560,6 +1569,8 @@ func _nb_lay(q: Unit) -> void:
 	# (brood-ai-tune: the alarm's "warriors before grubs" only with 16 grubs or more: a Rush turned Balanced against the
 	# Clockwork saw its army out every minute from 4:41, so the alarm never went off and its grubs stood at 9 to 14 until
 	# 12:00, on a third of the Clockwork's income)
+	if bb != null and bb.sire_first() and keep > 0 and grubs >= 10 and food - keep < 50:
+		curve = 0.0          # (the written build: its Sire's food first, the grub curve after him)
 	if grubs < want_grubs and (grubs < 6 or not any_father or (grubs < curve and not danger) or food - keep >= 200):
 		k = "grub"
 	# SPOILS FROM RAPTORS (the owner, 07:15: the Storm line and the Air rush are paid by offering Raptors up): while the
@@ -1624,7 +1635,7 @@ func _nb_warrior(spend: int) -> String:
 	if toads_ok and spoils >= 25.0 and spend >= 100 and toads < mini(3, army / 12):
 		return "mist_toad"
 	var bcap: int = bb.brute_cap() if bb != null else 0
-	if brutes_ok and spoils >= 20.0 and spend >= 150 and ((bcap > 0 and brutes < bcap) \
+	if brutes_ok and (_spoils() if bcap > 0 else spoils) >= 20.0 and spend >= 150 and ((bcap > 0 and brutes < bcap) \
 			or (brutes < (6 if seen_wall else 4) and brutes * 6 < raptors + spitters + 2)):
 		return "brute"
 	var venom_share := {"tyrant": 4, "mixed": 2, "venom": 1}.get(String(plan["mix"]), 2) as int      # (one Spitter for this many Raptors)
@@ -1635,6 +1646,8 @@ func _nb_warrior(spend: int) -> String:
 	var sp_price: Array = price.call("spitter")
 	if dilo and spoils >= float(sp_price[1]) and spend >= int(sp_price[0]) and (not trex or spitters * venom_share < raptors + 2):
 		return "spitter"
+	if dilo and bb != null and bb.save_for_spitters(spitters, raptors) and spoils >= float(sp_price[1]):
+		return ""          # (the written build: food is kept for the next Spitter egg, not spent on Raptors meanwhile)
 	if trex and spend >= int(price.call("raptor")[0]):
 		return "raptor"
 	if dilo and spoils >= float(sp_price[1]) and spend >= int(sp_price[0]):
@@ -1716,7 +1729,7 @@ func _nb_research(q: Unit) -> void:
 	var want: Array = []
 	if not sire_busy and bb != null:
 		want.append_array(bb.research_first())          # (the written build's research first)
-	if not sire_busy:
+	if not sire_busy and not (bb != null and bb.research_only()):
 		if bool(plan["pack"]) and soon and line.call("raptor") + line.call("tyrant_challenger") >= 6:
 			want.append("nb_pack_hunt")
 		if game.clock >= (210.0 if strategy in ["rush", "xrush"] else 150.0) and line.call("raptor") >= 4:

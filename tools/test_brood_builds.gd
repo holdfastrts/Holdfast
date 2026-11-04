@@ -21,6 +21,7 @@ var ai: AIBroodNew
 var _grubs_at_go := 0
 var _far_at_go := 0
 var _long_at_go := false
+var _next_min := 60.0
 
 const TIMING_FROM := 345.0
 const TIMING_BY := 540.0
@@ -72,6 +73,28 @@ func _process(delta: float) -> bool:
 	if g.hud:
 		g.hud.countdown = 0.0
 	paused = false
+	if g.clock >= _next_min:
+		_next_min += 30.0
+		var q0 := BroodNew.queen(g, 0)
+		var res: Array = []
+		for k in BroodResearch.keys():
+			if g.has_tech(0, k):
+				res.append(String(Defs.RESEARCH[k]["label"]).to_lower())
+		print("MIN %s stage %d | food %d spoils %d | supply %d/%d | grubs %d | raptors %d spitters %d brutes %d | sires %s | research %s | foe army seen %d | eggs %d" % [
+			ai._mmss(), BroodNew.stage(q0) + 1 if q0 else 0, int(g.players[0]["gold"]), int(g.players[0]["res2"]), g.supply_used(0), int(g.players[0]["cap"]),
+			BroodNew.count_of(g, 0, "grub"), BroodNew.count_of(g, 0, "raptor"), ai.bb.spitters() if ai.bb else 0, BroodNew.count_of(g, 0, "brute"),
+			str(BroodNew.FATHERS.filter(func(f) -> bool: return BroodNew.count_of(g, 0, f) > 0)), ",".join(res), int(ai.seen_army), int(q0.nb.get("eggs", 0)) if q0 else 0])
+		if q0 and g.clock < 400.0:
+			print("    next father '%s' | dilo problem '%s' | maws %d | morph_keep %d | short %s | walking morphs %d" % [ai._nb_next_father(q0), BroodRoot.morph_problem(g, 0, BroodNew.DILO),
+				BroodNew.count_of(g, 0, BroodNew.MAW), ai._morph_keep, str(ai._nb_short()), g.units.filter(func(u) -> bool: return u.team == 0 and u.kind == "grub" and u.order == "nb_morph").size()])
+		if q0:
+			var home_r: int = ai._nb_mine("raptor").filter(func(u) -> bool: return u.position.distance_to(q0.position) < 16.0 * Defs.TILE and u.target == null and not ai._wave.has(u)).size()
+			print("    spoils want %d keep %d | offered %s spoils in %s | threat %s rush %s | raptors home free %d | attacking %s" % [int(ai._nb_spoils_want(q0)), int(ai._nb_spoils_keep(q0)),
+				str(g.stats[0].get("sacrificed", 0)), str(g.stats[0].get("res2_in", 0)), str(ai._nb_threat(q0) != Vector2.INF), str(ai._rush_on()), home_r, str(ai._attacking)])
+		var dl := BroodNew.father(g, 0, BroodNew.DILO)
+		if dl and q0:
+			print("    venom sire: near %s cocoon %s busy %s mode %s order %s dist %d | lay spitter: '%s'" % [str(BroodNew.father_near(g, 0, BroodNew.DILO)), str(BroodRoot.in_cocoon(dl)),
+				str(BroodResearch.line_busy(g, 0, BroodNew.DILO)), dl.tesla_mode, dl.order, int(dl.position.distance_to(q0.position) / Defs.TILE), BroodNew.lay_problem(g, q0, "spitter")])
 	if ai.bb != null and ai.bb.pushes.size() > 0 and _grubs_at_go == 0:
 		_grubs_at_go = BroodNew.count_of(g, 0, "grub")
 		_far_at_go = BroodNew.expansions(g, BroodNew.queen(g, 0)).size() if BroodNew.queen(g, 0) else 0
@@ -114,6 +137,13 @@ func _report() -> void:
 	print("Brood %s against a Hard %s, %s seed %d, at %s:" % ["Spitter timing" if case_ == "timing" else "Brute siege", foe, map, seed_, ai._mmss()])
 	for l in (ai.bb.log if ai.bb else []):
 		print("  %s %s" % [ai._mmss_of(float(l[0])) if ai.has_method("_mmss_of") else str(int(l[0])), l[1]])
+	for n in ai.note:
+		var tx := String(n[1])
+		if tx.begins_with("researches") or tx.begins_with("grows") or tx.contains("Sire") or tx.begins_with("attacks") or tx.begins_with("pulls back") or tx.begins_with("rush") or tx.begins_with("ALARM"):
+			print("  NOTE %d %s" % [int(n[0]), tx])
+	var walls: Array = g.buildings.filter(func(b) -> bool: return b.team == 1 and not b.dead and b.kind in ["wall", "gate", Defs.CW_TURRET])
+	print("  enemy wall pieces / gates / turrets standing: %d (seen_wall %s; known %d)" % [walls.size(), str(ai.seen_wall),
+		ai._foe_blds.keys().filter(func(b) -> bool: return is_instance_valid(b) and b.kind in ["wall", "gate", Defs.CW_TURRET]).size()])
 	check(ai.bb != null, "the computer has its build's push")
 	if ai.bb == null:
 		return

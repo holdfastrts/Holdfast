@@ -23,7 +23,7 @@ extends RefCounted
 ## dead before the breach, or no headway (the barrier under BREAK_HP of its health after BREAK_T s): the wave comes home.
 
 const TIMING_SP := 10            # Spitters (young or mature) before the timing goes
-const TIMING_LATE := 480.0       # (s) it goes then with what it has (TIMING_MIN supply at least)
+const TIMING_LATE := 510.0       # (s) it goes then with what it has (TIMING_MIN supply at least)
 const TIMING_MIN := 16
 const FRONT := 2.0               # (tiles) the Raptors keep this far ahead of the Spitters' middle on the march
 const CONTACT := 11.0            # (tiles) enemy soldiers or a defence this near the Spitters: the fight starts
@@ -93,7 +93,7 @@ func may_go(q: Unit, army: Array, sup: int) -> bool:
 		var late := game.clock >= TIMING_LATE
 		if game.clock < t_go:
 			return false
-		if not late and (sp < TIMING_SP or (not long and BroodResearch.in_hand(game, ai.team, "nb_long_spit"))):
+		if not late and (sp < TIMING_SP or not long):
 			return false
 		if sup < (TIMING_MIN if late else int(ai.plan["wave"])) and not late:
 			return false
@@ -104,7 +104,7 @@ func may_go(q: Unit, army: Array, sup: int) -> bool:
 			return false
 		return true
 	# the Brute siege
-	var br := _count("brute")
+	var br: int = army.filter(func(u) -> bool: return u.kind == "brute" and u.moult_t < 0.0).size()          # (hatched, at home)
 	var horns := game.has_tech(ai.team, "nb_battering_horns")
 	var late2 := game.clock >= t_go + BRUTE_LATE
 	if game.clock < t_go:
@@ -259,7 +259,28 @@ func _find_barrier(q: Unit, from: Vector2) -> void:
 		return
 	var path := game.find_path(from, goal)
 	var end: Vector2 = path[path.size() - 1] if path.size() > 0 else from
-	if end.distance_to(goal) > 3.0 * Defs.TILE:
+	# a wall piece or gate it knows ON the way (a gate is no wall to the pathfinder, but it is shut to the enemy): the first
+	# one along the way, a gate before the stakes beside it
+	var along := INF
+	var pts: Array = [from]
+	for p in path:
+		pts.append(p)
+	for b in ai._foe_blds:
+		if not is_instance_valid(b) or b.dead or not (b.kind in ["wall", "gate", "palisade", "tower"]):
+			continue
+		var bp: Vector2 = ai._foe_blds[b]
+		var walked := 0.0
+		for i in range(1, pts.size()):
+			var a0: Vector2 = pts[i - 1]
+			var a1: Vector2 = pts[i]
+			if _off_line(bp, a0, a1) < 2.5 * Defs.TILE:
+				var k := walked + a0.distance_to(bp) - (3.0 * Defs.TILE if b.kind == "gate" else 0.0)
+				if k < along:
+					along = k
+					barrier = b
+				break
+			walked += a0.distance_to(a1)
+	if barrier == null and end.distance_to(goal) > 3.0 * Defs.TILE:
 		var bd := 5.0 * Defs.TILE
 		for b in ai._foe_blds:
 			if is_instance_valid(b) and not b.dead and b.kind in ["wall", "gate", "palisade", "tower"]:
@@ -418,6 +439,34 @@ func brute_cap() -> int:
 	return int(ai.plan.get("brutes", 0)) if kind == "brute" else 0
 
 
+## Before its push the build researches only its own list (one Sire researches at a time: Pack Hunt or the Raptors'
+## clutch at the Tyrant Sire held the Venom line's research a minute and a half in the first trial game).
+func research_only() -> bool:
+	return kind == "spitter" and timings_done == 0
+
+
+## The Storm Sire waits for the push (no flyers seen): the spoils and the food go into the build's own line first.
+func hold_storm() -> bool:
+	return ai.seen_air < 2 and (timings_done == 0 if kind == "spitter" else pushes.is_empty())
+
+
+## The build's Sire before the grub curve (AIBroodNew._nb_lay): the Venom Sire for the Spitter timing (the first trials
+## got him at 5:00 to 6:00: every 50 food went into grubs on the curve while his 200 waited).
+func sire_first() -> bool:
+	return kind == "spitter" and BroodNew.count_of(game, ai.team, BroodNew.FATHER) > 0 and BroodNew.count_of(game, ai.team, BroodNew.DILO) == 0
+
+
+## Its own spoils first (AIBroodNew._nb_spoils_keep keeps none for her stage 3 meanwhile): the Spitter timing until it went.
+func spoils_first() -> bool:
+	return kind == "spitter" and timings_done == 0
+
+
+## Food kept for the next Spitter egg instead of a Raptor (AIBroodNew._nb_warrior): the Spitter timing until it went,
+## while the Spitters are behind the Raptors (one for one, a few more Spitters at most).
+func save_for_spitters(sp: int, raptors: int) -> bool:
+	return kind == "spitter" and timings_done == 0 and sp < raptors + 4
+
+
 ## Research this build wants first (AIBroodNew._nb_research puts them before its own list).
 func research_first() -> Array:
 	var out: Array = []
@@ -425,7 +474,7 @@ func research_first() -> Array:
 		var sp := spitters()
 		if sp >= 2:
 			out.append("nb_clutch_spitter")
-		if sp >= 5 and game.has_tech(ai.team, "nb_clutch_spitter"):
+		if sp >= 6 and game.has_tech(ai.team, "nb_clutch_spitter"):
 			out.append("nb_long_spit")
 	elif kind == "brute":
 		if _count("brute") >= 2:
@@ -437,13 +486,27 @@ func research_first() -> Array:
 func spoils_want(q: Unit) -> float:
 	if kind == "spitter":
 		if BroodNew.count_of(game, ai.team, BroodNew.DILO) > 0 and timings_done == 0:
-			return 30.0
+			var need := 20.0
+			if not game.has_tech(ai.team, "nb_clutch_spitter"):
+				need += float(Defs.RESEARCH["nb_clutch_spitter"]["cost2"])
+			if not game.has_tech(ai.team, "nb_long_spit"):
+				need += float(Defs.RESEARCH["nb_long_spit"]["cost2"])
+			return need
 		return 0.0
-	if kind == "brute" and BroodNew.stage(q) >= 2:
-		var need := 0.0
-		if _count("brute") < BRUTES_GO:
-			need += float(Defs.UNITS["brute"].get("cost2", 20)) * 2.0
-		if not game.has_tech(ai.team, "nb_battering_horns"):
-			need += float(Defs.RESEARCH["nb_battering_horns"]["cost2"])
-		return need
+	if kind == "brute":
+		return spoils_keep(q) + 10.0
 	return 0.0
+
+
+## Spoils KEPT for the Brutes and their horns (AIBroodNew._nb_spoils_keep: Spitters, maturing and the other research don't
+## eat them; the first siege trial had 3 spoils in hand from 6:30 to 11:00 while Raptors were offered up every few seconds).
+## From her stage 2 on (the Brutes come at her stage 3): two Brutes' worth while short of the cap, and the horns'.
+func spoils_keep(q: Unit) -> float:
+	if kind != "brute" or BroodNew.stage(q) < 1:
+		return 0.0
+	var need := 0.0
+	if _count("brute") < int(ai.plan.get("brutes", BRUTES_GO)):
+		need += float(Defs.UNITS["brute"].get("cost2", 20)) * 2.0
+	if not game.has_tech(ai.team, "nb_battering_horns") and not BroodResearch.in_hand(game, ai.team, "nb_battering_horns"):
+		need += float(Defs.RESEARCH["nb_battering_horns"]["cost2"])
+	return need
