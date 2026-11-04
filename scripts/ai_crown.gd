@@ -128,7 +128,8 @@ const PLANS := {
 	# BALLOON HARASS (crown-builds-c, docs/crown_builds_c.md; the harass itself: scripts/ai_crown_balloon.gd): the safe
 	# Musketeer opening (Balanced's: the soldiers wait at 8 supply), the Foundry at 13 labourers where Balanced puts its
 	# Breeder (round A: at 10 it cost two labourers and a third of the gold at 6:00, and every Brood game) and the first
-	# balloon from it, then soldiers again (14 supply), the second hall at 15, the second balloon;
+	# balloon from it, then soldiers again (14 supply), the second hall at 15, the second balloon (tried at 20 labourers
+	# in round E: no more labourers, and both Brood games lost without the second basket over the ramp);
 	# then the balloons carry Musketeers to the enemy's workers while the army holds at home (Balanced's numbers after it)
 	"balloon": {"opening": "mill", "labs": 99, "army": 0.55, "mill": [[0, 3], [13, 5], [16, 6]], "balloons": 2,
 		"bo": [
@@ -254,7 +255,7 @@ func _army_due() -> bool:
 	var share := float(plan.get("army", 0.5))
 	if _foe_is("brood"):
 		share = maxf(share, ARMY_BROOD)       # (the Brood's Timing attack comes at 5:45-6:30 with 15-30 creatures: ba3 Red Coast)
-	if _army_supply(game.army(team)) >= int(share * game.workers(team).size()):
+	if _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) >= int(share * game.workers(team).size()):
 		return false
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
 		return false            # (supply-blocked: the Cottage, not the soldiers)

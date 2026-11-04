@@ -110,6 +110,15 @@ func want() -> int:
 	return mini(n, 3)
 
 
+## The men in the baskets (Game.army leaves out the men aboard): the army the size of the economy counts them
+## (round B: without them the plan trained soldiers before labourers, 15-16 labourers at 6:00-7:00 against Balanced's 21-28).
+func aboard_supply() -> int:
+	var n := 0
+	for b in balloons():
+		n += (b.passengers as Array).size()
+	return n
+
+
 func balloons() -> Array:
 	return game.units.filter(func(u: Unit) -> bool: return u.team == team and not u.dead and u.kind == "balloon")
 
@@ -582,11 +591,13 @@ func _fly(p: Dictionary) -> void:
 		used.append([at, game.clock])
 		p["prey_t"] = game.clock
 		var aa_near := aa_at(at)
-		if aa_near > 0.0 and army_at(at, 300.0) < _party_value(p):
+		if aa_near > 0.0 and army_at(at, 520.0) < _party_value(p) * 0.6:
 			_phase(p, "drop")
 			var spot := _drop_spot(p, at)
 			b.cmd_unload(spot)
 			say("party %d drops its men by %s (anti-air near: %d)" % [p["id"], _what_at(at), int(aa_near)])
+		elif aa_near > _party_value(p) * FLEE_K:
+			_evade(p, "too much anti-air and an army by " + _what_at(at))       # (round B, b06: a drop among Clock Soldiers)
 		else:
 			_phase(p, "strike")
 			say("party %d hovers over %s: the basket fires" % [p["id"], _what_at(at)])
