@@ -43,10 +43,23 @@ func _new_player(poly: int) -> AudioStreamPlayer:
 	return p
 
 
+## Voices recorded in English only, played in English in every language (the owner's ElevenLabs announcers of
+## 2026-11-04, the Crown's herald and the Brood's scientist; pt / es not decided yet; docs/announcers.md). Their old
+## Kokoro pt / es lines stay in assets/voice_pt|es/ unused: take a prefix off this list to hear them again.
+const ENGLISH_ONLY := ["voice/announcer/crown/", "voice/announcer/brood/"]
+
+
+static func english_only(name: String) -> bool:
+	for p in ENGLISH_ONLY:
+		if name.begins_with(p):
+			return true
+	return false
+
+
 ## Every stream for a name: the plain file and/or its numbered variants.
 func _find(name: String) -> Array:
 	# spoken lines: assets/voice_<lang>/... (pt, es) first, the English assets/voice/... as the fallback
-	var key := name if Loc.lang == "en" or not name.begins_with("voice/") else Loc.lang + ":" + name
+	var key := name if Loc.lang == "en" or not name.begins_with("voice/") or english_only(name) else Loc.lang + ":" + name
 	if _streams.has(key):
 		return _streams[key]
 	var out: Array = []

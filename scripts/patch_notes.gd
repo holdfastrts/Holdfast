@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.15", "items": [
+		"NEW ANNOUNCERS, RECORDED: the Crown's is now a royal herald (\"To arms! The town is under attack!\", \"Victory! God save the King!\") and the Brood's is the campaign's scientist, a gentleman who admires the creatures (\"Good heavens, they are attacking the nest!\", \"Another splendid specimen.\"). Both are the owner's recordings, levelled to the Clockwork's announcer. They speak English in every language for now.",
+		"The Brood's scientist has two lines of his own: \"The Mother! Someone protect the Mother!\" when your Brood Mother is attacked, and \"Oh dear. A Sire has fallen.\" when one of your fathers is killed. The Crown's herald now says \"Our men are out of powder!\" when your Musketeers or guns run dry.",
+	]},
 	{"v": "0.29.14", "items": [
 		"A NEW PLAN FOR THE CROWN COMPUTER, BALLOON HARASS: the safe Musketeer opening with a Foundry, then two Observation Balloons carry Musketeers over cliffs and water to the enemy's workers (the Brood's grubs at its Rootmaws and the Mother's nest, the Clockwork's Winders at the Cog Presses and the Mainspring). Each balloon goes to a different place, hovers over the workers so the basket fires at them, and backs off from anti-air (Swifts, Springers, Ratchet Turrets, Skywings, the Storm and Venom fliers); with a little anti-air near it drops its men away from it and lifts them out when the defence comes. When a big attack comes at home the balloons come back and fire down on it from above. Pick BALLOON HARASS as a Crown computer's plan (the RANDOM PLAN may pick it too).",
 		"In coached games on Hard the Balloon harass traded about 2.5 to 1 (Balanced 1.5 to 1 on the same games) and lived to 13:00 in all eight, at the price of a smaller economy (22 labourers at 8:00 against Balanced's 29); against the Clockwork it killed up to 36 Winders in a game. The numbers and the open questions are in docs/crown_builds_c.md.",

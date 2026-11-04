@@ -3,6 +3,10 @@
     KOKORO_DIR=/path/to/models python3 tools/audio/make_voices.py [filter ...]
     python3 tools/audio/make_voices.py --models /path/to/models [filter ...]
 
+The Crown's and the Brood's announcers are NOT made here any more: they are the owner's recordings (2026-11-04,
+tools/audio/import_announcers.py, docs/announcers.md) and this script skips them (--kokoro-announcers makes the old
+synthetic ones again, overwriting the recordings: only on purpose).
+
 The model dir must contain kokoro-v1.0.onnx and voices-v1.0.bin from
 https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0 (keep them out of the repo).
 Needs: pip install kokoro-onnx soundfile librosa pyworld numba scipy
@@ -330,6 +334,7 @@ ANN_BASE = {
     "victory": "Victory!",
     "defeat": "We are defeated.",
 }
+RECORDED_ANN = ("crown", "brood")    # (the owner's recorded announcers: not made here; see the Announcers loop)
 ANN = {
     "crown": dict(ANN_BASE, no_gold="Not enough gold.", no_res2="Not enough powder.",
                   no_supply="We require more housing.",
@@ -500,6 +505,12 @@ def main(filters):
                     out_write(rel, brood_line(unit, kind, i, seed(rel)))
     # Announcers
     for fac, lines in ANN.items():
+        # the Crown's and the Brood's announcers are the owner's recordings since 2026-11-04 (ElevenLabs, imported by
+        # tools/audio/import_announcers.py; docs/announcers.md): never overwritten from here. The game plays them in
+        # English in every language (Sfx.ENGLISH_ONLY), so pt / es Kokoro lines for them would not be heard either.
+        if fac in RECORDED_ANN and "--kokoro-announcers" not in sys.argv:
+            print("skip", f"announcer/{fac}/*", "(recorded: tools/audio/import_announcers.py)")
+            continue
         for key, text in lines.items():
             text = line(text)
             rel = f"announcer/{fac}/{key}"
@@ -537,7 +548,7 @@ def main(filters):
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:]]
+    args = [a for a in sys.argv[1:] if a != "--kokoro-announcers"]
     if "--models" in args:
         k = args.index("--models")
         del args[k:k + 2]

@@ -2855,6 +2855,7 @@ func out_of_powder(u: Unit) -> void:
 		_dry_ms = now
 		var who: String = {"musketeer": "Musketeers", "cannon": "Cannons", "mortar": "Mortars"}.get(u.kind, "Men")
 		notify("%s out of powder: bring them to a Mill, Barracks, Hall or Powder Wagon." % who)
+		Sfx.announce(faction_of(human), "no_powder", 25.0)      # ("Our men are out of powder!": the Crown's herald)
 
 
 var energy: Array = []            # Clockwork energy per second
@@ -9870,7 +9871,7 @@ func under_attack(e: Entity) -> void:
 		gap = 15.0
 		text = "Your base is under attack!"
 	elif e is Unit and (e as Unit).kind == BroodNew.QUEEN:
-		line = "base_attack"          # (the Brood: she is its base, and its losing condition)
+		line = "mother_attack"        # (the Brood: she is its base, and its losing condition; "The Mother! Someone protect the Mother!")
 		gap = 15.0
 		text = "Your Brood Mother is under attack!"
 	elif e is Unit and (e as Unit)._k_nb and BroodNew.ROOTERS.has((e as Unit).kind) and (e as Unit).tesla_mode != "packed":
