@@ -650,7 +650,7 @@ func _nb_alarm(q: Unit) -> void:
 			_front_done = true
 			say("a Mound Turtle roots in front of the natural")
 			_front_t = null
-		elif _front_t.tesla_mode == "packed" and _foe_near(_front_t.position, 7.0 * Defs.TILE):
+		elif _front_t.tesla_mode == "packed" and _foe_near(_front_t.position, 7.0 * Defs.TILE) and _front_may_root_here():
 			_front_t.cmd_deploy()          # (brood-ai-tune, round C g10: enemies reached it on its way: it roots where it is,
 			                               # a tank in their way, instead of walking on through them uprooted)
 		elif _front_t.tesla_mode == "packed" and _front_t.order != "nb_root" and _front_t.order != "move":
@@ -774,6 +774,19 @@ func _nb_pull_back(_q: Unit) -> void:
 				u.cmd_gather(m)
 			else:
 				u.cmd_stop()
+
+
+## (brood-layout) The front turtle met by enemies on its way roots where it stands only where the computer may root a
+## turtle (BroodRoot.place_problem for the computer: not on or by a ramp, no pocket closed, BroodLayout): in the
+## Redrock Canyon study game (Spitter timing against the Clockwork, seed 5) it rooted at its main's ramp at 5:42 and
+## shut its whole base in, 42 units at once, 69 by 10:00. Elsewhere it walks on to its spot.
+func _front_may_root_here() -> bool:
+	if BroodLayout.off:
+		return true
+	var p := _front_t.position
+	if BroodRoot.place_problem(game, team, BroodNew.TURTLE, p, _front_t, true) != "":
+		return false
+	return BroodLayout.exact(game, team, BroodNew.TURTLE, p, _front_t) == ""
 
 
 ## In front of the natural: 6 tiles out from its turtle toward the enemy (or where the alarm saw the army), on a spot a

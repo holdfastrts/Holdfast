@@ -41,7 +41,9 @@ var mother_ups := 0
 var shooting := false
 var pending: Array = []
 var _shot_stuck := false
-var _base_at := [240.0, 420.0, 600.0]
+var _base_at := [240.0, 420.0, 590.0, 890.0]
+var _last_n := 0
+var _stages := {}
 
 
 func _initialize() -> void:
@@ -127,6 +129,13 @@ func _watch_modes() -> void:
 			continue
 		var was := String(_modes.get(u, u.tesla_mode))
 		_modes[u] = u.tesla_mode
+		if u.kind == BroodNew.QUEEN:
+			var stg := BroodNew.stage(u)
+			if int(_stages.get(u, stg)) != stg:
+				events.append("%s the Mother grows to stage %d (her nest %s)" % [_mmss(g.clock), stg + 1, str(BroodRoot.fp(u.kind, BroodRoot.scale_of(u))[0])])
+			_stages[u] = stg
+		if was != u.tesla_mode and u.tesla_mode == "deployed" and g.clock > 5.0:
+			events.append("%s a %s roots at %s" % [_mmss(g.clock), u.kind, str(g.cell_of(u.position))])
 		if was == u.tesla_mode or u.tesla_mode != "packing" or was != "deployed":
 			continue
 		if u.kind == BroodNew.TURTLE or u.kind == BroodNew.QUEEN:
@@ -167,8 +176,20 @@ func _sample() -> void:
 			_stuck_since.erase(u)
 	stuck_sec += n
 	stuck_max = maxi(stuck_max, n)
-	if n > 0 and int(g.clock) % 10 == 0:
-		events.append("%s %d of its units shut in by its own creatures" % [_mmss(g.clock), n])
+	if n > 0 and (int(g.clock) % 10 == 0 or _last_n == 0):
+		var what: Array = []
+		var touch := BroodLayout._touching(g, bt)
+		for r in p:
+			var ks: Array = []
+			for f in touch.get(r, []):
+				ks.append(String((f as Unit).kind))
+			var b := BroodLayout.blocker(g, bt, r)
+			what.append("%d units in an area of %d cells by %s (the one to get up: %s)" % [(p[r] as Array).size(), int(g._region_size[r]), ", ".join(ks),
+				"%s at %s" % [b.kind, str(g.cell_of(b.position))] if b else "none but the Mother"])
+		events.append("%s %d of its units shut in by its own creatures: %s" % [_mmss(g.clock), n, "; ".join(what)])
+	_last_n = n
+	if int(g.clock) % 60 == 0:
+		print("%s stuck %d (sum %d)" % [_mmss(g.clock), n, stuck_sec])
 	if shots and not _shot_stuck and n >= 3:
 		var long := 0
 		for u in _stuck_since:
@@ -177,6 +198,9 @@ func _sample() -> void:
 		if long >= 3:
 			_shot_stuck = true
 			pending.append(["stuck_%s_%s.png" % [tag(), _mmss(g.clock)], mid / float(n), 1.1])
+			var q := BroodNew.queen(g, bt)
+			if q:
+				pending.append(["stuckwide_%s_%s.png" % [tag(), _mmss(g.clock)], q.position.lerp(mid / float(n), 0.4), 0.6])
 
 
 func _shoot() -> void:
@@ -211,6 +235,11 @@ func _finish() -> void:
 	if f:
 		f.store_string(res + "\n" + "\n".join(events) + "\n")
 		f.close()
+	if g.mlog:
+		var lf := FileAccess.open(out.path_join(tag() + "_log.txt"), FileAccess.WRITE)
+		if lf:
+			lf.store_string(g.mlog.text())
+			lf.close()
 	var path := out.path_join("summary.txt")
 	var s := FileAccess.open(path, FileAccess.READ_WRITE) if FileAccess.file_exists(path) else FileAccess.open(path, FileAccess.WRITE)
 	if s:

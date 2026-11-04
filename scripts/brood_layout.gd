@@ -28,6 +28,7 @@ static var off := false      # (tools/study_brood_layout.gd off:1: the computer 
 
 static var _g: Game = null
 static var _ver := -1
+static var _free := PackedByteArray()      # 1: a free cell (free_i)
 static var _open := PackedByteArray()       # 1: the 2x2 block of cells with this top-left cell is all free
 static var _comp := PackedInt32Array()      # its piece of ground (4-way through open blocks), -1 not open
 static var _main := -1                      # the biggest piece: the open map
@@ -51,12 +52,16 @@ static func _sync(g: Game) -> void:
 	var W := Game.W
 	var H := Game.H
 	var n := W * H
+	_free.resize(n)
+	for i in n:
+		var v := int(g.solid[i])
+		_free[i] = 1 if v == 0 or v == 3 or v == 5 else 0
 	_open.resize(n)
 	_open.fill(0)
 	for y in H - 1:
 		for x in W - 1:
 			var i := y * W + x
-			if free_i(g, i) and free_i(g, i + 1) and free_i(g, i + W) and free_i(g, i + W + 1):
+			if _free[i] == 1 and _free[i + 1] == 1 and _free[i + W] == 1 and _free[i + W + 1] == 1:
 				_open[i] = 1
 	_comp.resize(n)
 	_comp.fill(-1)
@@ -123,6 +128,20 @@ static func _plan_cells(g: Game, t: int, me: Unit) -> Dictionary:
 		var sc: float = BroodRoot.scale_of(o) if o.kind == k else 1.0
 		var c := BroodRoot.cell_for(k, pl[1], sc)
 		var sz: Vector2i = BroodRoot.fp(k, sc)[0]
+		for y in sz.y:
+			for x in sz.x:
+				var cc := c + Vector2i(x, y)
+				if g.in_map(cc):
+					out[g.idx(cc)] = true
+	# HER NEST GROWS (the Cinder Steps study game, Economy against the Crown, seed 11: at 8:08 her stage 3 nest closed
+	# the gap between a Rootmaw, a turtle and the cliff, and 95 units were shut in): the ground her last stage's nest will
+	# take round her rooted feet is kept as taken
+	var q := BroodNew.queen(g, t)
+	if q != null and q != me and BroodNew.rooted(q):
+		var st: Array = Defs.NB["stages"]
+		var sc := float((st[st.size() - 1] as Dictionary)["scale"])
+		var c := BroodRoot.cell_for(q.kind, q.position, sc)
+		var sz: Vector2i = BroodRoot.fp(q.kind, sc)[0]
 		for y in sz.y:
 			for x in sz.x:
 				var cc := c + Vector2i(x, y)
@@ -197,18 +216,17 @@ static func _check(g: Game, t: int, k: String, p: Vector2, me: Unit, sc: float, 
 	var oa := PackedByteArray()          # open after
 	ob.resize(n)
 	oa.resize(n)
+	var fr := _free.duplicate()          # (free cells: the grid's, its own cells free, the plans' shut)
+	for i in mine:
+		fr[int(i)] = 1
+	for i in plan:
+		fr[int(i)] = 0
 	for ly in wh:
 		var y := y0 + ly
 		for lx in ww:
 			var x := x0 + lx
 			var i := y * W + x
-			var open := true
-			for d in [0, 1, W, W + 1]:
-				var ci: int = i + d
-				if not ((free_i(g, ci) or mine.has(ci)) and not plan.has(ci)):
-					open = false
-					break
-			if not open:
+			if fr[i] == 0 or fr[i + 1] == 0 or fr[i + W] == 0 or fr[i + W + 1] == 0:
 				continue
 			var j := ly * ww + lx
 			ob[j] = 1

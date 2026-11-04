@@ -5,7 +5,7 @@ extends SceneTree
 ##       the check itself, on a real map, every 3x3 spot a Mound Turtle could root on (the player's rules): each spot the
 ##       whole-map check lets be really shuts nothing off (rooted for a moment by hand: no own unit leaves the open map,
 ##       no piece of open ground bigger than a nook is cut off), and each it refuses really would; some are refused
-##   godot ... -- case:opening map:<map> [bs:economy] [foe:crown] [end:420]
+##   godot ... -- case:opening map:<map> [bs:economy] [foe:crown] [end:420] [seed:7]
 ##       a Hard Brood computer against a Hard computer: after 1:00 no unit of its own stays shut in by its own rooted
 ##       creatures for more than 15 s, and no more than 60 unit-seconds in all
 ##   godot ... -- case:alarm [map:thornwood_maze]
@@ -22,6 +22,7 @@ var map := "greenhold"
 var bs := "economy"
 var foe := "crown"
 var end_t := 420.0
+var seed_ := 7
 var bt := 1
 var ai: AIBroodNew = null
 
@@ -37,6 +38,8 @@ func _initialize() -> void:
 			"bs": bs = kv[1]
 			"foe": foe = kv[1]
 			"end": end_t = float(kv[1])
+			"seed": seed_ = int(kv[1])
+			"off": BroodLayout.off = kv[1] == "1"      # (the computer before the fix: the cases should fail)
 	if case_ == "alarm" and map == "greenhold":
 		map = "thornwood_maze"
 	main = load("res://scenes/main.tscn").instantiate()
@@ -52,8 +55,8 @@ func check(ok: bool, what: String) -> void:
 func _process(_delta: float) -> bool:
 	t += _delta
 	if t > 0.2 and main.game == null:
-		seed(7)
-		main.start({"map": map, "seed": 7, "slots": [
+		seed(seed_)
+		main.start({"map": map, "seed": seed_, "slots": [
 			{"who": "hard", "faction": foe, "colour": 0, "side": 0, "strategy": "balanced"},
 			{"who": "hard", "faction": "brood", "colour": 1, "side": 1, "strategy": bs}]})
 		return false

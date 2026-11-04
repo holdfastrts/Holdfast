@@ -1,0 +1,11 @@
+# map bs(the Brood's plan) foe fs(the foe's plan) seed: one game before the fix and one after (tools/study_brood_layout.sh)
+highmoor economy crown balanced 3
+highmoor rush clockwork balanced 3
+redrock_canyon balanced crown economy 5
+redrock_canyon spitter clockwork balanced 5
+thornwood_maze economy crown rush 2103718835
+thornwood_maze timing clockwork balanced 4
+greenhold brute crown balanced 6
+greenhold air clockwork balanced 6
+cinder_steps xrush crown balanced 8
+cinder_steps economy clockwork balanced 8
