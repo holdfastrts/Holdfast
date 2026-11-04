@@ -751,9 +751,10 @@ func _research() -> void:
 
 # ------------------------------------------------------------------ the cliff edge (0.29.2, docs/crown_cliff_edge.md)
 
-## THE CROWN'S HALL SPOT (the owner, DECIDED 2026-11-03 22:25): its 2nd and 3rd halls at the least hall distance, close
-## together and under the main's cliff edge (in Musketeer reach of it); its 4th on as close to its other halls as it may
-## (CrownSites.pick). Not where its builders were chased off lately (_hall_bad), not where the computer may not build
+## THE CROWN'S HALL SPOT (the owner, 2026-11-03 22:25; v2 2026-11-04 07:05): its 2nd and 3rd halls at the least hall
+## distance from the main, either side of the main's ramp (the 2nd on the old natural's side, the 3rd its mirror), each a
+## short walk from the ramp's foot and against the map's border; its 4th on as close to its other halls as it may
+## (CrownSites.pick; _cs_field keeps the ramp's walk and the rooms measured between calls). Not where its builders were chased off lately (_hall_bad), not where the computer may not build
 ## (placement_problem), not on the enemy's side by land, not with enemy soldiers in sight near it. Nothing found: the shared
 ## pick. `-- sites:off` (or sites_on false) plays the shared pick (comparison games, tools/measure_cliff_cover.gd).
 var sites_on := not OS.get_cmdline_user_args().has("sites:off")

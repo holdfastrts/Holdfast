@@ -5,7 +5,8 @@ extends SceneTree
 ## <out>/<map>.png: the whole map, fog lifted, HUD hidden (a Crown player against a Clockwork computer);
 ## close:1 also <out>/close_crown_<map>.png, close_clockwork_<map>.png (the player's natural, HUD and minimap on) and
 ## place_crown_<map>.png / place_clockwork_<map>.png (placing a hall: the spots a touch brighter, labelled) and
-## label_crown_<map>.png / label_clockwork_<map>.png (zoomed in on the best spot: its "OPTIMAL EXPANSION SPOT" label).
+## label_crown_<map>.png / label_clockwork_<map>.png (zoomed in on the best spot: its "OPTIMAL EXPANSION SPOT" label) and
+## both_crown_<map>.png (the Crown main and both its spots, CrownSites).
 var main: Node
 var out := ""
 var maps: Array = []
@@ -129,6 +130,19 @@ func _run() -> void:
 			g2.camera.position = home.lerp(spot, 0.8)
 			g2.camera.reset_smoothing()
 			await _snap_view(g2, "close_%s_%s" % [fac, map])
+			if fac == "crown":
+				# the main and both its Crown spots in one view (CrownSites: the 2nd and the 3rd base either side of the ramp)
+				var mids: Array = [home]
+				for s in g2.exp_spots.spots:
+					if int(s["team"]) == g2.human:
+						mids.append((Vector2(s["c"]) + Vector2(MapGen.HALL) * 0.5) * Game.T)
+				var cen := Vector2.ZERO
+				for m in mids:
+					cen += m
+				g2.camera.zoom = Vector2(0.62, 0.62)
+				g2.camera.position = cen / float(mids.size()) + Vector2(0, 170)     # (the HUD covers the bottom)
+				g2.camera.reset_smoothing()
+				await _snap_view(g2, "both_crown_%s" % map)
 			# zoomed in to a normal view: the spot's label (ExpansionSpots.draw_labels)
 			g2.camera.zoom = Vector2(1.1, 1.1)
 			g2.camera.position = spot

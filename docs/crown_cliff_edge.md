@@ -73,6 +73,11 @@ lost game) and 1 (counterplay: the menders run from the claws, the cliff blocks 
 
 ### 4. The Crown's own expansion spots (scripts/crown_sites.gd, docs/expansion_spots.md "The Crown's rule")
 
+REDONE in 0.29.5 (crown-spots-v2; the owner, 2026-11-04 07:05: "I don't know why you left the second expansion so far
+out"): the 2nd base is the old natural pulled in to 18 tiles, near the ramp's foot and against the map's border, the 3rd
+its mirror on the other side of the ramp; the cliff cover below is only a tie-breaker now. Pictures:
+docs/shots/crown_spots_v2/. What follows is v1, as it was.
+
 The 2nd and 3rd halls at the least hall distance (18 tiles), close together, under the main's cliff edge; the 4th on as
 close as it may be to the other halls. The gold marks a Crown side sees and the Crown computer's hall pick both use it.
 

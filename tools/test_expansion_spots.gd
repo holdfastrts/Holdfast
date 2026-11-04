@@ -5,7 +5,10 @@ extends SceneTree
 ##  - mirror-fair: each marked spot's twin (the map turned through its middle) is marked too, with the same rank and score,
 ##  - a marked spot is free, buildable ground for a hall (nobody's start; no blocked cell, no ramp), a base site for the
 ##    Clockwork; for the Crown (CrownSites, 0.29.2) any ground at the least hall distance from its main (its best no more
-##    than CrownSites.SLACK past it) and its two spots a hall's spacing apart; each map is run all-Crown and all-Clockwork
+##    than CrownSites.SLACK past it) and its two spots a hall's spacing apart; THE CROWN'S RULE v2 (0.29.5, _crown_v2):
+##    the 2nd base within 5 tiles of the least distance, on the old natural's side of the main's ramp, the 3rd on the
+##    other side, both within CrownSites.WALK_NEAR steps of the ramp's foot (when any legal spot there is), the 2nd as near
+##    the map's border as any legal spot on its side as near the main and the ramp (3 tiles of slack); each map is run all-Crown and all-Clockwork
 ##    (twins are rated by the same rule); a new Crown hall makes its side's marks be worked out again,
 ##  - shown to a Crown and a Clockwork player and when watching; hidden for a Brood player, hidden once a building the
 ##    viewer knows of stands on it, and hidden with Settings.expansion_spots off.
@@ -73,11 +76,62 @@ func _check_map(g: Game, bad: Array) -> void:
 			for o in sp:
 				if o != s and int(o["team"]) == t and mid.distance_to(Vector2(o["c"]) + Vector2(MapGen.HALL) * 0.5) < Defs.HALL_SPACING - 0.01:
 					bad.append("%s and %s are nearer each other than a hall's spacing" % [c, o["c"]])
+			_crown_v2(g, s, sp, bad)
 		for y in MapGen.HALL.y:
 			for x in MapGen.HALL.x:
 				var cc := c + Vector2i(x, y)
 				if not g.in_map(cc) or g.solid[g.idx(cc)] != 0 or g.ramp[g.idx(cc)] != 0:
 					bad.append("%s: cell %s is not buildable" % [c, cc])
+
+
+## THE CROWN'S RULE v2 (the owner, 2026-11-04 07:05): on the bare map, the 2nd base (mark #1) and the 3rd (mark #2) at
+## about the least hall distance from the main, on OPPOSITE sides of the line from the main through its ramp's foot (the
+## 2nd on the old natural's side), each a short walk from the ramp's foot, and the 2nd as near the map's border as any
+## legal spot on its side that is as near the main and the ramp.
+func _crown_v2(g: Game, s: Dictionary, sp: Array, bad: Array) -> void:
+	var t := int(s["team"])
+	var rank := int(s["rank"])
+	if rank > 2 or g.halls_of(t, false).size() > 1:
+		return
+	var field: Dictionary = CrownSites.edge_field(g, CrownSites.edge_cells(g, t))
+	CrownSites._prep(g, t, field)
+	var ramp: Dictionary = field["ramp"]
+	var c: Vector2i = s["c"]
+	var md := float(s["main"])
+	if md > Defs.HALL_SPACING + (5.0 if rank == 1 else CrownSites.SLACK):
+		bad.append("crown #%d %s: %.1f tiles from the main" % [rank, c, md])
+	if ramp.is_empty():
+		return
+	var main_mid := Vector2(g.starts[t]) + Vector2(2.5, 2.0)
+	var steps: Array = [ExpansionSpots._steps(g, g.starts[t]), []]
+	for o in g.n_players():
+		if g.hostile(o, t):
+			steps[1].append(ExpansionSpots._steps(g, g.starts[o]))
+	var other := Vector2.INF        # (the other mark's middle)
+	for o in sp:
+		if int(o["team"]) == t and int(o["rank"]) == 3 - rank:
+			other = Vector2(o["c"]) + Vector2(MapGen.HALL) * 0.5
+	# the legal spots on its side that leave the other mark its place
+	var room := {}
+	var legal: Array = CrownSites._ranked(g, t, [main_mid], 2, int(s["side"]), steps, {}, Callable(), field, room, 100000).filter(
+			func(r: Dictionary) -> bool: return other == Vector2.INF or (Vector2(r["c"]) + Vector2(MapGen.HALL) * 0.5).distance_to(other) >= Defs.HALL_SPACING)
+	if float(s["walk"]) > CrownSites.WALK_NEAR and legal.any(func(r: Dictionary) -> bool: return float(r["walk"]) <= CrownSites.WALK_NEAR):
+		bad.append("crown #%d %s: %d steps from the ramp's foot (far out)" % [rank, c, int(s["walk"])])
+	if rank == 1:
+		var ns := CrownSites.natural_side(g, t, field)
+		if ns != 0 and int(s["side"]) != ns:
+			bad.append("crown #1 %s: not on the old natural's side of the ramp (%d, natural %d)" % [c, int(s["side"]), ns])
+		var near_edge := 999
+		for r in legal:
+			if float(r["main"]) <= md + 0.01 and float(r["walk"]) <= maxf(float(s["walk"]), CrownSites.WALK_NEAR):
+				near_edge = mini(near_edge, int(r["edge"]))
+		if int(s["edge"]) > near_edge + 3:
+			bad.append("crown #1 %s: %d tiles from the border, a spot as near has %d" % [c, int(s["edge"]), near_edge])
+	else:
+		for o in sp:
+			if int(o["team"]) == t and int(o["rank"]) == 1:
+				if int(o["side"]) * int(s["side"]) != -1:
+					bad.append("crown #2 %s is not on the other side of the ramp from #1 %s (%d, %d)" % [c, o["c"], int(s["side"]), int(o["side"])])
 
 
 func _run(ids: Array) -> void:
