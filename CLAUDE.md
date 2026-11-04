@@ -110,6 +110,10 @@
   - MISSION 1 SCRIPT APPROVED (owner, 2026-11-04 20:50): docs/campaign_mission1.md (the King's lines, three parts, the
   families choice, the canister ending). Being built by the cloud job campaign-m1 with stand-in rebels until the owner's
   ChatGPT rebel art arrives; the King's voice to be recorded by the owner in ElevenLabs.
+  OWNER 2026-11-04 21:45: the skeleton is fine but the DIALOGUE has many AI tells: he will rewrite it himself in detail
+  later (treat all mission texts as placeholders; hold the other characters' recordings). OPEN: who the King is talking
+  to (who the player is: a new general? the King's son?), and the handover to Tomasz needs its own still (Tomasz with the
+  King, not the King alone).
   - FACTION COLOURS (owner, DECIDED 2026-11-04 12:06): CROWN PURPLE, CLOCKWORK RED (and brass), BROOD GREEN (venom green);
   UiStyle.ACCENT follows (0.29.12); the menu painting's Brood (red spines) to be made green by ChatGPT.
   - CROWN COLOUR IS PURPLE (owner, 2026-11-04 11:35): the Crown's standard colour changes to purple (stills done in purple;
