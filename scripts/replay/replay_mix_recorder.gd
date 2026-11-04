@@ -7,9 +7,10 @@ extends ReplayRecorder
 ##   - one KEYFRAME, the whole match as a save keeps it (SaveGame.capture, with each unit's and building's id and its
 ##     order), every KEY_SECS.
 ## Watching it (ReplayMix) puts the keyframe before the time asked on the map and runs the real game from there with
-## the recorded commands; each next keyframe corrects whatever drifted. The computers' decisions are not commands:
-## the viewer runs their AI again (see ReplayMix for why).
-## Recording costs a keyframe every 10 s and nothing else (the commands are a few a second at most).
+## the recorded commands; each next keyframe corrects whatever drifted. The computers' decisions are not commands (their
+## AI orders units directly): twice a second what changed in their units' orders and their buildings' queues is
+## written down with the commands (_diffs), and the viewer gives those instead of running the AI.
+## Recording costs a keyframe every 10 s, a look at the computers' units twice a second, and the commands.
 
 const FORMAT_MIXED := 3
 ## Commands written as [clock, kind, who, function, args]; an entity in them as {"r": [id, kind, team, x, y]} (the
@@ -28,7 +29,7 @@ var _key_due := false
 ## The computers' decisions (their AI orders units directly, not through the funnel): every DIFF_SECS each computer
 ## unit's order and each computer building's queue is looked at, and what changed is written down with the commands
 ## ("#o" an order, "#q" a queue and rally, "#b" a new building). The viewer runs no AI: it gives these instead.
-const DIFF_SECS := 0.25
+const DIFF_SECS := 0.5
 var auto_teams: Array = []       # the sides no person plays (computers, a mission's scripted side)
 var diff_us := 0                 # ...looking for them
 var n_diffs := 0
@@ -203,14 +204,18 @@ func _diffs() -> void:
 			continue
 		var uid: int = u.get_instance_id()
 		seen[uid] = true
-		var ot = u.order_target if u.order_target != null and is_instance_valid(u.order_target) else null
-		var tid: int = ot.get_instance_id() if ot != null else 0
 		var was = _osig.get(uid)
-		var ox := roundi(u.order_point.x)
-		var oy := roundi(u.order_point.y)
-		if was != null and was[0] == u.order and was[1] == ox and was[2] == oy and was[3] == tid:
-			continue
-		_osig[uid] = [u.order, ox, oy, tid]
+		var ox := roundi(u.order_point.x / 16.0)        # (a point moved less than half a tile is the same order)
+		var oy := roundi(u.order_point.y / 16.0)
+		if was != null and was[0] == u.order and was[1] == ox and was[2] == oy:
+			# (the same order: a new target only counts outside a fight, where a unit picks the next one itself)
+			if u.order != "gather" and u.order != "build" and u.order != "repair":
+				continue
+			var tn: int = u.order_target.get_instance_id() if u.order_target != null and is_instance_valid(u.order_target) else 0
+			if tn == int(was[3]):
+				continue
+		var ot = u.order_target if u.order_target != null and is_instance_valid(u.order_target) else null
+		_osig[uid] = [u.order, ox, oy, ot.get_instance_id() if ot != null else 0]
 		if was == null and u.order == "idle":
 			continue             # (new and idle: nothing to tell)
 		cmds.append([clk, 0, "#o", [_enc(u, ok), u.order, Vector2(ox, oy), _enc(ot, ok) if ot is Entity else null]])

@@ -2743,6 +2743,8 @@ const T := {
 	"5 pictures a second: the smoothest replays.": "5 imagens por segundo: os replays mais suaves.",
 	"2 pictures a second: lighter for a phone late in a match; replays still glide.": "2 imagens por segundo: mais leve para um celular no fim da partida; os replays continuam deslizando.",
 	"No replays of your own matches (online games still record).": "Sem replays das suas partidas (as partidas online continuam gravando).",
+	"MIXED": "MISTA",
+	"The orders and a whole picture every 10 seconds: almost free while you play; the replay plays the match again from them, close but not exact.": "As ordens e uma imagem completa a cada 10 segundos: quase de graça enquanto você joga; o replay joga a partida de novo a partir delas, parecido mas não exato.",
 	"THE CAMPAIGN": "A CAMPANHA",
 	"Prologue: The Revolt": "Prólogo: A Revolta",
 	"The year 2500. The world has fallen back to muskets and sail. A revolt flares against the Crown.": "O ano 2500. O mundo voltou aos mosquetes e às velas. Uma revolta explode contra a Coroa.",

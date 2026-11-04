@@ -7,11 +7,13 @@ extends ReplayPlayer
 ## keyframe has it, health, orders, resources, buildings and their queues are set as they were; what the viewer's
 ## game made that the match didn't have goes, what it is missing comes).
 ##
-## The computers: their decisions are not commands (the AI orders units directly, Unit.cmd_move and the like, outside
-## the funnel), so they are not recorded: the AI is made again for each computer side and plays on from each keyframe
-## (a seek makes it anew, as a continued match does). Recording them would have meant a hook in every order a unit
-## takes (and a unit's own orders to itself look the same), for a match that would still drift (the game is not
-## deterministic run to run: tools/test_determinism.gd); the keyframes correct the AI's drift as they correct the rest.
+## The computers: their AI is not run again. Its decisions are recorded instead (ReplayMixRecorder._diffs: twice a
+## second, each computer unit's new order, each computer building's new queue and rally, each new building), and
+## given here at their times as a player's commands are. (Running the AI again was tried first: a fresh AI after
+## each seek, and an AI that simply decides differently from the one in the match, drifted three times as far: in a
+## big battle 95% of units within 263 px after 10 s, against 82 px with the recorded decisions. The AI orders units
+## directly, not through the command funnel, so its orders are read off the units rather than caught as commands.)
+## A replay without them (recorded before they were added) makes the AI anew at each seek.
 ##
 ## Speed: the game's own ticks run faster (Engine.physics_ticks_per_second x speed, each tick still 1/30 s), so 4x
 ## is four times the work. A seek fast-forwards from the keyframe the same way, as fast as the device can, silently.

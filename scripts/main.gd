@@ -1059,13 +1059,14 @@ func settings_rows(tab: String) -> Array:
 				Settings.replays_keep = keeps[(i + 1) % keeps.size()]
 				Settings.save_all()
 				show_settings()), "replays_keep"))
-			var rec_names := {"full": "FULL", "light": "LIGHT", "off": "OFF"}
+			var rec_names := {"mixed": "MIXED", "full": "FULL", "light": "LIGHT", "off": "OFF"}
 			var rec_rows: Array = [_tag(_choice_row("REPLAY RECORDING", Loc.t(rec_names[Settings.replay_mode()]), func() -> void:
 				var modes: Array = Settings.REPLAY_MODES
 				Settings.replay_rec = modes[(modes.find(Settings.replay_mode()) + 1) % modes.size()]
 				Settings.save_all()
 				show_settings()), "replay_rec"),
-				_hint({"full": "5 pictures a second: the smoothest replays.", "light": "2 pictures a second: lighter for a phone late in a match; replays still glide.",
+				_hint({"mixed": "The orders and a whole picture every 10 seconds: almost free while you play; the replay plays the match again from them, close but not exact.",
+					"full": "5 pictures a second: the smoothest replays.", "light": "2 pictures a second: lighter for a phone late in a match; replays still glide.",
 					"off": "No replays of your own matches (online games still record)."}[Settings.replay_mode()])]
 			rows.append_array(rec_rows)
 			var rh := _row("ONLINE RELAY ADDRESS")

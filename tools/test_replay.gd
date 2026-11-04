@@ -37,7 +37,7 @@ var _spawned := false
 var _bench := {}
 var _spawned_units: Array = []
 var _march_n := -1
-var _marks: Array = [300.0, 600.0, 1200.0]
+var _marks: Array = [120.0, 300.0, 600.0, 1200.0]
 var _mark_clk := 0.0
 var _mark_us := 0
 var _mark_n := 0
@@ -197,6 +197,11 @@ func _play() -> bool:
 	if g.clock >= secs or g.over:
 		rec_line = rec.cost_line()
 		print("RECORDER %s %s" % [rec_mode.to_upper(), rec_line])
+		if OS.get_cmdline_user_args().has("recordonly"):
+			print("RECORDER %s %s" % [rec_mode.to_upper(), rec.cost_line()])
+			rec.finish(-1)
+			quit(0)
+			return true
 		if rec_mode == "mixed":
 			check("mixed_recorder", rec is ReplayMixRecorder and int(rec.header.get("format", 0)) == ReplayMixRecorder.FORMAT_MIXED and rec.n_keys >= int(g.clock / ReplayRecorder.KEY_SECS),
 				"%d keyframes in %.0f s, %d commands" % [rec.n_keys, g.clock, (rec as ReplayMixRecorder).n_cmds])
