@@ -3964,8 +3964,9 @@ func _tick_unit(delta: float) -> void:
 			want = Vector2.ZERO    # the shield is planted
 	if Defs.cw_roster and _k_cw:
 		want = CwUnits.steer(self, want, delta)
-	if Defs.gear_turn and Defs.gear_mode:
+	if Defs.gear_turn and Defs.gear_mode and (gt_on != 0.0 or gt_off != Vector2.INF or gt_carry != Vector2.ZERO or GearTurn.near(game, position)):
 		want = GearTurn.tick(self, want, delta)      # (TURNING GEARS: a ring's band carries it round; idle, it steps off)
+		# (far from every ring with nothing of the ride on it, the tick would change nothing: not asked. docs/perf_armies.md)
 	if crew_of == null:
 		_move(want, delta)
 	if Defs.cw_roster and _k_cw:
@@ -4105,6 +4106,7 @@ func compute_path() -> void:
 	# the enemy's gates are shut to us: the path goes round (or, walled out, up to the wall
 	# to break it), never into a gate it can't open
 	var shut := _shut_gates()
+	game._pq_shut = shut          # (the gates this walk shut: part of what a shared path must match, Game.find_path)
 	path = game.find_path(position, path_goal, not is_worker(), _path_margin())
 	path_i = 0
 	stuck_t = 0.0

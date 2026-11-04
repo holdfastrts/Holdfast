@@ -153,20 +153,58 @@ func scan() -> void:
 
 
 ## The share of sprite s's opaque pixels (on a SAMPLES grid over its frame) that sprite c's opaque pixels lie over.
+## (Each sprite's rect, transform, frame and mask are read once for the 48 samples, not once a sample: opaque_at's own
+## sums, the same answer. docs/perf_armies.md)
 static func covered_share(s: Sprite2D, c: Sprite2D) -> float:
 	var r := _sprite_rect(s)
 	var cr := _sprite_rect(c)
+	var ps := _prep(s)
+	var pc := _prep(c)
 	var mine := 0
 	var hit := 0
 	for j in SAMPLES.y:
 		for i in SAMPLES.x:
 			var p := r.position + Vector2((float(i) + 0.5) / float(SAMPLES.x) * r.size.x, (float(j) + 0.5) / float(SAMPLES.y) * r.size.y)
-			if not opaque_at(s, p):
+			if not _opq(ps, p):
 				continue
 			mine += 1
-			if cr.has_point(p) and opaque_at(c, p):
+			if cr.has_point(p) and _opq(pc, p):
 				hit += 1
 	return float(hit) / float(mine) if mine > 0 else 0.0
+
+
+## What opaque_at reads of a sprite, read once: [its rect, its inverse transform, flip h, flip v, its mask, its frame].
+static func _prep(s: Sprite2D) -> Array:
+	var dst := s.get_rect()
+	if dst.size.x <= 0.0 or dst.size.y <= 0.0:
+		return []
+	var bm: BitMap = _mask(s.texture)
+	return [dst, s.get_global_transform().affine_inverse(), s.flip_h, s.flip_v, bm, _src_rect(s) if bm != null else Rect2(),
+		bm.get_size() if bm != null else Vector2i.ZERO]
+
+
+## opaque_at with the sprite's parts read once (_prep).
+static func _opq(pr: Array, p: Vector2) -> bool:
+	if pr.is_empty():
+		return false
+	var dst: Rect2 = pr[0]
+	var lp: Vector2 = (pr[1] as Transform2D) * p
+	var u := (lp.x - dst.position.x) / dst.size.x
+	var v := (lp.y - dst.position.y) / dst.size.y
+	if u < 0.0 or v < 0.0 or u >= 1.0 or v >= 1.0:
+		return false
+	if pr[2]:
+		u = 1.0 - u
+	if pr[3]:
+		v = 1.0 - v
+	var bm: BitMap = pr[4]
+	if bm == null:
+		return true
+	var src: Rect2 = pr[5]
+	var bs: Vector2i = pr[6]
+	var x := clampi(int(src.position.x + u * src.size.x), 0, bs.x - 1)
+	var y := clampi(int(src.position.y + v * src.size.y), 0, bs.y - 1)
+	return bm.get_bit(x, y)
 
 
 ## Is sprite s drawn opaque at world point p (its current frame, through its 1-bit alpha mask)?

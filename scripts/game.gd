@@ -161,6 +161,10 @@ var gear_pick := {}
 var cam_slots: Array = [null, null, null, null, null, null, null]   # camera hotkeys F4-F10: [position, zoom] or null (kept in the autosave)
 var _hash := {}
 var _path_queue: Array = []
+var _pq_on := false              # (the queue is being run: find_path keeps what it found for the rest of the run)
+var _pq_cache := {}              # Vector4i(from cell, to cell) -> [siege, the gates shut, the cells, whole]
+var _pq_shut: Array = []         # (the gates the walker asking now has shut: Unit.compute_path)
+var _pq_hits := 0                # (paths shared, for the tools)
 var _end_t := 0.0
 var over := false
 var map_view := false                   # VIEW MAP on the battle report: the match is over but the camera and selection work
@@ -5530,15 +5534,30 @@ func find_path(from: Vector2, to: Vector2, siege := false, margin := 7.0) -> Pac
 	# the last step is walked from there; docs/ramp_funnel.md)
 	var pa := path_cell(a)
 	var pb := path_cell(b)
-	var pts := astar.get_point_path(pa, pb, true)
-	# (allow_partial_path: when b can't be reached the path ends at the reachable cell nearest to it)
-	var whole := not pts.is_empty() and cell_of(pts[pts.size() - 1]) == pb
-	if not whole and siege:
-		# walled out: walk up to the wall (the unit then breaks it down)
-		var sp := astar_siege.get_point_path(path_cell(a, true), path_cell(b, true), false)
-		if not sp.is_empty():
-			pts = sp
-			whole = true
+	var pts: PackedVector2Array
+	var whole := false
+	# (THE PATH QUEUE'S SHARED PATHS, docs/perf_armies.md: in one tick's run of the queue the grid only changes by the
+	# enemy gates each walker shuts for itself, so the same two cells, the same gates shut and the same kind of walk give
+	# the same cells: a blob of Raptors sent to one spot from the same cells asks the pathfinder once. The smoothing
+	# below starts from each walker's own place, as before)
+	var ck := Vector4i(pa.x, pa.y, pb.x, pb.y)
+	var hit = _pq_cache.get(ck) if _pq_on else null
+	if hit != null and bool(hit[0]) == siege and hit[1] == _pq_shut:
+		pts = (hit[2] as PackedVector2Array).duplicate()
+		whole = hit[3]
+		_pq_hits += 1
+	else:
+		pts = astar.get_point_path(pa, pb, true)
+		# (allow_partial_path: when b can't be reached the path ends at the reachable cell nearest to it)
+		whole = not pts.is_empty() and cell_of(pts[pts.size() - 1]) == pb
+		if not whole and siege:
+			# walled out: walk up to the wall (the unit then breaks it down)
+			var sp := astar_siege.get_point_path(path_cell(a, true), path_cell(b, true), false)
+			if not sp.is_empty():
+				pts = sp
+				whole = true
+		if _pq_on:
+			_pq_cache[ck] = [siege, _pq_shut, pts.duplicate(), whole]
 	if whole and pb != b:
 		pts.append(cell_center(b))
 	Prof.add("game/pathfinder", pt)
@@ -9315,11 +9334,16 @@ func _tick_game(delta: float) -> void:
 	# (at most 24 a tick, and past the first 6 only while under 6 ms: a crowd ordered at once
 	# gets its paths over a few ticks instead of in one long frame)
 	var budget := 24
+	_pq_on = true
 	while budget > 0 and not _path_queue.is_empty() and (budget > 18 or Time.get_ticks_usec() - pt < path_budget_us):
 		var u = _path_queue.pop_front()
 		if is_instance_valid(u) and not u.dead:
 			u.compute_path()
 			budget -= 1
+	_pq_on = false
+	_pq_shut = []
+	if not _pq_cache.is_empty():
+		_pq_cache.clear()
 	Prof.add("game/paths", pt)
 	_tick_zones(delta)
 	_tick_swamp(delta)
