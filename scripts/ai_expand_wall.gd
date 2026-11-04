@@ -29,6 +29,8 @@ var _main_id := -1
 const R_MIN := 8
 const R_MAX := 16
 const AREA_MIN := 230           # open cells inside the ring: the hall (20), two Farms with their margins (2 x 64), the Mill (25)
+const NO_PLAN_RETRY := 30.0     # (s) a hall with no wall plan is asked again this often (quietly)
+var no_plan_why := ""          # why the last plan failed (the match log)
 const SLOT_WAIT := 60.0         # s after the hall stands before an empty slot is closed with palisade
 const CLOSED_SHARE := 0.85      # the share of ways-in cells closed before the guards may go home
 const GATE_W := 2               # gate cells (the army files out without jamming, as at the main's ramp)
@@ -68,19 +70,35 @@ func tick() -> void:
 	for id in plans.keys():
 		var p: Dictionary = plans[id]
 		# (a hall with no wall plan has an empty one: it is dropped once the hall is gone; it used to fail here every think)
-		if not is_instance_valid(p.get("hall")) or (p["hall"] as Building).dead:
+		var ph = p.get("hall")
+		if ph == null or not is_instance_valid(ph) or (ph as Building).dead:
 			if p.is_empty() and is_instance_valid(instance_from_id(id)) and not (instance_from_id(id) as Building).dead:
 				continue
 			plans.erase(id)
 	for h in halls:
 		var id: int = h.get_instance_id()
-		if h == main or plans.has(id):
+		if h == main:
 			continue
+		var again := false
+		if plans.has(id):
+			var old: Dictionary = plans[id]
+			# (crown-v-brood: a hall with no plan is kept with its failed plan and asked again quietly every NO_PLAN_RETRY s;
+			# the failed plan used to be dropped and made again every think: "found no wall plan" 121 times in the owner's
+			# Redrock log, 7:36-7:53, and the dear search each time)
+			if old.get("ok", false) or game.clock < float(old.get("retry", 0.0)):
+				continue
+			again = true
 		var p := plan_for(h.cell, h)
+		if not p.get("ok", false):
+			p["hall"] = h
+			p["retry"] = game.clock + NO_PLAN_RETRY
+			p["why"] = no_plan_why
 		plans[id] = p
+		if again and not p.get("ok", false):
+			continue
 		if game.mlog:
 			if p.is_empty() or not p.get("ok", false):
-				game.mlog.add("%s found no wall plan for its new Town Hall" % game.mlog.who(ai.team))
+				game.mlog.add("%s found no wall plan for its new Town Hall (%s)" % [game.mlog.who(ai.team), no_plan_why])
 			else:
 				game.mlog.add("%s plans a walled expansion: %d ways-in cells (radius %d), %d building slots, %d palisade, %d gate" % [
 					game.mlog.who(ai.team), (p["exposed"] as Array).size(), int(p["r"]), (p["slots"] as Array).size(),
@@ -105,7 +123,7 @@ func _run(p: Dictionary) -> void:
 	var hall: Building = p["hall"]
 	if hall.built and float(p["built_t"]) < 0.0:
 		p["built_t"] = game.clock
-	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > SLOT_WAIT
+	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > (BROOD_SLOT_WAIT if brood_walls() else SLOT_WAIT)
 	for s in p["slots"]:
 		if s["closed"]:
 			continue
@@ -192,13 +210,29 @@ func _lay_pieces(p: Dictionary) -> void:
 		return          # (a fight at the hall: the army first, the wall after)
 	# (AI TRANSITIONS: an army smaller than the enemy's comes first: pieces only from gold above a unit's price, a few at a
 	# time; docs/ai_crown_transitions.md)
-	if ai.doctrine() and not ai.wall_sat():
+	var bw := brood_walls()
+	if ai.doctrine() and not ai.wall_sat() and not bw:
 		return          # (THE OWNER'S DOCTRINE: saturate the expansion first, then wall it in slowly)
-	var short: bool = ai.wall_yield()
+	var short: bool = ai.wall_yield() and not bw
 	if short and ai.doctrine():
 		return          # (DOCTRINE: workers and army before walls: nothing laid while the army is short or small)
 	if short:
 		keep = maxi(keep, SHORT_RESERVE)
+	if bw:
+		# (a Musketeer's gold kept, two while a Barracks stands idle and the army is behind: the army before the wall's gold)
+		var idle: bool = ai._mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty())
+		keep = maxi(keep, BROOD_RESERVE * (2 if idle and ai.has_method("army_behind") and ai.army_behind() else 1))
+		# (and never the gold set aside for a building, a milestone or the first Field Cannon: coached game a2, Greenhold, the
+		# wall took every coin over 60 and the cannon never came)
+		keep += maxi(0, int(ai._reserve))
+		if ai.has_method("brood_wall_keep"):
+			keep += int(ai.brood_wall_keep())
+		# (the labourers first: a hall that could train one and is not gets its gold before the wall; with the wall laid
+		# at once the Economy plan had 19-20 labourers at 6:00 instead of 27, test_crown_build_order)
+		if game.workers(ai.team).size() < ai._posts():
+			for h in game.halls_of(ai.team, true):
+				if h.built and (h.queue as Array).is_empty():
+					keep += 50
 	var foe: Vector2 = p["foe"]
 	todo.sort_custom(func(a, b) -> bool: return Vector2(a[1]).distance_to(foe) < Vector2(b[1]).distance_to(foe))
 	# gates first (the way out), then the cells nearest the enemy
@@ -206,14 +240,14 @@ func _lay_pieces(p: Dictionary) -> void:
 	var made: Array = []
 	for e in todo:
 		var cost := int(Defs.BUILDINGS[e[0]]["cost"])
-		if ai._gold() - cost < keep or ((short or ai.doctrine()) and made.size() >= SHORT_BATCH):
+		if ai._gold() - cost < keep or ((short or ai.doctrine()) and made.size() >= (BROOD_BATCH if bw else SHORT_BATCH)):
 			break
 		if game.placement_problem(ai.team, e[0], e[1], true) != "":
 			continue
 		var nb: Building = game.place_building(ai.team, e[0], e[1], [])
 		if nb != null:
 			made.append(nb)
-	p["next_lay"] = game.clock + (DOCTRINE_LAY if ai.doctrine() else 3.0)      # (DOCTRINE: slowly, a few pieces at a time)
+	p["next_lay"] = game.clock + (BROOD_LAY if bw else (DOCTRINE_LAY if ai.doctrine() else 3.0))      # (DOCTRINE: slowly, a few pieces at a time)
 	if made.is_empty():
 		return
 	var at: Vector2 = (made[0] as Building).center()
@@ -287,8 +321,29 @@ const DOCTRINE_LAY := 10.0      # s between batches of a saturated hall's wall (
 const SHORT_BATCH := 3          # ... and at most this many pieces laid at a time then
 
 
+## AGAINST THE BROOD THE NEW HALL IS WALLED AT ONCE (crown-v-brood; the owner's Redrock log 2026-11-04: "Crown doesn't wall,
+## it makes 2 houses to the side, this is a pathetic wall. It would be better to just use Palisades"; the 25 palisade the
+## plan laid out at 3:22 were never laid: the slow wall waited for a saturated hall and an army the clock wanted, and two
+## slot Cottages stood alone in the open). Against a melee swarm the closed line is the defender's advantage
+## (docs/design_principles.md 2); a palisade is 15 gold. So against the Brood the doctrine's waits (wall_sat, wall_yield)
+## are skipped: BROOD_BATCH pieces every BROOD_LAY s, nearest the enemy first, from gold over BROOD_RESERVE (a Musketeer).
+## Switch: `-- xwbrood:off`.
+const BROOD_RESERVE := 60
+const BROOD_BATCH := 8
+const BROOD_SLOT_WAIT := 25.0   # (s) an empty slot is closed with palisade this soon after the hall stands (a slot left open was
+                                # the Raptors' way in, coached game a_rr_eco_eco 8:23)
+const BROOD_LAY := 4.0
+var brood_on := not OS.get_cmdline_user_args().has("xwbrood:off")
+
+
+func brood_walls() -> bool:
+	return brood_on and ai.has_method("blind_guard") and ai._foe_is("brood") and ai.difficulty >= 1
+
+
 func keep() -> int:
-	if not active() or plans.is_empty() or _farm_first() or ai.wall_yield() or (ai.doctrine() and not ai.wall_sat()):
+	if not active() or plans.is_empty() or _farm_first():
+		return 0
+	if not brood_walls() and (ai.wall_yield() or (ai.doctrine() and not ai.wall_sat())):
 		return 0
 	var debt := 0
 	for id in plans:
@@ -877,6 +932,12 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 	var best := {}
 	var best_score := INF
 	var valid: Array = []          # the radii whose ways in can all be walled: {r, cells, exposed, area, s0}
+	var n_small := 0
+	var n_bad := 0
+	var bad_c := Vector2i(-1, -1)
+	no_plan_why = ""
+	if (foe["order"] as PackedInt32Array).is_empty():
+		no_plan_why = "no enemy walks to it"
 	for r in range(R_MIN, R_MAX + 1):
 		var cells := _inside_cells(cell, hsize, float(r), base)
 		var area := 0
@@ -884,6 +945,7 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 			if game.solid[i] == 0:
 				area += 1
 		if area < AREA_MIN and r < R_MAX:
+			n_small += 1
 			continue
 		if (foe["order"] as PackedInt32Array).is_empty():
 			continue
@@ -897,10 +959,12 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 				wall_ok[c] = _wall_ok(c)
 			if not wall_ok[c]:
 				bad = true
+				bad_c = c
 				break
 		for i in cells:
 			in_mask[i] = 0
 		if bad:
+			n_bad += 1
 			continue
 		# (the hall's two Farms and its Mill must fit inside: else its workers walk out of the wall to them)
 		valid.append({"r": r, "cells": cells, "exposed": ex, "area": area, "s0": float(ex.size()) - float(area) / 150.0})
@@ -925,6 +989,9 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 			best_score = score
 			best = {"r": v["r"], "cells": vc, "exposed": v["exposed"], "area": v["area"], "econ": econ}
 	if best.is_empty():
+		if no_plan_why == "":
+			no_plan_why = "%d radii too small for its farms, %d with a way in no palisade may close (e.g. %s: %s)" % [n_small, n_bad, str(bad_c),
+				"ramp" if game.in_map(bad_c) and game.ramp[game.idx(bad_c)] != 0 else (game.placement_problem(ai.team, "wall", bad_c, true) if game.in_map(bad_c) else "-")]
 		return {"ok": false}
 	var best_in := {}
 	for i in best["cells"]:

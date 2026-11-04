@@ -320,6 +320,9 @@ func _econ_keep(for_army := false) -> int:
 ## goes to soldiers first (coached games a01, a12: 30-32 labourers and 420-455 of army at 6:00, the Brood's Timing attack
 ## at 6:00-6:30 took both halls). Triggered by the economy, not the clock.
 const ARMY_BROOD := 0.55
+const ARMY_RECKON_T := 360.0     # (s) with no Brood soldier seen yet, the army keeps up with the reckoning from then on
+const HOLD_SHARE := 0.6          # (crown-v-brood) the army kept at this share of the Brood army it reckons (AICrown.foe_estimate)
+var brood_army_off := OS.get_cmdline_user_args().has("barmy:off")
 
 
 func _army_due() -> bool:
@@ -328,7 +331,12 @@ func _army_due() -> bool:
 	var share := float(plan.get("army", 0.5))
 	if _foe_is("brood"):
 		share = maxf(share, ARMY_BROOD)       # (the Brood's Timing attack comes at 5:45-6:30 with 15-30 creatures: ba3 Red Coast)
-	if _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) >= int(share * game.workers(team).size()):
+	var short: bool = _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) < int(share * game.workers(team).size())
+	if not short and blind_guard() and not brood_army_off:
+		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
+		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
+		short = army_behind() and _army_supply(game.army(team)) < int(1.0 * game.workers(team).size())
+	if not short:
 		return false
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
 		return false            # (supply-blocked: the Cottage, not the soldiers)
@@ -703,14 +711,26 @@ func _wave_worth(ready: Array) -> bool:
 		return false
 	if not on or difficulty < 1 or strategy == "rush" or not doctrine():
 		return true
+	var mine := 0.0
+	for u in ready:
+		mine += float(Game.unit_value(u))
+	if blind_guard():
+		# (crown-v-brood: never out blind, and an army it has not seen is not 0; the cap or a big army is no excuse either)
+		if not scouted_fresh():
+			want_look("the wave")
+			return false
+		var est := foe_estimate()
+		if mine >= est * CR_EDGE_BROOD:
+			return true
+		if game.clock - _held_said > 60.0:
+			_held_said = game.clock
+			say("the wave waits on the high ground: %d of army against the %d it reckons the Brood has (%d seen lately; it wants %.1f times)" % [int(mine), int(est), int(ch.foe_known()), CR_EDGE_BROOD])
+		return false
 	if _army_supply(ready) >= 60 or game.supply_used(team) >= game.max_supply(team) - 4:
 		return true
 	var known: float = ch.foe_known()
 	if known <= 0.0:
 		return true
-	var mine := 0.0
-	for u in ready:
-		mine += float(Game.unit_value(u))
 	var edge := CR_EDGE_BROOD if _foe_is("brood") else CR_EDGE
 	if mine >= known * edge:
 		return true
@@ -809,6 +829,13 @@ func _hall_first() -> bool:
 	if not on or not bo_done or difficulty < 1 or _halls().size() < 2:
 		return super()
 	if _best_soil() >= DRY_LAND and (_threat() != Vector2.INF or ch.foe_near() > ch.home_value() * 1.2):
+		_hall_reserve = false
+		_saving = false
+		return false
+	if blind_guard() and _best_soil() >= DRY_LAND and (_attacking or army_behind()):
+		# (crown-v-brood: the next hall goes down behind the army at home, not while it is away, and not while the army is
+		# under HOLD_SHARE of the Brood army it reckons: the owner's Redrock game laid its third hall at 7:35 with 1,450 of army
+		# against 5,235)
 		_hall_reserve = false
 		_saving = false
 		return false
@@ -1092,6 +1119,8 @@ func _mid_tick() -> void:
 	var labs := game.workers(team).size()
 	var halls := _halls().filter(func(h: Building) -> bool: return h.built).size()
 	var army := _army_supply(game.army(team))
+	if _threat_prod(labs, halls, army):
+		return
 	for m in plan.get("mid", []):
 		var k := String(m[0])
 		if _mine(k).size() >= int(m[1]):
@@ -1239,3 +1268,278 @@ func _bl_step(st: Dictionary) -> String:
 	var n0: int = bl.queued()
 	bl.produce(int(st.get("n", 1)))
 	return "" if bl.queued() > n0 else "wait"
+
+
+# ------------------------------------------------------------------ the Crown against the Brood (crown-v-brood)
+# docs/crown_v_brood.md. The owner, 2026-11-04: "the problem with Brood vs Crown doesn't seem to be economics, it's the Crown
+# AI". Design: docs/design_principles.md 1 (counterplay: scout before you commit, answer what you see) and 2 (the defender's
+# advantage: walls and the high ground while the enemy is bigger; a lost battle must not be a lost game).
+
+## A RANDOM PLAN weighed by the matchup (as AIClockwork's Pendulums against the Brood): against the Brood the Balloon
+## harass is never picked (Mist Toads pull balloons, Spitters shoot them; the owner's Redrock game: one grub in 3 minutes)
+## and the plans that held or hurt the Brood in the coached games come more often. Any other matchup: evenly.
+const RANDOM_VS_BROOD := {"balanced": 3.0, "timing": 2.0, "rush": 2.0, "siege": 2.0, "economy": 1.0, "dragoon": 1.0, "balloon": 0.0}
+
+
+func random_plan(allowed: Array) -> String:
+	if not _foe_is("brood"):
+		return super.random_plan(allowed)
+	var total := 0.0
+	for k in allowed:
+		total += float(RANDOM_VS_BROOD.get(k, 1.0))
+	if total <= 0.0:
+		return super.random_plan(allowed)
+	var r := randf() * total
+	for k in allowed:
+		r -= float(RANDOM_VS_BROOD.get(k, 1.0))
+		if r < 0.0 and float(RANDOM_VS_BROOD.get(k, 1.0)) > 0.0:
+			return String(k)
+	for k in allowed:
+		if float(RANDOM_VS_BROOD.get(k, 1.0)) > 0.0:
+			return String(k)
+	return super.random_plan(allowed)
+
+
+## THE HORSEMAN RUSH KEEPS RAIDING WHILE IT WINS (the owner's Thornwood log: "rush: SUCCEEDED, mop-up: the riders regroup
+## at home" at 3:35 with 345 killed for 100 lost). Against the Brood the riders go on hunting grubs (and the rooted
+## Rootmaws when no grub is in sight, AIHarass rides past the static ones) until they are beaten down, a real answer is at
+## hand, or nothing has died for HUNT_DRY s.
+const HUNT_KEEP := 0.5          # the riders end the hunt when down to this share of the party (and at least 2 lost)
+const HUNT_ANSWER := 1.15       # ... or the mobile armed creatures at the riders are worth this times them (the shared
+                                # rush verdict's FAILED edge; rooted Rootmaws, turtles and the Mother do not chase: not counted)
+const HUNT_DRY := 75.0          # ... or nothing has been killed for this long
+var _hunt_kill := 0
+var _hunt_kill_t := 0.0
+var hunt_log: Array = []        # (tests) [clock, text]
+
+
+func _rush_hunt_on(party: Array) -> bool:
+	if not on or difficulty < 1 or not _foe_is("brood") or party.size() < 2:
+		return false
+	var mine := 0.0
+	for u in party:
+		mine += _unit_value(u)
+	var defv := _hunt_answer(party)
+	if defv >= mine * HUNT_ANSWER:
+		return false
+	_hunt_kill = int(game.stats[team]["value_killed"])
+	_hunt_kill_t = game.clock
+	_rush_hunt_said = "%d killed, %d riders left, defenders seen %d" % [_hunt_kill - _wave_kill0, party.size(), int(defv)]
+	hunt_log.append([game.clock, "on: " + _rush_hunt_said])
+	return true
+
+
+func _rush_hunt_over(party: Array) -> String:
+	var why := ""
+	var mine := 0.0
+	for u in party:
+		mine += _unit_value(u)
+	var k := int(game.stats[team]["value_killed"])
+	if k > _hunt_kill:
+		_hunt_kill = k
+		_hunt_kill_t = game.clock
+	var defv := _hunt_answer(party)
+	if party.size() < 2 or (float(party.size()) <= float(_rush_n0) * HUNT_KEEP and _rush_n0 - party.size() >= 2):
+		why = "the riders are down to %d of %d" % [party.size(), _rush_n0]
+	elif defv >= mine * HUNT_ANSWER and defv >= 100.0:
+		why = "a real answer: %d of soldiers against its %d" % [int(defv), int(mine)]
+	elif game.clock - _hunt_kill_t > HUNT_DRY:
+		why = "nothing killed for %d s" % int(game.clock - _hunt_kill_t)
+	if why != "":
+		hunt_log.append([game.clock, "over: " + why])
+	return why
+
+
+## The hunt's prey: a grub in sight as before; none in sight, the nearest Rootmaw seen (the Brood's income) instead of the
+## middle of its base, where the Mother and the Mound Turtles stand.
+func _prey_spot(from: Vector2) -> Vector2:
+	var p := super(from)
+	if _rush_mode != "hunt" or not _foe_is("brood"):
+		return p
+	var foe := _foe()
+	for o in game.units:
+		if not o.dead and not o.off_field and o.team == foe and o.is_worker() and game.is_visible_to(team, o.position):
+			return p
+	var best := Vector2.INF
+	for o in game.army(foe):
+		if o.dead or o.kind != "rootmaw" or not _sighted(o):
+			continue
+		if best == Vector2.INF or o.position.distance_to(from) < best.distance_to(from):
+			best = o.position
+	return best if best != Vector2.INF else p
+
+
+
+## NO BLIND ATTACKS (the owner's Redrock log, 7:53: "goes down with its army: no attack for 240 s on two halls and its army
+## (1450) is not behind (0)"; the 0 was the army it had NOT seen, and the Brood's 77 supply (5,235) caught it in the open:
+## "If your enemy is also Economy you can't attack without scouting, they got caught in the open"). Against the Brood:
+##  - a wave or a timing goes only with a FRESH report: an enemy soldier in sight, or its main looked at, in the last
+##    LOOK_FRESH s; else a scout is sent first (the labourer / Musketeer scout, the riders' loop) and the army waits;
+##  - the enemy army it weighs is foe_estimate(): what it saw lately, but never less than what a Brood of that age with the
+##    Rootmaws it has seen would have (BROOD_TABLE, BROOD_PER_MAW), less a part of what we killed.
+## Switch: `-- blind:on` plays the old rule (a study's "before").
+var blind_ok := OS.get_cmdline_user_args().has("blind:on")
+const LOOK_FRESH := 75.0
+var _base_looked_t := -999.0
+var _look_said := -99.0
+var looks_asked := 0            # (tests)
+var _maws_seen := {}            # enemy Rootmaw -> true (the most seen alive at once is kept)
+var maws_peak := 0
+
+
+func blind_guard() -> bool:
+	return on and not blind_ok and difficulty >= 1 and _foe_is("brood")
+
+
+## An enemy soldier in sight, or the enemy's main looked at, in the last LOOK_FRESH s.
+func scouted_fresh() -> bool:
+	_look_tick()
+	return game.clock - ch._last_army_t <= LOOK_FRESH or game.clock - _base_looked_t <= LOOK_FRESH
+
+
+func _look_tick() -> void:
+	var foe := _foe()
+	if foe < 0 or game.starts.size() <= foe:
+		return
+	var their := (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE
+	if game.is_visible_to(team, their):
+		_base_looked_t = game.clock
+	for u in _maws_seen.keys():
+		if not is_instance_valid(u) or u.dead:
+			_maws_seen.erase(u)
+	for u in game.army(foe):
+		if not u.dead and u.kind == "rootmaw" and game.is_visible_to(team, u.position):
+			_maws_seen[u] = true
+	maws_peak = maxi(maws_peak, _maws_seen.size())
+
+
+## Ask for a look at the enemy: the scout's next trip now (another trip past its five when need be), the riders' loop runs.
+func want_look(who: String) -> void:
+	if scout != null and scout.state != "going":
+		if scout.trips >= AIScout.MAX_TRIPS:
+			scout.trips = AIScout.MAX_TRIPS - 1
+		scout.next_trip = minf(scout.next_trip, game.clock)
+	if game.clock - _look_said > 45.0:
+		_look_said = game.clock
+		looks_asked += 1
+		say("%s waits for a fresh scout report: no enemy soldier seen for %s and its main not looked at for %s" % [who,
+			("%d s" % int(game.clock - ch._last_army_t)) if ch._last_army_t > 0.0 else "the whole game",
+			("%d s" % int(game.clock - _base_looked_t)) if _base_looked_t > 0.0 else "the whole game"])
+
+
+## The Brood's army as the Crown reckons it: what it saw in the last two minutes (AICrownHold.foe_known), never less than a
+## Brood of that age would have (the Hard Brood's mobile army in the coached games, BROOD_TABLE), more with more Rootmaws
+## seen than such a Brood roots (BROOD_PER_MAW a Rootmaw past BROOD_MAWS), less half of what we have killed of it.
+## Other matchups: what it saw.
+const BROOD_TABLE := [[0.0, 0.0], [180.0, 100.0], [300.0, 450.0], [360.0, 700.0], [420.0, 1300.0], [480.0, 2200.0], [540.0, 3000.0], [600.0, 3800.0], [720.0, 5000.0]]
+const BROOD_MAWS := [[0.0, 1.0], [180.0, 4.0], [300.0, 6.0], [480.0, 8.0]]
+const BROOD_PER_MAW := 250.0
+
+
+static func _lerp_table(tab: Array, x: float) -> float:
+	if x <= float(tab[0][0]):
+		return float(tab[0][1])
+	for i in range(1, tab.size()):
+		if x <= float(tab[i][0]):
+			var a: Array = tab[i - 1]
+			var b: Array = tab[i]
+			return lerpf(float(a[1]), float(b[1]), (x - float(a[0])) / maxf(1.0, float(b[0]) - float(a[0])))
+	return float(tab[-1][1])
+
+
+func foe_estimate() -> float:
+	var known: float = ch.foe_known()
+	if not _foe_is("brood"):
+		return known
+	_look_tick()
+	var t := game.clock
+	var est := _lerp_table(BROOD_TABLE, t)
+	est += maxf(0.0, float(maws_peak) - _lerp_table(BROOD_MAWS, t)) * BROOD_PER_MAW
+	est -= 0.5 * float(game.stats[team]["value_killed"])
+	return maxf(known, est)
+
+
+
+## Under HOLD_SHARE of the Brood army it reckons (against the Brood only).
+func army_behind() -> bool:
+	if not blind_guard() or brood_army_off:
+		return false
+	if ch._last_army_t < 0.0 and game.clock < ARMY_RECKON_T:
+		return false        # (no Brood soldier seen yet: the reckoning drives the army from ARMY_RECKON_T on)
+	return float(game.army_value(team)) < foe_estimate() * HOLD_SHARE
+
+
+## PRODUCTION FOR THE THREAT (crown-v-brood; the coached Redrock Economy game a1: one Barracks until 7:03, 4 Musketeers at
+## 6:00 against 2,225 of Brood): against the Brood, while the army is behind (army_behind) and every Barracks and Foundry is
+## busy, the plan's next Foundry or Barracks milestone comes now whatever its labourer count (the Foundry still before the
+## second Barracks: AICrown._construct), up to one production building for every PROD_PER labourers. Triggered by the
+## threat it reckons, not the clock.
+const PROD_PER := 9
+const PROD_BUSY := 15.0         # (s) every Barracks and Foundry busy this long first
+var _prod_busy_t := -1.0
+var threat_builds := 0          # (tests, the coach)
+
+
+func _threat_prod(labs: int, halls: int, army: int) -> bool:
+	if not army_behind():
+		_prod_busy_t = -1.0
+		return false
+	var prod: Array = _mine("barracks") + _mine("foundry")
+	if prod.is_empty() or prod.size() >= maxi(2, labs / PROD_PER):
+		return false
+	for b in prod:
+		if not b.built or b.queue.is_empty():
+			_prod_busy_t = -1.0
+			return false
+	if _prod_busy_t < 0.0:
+		_prod_busy_t = game.clock
+	if game.clock - _prod_busy_t < PROD_BUSY:
+		return false
+	for m in plan.get("mid", []):
+		var k := String(m[0])
+		if not k in ["barracks", "foundry"] or _mine(k).size() >= int(m[1]):
+			continue
+		if not game.requirement_met(team, k) or _busy_building(k):
+			return false
+		var cost := int(Defs.BUILDINGS[k]["cost"])
+		if _gold() < cost:
+			_reserve = maxi(_reserve, cost)
+			return true
+		var n0 := _mine(k).size() + _mine("foundry" if k == "barracks" else "barracks").size()
+		_construct(k)
+		if _mine("barracks").size() + _mine("foundry").size() > n0:
+			threat_builds += 1
+			_prod_busy_t = -1.0
+			say("milestone for the Brood's army: %s %d now (%d labourers, army %d of the %d it reckons)" % [String(Defs.BUILDINGS[k]["name"]),
+				int(m[1]), labs, game.army_value(team), int(foe_estimate())])
+		return true
+	return false
+
+
+
+## Gold the Brood walls (AIExpandWall.brood_walls) leave alone: the first Field Cannon's while it is awaited, the opening's.
+func brood_wall_keep() -> int:
+	var k := bo_reserve if bo_owns() else 0
+	if cannon_first and _gun_waiting():
+		k += int(Defs.UNITS["cannon"]["cost"])
+	return k
+
+
+
+## The mobile armed creatures in sight within HUNT_R of the riders (value): what could catch and fight them.
+const HUNT_R := 360.0
+
+
+func _hunt_answer(party: Array) -> float:
+	if party.is_empty():
+		return 0.0
+	var c := Vector2.ZERO
+	for u in party:
+		c += u.position
+	c /= float(party.size())
+	var v := 0.0
+	for o in game.units_near(c, HUNT_R):
+		if o.dead or o.off_field or not game.hostile(o.team, team) or o.is_worker() or not _armed(o) or AIHarass.is_static(o) or not _sighted(o):
+			continue
+		v += _unit_value(o)
+	return v

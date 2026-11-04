@@ -846,6 +846,24 @@ func timing(ready: Array) -> void:
 		mine += float(Game.unit_value(u))
 	var foe := foe_known()
 	var why := ""
+	if ai.has_method("blind_guard") and ai.blind_guard():
+		# (crown-v-brood: against the Brood no timing goes on an army it has not seen: a fresh look first, and the enemy
+		# army weighed is the reckoning (AICrown.foe_estimate), never the 0 of an army out of sight)
+		foe = ai.foe_estimate()
+		if not ai.scouted_fresh():
+			if sup >= GO_SUP and game.clock - maxf(_two_halls_t, _wave_end_t) >= GO_STALE * 0.5:
+				ai.want_look("the timing")
+			return
+		if sup >= GO_SUP and mine >= maxf(foe, 300.0) * GO_EDGE:
+			why = "its army (%d, %d supply) is worth %.1f times the Brood army it reckons (%d; %d seen lately)" % [int(mine), sup, mine / maxf(foe, 300.0), int(foe), int(foe_known())]
+		if why == "":
+			return
+		_last_go_t = game.clock
+		ai._attack_at = sup
+		ai._regroup_until = 0.0
+		go_log.append([game.clock, why])
+		_say("goes down with its army: %s" % why)
+		return
 	if army_known_lately() and sup >= GO_SUP and mine >= maxf(foe, 300.0) * GO_EDGE:
 		why = "its army (%d, %d supply) is worth %.1f times the enemy army it knows (%d)" % [int(mine), sup, mine / maxf(foe, 300.0), int(foe)]
 	elif army_known_lately() and sup >= GO_BIG and mine >= foe * GO_EVEN:
