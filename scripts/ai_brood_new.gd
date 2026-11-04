@@ -1305,6 +1305,8 @@ func _nb_find_spot_go(q: Unit, m: Unit):
 				var foe := _nb_nearest_foe_pos(p)
 				if foe != Vector2.INF:
 					s -= foe.distance_to(p) * 0.15         # (a little away from the enemy)
+				if s >= bs:
+					continue          # (the enemy near only adds to it: no better than the best whatever it says)
 				if _foe_near(p, 10.0 * Defs.TILE):
 					s += 2000.0
 				if s < bs:

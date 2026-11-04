@@ -3475,6 +3475,10 @@ func _physics_process(delta: float) -> void:
 	var _du := Time.get_ticks_usec() - _p0
 	Prof.unit_us += _du
 	Prof.unit_n += 1
+	if Prof.by_kind_on:
+		var _bk := kind + "/" + order + ("/T" if target != null else "")
+		Prof.by_kind[_bk] = int(Prof.by_kind.get(_bk, 0)) + _du
+		Prof.by_kind_n[_bk] = int(Prof.by_kind_n.get(_bk, 0)) + 1
 	if _du > Prof.slow_unit_us:
 		Prof.slow_unit_us = _du
 		Prof.slow_unit = self
