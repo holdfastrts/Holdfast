@@ -9,8 +9,8 @@ extends SceneTree
 ##       a Hard Brood computer against a Hard computer: after 1:00 no unit of its own stays shut in by its own rooted
 ##       creatures for more than 15 s, and no more than 60 unit-seconds in all
 ##   godot ... -- case:alarm [map:thornwood_maze]
-##       an Economy Brood: at 4:30 its alarm is set off by hand: no Mound Turtle whose swamp is the only swamp of live
-##       rooted Rootmaws gets up (unless dying), and none of its Rootmaws goes dry in the next 40 s because of its own turtle
+##       the alarm's turtle, set up by hand (see _alarm): a turtle whose swamp is the only swamp under a live rooted
+##       Rootmaw stays rooted (the alarm takes another), the Rootmaw keeps its swamp; a dying one may go
 ## tools/test_brood_layout.sh runs every case (the five study maps for the opening).
 var main: Node
 var t := 0.0
@@ -228,45 +228,93 @@ func _opening() -> void:
 
 # ------------------------------------------------------------------ alarm
 
+## A spot `tiles` from p toward `dir` (or about) where a `k` of side bt may root (the player's rules).
+func root_spot(k: String, p: Vector2, dir: Vector2, tiles: float, swamp := true) -> Vector2:
+	for r in [tiles, tiles + 1.0, tiles - 1.0, tiles + 2.0, tiles - 2.0]:
+		for turn in [0.0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6]:
+			var s2: Vector2 = BroodRoot.snap(k, p + dir.rotated(turn) * r * Defs.TILE)
+			if g.region_of(g.cell_of(s2)) == BroodRoot.home_region(g, p) and BroodRoot.place_problem(g, bt, k, s2, null, false, 1.0, swamp) == "":
+				return s2
+	return Vector2.INF
+
+
+func rooted_one(k: String, at: Vector2) -> Unit:
+	var u: Unit = g._add_unit(k, bt, at)
+	u.cmd_deploy()
+	return u
+
+
+## The alarm's turtle, set up by hand (the computers switched off; the Brood computer's alarm called directly): a
+## natural turtle on new ground; a turtle F at home on the side of the front spot (the nearest to it) whose swamp is
+## the only swamp under a Rootmaw rooted beyond the Mother's; a turtle S at home on the other side that feeds nothing.
+## Before the fix the alarm got F up and the Rootmaw went dry; now it must take S.
 func _alarm() -> void:
-	await wait_until(270.0)
+	for a in g.ais:
+		a.process_mode = Node.PROCESS_MODE_DISABLED
+	await wait_until(6.0)
 	var q := BroodNew.queen(g, bt)
-	var feeders := {}
-	for u in g.units:
-		if u.team == bt and u.kind == BroodNew.TURTLE and BroodNew.rooted(u) and not BroodLayout.feeds_maws(g, u).is_empty():
-			feeders[u] = BroodLayout.feeds_maws(g, u).size()
-	print("at %s: %d turtles feed live Rootmaws (%s)" % [g.clock, feeders.size(), str(feeders.values())])
-	check(not feeders.is_empty(), "the Brood has a turtle feeding Rootmaws by 4:30 (else this case proves nothing)")
+	var foe_at: Vector2 = (Vector2(g.starts[1 - bt]) + Vector2(2.5, 2.0)) * Defs.TILE
+	var to_foe := (foe_at - q.position).normalized()
+	var side := to_foe.rotated(PI * 0.5)
+	var nat_at := root_spot(BroodNew.TURTLE, q.position, to_foe.rotated(0.9), 17.0)
+	if nat_at == Vector2.INF:
+		nat_at = root_spot(BroodNew.TURTLE, q.position, to_foe.rotated(-0.9), 17.0)
+	check(nat_at != Vector2.INF, "a natural turtle spot")
+	var nat := rooted_one(BroodNew.TURTLE, nat_at)
+	await wait_until(g.clock + 4.0)
+	var fs = ai._nb_front_spot(q)
+	check(fs != null, "the alarm has a front spot")
+	if fs == null:
+		done()
+		return
+	var dir: Vector2 = ((fs as Vector2) - q.position).normalized()
+	var f_at := root_spot(BroodNew.TURTLE, q.position, dir, 9.0)
+	var f := rooted_one(BroodNew.TURTLE, f_at)
+	var s_at := root_spot(BroodNew.TURTLE, q.position, -dir, 9.0)
+	var s2 := rooted_one(BroodNew.TURTLE, s_at)
+	await wait_until(g.clock + 18.0)          # (rooted, their swamp grown)
+	# the Rootmaw: on F's swamp, off the Mother's and the natural's (the sources as Game lays them, full grown)
+	var m_at := Vector2.INF
+	var others: Array = []
+	for o in [q, nat, s2]:
+		others.append([o.position / Defs.TILE, BroodNew.swamp_full(o) + 0.5])
+	for r in [8.0, 7.0, 9.0, 6.0]:
+		for i in 24:
+			var c2: Vector2 = BroodRoot.snap(BroodNew.MAW, f.position + Vector2.from_angle(TAU * i / 24.0) * r * Defs.TILE)
+			var mid := Vector2(g.cell_of(c2)) + Vector2(0.5, 0.5)
+			if others.any(func(src: Array) -> bool: return BroodLayout._in_swamp(mid, src)):
+				continue
+			if BroodRoot.place_problem(g, bt, BroodNew.MAW, c2, null, false) == "":
+				m_at = c2
+				break
+		if m_at != Vector2.INF:
+			break
+	var m: Unit = null
+	if m_at != Vector2.INF:
+		m = rooted_one(BroodNew.MAW, m_at)
+	await wait_until(g.clock + 5.0)
+	var feeds := BroodLayout.feeds_maws(g, f)
+	print("natural %s, front spot %s, F %s, S %s, Rootmaw %s; F feeds %d, S feeds %d" % [str(g.cell_of(nat.position)), str(g.cell_of(fs)),
+		str(g.cell_of(f.position)), str(g.cell_of(s2.position)), str(g.cell_of(m.position)) if m else "none", feeds.size(), BroodLayout.feeds_maws(g, s2).size()])
+	check(m != null and BroodNew.rooted(m) and feeds.has(m), "set up: F's swamp is the only swamp under a rooted Rootmaw")
+	check(BroodLayout.feeds_maws(g, s2).is_empty(), "set up: S feeds no Rootmaw")
+	check(f.position.distance_to(fs) < s2.position.distance_to(fs), "set up: F is the turtle nearest the front spot")
 	ai.alarm_t = g.clock
-	ai.alarm_at = q.position.lerp(Vector2(g.starts[1 - bt]) * Defs.TILE, 0.5) if q else Vector2.ZERO
+	ai.alarm_at = fs
 	ai._front_done = false
 	ai._front_t = null
 	ai._nb_alarm(q)
-	var up_feeders := 0
-	var dry_own := 0
-	var modes := {}
-	var ups: Array = []
-	var stop := g.clock + 40.0
-	while g.clock < stop and not g.over:
-		await physics_frame
-		ai.alarm_t = maxf(ai.alarm_t, g.clock - 1.0)      # (the alarm stays on)
-		for u in g.units:
-			if u.team != bt:
-				continue
-			var was := String(modes.get(u, u.tesla_mode))
-			modes[u] = u.tesla_mode
-			if was == "deployed" and u.tesla_mode == "packing":
-				if u.kind == BroodNew.TURTLE:
-					ups.append([g.clock, u.position])
-					if feeders.has(u) and u.hp > u.max_hp * AIBroodNew.DYING:
-						up_feeders += 1
-						print("  %.0f a turtle feeding %d Rootmaws got up" % [g.clock, feeders[u]])
-				elif u.kind == BroodNew.MAW and bool(u.nb.get("dry", false)):
-					for e in ups:
-						if (u.position - (e[1] as Vector2)).length() < (float(Defs.NB["turtle_swamp"]) + 2.0) * Defs.TILE:
-							dry_own += 1
-							print("  %.0f a Rootmaw went dry after its own turtle got up" % g.clock)
-							break
-	check(up_feeders == 0, "the alarm got up no turtle feeding live Rootmaws (%d did)" % up_feeders)
-	check(dry_own == 0, "no Rootmaw went dry because of its own turtle (%d did)" % dry_own)
+	print("the alarm picked: %s" % ("F" if ai._front_t == f else ("S" if ai._front_t == s2 else str(ai._front_t))))
+	await wait_until(g.clock + 12.0)
+	check(f.tesla_mode == "deployed", "F, feeding the Rootmaw, stays rooted (%s)" % f.tesla_mode)
+	check(ai._front_t == s2 or s2.tesla_mode != "deployed", "the alarm took S, the turtle feeding nothing")
+	check(m != null and not m.dead and m.tesla_mode == "deployed", "the Rootmaw kept its swamp and stays rooted")
+	# a dying F may go (it would be lost with its swamp anyway)
+	if s2.tesla_mode != "deployed":
+		ai._front_t = null
+		ai._front_done = false
+		f.hp = f.max_hp * 0.2
+		ai.alarm_t = g.clock
+		ai._nb_alarm(q)
+		check(ai._front_t == f, "a dying F may get up for the alarm")
 	done()
