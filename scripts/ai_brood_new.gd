@@ -61,10 +61,10 @@ var held: Array = []             # creatures it leaves alone (a coach's hand ord
 ## Storm Challengers), "mother_free" (the computer leaves its Mother alone: the coach's Mother rush).
 const PLANS := {
 	"xrush": {"drone": 0.0, "sire_g": 5, "sire_t": 0.0, "grubs0": 6, "maws0": 1, "ahead0": 7, "grubs": 26, "maws": [2, 150.0, 6], "grow": [420.0, 780.0],
-		"venom": 600.0, "storm": 900.0, "far": [[600.0, 1]], "wave": 8, "wave_t": 0.0, "step": 4, "pack": false,
+		"venom": 600.0, "storm": 900.0, "far": [[240.0, 1], [420.0, 2]], "wave": 8, "wave_t": 0.0, "step": 4, "pack": false,
 		"mix": "tyrant", "mature": "bank", "home_guard": 0},
 	"rush": {"drone": 3.0, "sire_g": 7, "sire_t": 40.0, "grubs0": 9, "maws0": 2, "grubs": 28, "maws": [2, 120.0, 7], "grow": [330.0, 660.0],
-		"venom": 330.0, "storm": 720.0, "far": [[420.0, 1], [660.0, 2]], "wave": 10, "wave_t": 0.0, "step": 6, "pack": false,
+		"venom": 330.0, "storm": 720.0, "far": [[270.0, 1], [420.0, 2], [600.0, 3]], "wave": 10, "wave_t": 0.0, "step": 6, "pack": false,
 		"mix": "tyrant", "mature": "bank", "home_guard": 2},
 	"timing": {"drone": 6.0, "sire_g": 11, "sire_t": 120.0, "grubs0": 0, "grubs": 46, "maws": [2, 90.0, 8], "grow": [210.0, 540.0],
 		"venom": 420.0, "storm": 660.0, "far": [[0.0, 1], [360.0, 2]], "eco": true, "wave": 24, "wave_t": 330.0, "step": 10, "pack": true,
@@ -220,10 +220,18 @@ func _alarm_on() -> bool:
 ## first (with 16 grubs or more) while its army is under this share of what it saw (0.7 against the Clockwork, which
 ## comes early; 0.3 against the others).
 func _under_armed() -> bool:
-	if not _eco() or game.clock < 150.0 or seen_army < 200.0:
+	if not _eco() or game.clock < 150.0:
 		return false
-	var share := 0.7 if _foe_is("clockwork") else 0.3
-	return _value_of(_nb_army_units()) < seen_army * share
+	var need := seen_army * (0.7 if _foe_is("clockwork") else 0.3) if seen_army >= 200.0 else 0.0
+	if _foe_is("clockwork"):
+		# (brood-ai-tune, round B g08/g10: a rush turned Balanced grew 6 to 47 grubs with 3 Raptors from 3:00 to 8:00, its
+		# watching grub saw little of the Clockwork army gathering in its main, and 1,600 of Clock Soldiers took the
+		# Mother. What every player knows of the Clockwork's tempo is a floor: 2 of army a second from 2:00, up to 800)
+		need = maxf(need, clampf((game.clock - 120.0) * 2.0, 0.0, 800.0))
+	elif _foe_is("crown"):
+		need = maxf(need, clampf((game.clock - 180.0) * 0.8, 0.0, 500.0))      # (round D g07: 3 Raptors from 4:00 to 8:00
+		                                                                          # while the Crown's army grew in its main)
+	return need > 0.0 and _value_of(_nb_army_units()) < need
 
 
 func _nb_observe(q: Unit) -> void:
@@ -269,6 +277,8 @@ func _nb_observe(q: Unit) -> void:
 		if u.position.distance_to(q.position) < 24.0 * Defs.TILE:
 			home += v
 	_foe_near_home = home
+	if _attacking and not _explore_cands.is_empty():
+		_nb_mark_explored()          # (the wave sweeping for what is left: what it passes counts as looked at)
 	if riders_now > 0:
 		riders_n = maxi(riders_n if game.clock - riders_t < 180.0 else 0, riders_now)
 		riders_t = game.clock
@@ -586,6 +596,9 @@ func _nb_alarm(q: Unit) -> void:
 			_front_done = true
 			say("a Mound Turtle roots in front of the natural")
 			_front_t = null
+		elif _front_t.tesla_mode == "packed" and _foe_near(_front_t.position, 7.0 * Defs.TILE):
+			_front_t.cmd_deploy()          # (brood-ai-tune, round C g10: enemies reached it on its way: it roots where it is,
+			                               # a tank in their way, instead of walking on through them uprooted)
 		elif _front_t.tesla_mode == "packed" and _front_t.order != "nb_root" and _front_t.order != "move":
 			var fs = _nb_front_spot(q)
 			if fs != null:
@@ -595,6 +608,9 @@ func _nb_alarm(q: Unit) -> void:
 		return
 	if _front_done or not _alarm_on():
 		return
+	if _nb_threat(q) != Vector2.INF or _foe_near_home >= 150.0:
+		return          # (brood-ai-tune, round C g10: the attack is already at home: a turtle got up at 6:33 and walked into
+		                # 12 Clock Soldiers at the Mother, its 12 supply gone while it walked; it stays rooted now)
 	var cap := int(game.players[team]["cap"])
 	if cap - game.supply_used(team) < int(Defs.NB["turtle_supply"]) + 2:
 		return
@@ -824,6 +840,9 @@ func _nb_far_wanted() -> int:
 	for e in plan["far"]:
 		if game.clock >= float(e[0]):
 			n = int(e[1])
+	if _eco() and _nb_egg_bound():
+		n = maxi(n, mini(_nb_far_have(BroodNew.queen(game, team)) + 1, int(Defs.NB["expansion_max"])))
+		# (brood-ai-tune: eggs hold it back: the next turtle on new ground now, +15% laying each, up to 3)
 	return mini(n, int(Defs.NB["expansion_max"]))
 
 
@@ -871,15 +890,19 @@ func _nb_morphs(q: Unit) -> void:
 				spot = fp[0]
 	elif _nb_next_father(q) != "":
 		k = _nb_next_father(q)
-	elif maws < _nb_wanted_maws() and (maws < 2 or _food() >= 100) and (maws < 3 or not _nb_saving_growth(q)) \
-			and _nb_maw_room(q):
+	elif _under_armed() and _army_supply_now() < 30 and maws >= 4:
+		pass          # (brood-ai-tune: under-armed, warriors before more ground: round B g07 had 3 Raptors from 4:00 to 8:00
+		              # while every 100 food went into Rootmaws and turtles on new ground and the Crown's army reached 1,360)
+	elif maws < _nb_wanted_maws() and (maws < 3 or not _nb_saving_growth(q)) and _nb_maw_room(q):
+		# (brood-ai-tune: no "100 food in hand" gate any more: the rushes spent every 50 food on Raptors, so their third
+		# Rootmaw waited from 2:00 to 8:30 and the grubs stood at 14; now the food is kept for it like any structure)
 		k = BroodNew.MAW
 	elif _nb_far_have(q) < _nb_far_wanted() and not _nb_saving_growth(q):          # (her stage before more ground: the Economy plan never grew her)
 		var picks := _nb_far_spots(q)
 		if not picks.is_empty():
 			k = BroodNew.TURTLE
 			spot = picks[0]
-	if k == "" and maws < _nb_wanted_maws() and _food() >= 100 and not _nb_saving_growth(q) and not _nb_maw_room(q) \
+	if k == "" and maws < _nb_wanted_maws() and not _nb_saving_growth(q) and not _nb_maw_room(q) and not (_under_armed() and _army_supply_now() < 30) \
 			and _nb_far_have(q) < 6:
 		var more := _nb_far_spots(q, 40.0)    # (0.24.7: no room left for a Rootmaw: one more turtle on new ground makes room,
 		                                      # farther out than the planned expansions)
@@ -1011,7 +1034,7 @@ func _nb_next_father(q: Unit) -> String:
 		order = [BroodNew.PTERO, BroodNew.DILO]
 		storm_t = 0.0
 	for f in order:
-		var at := (0.0 if riders_about() else float(plan["venom"])) if f == BroodNew.DILO else storm_t
+		var at := _sire_at(f) if f == BroodNew.DILO else minf(storm_t, _sire_at(f))
 		if game.clock < at or BroodNew.count_of(game, team, f) > 0:
 			continue
 		if BroodNew.stage(q) < BroodNew.father_stage(f) or BroodRoot.morph_problem(game, team, f) != "":
@@ -1303,10 +1326,13 @@ func _nb_grow(q: Unit) -> void:
 	if BroodNew.grow_problem(game, q) != "" or _nb_threat(q) != Vector2.INF or BroodResearch.busy(q):
 		return
 	var st := BroodNew.stage(q)
-	if st >= (Defs.NB["stages"] as Array).size() - 1 or game.clock < float(plan["grow"][st]):
+	if st >= (Defs.NB["stages"] as Array).size() - 1 or game.clock < _grow_at(st):
 		return
 	if _rush_on() and st == 0:
 		return
+	if _eco() and ((_alarm_on() and _value_of(_nb_army_units()) < seen_army * 0.8) or (seen_army >= 500.0 and _value_of(_nb_army_units()) < seen_army * 0.5)):
+		return          # (brood-ai-tune: not 45-60 s without eggs while an enemy army is on its way, or one twice hers was
+		                # seen lately: round B g07 grew to stage 3 at 9:36 with 1,075 of army against 2,440 seen, and fell)
 	if not _nb_grow_time(q):
 		return
 	if BroodNew.count_of(game, team, BroodNew.FATHER) == 0:
@@ -1329,6 +1355,15 @@ const GROW_LATE := 240.0
 var _egg_low_t := -999.0
 
 
+## When her next stage may come: the plan's time, or at once in an eco plan whose eggs hold it back (brood-ai-tune:
+## on today's economy Balanced was egg-bound from 4:30 and sat at stage 2 with 9,000 food for the rest of the game).
+func _grow_at(st: int) -> float:
+	var at := float(plan["grow"][mini(st, 1)])
+	if _eco() and _nb_egg_bound() and not (int(plan["grubs0"]) > 0 and not _first_out):
+		return minf(at, game.clock)
+	return at
+
+
 func _nb_grow_time(q: Unit) -> bool:
 	if not _eco() or strategy == "air" or bool(plan.get("grow_now", false)):
 		return true
@@ -1340,7 +1375,7 @@ func _nb_growth_keep(q: Unit) -> int:
 	var st := BroodNew.stage(q)
 	if st >= (Defs.NB["stages"] as Array).size() - 1 or float(q.nb.get("grow_t", 0.0)) > 0.0 or _rush_on():
 		return 0
-	if game.clock < float(plan["grow"][st]) or BroodNew.count_of(game, team, BroodNew.FATHER) == 0 or not _nb_grow_time(q):
+	if game.clock < _grow_at(st) or BroodNew.count_of(game, team, BroodNew.FATHER) == 0 or not _nb_grow_time(q):
 		return 0
 	var need2 := float(Defs.NB["stages"][st + 1].get("cost2", 0))
 	if need2 > 0.0 and _spoils() < need2 * 0.6:
@@ -1353,16 +1388,49 @@ func _nb_saving_growth(q: Unit) -> bool:
 
 
 ## Spoils kept for what comes first: her stage 3 (from its time), the Storm Sire (when wanted).
+## EGG-BOUND (brood-ai-tune, 0.27.3): her clutch has run down (EGG_LOW or fewer) in the last EGG_BOUND s. On today's
+## economy (far Rootmaws paying up to x2.5 since 0.24.28) the eco plans out-earn her laying from about 4:30: from then
+## on EGGS, not food, hold the Brood back, and what lays faster comes first: her stages, the Sires (each +20% beside
+## her), the turtles on new ground (+15% each, up to 3). These come by that state (as a build order goes by supply),
+## the plan's clock only as the latest time.
+func _nb_egg_bound() -> bool:
+	return game.clock > 90.0 and game.clock - _egg_low_t < EGG_BOUND          # (not the opening's 3 eggs)
+
+
+## RICH: egg-bound with food piling up. The food goes into what needs no egg: maturing, Brutes, research, the Sires
+## and her stages, and Raptors offered up for the spoils those want (an offered-up pair gives its egg back).
+func _nb_rich() -> bool:
+	return _nb_egg_bound() and _food() >= RICH_FOOD
+
+
+const RICH_FOOD := 600
+
+
+## When a later Sire's lure is due: the plan's time, or as soon as eggs hold the Brood back (each Sire beside her lays
+## 20% faster; his line opens too), or riders are about (the Venom Sire's Spitters answer them).
+func _sire_at(f: String) -> float:
+	var at := float(plan["venom"]) if f == BroodNew.DILO else float(plan["storm"])
+	if f == BroodNew.DILO and riders_about():
+		return 0.0
+	if _nb_egg_bound() and BroodNew.count_of(game, team, BroodNew.FATHER) > 0 and not (int(plan["grubs0"]) > 0 and not _first_out):
+		return minf(at, game.clock)
+	return at
+
+
 func _nb_spoils_keep(q: Unit) -> float:
 	var keep := 0.0
-	if _food() >= 900:
-		return 0.0          # (a big bank: spend it, warriors and moults first; never sit on food for spoils)
+	# (brood-ai-tune, 0.27.3: a big bank used to return 0 here, "never sit on food for spoils". On today's economy the
+	# bank is the rule from 5:00 on, so the Venom Sire's 25 spoils and her stage 3's 75 were never kept and no Raptor
+	# was ever offered up for them: Balanced, Timing and Economy got no Venom Sire and no stage 3 in 15 minutes. The
+	# spoils are kept now whatever the bank; food is never what waits for them)
 	var st := BroodNew.stage(q)
+	if st == 1 and _nb_egg_bound() and _food() >= int(Defs.NB["stages"][2]["cost"]) - 150:
+		keep = maxf(keep, float(Defs.NB["stages"][2]["cost2"]))
 	if st == 1 and game.clock >= float(plan["grow"][1]) - 60.0 and _food() >= int(Defs.NB["stages"][2]["cost"]) - 150:
 		keep = maxf(keep, float(Defs.NB["stages"][2]["cost2"]))      # (only once her food is nearly there: else the spoils work meanwhile)
 	if st >= 1 and BroodNew.count_of(game, team, BroodNew.PTERO) == 0 and (seen_air >= 2 or game.clock >= float(plan["storm"]) - 30.0):
 		keep = maxf(keep, float(Defs.UNITS[BroodNew.PTERO].get("cost2", 0)))
-	if BroodNew.count_of(game, team, BroodNew.DILO) == 0 and game.clock >= float(plan["venom"]) - 45.0 and float(Defs.UNITS[BroodNew.DILO].get("cost2", 0)) > 0.0:
+	if BroodNew.count_of(game, team, BroodNew.DILO) == 0 and _sire_at(BroodNew.DILO) - 45.0 <= game.clock and float(Defs.UNITS[BroodNew.DILO].get("cost2", 0)) > 0.0:
 		keep = maxf(keep, float(Defs.UNITS[BroodNew.DILO].get("cost2", 0)))      # (the Venom Sire's spoils, when he costs any)
 	return keep
 
@@ -1388,13 +1456,22 @@ func _nb_spoils_want(q: Unit) -> float:
 		want = maxf(want, 25.0)          # (against a wall: Spitters, 5 spoils an egg)
 	if float(plan.get("spoils_bank", 0.0)) > 0.0 and BroodNew.count_of(game, team, BroodNew.FATHER) > 0 and game.clock >= 150.0:
 		want = maxf(want, float(plan["spoils_bank"]))     # (the air rush: the Storm line's spoils, from offered-up Raptors)
+	if _nb_rich() and BroodNew.stage(q) >= 1 and not _attacking:
+		want = maxf(want, RICH_SPOILS)          # (rich: spoils for maturing, Brutes and the lines' research)
 	return want
+
+
+const RICH_SPOILS := 80.0
 
 
 ## Raptors to be laid for spoils: the plan banks spoils ("spoils_bank": the Air rush) or its Storm Sire / her stage 3
 ## waits for them, and the spare Raptors at home are not enough to cover what is short.
 func _nb_feed_raptors(q: Unit) -> bool:
-	if float(plan.get("spoils_bank", 0.0)) <= 0.0 or _rush_on() or _attacking:
+	if _rush_on():
+		return false
+	# (the spoils kept for a Sire or her stage 3 are fed even while a wave is out: its Raptors are all in the wave, so
+	# none at home was offered and Balanced's stage 3 waited for the wave to end; brood-ai-tune, test_ai_brood)
+	if _nb_spoils_keep(q) <= 0.0 and ((float(plan.get("spoils_bank", 0.0)) <= 0.0 and not _nb_rich()) or _attacking):
 		return false
 	var short := _nb_spoils_want(q) - _spoils()
 	if short <= 0.0:
@@ -1455,7 +1532,10 @@ func _nb_lay(q: Unit) -> void:
 	# grubs on the plan's curve ("drone": grubs a minute, from the 5 it starts with) come before warriors, unless the enemy
 	# is at the Mother or a rush is on; above the curve only with food to spare
 	var curve := 5.0 + game.clock / 60.0 * float(plan.get("drone", 4.0))
-	var danger := _nb_threat(q) != Vector2.INF or _rush_on() or _alarm_on() or (_under_armed() and grubs >= 16)
+	var danger := _nb_threat(q) != Vector2.INF or _rush_on() or ((_alarm_on() or _under_armed()) and grubs >= 16)
+	# (brood-ai-tune: the alarm's "warriors before grubs" only with 16 grubs or more: a Rush turned Balanced against the
+	# Clockwork saw its army out every minute from 4:41, so the alarm never went off and its grubs stood at 9 to 14 until
+	# 12:00, on a third of the Clockwork's income)
 	if grubs < want_grubs and (grubs < 6 or not any_father or (grubs < curve and not danger) or food - keep >= 200):
 		k = "grub"
 	# SPOILS FROM RAPTORS (the owner, 07:15: the Storm line and the Air rush are paid by offering Raptors up): while the
@@ -1557,6 +1637,7 @@ func _nb_mature(q: Unit) -> void:
 	var push: bool = String(plan["mature"]) == "push" and _army_supply_now() * 10 >= _attack_at * 7 and not _attacking
 	if food < (MATURE_FOOD if not push else 200):
 		return
+	var each := MATURE_EACH * (2 if _nb_rich() else 1)          # (rich and egg-bound: food that no egg can take)
 	var n := 0
 	for yk in Defs.NB["mature"]:
 		var mk := String(Defs.NB["mature"][yk])
@@ -1566,7 +1647,7 @@ func _nb_mature(q: Unit) -> void:
 		var grown := _nb_mine(mk).size()
 		var all_up: bool = yk == "hatchlings" and seen_air == 0
 		for u in young:
-			if n >= MATURE_EACH or (grown * 2 >= young.size() + grown and not all_up):
+			if n >= each or (grown * 2 >= young.size() + grown and not all_up):
 				break
 			if u.moult_t >= 0.0 or (u.target != null and is_instance_valid(u.target)) or in_wave(u) or u == _scout \
 					or u.position.distance_to(q.position) > 22.0 * Defs.TILE:
@@ -1769,15 +1850,165 @@ func _nb_next_goal(q: Unit, from: Vector2) -> Vector2:
 					best = _foe_blds[b]
 		if best != Vector2.INF:
 			return best
-	for f in foes:
-		var c: Vector2 = game.center_of_team(f)
-		if c.distance_to(from) > 8.0 * Defs.TILE:
-			return c
-		if game.starts.size() > f:
+	# (brood-ai-tune: nothing but wall pieces seen, or nothing at all. The game goes on while any building stands, walls
+	# too; the old fallback was the enemy's "centre" (the middle of its scattered buildings, often open ground) and its
+	# start, and a wave at the cap with 10,000 food walked between the two every 4 s for four minutes without a kill)
+	var wall := _nb_wall_piece(from, foes)
+	if wall != null:
+		return _foe_blds[wall]
+	return _nb_explore_point(from, foes)
+
+
+## The nearest wall piece (wall, gate, palisade, tower) of an enemy still in the game that its creatures have seen.
+func _nb_wall_piece(from: Vector2, foes: Array = []) -> Building:
+	var best: Building = null
+	var bd := INF
+	for b in _foe_blds:
+		if is_instance_valid(b) and not b.dead and (foes.is_empty() or foes.has(b.team)) and b.kind in ["wall", "gate", "palisade", "tower"]:
+			var d: float = (_foe_blds[b] as Vector2).distance_to(from)
+			if d < bd:
+				bd = d
+				best = b
+	return best
+
+
+## Nothing of the enemy known: look for it (no cheating: places round its start, then round the map, it has not seen
+## lately), the nearest first.
+var _explored := {}
+
+
+var _explore_cands: Array = []
+
+
+## The places it looks: round the enemy starts (10, 18, 26 tiles), then a grid over the whole map (every 10
+## tiles; 10 since the hunt: a Raptor sees 7), walkable ones only. Marked seen as its creatures see them (_nb_mark_explored, every think).
+func _nb_explore_cands(foes: Array) -> Array:
+	if _explore_cands.is_empty():
+		var pts: Array = []
+		for f in foes:
+			if game.starts.size() <= f:
+				continue
 			var st := (Vector2(game.starts[f]) + Vector2(2.5, 2.0)) * Defs.TILE
-			if st.distance_to(from) > 8.0 * Defs.TILE:
-				return st
-	return Vector2.INF
+			pts.append(st)
+			for r in [10.0, 18.0, 26.0]:
+				for i in 8:
+					pts.append(st + Vector2.from_angle(TAU * i / 8.0) * r * Defs.TILE)
+		for gx in range(5, Game.W - 2, 10):
+			for gy in range(5, Game.H - 2, 10):
+				pts.append((Vector2(gx, gy) + Vector2(0.5, 0.5)) * Defs.TILE)
+		for p in pts:
+			if _nb_on_map(p) and game._walkable(game.cell_of(p)):
+				_explore_cands.append(p)
+	return _explore_cands
+
+
+func _nb_mark_explored() -> void:
+	for p in _explore_cands:
+		if game.is_visible_to(team, p):
+			_explored[str(game.cell_of(p))] = game.clock
+
+
+var _nb_hunting := false
+var _pack_of := {}                # wave creature -> its pack (the hunt)
+var _pack_at := {}                # pack -> the place it is sent to
+var _hunt_step_t := 0.0
+
+
+## Anything of an enemy still in the game known (a building it has seen standing, a wall piece too).
+func _nb_foe_known() -> bool:
+	for b in _foe_blds:
+		if is_instance_valid(b) and not b.dead and game.hostile(b.team, team):
+			return true
+	return false
+
+
+## Every 3 s: a pack at its place (or idle there) gets the nearest place not looked at lately that no other pack has.
+func _nb_hunt_step(now: bool) -> void:
+	if not now and game.clock - _hunt_step_t < 3.0:
+		return
+	_hunt_step_t = game.clock
+	_nb_mark_explored()
+	var members := {}
+	for u in _wave:
+		if is_instance_valid(u) and not u.dead:
+			var k: int = int(_pack_of.get(u, 0))
+			if not members.has(k):
+				members[k] = []
+			members[k].append(u)
+	var taken: Array = []
+	for k in _pack_at:
+		taken.append(_pack_at[k])
+	for k in members:
+		var pk: Array = members[k]
+		var c := Vector2.ZERO
+		for u in pk:
+			c += (u as Unit).position
+		c /= maxf(1.0, pk.size())
+		var at: Vector2 = _pack_at.get(k, Vector2.INF)
+		var arrived := at == Vector2.INF or c.distance_to(at) < 5.0 * Defs.TILE \
+			or pk.all(func(u) -> bool: return (u as Unit).order == "idle" or (u as Unit).order == "hold") \
+			or game.clock - float(_explored.get(str(game.cell_of(at)), -999.0)) < 150.0
+		if not arrived:
+			continue
+		taken.erase(at)
+		var p := _nb_explore_point_not(c, taken)
+		if p == Vector2.INF:
+			p = _nb_explore_point_not(c, [])
+		if p == Vector2.INF:
+			continue
+		_pack_at[k] = p
+		taken.append(p)
+		for u in pk:
+			if (u as Unit).target == null or (u as Unit).order in ["idle", "hold", "move"]:
+				(u as Unit).cmd_move(p, true)
+
+
+## Creatures that joined the wave during the hunt go with the nearest pack.
+func _nb_hunt_join(_army: Array) -> void:
+	for u in _wave:
+		if _pack_of.has(u) or _pack_at.is_empty():
+			continue
+		var best := -1
+		var bd := INF
+		for k in _pack_at:
+			var d: float = (u as Unit).position.distance_to(_pack_at[k])
+			if d < bd:
+				bd = d
+				best = k
+		_pack_of[u] = best
+		(u as Unit).cmd_move(_pack_at[best], true)
+
+
+## The nearest place not looked at lately, at least 12 tiles from the places other packs were sent.
+func _nb_explore_point_not(from: Vector2, taken: Array) -> Vector2:
+	var best := Vector2.INF
+	var bd := INF
+	for p in _explore_cands:
+		if game.clock - float(_explored.get(str(game.cell_of(p)), -999.0)) < 150.0:
+			continue
+		if taken.any(func(o: Vector2) -> bool: return o.distance_to(p) < 12.0 * Defs.TILE):
+			continue
+		var d: float = (p as Vector2).distance_to(from)
+		if d < bd:
+			bd = d
+			best = p
+	return best
+
+
+func _nb_explore_point(from: Vector2, foes: Array) -> Vector2:
+	var best := Vector2.INF
+	var bd := INF
+	_nb_explore_cands(foes)
+	_nb_mark_explored()
+	for p in _explore_cands:
+		var c := game.cell_of(p)
+		if game.clock - float(_explored.get(str(c), -999.0)) < 150.0:
+			continue
+		var d: float = (p as Vector2).distance_to(from)
+		if d > 6.0 * Defs.TILE and d < bd:
+			bd = d
+			best = p
+	return best
 
 
 var _wave_v0 := 0.0              # the wave's value when it left
@@ -1827,6 +2058,12 @@ func _nb_army(q: Unit) -> void:
 	var mine_v := _value_of(army)
 	var capped := game.supply_used(team) >= mini(int(game.players[team]["cap"]), game.max_supply(team)) - 6
 	var first_rush := int(plan["grubs0"]) > 0 and not _first_out
+	if first_rush and seen_army >= maxf(mine_v * 2.0, 400.0):
+		# CALLED OFF (brood-ai-tune, round A g08: the Rush's 10 Raptors went at 3:00 into a Clockwork army of 560 and
+		# lost; the 9-grub economy behind it never came back and the Brood fell at 8:46): its scout saw an army twice
+		# its own, so the Raptors stay home as its defence and the economy starts now
+		_rush_to_balanced("calls its rush off: an enemy army of %d seen against its %d" % [int(seen_army), int(mine_v)])
+		return
 	if not first_rush and not capped and mine_v < seen_army * float(plan.get("edge", 0.6)):
 		return
 	# a wall seen (the Crown's ramp wall): not with claws alone (round 3: Raptor waves into Musketeers behind a wall lost
@@ -1912,12 +2149,47 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		say("pulls back: %d of %d left, %d ahead (killed %d)" % [int(left), int(_wave_v0), int(ahead), gained])
 		_wave_end_nb(q, gained < _wave_v0 * 0.6)
 		return
+	# THE HUNT (brood-ai-tune): packs sweep for a building it has not seen; once anything of the enemy is seen again the
+	# wave gathers on it
+	if _nb_hunting:
+		if _nb_foe_known():
+			_nb_hunting = false
+			_pack_of.clear()
+			var found := _nb_next_goal(q, mid)
+			if found != Vector2.INF:
+				_wave_target = found
+				for u in _wave:
+					u.cmd_move(_wave_target, true)
+				say("found the enemy again: its wave gathers there (%d tiles)" % int(mid.distance_to(found) / Defs.TILE))
+		else:
+			_nb_hunt_step(false)
+			_nb_hunt_join(army)
+			_nb_hold_rest(army)
+			return
 	# AT THE GOAL WITH NOTHING TO FIGHT (the owner's playtest 2026-11-03, Ashfall FFA: the Brood razed the Clockwork's
 	# main and its whole army, 160/160 supply and 4,000 food banked, stood on that spot for a minute while the
 	# Clockwork's new hall stood a few screens away): the wave goes on to the next target (_nb_next_goal)
 	if not _wave.is_empty() and mid.distance_to(_wave_target) < 7.0 * Defs.TILE and ahead <= 0.0 and not _foe_bld_near(mid, 9.0 * Defs.TILE):
 		var nxt := _nb_next_goal(q, mid)
-		if nxt != Vector2.INF and nxt.distance_to(_wave_target) > 5.0 * Defs.TILE:
+		var wall := _nb_wall_piece(mid)
+		if wall != null and (_foe_blds[wall] as Vector2).distance_to(mid) < 12.0 * Defs.TILE and (_foe_blds[wall] as Vector2).distance_to(nxt) < 1.0:
+			# only wall pieces left near: tear them down (claws on an empty wall cost nothing: no musket line behind it)
+			for u in _wave:
+				if u.target == null or u.order == "idle" or u.order == "hold" or u.order == "move":
+					u.cmd_attack(wall)
+		elif nxt != Vector2.INF and not _nb_foe_known() and _wave.size() >= 16:
+			# nothing of the enemy known at all: the wave splits into packs of 8 that sweep the nearest places not looked
+			# at lately, each its own (a hidden cottage kept the Crown alive for four minutes against 135 Raptors)
+			_nb_hunting = true
+			_pack_of.clear()
+			var packs := _wave.size() / 8
+			for i in packs:
+				for u in _wave.slice(i * 8, (i + 1) * 8 if i < packs - 1 else _wave.size()):
+					_pack_of[u] = i
+			_pack_at.clear()
+			_nb_hunt_step(true)
+			say("nothing of the enemy in sight: its wave splits into %d packs to look for it" % packs)
+		elif nxt != Vector2.INF and nxt.distance_to(_wave_target) > 5.0 * Defs.TILE:
 			_wave_target = nxt
 			say("its wave goes on to the next target (%d tiles on)" % int(mid.distance_to(nxt) / Defs.TILE))
 			for u in _wave:
@@ -1944,6 +2216,9 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 ## gives it time to build (a failed rush becomes a Balanced game).
 func _wave_end_nb(q: Unit, failed: bool) -> void:
 	_attacking = false
+	_nb_hunting = false
+	_pack_of.clear()
+	_pack_at.clear()
 	var home := _nb_stage_point(q)
 	for u in _wave:
 		if is_instance_valid(u) and not u.dead:
@@ -1954,18 +2229,33 @@ func _wave_end_nb(q: Unit, failed: bool) -> void:
 		_attack_at = maxi(_attack_at, int(ceil(_wave_sup * 1.3)))
 		_retreat_until = game.clock + 60.0
 		if strategy in ["rush", "xrush"]:
-			strategy = "balanced"
-			_plan_of = strategy
-			var keep_wave := _attack_at
-			var was := plan.duplicate()
-			plan = (PLANS["balanced"] as Dictionary).duplicate(true)
-			for k in over:
-				plan[k] = over[k]
-			plan["wave_t"] = 0.0
-			plan["far"] = was["far"]
-			_attack_at = maxi(keep_wave, 20)
-			_retreat_until = game.clock + 90.0
-			say("its rush failed: it builds up (economy, tech) and comes back in force")
+			_rush_to_balanced("its rush failed: it builds up (economy, tech) and comes back in force")
+	elif strategy in ["rush", "xrush"]:
+		# (brood-ai-tune, round A g10: an Extreme rush whose first wave paid for itself stayed on the rush plan, whose
+		# grub curve is 0 a minute: 6 grubs until 8:00 and 3,187 food earned by 10:00 against the Clockwork's 7,545. The
+		# rush is an opening: once its first wave is home, it plays Balanced and keeps up the pressure)
+		_rush_to_balanced("its rush is home (killed more than it lost): Balanced from now on")
+		_retreat_until = game.clock + 120.0          # (round C g13: a second wave of 14 Raptors at 5:30 into the Clockwork
+		                                             # lost all but 4 and the economy behind it never grew: two minutes to build)
+
+
+## A rush over (failed, or called off before it left): the Balanced plan from now on, expanding at once.
+func _rush_to_balanced(why: String) -> void:
+	strategy = "balanced"
+	_plan_of = strategy
+	var keep_wave := _attack_at
+	plan = (PLANS["balanced"] as Dictionary).duplicate(true)
+	for k in over:
+		plan[k] = over[k]
+	plan["wave_t"] = 0.0
+	# (brood-ai-tune: the rush's own far list was kept here (one turtle on new ground at 10:00), and with no room
+	# left round her for a third Rootmaw the economy stood at 2 Rootmaws and 14 grubs until 10:00: the expansions
+	# now come from the failed rush on, a minute and a half apart)
+	plan["far"] = [[game.clock, 1], [game.clock + 90.0, 2], [game.clock + 180.0, 3]]
+	_attack_at = maxi(keep_wave, 20)
+	_retreat_until = game.clock + 90.0
+	_first_out = true
+	say(why)
 
 
 func _kinds_of(list: Array) -> String:
@@ -2129,6 +2419,23 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 		for u in join:
 			_def.append(u)
 			u.cmd_move(at, true)
+		# A SIRE ON A LEASH (brood-ai-tune, round A g05: the Tyrant Sire got up for a Cuirassier and a Musketeer at 9:13,
+		# then chased riders that kept out of his reach (they kite slow defenders since 0.27.0) for minutes; no Raptor egg
+		# was laid meanwhile, her clutch sat full at 19/20 and 4,000 food piled up): he goes home to his nest once only
+		# riders are left, once he is SIRE_LEASH tiles from her, or after SIRE_OUT s, unless the fight is at the Mother
+		for u in _def.duplicate():
+			var su := u as Unit
+			if not BroodNew.is_father(su.kind) or (at_mother and _nb_sires_needed(q)):
+				continue
+			if not _sire_out.has(su):
+				_sire_out[su] = game.clock
+			var riders_only := group.all(func(o) -> bool: return is_rider(o))
+			if riders_only or su.position.distance_to(q.position) > SIRE_LEASH * Defs.TILE or game.clock - float(_sire_out[su]) > SIRE_OUT:
+				_def.erase(su)
+				_sire_out.erase(su)
+				_sire_home_t[su] = game.clock
+				su.cmd_move(q.position)          # (_nb_one_father roots him on his nest again)
+				say("the %s goes back to his nest (%s)" % [String(Defs.UNITS[su.kind]["name"]), "only riders left" if riders_only else "too far from her"])
 		# losing it away from the Mother: back to her (a lost fight is lost ground, not the army)
 		if not at_mother and not _fight_wins(_def, group, 1.0) and not _fight_wins(avail, group, 1.0):
 			say("pulls its defenders back to the Mother: %d against %d" % [int(_value_of(_def)), int(e)])
@@ -2154,7 +2461,7 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 		var all_riders := group.all(func(o) -> bool: return is_rider(o))
 		if not _fight_wins(squad, group) and at.distance_to(q.position) < 22.0 * Defs.TILE and not all_riders:
 			var f := BroodNew.father(game, team, BroodNew.FATHER)
-			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f):
+			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f) and game.clock - float(_sire_home_t.get(f, -999.0)) > 40.0:
 				squad.append(f)       # (the Tyrant Sire: 1,000 health, a terrible bite; he roots again after)
 	elif at_mother or _fight_wins(avail, group, 0.8):
 		squad = avail
@@ -2179,6 +2486,12 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 	return true
 
 
+const SIRE_LEASH := 16.0
+const SIRE_OUT := 30.0
+var _sire_out := {}               # Sire -> when he joined the defence squad
+var _sire_home_t := {}            # Sire -> when he was sent home (not sent out again for 40 s)
+
+
 func in_defence(u: Unit) -> bool:
 	return _def.has(u)
 
@@ -2197,6 +2510,7 @@ func _nb_stand_down(_q: Unit) -> void:
 			continue
 		if BroodNew.FATHERS.has(u.kind):
 			u.cmd_stop()              # (back to his nest: _nb_one_father)
+			_sire_out.erase(u)
 		elif not _wave.has(u):
 			u.cmd_move(_rally)
 	_def.clear()

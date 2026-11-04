@@ -1,5 +1,9 @@
 # The Brood's computer player (0.22.0, branch brood-ai-coach)
 
+**Retuned to today's economy in 0.27.3 (branch brood-ai-tune): docs/brood_ai_tune.md.** Her stages, the later Sires and
+the expansions now come when her eggs run short; the rushes turn Balanced after their first wave; the tables below are
+the 0.22.x ones.
+
 The owner (2026-10-29 22:50): "This new Brood doesn't have an AI. Make a coaching like you did before."
 
 The computer was rewritten from the coached games of docs/brood_new_play_3.md. Code: scripts/ai_brood_new.gd
