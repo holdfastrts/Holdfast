@@ -177,8 +177,6 @@ func _start() -> void:
 		slots.append({"who": "you" if i == 0 else level, "faction": facs[i], "colour": i, "side": side, "strategy": strat0 if i == 0 else strat})
 	if not sound:
 		root.add_child(SilentSfx.new())       # (Sfx.me from now on)
-	if OS.get_cmdline_user_args().has("bykind"):
-		Prof.by_kind_on = true
 	seed(match_seed)              # (before the match is made: setting it up draws random numbers too)
 	main.start({"map": map, "slots": slots, "seed": match_seed})
 	var g: Game = main.game
@@ -435,7 +433,3 @@ func _save() -> void:
 	f.store_string("\n".join(md) + "\n")
 	f.close()
 	print("PERF saved docs/perf/%s.csv" % out_name)
-	var ks: Array = Prof.by_kind.keys()
-	ks.sort_custom(func(a, b): return Prof.by_kind[a] > Prof.by_kind[b])
-	for k in ks.slice(0, 40):
-		print("KIND %-40s %8.1f ms %7d ticks %6.1f us/tick" % [k, Prof.by_kind[k] / 1000.0, Prof.by_kind_n[k], float(Prof.by_kind[k]) / Prof.by_kind_n[k]])

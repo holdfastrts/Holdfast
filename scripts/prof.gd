@@ -4,9 +4,6 @@ class_name Prof
 ## It also keeps what each frame spent (frame_us): MatchLog writes a "slow frame" line with the
 ## parts that took the time whenever a frame takes longer than MatchLog.SLOW_FRAME_MS.
 static var us := {}
-static var by_kind_on := false     # (TEMP perf-armies)
-static var by_kind := {}
-static var by_kind_n := {}
 static var calls := {}
 ## This frame's parts (cleared by MatchLog each frame).
 static var frame_us := {}
