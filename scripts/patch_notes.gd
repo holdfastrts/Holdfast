@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.8", "items": [
+		"THE MAINSPRING'S COIL GAUGE (the owner): over every Mainspring a brass spring now shows the Tension it holds. Empty, the spring lies relaxed along its slot; as your Tension fills what your Mainsprings store, a plate presses in and the coils squeeze together, tight and bright when full. A Mainspring whose Clocktower's spring life is spent (FATIGUED) shows a dull, slack spring.",
+		"BARS NO LONGER COVER THE BUILDINGS (the owner): every bar and label over a building now stands above its picture's real top, each in its own row: the health bar, then the building, training or crop bar, the coil gauge, the worker label (HAULERS, FARMERS, POWDER MAKERS, WINDERS), the UNLINKED badge and a gate's padlock. They used to lie across spires, chimneys, flags, windmill sails and the Clockwork buildings' tops. The gold spring mark moved just above the building, right of its bars.",
+		"The same for the Brood's rooted creatures: the Rootmaw's food bar, ground bar and DRY label no longer sit on its back, a Sire's nest bar no longer covers his health bar, and the GROWING, ROOTING and RESEARCHING bars go on top, clear of the egg lines and labels.",
+		"THE BROOD MOTHER'S EGG COUNT STAYS CLOSE ABOVE HER (the owner: at stage 2 it went far too high): it was placed at the highest her body reached while laying or swiping; now it sits just over her nest at stages 1, 2 and 3, stays put while she lays, and is centred over her.",
+	]},
 	{"v": "0.29.7", "items": [
 		"TWO NEW PLANS FOR THE CLOCKWORK COMPUTER, BUILT ROUND THE HEAVY WORKS. PENDULUMS, the answer to the Brood's Raptor swarms: two Clock Soldiers early, the Heavy Works as soon as the Escapement works, three Pendulums with the expansion behind them, then a slow push of Pendulums and Clock Soldiers, with Winders behind them, to the Brood's Rootmaws, its father and then its Mother. HEAVY WORKS PUSH: Clock Soldiers in front, Spring Ballistas behind them and the Great Winder behind those: a slow push that razes expansions from out of musket reach, breaks a wall in its way, waits short of the enemy's main until it is strong enough, and pulls back before it is wiped out. A computer on RANDOM PLAN picks the Pendulums half the time against the Brood.",
 		"The Clockwork computer on these plans sends a Winder out to wind its machines that ran down at home.",

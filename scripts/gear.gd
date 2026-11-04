@@ -1027,7 +1027,7 @@ func _draw_top() -> void:
 
 ## THE SPRING MARK (owner, 2026-10-27): a little brass coil over a building fed by a Mainspring (through the gear network:
 ## it may make what costs Tension). Code-drawn: docs/art_style_inconsistency.md.
-## THE SPRING MARK (the little gold coil at a building's top right corner): a Mainspring stands in this building's gear
+## THE SPRING MARK (the little gold coil over a building's top, right of its bars): a Mainspring stands in this building's gear
 ## network, so it gets Tension: a Tension user works, and what costs Tension can be made here (GearEcon.spend_problem). Shown only
 ## on the buildings that use or spend Tension (GearEcon.spends_tension: the Light and Heavy Works, the Escapement, the
 ## Clock Aviary...): a Cog Press or a Regulator by a Mainspring gets nothing from it, so it shows none (owner, 2026-10-30:
@@ -1037,8 +1037,11 @@ func has_spring_mark(b: Building) -> bool:
 		and GearEcon.spends_tension(b.kind)
 
 
+## (bars audit, 2026-11-04: it sat on the picture at its footprint's corner) just above the picture's top, to the right of
+## its bars (Building.bar_slots), clear of them and of the worker label over them.
 func spring_mark_pos(b: Building) -> Vector2:
-	return b.rect().get_center() + Vector2(b.rect().size.x * 0.5 - 4.0, -b.rect().size.y * 0.5 - 4.0)
+	var s: Dictionary = b.bar_slots()
+	return b.global_position + Vector2(float(s["w"]) * 0.5 + 13.0, float(s["top"]) - Building.STACK_GAP - 11.0)
 
 
 ## The building whose spring mark is under world point p (as _draw_top shows them to the player), or null.

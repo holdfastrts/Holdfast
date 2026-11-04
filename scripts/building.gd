@@ -914,6 +914,7 @@ func coil_fill() -> float:
 ## Eases the coil gauge toward coil_fill (a spend or a refund presses or lets it out over about a second, no jump).
 func _ease_coil(delta: float) -> void:
 	var f := coil_fill()
+	_coil_frame = Engine.get_process_frames()
 	_coil_f = f if _coil_f < 0.0 else move_toward(_coil_f, f, delta * maxf(0.8, absf(f - _coil_f) * 2.0))
 
 
@@ -1630,6 +1631,7 @@ static var _researchers := {}
 
 var _top_y := INF               # the picture's top as last placed (sprite_top)
 var _coil_f := -1.0             # the coil gauge's shown fill, eased (Mainspring)
+var _coil_frame := 0            # (the frame it was last eased on)
 
 
 ## The top of the picture as drawn (local y): its sprite's first painted row, the Farm's windmill sails, the Ratchet
@@ -1774,5 +1776,7 @@ func _draw_building() -> void:
 		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7))
 		draw_rect(Rect2(-w * 0.5, wy, w * f, WORK_H), Color(0.75, 0.55, 1.0) if is_research(k) else Color(0.4, 0.75, 1.0))
 	if slots.has("coil") and built and coil_shown():
-		CoilGauge.draw(self, Rect2(-w * 0.5, float(slots["coil"]), w, CoilGauge.H), maxf(_coil_f, 0.0), fatigued())
+		# (eased by _tick_building; an online guest's buildings are not ticked: the pool as it is)
+		var eased := _coil_f >= 0.0 and Engine.get_process_frames() - _coil_frame < 30
+		CoilGauge.draw(self, Rect2(-w * 0.5, float(slots["coil"]), w, CoilGauge.H), _coil_f if eased else coil_fill(), fatigued())
 
