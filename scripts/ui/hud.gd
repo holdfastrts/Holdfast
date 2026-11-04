@@ -397,7 +397,8 @@ func _layer_sig(n: String) -> Array:
 			if _msg_t > 0.0:
 				vals.append_array([_msg, int(minf(_msg_t, 1.0) * 60.0)])
 			if game.spectating():
-				vals.append_array([_tick_n, m, view_open, spec_panels().drop, SpecPanels.open.values(), SpecPanels.team.values(), Settings.narrator,
+				# (the spectator's panels at 4 a second, not 20: with 100+ units their redraw cost 25 ms, 0.30.5 owner log)
+				vals.append_array([_tick_n / 5, m, view_open, spec_panels().drop, SpecPanels.open.values(), SpecPanels.team.values(), Settings.narrator,
 					game.ai_story.version if game.ai_story else 0])
 			if countdown > 0.0 or _go_t > 0.0:
 				vals.append_array([countdown, _go_t])

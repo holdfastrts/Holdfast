@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.5", "items": [
+		"Watching computers play: the PRODUCTION and ARMY & STRUCTURES panels are drawn again 4 times a second instead of 20. In the owner's Redrock Canyon game they took up to 45% of the computer's time once the armies passed 100 units.",
+	]},
 	{"v": "0.30.4", "items": [
 		"THE CROWN'S EXPANSION SPOTS, REDONE (the owner: \"I don't know why you left the second expansion so far out\"): the OPTIMAL EXPANSION SPOT is back where the natural expansion was, but pulled in to the least distance a hall allows (18 tiles from the main), as close to the foot of the main's ramp as it can be (a short walk for the army and the workers) and against the edge of the map where there is one (fewer sides to wall). The second spot mirrors it on the other side of the ramp, with the same aims, instead of far round the main's cliff. From the 4th hall on: as close as possible to your other halls, against the map's edge where it may be. The Crown computer expands to the same spots, and finds them about four times faster.",
 	]},

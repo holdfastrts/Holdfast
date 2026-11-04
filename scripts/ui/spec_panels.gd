@@ -514,7 +514,8 @@ func _draw_army(br: Rect2) -> void:
 			x += f.get_string_size(String(r[1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x + 12.0
 		y += 20.0
 		var last_k := ""
-		for e in _army_flow(t, br.size.x - 20.0):
+		var fl := _army_flow(t, br.size.x - 20.0)
+		for e in fl:
 			var r := Rect2(br.position.x + 10 + float(e[0]), y + float(e[1]), ICON, ICON)
 			if r.end.y + 3 > br.end.y:
 				break
@@ -522,7 +523,6 @@ func _draw_army(br: Rect2) -> void:
 				hud._ci.draw_rect(Rect2(r.position.x - SEP * 0.5 - 2, r.position.y + 4, 1, ICON - 8), Color(1, 1, 1, 0.25))
 			last_k = String(e[4])
 			_icon_count(r, e[2], bool(e[3]))
-		var fl := _army_flow(t, br.size.x - 20.0)
 		y += (0.0 if fl.is_empty() else float(fl.back()[1]) + ICON_ROW) + 6.0
 		shown += 1
 	if shown < teams.size():
