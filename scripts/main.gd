@@ -338,23 +338,28 @@ func show_crash(report: String) -> void:
 
 
 ## THE MAIN MENU (the owner's drawn layout, 2026-10-31): the painting covers the whole screen; the title on ONE line
-## in a box at the top-left (x 0.5%..53%, y 0.5%..9.5% of the screen) and under it a FLAT grid of 3 x 3 slots, every
-## one inside the painting's empty top-left sky:
-##   CAMPAIGN (later)  SKIRMISH (primary)  ONLINE
-##   HOW TO PLAY       REPLAYS             EDITOR
-##   CONTINUE (only with a save of this version, else empty)  SETTINGS  EXIT (not on the web)
+## in a box at the top-left (x 0.5%..53%, y 0.5%..9.5% of the screen) and under it a FLAT grid of 4 x 3 slots (3 x 3
+## until the TUTORIAL came, 0.30: the owner, 2026-11-04, "a TUTORIAL button and a CAMPAIGN button"), every one inside
+## the painting's empty top-left sky:
+##   TUTORIAL     CAMPAIGN  SKIRMISH (primary)  ONLINE
+##   HOW TO PLAY  REPLAYS   EDITOR              SETTINGS
+##   CONTINUE (only with a save of this version, else empty)  EXIT (not on the web)
 ## No levels, no submenus: each page's BACK comes back here. MATCH LOGS is on the REPLAYS page. Esc does nothing
 ## here (the phone's back saves and quits, as before). Flags small top-right, the version small bottom-right.
 ## The grid's slot ids, row by row ("" = an empty slot).
-const MENU_SLOTS := ["campaign", "skirmish", "online", "help", "replays", "editor", "continue", "settings", "exit"]
+const MENU_SLOTS := ["tutorial", "campaign", "skirmish", "online", "help", "replays", "editor", "settings", "continue", "exit"]
+const MENU_COLS := 4
 ## Fractions of the screen (the owner's mock-up, 1455 x 819): button size, first column / row, the gaps.
-const MENU_BTN := Vector2(0.105, 0.085)
+## (Four columns since the TUTORIAL: each button 8.2% wide instead of 10.5%, the grid as wide as before plus a little.)
+const MENU_BTN := Vector2(0.082, 0.085)
 const MENU_ORIGIN := Vector2(0.007, 0.115)
 const MENU_GAP := Vector2(0.008, 0.0225)
 const MENU_TITLE := Rect2(0.005, 0.005, 0.525, 0.09)
 ## The smallest a menu button may be (a phone: a thumb's size; the grid grows down and right to keep it).
-const MENU_MIN_PC := Vector2(120, 48)
-const MENU_MIN_MOBILE := Vector2(150, 62)
+## (Four columns since the TUTORIAL, 0.30: a little narrower than the three were, 120 and 150, so the grid still fits
+## the sky at 1280 wide on a computer and stays compact on a phone; every label shrinks to fit: _fit_button_font.)
+const MENU_MIN_PC := Vector2(100, 48)
+const MENU_MIN_MOBILE := Vector2(135, 62)
 ## The grid's buttons by slot id (only the slots that have one this time).
 var menu_buttons := {}
 var _menu_grid: Control
@@ -463,6 +468,8 @@ func show_menu() -> void:
 func _menu_button(id: String, save: Dictionary, pc: bool) -> Button:
 	var b: Button
 	match id:
+		"tutorial":
+			b = _button("TUTORIAL", func() -> void: show_tutorial())
 		"campaign":
 			b = _button("CAMPAIGN", func() -> void: show_campaign())
 		"skirmish":
@@ -544,15 +551,16 @@ func _layout_menu() -> void:
 		var b: Button = menu_buttons[id]
 		b.custom_minimum_size = Vector2.ZERO
 		_fit_button_font(b, bs, pc)
-		b.position = o + Vector2(i % 3, i / 3) * (bs + gap)
+		b.position = o + Vector2(i % MENU_COLS, i / MENU_COLS) * (bs + gap)
 		b.size = bs
 	if is_instance_valid(_menu_note):
 		_menu_note.position = o + Vector2(0, 3.0 * (bs.y + gap.y))
-		_menu_note.size = Vector2(3.0 * bs.x + 2.0 * gap.x, 0)
+		_menu_note.size = Vector2(MENU_COLS * bs.x + (MENU_COLS - 1) * gap.x, 0)
 		_menu_note.custom_minimum_size.x = _menu_note.size.x
 
 
-## The grid on a screen of size `vs`: [button size, gap, first button's corner] (slot i at o + (i % 3, i / 3) * (bs + gap)).
+## The grid on a screen of size `vs`: [button size, gap, first button's corner] (slot i at o + (i % MENU_COLS,
+## i / MENU_COLS) * (bs + gap)).
 static func menu_geometry(vs: Vector2, pc: bool) -> Array:
 	var mn := MENU_MIN_PC if pc else MENU_MIN_MOBILE
 	var bs := Vector2(maxf(MENU_BTN.x * vs.x, mn.x), maxf(MENU_BTN.y * vs.y, mn.y)).floor()
@@ -627,6 +635,11 @@ func _on_web_back(_args: Array) -> void:
 ## CAMPAIGN: the storyline's hub, its war table, briefings (scripts/campaign/campaign_menu.gd).
 func show_campaign() -> void:
 	CampaignMenu.show(self)
+
+
+## TUTORIAL: the lessons (scripts/campaign/tutorial_menu.gd; docs/tutorial.md).
+func show_tutorial() -> void:
+	TutorialMenu.show(self)
 
 
 func show_online() -> void:
@@ -2944,6 +2957,9 @@ func _on_end(winner: int) -> void:
 		rp_path = game.net.rp_path                  # (REPLAY RECORDING OFF: no view of its own, the host's whole replay came)
 	await get_tree().create_timer(1.2, true, false, true).timeout
 	if game == null:
+		return
+	if game.mission and bool(game.mission.data.get("tutorial", false)):
+		TutorialMenu.lesson_end(self, game, winner, rp_path)       # (a lesson: its tick, NEXT LESSON, the list)
 		return
 	if game.mission:
 		CampaignMenu.mission_end(self, game, winner, rp_path)      # (won / lost, the story's branch, then the report if wanted)

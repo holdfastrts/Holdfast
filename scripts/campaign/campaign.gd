@@ -67,7 +67,77 @@ static func opens(id: String) -> Array:
 
 
 static func mission(id: String) -> Dictionary:
-	return _json("%s/missions/%s.json" % [DIR, id])
+	var path := "%s/missions/%s.json" % [DIR, id]
+	var m := _json(path)
+	if m.has("steps") and not m.has("_expanded"):
+		expand_steps(m)          # (a TUTORIAL lesson: its steps become lines, tasks and triggers: docs/tutorial.md)
+	return m
+
+
+## A lesson's STEPS (docs/tutorial.md) written out as the engine's own parts, once, in place: each step's lines
+## (inline texts get ids "<step>_<n>"), its task (an objective of kind "manual" with "task": true, hidden until the
+## step starts), and two triggers: "start_<step>" (after the step before it is done: says the lines, shows the task,
+## points, runs its "do", and marks the camera, the counts and the noted actions so its wait is measured from here)
+## and "done_<step>" (its "wait" holds: the task is ticked, the pointer goes, "then" runs). After the last step the
+## lesson is won ("steps_end": "win", the default) or the match goes on to its normal end ("").
+static func expand_steps(m: Dictionary) -> void:
+	m["_expanded"] = true
+	var side := String(m.get("tutorial_side", ""))
+	if side == "":
+		side = String((m.get("sides", [{}]) as Array)[0].get("id", ""))
+	var teacher := String(m.get("teacher", "teacher"))
+	if not m.has("lines"):
+		m["lines"] = {}
+	if not m.has("objectives"):
+		m["objectives"] = []
+	if not m.has("triggers"):
+		m["triggers"] = []
+	var steps: Array = m["steps"]
+	var prev := ""
+	for i in steps.size():
+		var st: Dictionary = steps[i]
+		var sid := String(st.get("id", "s%d" % i))
+		var ids: Array = []
+		var n := 0
+		for ln in st.get("say", []):
+			if ln is String and (m["lines"] as Dictionary).has(ln):
+				ids.append(ln)
+				continue
+			n += 1
+			var lid := "%s_%d" % [sid, n]
+			var e := {"who": String(st.get("who", teacher))}
+			if ln is Dictionary:
+				e["text"] = String(ln.get("pc", ln.get("text", "")))
+				if ln.has("phone"):
+					e["phone"] = String(ln["phone"])
+			else:
+				e["text"] = String(ln)
+			m["lines"][lid] = e
+			ids.append(lid)
+		var start_do: Array = [{"mark": true}]
+		if not ids.is_empty():
+			start_do.append({"say": ids})
+		if st.has("task"):
+			var tk: Variant = st["task"]
+			var o := {"id": "task_" + sid, "side": side, "kind": "manual", "primary": false, "task": true, "hidden": true,
+				"text": String(tk.get("pc", tk.get("text", ""))) if tk is Dictionary else String(tk)}
+			if tk is Dictionary and tk.has("phone"):
+				o["phone"] = String(tk["phone"])
+			m["objectives"].append(o)
+			start_do.append({"objective": {"id": "task_" + sid, "set": "active"}})
+		start_do.append({"point": st.get("point", {})})
+		start_do.append_array(st.get("do", []))
+		var when: Dictionary = {"fired": "done_" + prev} if prev != "" else {"time": 0.5}
+		m["triggers"].append({"id": "start_" + sid, "when": when, "delay": float(st.get("delay", 0.5 if prev == "" else 1.0)), "do": start_do, "step": sid})
+		var wait: Variant = st.get("wait", {"talked": true})
+		var done_do: Array = [{"point": {}}]
+		if st.has("task"):
+			done_do.append({"objective": {"id": "task_" + sid, "set": "done"}})
+		done_do.append_array(st.get("then", []))
+		m["triggers"].append({"id": "done_" + sid, "when": {"all": [{"fired": "start_" + sid}, wait]}, "delay": float(st.get("after", 0.6)), "do": done_do})
+		prev = sid
+	if prev != "" and String(m.get("steps_end", "win")) == "win":
+		m["triggers"].append({"id": "lesson_won", "when": {"fired": "done_" + prev}, "delay": 1.5, "do": [{"win": side}]})
 
 
 static func map_data(name: String) -> Dictionary:
@@ -244,10 +314,12 @@ static func strings_of(m: Dictionary) -> Array:
 			out.append(String(s["about"]))
 	for o in m.get("objectives", []):
 		out.append(String(o.get("text", "")))
+		out.append(String(o.get("phone", "")))
 	for k in m.get("speakers", {}):
 		out.append(String(m["speakers"][k].get("name", "")))
 	for k in m.get("lines", {}):
 		out.append(String(m["lines"][k].get("text", "")))
+		out.append(String(m["lines"][k].get("phone", "")))
 	for k in m.get("stills", {}):
 		out.append(String(m["stills"][k].get("caption", "")))
 	for k in m.get("briefing", {}):
@@ -256,6 +328,9 @@ static func strings_of(m: Dictionary) -> Array:
 	for k in m.get("debrief", {}):
 		out.append(String(m["debrief"][k].get("title", "")))
 		out.append(String(m["debrief"][k].get("text", "")))
+	for x in m.get("learn", []):
+		out.append(String(x))          # (a TUTORIAL lesson's list of what it teaches, and its words after a loss)
+	out.append(String(m.get("lost", "")))
 	return out.filter(func(s: String) -> bool: return s != "")
 
 
@@ -338,6 +413,14 @@ static func _check_cond(c: Variant, where: String, out: Array, sides: Array, tea
 		match String(k):
 			"time", "dead", "hurt":
 				pass
+			# the TUTORIAL's conditions (what the player did: docs/tutorial.md)
+			"selected", "camera_moved", "zoomed", "more", "built", "rooted", "crew", "group", "did", "gear_view", \
+					"placing", "order", "res", "talked":
+				var q: Variant = c[k]
+				if q is Dictionary and q.has("kind"):
+					for kk in (q["kind"] if q["kind"] is Array else [q["kind"]]):
+						if not (String(kk) in ["any", "army"] or Defs.UNITS.has(String(kk)) or Defs.BUILDINGS.has(String(kk))):
+							out.append("%s: %s of unknown kind %s" % [where, k, kk])
 			"all", "any":
 				for s in c[k]:
 					_check_cond(s, where, out, sides, teams, areas, objs, trig)
@@ -396,5 +479,14 @@ static func _check_action(a: Variant, where: String, out: Array, m: Dictionary, 
 		"win", "lose":
 			if not sides.has(String(v)):
 				out.append("%s: unknown side %s" % [where, v])
+		"mark":
+			pass
+		"point":
+			if v is Dictionary and v.has("area") and not areas.has(String(v["area"])):
+				out.append("%s: point at unknown area %s" % [where, v["area"]])
+			if v is Dictionary and v.has("ui") and not ["minimap", "card", "hotbar", "top", "groups", "objectives"].has(String(v["ui"])):
+				out.append("%s: point at unknown ui %s" % [where, v["ui"]])
+			if v is Dictionary and v.has("kind") and not (Defs.UNITS.has(String(v["kind"])) or Defs.BUILDINGS.has(String(v["kind"]))):
+				out.append("%s: point at unknown kind %s" % [where, v["kind"]])
 		_:
 			out.append("%s: unknown action %s" % [where, k])

@@ -1,0 +1,328 @@
+{
+ "id": "t01_basics",
+ "tutorial": true,
+ "title": "The Basics",
+ "summary": "Move the view, pick your soldiers, march them, fight, and use the command card, the minimap and control groups. The controls are the same for every faction.",
+ "learn": [
+  "Moving and zooming the view",
+  "Selecting units",
+  "Moving and attacking",
+  "The command card and its keys",
+  "The minimap",
+  "Control groups"
+ ],
+ "map": "kestrel_rise",
+ "modes": [
+  "solo"
+ ],
+ "sides": [
+  {
+   "id": "you",
+   "name": "The Crown"
+  },
+  {
+   "id": "bandits",
+   "name": "Bandits"
+  }
+ ],
+ "teams": [
+  {
+   "id": "you",
+   "side": "you",
+   "faction": "crown",
+   "colour": 1,
+   "start": "none",
+   "camera": "camp",
+   "control": "p1"
+  },
+  {
+   "id": "bandits",
+   "side": "bandits",
+   "faction": "crown",
+   "colour": 0,
+   "start": "none",
+   "control": "script"
+  }
+ ],
+ "areas": {
+  "camp": [
+   10,
+   27,
+   7,
+   5
+  ],
+  "flag": [
+   22,
+   30,
+   5,
+   4
+  ],
+  "targets": [
+   31,
+   25,
+   4,
+   4
+  ],
+  "march": [
+   17,
+   27,
+   8,
+   6
+  ]
+ },
+ "units": [
+  {
+   "team": "you",
+   "kind": "musketeer",
+   "count": 5,
+   "at": "camp",
+   "tag": "recruits"
+  },
+  {
+   "team": "bandits",
+   "kind": "labourer",
+   "count": 3,
+   "at": "targets",
+   "tag": "bandits",
+   "order": "hold"
+  }
+ ],
+ "speakers": {
+  "teacher": {
+   "name": "Sergeant Holt",
+   "side": "you"
+  }
+ },
+ "teacher": "teacher",
+ "steps": [
+  {
+   "id": "camera",
+   "say": [
+    "Welcome, recruit. I am Sergeant Holt, and I will teach you to command.",
+    {
+     "pc": "First, look around. Push the mouse to an edge of the screen, use the arrow keys, or hold the middle button and drag.",
+     "phone": "First, look around. Drag the map with two fingers."
+    }
+   ],
+   "task": {
+    "pc": "Move the view (screen edge, arrow keys or middle button).",
+    "phone": "Move the view (drag with two fingers)."
+   },
+   "wait": {
+    "camera_moved": 260
+   }
+  },
+  {
+   "id": "zoom",
+   "say": [
+    {
+     "pc": "Good. Now roll the mouse wheel to zoom in and out.",
+     "phone": "Good. Now pinch with two fingers to zoom in and out."
+    }
+   ],
+   "task": {
+    "pc": "Zoom with the mouse wheel.",
+    "phone": "Zoom by pinching."
+   },
+   "wait": {
+    "zoomed": true
+   }
+  },
+  {
+   "id": "select_one",
+   "say": [
+    {
+     "pc": "These are your Musketeers. Click one to select it.",
+     "phone": "These are your Musketeers. Tap one to select it."
+    }
+   ],
+   "task": {
+    "pc": "Click one Musketeer.",
+    "phone": "Tap one Musketeer."
+   },
+   "point": {
+    "tag": "recruits"
+   },
+   "do": [
+    {
+     "camera": {
+      "area": "camp"
+     }
+    }
+   ],
+   "wait": {
+    "selected": {
+     "kind": "musketeer",
+     "count": 1
+    }
+   }
+  },
+  {
+   "id": "select_all",
+   "say": [
+    {
+     "pc": "Now take them all: hold the left button and drag a box round them. A double-click picks every one of that kind on screen.",
+     "phone": "Now take them all: double-tap one to pick every Musketeer on screen."
+    }
+   ],
+   "task": "Select all five Musketeers.",
+   "point": {
+    "tag": "recruits"
+   },
+   "wait": {
+    "selected": {
+     "kind": "musketeer",
+     "count": 5
+    }
+   }
+  },
+  {
+   "id": "move",
+   "say": [
+    {
+     "pc": "March! Right-click the ground by the gold ring to move them there.",
+     "phone": "March! Tap the ground by the gold ring to move them there."
+    }
+   ],
+   "task": "Move your Musketeers to the gold ring.",
+   "point": {
+    "area": "flag"
+   },
+   "wait": {
+    "count": {
+     "mine": true,
+     "kind": "musketeer",
+     "area": "flag",
+     "at_least": 4
+    }
+   },
+   "do": [
+    {
+     "camera": {
+      "area": "march"
+     }
+    }
+   ]
+  },
+  {
+   "id": "attack",
+   "say": [
+    "Bandits, over there! Shooters fire by themselves when an enemy comes in range.",
+    {
+     "pc": "Right-click an enemy to attack it. Or press A, then click a spot: they attack everything on the way.",
+     "phone": "Tap an enemy to attack it. Or tap ATTACK on the card, then a spot: they attack everything on the way."
+    }
+   ],
+   "task": "Defeat the bandits.",
+   "point": {
+    "tag": "bandits"
+   },
+   "do": [
+    {
+     "reveal": {
+      "area": "targets",
+      "side": "you",
+      "secs": 60
+     }
+    }
+   ],
+   "wait": {
+    "dead": "bandits"
+   }
+  },
+  {
+   "id": "card",
+   "say": [
+    "Well shot. The command card, bottom right, holds every order for what you selected.",
+    "Holding men stay where they stand and shoot what comes.",
+    {
+     "pc": "Each button has a key: hover it to see. Press HOLD, or H.",
+     "phone": "Tap HOLD."
+    }
+   ],
+   "task": {
+    "pc": "Select your Musketeers and press HOLD (H).",
+    "phone": "Select your Musketeers and tap HOLD."
+   },
+   "point": {
+    "ui": "card"
+   },
+   "wait": {
+    "order": {
+     "tag": "recruits",
+     "is": "hold",
+     "count": 3
+    }
+   }
+  },
+  {
+   "id": "minimap",
+   "say": [
+    {
+     "pc": "The minimap shows the whole map. Click it to jump the view there.",
+     "phone": "The minimap shows the whole map. Tap it to jump the view there."
+    }
+   ],
+   "task": {
+    "pc": "Click the minimap.",
+    "phone": "Tap the minimap."
+   },
+   "point": {
+    "ui": "minimap"
+   },
+   "wait": {
+    "did": "minimap"
+   }
+  },
+  {
+   "id": "group_set",
+   "say": [
+    {
+     "pc": "Last, control groups. Select your Musketeers and press Ctrl+1: they become group 1.",
+     "phone": "Last, control groups. Select your Musketeers, then hold the 1 on the bar above the card: they become group 1."
+    }
+   ],
+   "task": {
+    "pc": "Select your Musketeers and press Ctrl+1.",
+    "phone": "Select your Musketeers and hold the 1 on the bar."
+   },
+   "point": {
+    "ui": "hotbar"
+   },
+   "wait": {
+    "group": 3
+   }
+  },
+  {
+   "id": "group_select",
+   "say": [
+    {
+     "pc": "Now press 1 to pick the group again, from anywhere. Press it twice to jump the view to them.",
+     "phone": "Now tap the 1 to pick the group again, from anywhere. Tap it twice to jump the view to them."
+    }
+   ],
+   "task": {
+    "pc": "Press 1 to select group 1.",
+    "phone": "Tap 1 to select group 1."
+   },
+   "point": {
+    "ui": "hotbar"
+   },
+   "wait": {
+    "did": "group_select"
+   }
+  },
+  {
+   "id": "end",
+   "say": [
+    "That is the basics, recruit. Every faction is commanded the same way.",
+    "Next, learn a faction: the Crown, the Clockwork or the Brood."
+   ]
+  }
+ ],
+ "debrief": {
+  "you": {
+   "text": "You can move the view, select, march, fight and use the card, the minimap and control groups."
+  }
+ }
+}

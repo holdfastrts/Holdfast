@@ -565,3 +565,14 @@ The campaign's art is not decided yet (owner, 2026-11-03): until it is, these ar
 - THE HUB'S HOTSPOTS: framed translucent boxes with a label over the hub's still (in the drawn scene they would sit on
   the war table, the people and the doors); their places are fractions of the still, in campaign/campaign.json.
 - THE OBJECTIVES PANEL's tick and cross boxes are drawn lines.
+
+## The tutorial's pointer and ticks (code, 0.30.0; scripts/campaign/mission_ui.gd Pointer, tutorial_menu.gd Tick; docs/tutorial.md)
+
+- THE POINTER (MissionUi.Pointer): where a lesson's teacher points. On the map: a gold ellipse pulsing on the ground (an
+  inner ring at half size) with a fat gold arrow, dark outlined, bobbing over it; a spot out of view (or behind the
+  HUD's bottom row) gets the same arrow at the edge of the view, pointing the way. On the HUD: a gold frame pulsing
+  round the minimap, the command card or the group bar, with the arrow at it. A drawn hand or a painted arrow in the
+  game's UI style could replace it.
+- THE TICK (TutorialMenu.Tick): a finished lesson's box on the lesson list and the LESSON DONE title, drawn lines (no
+  font carries the mark). The teachers' portraits are the campaign's placeholder (initials in an oval): Sergeant Holt,
+  Master Tock, The Old Hunger.

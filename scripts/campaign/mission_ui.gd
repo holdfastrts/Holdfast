@@ -18,6 +18,10 @@ var _text: Label
 var _still_holder: Control
 var _obj: ObjectivesPanel
 var _scale := 1.0
+var _pointer: Pointer
+## A TUTORIAL lesson (docs/tutorial.md): the teacher's last line stays up until the next step (or NEXT / SKIP), so the
+## instruction can be read again while doing it; the lines stay a little longer.
+var tutorial := false
 
 
 func _ready() -> void:
@@ -25,6 +29,10 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	theme = UiStyle.theme()
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	tutorial = bool(run.data.get("tutorial", false))
+	_pointer = Pointer.new()
+	_pointer.ui = self
+	add_child(_pointer)
 	_obj = ObjectivesPanel.new()
 	_obj.ui = self
 	add_child(_obj)
@@ -106,8 +114,9 @@ func _layout() -> void:
 
 func _on_said(ln: Dictionary) -> void:
 	queue.append(ln)
-	if current.is_empty():
-		advance()
+	if current.is_empty() or (tutorial and line_t <= 0.0 and queue.size() == 1):
+		advance()           # (a lesson's held line gives way to the next step's first)
+	run.talk_busy = true
 
 
 ## The next line now (the current one is done).
@@ -118,7 +127,7 @@ func advance() -> void:
 		return
 	current = queue.pop_front()
 	var txt := Loc.t(String(current["text"]))
-	line_t = maxf(4.5, 2.0 + txt.length() / 14.0)
+	line_t = maxf(4.5, 2.0 + txt.length() / 14.0) * (1.3 if tutorial else 1.0)
 	_name.text = Loc.t(String(current["name"]))
 	_text.text = txt
 	var col := _side_colour(String(current.get("side", "")))
@@ -147,11 +156,12 @@ func skip_all() -> void:
 func _process(delta: float) -> void:
 	if is_instance_valid(game) and game.over and _box.visible:
 		skip_all()             # (the mission's end screen takes over)
+	run.talk_busy = not queue.is_empty() or (not current.is_empty() and line_t > 0.0)
 	if current.is_empty() or get_tree().paused and not (game and game.net):
 		return
 	line_t -= delta
-	if line_t <= 0.0:
-		advance()
+	if line_t <= 0.0 and not (tutorial and queue.is_empty()):
+		advance()           # (a lesson's last line stays: it says what to do now)
 
 
 ## A side's colour: its first team's colour in this match.
@@ -187,6 +197,14 @@ class ObjectivesPanel extends Control:
 	func _draw() -> void:
 		var run := ui.run
 		var list := run.objectives_for(run.my_side())
+		# a lesson's TASKS (docs/tutorial.md): the one being done and the last one ticked, not the whole list
+		var tasks := list.filter(func(o: Dictionary) -> bool: return bool(o.get("task", false)))
+		if not tasks.is_empty():
+			var done := tasks.filter(func(o: Dictionary) -> bool: return o["state"] == "done")
+			var keep: Array = tasks.filter(func(o: Dictionary) -> bool: return o["state"] == "active")
+			if not done.is_empty():
+				keep.push_front(done[-1])
+			list = list.filter(func(o: Dictionary) -> bool: return not bool(o.get("task", false)) or keep.has(o))
 		var font := UiStyle.body_font()
 		var bold := UiStyle.bold_font()
 		var w := clampf(ui.get_viewport_rect().size.x * 0.30, 260.0, 440.0 * ui._scale)
@@ -196,7 +214,7 @@ class ObjectivesPanel extends Control:
 		if not ui.folded:
 			for o in list:
 				var txt := Loc.t(String(o["text"]))
-				if not bool(o.get("primary", true)):
+				if not bool(o.get("primary", true)) and not bool(o.get("task", false)):
 					txt = Loc.t("(optional)") + " " + txt
 				if String(o.get("kind", "")) == "survive" and o["state"] == "active":
 					var left := maxi(0, int(ceil(float(o.get("time", 0)) - run.game.clock)))
@@ -206,14 +224,16 @@ class ObjectivesPanel extends Control:
 				total += wrapped.size() * (fs + 4) + 6
 		size = Vector2(w, total + 6)
 		UiStyle.draw_panel(self, Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0), 0.85)
-		draw_string(bold, Vector2(10, fs + 6), Loc.t("OBJECTIVES") + ("  +" if ui.folded else "  -"), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, UiStyle.TRIM)
+		draw_string(bold, Vector2(10, fs + 6), Loc.t("LESSON" if ui.tutorial else "OBJECTIVES") + ("  +" if ui.folded else "  -"), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, UiStyle.TRIM)
 		var y := fs + 16.0
 		for row in lines:
 			var o: Dictionary = row[0]
 			var st := String(o["state"])
 			var col := UiStyle.TEXT if st == "active" else (UiStyle.GOOD if st == "done" else UiStyle.BAD)
-			if not bool(o.get("primary", true)) and st == "active":
+			if not bool(o.get("primary", true)) and st == "active" and not bool(o.get("task", false)):
 				col = UiStyle.MUTED
+			elif bool(o.get("task", false)) and st == "active":
+				col = UiStyle.TRIM           # (the lesson's task now: bright)
 			var bx := Rect2(10, y + 3, fs - 2, fs - 2)
 			draw_rect(bx, Color(0, 0, 0, 0.4))
 			draw_rect(bx, col, false, 2.0)
@@ -242,3 +262,148 @@ class ObjectivesPanel extends Control:
 		if cur != "":
 			out.append(cur)
 		return out
+
+
+## The TUTORIAL's POINTER (docs/tutorial.md; drawn in code, docs/art_style_inconsistency.md): where the teacher points
+## (MissionRun.pointer): a gold ring pulsing on the ground under an area, a tagged thing or the player's first of a
+## kind, with an arrow bobbing over it (at the screen's edge, pointing the way, when it is out of view); or a frame
+## round a part of the HUD (the minimap, the command card, the group bar, the top bar) with an arrow at it.
+class Pointer extends Control:
+	var ui: MissionUi
+	const GOLD := Color(1.0, 0.84, 0.3)
+
+	func _ready() -> void:
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		process_mode = Node.PROCESS_MODE_ALWAYS
+
+	func _process(_d: float) -> void:
+		queue_redraw()
+
+	## The pointer's target on this screen: [kind "world" / "ui" / "", a point or a Rect2].
+	func target() -> Array:
+		var run := ui.run
+		var p: Dictionary = run.pointer
+		var g := ui.game
+		if p.is_empty() or not is_instance_valid(g) or g.over:
+			return ["", null]
+		if p.has("ui"):
+			var hud: Control = g.hud
+			if hud == null:
+				return ["", null]
+			var rects: Dictionary = hud._layout()
+			var key: String = {"minimap": "mini", "card": "card", "hotbar": "hotbar", "groups": "hotbar", "objectives": ""}.get(String(p["ui"]), "")
+			var r := Rect2()
+			if String(p["ui"]) == "objectives":
+				r = Rect2(ui._obj.position, ui._obj.size)
+				return ["ui", r]
+			if String(p["ui"]) == "top":
+				r = Rect2(0, 0, hud.size.x, 40)
+			elif rects.has(key):
+				r = rects[key]
+			else:
+				return ["", null]
+			var xf: Transform2D = hud.get_global_transform()
+			return ["ui", Rect2(xf * r.position, xf.basis_xform(r.size))]
+		var w := Vector2.INF
+		if p.has("area"):
+			w = run.area_rect(String(p["area"])).get_center()
+		elif p.has("tag"):
+			for e in run.tagged(String(p["tag"])):
+				w = e.position if e is Unit else e.center()
+				break
+		elif p.has("kind"):
+			for e in g.units + g.buildings:
+				if e.team == g.human and not e.dead and e.kind == String(p["kind"]):
+					w = e.position if e is Unit else e.center()
+					break
+		if not w.is_finite():
+			return ["", null]
+		return ["world", get_viewport().get_canvas_transform() * w]
+
+	func _draw() -> void:
+		var tg := target()
+		if tg[0] == "":
+			return
+		var t := Time.get_ticks_msec() / 1000.0
+		var pulse := 0.5 + 0.5 * sin(t * 5.0)
+		var s := ui._scale
+		var vs := get_viewport_rect().size
+		if tg[0] == "ui":
+			var r: Rect2 = (tg[1] as Rect2).grow(4.0 + 4.0 * pulse)
+			draw_rect(r, Color(GOLD, 0.12 + 0.1 * pulse))
+			draw_rect(r, Color(0, 0, 0, 0.6), false, 7.0 * s)
+			draw_rect(r, GOLD, false, 4.0 * s)
+			# the arrow points at the frame from the screen's middle side
+			var c := r.get_center()
+			var dir := (c - vs * 0.5).normalized()
+			if dir == Vector2.ZERO:
+				dir = Vector2.DOWN
+			var tip := c - dir * (minf(r.size.x, r.size.y) * 0.5 + 10.0 + 8.0 * pulse)
+			if not r.has_point(tip):
+				tip = _edge_of(r, -dir)
+			_arrow(tip - dir * (8.0 * pulse), dir, s)
+			return
+		var p: Vector2 = tg[1]
+		var view := _view_rect(vs)
+		var inside := view.grow(-24.0 * s).has_point(p)
+		if inside:
+			var rad := (26.0 + 10.0 * pulse) * s
+			_ring(p, rad, Color(0, 0, 0, 0.55), 7.0 * s)
+			_ring(p, rad, GOLD, 4.0 * s)
+			_ring(p, rad * 0.55, Color(GOLD, 0.5), 2.0 * s)
+			_arrow(p - Vector2(0, rad + (10.0 + 12.0 * pulse) * s), Vector2.DOWN, s)
+		else:
+			var c := view.get_center()
+			var dir := (p - c).normalized()
+			var box := view.grow(-56.0 * s)
+			var tip := _edge_of(box, dir, c)
+			_arrow(tip + dir * (6.0 * pulse * s), dir, s)
+
+	## The part of the screen where the map is seen: under the top bar, above the HUD's bottom row (the group bar,
+	## the command card, the minimap). A spot behind the HUD counts as out of view: the arrow at the edge shows the way.
+	func _view_rect(vs: Vector2) -> Rect2:
+		var top := 44.0 * ui._scale
+		var bottom := vs.y
+		var hud: Control = ui.game.hud if is_instance_valid(ui.game) else null
+		if hud != null:
+			var rects: Dictionary = hud._layout()
+			var xf: Transform2D = hud.get_global_transform()
+			for k in ["hotbar", "card", "mini"]:
+				if rects.has(k):
+					var r: Rect2 = rects[k]
+					var y: float = (xf * r.position).y
+					if y > vs.y * 0.45:
+						bottom = minf(bottom, y)
+		return Rect2(0, top, vs.x, maxf(80.0, bottom - top))
+
+	## Where a ray from the rect's middle (or `from`) along `dir` leaves it.
+	func _edge_of(r: Rect2, dir: Vector2, from := Vector2.INF) -> Vector2:
+		var c := r.get_center() if not from.is_finite() else from
+		var tx := INF
+		var ty := INF
+		if absf(dir.x) > 0.001:
+			tx = ((r.end.x if dir.x > 0 else r.position.x) - c.x) / dir.x
+		if absf(dir.y) > 0.001:
+			ty = ((r.end.y if dir.y > 0 else r.position.y) - c.y) / dir.y
+		return c + dir * minf(tx, ty)
+
+	func _ring(c: Vector2, rad: float, col: Color, w: float) -> void:
+		var pts := PackedVector2Array()
+		for i in 33:
+			var a := TAU * i / 32.0
+			pts.append(c + Vector2(cos(a) * rad, sin(a) * rad * 0.55))
+		draw_polyline(pts, col, w, true)
+
+	## A fat arrow whose tip is at `tip`, pointing along `dir`.
+	func _arrow(tip: Vector2, dir: Vector2, s: float) -> void:
+		var n := Vector2(-dir.y, dir.x)
+		var L := 46.0 * s
+		var hw := 20.0 * s
+		var sw := 8.0 * s
+		var base := tip - dir * L * 0.5
+		var pts := PackedVector2Array([tip, base + n * hw, base + n * sw, tip - dir * L + n * sw, tip - dir * L - n * sw, base - n * sw, base - n * hw])
+		draw_colored_polygon(pts, GOLD)
+		var o := pts.duplicate()
+		o.append(tip)
+		draw_polyline(o, Color(0.1, 0.07, 0.03, 0.95), 3.0 * s, true)

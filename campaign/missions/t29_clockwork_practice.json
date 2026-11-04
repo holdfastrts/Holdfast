@@ -1,0 +1,159 @@
+{
+ "id": "t29_clockwork_practice",
+ "tutorial": true,
+ "normal_end": true,
+ "steps_end": "",
+ "title": "Practice: the Clockwork",
+ "summary": "A small game against an Easy computer playing the Brood, with hints along the way. Kill the Brood Mother to win.",
+ "learn": [
+  "A whole game, with hints",
+  "Win by destroying the enemy"
+ ],
+ "map": "kestrel_rise",
+ "modes": [
+  "solo"
+ ],
+ "sides": [
+  {
+   "id": "you",
+   "name": "The Clockwork"
+  },
+  {
+   "id": "foe",
+   "name": "The Brood"
+  }
+ ],
+ "teams": [
+  {
+   "id": "you",
+   "side": "you",
+   "faction": "clockwork",
+   "colour": 0,
+   "start": "standard",
+   "control": "p1"
+  },
+  {
+   "id": "foe",
+   "side": "foe",
+   "faction": "brood",
+   "colour": 2,
+   "start": "standard",
+   "control": "ai:easy:balanced"
+  }
+ ],
+ "areas": {
+  "enemy_base": [
+   66,
+   66,
+   16,
+   16
+  ],
+  "natural": [
+   3,
+   24,
+   10,
+   7
+  ]
+ },
+ "objectives": [
+  {
+   "id": "win",
+   "side": "you",
+   "primary": true,
+   "kind": "manual",
+   "text": "Kill the enemy's Brood Mother."
+  }
+ ],
+ "speakers": {
+  "teacher": {
+   "name": "Master Tock",
+   "side": "you"
+  }
+ },
+ "teacher": "teacher",
+ "steps": [
+  {
+   "id": "start",
+   "say": [
+    "A real game now, against an easy computer playing the Brood. I will give you hints.",
+    "The Brood has no buildings: kill its Brood Mother to win. First, more Winders."
+   ],
+   "task": "Train 3 more Winders.",
+   "wait": {
+    "more": {
+     "kind": "winder",
+     "count": 3
+    }
+   }
+  },
+  {
+   "id": "build",
+   "say": [
+    "Good. A second Cog Press, a Mainspring with Winders on it, and a Light Works. Mind the rings mesh."
+   ],
+   "task": "Build a Light Works.",
+   "wait": {
+    "built": {
+     "kind": "movement_works"
+    }
+   }
+  },
+  {
+   "id": "army",
+   "say": [
+    "Keep the Light Works busy: Clock Soldiers, one after another."
+   ],
+   "task": "Have 6 Clock Soldiers.",
+   "wait": {
+    "count": {
+     "mine": true,
+     "kind": "clock_soldier",
+     "at_least": 6
+    }
+   }
+  },
+  {
+   "id": "attack",
+   "say": [
+    {
+     "pc": "The Brood nests in the far corner. Gather your army, press A and click there. Strike the Mother.",
+     "phone": "The Brood nests in the far corner. Gather your army, tap ATTACK and tap there. Strike the Mother."
+    },
+    "Winders go with the army to repair it."
+   ],
+   "point": {
+    "area": "enemy_base"
+   },
+   "wait": {
+    "time": 99999
+   }
+  }
+ ],
+ "lines": {
+  "late1": {
+   "who": "teacher",
+   "text": "Your brass runs out in time. Build a second Clocktower at the foot of your ramp: fresh ground."
+  }
+ },
+ "triggers": [
+  {
+   "id": "late_hint",
+   "when": {
+    "time": 420
+   },
+   "do": [
+    {
+     "say": [
+      "late1"
+     ]
+    }
+   ]
+  }
+ ],
+ "lost": "The computer won this time. Build up, defend your ramp, and try again.",
+ "debrief": {
+  "you": {
+   "text": "You won a whole game. You are ready for a skirmish, or the campaign."
+  }
+ }
+}

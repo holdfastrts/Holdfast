@@ -9366,7 +9366,8 @@ func _tick_game(delta: float) -> void:
 func _check_end() -> void:
 	if mission:
 		mission.check_end()          # (a campaign mission ends by its objectives: MissionRun.check_end)
-		return
+		if over or not bool(mission.data.get("normal_end", false)):
+			return                   # ("normal_end": a tutorial's practice game also ends as a skirmish does)
 	var alive: Array = []
 	alive.resize(n_players())
 	alive.fill(0)
@@ -9655,6 +9656,12 @@ func _takes_kept(t: int, k: String, c: Vector2i, kk: String) -> bool:
 ## Pull down a finished building of your own (nothing comes back).
 ## THE GEAR VIEW (owner, 2026-10-27; the ` key, or GEAR VIEW on a Clockwork building's card): the whole gear network at a
 ## glance (GearNet._draw_view). A view only: nothing in the match changes, nothing is sent online.
+## Something the player did that a TUTORIAL lesson waits for (docs/tutorial.md): "minimap", "group_set", "group_select".
+func note_tutorial(what: String) -> void:
+	if mission:
+		mission.note(what)
+
+
 func toggle_gear_view() -> void:
 	gear_net.view = not gear_net.view
 	gear_net.queue_redraw()

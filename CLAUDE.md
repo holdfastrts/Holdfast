@@ -58,6 +58,12 @@
   perf-stutter: an Android follow-up if it only measured the computer (the owner's slowdowns were on the APK, growing
   late in the game, not at the start).
 
+- TUTORIAL (owner, 2026-11-04: "a TUTORIAL button and a CAMPAIGN button"), 0.30.0 (branch tutorial, docs/tutorial.md):
+  TUTORIAL beside CAMPAIGN (menu grid 4 x 3); lessons on the mission engine (campaign/tutorial.json, campaign/missions/
+  t*.json with "steps"; Tutorial, TutorialMenu; tutorial conditions and the `point` action in MissionRun; the pointer in
+  MissionUi): Basics, the Crown, the Clockwork, the Brood, and an Easy practice game per faction. tools/test_tutorial.gd
+  plays every lesson; texts in tools/i18n/campaign/tutorial.txt.
+
 - CAMPAIGN ENGINE (owner, 2026-11-03), 0.30.0 (branch campaign-engine, docs/campaign_engine.md): data in campaign/
   (campaign.json: storylines with hubs, hotspots, talks; missions/<id>.json; maps/ = map editor maps, id "campaign:<name>"),
   scripts/campaign/ (Campaign, MissionRun = game.mission, MissionUi, CampaignMenu, StillView), texts in
@@ -95,9 +101,6 @@
   - CROWN COLOUR IS PURPLE (owner, 2026-11-04 11:35): the Crown's standard colour changes to purple (stills done in purple;
   main menu painting assets/menu/battle.jpg to be redone by ChatGPT, the Crown was blue there). The mission 1 stills are in
   art/campaign/stills/p01_01..06 (move into campaign/ when wired in) (king pipe = also a main menu candidate).
-- TUTORIAL (owner, DECIDED 2026-11-04): a TUTORIAL button beside CAMPAIGN; Tutorial teaches the game, Campaign is the story
-  for players who know how to play. Cloud job on branch `tutorial` (lessons per faction on the mission engine); merge when
-  its last commit starts with "DONE: tutorial:".
 - IDEA BUCKET: the Clockwork tempo/beat (commands in a beat window, sync bonuses), owner 2026-11-04: "leave it in the idea
   bucket". TO DO LATER: translate every announcer line (Crown herald, Brood scientist) into pt/es voices.
 

@@ -1,0 +1,252 @@
+{
+ "id": "t20_clockwork",
+ "tutorial": true,
+ "title": "The Clockwork",
+ "summary": "Run the Clockwork's machine: Winders, the Clocktower and its gear rings, the Cog Presses for cogs and the Mainspring for Tension, then the Light Works and its Clock Soldiers.",
+ "learn": [
+  "Winders",
+  "The Clocktower and the gear rings (meshing, the GEAR VIEW)",
+  "Cog Presses (cogs) and the Mainspring (Tension)",
+  "Winding the machines",
+  "The Light Works and Clock Soldiers"
+ ],
+ "map": "kestrel_rise",
+ "modes": [
+  "solo"
+ ],
+ "sides": [
+  {
+   "id": "you",
+   "name": "The Clockwork"
+  },
+  {
+   "id": "nobody",
+   "name": "Nobody"
+  }
+ ],
+ "teams": [
+  {
+   "id": "you",
+   "side": "you",
+   "faction": "clockwork",
+   "colour": 0,
+   "start": "standard",
+   "hall_tag": "tower",
+   "control": "p1"
+  },
+  {
+   "id": "nobody",
+   "side": "nobody",
+   "faction": "crown",
+   "colour": 1,
+   "start": "none",
+   "control": "script"
+  }
+ ],
+ "speakers": {
+  "teacher": {
+   "name": "Master Tock",
+   "side": "you"
+  }
+ },
+ "teacher": "teacher",
+ "steps": [
+  {
+   "id": "tower",
+   "say": [
+    "Welcome to the Clockwork. I am Master Tock, and this is your Clocktower.",
+    "Beside it stands a Cog Press. Its Winders turn it, and it presses cogs: your money."
+   ],
+   "task": "Select the Clocktower.",
+   "point": {
+    "tag": "tower"
+   },
+   "wait": {
+    "selected": {
+     "kind": "clocktower"
+    }
+   }
+  },
+  {
+   "id": "winder",
+   "say": [
+    "Train a Winder. Winders wind the machines, carry the building crates and repair."
+   ],
+   "task": "Train a Winder.",
+   "point": {
+    "ui": "card"
+   },
+   "wait": {
+    "more": {
+     "kind": "winder"
+    }
+   }
+  },
+  {
+   "id": "gear_view",
+   "say": [
+    "Every Clockwork building stands on a ring of ground gears. A ring must mesh with your others, or it never turns.",
+    {
+     "pc": "Press the ` key, under Esc, or GEAR VIEW on a building's card, to see the whole network.",
+     "phone": "Tap GEAR VIEW on a building's card to see the whole network."
+    }
+   ],
+   "task": "Open the GEAR VIEW.",
+   "point": {
+    "ui": "card"
+   },
+   "do": [
+    {
+     "camera": {
+      "area": "home"
+     }
+    }
+   ],
+   "wait": {
+    "gear_view": true
+   }
+  },
+  {
+   "id": "gear_view_off",
+   "say": [
+    "Green rings turn at full speed. Red ones are stopped: they mesh with nothing.",
+    "Close the view again the same way."
+   ],
+   "task": "Close the GEAR VIEW.",
+   "wait": {
+    "gear_view": false
+   }
+  },
+  {
+   "id": "press",
+   "say": [
+    "Each Clocktower takes two Cog Presses. Build the second.",
+    {
+     "pc": "Select a Winder, press BUILD (B), pick the COG PRESS. While placing, G picks its ring: SMALL or BIG GEAR.",
+     "phone": "Select a Winder, tap BUILD, pick the COG PRESS. While placing, the gear button picks its ring: SMALL or BIG."
+    },
+    "Place it so its ring meshes with the others. A Winder carries its crate there."
+   ],
+   "task": "Build a second Cog Press.",
+   "point": {
+    "kind": "winder"
+   },
+   "do": [
+    {
+     "give": {
+      "team": "you",
+      "gold": 100
+     }
+    }
+   ],
+   "wait": {
+    "built": {
+     "kind": "cog_press",
+     "count": 2
+    }
+   }
+  },
+  {
+   "id": "press_crew",
+   "say": [
+    "Each Winder adds the same share of cogs. Train more Winders if you run short.",
+    {
+     "pc": "A press with nobody on it presses nothing. Select Winders and right-click the new press.",
+     "phone": "A press with nobody on it presses nothing. Select Winders and tap the new press."
+    }
+   ],
+   "task": "Put 2 Winders on each Cog Press.",
+   "wait": {
+    "crew": {
+     "kind": "cog_press",
+     "at_least": 2,
+     "count": 2
+    }
+   }
+  },
+  {
+   "id": "mainspring",
+   "say": [
+    "Cogs are your money. TENSION is your second resource, and the Mainspring winds it.",
+    "Build a Mainspring. Each Clocktower takes one."
+   ],
+   "task": "Build a Mainspring.",
+   "wait": {
+    "built": {
+     "kind": "mainspring"
+    }
+   }
+  },
+  {
+   "id": "tension",
+   "say": [
+    "Put Winders on the Mainspring to crank it. Its Tension flows through every meshed ring."
+   ],
+   "task": "Crank the Mainspring to 10 Tension.",
+   "point": {
+    "kind": "mainspring"
+   },
+   "wait": {
+    "res": {
+     "tension": 10
+    }
+   }
+  },
+  {
+   "id": "works",
+   "say": [
+    "Now the army. Build a Light Works: it assembles Clock Soldiers."
+   ],
+   "task": "Build a Light Works.",
+   "do": [
+    {
+     "give": {
+      "team": "you",
+      "gold": 100
+     }
+    }
+   ],
+   "wait": {
+    "built": {
+     "kind": "movement_works"
+    }
+   }
+  },
+  {
+   "id": "soldiers",
+   "say": [
+    "Select the Light Works and make two Clock Soldiers: quick swords behind a shield."
+   ],
+   "task": "Make 2 Clock Soldiers.",
+   "point": {
+    "kind": "movement_works"
+   },
+   "wait": {
+    "more": {
+     "kind": "clock_soldier",
+     "count": 2
+    }
+   }
+  },
+  {
+   "id": "end",
+   "say": [
+    "Machines run down away from a Clocktower or a Spring Tower. Winders crank them up again, and repair them.",
+    "Cogs, Tension and meshing rings: that is the Clockwork. Try it in a practice game."
+   ]
+  }
+ ],
+ "areas": {
+  "home": [
+   4,
+   2,
+   12,
+   10
+  ]
+ },
+ "debrief": {
+  "you": {
+   "text": "You trained a Winder, read the gear network, wound the presses and the Mainspring, and made Clock Soldiers."
+  }
+ }
+}

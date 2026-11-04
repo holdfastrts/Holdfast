@@ -1,0 +1,159 @@
+{
+ "id": "t39_brood_practice",
+ "tutorial": true,
+ "normal_end": true,
+ "steps_end": "",
+ "title": "Practice: the Brood",
+ "summary": "A small game against an Easy computer playing the Crown, with hints along the way. Destroy every enemy building to win.",
+ "learn": [
+  "A whole game, with hints",
+  "Win by destroying the enemy"
+ ],
+ "map": "kestrel_rise",
+ "modes": [
+  "solo"
+ ],
+ "sides": [
+  {
+   "id": "you",
+   "name": "The Brood"
+  },
+  {
+   "id": "foe",
+   "name": "The Crown"
+  }
+ ],
+ "teams": [
+  {
+   "id": "you",
+   "side": "you",
+   "faction": "brood",
+   "colour": 2,
+   "start": "standard",
+   "control": "p1"
+  },
+  {
+   "id": "foe",
+   "side": "foe",
+   "faction": "crown",
+   "colour": 1,
+   "start": "standard",
+   "control": "ai:easy:balanced"
+  }
+ ],
+ "areas": {
+  "enemy_base": [
+   66,
+   66,
+   16,
+   16
+  ],
+  "natural": [
+   3,
+   24,
+   10,
+   7
+  ]
+ },
+ "objectives": [
+  {
+   "id": "win",
+   "side": "you",
+   "primary": true,
+   "kind": "manual",
+   "text": "Destroy every enemy building."
+  }
+ ],
+ "speakers": {
+  "teacher": {
+   "name": "The Old Hunger",
+   "side": "you"
+  }
+ },
+ "teacher": "teacher",
+ "steps": [
+  {
+   "id": "start",
+   "say": [
+    "A real game now, against an easy computer playing the Crown. I will give you hints.",
+    "Win by destroying every enemy building. First, more grubs from the Mother."
+   ],
+   "task": "Lay 3 more grubs.",
+   "wait": {
+    "more": {
+     "kind": "grub",
+     "count": 3
+    }
+   }
+  },
+  {
+   "id": "build",
+   "say": [
+    "Good. Root a Mound Turtle for supply, and a Tyrant Sire beside the Mother."
+   ],
+   "task": "Root a Tyrant Sire.",
+   "wait": {
+    "rooted": {
+     "kind": "tyrannosaur"
+    }
+   }
+  },
+  {
+   "id": "army",
+   "say": [
+    "Now lay Raptor eggs, again and again. The swarm wins by numbers."
+   ],
+   "task": "Have 10 Raptors.",
+   "wait": {
+    "count": {
+     "mine": true,
+     "kind": "raptor",
+     "at_least": 10
+    }
+   }
+  },
+  {
+   "id": "attack",
+   "say": [
+    {
+     "pc": "The Crown sits in the far corner, behind its wall. Gather the swarm, press A and click their base.",
+     "phone": "The Crown sits in the far corner, behind its wall. Gather the swarm, tap ATTACK and tap their base."
+    },
+    "Keep the Mother home and keep her laying."
+   ],
+   "point": {
+    "area": "enemy_base"
+   },
+   "wait": {
+    "time": 99999
+   }
+  }
+ ],
+ "lines": {
+  "late1": {
+   "who": "teacher",
+   "text": "Your Rootmaws drink their ground dry in time. Root a turtle on new ground and a Rootmaw on its swamp."
+  }
+ },
+ "triggers": [
+  {
+   "id": "late_hint",
+   "when": {
+    "time": 420
+   },
+   "do": [
+    {
+     "say": [
+      "late1"
+     ]
+    }
+   ]
+  }
+ ],
+ "lost": "The computer won this time. Build up, defend your ramp, and try again.",
+ "debrief": {
+  "you": {
+   "text": "You won a whole game. You are ready for a skirmish, or the campaign."
+  }
+ }
+}

@@ -205,6 +205,7 @@ func group_do(g: int, mode: String, can_jump := true) -> void:
 	var gm := game()
 	var n := g + 1 if g < 9 else 0
 	var sel: Array = _alive(gm.selection)
+	gm.note_tutorial("group_select" if mode in ["", "join"] else "group_set")
 	match mode:
 		"set":
 			gm.groups[g] = sel.duplicate()

@@ -780,6 +780,7 @@ func _release(p: Vector2) -> void:
 
 
 func _minimap_to(p: Vector2) -> void:
+	game.note_tutorial("minimap")
 	var m := mini_rect()
 	var f := ((p - m.position) / m.size).clamp(Vector2.ZERO, Vector2.ONE)
 	var w := f * Vector2(Game.W, Game.H) * Game.T
