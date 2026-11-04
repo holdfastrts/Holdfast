@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.16", "items": [
+		"TWO NEW PLANS FOR THE BROOD COMPUTER (pick them in the PLAN list, or a random plan may land on them). SPITTER TIMING: the Venom Sire early, Spitters ahead of the Raptors, the Venom line's Bigger Clutch the moment he is on his nest, and a Spitter-backed wave from 6:30 that walks at the Spitters' pace (the Raptors just ahead of them, not running off alone); the economy grows behind it as in Balanced. Once what is left is behind a wall it has no Brutes to break, it comes home.",
+		"BRUTE SIEGE: the Mother grows to her third stage early, food and spoils are kept for Brutes, and with four Brutes and Battering Horns the push goes out: the Brutes batter the wall piece, gate or Ratchet Turret in the way while the Spitters cover them and the Raptors wait, then the whole swarm goes in through the breach. It falls back if its Brutes die or the wall holds.",
+		"In coached games on Hard the Spitter timing won all six (trade 2.7 to 1; Balanced 4 won, 1 drawn, 1 lost on the same games) and its wave hit the Clockwork hard; the Brute siege won 6 of 8 and broke every wall or turret its Brutes reached, but both win about a minute later than Balanced against the Crown.",
+	]},
 	{"v": "0.29.15", "items": [
 		"NEW ANNOUNCERS, RECORDED: the Crown's is now a royal herald (\"To arms! The town is under attack!\", \"Victory! God save the King!\") and the Brood's is the campaign's scientist, a gentleman who admires the creatures (\"Good heavens, they are attacking the nest!\", \"Another splendid specimen.\"). Both are the owner's recordings, levelled to the Clockwork's announcer. They speak English in every language for now.",
 		"The Brood's scientist has two lines of his own: \"The Mother! Someone protect the Mother!\" when your Brood Mother is attacked, and \"Oh dear. A Sire has fallen.\" when one of your fathers is killed. The Crown's herald now says \"Our men are out of powder!\" when your Musketeers or guns run dry.",

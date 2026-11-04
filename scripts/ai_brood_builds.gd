@@ -6,13 +6,14 @@ extends RefCounted
 ## `_nb_research`, `_nb_spoils_want`). Everything else is the Brood computer as it is (its economy, its defence, its
 ## retreat rules): the builds only decide WHEN the first push goes, WHAT it is made of and HOW it walks in.
 ##
-## SPITTER TIMING ("spitter"): the Venom Sire right after the Tyrant Sire, Spitters ahead of Raptors (about one for one),
-## the Venom line's Bigger Clutch then Long Spit, the economy growing behind it (grubs on the curve, the natural and a
-## turtle on new ground). THE TIMING: the wave leaves at the plan's time (wave_t) once TIMING_SP Spitters stand and Long
-## Spit is in (or at the latest TIMING_LATE with what it has). It walks at the Spitters' pace: the Raptors keep just ahead
-## of the Spitters' middle (FRONT tiles) instead of running ahead alone; on contact (enemy soldiers or a defence within
+## SPITTER TIMING ("spitter"): Balanced's economy, the Venom Sire saved for from 3:30 (18 grubs), Spitters ahead of Raptors
+## (about one for one; food kept for the next Spitter egg), the Venom line's Bigger Clutch the moment he is home (Long Spit
+## after the timing). THE TIMING: the wave leaves from the plan's time (wave_t, 6:30) once TIMING_SP hatched Spitters
+## stand (or at the latest TIMING_LATE with what it has). It walks at the Spitters' pace: the Raptors keep just ahead of
+## the Spitters' middle (FRONT tiles) instead of running ahead alone; on contact (enemy soldiers or a turret within
 ## CONTACT tiles of the Spitters) the Raptors go in and the Spitters spit from behind them. A lost fight comes home (the
-## Brood computer's retreat rules), and after it the plan plays on (waves every `step` supply).
+## Brood computer's retreat rules), and so does a wave whose next target is behind a wall it can't break (no Brutes).
+## After it the plan plays on (waves every `step` supply).
 ##
 ## BRUTE SIEGE ("brute"): her stage 3 early (Brutes need it), BRUTES_GO Brutes and BATTERING HORNS before the push. The
 ## push finds the BARRIER: the wall piece where the way to its goal is walled off (Game.find_path stops at it), or, with
