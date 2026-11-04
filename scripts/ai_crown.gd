@@ -1644,8 +1644,6 @@ func _threat_prod(labs: int, halls: int, army: int) -> bool:
 ## Gold the Brood walls (AIExpandWall.brood_walls) leave alone: the first Field Cannon's while it is awaited, the opening's.
 func brood_wall_keep() -> int:
 	var k := bo_reserve if bo_owns() else 0
-	if owner_on() and _ring_open():
-		return k                # (crown-owner-eco: the natural's ring before the first gun's gold: his palisade 3:49-5:42, his gun 6:03)
 	if cannon_first and _gun_waiting():
 		k += int(Defs.UNITS["cannon"]["cost"])
 	return k
@@ -1727,15 +1725,6 @@ func owner_hall_ok() -> bool:
 ## LABOURERS NON-STOP up to two halls' worth (the owner's 38 at 7:00, 42 at 8:00): the shared holds that wait for the army
 ## first (AIRound5.hold_labourers against the Clockwork) let them come on the owner's plans, unless a rush is feared or the
 ## enemy is at our buildings.
-## A new hall's wall ring not closed yet (AIExpandWall.CLOSED_SHARE).
-func _ring_open() -> bool:
-	for id in xw.plans:
-		var p: Dictionary = xw.plans[id]
-		if p.get("ok", false) and xw.closed_share(p) < xw.CLOSED_SHARE:
-			return true
-	return false
-
-
 func owner_labs(labs: int) -> bool:
 	return owner_on() and labs < OWNER_HALL3_LABS and not _defending() and _threat() == Vector2.INF
 
