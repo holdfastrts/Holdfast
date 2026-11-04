@@ -2769,6 +2769,8 @@ const T := {
 	"%s's Dragoons get off their horses and shoot at the workers.": "Os Dragões de %s desmontam e atiram nos trabalhadores.",
 	"%s's Dragoons mount and ride off before the defenders reach them.": "Os Dragões de %s montam e partem antes que os defensores os alcancem.",
 	"Owl raids": "Ataque de Corujas",
+	"MIXED": "MISTA",
+	"The orders and a whole picture every 10 seconds: almost free while you play; the replay plays the match again from them, close but not exact.": "As ordens e uma imagem completa a cada 10 segundos: quase de graça enquanto você joga; o replay joga a partida de novo a partir delas, parecido mas não exato.",
 	"How this computer player plays. The list shows the plans of this player's faction.": "Como este jogador do computador joga. A lista mostra os planos da facção deste jogador.",
 	"THE CAMPAIGN": "A CAMPANHA",
 	"Prologue: The Revolt": "Prólogo: A Revolta",

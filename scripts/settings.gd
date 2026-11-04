@@ -24,7 +24,7 @@ static var relay_url := "wss://pocketrts-relay.salgarellius-rts.workers.dev"   #
 static var language := "en"           # "en", "pt" or "es" (Loc)
 static var cw_lab := false            # the Clockwork roster prototype in every Clockwork match (docs/clockwork_units_prototype.md)
 static var replays_keep := 30         # replays kept (the newest; KEEP ones are never deleted)
-static var replay_rec := ""           # REPLAY RECORDING: "full", "light", "off"; "" = not chosen (replay_mode: LIGHT on a phone, FULL elsewhere)
+static var replay_rec := ""           # REPLAY RECORDING: "mixed", "full", "light", "off"; "" = not chosen (replay_mode: LIGHT on a phone, FULL elsewhere)
 static var narrator := true           # SPECTATOR NARRATOR: the AI STORY read out loud while watching computers (Narrator; N mutes)
 static var narrator_volume := 80      # NARRATOR VOLUME (0-100, the system voice's own volume)
 static var narrator_rate := 1.1       # NARRATOR SPEED (0.5-2: 1 is the voice's normal pace)
@@ -124,12 +124,14 @@ static func powder_smoke_level() -> int:
 
 ## REPLAY RECORDING (docs/replays.md "Lighter recording"): how a match is recorded. FULL: 5 pictures a second (the
 ## recorder's own rate), LIGHT: 2 a second (the viewer glides between them), OFF: no replay of a skirmish, a campaign
-## mission or a watched match (online still records, at LIGHT: the friends get the host's replay).
-const REPLAY_MODES := ["full", "light", "off"]
+## mission or a watched match (online still records, at LIGHT: the friends get the host's replay). MIXED (0.29.5,
+## docs/replay_mixed.md): the commands and a keyframe every 10 s, the replay plays the match again from them; the
+## default on a phone (LIGHT was before), where recording pictures costs the most.
+const REPLAY_MODES := ["mixed", "full", "light", "off"]
 static func replay_mode() -> String:
 	if REPLAY_MODES.has(replay_rec):
 		return replay_rec
-	return "light" if phone_device() else "full"
+	return "mixed" if phone_device() else "full"
 
 
 ## The game runs on a phone or tablet (the Android app, a mobile export), not a phone's browser (the web keeps FULL).

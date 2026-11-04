@@ -124,8 +124,10 @@ static func write(text: String) -> void:
 
 
 ## The whole match as one Dictionary (what save() writes as JSON); {} when there is nothing to save.
-static func capture(game: Game, cfg: Dictionary) -> Dictionary:
-	if game == null or game.over or game.edit_mode or game.demo:
+## `replay`: a MIXED replay's keyframe (ReplayMixRecorder): a watched match too, and each unit and building keeps its
+## id ("nid") and each unit its order ("o": [order, point, target id]) so the viewer can go on from it.
+static func capture(game: Game, cfg: Dictionary, replay := false) -> Dictionary:
+	if game == null or game.edit_mode or ((game.over or game.demo) and not replay):
 		return {}
 	var d := {"version": ProjectSettings.get_setting("application/config/version", "dev"),
 		"saved_at": Time.get_datetime_string_from_system(false, true), "cfg": cfg, "clock": game.clock,
@@ -151,6 +153,8 @@ static func capture(game: Game, cfg: Dictionary) -> Dictionary:
 			"crate": "ground" if b.crate == "carried" else b.crate,
 			"rally": _v2(b.rally) if b.rally != Vector2.INF else null,
 			"wrally": _v2(b.worker_rally) if b.worker_rally != Vector2.INF else null})
+		if replay:
+			d["buildings"].back()["nid"] = b.net_id
 	# every saved unit's number (in this list's order), so horses can name who leads them
 	var ids := {}
 	for u in game.units:
@@ -169,6 +173,14 @@ static func capture(game: Game, cfg: Dictionary) -> Dictionary:
 			"sky": u.sky if u.sky != "to_land" else "air",
 			"pw": u.powder, "ab": u._auto_bayonet, "sup": u.supplying, "tw": u.team_want,
 			"spin": u.spin, "brace": u.braced, "shd": u.shield_up, "ovc": u.overcharge_t, "sw": u.self_wind_t, "ct": u.carry_t}
+		if replay:
+			ud["nid"] = u.net_id
+			var ot = u.order_target if u.order_target != null and is_instance_valid(u.order_target) else null
+			if u.order == "gather" and ot == null and u.home_mine != null and is_instance_valid(u.home_mine):
+				ot = u.home_mine
+			ud["o"] = [u.order, _v2(u.order_point), ot.net_id if ot is Entity else 0]
+			if u.work != "":
+				ud["wk"] = [u.work, snappedf(u.work_t, 0.01)]      # (a worker's step in its round: to the site, at work, back)
 		if Defs.ARMOURED.has(u.kind):
 			ud["kit"] = u.get_kit()
 			if not u.refit.is_empty():
@@ -428,6 +440,7 @@ static func restore(game: Game, d: Dictionary) -> void:
 		if bk == "farm" and Array(d.get("farm_size", [])) != [float(Defs.BUILDINGS["farm"]["size"].x), float(Defs.BUILDINGS["farm"]["size"].y)]:
 			at = _fit(game, at, Defs.BUILDINGS[bk]["size"])
 		var b := game._add_building(bk, int(bd["t"]), at, bool(bd["built"]), bool(bd.get("ghost", false)))
+		b.net_id = int(bd.get("nid", 0))       # (a mixed replay's keyframe: its id, for the commands after it)
 		b.progress = float(bd["progress"])
 		b.hp = float(bd["hp"])
 		# (research is in the queue as "@key")
@@ -521,6 +534,7 @@ static func restore(game: Game, d: Dictionary) -> void:
 			continue
 		var u := game._add_unit(uk, int(ud["t"]), _to_v2(ud["p"]))
 		made.append(u)
+		u.net_id = int(ud.get("nid", 0))
 		if Defs.ARMOURED.has(uk):
 			# his own refits (older saves: research applied to every Musketeer, so he has it
 			# all; and every Cuirassier was armoured)

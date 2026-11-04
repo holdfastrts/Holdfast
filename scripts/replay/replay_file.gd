@@ -8,6 +8,9 @@ extends RefCounted
 ##             each frame [u32 size][var_to_bytes(the snapshot)] (NetSnapshot.build, every side's units)
 ##   T_EVENTS  var_to_bytes: [[time, "chat", team, text], [time, "end", winner, note]...] since the last record
 ##   T_FOOT    var_to_bytes: how it ended (winner, length, note); missing if the game closed before the end
+## A MIXED replay (format 3, ReplayMixRecorder, docs/replay_mixed.md) has no chunks of pictures; instead:
+##   T_KEY     the whole match (SaveGame.capture with ids and orders) every ~10 s: u32 raw size + zstd(var_to_bytes)
+##   T_CMDS    the commands since the keyframe before, [[clock, who, function, args]...]: u32 raw size + zstd(var_to_bytes)
 ## Next to it, replay_<date>.json: what the REPLAYS list shows (players, map, result, length, kept), so the list
 ## never opens the big files.
 
@@ -18,6 +21,8 @@ const T_HEAD := 1
 const T_CHUNK := 2
 const T_EVENTS := 3
 const T_FOOT := 4
+const T_KEY := 5
+const T_CMDS := 6
 const KEEP_DEFAULT := 30
 const REC_HEAD := 13          # bytes before a record's payload
 
@@ -114,12 +119,28 @@ static func unpack_frames(payload: PackedByteArray) -> Array:
 	return out
 
 
+## A keyframe's payload (T_KEY) back to its Dictionary ({} if damaged).
+static func unpack_key(payload: PackedByteArray) -> Dictionary:
+	if payload.size() < 5:
+		return {}
+	var n := payload.decode_u32(0)
+	if n > 256 * 1024 * 1024:
+		return {}
+	var d = bytes_to_var(payload.slice(4).decompress(n, FileAccess.COMPRESSION_ZSTD))
+	return d if d is Dictionary else {}
+
+
+## A mixed replay (format 3: keyframes and commands, ReplayMix) rather than pictures.
+static func is_mixed(d: Dictionary) -> bool:
+	return String((d.get("header", {}) as Dictionary).get("mode", "")) == "mixed"
+
+
 # ------------------------------------------------------------------ reading
 
 ## Everything in a replay's bytes: {"ok", "header", "chunks": [{t0, t1, data}], "events", "footer", "truncated"}.
 ## A record cut short (the game closed while writing it) ends the reading: what came before still plays.
 static func parse(bytes: PackedByteArray) -> Dictionary:
-	var out := {"ok": false, "header": {}, "chunks": [], "events": [], "footer": {}, "truncated": false}
+	var out := {"ok": false, "header": {}, "chunks": [], "events": [], "footer": {}, "truncated": false, "keys": [], "cmds": []}
 	if bytes.size() < 4 or bytes.slice(0, 4).get_string_from_ascii() != MAGIC:
 		return out
 	var i := 4
@@ -151,7 +172,13 @@ static func parse(bytes: PackedByteArray) -> Dictionary:
 				var ft = bytes_to_var(body)
 				if ft is Dictionary:
 					out["footer"] = ft
-	out["ok"] = not (out["header"] as Dictionary).is_empty() and not (out["chunks"] as Array).is_empty()
+			T_KEY:
+				(out["keys"] as Array).append({"t0": t0, "t1": t1, "data": body})
+			T_CMDS:
+				var cl = bytes_to_var(body.slice(4).decompress(body.decode_u32(0), FileAccess.COMPRESSION_ZSTD)) if body.size() >= 5 and body.decode_u32(0) < 64 * 1024 * 1024 else null
+				if cl is Array:
+					(out["cmds"] as Array).append_array(cl)
+	out["ok"] = not (out["header"] as Dictionary).is_empty() and (not (out["chunks"] as Array).is_empty() or not (out["keys"] as Array).is_empty())
 	return out
 
 
@@ -176,7 +203,7 @@ static func scan_length(path: String) -> float:
 		var t1 := f.get_float()
 		if f.get_position() + sz > f.get_length():
 			break
-		if type == T_CHUNK:
+		if type == T_CHUNK or type == T_KEY or type == T_CMDS:
 			last = maxf(last, t1)
 		f.seek(f.get_position() + sz)
 	f.close()
@@ -309,7 +336,7 @@ static func import_bytes(bytes: PackedByteArray, keep_name := "", me := -2, tag 
 	f.close()
 	var m := meta_from(r["header"], r["footer"], path, me)
 	if m["len"] <= 0.0:
-		m["len"] = (r["chunks"] as Array).back()["t1"]
+		m["len"] = (r["chunks"] as Array).back()["t1"] if not (r["chunks"] as Array).is_empty() else (r["keys"] as Array).back()["t1"]
 		m["result"] = "unfinished"
 	write_meta(path, m)
 	return path

@@ -56,8 +56,8 @@ static func rate_for(mode: String, online_host: bool) -> float:
 	match mode:
 		"off":
 			return RATE_LIGHT if online_host else 0.0
-		"light":
-			return RATE_LIGHT
+		"light", "mixed":
+			return RATE_LIGHT        # (MIXED where pictures are still needed: an online guest's own record, ReplayMixRecorder)
 	return RATE
 
 
@@ -173,6 +173,11 @@ func note_cam(team: int, v: Vector3) -> void:
 		return
 	_cams_new[team] = v
 	_cams_last[team] = v
+
+
+## A command ran (Game.net_forward): only a MIXED recording keeps them (ReplayMixRecorder.note_cmd); pictures need none.
+func note_cmd(_who: Object, _fn: String, _args: Array) -> void:
+	pass
 
 
 func note_chat(team: int, text: String) -> void:

@@ -51,6 +51,10 @@
   Springer: jump recharge 10 -> 6-7 s, range 5 -> 6-7 tiles, Springer range 170 -> 190, High Leap 100 -> 50 Tension; the
   build reports' own proposals (docs/clockwork_builds_*.md, docs/crown_builds_*.md).
 
+- MIXED REPLAYS built by the cloud job replay-mixed (0.29.5, docs/replay_mixed.md): Settings REPLAY RECORDING MIXED
+  (default on phones; FULL stays the computers' default): commands (Game.net_forward/net_set -> ReplayRecorder.note_cmd),
+  the computers' decisions as order/queue diffs twice a second (no AI runs in playback), a SaveGame keyframe every
+  10 s; ReplayMix plays the real game from the keyframes and corrects in place; format 3 (T_KEY, T_CMDS).
 - REPLAYS, NEXT (owner said yes, 2026-11-03): after the perf-stutter job reports, a job for MIXED replays: record the
   players' commands (StarCraft-style) plus one full keyframe every ~10 s instead of 5 pictures a second; playback re-runs
   the commands between keyframes and each keyframe corrects drift (determinism a bonus, not a must). The quick Settings

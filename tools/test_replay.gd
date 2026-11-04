@@ -13,6 +13,9 @@ extends SceneTree
 ## recorder and no replay file. Every run also plays 10 s at 1x from the middle and measures how far each unit is
 ## drawn from where it really was at that moment ("GLIDE"; every tick's true places kept in the match), the price of
 ## fewer pictures.
+## rec:mixed: a MIXED replay (docs/replay_mixed.md: the commands and a keyframe every 10 s). It is played back by the real
+## game from its keyframes; it measures the DRIFT (how far units stray from where they really were) over 10 s without
+## the keyframes' correction and with it, the seek time, and checks the commands were given again.
 var main: Node
 var t := 0.0
 var g: Game
@@ -34,7 +37,7 @@ var _spawned := false
 var _bench := {}
 var _spawned_units: Array = []
 var _march_n := -1
-var _marks: Array = [300.0, 600.0, 1200.0]
+var _marks: Array = [120.0, 300.0, 600.0, 1200.0]
 var _mark_clk := 0.0
 var _mark_us := 0
 var _mark_n := 0
@@ -44,6 +47,8 @@ var _fine_from := 0.0
 var _gl_d: Array = []           # GLIDE: each unit's distance from its true place, each frame
 var _gl_frames := 0
 var _replays_before: Array = []     # (the replay files before the match: OFF adds none)
+var _mtruth: Array = []         # MIXED: [clock, {id: [kind, team, place, health]}] twice a second (the ids the keyframes gave)
+var _mt_n := -1
 
 
 ## The match as it is the moment a picture is taken.
@@ -75,10 +80,12 @@ func _spawn() -> void:
 
 ## Every 4 s half the added soldiers walk somewhere else (the rest stand or fight where they are).
 func _march() -> void:
+	g.input_cmd = true           # (as a player's orders: a mixed replay records them as commands)
 	for u in _spawned_units:
 		if is_instance_valid(u) and not u.dead and randf() < 0.5:
 			var to := g.cell_center(g.nearest_free(g.cell_of(u.position + Vector2.from_angle(randf() * TAU) * 300.0), 10))
 			u.give({"o": "move", "p": to})
+	g.input_cmd = false
 
 
 func _initialize() -> void:
@@ -115,6 +122,8 @@ func _process(delta: float) -> bool:
 			return _play()
 		"watch":
 			return _watch()
+		"watch_mixed":
+			return _watch_mixed()
 	return false
 
 
@@ -158,6 +167,13 @@ func _play() -> bool:
 			if is_instance_valid(x) and not x.dead and x.net_id != 0:
 				fu[x.net_id] = x.position
 		_fine.append([g.clock, fu])
+	if rec_mode == "mixed" and int(g.clock * 2.0) != _mt_n:
+		_mt_n = int(g.clock * 2.0)
+		var mu := {}
+		for x in g.units:
+			if is_instance_valid(x) and not x.dead and x.net_id != 0 and not x.off_field:
+				mu[x.net_id] = [x.kind, x.team, x.position, x.hp]
+		_mtruth.append([g.clock, mu])
 	if spawn > 0 and not _spawned and g.clock >= 30.0:
 		_spawned = true
 		_spawn()
@@ -181,6 +197,28 @@ func _play() -> bool:
 	if g.clock >= secs or g.over:
 		rec_line = rec.cost_line()
 		print("RECORDER %s %s" % [rec_mode.to_upper(), rec_line])
+		if OS.get_cmdline_user_args().has("recordonly"):
+			print("RECORDER %s %s" % [rec_mode.to_upper(), rec.cost_line()])
+			rec.finish(-1)
+			quit(0)
+			return true
+		if rec_mode == "mixed":
+			check("mixed_recorder", rec is ReplayMixRecorder and int(rec.header.get("format", 0)) == ReplayMixRecorder.FORMAT_MIXED and rec.n_keys >= int(g.clock / ReplayRecorder.KEY_SECS),
+				"%d keyframes in %.0f s, %d commands" % [rec.n_keys, g.clock, (rec as ReplayMixRecorder).n_cmds])
+			if spawn > 0:
+				check("mixed_commands", (rec as ReplayMixRecorder).n_cmds > 10, "%d commands recorded (the marching orders)" % (rec as ReplayMixRecorder).n_cmds)
+			rec_path = rec.finish(g.winner if g.over else -1)
+			check("replay_written", rec_path != "" and FileAccess.file_exists(rec_path), rec_path)
+			var msize := FileAccess.get_file_as_bytes(rec_path).size()
+			print("SIZE %.0f s of match: %d KB (%.1f KB a minute), %d units at the end" % [g.clock, msize / 1024, msize / 1024.0 / g.clock * 60.0, g.units.size()])
+			var mm := ReplayFile.read_meta(rec_path)
+			check("replay_listed", ReplayFile.list().any(func(x: Dictionary) -> bool: return String(x["path"]) == rec_path) and String(mm.get("result", "")) != "",
+				"result %s, %s" % [mm.get("result"), ReplayPlayer.clock_text(float(mm.get("len", 0)))])
+			stage = "watch_mixed"
+			main._to_menu()
+			main.start_replay(rec_path)
+			_wait = 0
+			return false
 		var want_rate := ReplayRecorder.RATE_LIGHT if rec_mode == "light" else ReplayRecorder.RATE
 		var pics := rec.n_frames / maxf(g.clock - float(rec.header.get("t0", 0.0)), 1.0)
 		check("rate_in_header", absf(float(rec.header.get("rate", 0.0)) - want_rate) < 0.001 and pics <= want_rate + 0.2 and pics >= want_rate * 0.55,
@@ -568,3 +606,239 @@ func _make_variants() -> void:
 	var sl_now := {"cfg": {"slots": [{"faction": "crown"}, {"faction": "brood"}]}, "brood": Defs.BROOD_FORMAT}
 	check("old_brood_save", SaveGame.old_brood(sl_old) and not SaveGame.old_brood(sl_exp) and not SaveGame.old_brood(sl_now),
 		"old save with the old Brood %s, with the experiment %s, today's %s" % [SaveGame.old_brood(sl_old), SaveGame.old_brood(sl_exp), SaveGame.old_brood(sl_now)])
+
+
+# ------------------------------------------------------------------ a MIXED replay played back (docs/replay_mixed.md)
+
+var _ms := 0
+var _mk: Array = []             # the keyframe times the drift runs start at
+var _mrun := {}                 # the run going: {"t0", "corr", "d": {secs since start: [distances]}}
+var _mres: Array = []
+var _mseek: Array = []          # seek times (real ms)
+var _mframes := 0
+
+
+const WORKERS := ["labourer", "winder", "grub"]
+
+
+## Each unit (by id) against where it really was at the truth's sample nearest the shown clock (army: no workers).
+func _mixed_off(rp: ReplayMix, army := false) -> Array:
+	var best := -1
+	var bd := 1e9
+	for i in _mtruth.size():
+		var d := absf(float(_mtruth[i][0]) - g.clock)
+		if d < bd:
+			bd = d
+			best = i
+	if best < 0 or bd > 0.017:
+		return []
+	var tr: Dictionary = _mtruth[best][1]
+	var out: Array = []
+	for u in g.units:
+		if not is_instance_valid(u) or u.dead or u.net_id == 0 or not tr.has(u.net_id) or u.off_field:
+			continue
+		if army and WORKERS.has(String(tr[u.net_id][0])):
+			continue
+		out.append(u.position.distance_to(tr[u.net_id][2]))
+	return out
+
+
+func _drift_debug() -> void:
+	var best := -1
+	var bd := 1e9
+	for i in _mtruth.size():
+		var d := absf(float(_mtruth[i][0]) - g.clock)
+		if d < bd:
+			bd = d
+			best = i
+	var tr: Dictionary = _mtruth[best][1]
+	var rows: Array = []
+	for u in g.units:
+		if is_instance_valid(u) and not u.dead and tr.has(u.net_id):
+			rows.append([u.position.distance_to(tr[u.net_id][2]), u.kind, u.team, u.order, u.work if "work" in u else "", u.carrying, u.path.size() if "path" in u else -1])
+	rows.sort_custom(func(a, b) -> bool: return a[0] > b[0])
+	print("DRIFT_DEBUG at %.2f: %s" % [g.clock, str(rows.slice(0, 12))])
+
+
+static func _stats(a: Array) -> String:
+	if a.is_empty():
+		return "no units"
+	a.sort()
+	var mean := 0.0
+	for x in a:
+		mean += float(x)
+	mean /= a.size()
+	return "mean %.1f px, median %.1f, 95%% under %.0f, worst %.0f (%d units)" % [mean, float(a[a.size() / 2]), float(a[int(a.size() * 0.95)]), float(a.back()), a.size()]
+
+
+func _p95(a: Array) -> float:
+	if a.is_empty():
+		return 0.0
+	a.sort()
+	return float(a[int(a.size() * 0.95)])
+
+
+func _watch_mixed() -> bool:
+	_wait += 1
+	if _wait < 3:
+		return false
+	g = main.game
+	var rp = g.replay if g != null else null
+	if not (rp is ReplayMix):
+		check("mixed_viewer_open", false, "no ReplayMix: %s" % str(rp))
+		quit(1)
+		return true
+	var mx: ReplayMix = rp
+	if mx.seeking():
+		_mframes += 1
+		return false
+	match _ms:
+		0:
+			check("mixed_viewer_open", not g.puppet and g.demo and g.replay == mx and g.net == null,
+				"length %s, %d keyframes, %d commands, AIs %d" % [ReplayPlayer.clock_text(mx.length), mx.keys.size(), mx.cmd_list.size(), g.ais.size()])
+			var nk := mx.keys.size()
+			for f in [0.3, 0.5, 0.7]:
+				var ki := clampi(int(nk * f), 1, nk - 3)
+				_mk.append(float(mx.keys[ki]["t0"]))
+			_ms = 1
+		1:
+			# drift runs: from a keyframe, 10 s with the corrections off, then 30 s with them on (across three keyframes)
+			if _mrun.is_empty():
+				if _mk.is_empty():
+					_ms = 2
+					return false
+				var kt: float = _mk.pop_front()
+				for corr in [false, true]:
+					_mres.append({"t0": kt, "corr": corr, "d": {}})
+				_mrun = _mres[_mres.size() - 2]
+				mx.corr_on = false
+				mx.seek(kt)
+				mx.set_speed(1.0)
+				mx.set_playing(true)
+				return false
+			var el := g.clock - float(_mrun["t0"])
+			var sec := snappedf(el, 0.5)
+			var dd: Dictionary = _mrun["d"]
+			if not dd.has(sec):
+				var off := _mixed_off(mx)      # (only on a tick the truth has a sample of: twice a second)
+				if not off.is_empty():
+					dd[sec] = off
+					if not _mrun.has("a"):
+						_mrun["a"] = {}
+					_mrun["a"][sec] = _mixed_off(mx, true)
+					if OS.get_cmdline_user_args().has("debug") and (sec == 1.0 or sec == 3.0) and not bool(_mrun["corr"]):
+						_drift_debug()
+			var span := 30.0 if bool(_mrun["corr"]) else 10.0
+			if el >= span + 0.1 or mx.at_end:
+				if not bool(_mrun["corr"]):
+					_mrun = _mres[_mres.size() - 1]
+					mx.corr_on = true
+					mx.seek(float(_mrun["t0"]))
+					mx.set_speed(1.0)
+					mx.set_playing(true)
+				else:
+					_mrun = {}
+		2:
+			var no_c: Dictionary = {}
+			var wi_c: Array = []
+			var wi_after: Array = []
+			for r in _mres:
+				var d: Dictionary = r["d"]
+				for sec in d:
+					if not bool(r["corr"]):
+						if not no_c.has(sec):
+							no_c[sec] = []
+						no_c[sec].append_array(d[sec])
+					else:
+						wi_c.append_array(d[sec])
+						var into := fmod(float(sec), ReplayRecorder.KEY_SECS)
+						if into >= 0.9 and into <= 1.1:
+							wi_after.append_array(d[sec])
+			var first: Array = []
+			for r in _mres:
+				if not bool(r["corr"]):
+					for sec in r["d"]:
+						if float(sec) <= 0.5:
+							first.append_array(r["d"][sec])
+			check("mixed_key_exact", not first.is_empty() and _p95(first.duplicate()) < 40.0, "within half a second of a keyframe (no correction yet): %s" % _stats(first.duplicate()))
+			var no_a := {}
+			var wi_a: Array = []
+			for r in _mres:
+				var da: Dictionary = r.get("a", {})
+				for sec in da:
+					if not bool(r["corr"]):
+						if not no_a.has(sec):
+							no_a[sec] = []
+						no_a[sec].append_array(da[sec])
+					else:
+						wi_a.append_array(da[sec])
+			for sec in [1.0, 2.0, 5.0, 9.5]:
+				print("DRIFT no correction, %.1f s after a keyframe: %s" % [sec, _stats(no_c.get(sec, []).duplicate())])
+				print("DRIFT   (army only, no workers): %s" % _stats(no_a.get(sec, []).duplicate()))
+			print("DRIFT with correction, army only, every sample: %s" % _stats(wi_a.duplicate()))
+			print("DRIFT with correction, every sample over 30 s: %s" % _stats(wi_c.duplicate()))
+			print("DRIFT with correction, 1 s after each keyframe (the glide done): %s" % _stats(wi_after.duplicate()))
+			var p10 := _p95(no_c.get(9.5, []).duplicate())
+			var p5 := _p95(no_c.get(5.0, []).duplicate())
+			var pc := _p95(wi_c.duplicate())
+			_bench["drift_10s_p95"] = p10
+			_bench["drift_corr_p95"] = pc
+			check("mixed_corrected_drift", not wi_c.is_empty() and pc <= maxf(p10, p5) * 1.1 + 1.0 and _p95(wi_after.duplicate()) <= maxf(p5, 40.0),
+				"with the keyframes 95%% of units within %.0f px (without, after 10 s: %.0f px)" % [pc, p10])
+			check("mixed_drift_bounded", p10 <= 250.0 and pc <= 150.0, "95%% of units within %.0f px 10 s after a keyframe without correction (bound 250), %.0f px with it (bound 150)" % [p10, pc])
+			check("mixed_commands_given", mx.n_run > 0 or mx.cmd_list.is_empty(), "%d commands given, %d lost" % [mx.n_run, mx.n_lost])
+			# seeking: to the end of a 10 s stretch (the longest run forward), and back
+			_mseek = []
+			var nk := mx.keys.size()
+			var kt := float(mx.keys[clampi(nk / 2, 0, nk - 2)]["t0"])
+			mx.set_speed(1.0)
+			mx.seek(kt + 9.5)
+			_mframes = 0
+			_ms = 3
+		3:
+			_mseek.append([mx.ff_ms, _mframes])
+			var nk := mx.keys.size()
+			mx.seek(float(mx.keys[clampi(nk / 4, 0, nk - 2)]["t0"]) + 5.0)
+			_mframes = 0
+			_ms = 4
+		4:
+			_mseek.append([mx.ff_ms, _mframes])
+			var ok := absf(mx.play_t - (float(mx.keys[clampi(mx.keys.size() / 4, 0, mx.keys.size() - 2)]["t0"]) + 5.0)) < 0.1
+			print("SEEK mixed: 9.5 s past a keyframe %.0f ms (%d frames), 5 s past %.0f ms (%d frames)" % [_mseek[0][0], _mseek[0][1], _mseek[1][0], _mseek[1][1]])
+			_bench["seek_ms"] = [_mseek[0][0], _mseek[1][0]]
+			var stale := 0
+			for u in g.units:
+				if is_instance_valid(u) and not u.dead and u.net_id != 0 and mx._by_nid.get(u.net_id) != u:
+					stale += 1
+			check("mixed_seek", ok and stale == 0, "at %s (asked %s), stale %d" % [ReplayPlayer.clock_text(mx.play_t), ReplayPlayer.clock_text(float(mx.keys[clampi(mx.keys.size() / 4, 0, mx.keys.size() - 2)]["t0"]) + 5.0), stale])
+			# pause holds the clock; the viewer orders nothing
+			mx.set_playing(false)
+			_p0 = mx.play_t
+			_wt = 0.0
+			_ms = 5
+		5:
+			_wt += 1.0
+			if _wt >= 20.0:
+				check("mixed_pause_holds", absf(mx.play_t - _p0) < 0.001, "clock %.2f -> %.2f" % [_p0, mx.play_t])
+				var u0: Unit = null
+				for u in g.units:
+					if is_instance_valid(u) and not u.dead and u.kind != "horse" and float(u.d.get("speed", 0.0)) > 0.0:
+						u0 = u
+						break
+				if u0:
+					var was := u0.order_point
+					g.input_cmd = true
+					u0.give({"o": "move", "p": u0.position + Vector2(300, 0)})
+					g.input_cmd = false
+					check("mixed_viewer_orders_nothing", u0.order_point == was, "a click's order to %s was dropped" % u0.kind)
+				mx.set_playing(true)
+				mx.seek(mx.length)
+				_ms = 6
+		6:
+			check("mixed_seek_to_end", mx.at_end, "at %s of %s" % [ReplayPlayer.clock_text(mx.play_t), ReplayPlayer.clock_text(mx.length)])
+			main._to_replays()
+			print("BENCH %s" % str(_bench))
+			print("ALL OK" if failed == 0 else "SOME FAILED (%d)" % failed)
+			quit(0 if failed == 0 else 1)
+			return true
+	return false
