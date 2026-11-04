@@ -270,14 +270,8 @@ func _mother() -> void:
 	for i in 3:
 		print("stage %d: bar top now %.0f, highest while laying %.0f" % [BroodNew.stage(ms[i]) + 1, ms[i].bar_top(), lo[i]])
 	_report([], ms)
-	for m in ms:
-		var sp: Sprite2D = m.sprite
-		print("  anim %s tex %s h%d v%d frame %d scale %s pos %s off %s strip %.0f body %s" % [m.anim, sp.texture.resource_path.get_file(), sp.hframes, sp.vframes, sp.frame, sp.global_scale, sp.position, sp.offset, BroodRoot.strip_top(m) - m.position.y, BroodRoot.body_rect(m).position.y - m.position.y])
 	await _look(Vector2((o.x + 27.0) * Defs.TILE, (o.y + 9.0) * Defs.TILE), 0.8)
 	await _snap("mother_stages")
-	for m in ms:
-		var sp: Sprite2D = m.sprite
-		print("  shot: anim %s tex %s frame %d/%d strip %.0f body %.0f bar %.0f" % [m.anim, sp.texture.resource_path, sp.frame, sp.hframes, BroodRoot.strip_top(m) - m.position.y, BroodRoot.body_rect(m).position.y - m.position.y, m.bar_top()])
 	for i in 3:
 		await _look(ms[i].position + Vector2(0, -60 - 40 * i), 1.5)
 		await _snap("mother_stage%d" % (i + 1), 0.3)

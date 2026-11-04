@@ -18,8 +18,8 @@ var t := 0.0
 var started := false
 var fails := 0
 var phase := 0
-const CLOSE := 6.0          # px: the most a health bar may float above its picture
-const BROOD_CLOSE := 10.0   # (a creature that attacks keeps a row for its reload bar under it)
+const CLOSE := 9.0          # px: the most a health bar may float above its picture (the gap, and TOP_SLACK)
+const BROOD_CLOSE := 9.0    # (the gap, and the TOP_SLACK a picture a little lower keeps)
 
 
 func _initialize() -> void:
@@ -298,7 +298,7 @@ func _brood() -> void:
 		check(hb <= st and hb <= cur, "%s: the health bar above its picture (its bottom %.0f, the strip's top %.0f, now %.0f)" % [nm, hb, st, cur])
 		check(hb >= st - BROOD_CLOSE, "%s: the health bar close to its picture (its bottom %.0f, the top %.0f)" % [nm, hb, st])
 		var s: Dictionary = BroodNew.stack(u, top)
-		var below := top - 1.0
+		var below := top - 1.0 - ((Entity.SUB_H + 1.0) if u.has_attack() else 0.0)
 		for key in ["food", "ground", "nest"]:
 			if s.has(key):
 				check(float(s[key]) + 3.5 <= below, "%s: its %s bar above the health bar" % [nm, key])

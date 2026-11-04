@@ -1559,6 +1559,8 @@ static func stack(u: Unit, top: float) -> Dictionary:
 	var font := ThemeDB.fallback_font
 	var mine := u.team == g.human or g.demo or g.spectating()
 	var c := top - 1.0 - STACK_GAP            # (the health bar's edge, then the gap)
+	if u.has_attack():
+		c -= Entity.SUB_H + 1.0                # (its reload bar's row, flush over the health bar: Unit._draw_unit)
 	var s := {}
 	if mine and u.kind == MAW:
 		s["food"] = c - 0.5 - 3.0

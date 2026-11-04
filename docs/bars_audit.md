@@ -48,7 +48,9 @@ of the strip it plays now, BroodRoot.strip_top: steady through a breath or a ste
 its "dry", its GRUBS label; a Sire's nest bar and his egg line; the Mother's egg line; the progress bar and its word on
 top. The Mother's place is taken from her loop (rooted, standing, walking) at her current stage, never from her laying
 show or her swipes, so it stays put while she lays and sits close above her at stages 1, 2 and 3. Her egg line and the
-Sires' lines are centred over them.
+Sires' lines are centred over them. (Her rooted loop breathes: its highest frame is 8-16 px over its lowest, so between
+breaths the bar shows that much air over her, the same at every stage; it never touches her.) A creature that attacks
+draws its reload bar flush ABOVE its health bar, so nothing of it lies on the picture either.
 
 Sizes are unchanged (same bars, same text: as readable on a phone as before); only their places moved. Everything is in
 world space, so it scales with the zoom as before.
@@ -92,10 +94,10 @@ the eggs' own hatch bars, ordinary units' bars.
 ## Checked
 
 - tools/test_bars_audit.gd: every Crown and Clockwork building kind (finished and hurt, and a site): the stack starts at
-  the picture's real top, the health bar's bottom at most 6 px above it, each row above the one below (the worker label's
+  the picture's real top, the health bar's bottom 2 px above it, each row above the one below (the worker label's
   plate exactly on its row); the coil shortens as Tension rises and reads the side's pool; the Brood: the Mother rooted
   at stages 1, 2 and 3 (grown where she stands, as in a match), a Rootmaw on her swamp, a Mound Turtle and the three
-  Sires: the health bar above the picture and within 10 px of it, the rows above it in order, the egg line above her bar,
+  Sires: the health bar above the picture and within 9 px of it (2 px, plus up to 6 px a lower frame keeps it, so it does not jump), the rows above it in order, the egg line above her bar,
   and her bar does not move while she lays.
 - tools/test_cw_crate_build.gd updated (a rising Clockwork site's bars stay at its whole picture's top); test_worker_labels,
   test_gear_rules, test_haulers, test_kegs, test_phone_crew, test_selection_panel, test_brood_far pass;

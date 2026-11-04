@@ -7851,8 +7851,8 @@ func bar_top(lifted := 0.0) -> float:
 		if _nb_top > -9000.0:
 			var bw := maxf(radius * 2.0, 16.0)
 			var h := BAR_H_BIG if bw > BAR_BIG_W else BAR_H
-			# (the health bar's top edge: its 1 px edge and the gap above the picture; a row for the reload bar under it)
-			top = _nb_top - Building.STACK_GAP - 1.0 - h - ((SUB_H + 1.0) if has_attack() else 0.0)
+			# (the health bar's top edge: its 1 px edge and the gap above the picture; its reload bar goes above it)
+			top = _nb_top - Building.STACK_GAP - 1.0 - h
 	return top
 
 
@@ -7920,6 +7920,8 @@ func _draw_unit() -> void:
 	var sy := top                            # (the secondary bars: flush under the health bar, or where it would be)
 	if kind != BroodNew.PILE:
 		sy = draw_health(top, bw, true)
+	if _k_nb and BroodNew.ROOTERS.has(kind) and _nb_top > -9000.0:
+		sy = top - SUB_H - 1.0      # (a rooting creature: its reload bar ABOVE its health bar, clear of its picture: BroodNew.stack)
 	if _k_nb:
 		BroodNew.draw(self, top)
 	if owl_t >= 0.0:
