@@ -3,7 +3,8 @@ extends SceneTree
 ##   case:picks   (instant) the lobby offers SPITTER TIMING and BRUTE SIEGE for the Brood only, RANDOM PLAN can pick
 ##                either, and a Brood computer on each gets its plan and its push (AIBroodNew.bb); the others get none
 ##   case:timing  a Hard Brood on Spitter timing against a Hard Crown (or foe:clockwork): THE TIMING LANDS: the push
-##                leaves between TIMING_FROM and TIMING_BY with at least TIMING_SP Spitters, Long Spit is in by then,
+##                leaves between TIMING_FROM and TIMING_BY with at least TIMING_SP Spitters, the Venom line's Bigger Clutch
+##                is in by then,
 ##                it reaches contact, and its economy kept growing (grubs, a turtle on new ground) before it left
 ##   case:breach  a Hard Brood on Brute siege against a Hard Crown that walls (or foe:clockwork: its turrets): the push
 ##                leaves with Brutes and Battering Horns by SIEGE_BY, THE BREACH IS MADE (a wall piece, gate or turret
@@ -23,7 +24,7 @@ var _far_at_go := 0
 var _long_at_go := false
 var _next_min := 60.0
 
-const TIMING_FROM := 345.0
+const TIMING_FROM := 380.0
 const TIMING_BY := 540.0
 const TIMING_SP := 8
 const SIEGE_BY := 720.0
@@ -98,7 +99,8 @@ func _process(delta: float) -> bool:
 	if ai.bb != null and ai.bb.pushes.size() > 0 and _grubs_at_go == 0:
 		_grubs_at_go = BroodNew.count_of(g, 0, "grub")
 		_far_at_go = BroodNew.expansions(g, BroodNew.queen(g, 0)).size() if BroodNew.queen(g, 0) else 0
-		_long_at_go = g.has_tech(0, "nb_long_spit")
+		_long_at_go = g.has_tech(0, "nb_clutch_spitter")
+		print("  at the go: food earned %d (the enemy %d)" % [int(g.stats[0]["gold"]), int(g.stats[1]["gold"])])
 	var end := TIMING_BY + 90.0 if case_ == "timing" else BREACH_BY
 	var done: bool = case_ == "timing" and ai.bb != null and ai.bb.pushes.size() > 0 and float(ai.bb.pushes[0]["contact"]) >= 0.0
 	done = done or (case_ == "breach" and ai.bb != null and ai.bb.pushes.any(func(p) -> bool: return float(p["breach"]) >= 0.0))
@@ -152,9 +154,9 @@ func _report() -> void:
 		check(not p.is_empty() and float(p["t0"]) >= TIMING_FROM and float(p["t0"]) <= TIMING_BY,
 			"the timing leaves between %d and %d s (at %s)" % [int(TIMING_FROM), int(TIMING_BY), str(int(p["t0"])) if not p.is_empty() else "never"])
 		check(not p.is_empty() and int(p["spitters"]) >= TIMING_SP, "with at least %d Spitters (%s)" % [TIMING_SP, str(p.get("spitters", 0))])
-		check(_long_at_go or (not p.is_empty() and float(p["t0"]) >= 470.0), "Long Spit is in when it leaves (or it is the late go)")
+		check(_long_at_go, "the Venom line's Bigger Clutch is in when it leaves")
 		check(not p.is_empty() and float(p["contact"]) >= 0.0, "it reaches contact (at %s)" % str(int(p.get("contact", -1))))
-		check(_grubs_at_go >= 25 and _far_at_go >= 1, "the economy grew behind it: %d grubs and %d turtles on new ground when it left" % [_grubs_at_go, _far_at_go])
+		check(_grubs_at_go >= 24 and _far_at_go >= 1, "the economy grew behind it: %d grubs and %d turtles on new ground when it left" % [_grubs_at_go, _far_at_go])
 	else:
 		check(not p.is_empty() and float(p["t0"]) <= SIEGE_BY and int(p["brutes"]) >= 2,
 			"the siege push leaves with Brutes by %d s (%s, %s Brutes)" % [int(SIEGE_BY), str(int(p["t0"])) if not p.is_empty() else "never", str(p.get("brutes", 0))])

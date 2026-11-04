@@ -88,7 +88,7 @@ func decides() -> bool:
 func may_go(q: Unit, army: Array, sup: int) -> bool:
 	var t_go := float(ai.plan["wave_t"])
 	if kind == "spitter":
-		var sp := spitters()
+		var sp: int = army.filter(func(u) -> bool: return u.kind in ["spitter", "venom_challenger"] and u.moult_t < 0.0).size()     # (hatched)
 		var late := game.clock >= TIMING_LATE
 		if game.clock < t_go:
 			return false
@@ -177,6 +177,8 @@ func tick(q: Unit, wave: Array, mid: Vector2) -> int:
 	if phase == "" or wave.is_empty():
 		return 0
 	if kind == "spitter":
+		if phase == "fight":
+			return _tick_after_contact(q, wave, mid)
 		return _tick_timing(wave, mid)
 	return _tick_siege(q, wave, mid)
 
@@ -221,7 +223,8 @@ func _tick_timing(wave: Array, mid: Vector2) -> int:
 	var foe := _enemy_near(sm, CONTACT * Defs.TILE)
 	if foe != Vector2.INF or sm.distance_to(ai._wave_target) < 6.0 * Defs.TILE:
 		# CONTACT: the Raptors go in, the Spitters spit from behind them (both attack-move on what they see)
-		phase = ""
+		phase = "fight"
+		_orders_t = game.clock + 6.0
 		cur["contact"] = game.clock
 		var at: Vector2 = foe if foe != Vector2.INF else ai._wave_target
 		say("spitter timing: contact at %s, %d tiles out: the Raptors go in, the Spitters spit from behind" % [ai._mmss(),
@@ -251,6 +254,35 @@ func _tick_timing(wave: Array, mid: Vector2) -> int:
 			elif u.order == "idle" or u.order == "hold":
 				u.cmd_move(front + dir * 1.0 * Defs.TILE, true)
 	return 1
+
+
+## After contact the Brood computer fights the wave as always; the timing only watches that it does not pile into a
+## wall: once what it goes for next is behind a wall or gate (a known piece on the way) and it has no Brutes, it comes
+## home with what it took (round B b01, b03: the timing broke the Crown's expansion outside the wall, then stood at the
+## ramp gate under the musket line and lost half its Raptors there).
+func _tick_after_contact(q: Unit, wave: Array, mid: Vector2) -> int:
+	if game.clock < _orders_t:
+		return 0
+	_orders_t = game.clock + 3.0
+	if wave.any(func(u) -> bool: return u.kind == "brute"):
+		return 0
+	var t: Vector2 = ai._wave_target
+	if t == Vector2.INF or mid.distance_to(t) > 30.0 * Defs.TILE:
+		return 0
+	var keep_goal := goal
+	goal = t
+	var keep_b := barrier
+	var keep_bp := barrier_p
+	_find_barrier(q, mid)
+	var walled := barrier != null and not (barrier.kind == Defs.CW_TURRET)
+	barrier = keep_b
+	barrier_p = keep_bp
+	goal = keep_goal
+	if walled and _enemy_near(mid, 6.0 * Defs.TILE, true) == Vector2.INF or (walled and mid.distance_to(t) < 14.0 * Defs.TILE):
+		phase = ""
+		say("spitter timing: comes home: what is left is behind the wall (no Brutes to break it)")
+		return 2
+	return 0
 
 
 ## THE BARRIER: the wall piece where the way from `from` to the goal is walled off (the pathfinder's way ends short of
@@ -457,7 +489,8 @@ func hold_storm() -> bool:
 ## The build's Sire before the grub curve (AIBroodNew._nb_lay): the Venom Sire for the Spitter timing (the first trials
 ## got him at 5:00 to 6:00: every 50 food went into grubs on the curve while his 200 waited).
 func sire_first() -> bool:
-	return kind == "spitter" and BroodNew.count_of(game, ai.team, BroodNew.FATHER) > 0 and BroodNew.count_of(game, ai.team, BroodNew.DILO) == 0
+	return kind == "spitter" and BroodNew.count_of(game, ai.team, BroodNew.FATHER) > 0 and BroodNew.count_of(game, ai.team, BroodNew.DILO) == 0 \
+		and BroodNew.count_of(game, ai.team, "grub") >= 18 and game.clock >= float(ai.plan["venom"])
 
 
 ## Its own spoils first (AIBroodNew._nb_spoils_keep keeps none for her stage 3 meanwhile): the Spitter timing until it went.
@@ -477,6 +510,12 @@ func save_for_brutes(q: Unit) -> bool:
 	return kind == "brute" and BroodNew.stage(q) >= 2 and _count("brute") < BRUTES_GO
 
 
+## Supply kept further ahead (AIBroodNew._nb_short) until the timing: three Spitters to an egg with Bigger Clutch (the
+## trials stood at the supply cap at 6:00, 6:30 and 7:00 with the food for Spitters in hand).
+func supply_ahead() -> int:
+	return 6 if kind == "spitter" and timings_done == 0 and game.clock > 240.0 else 0
+
+
 ## Grubs held at this many until the push has gone (AIBroodNew._nb_want_grubs): the Spitter timing's eggs go into its
 ## Spitters first (round A: 36 grubs and no Spitter at 6:00 in a01 and a03); after it, the plan's own cap.
 func grub_cap() -> int:
@@ -487,11 +526,11 @@ func grub_cap() -> int:
 func research_first() -> Array:
 	var out: Array = []
 	if kind == "spitter":
-		var sp := spitters()
-		if sp >= 2:
+		# Bigger Clutch as soon as the Venom Sire is on his nest, before his first eggs (it holds his line 40 s); Long
+		# Spit after the timing has gone (round B: Bigger Clutch at 6:02 and Long Spit at 6:42 held the line from 6:02 to
+		# 7:27, and 49 Raptors were laid instead: the timing went at 7:54 with 8 Spitters)
+		if BroodNew.father_near(game, ai.team, BroodNew.DILO):
 			out.append("nb_clutch_spitter")
-		if sp >= 8 and game.has_tech(ai.team, "nb_clutch_spitter"):
-			out.append("nb_long_spit")
 	elif kind == "brute":
 		if _count("brute") >= 2:
 			out.append("nb_battering_horns")

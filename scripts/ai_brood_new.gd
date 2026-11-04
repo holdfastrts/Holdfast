@@ -82,9 +82,9 @@ const PLANS := {
 	# SPITTER TIMING: the Venom Sire right after the Tyrant Sire, Spitters ahead (one a Raptor), the line's Bigger Clutch and
 	# Long Spit, the timing at 6:30 once 10 Spitters stand; the economy grows behind it (an eco plan: grubs on the curve,
 	# the natural and new ground)
-	"spitter": {"drone": 5.5, "sire_g": 10, "sire_t": 100.0, "grubs0": 0, "grubs": 46, "maws": [2, 85.0, 9], "grow": [240.0, 540.0],
-		"venom": 120.0, "storm": 660.0, "far": [[0.0, 1], [330.0, 2], [540.0, 3]], "eco": true, "wave": 22, "wave_t": 390.0, "step": 8, "pack": false,
-		"mix": "venom", "mature": "push", "home_guard": 3, "build": "spitter", "grubs_hold": 32},
+	"spitter": {"drone": 7.0, "sire_g": 12, "sire_t": 140.0, "grubs0": 0, "grubs": 50, "maws": [2, 80.0, 10], "grow": [240.0, 540.0],
+		"venom": 210.0, "storm": 660.0, "far": [[0.0, 1], [300.0, 2], [540.0, 3]], "eco": true, "wave": 22, "wave_t": 390.0, "step": 8, "pack": false,
+		"mix": "venom", "mature": "push", "home_guard": 3, "build": "spitter"},
 	# BRUTE SIEGE: her stage 3 early (Brutes need it), 4 Brutes and Battering Horns, then the push breaks the wall or the
 	# turret line in the way and the army goes in through the breach
 	"brute": {"drone": 7.0, "sire_g": 12, "sire_t": 140.0, "grubs0": 0, "grubs": 50, "maws": [2, 80.0, 10], "grow": [190.0, 360.0], "grow_now": true,
@@ -849,6 +849,8 @@ func _nb_short() -> bool:
 	if _eco() and game.clock > 75.0 and _nb_far_have(BroodNew.queen(game, team)) < _nb_far_wanted():
 		ahead += 2          # (the next turtle walks out to new ground: it roots later than one at home; not in the first
 		                    # minute, when every 50 food is a grub: the first turtle at 0:32 cost a minute of grubs)
+	if bb != null:
+		ahead += bb.supply_ahead()          # (the written build: its Spitters hatch three to an egg)
 	if int(plan["grubs0"]) > 0 and not _first_out:
 		ahead = int(plan.get("ahead0", 3))          # (the Extreme rush: the turtle right after the Sire, so its Raptors never wait for supply)
 	return game.supply_used(team) + ahead >= cap + coming
