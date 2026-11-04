@@ -110,6 +110,13 @@
   - CROWN COLOUR IS PURPLE (owner, 2026-11-04 11:35): the Crown's standard colour changes to purple (stills done in purple;
   main menu painting assets/menu/battle.jpg to be redone by ChatGPT, the Crown was blue there). The mission 1 stills are in
   art/campaign/stills/p01_01..06 (move into campaign/ when wired in) (king pipe = also a main menu candidate).
+- MAP VARIETY (owner, DECIDED 2026-11-04 15:50): no single map rule; a pool with variety (some POCKET naturals sharing
+  the main's choke, some open naturals, some between; mains hugging the corner is the milder option). He weighed turning
+  every ramp toward a corner pocket and rejected it as a global rule (one point of defence = Crown turtling too strong).
+  QUEUED after crown-v-brood merges: make a pocket variant of a classic map (e.g. Greenhold, ramp toward the corner) in
+  the map editor and run the computer study on it v the normal map: ALL matchups incl. the MIRRORS (Crown v Crown,
+  Brood v Brood, Clockwork v Clockwork) and the Clockwork's (owner: "testing is overall a good practice"): win rates,
+  game length, halls lost. The corner-pocket natural A/B test is part of crown-v-brood (item 6).
 - IDEA BUCKET: the Clockwork tempo/beat (commands in a beat window, sync bonuses), owner 2026-11-04: "leave it in the idea
   bucket". TO DO LATER: translate every announcer line (Crown herald, Brood scientist) into pt/es voices.
 
