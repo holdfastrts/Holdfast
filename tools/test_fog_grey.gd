@@ -178,7 +178,8 @@ func _run() -> void:
 	check("and shows on the build grid", BuildGrid.cell_class(g, hive.cell) == BuildGrid.BUILDING)
 	g.consume_unit(scout)
 	g._update_vis()
-	check("gone again: the hall is remembered under the grey", hive.visible and _alpha_at(g, hc) == Game.FOG_GREY)
+	# (0.30.9: remembered as its last seen PICTURE, FogMemory; the live hall hidden: tools/test_fog_ghosts.gd)
+	check("gone again: the hall is remembered under the grey", not hive.visible and g.fog_mem.remembers(hive.get_instance_id()) and _alpha_at(g, hc) == Game.FOG_GREY)
 	foes = g.units.filter(func(u) -> bool: return u.team == 1)
 	check("and the enemy's units are hidden again", foes.all(func(u) -> bool: return not u.visible))
 	# ---- flowers under an enemy building you haven't seen stay until you see it

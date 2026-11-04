@@ -1568,12 +1568,17 @@ func die() -> void:
 	Sfx.play("combat/explosion_big", global_position, -4.0)
 	_update_sprite()
 	z_index = -1
-	game.spawn_effect("dust", global_position + Vector2(0, -rect().size.y * 0.4), 2.2)
+	# (razed out of your sight, an enemy building's fall isn't shown: its picture stays under the fog, FogMemory)
+	var shown := visible
+	var du := game.spawn_effect("dust", global_position + Vector2(0, -rect().size.y * 0.4), 2.2)
+	du.visible = du.visible and shown
 	for i in 3:
 		var fx := game.spawn_effect(["explosion", "burst", "flame"][i], global_position + Vector2(randf_range(-0.35, 0.35) * rect().size.x, -randf_range(0.2, 0.7) * rect().size.y), 1.5 + i * 0.3)
 		fx.scale = Vector2(0.9, 0.9)
+		fx.visible = fx.visible and shown
 	var sm := game.spawn_effect("smoke_big", global_position + Vector2(0, -rect().size.y * 0.5), 0.9)
 	sm.modulate.a = 0.8
+	sm.visible = sm.visible and shown
 	# a site that never got finished (abandoned or wrecked) leaves nothing behind
 	if was_site:
 		if sprite:

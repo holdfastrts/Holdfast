@@ -188,6 +188,8 @@ func _control(t: int) -> void:
 	game.set_selection([])
 	for e in game.units + game.buildings:
 		e.seen_by_human = false
+	if game.fog_mem:
+		game.fog_mem.clear(false)          # (the other side's remembered pictures are not yours)
 	game.explored.fill(0)
 	game.fog_base_dirty = true
 	var h := game._own_hall(t)
