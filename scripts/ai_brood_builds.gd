@@ -89,11 +89,10 @@ func may_go(q: Unit, army: Array, sup: int) -> bool:
 	var t_go := float(ai.plan["wave_t"])
 	if kind == "spitter":
 		var sp := spitters()
-		var long := game.has_tech(ai.team, "nb_long_spit")
 		var late := game.clock >= TIMING_LATE
 		if game.clock < t_go:
 			return false
-		if not late and (sp < TIMING_SP or not long):
+		if not late and sp < TIMING_SP:
 			return false
 		if sup < (TIMING_MIN if late else int(ai.plan["wave"])) and not late:
 			return false
@@ -132,6 +131,11 @@ func started(q: Unit, wave: Array, to: Vector2) -> void:
 			cur["brutes"] += 1
 	pushes.append(cur)
 	if kind == "spitter":
+		if timings_done > 0:
+			phase = ""          # (round A a03: the second wave was taken for a second timing: only the first one is)
+			pushes.erase(cur)
+			cur = {}
+			return
 		timings_done += 1
 		phase = "march"
 		say("spitter timing: goes out at %s: %d supply, %d Spitters behind %d Raptors" % [ai._mmss(), ai._wave_sup,
@@ -442,7 +446,7 @@ func brute_cap() -> int:
 ## Before its push the build researches only its own list (one Sire researches at a time: Pack Hunt or the Raptors'
 ## clutch at the Tyrant Sire held the Venom line's research a minute and a half in the first trial game).
 func research_only() -> bool:
-	return kind == "spitter" and timings_done == 0
+	return (kind == "spitter" and timings_done == 0) or (kind == "brute" and pushes.is_empty())
 
 
 ## The Storm Sire waits for the push (no flyers seen): the spoils and the food go into the build's own line first.
@@ -467,6 +471,18 @@ func save_for_spitters(sp: int, raptors: int) -> bool:
 	return kind == "spitter" and timings_done == 0 and sp < raptors + 4
 
 
+## Food kept for the next Brute instead of a Raptor (AIBroodNew._nb_warrior): the Brute siege, from her stage 3, while
+## short of BRUTES_GO (round A: 0 to 4 Brutes by 10:00 while every 50 food went into Raptors).
+func save_for_brutes(q: Unit) -> bool:
+	return kind == "brute" and BroodNew.stage(q) >= 2 and _count("brute") < BRUTES_GO
+
+
+## Grubs held at this many until the push has gone (AIBroodNew._nb_want_grubs): the Spitter timing's eggs go into its
+## Spitters first (round A: 36 grubs and no Spitter at 6:00 in a01 and a03); after it, the plan's own cap.
+func grub_cap() -> int:
+	return int(ai.plan.get("grubs_hold", 999)) if kind == "spitter" and timings_done == 0 else 999
+
+
 ## Research this build wants first (AIBroodNew._nb_research puts them before its own list).
 func research_first() -> Array:
 	var out: Array = []
@@ -474,11 +490,13 @@ func research_first() -> Array:
 		var sp := spitters()
 		if sp >= 2:
 			out.append("nb_clutch_spitter")
-		if sp >= 6 and game.has_tech(ai.team, "nb_clutch_spitter"):
+		if sp >= 8 and game.has_tech(ai.team, "nb_clutch_spitter"):
 			out.append("nb_long_spit")
 	elif kind == "brute":
 		if _count("brute") >= 2:
 			out.append("nb_battering_horns")
+		if game.clock >= 150.0 and _count("raptor") >= 4:
+			out.append("nb_clutch_raptor")
 	return out
 
 

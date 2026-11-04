@@ -80,15 +80,15 @@ const PLANS := {
 		"mix": "tyrant", "mature": "push", "home_guard": 3},
 	# THE WRITTEN BUILDS (brood-builds, scripts/ai_brood_builds.gd, docs/brood_builds.md): "build" names the push of its own.
 	# SPITTER TIMING: the Venom Sire right after the Tyrant Sire, Spitters ahead (one a Raptor), the line's Bigger Clutch and
-	# Long Spit, the timing at 7:00 once 10 Spitters stand; the economy grows behind it (an eco plan: grubs on the curve,
+	# Long Spit, the timing at 6:30 once 10 Spitters stand; the economy grows behind it (an eco plan: grubs on the curve,
 	# the natural and new ground)
 	"spitter": {"drone": 5.5, "sire_g": 10, "sire_t": 100.0, "grubs0": 0, "grubs": 46, "maws": [2, 85.0, 9], "grow": [240.0, 540.0],
-		"venom": 120.0, "storm": 660.0, "far": [[0.0, 1], [330.0, 2], [540.0, 3]], "eco": true, "wave": 22, "wave_t": 420.0, "step": 8, "pack": false,
-		"mix": "venom", "mature": "push", "home_guard": 3, "build": "spitter"},
+		"venom": 120.0, "storm": 660.0, "far": [[0.0, 1], [330.0, 2], [540.0, 3]], "eco": true, "wave": 22, "wave_t": 390.0, "step": 8, "pack": false,
+		"mix": "venom", "mature": "push", "home_guard": 3, "build": "spitter", "grubs_hold": 32},
 	# BRUTE SIEGE: her stage 3 early (Brutes need it), 4 Brutes and Battering Horns, then the push breaks the wall or the
 	# turret line in the way and the army goes in through the breach
 	"brute": {"drone": 7.0, "sire_g": 12, "sire_t": 140.0, "grubs0": 0, "grubs": 50, "maws": [2, 80.0, 10], "grow": [190.0, 360.0], "grow_now": true,
-		"venom": 300.0, "storm": 720.0, "far": [[0.0, 1], [300.0, 2], [540.0, 3]], "eco": true, "wave": 28, "wave_t": 450.0, "step": 10, "pack": true,
+		"venom": 300.0, "storm": 720.0, "far": [[0.0, 1], [300.0, 2], [540.0, 3]], "eco": true, "wave": 28, "wave_t": 450.0, "step": 10, "pack": false,
 		"mix": "mixed", "mature": "push", "home_guard": 3, "build": "brute", "brutes": 6},
 }
 ## The written build's push (scripts/ai_brood_builds.gd), when this game's plan has one ("build").
@@ -1601,6 +1601,8 @@ func _nb_want_grubs() -> int:
 		n = mini(n, int(plan["grubs0"]))
 	if _rush_on() and game.clock < 300.0:
 		n = mini(n, 14)
+	if bb != null:
+		n = mini(n, bb.grub_cap())          # (the written build: grubs held until its push)
 	return mini(n, int(plan["grubs"]))
 
 
@@ -1648,6 +1650,8 @@ func _nb_warrior(spend: int) -> String:
 		return "spitter"
 	if dilo and bb != null and bb.save_for_spitters(spitters, raptors) and spoils >= float(sp_price[1]):
 		return ""          # (the written build: food is kept for the next Spitter egg, not spent on Raptors meanwhile)
+	if brutes_ok and bb != null and bb.save_for_brutes(q) and _spoils() >= 20.0 and spend < 150:
+		return ""          # (the written build: food is kept for the next Brute)
 	if trex and spend >= int(price.call("raptor")[0]):
 		return "raptor"
 	if dilo and spoils >= float(sp_price[1]) and spend >= int(sp_price[0]):
