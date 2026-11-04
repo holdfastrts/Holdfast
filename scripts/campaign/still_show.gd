@@ -54,10 +54,14 @@ func _ready() -> void:
 	_band.add_theme_stylebox_override("panel", UiStyle.box(Color(0.05, 0.035, 0.02, 0.86), UiStyle.TRIM_DIM, 0, 0, 18.0))
 	_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_band)
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 18)
+	_band.add_child(h)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 4)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_band.add_child(v)
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.add_child(v)
 	_name = UiStyle.text("", 20, UiStyle.TRIM, HORIZONTAL_ALIGNMENT_LEFT, true)
 	_name.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	v.add_child(_name)
@@ -68,8 +72,9 @@ func _ready() -> void:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END
 	row.add_theme_constant_override("separation", 10)
+	row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.name = "ShowButtons"
-	add_child(row)
+	h.add_child(row)
 	for it in [["SKIP", func() -> void: finish()], ["NEXT", func() -> void: next()]]:
 		var b := Button.new()
 		b.text = Loc.t(it[0])
@@ -92,10 +97,9 @@ func _layout() -> void:
 	_band.custom_minimum_size = Vector2(vs.x, bh)
 	_name.add_theme_font_size_override("font_size", int(19 * k))
 	_text.add_theme_font_size_override("font_size", int(21 * k))
-	_text.custom_minimum_size.x = vs.x - 300.0 * k
-	var row: Control = get_node("ShowButtons")
-	row.position = Vector2(vs.x - 300.0 * k - 16.0, vs.y - bh + 14.0 * k)
-	row.size = Vector2(300.0 * k, 50.0 * k)
+	for b in find_children("Show_*", "Button", true, false):
+		(b as Button).custom_minimum_size = Vector2(120, 44) * k
+		(b as Button).add_theme_font_size_override("font_size", int(18 * k))
 	if _still:
 		_fit_still()
 

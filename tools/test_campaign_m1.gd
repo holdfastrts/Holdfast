@@ -123,7 +123,7 @@ func _run() -> void:
 	check("the manor stands", r.tagged("manor").size() == 1 and r.tagged("manor")[0].kind == "town_hall")
 	check("five drying barns (Farms)", r.tagged("barns").size() == 5, str(r.tagged("barns").size()))
 	check("the chapel", r.tagged("chapel").size() == 1 and r.tagged("chapel")[0].kind == "church")
-	check("8 Musketeers, 2 cannons, the Governor and Tomasz", r.tagged("line").size() == 8 and r.tagged("guns").size() == 2 and r.tagged("fairleigh").size() == 1 and r.tagged("tomasz").size() == 1)
+	check("10 Musketeers, 2 cannons, the Governor and Tomasz", r.tagged("line").size() == 10 and r.tagged("guns").size() == 2 and r.tagged("fairleigh").size() == 1 and r.tagged("tomasz").size() == 1)
 	check("the Governor's name over his bar", String(r.tagged("fairleigh")[0].get_meta("mission_name", "")) == "Lord Fairleigh")
 	check("the fort's walls and gate", r.tagged("fort_wall").size() >= 70 and r.tagged("fort_gate").size() == 4, "%d %d" % [r.tagged("fort_wall").size(), r.tagged("fort_gate").size()])
 	check("the mass in the fort: 14 militia + 8 pikemen", r.tagged("mass").size() == 22, str(r.tagged("mass").size()))
@@ -141,9 +141,9 @@ func _run() -> void:
 	# ---------------------------------------------------------------- part 1: the waves, the torches, Varenne
 	_step(g, 26.0)
 	var night := r.tagged("night")
-	check("wave 1 out of the fields: 4 militia, 3 torches", night.size() == 7, str(night.size()))
+	check("wave 1 out of the fields: 4 militia, 2 torches", night.size() == 6, str(night.size()))
 	var torches := night.filter(func(u): return u.has_meta("torch"))
-	check("the torch-bearers carry torches", torches.size() == 3 and torches[0].kind == "labourer")
+	check("the torch-bearers carry torches", torches.size() == 2 and torches[0].kind == "labourer")
 	check("the wave is sent at the plantation", night.all(func(u): return u.order != "hold" and u.order != "idle"), str(night.map(func(u): return u.order)))
 	check("Varenne's first slogan", r.said_ids.has("v_1"))
 	var barn: Building = r.tagged("barns")[0]
@@ -151,7 +151,7 @@ func _run() -> void:
 	torches[0].position = barn.center() + Vector2(0, float(barn.size.y) * Defs.TILE * 0.5 + 6.0)
 	for i in 8:
 		Rebels.tick(r, 0.25)
-	check("a torch at a barn sets it burning", barn.hp < hp0 - 15.0, "%d -> %d" % [hp0, barn.hp])
+	check("a torch at a barn sets it burning (6 a second)", barn.hp < hp0 - 10.0, "%d -> %d" % [hp0, barn.hp])
 	_step(g, 27.0)
 	check("a barn hurt: the Governor calls it", r.said_ids.has("f_barn"))
 	_step(g, 141.0)

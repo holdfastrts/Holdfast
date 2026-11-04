@@ -39,7 +39,7 @@ func _run() -> void:
 	main.show_campaign()
 	await create_timer(0.5).timeout
 	await _shot("2_hub")
-	(main.menu.find_child("Hotspot_captain", true, false) as Button).pressed.emit()
+	(main.menu.find_child("Hotspot_fairleigh", true, false) as Button).pressed.emit()
 	await create_timer(0.3).timeout
 	await _shot("3_hub_talk")
 	CampaignMenu.war_table(main)

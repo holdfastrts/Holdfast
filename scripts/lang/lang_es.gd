@@ -2920,7 +2920,7 @@ const T := {
 	"It is done. I take no pleasure in it.": "Está hecho. No me complace.",
 	"Ruggieri has his pipe, and I have the King's leaf. Rome will hear of this.": "Ruggieri tiene su pipa, y yo tengo la hoja del Rey. Roma sabrá de esto.",
 	"Pikeman": "Piquero",
-	"A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket.": "Un rebelde con una pica larga (solo en la campaña). Alcanza más que una bayoneta, y los caballos le temen. Sin mosquete.",
+	"A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket, and little use against walls.": "Un rebelde con una pica larga (solo en la campaña). Alcanza más que una bayoneta, y los caballos le temen. Sin mosquete, y de poca utilidad contra muros.",
 	"The Revolt at the Ford": "La Revuelta del Vado",
 	"A short first mission: the Crown's column crosses the ford and puts down a village revolt.": "Una primera misión corta: la columna de la Corona cruza el vado y aplasta la revuelta de una aldea.",
 	"The Rebels": "Los Rebeldes",

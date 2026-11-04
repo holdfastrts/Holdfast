@@ -442,6 +442,6 @@ es Ruggieri tiene su pipa, y yo tengo la hoja del Rey. Roma sabrá de esto.
 pt Piqueiro
 es Piquero
 
-> A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket.
-pt Um rebelde com uma pique longa (só na campanha). Alcança além de uma baioneta, e os cavalos o temem. Sem mosquete.
-es Un rebelde con una pica larga (solo en la campaña). Alcanza más que una bayoneta, y los caballos le temen. Sin mosquete.
+> A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket, and little use against walls.
+pt Um rebelde com uma pique longa (só na campanha). Alcança além de uma baioneta, e os cavalos o temem. Sem mosquete, e de pouco uso contra muros.
+es Un rebelde con una pica larga (solo en la campaña). Alcanza más que una bayoneta, y los caballos le temen. Sin mosquete, y de poca utilidad contra muros.

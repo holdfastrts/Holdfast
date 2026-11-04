@@ -21,7 +21,7 @@ const ROLES := {
 	"varenne": {"kind": "dismounted", "art": "rebel_varenne", "name": "Etienne Varenne", "about": "The Free Assembly's orator."},
 }
 
-const TORCH_DPS := 11.0              # a torch-bearer's fire on a building he stands at, per second (armour ignored)
+const TORCH_DPS := 6.0               # a torch-bearer's fire on a building he stands at, per second (armour ignored)
 const TORCH_REACH := 26.0            # how close to a building's edge he must be
 const TORCH_SEEK := 3.0              # seconds between a scripted torch-bearer's looks for the next building
 

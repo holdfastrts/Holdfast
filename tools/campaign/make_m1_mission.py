@@ -48,6 +48,7 @@ M = {
     "map": "campaign:virginia_leaf",
     "voice": "p01",
     "light": "night",
+    "expansion_spots": False,
     "modes": ["solo", "coop", "versus"],
     "factions": {"free_assembly": {"name": "The Free Assembly", "stand_in": "crown", "campaign_only": True}},
     "sides": [
@@ -76,7 +77,7 @@ M = {
     "units": [
         {"team": "governor", "kind": "dismounted", "count": 1, "at": [17, 38], "tag": "fairleigh", "name": "Lord Fairleigh"},
         {"team": "governor", "kind": "missionary", "count": 1, "at": [20, 31], "tag": "tomasz", "name": "Tomasz"},
-        {"team": "governor", "kind": "musketeer", "count": 8, "at": "lawn", "tag": "line"},
+        {"team": "governor", "kind": "musketeer", "count": 10, "at": "lawn", "tag": "line"},
         {"team": "governor", "kind": "labourer", "count": 4, "at": [14, 40]},
         {"team": "governor", "kind": "cannon", "count": 2, "at": [20, 35], "tag": "guns", "modes": ["solo", "versus"]},
         {"team": "guns", "kind": "cannon", "count": 2, "at": [20, 35], "tag": "guns", "modes": ["coop"]},
@@ -125,7 +126,7 @@ M = {
         # ---------------------------------------------------------------- part 1: hold until dawn (night)
         {"id": "intro", "when": {"time": 1}, "do": [{"say": ["p1_fair", "p1_rugg", "p1_tip"]}, {"ping": {"area": "edge_n"}}]},
         {"id": "intro_rebels", "when": {"time": 1}, "modes": ["versus"], "do": [{"say": ["r_intro"]}]},
-        wave("w1", 25, [("edge_n", "militia", "musketeer", 4), ("edge_n", "torch", "labourer", 3)], ["v_1", "r_1"]),
+        wave("w1", 25, [("edge_n", "militia", "musketeer", 4), ("edge_n", "torch", "labourer", 2)], ["v_1", "r_1"]),
         wave("w2", 85, [("edge_e", "militia", "musketeer", 5), ("edge_e", "torch", "labourer", 3), ("edge_e", "pikeman", "pikeman", 2)], ["t_1"]),
         {"id": "varenne", "when": {"time": 140}, "do": [
             {"spawn": {"team": "rebels", "kind": "dismounted", "as": "varenne", "count": 1, "at": "edge_ne", "tag": "varenne", "order": "hold"}},
@@ -133,13 +134,13 @@ M = {
             {"say": ["v_2", "f_1"]}, {"ping": {"area": "edge_ne"}}]},
         {"id": "varenne_off", "when": {"fired": "varenne"}, "delay": 40, "do": [
             {"order": {"tag": "varenne", "do": "move", "to": "fort"}}, {"order": {"tag": "guard", "do": "move", "to": "fort"}}]},
-        wave("w3", 150, [("edge_n", "militia", "musketeer", 5), ("edge_n", "pikeman", "pikeman", 3), ("edge_ne", "torch", "labourer", 4)], ["r_2"]),
-        wave("w4", 225, [("edge_e", "militia", "musketeer", 7), ("edge_e", "torch", "labourer", 4), ("edge_n", "pikeman", "pikeman", 4)], ["v_3"]),
+        wave("w3", 150, [("edge_n", "militia", "musketeer", 5), ("edge_n", "pikeman", "pikeman", 3), ("edge_ne", "torch", "labourer", 3)], ["r_2"]),
+        wave("w4", 225, [("edge_e", "militia", "musketeer", 6), ("edge_e", "torch", "labourer", 3), ("edge_n", "pikeman", "pikeman", 4)], ["v_3"]),
         {"id": "leaf", "when": {"time": 260}, "do": [{"say": ["r_leaf", "f_leaf"]}]},
-        wave("w5", 300, [("edge_n", "militia", "musketeer", 6), ("edge_e", "militia", "musketeer", 4), ("edge_n", "pikeman", "pikeman", 4),
-                         ("edge_se", "torch", "labourer", 4), ("edge_n", "torch", "labourer", 2)], ["v_4", "t_2"]),
-        wave("w6", 385, [("edge_e", "militia", "musketeer", 6), ("edge_se", "pikeman", "pikeman", 4), ("edge_s", "torch", "labourer", 4)], ["r_3"]),
-        wave("w7", 440, [("edge_n", "torch", "labourer", 5), ("edge_n", "militia", "musketeer", 3)], ["t_lauds"],
+        wave("w5", 300, [("edge_n", "militia", "musketeer", 5), ("edge_e", "militia", "musketeer", 4), ("edge_n", "pikeman", "pikeman", 4),
+                         ("edge_se", "torch", "labourer", 3), ("edge_n", "torch", "labourer", 1)], ["v_4", "t_2"]),
+        wave("w6", 385, [("edge_e", "militia", "musketeer", 6), ("edge_se", "pikeman", "pikeman", 4), ("edge_s", "torch", "labourer", 3)], ["r_3"]),
+        wave("w7", 440, [("edge_n", "torch", "labourer", 3), ("edge_n", "militia", "musketeer", 3)], ["t_lauds"],
              [{"light": {"to": "dawn", "secs": 40}}]),
         {"id": "barn_hit", "when": {"hurt": "barns"}, "do": [{"say": ["f_barn"]}]},
         {"id": "barn_lost", "when": {"count": {"tag": "barns", "buildings": True, "below": 5}}, "do": [{"say": ["t_barn"]}]},

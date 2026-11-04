@@ -5,6 +5,7 @@
 	"map": "campaign:virginia_leaf",
 	"voice": "p01",
 	"light": "night",
+	"expansion_spots": false,
 	"modes": [
 		"solo",
 		"coop",
@@ -222,7 +223,7 @@
 		{
 			"team": "governor",
 			"kind": "musketeer",
-			"count": 8,
+			"count": 10,
 			"at": "lawn",
 			"tag": "line"
 		},
@@ -1297,7 +1298,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "labourer",
-						"count": 3,
+						"count": 2,
 						"at": "edge_n",
 						"tag": "night",
 						"as": "torch"
@@ -1480,7 +1481,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "labourer",
-						"count": 4,
+						"count": 3,
 						"at": "edge_ne",
 						"tag": "night",
 						"as": "torch"
@@ -1519,7 +1520,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "musketeer",
-						"count": 7,
+						"count": 6,
 						"at": "edge_e",
 						"tag": "night",
 						"as": "militia"
@@ -1529,7 +1530,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "labourer",
-						"count": 4,
+						"count": 3,
 						"at": "edge_e",
 						"tag": "night",
 						"as": "torch"
@@ -1592,7 +1593,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "musketeer",
-						"count": 6,
+						"count": 5,
 						"at": "edge_n",
 						"tag": "night",
 						"as": "militia"
@@ -1622,7 +1623,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "labourer",
-						"count": 4,
+						"count": 3,
 						"at": "edge_se",
 						"tag": "night",
 						"as": "torch"
@@ -1632,7 +1633,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "labourer",
-						"count": 2,
+						"count": 1,
 						"at": "edge_n",
 						"tag": "night",
 						"as": "torch"
@@ -1692,7 +1693,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "labourer",
-						"count": 4,
+						"count": 3,
 						"at": "edge_s",
 						"tag": "night",
 						"as": "torch"
@@ -1731,7 +1732,7 @@
 					"spawn": {
 						"team": "rebels",
 						"kind": "labourer",
-						"count": 5,
+						"count": 3,
 						"at": "edge_n",
 						"tag": "night",
 						"as": "torch"

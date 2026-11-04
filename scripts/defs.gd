@@ -957,9 +957,9 @@ const UNITS := {
 		"tags": ["light"],
 		"name": "Pikeman", "hp": 85, "armor": 1, "speed": 58, "cost": 50, "time": 14.0, "supply": 1,
 		"sight": 7, "range": 46, "damage": 13, "cooldown": 1.5, "aim": 0.25, "radius": 10, "from": "",
-		"bonus": {"cuirassier": 2.0, "dragoon": 2.0, "messenger": 2.0, "horse": 2.0}, "plain_attack": true,
+		"bonus": {"cuirassier": 2.0, "dragoon": 2.0, "messenger": 2.0, "horse": 2.0}, "building_bonus": 0.4, "plain_attack": true,
 		"faction": "crown", "campaign_only": true,
-		"about": "A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket.",
+		"about": "A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket, and little use against walls.",
 	},
 	"balloon": {
 		"tags": ["light"],
