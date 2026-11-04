@@ -483,6 +483,10 @@ func _rush_tick(party: Array) -> bool:
 		if v == "succeeded":
 			_rush_state = "succeeded"
 			_rush_mode = _rush_mode_now(party)
+			if _rush_mode == "mop" and _rush_hunt_on(party):
+				_rush_mode = "hunt"        # (crown-v-brood: a winning rush goes on raiding instead of going home)
+				_rush_log("SUCCEEDED, the riders keep hunting while they win (%s)" % _rush_hunt_said)
+				return false
 			if _rush_mode == "mop":
 				_rush_mop(party)
 				return true
@@ -491,7 +495,28 @@ func _rush_tick(party: Array) -> bool:
 		if _rush_mode_now(party) == "mop":
 			_rush_mop(party)
 			return true
+	elif _rush_state == "succeeded" and _rush_mode == "hunt":
+		var why := _rush_hunt_over(party)
+		if why != "":
+			_rush_log("the hunt ends (%s): the riders ride home" % why)
+			_rush_mop(party)
+			return true
 	return false
+
+
+## (crown-v-brood) A rush judged SUCCEEDED keeps raiding instead of riding home (the owner, 2026-11-04: "look how extremely
+## effective the horseman rush is"; it went home at 3:35 winning 345 to 100). The shared computer never does; AICrown does
+## against the Brood. _rush_hunt_said: why, for the match log.
+var _rush_hunt_said := ""
+
+
+func _rush_hunt_on(_party: Array) -> bool:
+	return false
+
+
+## "" while the hunt goes on; else why it ends (the riders beaten down, a real answer at hand).
+func _rush_hunt_over(_party: Array) -> String:
+	return "over"
 
 
 ## Fresh cavalry (or riders) idle near home that are not in the party: they go out only as a group.
@@ -5072,7 +5097,7 @@ func _army() -> void:
 			return
 		# fresh units join only as a group: 2+ cavalry finishing a crippled enemy, or 6+ supply
 		var pool: Array = ready.filter(func(u: Unit) -> bool: return not _wave_set.has(u))
-		var finishing := _rush_wave and _rush_state == "succeeded" and _rush_mode == "finish"
+		var finishing := _rush_wave and _rush_state == "succeeded" and (_rush_mode == "finish" or _rush_mode == "hunt")
 		if finishing:
 			pool = _rush_pool(pool)
 		var group_ok: bool = pool.size() >= GROUP_MIN and (finishing or (_rush_wave and _rush_state == "ongoing") or _army_supply(pool) >= GROUP_SUPPLY)

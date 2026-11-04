@@ -2785,6 +2785,8 @@ func start(cfg: Dictionary = {}) -> void:
 		mr.setup(Campaign.mission(String(camp.get("mission", ""))), String(camp.get("mode", "solo")), cfg, game.puppet)
 		game.mission = mr
 	game.process_mode = Node.PROCESS_MODE_PAUSABLE
+	if cfg.has("crown_nat"):
+		game.set_meta("crown_nat", String(cfg["crown_nat"]))      # (crown-v-brood's corner pocket experiment, CrownSites.corner_on)
 	game.rng.seed = int(cfg["seed"])
 	_mark_running("match on %s: %s (seed %d)%s" % [game.map_id, " vs ".join(facs), int(cfg["seed"]), " (continued)" if cfg.has("resume") else ""])
 	add_child(game)

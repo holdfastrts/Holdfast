@@ -229,7 +229,9 @@ static func pick(g: Game, t: int, halls: Array, n := 2, steps: Array = [], avoid
 		elif stage == 3:
 			want = -side_of(g, t, field["ramp"], hs[1])
 		var rec := {}
-		if stage == 2:
+		if stage == 2 and corner_on(g):
+			rec = _corner(g, t, hs, steps, avoid, check, field, room_cache)
+		elif stage == 2:
 			rec = _pair(g, t, hs, want, steps, avoid, check, field, room_cache)
 		else:
 			rec = _best(g, t, hs, stage, want, steps, avoid, check, field, room_cache)
@@ -517,3 +519,134 @@ static func rate_sides(g: Game) -> Array:
 			out.append_array(pick(g, t, [Vector2(g.starts[t]) + Vector2(2.5, 2.0)], 2))
 	return out
 
+
+
+## THE CORNER POCKET EXPERIMENT (crown-v-brood, the owner 2026-11-04 15:23): `-- nat:corner` on the command line, or the
+## match cfg "crown_nat": "corner", picks the Crown's 2nd base in the pocket between the map's border and the main's cliff
+## (variant B) instead of by the ramp's foot (variant A, the rule above). Not a player setting.
+static func corner_on(g: Game) -> bool:
+	if OS.get_cmdline_user_args().has("nat:corner"):
+		return true
+	return g != null and g.has_meta("crown_nat") and String(g.get_meta("crown_nat")) == "corner"
+
+
+## Variant B: the 2nd base in a CORNER POCKET (the owner: "near the corner of the map, away from the ramp ... the easier way to
+## wall is there, using the edge of the map and the high ground as natural barriers"). Any legal spot 18 to 18 + B_REACH
+## tiles from the main, on our side by land, with room for its economy; scored for the shortest wall first: every open
+## side (open_sides) and every cell of its MOUTH (mouth: the open ground round it at B_MOUTH_R tiles that an army walks in
+## through) costs, the border near it pays, the walk from the main's ramp costs only a little (B_WALK a step).
+const B_REACH := 16.0
+const B_OPEN := 12.0
+const B_MOUTH := 1.0
+const B_MOUTH_R := 9.0
+const B_EDGE := 3.0
+const B_WALK := 0.25
+const B_KEEP := 40
+
+
+static func _corner(g: Game, t: int, hs: Array, steps: Array, avoid: Dictionary, check: Callable, field: Dictionary,
+		room_cache: Dictionary) -> Dictionary:
+	var size: Vector2i = MapGen.HALL
+	var foot_d: PackedFloat32Array = field["foot_d"]
+	var main_mid := Vector2(g.starts[t]) + Vector2(2.5, 2.0)
+	var starts_mid: Array = []
+	for o in g.n_players():
+		if g.starts.size() > o:
+			starts_mid.append(Vector2(g.starts[o]) + Vector2(2.5, 2.0))
+	var cands: Array = []
+	var r := int(Defs.HALL_SPACING + B_REACH) + 3
+	for y in range(int(main_mid.y) - r, int(main_mid.y) + r + 1):
+		for x in range(int(main_mid.x) - r, int(main_mid.x) + r + 1):
+			var c := Vector2i(x - size.x / 2, y - size.y / 2)
+			if avoid.has(c):
+				continue
+			var cm := Vector2(c) + Vector2(size) * 0.5
+			var gap := INF
+			for h2 in hs:
+				gap = minf(gap, cm.distance_to(h2))
+			var md := cm.distance_to(main_mid)
+			if gap < Defs.HALL_SPACING or md > Defs.HALL_SPACING + B_REACH:
+				continue
+			var by_start := false
+			for sm in starts_mid:
+				if cm.distance_to(sm) < Defs.HALL_SPACING:
+					by_start = true
+			if by_start or not g.in_map(c) or not ground_ok(g, c, size):
+				continue
+			var walk := ExpansionSpots._foot_d(g, foot_d, c)
+			if walk == INF:
+				continue
+			var ed := edge_d(c, size)
+			var op := open_sides(g, c, size)
+			var cheap := -B_OPEN * float(op) - B_EDGE * maxf(0.0, float(ed) - 1.0) - B_WALK * walk - 0.5 * (md - Defs.HALL_SPACING)
+			cands.append([cheap, c, md, walk, ed, op])
+	cands.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) > float(b[0]))
+	var best := {}
+	var n := 0
+	for cd in cands:
+		if n >= B_KEEP:
+			break
+		var c: Vector2i = cd[1]
+		var home := ExpansionSpots._foot_d(g, steps[0], c)
+		if home == INF:
+			continue
+		var foe := INF
+		for fs in steps[1]:
+			foe = minf(foe, ExpansionSpots._foot_d(g, fs, c))
+		if foe <= home + 4.0:
+			continue
+		if g.lode_at_spot(c, "town_hall") < 0.5:
+			continue
+		var room: float
+		if room_cache.has(c):
+			room = room_cache[c]
+		else:
+			room = ExpansionSpots._room(g, c)
+			room_cache[c] = room
+		if room < ROOM_MIN:
+			continue
+		if check.is_valid() and not bool(check.call(c)):
+			continue
+		n += 1
+		var mo := mouth(g, c, size)
+		var score := snappedf(float(cd[0]) - B_MOUTH * float(mo) + W_ROOM * room, 0.01)
+		var rel := Vector2(c) + Vector2(size) * 0.5 - main_mid
+		if best.is_empty() or score > float(best["score"]) + 0.005 or (absf(score - float(best["score"])) <= 0.005 and rel.length() < (Vector2(best["c"]) + Vector2(size) * 0.5 - main_mid).length()):
+			best = {"c": c, "team": t, "stage": 2, "score": score, "room": room, "share": 0.0, "near": INF, "gap": 0.0,
+				"main": float(cd[2]), "walk": float(cd[3]), "edge": int(cd[4]), "open": int(cd[5]), "side": 0, "home": home,
+				"foe": foe, "mouth": mo, "corner": true, "key": [score]}
+	return best
+
+
+## The MOUTH of a hall spot: walking out from round the hall (4 ways, open ground, no cliff), the cells B_MOUTH_R tiles out
+## that the walk reaches: the width of open ground the wall has to close (the border, the cliffs and the solid ground close
+## the rest). A pocket against the border and a cliff has a narrow mouth; a spot in the open a whole circle.
+static func mouth(g: Game, c: Vector2i, size: Vector2i) -> int:
+	var mid := Vector2(c) + Vector2(size) * 0.5
+	var seen := {}
+	var q: Array = []
+	for y in range(c.y - 1, c.y + size.y + 1):
+		for x in range(c.x - 1, c.x + size.x + 1):
+			var p := Vector2i(x, y)
+			if g.in_map(p) and g.solid[g.idx(p)] != 1 and g.cliff[g.idx(p)] == 0:
+				seen[p] = true
+				q.append(p)
+	var head := 0
+	var n := 0
+	while head < q.size():
+		var p: Vector2i = q[head]
+		head += 1
+		var d := (Vector2(p) + Vector2(0.5, 0.5)).distance_to(mid)
+		if d >= B_MOUTH_R:
+			n += 1
+			continue
+		for dd in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var p2: Vector2i = p + dd
+			if seen.has(p2) or not g.in_map(p2):
+				continue
+			var j := g.idx(p2)
+			if g.solid[j] == 1 or g.cliff[j] != 0:
+				continue
+			seen[p2] = true
+			q.append(p2)
+	return n
