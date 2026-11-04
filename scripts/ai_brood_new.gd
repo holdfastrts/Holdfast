@@ -148,27 +148,61 @@ func _tick_ai(delta: float) -> void:
 	var q := BroodNew.queen(game, team)
 	if q == null:
 		return
+	var _t__nb_observe := Time.get_ticks_usec()
 	_nb_observe(q)
+	Prof.add("ai/brood/observe", _t__nb_observe)
 	if int(q.nb.get("eggs", 0)) <= EGG_LOW and float(q.nb.get("grow_t", 0.0)) <= 0.0:
 		_egg_low_t = game.clock          # (her clutch run down: eggs hold the Brood back, _nb_grow_time)
+	var _t__nb_root_watch := Time.get_ticks_usec()
 	_nb_root_watch()
+	Prof.add("ai/brood/root_watch", _t__nb_root_watch)
 	if difficulty >= 1:
+		var _t__nb_scout := Time.get_ticks_usec()
 		_nb_scout(q)
+		Prof.add("ai/brood/scout", _t__nb_scout)
+	var _t__nb_mother := Time.get_ticks_usec()
 	_nb_mother(q)
+	Prof.add("ai/brood/mother", _t__nb_mother)
+	var _t__nb_grow := Time.get_ticks_usec()
 	_nb_grow(q)
+	Prof.add("ai/brood/grow", _t__nb_grow)
+	var _t__nb_maw_guard := Time.get_ticks_usec()
 	_nb_maw_guard(q)
+	Prof.add("ai/brood/maw_guard", _t__nb_maw_guard)
+	var _t__nb_rootmaws := Time.get_ticks_usec()
 	_nb_rootmaws(q)
+	Prof.add("ai/brood/rootmaws", _t__nb_rootmaws)
+	var _t__nb_turtles := Time.get_ticks_usec()
 	_nb_turtles(q)
+	Prof.add("ai/brood/turtles", _t__nb_turtles)
+	var _t__nb_grubs_vs_riders := Time.get_ticks_usec()
 	_nb_grubs_vs_riders(q)
+	Prof.add("ai/brood/grubs_vs_riders", _t__nb_grubs_vs_riders)
 	if _eco():
+		var _t__nb_alarm := Time.get_ticks_usec()
 		_nb_alarm(q)
+		Prof.add("ai/brood/alarm", _t__nb_alarm)
+	var _t__nb_father := Time.get_ticks_usec()
 	_nb_father(q)
+	Prof.add("ai/brood/father", _t__nb_father)
+	var _t__nb_morphs := Time.get_ticks_usec()
 	_nb_morphs(q)
+	Prof.add("ai/brood/morphs", _t__nb_morphs)
+	var _t__nb_lay := Time.get_ticks_usec()
 	_nb_lay(q)
+	Prof.add("ai/brood/lay", _t__nb_lay)
+	var _t__nb_essence := Time.get_ticks_usec()
 	_nb_essence(q)
+	Prof.add("ai/brood/essence", _t__nb_essence)
+	var _t__nb_mature := Time.get_ticks_usec()
 	_nb_mature(q)
+	Prof.add("ai/brood/mature", _t__nb_mature)
+	var _t__nb_research := Time.get_ticks_usec()
 	_nb_research(q)
+	Prof.add("ai/brood/research", _t__nb_research)
+	var _t__nb_army := Time.get_ticks_usec()
 	_nb_army(q)
+	Prof.add("ai/brood/army", _t__nb_army)
 	if difficulty >= 1:
 		_spells()           # (the Mist Toads' FOG and TONGUE, as the old Brood's computer: AI._toad)
 	Prof.add("ai/brood", _pb)
@@ -1033,6 +1067,13 @@ func _nb_spot_for(q: Unit, k: String, me: Unit):
 
 ## Mound Turtles root a few tiles round the Mother, spread out (their swamp joins hers), never on the ramps.
 func _nb_turtle_spot(q: Unit, me: Unit):
+	BroodRoot.batch_begin(game, team)          # (a search batch: the same answers, the units listed once)
+	var r = _nb_turtle_spot_go(q, me)
+	BroodRoot.batch_end()
+	return r
+
+
+func _nb_turtle_spot_go(q: Unit, me: Unit):
 	var home := BroodRoot.home_region(game, q.position)
 	for ring in [7.0, 9.0, 11.0, 13.0]:
 		for i in 12:
@@ -1043,7 +1084,7 @@ func _nb_turtle_spot(q: Unit, me: Unit):
 			if BroodRoot.place_problem(game, team, BroodNew.TURTLE, p, me, true) != "" or _spot_bad(p):
 				continue
 			var ok := true
-			for o in game.units:
+			for o in BroodRoot._bt_mine:
 				if o != me and o.team == team and (o.kind == BroodNew.TURTLE or o.kind == BroodNew.MAW) and not o.dead and o.position.distance_to(p) < 5.0 * Defs.TILE:
 					ok = false
 					break
@@ -1059,6 +1100,13 @@ func _nb_turtle_spot(q: Unit, me: Unit):
 ## turtle (home or new ground), packed closer (3 tiles from the others instead of 5), on any level ground it can walk
 ## to; the spot nearest the Mother first, away from the enemy. docs/raid_micro.md F.
 func _nb_supply_turtle_spot(q: Unit, me: Unit):
+	BroodRoot.batch_begin(game, team)          # (a search batch: the same answers, the units listed once)
+	var r = _nb_supply_turtle_spot_go(q, me)
+	BroodRoot.batch_end()
+	return r
+
+
+func _nb_supply_turtle_spot_go(q: Unit, me: Unit):
 	var centres: Array = [q.position]
 	for t in _nb_mine(BroodNew.TURTLE):
 		if t != me and BroodNew.rooted(t):
@@ -1081,7 +1129,7 @@ func _nb_supply_turtle_spot(q: Unit, me: Unit):
 				if BroodRoot.place_problem(game, team, BroodNew.TURTLE, p, me, true) != "":
 					continue
 				var ok := true
-				for o in game.units:
+				for o in BroodRoot._bt_mine:
 					if o != me and o.team == team and (o.kind == BroodNew.TURTLE or o.kind == BroodNew.MAW) and not o.dead and o.position.distance_to(p) < 3.0 * Defs.TILE:
 						ok = false
 						break
@@ -1180,12 +1228,19 @@ func _nb_root_watch() -> void:
 			_root_since.erase(id)
 
 
+var _bad_at := {}                  # (a bad spot's key -> its point, read once: str_to_var for every spot asked was slow)
+
+
 func _spot_bad(p: Vector2) -> bool:
 	for k in _nb_bad_spots.keys():
 		if game.clock > float(_nb_bad_spots[k]):
 			_nb_bad_spots.erase(k)
+			_bad_at.erase(k)
 			continue
-		var v = str_to_var("Vector2" + String(k))
+		var v = _bad_at.get(k)
+		if v == null and not _bad_at.has(k):
+			v = str_to_var("Vector2" + String(k))
+			_bad_at[k] = v
 		if v is Vector2 and (v as Vector2).distance_to(p) < 2.0 * Defs.TILE:
 			return true
 	return false
@@ -1206,6 +1261,13 @@ func _nb_spot_ok(p: Vector2) -> bool:
 ## A Rootmaw's spot: on the swamp round the Mother first, then round the turtles on new ground (their swamp; a far
 ## turtle with Rootmaws round it is a real expansion), on fresh ground, a little away from the enemy.
 func _nb_find_spot(q: Unit, m: Unit):
+	BroodRoot.batch_begin(game, team)          # (a search batch: the same answers, the units listed once)
+	var r = _nb_find_spot_go(q, m)
+	BroodRoot.batch_end()
+	return r
+
+
+func _nb_find_spot_go(q: Unit, m: Unit):
 	var centres: Array = [[q.position, [8.0, 11.0, 14.0, 17.0, 20.0]]]
 	var far := float(Defs.NB["expansion_tiles"]) * Defs.TILE * 0.9
 	for t in _nb_mine(BroodNew.TURTLE):
@@ -1227,6 +1289,12 @@ func _nb_find_spot(q: Unit, m: Unit):
 				# (the ROOT checks: its footprint, on its side's swamp, its circle clear of the others' and of their plans)
 				# (or where the swamp is spreading to, 1 tile a second: it will be there when the grub is)
 				var soon := not BroodNew.on_swamp(game, team, p) and BroodNew.swamp_coming(game, team, p)
+				# (quick no's first: off the swamp and not coming, or in another Rootmaw's circle, are place_problem's own
+				# no's, so the answer is the same; it only skips the footprint walk for them)
+				if not soon and not BroodNew.on_swamp(game, team, p):
+					continue
+				if _maw_circle_taken(p, m):
+					continue
 				if not _nb_spot_ok(p) or BroodRoot.place_problem(game, team, BroodNew.MAW, p, m, true, 1.0, not soon) != "" or _spot_bad(p):
 					continue
 				var s := p.distance_to(q.position) * (1.0 if ci == 0 else 0.6) + (60.0 if int(game.height[game.idx(c)]) != h else 0.0) + p.distance_to(from) * 0.3
@@ -1243,6 +1311,21 @@ func _nb_find_spot(q: Unit, m: Unit):
 					bs = s
 					best = p
 	return best
+
+
+## Inside an open Rootmaw's circle or a planned one's (BroodRoot.place_problem's Rootmaw rule, in a search batch).
+func _maw_circle_taken(p: Vector2, me: Unit) -> bool:
+	var rr := float(Defs.PIT_CLAIM) * Defs.TILE * 2.0
+	for o in BroodRoot._bt_maws:
+		if o == me or o.dead:
+			continue
+		if o.kind == BroodNew.MAW and o.tesla_mode != "packed" and o.position.distance_to(p) < rr:
+			return true
+		if o.team == team:
+			var pl := BroodRoot.plan_of(o)
+			if not pl.is_empty() and String(pl[0]) == BroodNew.MAW and (pl[1] as Vector2).distance_to(p) < rr:
+				return true
+	return false
 
 
 func _nb_nearest_foe_pos(p: Vector2) -> Vector2:

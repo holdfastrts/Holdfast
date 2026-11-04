@@ -291,6 +291,59 @@ static func plan_of(u: Unit) -> Array:
 ## rooted creature, a ramp, uneven ground), another creature's plan there, and its own rules (a Rootmaw: on your swamp,
 ## its ground circle clear of the others'; a father: within his reach of the Mother). `me`: the one rooting
 ## (its own plan and body don't count). ai: the computer also keeps its ramps clear. sc: the Mother's stage scale.
+## A SEARCH BATCH (docs/perf_armies.md): the computer's spot finders ask place_problem (and BroodNew.swamp_coming) about
+## hundreds of spots in one go, and each ask went through every unit on the map, twice. Between batch_begin and batch_end
+## (nothing moves in between: one think) the units that can answer are listed once, in the same order, so every answer is
+## the same, word for word. Outside a batch nothing changes.
+static var _bt_g: Game = null
+static var _bt_t := -1
+static var _bt_plans: Array = []      # (side t's units with a plan, in g.units order: the first loop's only answers)
+static var _bt_maws: Array = []       # (open Rootmaws of any side, and side t's units with a plan: the Rootmaw loop's)
+static var _bt_swamp: Array = []      # (side t's rooted Mothers and Mound Turtles: swamp_coming's)
+static var _bt_mine: Array = []       # (side t's Mound Turtles and Rootmaws: the computer's spacing checks)
+static var _bt_depth := 0             # (a batch inside a batch: the outer one's lists stay)
+
+
+static func batch_begin(g: Game, t: int) -> void:
+	_bt_depth += 1
+	if _bt_depth > 1 and in_batch(g, t):
+		return
+	_bt_g = g
+	_bt_t = t
+	_bt_plans = []
+	_bt_maws = []
+	_bt_swamp = []
+	_bt_mine = []
+	for o in g.units:
+		if o.dead:
+			continue
+		if o.team == t and (o.kind == BroodNew.TURTLE or o.kind == BroodNew.MAW):
+			_bt_mine.append(o)
+		var has_plan: bool = o.team == t and not plan_of(o).is_empty()
+		if has_plan:
+			_bt_plans.append(o)
+		if has_plan or (o.kind == BroodNew.MAW and o.tesla_mode != "packed"):
+			_bt_maws.append(o)
+		if o.team == t and (o.kind == BroodNew.QUEEN or o.kind == BroodNew.TURTLE) and BroodNew.rooted(o):
+			_bt_swamp.append(o)
+
+
+static func batch_end() -> void:
+	_bt_depth = maxi(0, _bt_depth - 1)
+	if _bt_depth > 0:
+		return
+	_bt_g = null
+	_bt_t = -1
+	_bt_plans = []
+	_bt_maws = []
+	_bt_swamp = []
+	_bt_mine = []
+
+
+static func in_batch(g: Game, t: int) -> bool:
+	return _bt_g == g and _bt_t == t
+
+
 static func place_problem(g: Game, t: int, k: String, p: Vector2, me: Unit = null, ai := false, sc := 1.0, swamp_rule := true) -> String:
 	p = snap(k, p, sc)
 	var c := cell_for(k, p, sc)
@@ -327,7 +380,8 @@ static func place_problem(g: Game, t: int, k: String, p: Vector2, me: Unit = nul
 			elif int(g.height[i]) != h and not ramp_ok:
 				return "Uneven ground: it needs level ground."
 	var r := Rect2(Vector2(c) * T, Vector2(sz) * T)
-	for o in g.units:
+	var batch := in_batch(g, t)
+	for o in (_bt_plans if batch else g.units):
 		if o == me or o.dead or o.team != t:
 			continue
 		var pl := plan_of(o)
@@ -338,7 +392,7 @@ static func place_problem(g: Game, t: int, k: String, p: Vector2, me: Unit = nul
 			if swamp_rule and not BroodNew.on_swamp(g, t, p):
 				return "No swamp here: a Rootmaw roots only on your swamp (root a Mound Turtle to spread it)."
 			var rr := float(Defs.PIT_CLAIM) * T * 2.0
-			for o in g.units:
+			for o in (_bt_maws if batch else g.units):
 				if o == me or o.dead:
 					continue
 				if o.kind == BroodNew.MAW and o.tesla_mode != "packed" and o.position.distance_to(p) < rr:

@@ -263,7 +263,7 @@ static func swamp_full(u: Unit) -> float:
 ## Swamp is spreading toward p: within the full radius of a rooted Mother or Mound Turtle of side t, not reached yet
 ## (the computer picks a Rootmaw's spot there; a grub sent to morph there waits for it: BroodRoot.morph_tick).
 static func swamp_coming(g: Game, t: int, p: Vector2) -> bool:
-	for u in g.units:
+	for u in (BroodRoot._bt_swamp if BroodRoot.in_batch(g, t) else g.units):      # (a search batch: the same units)
 		if u.team != t or u.dead or not (u.kind == QUEEN or u.kind == TURTLE) or not rooted(u):
 			continue
 		var d: Vector2 = (p - u.position) / Defs.TILE
