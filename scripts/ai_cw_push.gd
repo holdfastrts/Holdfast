@@ -450,6 +450,15 @@ func _assault(front: Array) -> void:
 			_place_front(front, goal, _dir(), true)
 		return
 	_arrive_t = game.clock
+	if tgt is Building and units.any(func(u: Unit) -> bool: return _heavy(u)):
+		# (a building with Ballistas along: they break it from out of musket reach, the front screens them, as at a wall;
+		# the front alone at a Crown main walked up its ramp away from its Ballistas and died there, Greenhold 11 7:30)
+		piece = tgt
+		piece_t = game.clock
+		stats["sieges"] = int(stats["sieges"]) + 1
+		_phase("siege")
+		say("the Ballistas lay siege to the %s at %s" % [String(tgt.d["name"]), _where(tgt.center())])
+		return
 	for u in front:
 		if _guards.has(u) or not u.can_hit(tgt):
 			continue
@@ -538,7 +547,17 @@ func _fight(foes: Array) -> void:
 	# THE SCREEN: the front meets what comes within SCREEN_R of the line, else it holds the line in front of the machines
 	# (the Ballistas outrange the Musketeers: charging them only fed the Clock Soldiers to the muskets one by one, 7:34
 	# Greenhold 11); a foe that keeps out of reach is the Ballistas' (or the front walks on once it is calm)
-	var close: Array = foes.filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) < SCREEN_R)
+	# (not up a cliff: enemies on high ground the anchor is below are not chased up the ramp into their main; the line steps
+	# back out of their reach instead. 8 Clock Soldiers ran up a Crown ramp after 3 Musketeers and died there in 20 s,
+	# Greenhold 11 7:06)
+	var low := not game.on_high(anchor)
+	var above: Array = foes.filter(func(o: Unit) -> bool: return low and game.on_high(o.position))
+	var close: Array = foes.filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) < SCREEN_R and not above.has(o))
+	if close.is_empty() and not above.is_empty():
+		var ac := _centre(above)
+		if ac.distance_to(anchor) < 300.0:
+			anchor = anchor + (anchor - ac).normalized() * 90.0
+			_note_once("cliff", "enemies shoot down from high ground: the line steps back out of their reach", 30.0)
 	var ccen := _centre(close) if not close.is_empty() else Vector2.INF
 	var dir := _dir()
 	for u in front:
