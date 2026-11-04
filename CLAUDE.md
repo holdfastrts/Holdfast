@@ -62,6 +62,41 @@
   scripts/campaign/ (Campaign, MissionRun = game.mission, MissionUi, CampaignMenu, StillView), texts in
   tools/i18n/campaign/, tools/test_campaign.gd. One placeholder mission (p01_revolt: the Crown puts down a revolt; the
   story is being written with the owner). Open: a real two-device online run of CO-OP / VERSUS, saving a mission, art.
+- CAMPAIGN STORY (owner, 2026-11-04; the lines below are his decisions and ideas, in order):
+  - CAMPAIGN STRUCTURE (owner, DECIDED 2026-11-04 09:41): ONE story spine merging all options: every battle playable from
+  both sides (solo pick a side, co-op same side, versus = the other side of the same mission), choices carry forward as
+  consequences (start forces, allies, units, heroes alive/dead; a lost battle returns as a reclaim mission), hub remembers,
+  branches split and rejoin (diamond), real splits only at the endings; a canon timeline kept for the writers. The two
+  storylines (Brood: explorer v scientists; Clockwork: clockmaker v priest) CROSS 3 TIMES: beginning, middle, end.
+  - CAMPAIGN FRAME (owner, idea 2026-11-04 09:50): the story is FLASHBACKS. Present: total global war; the Crown (a
+  world empire, capital ROME, colonies round the globe, once unchecked) barely holds its key colonies and capitals. The
+  campaign follows the fall from hegemony: heretical, rebellious uprisings (themed on the French Revolution) crushed by
+  the Church Inquisition and the Crown Armed Forces, then the Clockwork and Brood problems pile up and the Crown loses
+  ground, up to the present war.
+  - CAMPAIGN NARRATOR (owner, DECIDED 2026-11-04 09:55): the KING is the main narrator (the frame, in the present); each
+  part/mission has its own narrator from that side's perspective (the explorer, the scientist, the clockmaker, the priest...).
+  - CAMPAIGN TONE (owner, DECIDED 2026-11-04 09:59): the game is Catholic and monarchist; the Crown and the Church are
+  objectively the good guys, no subverting expectations. The King narrates truthfully (no unreliable-King twist); the
+  other sides' narrators may be mistaken or deceived, the Crown's are not.
+  - CAMPAIGN YEAR is about 2767 (owner 2026-11-04, not 2500). A global story.
+  - MISSION 1 (owner, 2026-11-04 10:26): a TOBACCO PLANTATION in the American colony attacked by heretical rebels (against
+  Church and Crown; they want freedom and secularism). Witness: the missionary PRIEST, then a young seminarian, watches the
+  colony's lord put the unrest down with swift, extreme violence (canister into the mob). Play: train and defend the
+  plantation with Musketeer lines and cannon, push the rebels back to the province stronghold they took, blast them with
+  canister. The King smokes a pipe; other characters smoke cigars and pipes and shudder at rebels destroying the precious leaf.
+  - MISSION 1 settled (owner 10:53): VIRGINIA (Brazil saved for another mission); names Claude's choice, European from all
+  over (proposed: King Constantine IV in Rome; Lord Edmund Fairleigh, Governor of Virginia; seminarian Tomasz Wierzbicki,
+  later the missionary priest; Captain Matteo Ruggieri of the guns; rebel leader Etienne Varenne of the Free Assembly,
+  green and black). The REBELS are a minor non-playable faction with their own units and art. OPENING = oil-painting
+  STILLS (5+), the first being the King lighting his pipe, which is also the main menu picture.
+  - CROWN COLOUR IS PURPLE (owner, 2026-11-04 11:35): the Crown's standard colour changes to purple (stills done in purple;
+  main menu painting assets/menu/battle.jpg to be redone by ChatGPT, the Crown was blue there). The mission 1 stills are in
+  art/campaign/stills/p01_01..06 (move into campaign/ when wired in) (king pipe = also a main menu candidate).
+- TUTORIAL (owner, DECIDED 2026-11-04): a TUTORIAL button beside CAMPAIGN; Tutorial teaches the game, Campaign is the story
+  for players who know how to play. Cloud job on branch `tutorial` (lessons per faction on the mission engine); merge when
+  its last commit starts with "DONE: tutorial:".
+- IDEA BUCKET: the Clockwork tempo/beat (commands in a beat window, sync bonuses), owner 2026-11-04: "leave it in the idea
+  bucket". TO DO LATER: translate every announcer line (Crown herald, Brood scientist) into pt/es voices.
 
 - EXHAUSTED MEANS EXHAUSTED (owner, 2026-10-30), 0.24.0 (branch exhaust-economy, docs/exhaust_economy.md): no trickle for
   anyone; spent soil/brass/ground pay 0; powder and Tension fall with their reserve to a FLOOR (Defs.POWDER_FLOOR 15%,
