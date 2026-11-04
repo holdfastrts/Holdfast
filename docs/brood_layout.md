@@ -59,8 +59,12 @@ All in `scripts/brood_layout.gd` (BroodLayout) and a few hooks.
 5. **Walking out through its own creatures now aims for the open map** (`BroodRoot.boxed`, `exit_point`, `pass_move`
    use `BroodLayout.own_pocket` / `out_ok`): a pocket its own creatures close counts as boxed in at any size, and the
    walk ends only out on the open map, not inside a big pocket. This one also helps the player's own Brood.
-6. While the computer's Mother is up (fighting), her home footprint is not kept for her yet: what roots there in the
-   meantime is checked like anything else, and she roots back on her home spot (the safety net covers it).
+6. **Her nest grows**: the ground the Mother's last-stage nest will take round her rooted feet counts as taken in the
+   check, so nothing roots where her growing nest would close a gap later (the Cinder Steps games).
+7. **The alarm's turtle met on its way**: it used to root where it stood (ROOT, the player's rules: on a ramp is allowed
+   for a turtle); now only where the computer may root (not on or by a ramp, no pocket closed), else it walks on to its
+   spot (`AIBroodNew._front_may_root_here`; the Redrock Canyon games).
+8. `BroodLayout.off` (or `BROOD_LAYOUT_OFF=1` for any tool) runs the computer as before, for comparisons.
 
 ## 3. Numbers
 
@@ -71,29 +75,73 @@ creatures, counted once a second (unit-seconds), with the most at once and the l
 **Dry by own turtle** = a Rootmaw that went dry and uprooted within 10 s of one of its own Mound Turtles in reach
 getting up.
 
-STUDY_TABLE
+21 games, each played twice from the same seed: before the fix (`off:1`) and after it. The games are not
+deterministic, so before and after part ways after the first minutes; "to 10:00" = still going when the run stopped.
+The "after" column of the first 15 rows is a second run on the final code (the first after-runs, on an earlier
+commit, gave 0 stuck unit-seconds too).
+
+| map | Brood plan v foe | seed | stuck unit-s before | after | most at once before | after | longest before | after | spots refused (after) | before | after |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Highmoor | Economy v Crown | 3 | 56 | 0 | 13 | 0 | 4 s | 0 s | 3 | to 10:00 | to 10:00 |
+| Highmoor | Rush v Clockwork | 3 | 0 | 0 | 0 | 0 | 0 s | 0 s | 0 | to 10:00 | to 10:00 |
+| Redrock Canyon | Balanced v Crown | 5 | 0 | 0 | 0 | 0 | 0 s | 0 s | 2 | to 10:00 | to 10:00 |
+| Redrock Canyon | Spitter timing v Clockwork | 5 | 13,592 | 0 | 69 | 0 | 245 s | 0 s | 0 | to 10:00 | to 10:00 |
+| Thornwood Maze | Economy v Crown | 2103718835 | 0 | 0 | 0 | 0 | 0 s | 0 s | 0 | to 10:00 | to 10:00 |
+| Thornwood Maze | Timing v Clockwork | 4 | 1 | 7 | 1 | 1 | 0 s | 6 s | 1 | to 10:00 | to 10:00 |
+| Greenhold | Brute siege v Crown | 6 | 1 | 0 | 1 | 0 | 0 s | 0 s | 3 | to 10:00 | to 10:00 |
+| Greenhold | Air v Clockwork | 6 | 0 | 0 | 0 | 0 | 0 s | 0 s | 0 | to 10:00 | to 10:00 |
+| Cinder Steps | Extreme rush v Crown | 8 | 0 | 0 | 0 | 0 | 0 s | 0 s | 1 | to 10:00 | to 10:00 |
+| Cinder Steps | Economy v Clockwork | 8 | 0 | 0 | 0 | 0 | 0 s | 0 s | 3 | Brood won 9:52 | Brood won 9:20 |
+| Highmoor | Economy v Crown | 11 | 12 | 0 | 6 | 0 | 2 s | 0 s | 3 | Brood won 14:06 | Brood won 14:46 |
+| Redrock Canyon | Economy v Crown | 11 | 9 | 0 | 4 | 0 | 3 s | 0 s | 1 | Brood won 13:47 | to 15:00 |
+| Thornwood Maze | Economy v Crown | 11 | 2 | 1 | 1 | 1 | 0 s | 0 s | 2 | to 15:00 | Brood won 13:28 |
+| Greenhold | Economy v Crown | 11 | 0 | 0 | 0 | 0 | 0 s | 0 s | 6 | Brood won 14:33 | to 15:00 |
+| Cinder Steps | Economy v Crown | 11 | 56,443 | 0 | 149 | 0 | 412 s | 0 s | 1 | to 15:00 | Brood won 13:13 |
+| Redrock Canyon | Spitter timing v Clockwork | 21 | 22,613 | 0 | 68 | 0 | 477 s | 0 s | 1 | to 14:00 | to 14:00 |
+| Redrock Canyon | Spitter timing v Clockwork | 22 | 2 | 0 | 1 | 0 | 1 s | 0 s | 2 | Brood won 12:03 | to 14:00 |
+| Cinder Steps | Economy v Crown | 21 | 46,465 | 0 | 146 | 0 | 375 s | 0 s | 5 | to 14:00 | to 14:00 |
+| Cinder Steps | Economy v Crown | 22 | 31,294 | 0 | 105 | 0 | 354 s | 0 s | 2 | to 14:00 | Brood won 12:04 |
+| Cinder Steps | Balanced v Crown | 23 | 37,461 | 1 | 121 | 1 | 375 s | 0 s | 8 | to 14:00 | Brood won 12:37 |
+| Redrock Canyon | Economy v Clockwork | 23 | 6 | 0 | 6 | 0 | 0 s | 0 s | 6 | to 14:00 | Brood won 9:27 |
+
+Total stuck unit-seconds: before 207,957, after 9. Games 21; Brood wins before 5, after 7; Rootmaws dried by own turtle before 0, after 0; safety net actions after 2.
 
 - **The owner's bug, found twice**: Redrock Canyon, Spitter timing against the Clockwork (seed 5): from 5:55 its whole
   base (406 cells round the Mother) was shut in by the Mother, two Rootmaws, the Tyrant and Venom Sires and three Mound
   Turtles; 42 units at first, 69 at 10:00, as every egg hatched inside. Cinder Steps, Economy against the Crown Economy
   (the owner's eco v eco, 15 minutes, seed 11): from 8:08 the supply turtles packed round the Mother shut 95 units in,
   then 149 (two pockets, 130 and 57 cells) to the end: its whole army sat at home while the Crown army grew to 5,190.
-  After the fix: no unit shut in for a second in either game; the Cinder Steps game was won at 13:33.
+  After the fix: no unit shut in for a second in either game; the Cinder Steps game was won at 13:33 (13:13 on the final code).
 - **Small pockets** (13 units for 4 s, Highmoor 9:21: the Mother, three turtles and two Sires round a 23-cell gap) were
   already walked out of by the old escape; after the fix they don't happen.
-- **Every game after the fix: 0 stuck unit-seconds**; the whole-map check refused 0 to 6 spots a game; the safety net
-  never had to act (0 uproots, 0 walk-outs).
-- **Rootmaws dried by its own turtle: 0 in every game, before and after**: the alarm's turtle did not get up next to
-  live Rootmaws in these games (the owner's Thornwood seed against the Horseman rush played differently; the Brood went
-  on). The rule is tested by hand instead (`case:alarm` below). The Mother getting up dried one Rootmaw once before
-  the fix (Highmoor, Rush against the Clockwork); that is the Mother's own rule (docs/brood_ai_swarm.md), unchanged.
-- Results otherwise as before (who won, grubs, army): the change takes no time from the economy.
+- **The bug is common where the main is a cramped plateau**: every Cinder Steps game with an economic plan against
+  the Crown shut its army in before the fix (4 of 4: 95 to 149 units, for 6 to 7 minutes), and 2 of 3 Spitter timing
+  games on Redrock Canyon. After the fix: 9 stuck unit-seconds in all 21 games (Thornwood Maze, Timing against the
+  Clockwork: one unit for 6 s, walked out by the safety net; Cinder Steps, Balanced: one unit for a second).
+- **Who was it?** In the study logs (`a ... roots at`, `the Mother grows`, `the one to get up`): on Redrock Canyon the
+  alarm's turtle, met by the Clockwork on its way out, rooted where it stood at the main's ramp (5:53 got up, 6:05
+  rooted, the pocket from 6:03); on Cinder Steps the Mother grew to stage 3 (7:17, her nest 12 x 5) and her bigger
+  nest, the supply turtles packed round her and the cliff closed the ramp's mouth (pocket from 8:00).
+- **The whole-map check refused 0 to 8 spots a game**; the safety net acted twice in 21 games.
+- **Rootmaws dried by its own turtle: 0 in every game, before and after.** In the owner's Thornwood log the order is:
+  3:23 alarm, 3:25 a Rootmaw backs off from 3 Cuirassiers, 3:29 an uproot sound, 3:31 "defends ... at the Mother",
+  3:32 and 3:34 two Rootmaws lose their swamp, 3:42 "a Mound Turtle gets up to root in front of the natural". The
+  turtle's getting up is logged ten seconds AFTER the Rootmaws went dry, so the likelier cause there is the Mother
+  getting up to fight the Cuirassiers at her (her swamp goes with her). The turtle rule is done as asked and tested by
+  hand (`case:alarm`: on the old computer the alarm takes the turtle feeding the Rootmaw and it goes dry; now it takes
+  the other one). The Mother's own rule (docs/brood_ai_swarm.md) is unchanged: a question for the owner in section 6.
+- **Results**: the Brood won 7 of the 21 games after the fix, 5 before (no unit number changed; its army is no longer
+  stuck at home). Grubs and army were otherwise about the same.
 
 ## 4. Pictures
 
 `docs/shots/brood_layout/` (captions in `captions.md`).
 
-PICTURES
+See `captions.md` for each. Redrock Canyon (Spitter timing v Clockwork, seed 5): `01` before at 4:00 (open), `02` before
+at 6:01 (shut in), `03` before at 7:00 (the ramp's mouth closed), `04` after at 7:00 (open). Cinder Steps (Economy v
+Crown Economy): `05` before at 7:00 (the Mother growing), `06` before at 8:01 (shut in, the owner's shape), `07` seed 21
+before at 8:05 (wide: the ramp, the turtle under it, the crowd at the cliff), `08` seed 21 before at 9:50, `09` seed 21
+after at 9:50 (open), `10` seed 11 after at 10:00 (open; won at 13:33).
 
 ## 5. Tests
 
@@ -107,7 +155,25 @@ PICTURES
   - `case:alarm` (Thornwood Maze, Economy): at 4:30 the alarm is set off by hand: no Mound Turtle whose swamp is the only
     swamp of live Rootmaws gets up (unless dying), and no Rootmaw goes dry in the next 40 s because of its own turtle.
 
-TEST_RESULTS
+Results on this branch (0.30.9, Godot 4.7 headless; the "Aborted" Godot prints after quitting is the known one):
+- boot check (`godot --headless --quit-after 300`): no script error.
+- `test_brood_layout.gd`: rule on Greenhold (6,152 spots let be, 16 refused, all correct) and Redrock Canyon (30
+  refused, all correct); opening on Highmoor, Redrock Canyon, Thornwood Maze, Greenhold, Cinder Steps (Economy v Crown,
+  7:00), Redrock Canyon Spitter v Clockwork seed 5 (10:00) and Cinder Steps eco v eco seed 11 (10:00): 0 stuck
+  unit-seconds each, ALL PASS (with `off:1` the Cinder Steps eco v eco case FAILS: 14,053 unit-seconds, one grub shut in for 120 s); alarm ALL PASS (with `off:1` it FAILS 3 checks: the alarm takes the turtle
+  feeding the Rootmaw, the Rootmaw goes dry).
+- `test_brood_new.gd` 0 failures; `test_brood_ai_defend.gd` ALL PASS; `test_ai_brood.gd` balanced, timing, rush 0
+  failures each.
+- `test_brood_builds.gd`: picks 0 failures; timing against the Crown (Greenhold 11) and the Clockwork (Greenhold 3) 0
+  failures. **breach**: the checks depend on how the game goes, and these games are not deterministic:
+  - against the Crown, Greenhold seed 3: twice the Brood's FIRST push (no wall in its way, at 7:54 and 7:57) killed the
+    Crown outright (game over 11:06, 11:13), before the Crown put a Gate up, so "THE BREACH by 15:00" could not happen
+    (on the old computer the same seed met a Gate at 9:59 and breached it). With seed 4: 0 failures (a Gate at 9:33).
+  - against the Clockwork, Dune Sea seed 7, four runs: one passed (a Ratchet Turret broken at 9:20), two failed (the
+    Brood lost its army to an early Clockwork attack and the push went late or lost), one was cut off; on the old
+    computer one run passed. No "layout" refusal was logged in any of these runs (the whole-map check never fired;
+    only the quick check moved a spot or two), so I read this as the game's variance, not the change; it is worth a
+    look at merge (`BROOD_LAYOUT_OFF=1` reruns any of them on the old computer).
 
 ## 6. What is open
 
