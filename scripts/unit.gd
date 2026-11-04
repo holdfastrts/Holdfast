@@ -1116,6 +1116,31 @@ func ground_r() -> float:
 	return minf(radius, BroodNew.GROUND_R) if _k_root else radius
 
 
+## BroodResearch.speed_add, kept on the unit while its kind, its side's research (the same dictionary, as many entries:
+## research is only ever added) and whether it flies are the same: the same answer without the look-ups every tick
+## (docs/perf_armies.md).
+var _sa_kind := ""
+var _sa_tech = null
+var _sa_n := -1
+var _sa_air := -1
+var _sa_v := 0.0
+
+
+func _speed_add() -> float:
+	if team < 0 or team >= game.players.size():
+		return BroodResearch.speed_add(self)
+	var tech: Dictionary = game.players[team]["tech"]
+	var air := 1 if is_air() else 0
+	if _sa_kind == kind and _sa_n == tech.size() and _sa_air == air and is_same(_sa_tech, tech):
+		return _sa_v
+	_sa_v = BroodResearch.speed_add(self)
+	_sa_kind = kind
+	_sa_tech = tech
+	_sa_n = tech.size()
+	_sa_air = air
+	return _sa_v
+
+
 func _kind_flags() -> void:
 	_k_worker = Defs.is_worker(kind)
 	_k_fac = String(Defs.UNITS[kind]["faction"]) if Defs.UNITS.has(kind) else ""
@@ -3541,7 +3566,7 @@ func _tick_unit(delta: float) -> void:
 	# Brood on swamp: faster, and wounds close up.
 	speed = float(d["speed"])
 	if _k_fac == "brood":
-		speed += BroodResearch.speed_add(self)      # (PACK HUNT, SLITHER, UPDRAFT: scripts/brood_research.gd)
+		speed += _speed_add()      # (PACK HUNT, SLITHER, UPDRAFT: scripts/brood_research.gd)
 	if kind == Defs.BALLISTA_KIND:
 		speed *= Ballista.rate(self)        # (each crewman pushing: +10%)
 	elif kind == Defs.GREAT_WINDER_KIND:
@@ -3964,8 +3989,9 @@ func _tick_unit(delta: float) -> void:
 			want = Vector2.ZERO    # the shield is planted
 	if Defs.cw_roster and _k_cw:
 		want = CwUnits.steer(self, want, delta)
-	if Defs.gear_turn and Defs.gear_mode:
+	if Defs.gear_turn and Defs.gear_mode and (gt_on != 0.0 or gt_off != Vector2.INF or gt_carry != Vector2.ZERO or GearTurn.near(game, position)):
 		want = GearTurn.tick(self, want, delta)      # (TURNING GEARS: a ring's band carries it round; idle, it steps off)
+		# (far from every ring with nothing of the ride on it, the tick would change nothing: not asked. docs/perf_armies.md)
 	if crew_of == null:
 		_move(want, delta)
 	if Defs.cw_roster and _k_cw:
@@ -4105,6 +4131,7 @@ func compute_path() -> void:
 	# the enemy's gates are shut to us: the path goes round (or, walled out, up to the wall
 	# to break it), never into a gate it can't open
 	var shut := _shut_gates()
+	game._pq_shut = shut          # (the gates this walk shut: part of what a shared path must match, Game.find_path)
 	path = game.find_path(position, path_goal, not is_worker(), _path_margin())
 	path_i = 0
 	stuck_t = 0.0

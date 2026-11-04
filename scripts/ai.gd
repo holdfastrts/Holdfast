@@ -993,6 +993,9 @@ var _keep_fed_t := 0.0
 var field_keep_on := OS.get_cmdline_user_args().has("fieldkeep:on")      # (study switch: off by default, see docs/clockwork_ai_swarm.md)
 
 
+const KEEP_NONE_WAIT := 20.0
+
+
 func _keep_heavy_fed() -> void:
 	if game.clock < _keep_fed_t or not _mine(Defs.CW_HEAVY).is_empty() or not _kept(Defs.CW_HEAVY).is_empty():
 		return
@@ -1012,6 +1015,9 @@ func _keep_heavy_fed() -> void:
 			if c.x >= 0:
 				break
 	if c.x < 0:
+		# (no room for the big ring anywhere on the field: the search round every gear neighbour took 90 to 180 ms in one
+		# frame, every 5 s for minutes in a crowded base (docs/perf_armies.md): it looks again in KEEP_NONE_WAIT s)
+		_keep_fed_t = game.clock + KEEP_NONE_WAIT
 		return
 	if not game.ai_keep.has(team):
 		game.ai_keep[team] = {}
@@ -2396,6 +2402,10 @@ var _guards: Array = []         # Crown: the part of the army guarding it
 const HALL_FIRST_SOIL := 0.65   # Crown: the next hall comes first from this share of soil left
 const FRESH_CROWN := 0.4        # round 6, Crown: a hall with less soil left than this is not fresh (the next one is due)
 var _stage_spot := Vector2i(-1, -1)   # where the next hall goes (the escort walks there first)
+## When no hall spot was free, the search (every spot on the map rated: 15 to 20 ms a think in a big late game, on every
+## think while none was found) waits this long before it looks again (docs/perf_armies.md).
+const HALL_NONE_WAIT := 4.0
+var _hall_none_t := -1.0
 var _stage_t := 0.0
 
 
@@ -2441,11 +2451,16 @@ func _hall_first() -> bool:
 	_saving = true
 	var cost := int(Defs.BUILDINGS[hall]["cost"]) + (_first_econ_cost() if _dry() else 0)     # (dry land: the Farm / press too)
 	if _stage_spot.x < 0 or game.placement_problem(team, hall, _stage_spot, true) != "":
+		if game.clock < _hall_none_t:
+			_hall_reserve = false
+			_saving = false
+			return false            # (no free hall spot a moment ago: the search waits a little, docs/perf_armies.md)
 		_stage_spot = _safe_hall_spot()
 		if _stage_spot.x < 0 and _best_soil() < DRY_LAND:
 			_stage_spot = _last_resort_spot()
 		_stage_t = game.clock
 		if _stage_spot.x < 0:
+			_hall_none_t = game.clock + HALL_NONE_WAIT
 			_hall_reserve = false
 			_saving = false
 			return false
