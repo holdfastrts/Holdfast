@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.8", "items": [
+		"A NEW PLAN FOR THE CLOCKWORK COMPUTER, OWL RAIDS: a written opening build (the Light Works, the Mainspring on its big ring, the Escapement, two Clock Aviaries, TICKING OWL researched in one while the other makes Swifts), the first Ticking Owl at about 5:05, the economy growing behind it. Two Winders walk out with the Owls to a post near the enemy, out of sight, to wind them (an Owl runs down in about 80 seconds off its gear field), and the Owls strike its Farms, Mills, new Town Halls and workers from there, away from the anti-air seen, and fly back when it comes. A Swift scouts ahead. A real attack on the base calls the Owls home: Raptors, Horsemen and Clock Soldiers cannot hit them. Against the Brood it is the best Clockwork plan so far; against the Crown its Musketeers drive the Owls off. A computer on RANDOM PLAN can pick it.",
+		"Fixed: the Clockwork computer could turn the Springer raid's scouting Swift into a Ticking Owl late in the game.",
+	]},
 	{"v": "0.29.7", "items": [
 		"TWO NEW PLANS FOR THE CLOCKWORK COMPUTER, BUILT ROUND THE HEAVY WORKS. PENDULUMS, the answer to the Brood's Raptor swarms: two Clock Soldiers early, the Heavy Works as soon as the Escapement works, three Pendulums with the expansion behind them, then a slow push of Pendulums and Clock Soldiers, with Winders behind them, to the Brood's Rootmaws, its father and then its Mother. HEAVY WORKS PUSH: Clock Soldiers in front, Spring Ballistas behind them and the Great Winder behind those: a slow push that razes expansions from out of musket reach, breaks a wall in its way, waits short of the enemy's main until it is strong enough, and pulls back before it is wiped out. A computer on RANDOM PLAN picks the Pendulums half the time against the Brood.",
 		"The Clockwork computer on these plans sends a Winder out to wind its machines that ran down at home.",

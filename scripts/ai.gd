@@ -49,6 +49,10 @@ const STRATEGIES := {
 	# (a match cfg with "hidden_plans"). Its base layout and reactive turrets are to become shared Clockwork rules
 	# (docs/clockwork_builds_a.md).
 	"turtle": {"name": "Turret turtle", "wave": 24, "step": 10, "expand": 0.8, "halls": 3, "tech": 0.9, "workers": 1.15, "clock_only": true, "hidden": true},
+	# THE OWL RAIDS (cw-builds-c; scripts/ai_cw_builds_c.gd, docs/clockwork_builds_c.md): two Clock Aviaries, TICKING OWL,
+	# Owls raiding the enemy's economy away from its anti-air; then it plays on these numbers (Balanced, a later first wave:
+	# the Owls are the pressure meanwhile).
+	"owls": {"name": "Owl raids", "wave": 18, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
 }
 
 
@@ -1502,7 +1506,8 @@ func _air(t: float) -> void:
 	var best: Unit = null
 	var bd := INF
 	for u in army:
-		if u.kind != Defs.CUCKOO or u.owl_t >= 0.0 or (u.target != null and is_instance_valid(u.target)) or CwAir.morph_problem(u) != "":
+		if u.kind != Defs.CUCKOO or u.owl_t >= 0.0 or (u.target != null and is_instance_valid(u.target)) or CwAir.morph_problem(u) != "" \
+				or _on_errand(u):          # (a plan's own Swift, the Springer raid's scout: not turned into an Owl, cw-builds-c)
 			continue
 		var unsafe := false
 		for o in game.units_near(u.position, 10.0 * Defs.TILE):

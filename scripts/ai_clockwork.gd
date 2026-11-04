@@ -26,6 +26,9 @@ const SpringerRaid := preload("res://scripts/ai_springer_raid.gd")
 ## (cw-builds-a: the Clock Soldier rush and the Turret turtle, scripts/ai_cw_builds_a.gd, docs/clockwork_builds_a.md)
 const BuildsA := preload("res://scripts/ai_cw_builds_a.gd")
 var bta = null
+## (cw-builds-c: the Owl raids, scripts/ai_cw_builds_c.gd, docs/clockwork_builds_c.md)
+const BuildsC := preload("res://scripts/ai_cw_builds_c.gd")
+var btc = null
 
 ## THE PLANS. "steps": the build order, read in order (see _do_step):
 ##   "N kind[:big]"         at N supply (used, queued included), lay a building (a Clockwork building kind)
@@ -150,7 +153,7 @@ func _ready() -> void:
 		_attack_at = int(_s("wave"))
 		note("cwnew:off: the Springer timing plays as the old computer's Balanced")
 		return
-	if not (PLANS.has(strategy) or PLANS_B.has(strategy)) or not Defs.gear_mode:
+	if not (PLANS.has(strategy) or PLANS_B.has(strategy) or BuildsC.PLANS.has(strategy)) or not Defs.gear_mode:
 		return
 	_make_plan()
 	_b_ready()          # (cw-builds-b: the push, scripts/ai_cw_push.gd)
@@ -161,7 +164,7 @@ func _ready() -> void:
 
 
 func _make_plan() -> void:
-	plan = ((PLANS[strategy] if PLANS.has(strategy) else PLANS_B[strategy]) as Dictionary).duplicate(true)
+	plan = ((PLANS[strategy] if PLANS.has(strategy) else (PLANS_B[strategy] if PLANS_B.has(strategy) else BuildsC.PLANS[strategy])) as Dictionary).duplicate(true)
 	for k in over:
 		plan[k] = over[k]
 	steps = (plan["steps"] as Array).duplicate()
@@ -170,6 +173,7 @@ func _make_plan() -> void:
 	worker_goal = int(plan["workers0"])
 	raid = SpringerRaid.new(self)
 	bta = BuildsA.new(self)
+	btc = BuildsC.new(self)
 
 
 func note(s: String) -> void:
@@ -180,11 +184,11 @@ func note(s: String) -> void:
 
 ## The plan's own Springers (the raid's), its Swift and its Winders at the cliff foot are not the shared computer's.
 func _on_errand(u: Unit) -> bool:
-	return super._on_errand(u) or (raid != null and raid.has(u)) or (bta != null and bta.has(u)) or (push != null and push.has(u))
+	return super._on_errand(u) or (raid != null and raid.has(u)) or (bta != null and bta.has(u)) or (btc != null and btc.has(u)) or (push != null and push.has(u))
 
 
 func _held_worker(u: Unit) -> bool:
-	return (raid != null and raid.has(u)) or (bta != null and bta.has(u))
+	return (raid != null and raid.has(u)) or (bta != null and bta.has(u)) or (btc != null and btc.has(u))
 
 
 # ------------------------------------------------------------------ the shared computer's parts, off while the build runs
@@ -237,6 +241,8 @@ func _army() -> void:
 	if push != null:
 		push.tick()
 		_b_rewind()
+	if btc != null:
+		btc.tick()
 	super._army()
 
 
@@ -330,6 +336,10 @@ func _do_step(i: int) -> Dictionary:
 		var ra: Dictionary = bta.step(i, parts)
 		if not ra.is_empty():
 			return ra
+	if btc != null:
+		var rc: Dictionary = btc.step(i, parts)
+		if not rc.is_empty():
+			return rc
 	if parts.size() >= 2 and Defs.UNITS.has(head):
 		return _do_units(i, head, int(parts[1]))
 	var big := head.ends_with(":big")
@@ -570,8 +580,8 @@ var _b_spring: Array = []           # [cell, users]: the Mainspring spot _spring
 
 
 func _b_ready() -> void:
-	if not plan.has("raid"):
-		raid = null
+	if PLANS_B.has(strategy) and not plan.has("raid"):
+		raid = null             # (the push plans run no Springer raid; the Owl raids use the raid's map helpers: merge 0.29.8)
 	if plan.has("push"):
 		push = CwPush.new(self, plan["push"])
 
