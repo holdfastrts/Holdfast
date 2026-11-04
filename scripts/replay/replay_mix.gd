@@ -78,6 +78,10 @@ static func play_mixed(g: Game, d: Dictionary) -> ReplayMix:
 	if ver != String(ProjectSettings.get_setting("application/config/version", "dev")):
 		p.version_note = Loc.t("Recorded on v%s: some things may look different.") % ver
 	g.replay = p                 # (game.net stays null: this game is the real thing, not an online guest)
+	# (pausing a mixed replay pauses the game itself: the camera, the selection and the minimap still work)
+	for n in [g.controls, g.spectator, g.camera]:
+		if n is Node:
+			(n as Node).process_mode = Node.PROCESS_MODE_ALWAYS
 	g.add_child(p)
 	p.set_speed(1.0)
 	p.seek(p.start_t)
@@ -187,10 +191,12 @@ func _give(c: Array) -> void:
 	if who == null or not is_instance_valid(who) or (who is Entity and (who as Entity).dead):
 		n_lost += 1
 		return
-	var args = _dec(c[3])
-	if not (args is Array):
+	if not (c[3] is Array):
 		n_lost += 1
 		return
+	var args: Array = []
+	for x in c[3]:
+		args.append(_dec(x))         # (an argument that is gone stays as null in its place; inside a list it is left out)
 	_nest = []
 	_nest_clk = float(c[0])
 	_outer = fn
@@ -211,6 +217,11 @@ func _give(c: Array) -> void:
 ## A computer's decision (ReplayMixRecorder._diffs): a unit's new order, a building's queue and rally.
 func _decision(fn: String, a: Array) -> void:
 	match fn:
+		"#x":
+			var x = a[0] if not a.is_empty() else null
+			if x is Unit and is_instance_valid(x) and not x.dead and not _away(x):
+				x.hp = 0.0
+				x.die()
 		"#o":
 			var u = a[0]
 			if not (u is Unit) or not is_instance_valid(u) or u.dead or _away(u):
@@ -285,9 +296,9 @@ func _dec(v):
 ## near where it was, which takes the id from then on.
 func _ref(r: Array):
 	var id := int(r[0])
-	var e = _by_nid.get(id)
-	if e != null and is_instance_valid(e) and not e.dead:
-		return e
+	if _by_nid.has(id):
+		var e = _by_nid[id]
+		return e if e != null and is_instance_valid(e) and not e.dead else null      # (known, and gone: not another one)
 	var k := String(r[1])
 	var t := int(r[2])
 	var p := Vector2(float(r[3]), float(r[4]))
@@ -461,13 +472,13 @@ func _set_players(d: Dictionary) -> void:
 func _drop_unit(u: Unit) -> void:
 	_glides.erase(u)
 	if u.net_id != 0:
-		_by_nid.erase(u.net_id)
+		_by_nid[u.net_id] = null         # (gone: a command naming it later finds nothing, not another one)
 	NetSnapshot._unit_gone(game, u)
 
 
 func _drop_building(b: Building) -> void:
 	if b.net_id != 0:
-		_by_nid.erase(b.net_id)
+		_by_nid[b.net_id] = null
 	NetSnapshot._building_gone(game, b, false)
 
 

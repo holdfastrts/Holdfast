@@ -808,7 +808,7 @@ func _watch_mixed() -> bool:
 			_bench["seek_ms"] = [_mseek[0][0], _mseek[1][0]]
 			var stale := 0
 			for u in g.units:
-				if is_instance_valid(u) and not u.dead and u.net_id != 0 and not mx._by_nid.has(u.net_id):
+				if is_instance_valid(u) and not u.dead and u.net_id != 0 and mx._by_nid.get(u.net_id) != u:
 					stale += 1
 			check("mixed_seek", ok and stale == 0, "at %s (asked %s), stale %d" % [ReplayPlayer.clock_text(mx.play_t), ReplayPlayer.clock_text(float(mx.keys[clampi(mx.keys.size() / 4, 0, mx.keys.size() - 2)]["t0"]) + 5.0), stale])
 			# pause holds the clock; the viewer orders nothing

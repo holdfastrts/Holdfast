@@ -37,6 +37,7 @@ var _diff_t := -999.0
 var _osig := {}                  # unit -> [order, x, y, target]
 var _bsig := {}                  # building -> [its queue's hash, rally, worker rally]
 var _auto := PackedByteArray()   # team -> 1 for a computer side
+var _gone := {}                  # the dead whose death is written down
 var _camrec_t := -999.0
 var _cfg := {}
 
@@ -199,7 +200,17 @@ func _diffs() -> void:
 		n_diffs += 1
 		n_cmds += 1
 	for u in game.units:
-		if u.dead or u.off_field:
+		if u.dead:
+			# a death, any side's: the replay's unit falls then too (in a big fight the replay's own fight would
+			# otherwise keep it standing until the next keyframe, and the fights around it go differently)
+			var did: int = u.get_instance_id()
+			if not _gone.has(did):
+				_gone[did] = true
+				cmds.append([clk, 0, "#x", [_enc(u, ok)]])
+				n_diffs += 1
+				n_cmds += 1
+			continue
+		if u.off_field:
 			continue
 		var tm: int = u.team
 		if tm < 0 or _auto[tm] == 0 or u.aboard != null:
@@ -246,6 +257,13 @@ func key() -> void:
 		for k in _osig.keys():
 			if not live.has(k):
 				_osig.erase(k)          # (units gone since)
+	if _gone.size() > 256:
+		var bodies := {}
+		for u in game.units:
+			bodies[u.get_instance_id()] = true
+		for k in _gone.keys():
+			if not bodies.has(k):
+				_gone.erase(k)          # (bodies cleared away)
 	var d := SaveGame.capture(game, _cfg, true)
 	if d.is_empty():
 		return

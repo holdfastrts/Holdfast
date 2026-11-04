@@ -10,7 +10,8 @@ The machine that runs the match records it. In a skirmish that is your own game.
 
 Watching uses the online friend's mode too (scripts/net/net_puppet.gd): the game builds the same map from the same setup, but simulates nothing. Each unit is drawn and animated from the pictures, and it glides between two pictures, so five a second look smooth.
 
-Why not StarCraft 2's kind of replay? StarCraft keeps only the players' commands and plays the whole match again, which needs the very same game version to come out the same; Blizzard keeps every old version for that. Holdfast changes its simulation several times a day, plays on browsers and phones whose arithmetic may differ, and even on one computer two runs of the same match do not stay the same (tools/test_determinism.gd drifts within 30 seconds), so a command replay would come out wrong after almost every update. A record of the pictures plays the same everywhere, on any later version.
+Why not StarCraft 2's kind of replay? (Since 0.29.5 there is one, MIXED, with keyframes that correct its drift:
+docs/replay_mixed.md.) StarCraft keeps only the players' commands and plays the whole match again, which needs the very same game version to come out the same; Blizzard keeps every old version for that. Holdfast changes its simulation several times a day, plays on browsers and phones whose arithmetic may differ, and even on one computer two runs of the same match do not stay the same (tools/test_determinism.gd drifts within 30 seconds), so a command replay would come out wrong after almost every update. A record of the pictures plays the same everywhere, on any later version.
 
 ## Online: each player gets the replay
 
@@ -91,6 +92,14 @@ Measured with tools/test_replay.gd (two Hard computers on Hollowfen, spawn:50: 5
 GLIDE plays 10 s at 1x from the middle of the match and, each frame, compares every unit on the screen with where it really was at that moment in the match (every tick's places kept while it ran). At LIGHT the error is where units turn a corner or step about in a melee between two pictures: they cut the corner by a few pixels (a unit is about 30 px tall). Nothing teleports; the jump rule (a unit out of sight for three intervals and far away) is unchanged. The file shrinks less than the pictures because keyframes stay every 10 s and a delta 0.5 s apart holds bigger changes. At --fixed-fps 30 (every frame has a tick) FULL takes only 3.3 pictures a second (the recorder waits for a frame without a tick), so that comparison is 5.45 against 3.25 ms. A phone is about four times slower: about 30 ms of recording per second at FULL and 15 at LIGHT in such a battle, so LIGHT takes it from about 3% of the time (where the budget already pushed FULL toward 3 pictures a second) to 1.5%.
 
 Run: `godot --headless --fixed-fps 30 --script res://tools/test_replay.gd -- rec:light` (also rec:full, the default, and rec:off: no recorder, no file, and the online rule).
+
+## Mixed replays (0.29.5)
+
+A third way of recording, MIXED, keeps the players' commands, the computers' decisions and a whole saved-game
+keyframe every 10 seconds instead of pictures, and plays the match again from them when you watch (the real game,
+not a puppet; each keyframe puts right what drifted). It costs about a tenth of FULL while recording and is the default
+on phones. The why, the numbers (cost, size, drift, seek) and what is rough are in docs/replay_mixed.md. Picture
+replays (this page) are unchanged.
 
 ## The controls
 

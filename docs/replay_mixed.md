@@ -70,20 +70,24 @@ the same way on the same version.
 
 | | FULL | LIGHT | MIXED |
 |---|---|---|---|
-| normal, 2:00 to 5:00 (60 to 97 units) | 6.55 | 3.34 | MIX50 |
-| big battle, about 125 units | 9.67 | LIGHT120 | MIX120 |
-| big battle, about 215 units | 11.36 | LIGHT200 | MIX200 |
+| normal, 2:00 to 5:00 (26 to 97 units) | 6.55 | 3.34 | 0.65 |
+| big battle, about 125 units (the whole 5 minutes) | 9.67 | 4.61 | 1.28 |
+| big battle, about 215 units (the whole 4 minutes) | 11.36 | 5.95 | 1.55 |
 
-MIXED's cost: MIXSPLIT. A phone is about four times slower: about 40 ms a second at FULL and 20 at LIGHT in a big
-battle (2 to 4% of its time, where FULL already drops toward 3 pictures a second), against about MIXPHONE at MIXED.
+MIXED's cost in the 215-unit battle: keyframes 0.36, packing and writing them 0.24, the computers' decisions 0.85 (looking
+at every computer unit twice a second), the players' commands 0.09. A keyframe there takes about 6 ms in one frame
+every 10 seconds (the pictures' keyframes took about as long). In the big battles the test's own marching orders (50
+soldiers a side sent somewhere every 4 seconds, as a player would) are about a third of the commands and the
+decisions; a normal match writes far fewer. A phone is about four times slower: about 40 ms a second at FULL and 20 at LIGHT in a big
+battle (2 to 4% of its time, where FULL already drops toward 3 pictures a second), against about 5 to 6 at MIXED (about half a percent).
 
 ### File size, KB per minute
 
 | | FULL | LIGHT | MIXED |
 |---|---|---|---|
-| normal, 5 minutes | 101 | 64 | SZ50 |
-| big battle, about 125 units | 172 | SZL120 | SZ120 |
-| big battle, about 215 units | 227 | SZL200 | SZ200 |
+| normal, 5 minutes | 101 | 64 | 27 |
+| big battle, about 125 units | 172 | 110 | 58 |
+| big battle, about 215 units | 227 | 154 | 74 |
 
 ### Drift: how far a unit is from where it really was
 
