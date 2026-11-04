@@ -231,7 +231,8 @@ func _lay_pieces(p: Dictionary) -> void:
 			keep += int(ai.brood_wall_keep())
 		# (the labourers first: a hall that could train one and is not gets its gold before the wall; with the wall laid
 		# at once the Economy plan had 19-20 labourers at 6:00 instead of 27, test_crown_build_order)
-		if game.workers(ai.team).size() < ai._posts():
+		if game.workers(ai.team).size() < ai._posts() and not (ai.has_method("owner_on") and ai.owner_on() and closed_share(p) < CLOSED_SHARE):
+			# (crown-owner-eco: the owner's ring before the next labourers: his palisade went down 3:49-5:42 in bursts)
 			for h in game.halls_of(ai.team, true):
 				if h.built and (h.queue as Array).is_empty():
 					keep += 50

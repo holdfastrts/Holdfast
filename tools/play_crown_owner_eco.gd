@@ -10,6 +10,8 @@ extends "res://tools/play_crown_v_brood.gd"
 ##   godot --headless --fixed-fps 30 --script res://tools/play_crown_owner_eco.gd -- coach:economy b:brood sb:brute \
 ##       map:highmoor seed:935948638 cslot:1 out:/abs/dir end:600 noshots:1
 const MAIN_AT := [240.0, 420.0, 600.0, 840.0]
+const DUMP_AT := [300.0, 480.0, 720.0]     # base_MMSS.json: the ground, the buildings and the layout's plan (tools/crown_layout_pics.py)
+var _dump_i := 0
 var noshots := false
 var own_lines: Array = []
 var ev_lines: Array = []
@@ -76,6 +78,9 @@ func _coach() -> void:
 		_ev("WALL POST: " + String(_ai.ch.wall_log[_oe_wall_seen][1]))
 		_oe_wall_seen += 1
 		shot("wallpost", _ai.ch._edge_aim, 0.9, 30.0)
+		_later.append([c + 6.0, "wallpost_%s.png" % _mmss(c + 6.0), _ai.ch._edge_aim])
+		if not noshots:
+			clip("wallpost", _ai.ch._edge_aim, 40, 6, 1.0)
 	while _oe_edge_seen < _ai.ch.edge_log.size():
 		_ev("EDGE: " + String(_ai.ch.edge_log[_oe_edge_seen][1]))
 		_oe_edge_seen += 1
@@ -106,6 +111,9 @@ func _coach() -> void:
 	if c >= _own_next:
 		_own_next += 60.0
 		_own_line(c)
+	if _dump_i < DUMP_AT.size() and c >= DUMP_AT[_dump_i]:
+		_dump_i += 1
+		_dump(c)
 
 
 func _shoot() -> void:
@@ -113,6 +121,48 @@ func _shoot() -> void:
 		pending.clear()
 		return
 	super._shoot()
+
+
+## The main's ground (34 tiles round its start), our buildings there and the layout's planned blocks, for a picture.
+func _dump(c: float) -> void:
+	var st: Vector2i = g.starts[me]
+	var r := 34
+	var x0 := maxi(0, st.x - r)
+	var y0 := maxi(0, st.y - r)
+	var x1 := mini(Game.W, st.x + r)
+	var y1 := mini(Game.H, st.y + r)
+	var rows: Array = []
+	var h0 := int(g.height[g.idx(st + Vector2i(2, 2))])
+	for y in range(y0, y1):
+		var row := ""
+		for x in range(x0, x1):
+			var i: int = g.idx(Vector2i(x, y))
+			if g.ramp[i] == 1:
+				row += "r"
+			elif g.water.size() > i and g.water[i] != 0:
+				row += "w"
+			elif int(g.solid[i]) == 1:
+				row += "#"
+			elif int(g.height[i]) == h0:
+				row += "h"
+			else:
+				row += "."
+		rows.append(row)
+	var bl: Array = []
+	for b in g.buildings:
+		if b.team != me or b.dead:
+			continue
+		if b.cell.x < x0 - 6 or b.cell.y < y0 - 6 or b.cell.x > x1 or b.cell.y > y1:
+			continue
+		bl.append({"k": b.kind, "x": b.cell.x - x0, "y": b.cell.y - y0, "w": b.size.x, "h": b.size.y, "built": b.built})
+	var plan: Array = []
+	if _ai.lay != null:
+		for e in _ai.lay.rects():
+			var rr: Rect2i = e[0]
+			plan.append({"k": e[1], "x": rr.position.x - x0, "y": rr.position.y - y0, "w": rr.size.x, "h": rr.size.y})
+	var f := FileAccess.open(out.path_join("base_%s.json" % _mmss(c)), FileAccess.WRITE)
+	f.store_string(JSON.stringify({"t": _mmss(c), "map": map, "owner": _ai.owner_on(), "rows": rows, "buildings": bl, "plan": plan}))
+	f.close()
 
 
 func _ev(s: String) -> void:

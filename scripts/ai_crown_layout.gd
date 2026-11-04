@@ -112,37 +112,21 @@ func _plan(h: Building) -> Dictionary:
 		var ro: Dictionary = CrownSites.ramp_of(game, ai.team)
 		if not ro.is_empty():
 			path_b = ro["top"]
-	# 3. the lattice
+	# 3. the lattice: of the BLOCK.x * BLOCK.y ways to lay it, the one with the most whole blocks
 	var map_mid := Vector2(Game.W, Game.H) * 0.5
 	var back := (h.center() / T - map_mid)
 	back = back.normalized() if back.length() > 0.1 else Vector2.DOWN
 	var ramp_top := path_b
-	var blocks: Array = []          # [cell, centre]
+	var blocks: Array = []          # [key, cell]
 	var valid := {}
-	var n := r / BLOCK.y + 2
-	for by in range(-n, n + 1):
-		for bx in range(-n, n + 1):
-			if bx == 0 and by == 0:
-				continue
-			var o := hc + Vector2i(bx * BLOCK.x, by * BLOCK.y)
-			var foot := Rect2i(o, Vector2i(4, 4))      # (a Cottage block's 4 x 4; a production building uses the top 4 x 3)
-			if (Vector2(o) + Vector2(2, 2)).distance_to(h.center() / T) > float(r):
-				continue
-			if not _in_area(foot, area):
-				continue
-			var bad := false
-			for k in kept:
-				if (k as Rect2i).intersects(Rect2i(o, Vector2i(4, 3))) or (k as Rect2i).intersects(foot):
-					bad = true
-					break
-			if bad:
-				continue
-			if path_b != Vector2.INF and _seg_dist(Vector2(o) + Vector2(2, 2), path_a, path_b) < RAMP_PATH + 2.2:
-				continue
-			if _near_ramp(foot):
-				continue
-			valid[Vector2i(bx, by)] = o
-			blocks.append([Vector2i(bx, by), o])
+	for oy in BLOCK.y:
+		for ox in BLOCK.x:
+			var bl: Array = []
+			var vd := {}
+			_lattice(hc + Vector2i(ox, oy), h, r, area, kept, path_a, path_b, bl, vd)
+			if bl.size() > blocks.size():
+				blocks = bl
+				valid = vd
 	# 4. the Cottage block (the main): at the back, at the edge, far from the ramp
 	var scored: Array = []
 	for e in blocks:
@@ -182,6 +166,42 @@ func _plan(h: Building) -> Dictionary:
 			game.mlog.who(ai.team), "main" if is_main else "new hall", (p["cot"] as Array).size(), cot_blocks.size(), (p["prod"] as Array).size(),
 			(p["farm"] as Array).size(), (p["mill"] as Array).size()])
 	return p
+
+
+## The whole blocks of the lattice anchored at `anchor` (cell): [key, cell] into `out`, key -> cell into `valid`.
+func _lattice(anchor: Vector2i, h: Building, r: int, area: Dictionary, kept: Array, path_a: Vector2, path_b: Vector2, out: Array, valid: Dictionary) -> void:
+	var T := float(Defs.TILE)
+	var n := r / BLOCK.y + 3
+	for by in range(-n, n + 1):
+		for bx in range(-n, n + 1):
+			var o := anchor + Vector2i(bx * BLOCK.x, by * BLOCK.y)
+			var foot := Rect2i(o, Vector2i(4, 4))      # (a Cottage block's 4 x 4; a production building uses the top 4 x 3)
+			if (Vector2(o) + Vector2(2, 2)).distance_to(h.center() / T) > float(r):
+				continue
+			if not _in_area(foot, area):
+				continue
+			var bad := false
+			for k in kept:
+				if (k as Rect2i).intersects(foot):
+					bad = true
+					break
+			if bad:
+				continue
+			if path_b != Vector2.INF and _rect_seg(foot, path_a, path_b) < RAMP_PATH:
+				continue
+			if _near_ramp(foot):
+				continue
+			valid[Vector2i(bx, by)] = o
+			out.append([Vector2i(bx, by), o])
+
+
+## The least distance (tiles) from a rect's cells to a segment.
+static func _rect_seg(rr: Rect2i, a: Vector2, b: Vector2) -> float:
+	var best := INF
+	for y in range(rr.position.y, rr.end.y):
+		for x in range(rr.position.x, rr.end.x):
+			best = minf(best, _seg_dist(Vector2(x, y) + Vector2(0.5, 0.5), a, b))
+	return best
 
 
 ## The hall's ground: cells on its level (no ramp, no terrain) joined to it within r tiles; inside its wall ring if any.

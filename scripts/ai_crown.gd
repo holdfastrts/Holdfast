@@ -941,7 +941,7 @@ func _mill_feedback(mills: int) -> int:
 func _hall_first() -> bool:
 	if not on or not bo_done or difficulty < 1 or _halls().size() < 2:
 		return super()
-	if owner_on() and _halls().size() == 2 and _best_soil() >= OWNER_HALL3_SOIL and game.workers(team).size() < OWNER_HALL3_LABS:
+	if not owner_hall_ok():
 		# (crown-owner-eco: the third hall when the two are full, not at a labourer count of 16 a hall: his third at 8:15 with
 		# 42 labourers on two halls; the computer's at 5:50 with 33 took the army's gold and was the first lost)
 		_hall_reserve = false
@@ -1019,6 +1019,8 @@ var site_picks := 0             # (tests, the coach) halls placed by the Crown's
 
 
 func _safe_hall_spot() -> Vector2i:
+	if not owner_hall_ok():
+		return Vector2i(-1, -1)     # (crown-owner-eco: the shared bank's hall waits too)
 	if not on or not sites_on or difficulty < 1 or not doctrine():
 		return super()
 	var mids: Array = []
@@ -1706,6 +1708,22 @@ const OWNER_HALL3_LABS := 40     # labourers on two halls before the third (two 
 const OWNER_HALL3_SOIL := 0.35   # ... or the best soil under this
 
 
+## THE NEXT HALL WHEN THE HALLS ARE FULL AND THE ARMY CAN HOLD THEM (the owner's third at 8:15 with 42 labourers and 29
+## Musketeers, his fourth at 12:25; the computer's at 5:50 and 7:30 took the army's gold and were the first lost): from the
+## third hall on, OWNER_HALL3_LABS labourers and an army of OWNER_HALL_ARMY times them, or the best soil under
+## OWNER_HALL3_SOIL. The opening's second hall is not held.
+const OWNER_HALL_ARMY := 0.7
+
+
+func owner_hall_ok() -> bool:
+	if not owner_on() or _halls().size() < 2:
+		return true
+	if _best_soil() < OWNER_HALL3_SOIL:
+		return true
+	var labs := game.workers(team).size()
+	return labs >= OWNER_HALL3_LABS + 10 * (_halls().size() - 2) and _army_supply(game.army(team)) >= int(OWNER_HALL_ARMY * labs)
+
+
 func owner_on() -> bool:
 	return on and not owner_off and difficulty >= 1 and bool(plan.get("owner", false))
 
@@ -1821,7 +1839,7 @@ func _supply_ahead() -> bool:
 	if not bo_done:
 		# (the opening's margin, as before: two, and two a Barracks; the gold of a Cottage too early is a Musketeer missing
 		# against a rush, tools/test_ai_wall_vs_rush.gd)
-		margin = 2 + 2 * _mine("barracks").filter(func(b: Building) -> bool: return b.built).size()
+		margin = 2 + 2 * _mine("barracks").filter(func(b: Building) -> bool: return b.built).size() + _halls().filter(func(h: Building) -> bool: return h.built).size() - 1
 	var going := _mine("cottage").filter(func(b: Building) -> bool: return not b.built).size()
 	var ahead := cap + 8 * going
 	if ahead - game.supply_used(team) > margin or ahead >= top or going >= SUPPLY_MAX_AT_ONCE:
