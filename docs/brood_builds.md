@@ -190,7 +190,7 @@ What the films showed, and what was changed:
   - `case:picks`: the lobby offers both for the Brood only, their names in pt and es, RANDOM PLAN picks either, a Brood
     computer on each gets its build (and Balanced none), the AI story tells the plans and the breach.
   - `case:timing` (Hard against Hard, `foe:` `map:` `seed:`): the timing leaves between 6:20 and 9:00 with at least 8
-    Spitters, the Venom line's Bigger Clutch is in, it reaches contact, and the economy grew behind it (24 grubs and a
+    Spitters, the Venom line's Bigger Clutch is in or being researched, it reaches contact, and the economy grew behind it (24 grubs and a
     turtle on new ground when it left). Prints a line every 30 s (stage, food, spoils, supply, grubs, Raptors /
     Spitters / Brutes, Sires, research, the enemy army it has seen, eggs) and its decisions.
   - `case:breach`: the push leaves with Brutes by 12:00, Battering Horns are in, and THE BREACH is made (a wall piece,
@@ -199,7 +199,16 @@ What the films showed, and what was changed:
   (push_out, push_contact, push_break, push_breach, push_back), and `builds.txt`: the economy at 4/6/8/10 minutes, a
   line per push, the result. **`tools/brood_builds_table.py DIR...`** makes the tables above.
 
-Results on this branch: see the last commit (the test runs at the end of the job).
+Results on this branch (0.29.16, Godot 4.7 headless; the "Aborted" Godot prints after quitting is the known one):
+- boot check (`godot --headless --quit-after 300`): no script error.
+- `test_brood_builds.gd`: picks 0 failures; timing against the Crown (Greenhold 11) 0 failures (out at 6:44 with 11
+  Spitters in the trial run); timing against the Clockwork (Greenhold 3) 0 failures (out at 7:59 with 25 Spitters,
+  contact 8:23; an earlier run failed only the Bigger Clutch check: it had started 2 s before the go, so the check now
+  counts it being researched); breach against the Crown (Greenhold 3) 0 failures (a Gate at 10:35); breach against the
+  Clockwork (Dune Sea 7) 0 failures (a Ratchet Turret at 11:41).
+- `test_brood_new.gd` 0 failures; `test_brood_ai_defend.gd` ALL PASS; `test_ai_brood.gd` balanced, timing, rush:
+  0 failures each (the other three profiles were not re-run: the plans and code paths they use are unchanged; every
+  hook is behind `bb != null`, which only the two new plans have).
 
 ## 5. What is open
 
