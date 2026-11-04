@@ -219,7 +219,20 @@ func _lay_pieces(p: Dictionary) -> void:
 	if short:
 		keep = maxi(keep, SHORT_RESERVE)
 	if bw:
-		keep = maxi(keep, BROOD_RESERVE)
+		# (a Musketeer's gold kept, two while a Barracks stands idle and the army is behind: the army before the wall's gold)
+		var idle: bool = ai._mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty())
+		keep = maxi(keep, BROOD_RESERVE * (2 if idle and ai.has_method("army_behind") and ai.army_behind() else 1))
+		# (and never the gold set aside for a building, a milestone or the first Field Cannon: coached game a2, Greenhold, the
+		# wall took every coin over 60 and the cannon never came)
+		keep += maxi(0, int(ai._reserve))
+		if ai.has_method("brood_wall_keep"):
+			keep += int(ai.brood_wall_keep())
+		# (the labourers first: a hall that could train one and is not gets its gold before the wall; with the wall laid
+		# at once the Economy plan had 19-20 labourers at 6:00 instead of 27, test_crown_build_order)
+		if game.workers(ai.team).size() < ai._posts():
+			for h in game.halls_of(ai.team, true):
+				if h.built and (h.queue as Array).is_empty():
+					keep += 50
 	var foe: Vector2 = p["foe"]
 	todo.sort_custom(func(a, b) -> bool: return Vector2(a[1]).distance_to(foe) < Vector2(b[1]).distance_to(foe))
 	# gates first (the way out), then the cells nearest the enemy

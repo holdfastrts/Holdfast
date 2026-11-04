@@ -320,6 +320,7 @@ func _econ_keep(for_army := false) -> int:
 ## goes to soldiers first (coached games a01, a12: 30-32 labourers and 420-455 of army at 6:00, the Brood's Timing attack
 ## at 6:00-6:30 took both halls). Triggered by the economy, not the clock.
 const ARMY_BROOD := 0.55
+const ARMY_RECKON_T := 360.0     # (s) with no Brood soldier seen yet, the army keeps up with the reckoning from then on
 const HOLD_SHARE := 0.6          # (crown-v-brood) the army kept at this share of the Brood army it reckons (AICrown.foe_estimate)
 var brood_army_off := OS.get_cmdline_user_args().has("barmy:off")
 
@@ -334,7 +335,7 @@ func _army_due() -> bool:
 	if not short and blind_guard() and not brood_army_off:
 		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
 		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
-		short = float(game.army_value(team)) < foe_estimate() * HOLD_SHARE and _army_supply(game.army(team)) < int(1.0 * game.workers(team).size())
+		short = army_behind() and _army_supply(game.army(team)) < int(1.0 * game.workers(team).size())
 	if not short:
 		return false
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
@@ -831,8 +832,11 @@ func _hall_first() -> bool:
 		_hall_reserve = false
 		_saving = false
 		return false
-	if blind_guard() and _attacking and _best_soil() >= DRY_LAND:
-		_hall_reserve = false       # (crown-v-brood: the next hall goes down behind the army at home, not while it is away)
+	if blind_guard() and _best_soil() >= DRY_LAND and (_attacking or army_behind()):
+		# (crown-v-brood: the next hall goes down behind the army at home, not while it is away, and not while the army is
+		# under HOLD_SHARE of the Brood army it reckons: the owner's Redrock game laid its third hall at 7:35 with 1,450 of army
+		# against 5,235)
+		_hall_reserve = false
 		_saving = false
 		return false
 	return super()
@@ -1094,6 +1098,8 @@ func _mid_tick() -> void:
 	var labs := game.workers(team).size()
 	var halls := _halls().filter(func(h: Building) -> bool: return h.built).size()
 	var army := _army_supply(game.army(team))
+	if _threat_prod(labs, halls, army):
+		return
 	for m in plan.get("mid", []):
 		var k := String(m[0])
 		if _mine(k).size() >= int(m[1]):
@@ -1398,7 +1404,7 @@ func want_look(who: String) -> void:
 ## Brood of that age would have (the Hard Brood's mobile army in the coached games, BROOD_TABLE), more with more Rootmaws
 ## seen than such a Brood roots (BROOD_PER_MAW a Rootmaw past BROOD_MAWS), less half of what we have killed of it.
 ## Other matchups: what it saw.
-const BROOD_TABLE := [[0.0, 0.0], [180.0, 150.0], [300.0, 500.0], [420.0, 1200.0], [540.0, 2400.0], [720.0, 3600.0]]
+const BROOD_TABLE := [[0.0, 0.0], [180.0, 100.0], [300.0, 450.0], [360.0, 700.0], [420.0, 1300.0], [480.0, 2200.0], [540.0, 3000.0], [600.0, 3800.0], [720.0, 5000.0]]
 const BROOD_MAWS := [[0.0, 1.0], [180.0, 4.0], [300.0, 6.0], [480.0, 8.0]]
 const BROOD_PER_MAW := 250.0
 
@@ -1424,3 +1430,69 @@ func foe_estimate() -> float:
 	est += maxf(0.0, float(maws_peak) - _lerp_table(BROOD_MAWS, t)) * BROOD_PER_MAW
 	est -= 0.5 * float(game.stats[team]["value_killed"])
 	return maxf(known, est)
+
+
+
+## Under HOLD_SHARE of the Brood army it reckons (against the Brood only).
+func army_behind() -> bool:
+	if not blind_guard() or brood_army_off:
+		return false
+	if ch._last_army_t < 0.0 and game.clock < ARMY_RECKON_T:
+		return false        # (no Brood soldier seen yet: the reckoning drives the army from ARMY_RECKON_T on)
+	return float(game.army_value(team)) < foe_estimate() * HOLD_SHARE
+
+
+## PRODUCTION FOR THE THREAT (crown-v-brood; the coached Redrock Economy game a1: one Barracks until 7:03, 4 Musketeers at
+## 6:00 against 2,225 of Brood): against the Brood, while the army is behind (army_behind) and every Barracks and Foundry is
+## busy, the plan's next Foundry or Barracks milestone comes now whatever its labourer count (the Foundry still before the
+## second Barracks: AICrown._construct), up to one production building for every PROD_PER labourers. Triggered by the
+## threat it reckons, not the clock.
+const PROD_PER := 9
+const PROD_BUSY := 15.0         # (s) every Barracks and Foundry busy this long first
+var _prod_busy_t := -1.0
+var threat_builds := 0          # (tests, the coach)
+
+
+func _threat_prod(labs: int, halls: int, army: int) -> bool:
+	if not army_behind():
+		_prod_busy_t = -1.0
+		return false
+	var prod: Array = _mine("barracks") + _mine("foundry")
+	if prod.is_empty() or prod.size() >= maxi(2, labs / PROD_PER):
+		return false
+	for b in prod:
+		if not b.built or b.queue.is_empty():
+			_prod_busy_t = -1.0
+			return false
+	if _prod_busy_t < 0.0:
+		_prod_busy_t = game.clock
+	if game.clock - _prod_busy_t < PROD_BUSY:
+		return false
+	for m in plan.get("mid", []):
+		var k := String(m[0])
+		if not k in ["barracks", "foundry"] or _mine(k).size() >= int(m[1]):
+			continue
+		if not game.requirement_met(team, k) or _busy_building(k):
+			return false
+		var cost := int(Defs.BUILDINGS[k]["cost"])
+		if _gold() < cost:
+			_reserve = maxi(_reserve, cost)
+			return true
+		var n0 := _mine(k).size() + _mine("foundry" if k == "barracks" else "barracks").size()
+		_construct(k)
+		if _mine("barracks").size() + _mine("foundry").size() > n0:
+			threat_builds += 1
+			_prod_busy_t = -1.0
+			say("milestone for the Brood's army: %s %d now (%d labourers, army %d of the %d it reckons)" % [String(Defs.BUILDINGS[k]["name"]),
+				int(m[1]), labs, game.army_value(team), int(foe_estimate())])
+		return true
+	return false
+
+
+
+## Gold the Brood walls (AIExpandWall.brood_walls) leave alone: the first Field Cannon's while it is awaited, the opening's.
+func brood_wall_keep() -> int:
+	var k := bo_reserve if bo_owns() else 0
+	if cannon_first and _gun_waiting():
+		k += int(Defs.UNITS["cannon"]["cost"])
+	return k

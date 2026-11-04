@@ -85,8 +85,8 @@ func _finish() -> void:
 	super._finish()
 	if _ai == null:
 		return
-	for h in _halls_seen.keys():
-		if is_instance_valid(h) and h.dead and h.built:
+	for l in hall_lines:
+		if String(l).contains("hall LOST"):
 			halls_lost += 1
 	var f := FileAccess.open(out.path_join("summary.txt"), FileAccess.WRITE)
 	f.store_line("end %s | halls lost %d | labourers lost %d | gold earned by 8:00 %d | army 6:00 %d v %d mobile | army 8:00 %d v %d mobile | first attack %s | enemy at our 2nd hall %s | natural %s | over %s winner %s" % [
