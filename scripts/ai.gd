@@ -59,6 +59,9 @@ const STRATEGIES := {
 	# THE SIEGE PUSH (crown-builds-b; scripts/ai_crown_siege.gd, docs/crown_builds_b.md): cannons and mortars behind a Musketeer
 	# line break a turtle. The Crown's own computer plays it (its plan's push); Easy and the shared computer play these numbers.
 	"siege": {"name": "Siege push", "wave": 18, "step": 8, "expand": 1.0, "halls": 3, "tech": 0.9, "workers": 1.0, "crown_only": true},
+	# BALLOON HARASS (crown-builds-c; scripts/ai_crown.gd PLANS["balloon"], scripts/ai_crown_balloon.gd, docs/crown_builds_c.md):
+	# Observation Balloons carry Musketeers to the enemy's workers, several small strikes at once; the army plays Balanced
+	"balloon": {"name": "Balloon harass", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "crown_only": true},
 }
 
 

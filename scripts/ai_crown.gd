@@ -38,6 +38,9 @@ var _plan_of := ""
 var _waits := {}                 # step index -> clock it first waited for want of room (logged once)
 var siege: AICrownSiege = null   # the siege plan's push (scripts/ai_crown_siege.gd); null on the other plans
 const BO_LIMIT := 600.0          # (game seconds) the opening hands over by then whatever is left
+## THE BALLOON HARASS (scripts/ai_crown_balloon.gd): made on the Balloon harass plan only (Normal and up)
+const AICrownBalloon := preload("res://scripts/ai_crown_balloon.gd")
+var bl = null
 const LAB_COST := 50
 
 ## THE PLANS. Steps ("do"):
@@ -182,6 +185,30 @@ const PLANS := {
 			["armoury", 1, {"labs": 28}], ["foundry", 2, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 34}],
 			["church", 1, {"labs": 40, "halls": 2}]],
 		"s": {"wave": 999, "step": 8}},
+	# BALLOON HARASS (crown-builds-c, docs/crown_builds_c.md; the harass itself: scripts/ai_crown_balloon.gd): the safe
+	# Musketeer opening (Balanced's: the soldiers wait at 8 supply), the Foundry at 13 labourers where Balanced puts its
+	# Breeder (round A: at 10 it cost two labourers and a third of the gold at 6:00, and every Brood game) and the first
+	# balloon from it, then soldiers again (14 supply), the second hall at 15, the second balloon (tried at 20 labourers
+	# in round E: no more labourers, and both Brood games lost without the second basket over the ramp);
+	# then the balloons carry Musketeers to the enemy's workers while the army holds at home (Balanced's numbers after it)
+	"balloon": {"opening": "mill", "labs": 99, "army": 0.55, "mill": [[0, 3], [13, 5], [16, 6]], "balloons": 2,
+		"bo": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "army", "k": "musketeer", "cap": 8},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "build", "k": "foundry", "at": {"labs": 13}},
+			{"do": "balloons", "n": 1, "at": {"has": "foundry"}},
+			{"do": "army", "k": "musketeer", "cap": 14},
+			{"do": "hall", "n": 2, "at": {"labs": 15}},
+			{"do": "balloons", "n": 2, "at": {"has": "foundry"}},
+		],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["horse_breeder", 1, {"labs": 17}], ["barracks", 2, {"labs": 19}],
+			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
+			["foundry", 2, {"labs": 44, "halls": 3}]],
+		"s": {"wave": 18, "step": 8}},
 }
 
 
@@ -213,6 +240,8 @@ func _ready() -> void:
 	_attack_at = int(_s("wave"))
 	if siege_on():
 		siege = AICrownSiege.new(self)
+	if strategy == "balloon" and difficulty >= 1:
+		bl = AICrownBalloon.new(self)
 	if opening == "breeder" and strategy == "rush":
 		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
 	if game.mlog:
@@ -299,7 +328,7 @@ func _army_due() -> bool:
 	var share := float(plan.get("army", 0.5))
 	if _foe_is("brood"):
 		share = maxf(share, ARMY_BROOD)       # (the Brood's Timing attack comes at 5:45-6:30 with 15-30 creatures: ba3 Red Coast)
-	if _army_supply(game.army(team)) >= int(share * game.workers(team).size()):
+	if _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) >= int(share * game.workers(team).size()):
 		return false
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
 		return false            # (supply-blocked: the Cottage, not the soldiers)
@@ -355,6 +384,8 @@ func _think_stage(i: int) -> void:
 			ch.tick()
 			if difficulty >= 1 and not peaceful:
 				_raid()
+				if bl != null:
+					bl.tick()           # (the balloon harass: scripts/ai_crown_balloon.gd)
 			_lap("ai/raid", pt)
 		3:
 			scout.tick()
@@ -532,6 +563,8 @@ func _supply_due() -> bool:
 # ------------------------------------------------------------------ the steps
 
 func _st_text(st: Dictionary) -> String:
+	if String(st["do"]) == "balloons":
+		return "balloon %d" % int(st.get("n", 1))
 	match String(st["do"]):
 		"wall_cottage": return "the ramp Cottage"
 		"wall_gate": return "the ramp Gate"
@@ -544,6 +577,8 @@ func _st_text(st: Dictionary) -> String:
 
 
 func _st_done(st: Dictionary) -> bool:
+	if String(st["do"]) == "balloons":
+		return bl == null or bl.balloons().size() + bl.queued() >= int(st.get("n", 1))
 	match String(st["do"]):
 		"wall_cottage":
 			return _walled or not _cw_active() or (not _cw_plan.is_empty() and _cw_cottage() != null)
@@ -597,6 +632,8 @@ func _st_near(st: Dictionary) -> bool:
 
 
 func _st_price(st: Dictionary) -> int:
+	if String(st["do"]) == "balloons":
+		return int(Defs.UNITS["balloon"]["cost"])
 	match String(st["do"]):
 		"wall_cottage": return int(Defs.BUILDINGS["cottage"]["cost"])
 		"wall_gate": return maxi(_wall_cost, 50)
@@ -607,6 +644,8 @@ func _st_price(st: Dictionary) -> int:
 
 ## Do the step: "" done (or nothing to pay), "gold" short of its price, "room" no spot for it now, "wait" not yet.
 func _st_do(st: Dictionary) -> String:
+	if String(st["do"]) == "balloons":
+		return _bl_step(st)
 	match String(st["do"]):
 		"wall_cottage", "wall_gate":
 			if _cw_active():
@@ -1067,6 +1106,8 @@ func _on_errand(u: Unit) -> bool:
 		return true
 	if siege != null and siege.has(u):
 		return true
+	if bl != null and bl.has(u):
+		return true           # (the harass's balloons and men: the army, the post and the waves leave them be)
 	return super(u)
 
 
@@ -1147,3 +1188,27 @@ func _army() -> void:
 		siege.tick()
 	super()
 
+
+
+# ------------------------------------------------------------------ the balloon harass (crown-builds-c)
+
+## The shared balloon drop (AI._balloon_drop) gives way to the harass on its plan.
+func _balloon_drop() -> void:
+	if bl != null:
+		bl.tick()
+		return
+	super()
+
+
+## The "balloons" step: the Foundry rigs one (its price set aside like a building's).
+func _bl_step(st: Dictionary) -> String:
+	if bl == null:
+		return ""
+	var c := int(Defs.UNITS["balloon"]["cost"])
+	if _gold() < c:
+		return "gold"
+	if _res2() < float(Defs.UNITS["balloon"].get("cost2", 0)):
+		return "wait"
+	var n0: int = bl.queued()
+	bl.produce(int(st.get("n", 1)))
+	return "" if bl.queued() > n0 else "wait"

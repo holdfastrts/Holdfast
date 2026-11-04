@@ -52,7 +52,7 @@ func wait(s: float) -> void:
 
 
 func _table() -> void:
-	var dos := ["wall_cottage", "wall_gate", "build", "army", "labs", "hall", "attack"]
+	var dos := ["wall_cottage", "wall_gate", "build", "army", "labs", "hall", "attack", "balloons"]
 	var ats := ["sup", "labs", "army", "has"]
 	var bad: Array = []
 	for p in ["economy", "balanced", "timing", "rush"]:
