@@ -110,6 +110,11 @@
   - MISSION 1 SCRIPT APPROVED (owner, 2026-11-04 20:50): docs/campaign_mission1.md (the King's lines, three parts, the
   families choice, the canister ending). Being built by the cloud job campaign-m1 with stand-in rebels until the owner's
   ChatGPT rebel art arrives; the King's voice to be recorded by the owner in ElevenLabs.
+  - MISSION 1 BUILT (cloud job campaign-m1, 0.31.0; docs/campaign_m1_build.md): p01_leaf is the Prologue (p01_revolt
+  kept only as the engine's test bed); map campaign:virginia_leaf; stills in campaign/stills/; the Free Assembly's roles
+  in scripts/campaign/rebels.gd (art drops in via RebelArt.ART); the Pikeman back as a campaign-only unit; the engine
+  gained opening/ending shows, choices and flags (Campaign.flag), light (night/dawn), voice files
+  (campaign/voice/p01/<line>.ogg, list in docs/campaign_mission1_voice.md); tools/test_campaign_m1.gd.
   - FACTION COLOURS (owner, DECIDED 2026-11-04 12:06): CROWN PURPLE, CLOCKWORK RED (and brass), BROOD GREEN (venom green);
   UiStyle.ACCENT follows (0.29.12); the menu painting's Brood (red spines) to be made green by ChatGPT.
   - CROWN COLOUR IS PURPLE (owner, 2026-11-04 11:35): the Crown's standard colour changes to purple (stills done in purple;
