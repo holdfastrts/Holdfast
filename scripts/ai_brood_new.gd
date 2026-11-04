@@ -1465,7 +1465,11 @@ const RICH_SPOILS := 80.0
 ## Raptors to be laid for spoils: the plan banks spoils ("spoils_bank": the Air rush) or its Storm Sire / her stage 3
 ## waits for them, and the spare Raptors at home are not enough to cover what is short.
 func _nb_feed_raptors(q: Unit) -> bool:
-	if (float(plan.get("spoils_bank", 0.0)) <= 0.0 and not _nb_rich()) or _rush_on() or _attacking:
+	if _rush_on():
+		return false
+	# (the spoils kept for a Sire or her stage 3 are fed even while a wave is out: its Raptors are all in the wave, so
+	# none at home was offered and Balanced's stage 3 waited for the wave to end; brood-ai-tune, test_ai_brood)
+	if _nb_spoils_keep(q) <= 0.0 and ((float(plan.get("spoils_bank", 0.0)) <= 0.0 and not _nb_rich()) or _attacking):
 		return false
 	var short := _nb_spoils_want(q) - _spoils()
 	if short <= 0.0:

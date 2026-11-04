@@ -29,32 +29,37 @@ Runs vary a little from game to game (random choices): read the numbers to +-20 
 
 ## What each plan is for, and how it is built
 
-### Brood (the Brood of creatures, 0.22.9: scripts/ai_brood_new.gd, docs/brood_ai.md, docs/brood_eco.md)
+### Brood (the Brood of creatures, 0.27.3: scripts/ai_brood_new.gd, docs/brood_ai.md, docs/brood_eco.md, docs/brood_ai_tune.md)
 The old Brood's rows (Spawning Den openings) are gone with it (0.18.0). Today's Brood has no buildings: its Tyrant Sire
 on his nest is its barracks, made from a grub's lure (150 food, 30 s since 0.22.2). Measured by
 `tools/test_ai_brood.gd -- profile:<p>` (Hard Brood against a peaceful Hard Crown on Greenhold, seed 3; 0.22.5): the
 times each milestone came. Since 0.22.9 every profile but the rushes plays the owner's economic build (docs/brood_eco.md):
 the natural first, the third Rootmaw at its far edge, grubs first, the Sires and her stage 2 later on purpose.
 
-| Plan | Scout (watch) | Natural turtle | 3rd Rootmaw | Tyrant Sire | 8 Raptors | Stage 2 | Venom Sire | Storm Sire | First research | First attack | Food by 6:00 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| Extreme rush | after the rush | - | - | 0:31 | 2:19 | - | - | - | - | 2:19 | - |
-| Rush | 1:10 | - | - | 1:13 | 3:07 | - | - | - | - | 3:27 | - |
-| Timing attack | 1:10 | 1:07 | 2:25 | 2:53 | 5:32 | 8:51 | 8:19 | - | 8:17 (Pack Hunt) | 9:21 | 2,359 |
-| Balanced | 1:10 | 1:07 | 2:45 | 3:19 | 7:20 | 8:57 | 8:25 | - | 8:15 (Pack Hunt) | 11:02 | 2,552 |
-| Economy | 1:10 | 1:07 | 2:55 | 3:36 | 6:59 | 8:38 | 8:07 | - | 8:39 | - | 2,590 |
-| Air rush | 1:10 | 1:07 | 3:43 | 2:36 | 6:12 | 5:59 | - | 8:55 | 9:10 | 10:38 | 1,981 |
+| Plan | Scout (watch) | Natural turtle | 3rd Rootmaw | Tyrant Sire | 8 Raptors | Stage 2 | Venom Sire | Storm Sire | Stage 3 | First research | First attack | Food by 6:00 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Extreme rush | after the rush | 3:15 | 4:01 | 0:31 | 1:43 | 8:20 | 8:01 | - | 9:38 | 8:20 | 1:55 | 1,974 |
+| Rush | 1:10 | 0:33 | 3:44 | 1:44 | 2:48 | 8:03 | 7:43 | - | 9:23 | 8:02 | 3:03 | 2,406 |
+| Timing attack | 1:10 | 0:33 | 2:02 | 2:33 | 5:04 | 6:42 | 6:36 | 8:14 | 8:56 | 4:55 | 6:04 | 5,171 |
+| Balanced | 1:10 | 0:33 | 1:58 | 2:51 | 5:26 | 5:11 | 6:12 | 8:50 | 8:53 | 6:08 | 7:20 | 4,860 |
+| Economy | 1:10 | 0:33 | 1:49 | 3:12 | 5:23 | 5:15 | 6:19 | - | 7:05 | 6:13 | 7:56 | 5,730 |
+| Air rush | 1:10 | 0:33 | 1:58 | 2:34 | 5:53 | 5:04 | 6:39 | 5:45 | 8:43 | 5:46 | 7:00 | 4,587 |
 
+(0.27.3, brood-ai-tune, docs/brood_ai_tune.md: measured with tools/measure_brood_ai.gd against a peaceful Hard Crown on
+Greenhold seed 3. Today's economy is about twice 0.22.5's; her stages and the later Sires now come as soon as her eggs
+run short, the rushes turn Balanced once their first wave is home. The 0.22.5 row for comparison: the natural at 1:07,
+her stage 2 at 8:38 to 8:57, the Venom Sire at 8:07 to 8:25, food by 6:00 2,000 to 2,600.)
 (0.22.0, for comparison: the Tyrant Sire at 1:36 to 2:23, her stage 2 at 5:00 to 7:22, a far turtle at 4:56 to
 6:12, no watching grub; the Extreme rush's 8 Raptors at 2:40.)
 
 - **Extreme rush**: the Tyrant Sire's lure at once, 6 grubs, one Rootmaw, a supply turtle right after him, every egg
-  Raptors; the 8 go together. The owner's yardstick (8 Raptors by 2:00, hitting 2:00-2:30) is out of reach for
-  today's Brood: with the Tyrant Sire at 150 food (0.22.2) its 8 Raptors leave at 2:19 and land at about 2:50. Against the Hard Crown it
-  fails (the ramp wall stands at 0:38, its scout sees the Raptors at about 1:08) and the computer plays Balanced.
-- **Rush**: 9 grubs held until 10 Raptors leave (about 3:45), then Balanced's economy.
-- **Timing attack / Balanced / Economy / Air rush**: grubs first on a curve (4 to 6 a minute), the Sires, her stages
-  and expansions on the plan's clock, Pack Hunt before the first wave (except against the Clockwork, which gets smaller
+  Raptors; the 8 go together. The owner's yardstick (8 Raptors by 2:00, hitting 2:00-2:30) is MET on today's economy
+  (0.27.3): 8 Raptors at 1:43, the wave leaves at 1:55. Against the Hard Crown it fails (the ramp wall stands at 0:38)
+  and against the Hard Clockwork it meets its first Clock Soldiers; once its first wave is home it plays Balanced.
+- **Rush**: 9 grubs held until 10 Raptors leave (about 3:00), then Balanced's economy (called off if its scout saw an
+  army twice its own).
+- **Timing attack / Balanced / Economy / Air rush**: grubs first on a curve (6 to 8 a minute), her stages, the later
+  Sires and the turtles on new ground as soon as her eggs run short (the plan's clock as the latest time), Pack Hunt before the first wave (except against the Clockwork, which gets smaller
   waves from 5:00). Against the Crown no wave goes into its wall with claws alone (Spitters or Brutes with Battering
   Horns first, or the supply cap), so its first attack against a walled Crown comes late or at the cap.
 - Its scouting decides: an army on the move early means hold and lay warriors; enemy flyers mean the Storm Sire first.

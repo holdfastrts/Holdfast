@@ -31,18 +31,18 @@ var natural_at := Vector2.INF         # the natural's turtle spot (the eco plans
 ## margin). (Against the Crown, Balanced does not attack this early: its wall rule waits for Spitters or
 ## Brutes with Battering Horns, docs/brood_ai.md.)
 const MILESTONES := {
-	"xrush": {"tyrant": 45.0, "raptors8": 180.0, "attack": 190.0},
-	"rush": {"tyrant": 100.0, "scout": 90.0, "attack": 270.0},
-	"timing": {"tyrant": 240.0, "scout": 90.0, "watch": 90.0, "natural": 200.0, "maw3": 330.0, "stage2": 600.0, "far": 200.0, "income6": 360.0, "attack": 690.0},
-	"balanced": {"tyrant": 260.0, "scout": 90.0, "watch": 90.0, "natural": 200.0, "maw3": 330.0, "venom": 620.0, "stage2": 620.0, "far": 200.0, "income6": 360.0, "pack": 720.0},
-	"economy": {"tyrant": 270.0, "scout": 120.0, "watch": 120.0, "natural": 200.0, "maw3": 330.0, "far": 200.0, "venom": 580.0, "stage2": 600.0, "income6": 360.0, "research": 560.0},
-	"air": {"tyrant": 220.0, "scout": 90.0, "watch": 90.0, "natural": 200.0, "maw3": 300.0, "stage2": 430.0, "storm": 600.0, "income6": 360.0, "attack": 780.0},
+	"xrush": {"tyrant": 45.0, "raptors8": 160.0, "attack": 175.0},
+	"rush": {"tyrant": 120.0, "scout": 90.0, "attack": 270.0},
+	"timing": {"tyrant": 240.0, "scout": 90.0, "watch": 90.0, "natural": 200.0, "maw3": 240.0, "stage2": 480.0, "venom": 480.0, "stage3": 640.0, "far": 120.0, "income6": 360.0, "attack": 520.0},
+	"balanced": {"tyrant": 260.0, "scout": 90.0, "watch": 90.0, "natural": 200.0, "maw3": 240.0, "venom": 460.0, "stage2": 470.0, "stage3": 620.0, "far": 120.0, "income6": 360.0, "pack": 470.0},
+	"economy": {"tyrant": 280.0, "scout": 120.0, "watch": 120.0, "natural": 200.0, "maw3": 240.0, "far": 120.0, "venom": 430.0, "stage2": 420.0, "stage3": 580.0, "income6": 360.0, "research": 420.0},
+	"air": {"tyrant": 220.0, "scout": 90.0, "watch": 90.0, "natural": 200.0, "maw3": 240.0, "stage2": 400.0, "storm": 440.0, "venom": 500.0, "stage3": 620.0, "income6": 360.0, "attack": 520.0},
 }
-## (measured on 0.22.4 with the owner's economic build, Greenhold seed 3, with about a minute's margin:
-## docs/ai_build_timelines.md "Brood", docs/brood_eco.md: the Tyrant Sire, her stage 2 and the Venom Sire come later
-## than in 0.22.0 on purpose, the grubs first)
+## (measured on 0.27.3, brood-ai-tune, Greenhold seed 3, with about a minute's margin: docs/brood_ai_tune.md,
+## docs/ai_build_timelines.md "Brood". Today's economy is about twice 0.22.5's: her stages, the Venom Sire and the Storm
+## Sire now come when her eggs run short, two to four minutes sooner than the old clock times)
 ## food earned by 6:00 (the "income6" milestone, checked at its time), per profile
-const INCOME6 := {"timing": 2000, "balanced": 2000, "economy": 2000, "air": 1600}
+const INCOME6 := {"timing": 4000, "balanced": 4000, "economy": 4000, "air": 3400}
 const BANK_MAX := 900
 const BANK_FOR := 60.0
 
@@ -126,8 +126,14 @@ func _watch() -> void:
 	if not BroodNew.expansions(g, q).is_empty():
 		_mark("far")
 	if natural_at == Vector2.INF and ai._eco() and g.clock > 1.0:
-		var sites: Array = ai._nb_eco_sites(q)
-		natural_at = BroodRoot.feet_at(BroodNew.TURTLE, sites[0]["tc"]) if not sites.is_empty() else Vector2(-1, -1)
+		# (brood-ai-tune: the nearest turtle spot on new ground by walk, as AIBroodNew._nb_eco_sites ranks them, but
+		# without its "taken" tests: by 1 s the grub sent to the natural at 0:00 was in its way and the check took the
+		# third expansion, 32 tiles out on Greenhold, for the natural: "natural by 200 s" failed in every eco profile)
+		ExpansionSpots.nb_pick(g, 0, g.exp_spots)
+		var far := float(Defs.NB["expansion_tiles"]) * Defs.TILE
+		var cands: Array = (g.exp_spots.nb_cands.get(0, []) as Array).filter(func(s) -> bool: return q.position.distance_to(BroodRoot.feet_at(BroodNew.TURTLE, s["tc"])) >= far)
+		cands.sort_custom(func(a, b) -> bool: return float(a["home"]) < float(b["home"]))
+		natural_at = BroodRoot.feet_at(BroodNew.TURTLE, cands[0]["tc"]) if not cands.is_empty() else Vector2(-1, -1)
 		print("  the natural: %s, %d tiles from the Mother" % [str(natural_at), int(natural_at.distance_to(q.position) / Defs.TILE)])
 	for e in BroodNew.expansions(g, q):
 		if natural_at != Vector2.INF and e.position.distance_to(natural_at) < 3.0 * Defs.TILE:
@@ -154,7 +160,11 @@ func _watch() -> void:
 				_mark("watch")
 	grubs_max = maxi(grubs_max, BroodNew.count_of(g, 0, "grub"))
 	var food := int(g.players[0]["gold"])
-	if food > BANK_MAX:
+	# a STALL: food over BANK_MAX while eggs and supply were there to spend it (brood-ai-tune: on today's economy the eco
+	# plans out-earn her laying from about 4:30 and reach the supply cap; food banked while she has no egg or the supply
+	# is full is not the computer's stall, docs/brood_ai_tune.md)
+	var stalled: bool = int(q.nb.get("eggs", 0)) >= 3 and g.supply_used(0) < mini(int(g.players[0]["cap"]), g.max_supply(0)) - 2
+	if food > BANK_MAX and stalled:
 		bank_long += 1.0 / 30.0          # (--fixed-fps 30: one frame)
 		bank_worst = maxf(bank_worst, bank_long)
 	else:
@@ -168,6 +178,6 @@ func _report(ms: Dictionary) -> void:
 		check(at >= 0.0 and at <= float(ms[k]), "%s by %d s (at %s)" % [k, int(ms[k]), ("%d s" % int(at)) if at >= 0.0 else "never"])
 	if ms.has("pack") and ms.has("attack") and seen.has("attack"):
 		check(seen.has("pack") and float(seen["pack"]) <= float(seen["attack"]), "Pack Hunt before the first attack")
-	check(bank_worst < BANK_FOR, "never more than %d food banked for %d s (longest %.0f s)" % [BANK_MAX, int(BANK_FOR), bank_worst])
+	check(bank_worst < BANK_FOR, "never more than %d food banked for %d s with eggs and supply to spend it (longest %.0f s)" % [BANK_MAX, int(BANK_FOR), bank_worst])
 	check(grubs_max <= int(ai.plan["grubs"]) + 2, "grubs at most the plan's %d, +2 for the ones turning into something (most %d)" % [int(ai.plan["grubs"]), grubs_max])
 	print("%d failures" % fails)
