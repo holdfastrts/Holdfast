@@ -397,15 +397,17 @@ static func rate(g: Game) -> Array:
 
 
 ## Every free base site rated, each side's best PICKS ranked 1, 2 (the rest rank 0): the computer's hall choice uses all of
-## them (AI._site_bonus, docs/ai_round6.md).
-static func rate_all(g: Game) -> Array:
+## them (AI._site_bonus, docs/ai_round6.md). `dist_in`: each player's _steps from its start, when worked out already
+## (CrownSites.warm does one a tick).
+static func rate_all(g: Game, dist_in: Array = []) -> Array:
 	var out: Array = []
 	var n := g.n_players()
 	if n < 1 or g.starts.size() < n:
 		return out
-	var dist: Array = []
-	for t in n:
-		dist.append(_steps(g, g.starts[t]))
+	var dist: Array = dist_in if dist_in.size() == n else []
+	if dist.is_empty():
+		for t in n:
+			dist.append(_steps(g, g.starts[t]))
 	var mine := {}               # team -> [{c, ...}]
 	for c in g.base_sites:
 		if g.starts.slice(0, n).has(c):
@@ -509,7 +511,90 @@ static func _mid(c: Vector2i) -> Vector2:
 
 
 ## 0..1: the open, buildable ground on the spot's own level, joined to it, within a hall's economy reach.
+## (0.30.5: worked over a byte grid of the reach's box, filled row by row: the same cells as the walk it replaced
+## (_room_walk, kept for a spot over the map's edge and for tools/time_crown_pick.gd's check), ~0.7 ms a spot before,
+## and the Crown's hall pick measures dozens.)
 static func _room(g: Game, c: Vector2i) -> float:
+	var W := Game.W
+	var H := Game.H
+	if c.x < 0 or c.y < 0 or c.x + MapGen.HALL.x > W or c.y + MapGen.HALL.y > H or g.height.size() != W * H:
+		return _room_walk(g, c)
+	var mid := _mid(c)
+	var lv := int(g.height[g.idx(c + Vector2i(2, 2))])
+	var reach := float(Defs.ECON_RANGE)
+	var r2 := reach * reach
+	var solid: PackedByteArray = g.solid
+	var ramp: PackedByteArray = g.ramp
+	var cliff: PackedByteArray = g.cliff
+	var height: PackedByteArray = g.height
+	var bx0 := maxi(0, int(floor(mid.x - reach - 0.5)))
+	var bx1 := mini(W - 1, int(ceil(mid.x + reach - 0.5)))
+	var by0 := maxi(0, int(floor(mid.y - reach - 0.5)))
+	var by1 := mini(H - 1, int(ceil(mid.y + reach - 0.5)))
+	var bw := bx1 - bx0 + 1
+	var bh := by1 - by0 + 1
+	# 1: the room's ground (the hall's own cells, or open ground on its level with the cell's middle within reach)
+	var ok := PackedByteArray()
+	ok.resize(bw * bh)
+	for y in range(by0, by1 + 1):
+		var dy := y + 0.5 - mid.y
+		var dy2 := dy * dy
+		var row := y * W
+		var brow := (y - by0) * bw - bx0
+		var hall_row := y >= c.y and y < c.y + MapGen.HALL.y
+		for x in range(bx0, bx1 + 1):
+			if hall_row and x >= c.x and x < c.x + MapGen.HALL.x:
+				ok[brow + x] = 1
+				continue
+			var dx := x + 0.5 - mid.x
+			if dx * dx + dy2 > r2:
+				continue
+			var i := row + x
+			if solid[i] == 0 and ramp[i] == 0 and cliff[i] == 0 and int(height[i]) == lv:
+				ok[brow + x] = 1
+	# the part joined to the hall (4 ways): a run along a row at a time; 2 marks a cell counted
+	var count := 0
+	var stack := PackedInt32Array([c.x - bx0, c.y - by0])
+	while not stack.is_empty():
+		var n := stack.size()
+		var sy: int = stack[n - 1]
+		var sx: int = stack[n - 2]
+		stack.resize(n - 2)
+		var base := sy * bw
+		if ok[base + sx] != 1:
+			continue
+		var xl := sx
+		while xl > 0 and ok[base + xl - 1] == 1:
+			xl -= 1
+		var xr := sx
+		while xr < bw - 1 and ok[base + xr + 1] == 1:
+			xr += 1
+		for x in range(xl, xr + 1):
+			ok[base + x] = 2
+		count += xr - xl + 1
+		if sy > 0:
+			var nb := base - bw
+			var inside := false
+			for x in range(xl, xr + 1):
+				var o := ok[nb + x] == 1
+				if o and not inside:
+					stack.append(x)
+					stack.append(sy - 1)
+				inside = o
+		if sy < bh - 1:
+			var nb2 := base + bw
+			var inside2 := false
+			for x in range(xl, xr + 1):
+				var o2 := ok[nb2 + x] == 1
+				if o2 and not inside2:
+					stack.append(x)
+					stack.append(sy + 1)
+				inside2 = o2
+	return clampf(float(count) / (PI * reach * reach), 0.0, 1.0)
+
+
+## (_room as it was: a walk from the hall's cells, Vector2i keys; for a spot over the map's edge, and the check)
+static func _room_walk(g: Game, c: Vector2i) -> float:
 	var mid := _mid(c)
 	var lv := int(g.height[g.idx(c + Vector2i(2, 2))]) if g.height.size() == Game.W * Game.H else 0
 	var reach := float(Defs.ECON_RANGE)

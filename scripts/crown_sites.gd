@@ -25,6 +25,11 @@ const W_GAP := 2.0              # a point a tile farther than the least distance
 const W_WALK := 1.5             # (2nd, 3rd) a point and a half a step of the walk from the main ramp's foot
 const WALK_NEAR := 12.0         # (steps) past this walk from the ramp's foot a spot is "far out" (the owner): W_FAR more a step
 const W_FAR := 2.0              #   (so the border never pulls a hall round the main's cliff, away from the ramp)
+const W_FAR_STEP := 10.0        #   and W_FAR_STEP once, for crossing the line: a step or two past it was cheaper than the
+                                #   hall distance and the border it bought (0.30.5: on the classic 4-player maps a 2nd 13-14
+                                #   steps out beat a spot of 12 next to it, or a 3rd of 13 one of 12)
+const GAP_NEAR := 5.0          # (tiles, the 2nd base) past the least distance by more than this, it is "far" from the main:
+const W_GAP_STEP := 10.0        #   W_GAP_STEP once (0.30.5: as with the walk, so neither far line is crossed for the other)
 const W_EDGE := 2.0             # a point a tile between the hall and the map's border (past the one free cell)
 const W_OPEN := 3.0             # a point an open side (CrownSites.open_sides: a side the wall has to close)
 const W_ROOM := 10.0            # the economy room (0..1)
@@ -184,7 +189,7 @@ static func _prep(g: Game, t: int, field: Dictionary) -> void:
 static func natural_side(g: Game, t: int, field: Dictionary) -> int:
 	if not field.has("nat_side"):
 		var s := 0
-		for r in ExpansionSpots.rate_all(g):
+		for r in ExpansionSpots.rate_all(g, field.get("rate_dist", [])):
 			if int(r["team"]) == t and int(r["rank"]) == 1:
 				field["nat"] = r["c"]
 				s = side_of(g, t, field["ramp"], Vector2(r["c"]) + Vector2(MapGen.HALL) * 0.5)
@@ -211,16 +216,15 @@ static func pick(g: Game, t: int, halls: Array, n := 2, steps: Array = [], avoid
 		field.merge(edge_field(g, edge_cells(g, t)), true)
 	_prep(g, t, field)
 	if steps.is_empty():
-		var foes: Array = []
-		for o in g.n_players():
-			if g.hostile(o, t) and g.starts.size() > o:
-				foes.append(ExpansionSpots._steps(g, g.starts[o]))
-		steps = [ExpansionSpots._steps(g, g.starts[t]), foes]
+		if not field.has("steps"):         # (the walks over the bare land: only terrain stops them, so kept with the field)
+			var foes: Array = []
+			for o in g.n_players():
+				if g.hostile(o, t) and g.starts.size() > o:
+					foes.append(ExpansionSpots._steps(g, g.starts[o]))
+			field["steps"] = [ExpansionSpots._steps(g, g.starts[t]), foes]
+		steps = field["steps"]
 	var hs: Array = halls.duplicate()
-	if not field.has("room") or int(field.get("room_n", -1)) != g.buildings.size():
-		field["room"] = {}      # (the economy room of a spot, kept with the field between calls while no building comes or goes)
-		field["room_n"] = g.buildings.size()
-	var room_cache: Dictionary = field["room"]
+	var room_cache := {}        # (not used: the rooms are kept in the field, _sync)
 	for k in n:
 		var stage := 2 if hs.size() <= 1 else (3 if hs.size() == 2 else 4)
 		var want := 0           # (the side wanted: the 2nd the natural's, the 3rd the other side from the second hall)
@@ -246,6 +250,55 @@ static func pick(g: Game, t: int, halls: Array, n := 2, steps: Array = [], avoid
 	return out
 
 
+## WORK AHEAD, a piece at a time (the Crown computer's quiet ticks, AICrown._cs_warm): the main's cliff edge, the ramp's
+## walk, the old natural's side, then the 2nd/3rd candidates' rooms and walks, best cheap score first, until `budget_us`
+## is spent; each big piece is a tick of its own. Then CrownSites.pick finds them measured (a pick works out anything
+## still missing itself, so the picks are the same either way). True when everything is measured.
+static func warm(g: Game, t: int, field: Dictionary, steps: Array, budget_us: int) -> bool:
+	if g.starts.size() <= t:
+		return true
+	if field.get("warmed", -1) == g.solid_log.size() and field.has("near"):
+		return true
+	var t0 := Time.get_ticks_usec()
+	if not field.has("f"):
+		field.merge(edge_field(g, edge_cells(g, t)), true)
+		return false
+	if not field.has("foot_d"):
+		_prep(g, t, field)
+		return false
+	if not field.has("nat_side"):
+		var rd: Array = field.get("rate_dist", [])
+		if rd.size() < g.n_players() and g.starts.size() >= g.n_players():
+			rd.append(ExpansionSpots._steps(g, g.starts[rd.size()]))     # (the old rating's walks, one a tick)
+			field["rate_dist"] = rd
+			return false
+		natural_side(g, t, field)
+		return false
+	_sync(g, t, field)
+	if not field.has("near"):
+		var ring := _ring(g, t, field)
+		var at := int(field.get("ring_at", 0)) if field.has("ring_at") else 0
+		while at < ring.size():
+			_cell(g, t, field, ring[at])
+			at += 1
+			if at % 16 == 0 and Time.get_ticks_usec() - t0 > budget_us:
+				field["ring_at"] = at
+				return false
+		field.erase("ring_at")
+		_near_list(g, t, field)
+		return false
+	var room: PackedFloat64Array = field["room"]
+	for e in field["near"]:
+		var c: Vector2i = e[1]
+		_stat(g, field, steps, c)
+		if room[g.idx(c)] < 0.0:
+			_room_at(g, field, c)
+			if Time.get_ticks_usec() - t0 > budget_us:
+				return false
+	field["warmed"] = g.solid_log.size()
+	return true
+
+
 const PAIR_KEEP := 64           # (2nd base) the best spots kept on each side of the ramp to pair with a 3rd
 
 ## The 2nd base as one of a MIRRORED PAIR (the owner: "the second expansion should mirror the first on the other side of
@@ -259,10 +312,12 @@ static func _pair(g: Game, t: int, hs: Array, want: int, steps: Array, avoid: Di
 	for w in ([want] if want != 0 else [1, -1]):
 		var a := _ranked(g, t, hs, 2, w, steps, avoid, check, field, room_cache, PAIR_KEEP)
 		var b := _ranked(g, t, hs, 3, -w, steps, avoid, Callable(), field, room_cache, PAIR_KEEP)
+		var mb: Array = b.map(func(r: Dictionary) -> Vector2: return Vector2(r["c"]) + Vector2(MapGen.HALL) * 0.5)
 		for ra in a:
 			var ma := Vector2(ra["c"]) + Vector2(MapGen.HALL) * 0.5
-			for rb in b:
-				if ma.distance_to(Vector2(rb["c"]) + Vector2(MapGen.HALL) * 0.5) < Defs.HALL_SPACING:
+			for j in b.size():
+				var rb: Dictionary = b[j]
+				if ma.distance_to(mb[j]) < Defs.HALL_SPACING:
 					continue
 				var s := snappedf(float(ra["score"]) + float(rb["score"]), 0.01)
 				var b_first := want == 0 and _better(rb["key"], ra["key"])
@@ -273,6 +328,8 @@ static func _pair(g: Game, t: int, hs: Array, want: int, steps: Array, avoid: Di
 					best["stage"] = 2
 					best["pair"] = ra["c"] if b_first else rb["c"]
 					bkey = key
+				if want != 0:
+					break       # (b is best first: a later 3rd only ties this pair or loses to it)
 	if best.is_empty():
 		return _best(g, t, hs, 2, want, steps, avoid, check, field, room_cache)
 	return best
@@ -289,88 +346,91 @@ static func _best(g: Game, t: int, hs: Array, stage: int, want: int, steps: Arra
 
 
 ## The `keep` best spots for a stage (as _best), best first; each record carries its tie key ("key").
+## (0.30.5, the owner's 0.30.4 log: the Crown computer's 2nd hall pick was a 586 ms frame.) What depends only on the
+## ground is kept in the field between calls and dropped near ground that changed (_sync: Game.solid_log): each cell's
+## cheap terms (_cell), the 2nd/3rd candidates in the order of their cheap score (_near_list), the economy room, and the
+## walks and cover of a spot (_stat). The picks are the same as working it all out each time.
 static func _ranked(g: Game, t: int, hs: Array, stage: int, want: int, steps: Array, avoid: Dictionary, check: Callable,
 		field: Dictionary, room_cache: Dictionary, keep: int) -> Array:
+	_sync(g, t, field)
 	var size: Vector2i = MapGen.HALL
-	var ramp: Dictionary = field["ramp"]
-	var foot_d: PackedFloat32Array = field["foot_d"]
 	var main_mid := Vector2(g.starts[t]) + Vector2(2.5, 2.0)
 	var axis := (Vector2(Game.W, Game.H) * 0.5 - main_mid).normalized()
 	if axis == Vector2.ZERO:
 		axis = Vector2.RIGHT
-	var starts_mid: Array = []
-	for o in g.n_players():
-		if g.starts.size() > o:
-			starts_mid.append(Vector2(g.starts[o]) + Vector2(2.5, 2.0))
-	var cands: Array = []           # [cheap score, c, dist, gap, md, walk, ed, op, side, together]
-	var seen := {}
-	for hm in (hs if stage == 4 else [main_mid]):
-		var hmv: Vector2 = hm
-		var r := int(Defs.HALL_SPACING + SLACK) + 3
-		for y in range(int(hmv.y) - r, int(hmv.y) + r + 1):
-			for x in range(int(hmv.x) - r, int(hmv.x) + r + 1):
-				var c := Vector2i(x - size.x / 2, y - size.y / 2)
-				if seen.has(c) or avoid.has(c):
-					continue
-				seen[c] = true
-				var cm := Vector2(c) + Vector2(size) * 0.5
-				var gap := INF
-				var sum := 0.0
-				for h2 in hs:
-					var dd := cm.distance_to(h2)
-					gap = minf(gap, dd)
-					sum += dd
-				var md := cm.distance_to(main_mid)
-				var dist := md if stage < 4 else gap
-				if gap < Defs.HALL_SPACING or dist > Defs.HALL_SPACING + SLACK:
-					continue
-				var side := side_of(g, t, ramp, cm)
-				if want != 0 and side != want:
-					continue
-				var by_start := false
-				for sm in starts_mid:
-					if cm.distance_to(sm) < Defs.HALL_SPACING:
-						by_start = true
-				if by_start or not g.in_map(c) or not ground_ok(g, c, size):
-					continue
-				var walk := ExpansionSpots._foot_d(g, foot_d, c)
-				if walk == INF:
-					continue
-				var ed := edge_d(c, size)
-				var op := open_sides(g, c, size)
-				var together := maxf(0.0, (sum / float(hs.size())) - Defs.HALL_SPACING)
-				var cheap := -W_GAP * (dist - Defs.HALL_SPACING) - W_EDGE * maxf(0.0, float(ed) - 1.0) - W_OPEN * float(op)
-				cheap += -(W_WALK * walk + W_FAR * maxf(0.0, walk - WALK_NEAR)) if stage < 4 else -W_TOGETHER * together
-				cands.append([cheap, c, dist, gap, md, walk, ed, op, side])
-	cands.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) > float(b[0]))
+	var cands: Array = []           # [cheap score, c, dist, gap, md, walk, ed, op, side, bound (no score of a later one is higher)]
+	if stage < 4:
+		# (the 2nd and 3rd: the cheap score does not depend on the halls; only the distance from them filters)
+		for e in _near_list(g, t, field):
+			var c: Vector2i = e[1]
+			var side := int(e[5])
+			if (want != 0 and side != want) or avoid.has(c):
+				continue
+			var cm := Vector2(c) + Vector2(size) * 0.5
+			var gap := INF
+			for h2 in hs:
+				gap = minf(gap, cm.distance_to(h2))
+			if gap < Defs.HALL_SPACING:
+				continue
+			var cheap := float(e[0])
+			if stage == 2 and float(e[2]) > Defs.HALL_SPACING + GAP_NEAR:
+				cheap -= W_GAP_STEP     # (the 2nd base, more than GAP_NEAR past the least distance)
+			cands.append([cheap, c, e[2], gap, e[2], e[3], e[4], e[6], side, float(e[0])])
+	else:
+		var starts_mid := _starts_mid(g)
+		var seen := {}
+		for hm in hs:
+			var hmv: Vector2 = hm
+			var r := int(Defs.HALL_SPACING + SLACK) + 3
+			for y in range(int(hmv.y) - r, int(hmv.y) + r + 1):
+				for x in range(int(hmv.x) - r, int(hmv.x) + r + 1):
+					var c := Vector2i(x - size.x / 2, y - size.y / 2)
+					if seen.has(c) or avoid.has(c):
+						continue
+					seen[c] = true
+					var cm := Vector2(c) + Vector2(size) * 0.5
+					var gap := INF
+					var sum := 0.0
+					for h2 in hs:
+						var dd := cm.distance_to(h2)
+						gap = minf(gap, dd)
+						sum += dd
+					if gap < Defs.HALL_SPACING or gap > Defs.HALL_SPACING + SLACK:
+						continue
+					if _by_start(cm, starts_mid):
+						continue
+					var info := _cell(g, t, field, c)
+					if info.is_empty():
+						continue
+					var walk := float(info[0])
+					var ed := int(info[1])
+					var op := int(info[2])
+					var together := maxf(0.0, (sum / float(hs.size())) - Defs.HALL_SPACING)
+					var cheap := -W_GAP * (gap - Defs.HALL_SPACING) - W_EDGE * maxf(0.0, float(ed) - 1.0) - W_OPEN * float(op)
+					cheap += -W_TOGETHER * together
+					cands.append([cheap, c, gap, gap, cm.distance_to(main_mid), walk, ed, op, int(info[3]), cheap])
+		cands.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) > float(b[0]))
 	var top := W_ROOM + W_COVER + W_SAFE * 40.0     # (the most the dear terms add)
 	var kept: Array = []            # records, best first
 	for cd in cands:
 		var full := kept.size() >= keep
-		if full and float(cd[0]) + top < float(kept[-1]["score"]) - 0.005:
+		if full and float(cd[9]) + top < float(kept[-1]["score"]) - 0.005:
 			break
 		var c: Vector2i = cd[1]
-		var home := ExpansionSpots._foot_d(g, steps[0], c)
+		var st := _stat(g, field, steps, c)
+		var home := float(st[0])
 		if home == INF:
 			continue
-		var foe := INF
-		for fs in steps[1]:
-			foe = minf(foe, ExpansionSpots._foot_d(g, fs, c))
+		var foe := float(st[1])
 		if foe <= home + 4.0:
 			continue        # (on the enemy's side, or no nearer us)
 		if g.lode_at_spot(c, "town_hall") < 0.5:
 			continue        # (a fallen hall drew its land out)
-		var room: float
-		if room_cache.has(c):
-			room = room_cache[c]
-		else:
-			room = ExpansionSpots._room(g, c)
-			room_cache[c] = room
+		var room := _room_at(g, field, c)
 		if room < ROOM_MIN:
 			continue
-		var cv := cover_of(g, field, c, size)
 		var safe := clampf((foe - home) if foe < INF else 40.0, -40.0, 40.0)
-		var score := float(cd[0]) + W_ROOM * room + W_SAFE * safe + (W_COVER * float(cv["share"]) if stage < 4 else 0.0)
+		var score := float(cd[0]) + W_ROOM * room + W_SAFE * safe + (W_COVER * float(st[2]) if stage < 4 else 0.0)
 		score = snappedf(score, 0.01)
 		if full and score < float(kept[-1]["score"]) - 0.005:
 			continue
@@ -378,8 +438,8 @@ static func _ranked(g: Game, t: int, hs: Array, stage: int, want: int, steps: Ar
 			continue
 		var rel := Vector2(c) + Vector2(size) * 0.5 - main_mid
 		var key := [score, snappedf(rel.dot(axis), 0.01), snappedf(rel.cross(axis), 0.01)]
-		var rec := {"c": c, "team": t, "stage": stage, "score": score, "room": room, "share": float(cv["share"]),
-			"near": float(cv["near"]), "gap": float(cd[3]), "main": float(cd[4]), "walk": float(cd[5]), "edge": int(cd[6]),
+		var rec := {"c": c, "team": t, "stage": stage, "score": score, "room": room, "share": float(st[2]),
+			"near": float(st[3]), "gap": float(cd[3]), "main": float(cd[4]), "walk": float(cd[5]), "edge": int(cd[6]),
 			"open": int(cd[7]), "side": int(cd[8]), "home": home, "foe": foe, "key": key}
 		var at := kept.size()
 		while at > 0 and _better(key, kept[at - 1]["key"]):
@@ -389,6 +449,202 @@ static func _ranked(g: Game, t: int, hs: Array, stage: int, want: int, steps: Ar
 			if kept.size() > keep:
 				kept.pop_back()
 	return kept
+
+
+static func _starts_mid(g: Game) -> Array:
+	var out: Array = []
+	for o in g.n_players():
+		if g.starts.size() > o:
+			out.append(Vector2(g.starts[o]) + Vector2(2.5, 2.0))
+	return out
+
+
+static func _by_start(cm: Vector2, starts_mid: Array) -> bool:
+	for sm in starts_mid:
+		if cm.distance_to(sm) < Defs.HALL_SPACING:
+			return true
+	return false
+
+
+const CELL_PAD := 1 + SHUT + 1  # (cells) ground this near a spot's footprint changes its cheap terms (its ring, open sides)
+const ROOM_PAD := Defs.ECON_RANGE + 3   # (cells) and its economy room
+const SYNC_MAX := 64            # (changes) more than this since the last call: everything is measured again
+const CELL_UNKNOWN := -2
+const CELL_NONE := -1
+
+## Drop what was measured near the ground that changed since the field's last call (Game.solid_log: every building, wall
+## and gate put down or taken away). A new field starts from the ground as it is.
+static func _sync(g: Game, t: int, field: Dictionary) -> void:
+	var n_cells := Game.W * Game.H
+	var cell: PackedInt32Array = field.get("cell", PackedInt32Array())
+	if cell.size() != n_cells:
+		cell.resize(n_cells)
+		cell.fill(CELL_UNKNOWN)
+		var room0 := PackedFloat64Array()
+		room0.resize(n_cells)
+		room0.fill(-1.0)
+		field["cell"] = cell
+		field["room"] = room0
+		field["log_at"] = g.solid_log.size()
+		field.erase("near")
+		return
+	var at := int(field.get("log_at", 0))
+	var n := g.solid_log.size()
+	if at >= n:
+		return
+	field["log_at"] = n
+	var room: PackedFloat64Array = field["room"]
+	if n - at > SYNC_MAX:
+		cell.fill(CELL_UNKNOWN)
+		room.fill(-1.0)
+		field.erase("near")
+		return
+	for k in range(at, n):
+		var r: Rect2i = g.solid_log[k]
+		if _drop_box(cell, r, CELL_PAD) and field.has("near"):
+			field.erase("near")         # (a measured spot's ground changed: the list is made again from the kept cells)
+		_drop_room(g, room, r)
+
+
+## (the spots c whose footprint, grown by `pad`, meets r) Whether any of them had been measured.
+static func _drop_box(a: PackedInt32Array, r: Rect2i, pad: int) -> bool:
+	var known := false
+	for y in range(maxi(0, r.position.y - MapGen.HALL.y - pad + 1), mini(Game.H - 1, r.end.y + pad - 1) + 1):
+		var row := y * Game.W
+		for x in range(maxi(0, r.position.x - MapGen.HALL.x - pad + 1), mini(Game.W - 1, r.end.x + pad - 1) + 1):
+			if a[row + x] != CELL_UNKNOWN:
+				known = true
+				a[row + x] = CELL_UNKNOWN
+	return known
+
+
+## The economy rooms ground changed in r can touch: ExpansionSpots._room walks only its own level within ECON_RANGE of
+## the spot's middle, so a spot whose level r has no cell of, or whose middle is farther than that from every cell of r,
+## keeps its room.
+static func _drop_room(g: Game, a: PackedFloat64Array, r: Rect2i) -> void:
+	var levels := {}
+	for y in range(maxi(0, r.position.y), mini(Game.H, r.end.y)):
+		for x in range(maxi(0, r.position.x), mini(Game.W, r.end.x)):
+			levels[int(g.height[y * Game.W + x])] = true
+	var reach := float(Defs.ECON_RANGE)
+	var lo := Vector2(r.position) + Vector2(0.5, 0.5)
+	var hi := Vector2(r.end) - Vector2(0.5, 0.5)
+	for y in range(maxi(0, r.position.y - MapGen.HALL.y - ROOM_PAD + 1), mini(Game.H - 1, r.end.y + ROOM_PAD - 1) + 1):
+		var row := y * Game.W
+		for x in range(maxi(0, r.position.x - MapGen.HALL.x - ROOM_PAD + 1), mini(Game.W - 1, r.end.x + ROOM_PAD - 1) + 1):
+			if a[row + x] < 0.0:
+				continue
+			var hc := Vector2i(x + 2, y + 2)
+			if g.in_map(hc) and not levels.has(int(g.height[g.idx(hc)])):
+				continue
+			var mid := Vector2(x, y) + Vector2(MapGen.HALL) * 0.5
+			if mid.distance_to(mid.clamp(lo, hi)) > reach + 0.01:
+				continue
+			a[row + x] = -1.0
+
+
+## A spot's cheap terms that depend only on the ground: [walk from the ramp's foot, tiles to the border, open sides,
+## side of the ramp's line]; [] when no hall stands there (ground_ok) or the ramp's foot can't be walked to. Kept in the
+## field (packed: ((walk x 128 + border) x 8 + open) x 4 + side + 1).
+static func _cell(g: Game, t: int, field: Dictionary, c: Vector2i) -> Array:
+	if not g.in_map(c):
+		return []
+	var cell: PackedInt32Array = field["cell"]
+	var i := g.idx(c)
+	var v := cell[i]
+	if v == CELL_UNKNOWN:
+		v = CELL_NONE
+		var size: Vector2i = MapGen.HALL
+		if ground_ok(g, c, size):
+			var walk := ExpansionSpots._foot_d(g, field["foot_d"], c)
+			if walk != INF:
+				var ed := mini(127, edge_d(c, size))
+				var side := side_of(g, t, field["ramp"], Vector2(c) + Vector2(size) * 0.5)
+				v = ((int(walk) * 128 + ed) * 8 + open_sides(g, c, size)) * 4 + side + 1
+		cell[i] = v
+	if v == CELL_NONE:
+		return []
+	return [float(v / 4 / 8 / 128), (v / 4 / 8) % 128, (v / 4) % 8, v % 4 - 1]
+
+
+## The 2nd/3rd candidates round the main (any hall spot 18 to 18 + SLACK tiles from it, not by a start), best cheap
+## score first: [cheap, c, tiles from the main, walk, border, side, open]. Kept in the field until ground near them changes.
+static func _near_list(g: Game, t: int, field: Dictionary) -> Array:
+	if field.has("near"):
+		return field["near"]
+	var main_mid := Vector2(g.starts[t]) + Vector2(2.5, 2.0)
+	var out: Array = []
+	for c in _ring(g, t, field):
+		var info := _cell(g, t, field, c)
+		if info.is_empty():
+			continue
+		var walk := float(info[0])
+		var ed := int(info[1])
+		var op := int(info[2])
+		var md := (Vector2(c) + Vector2(MapGen.HALL) * 0.5).distance_to(main_mid)
+		var cheap := -W_GAP * (md - Defs.HALL_SPACING) - W_EDGE * maxf(0.0, float(ed) - 1.0) - W_OPEN * float(op) - _walk_cost(walk)
+		out.append([cheap, c, md, walk, ed, int(info[3]), op])
+	out.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) > float(b[0]))
+	field["near"] = out
+	return out
+
+
+## The hall spots 18 to 18 + SLACK tiles from the main and not by any start (the 2nd/3rd's ground), once a field.
+static func _ring(g: Game, t: int, field: Dictionary) -> Array:
+	if field.has("ring"):
+		return field["ring"]
+	var size: Vector2i = MapGen.HALL
+	var main_mid := Vector2(g.starts[t]) + Vector2(2.5, 2.0)
+	var starts_mid := _starts_mid(g)
+	var out: Array = []
+	var r := int(Defs.HALL_SPACING + SLACK) + 3
+	for y in range(int(main_mid.y) - r, int(main_mid.y) + r + 1):
+		for x in range(int(main_mid.x) - r, int(main_mid.x) + r + 1):
+			var c := Vector2i(x - size.x / 2, y - size.y / 2)
+			var cm := Vector2(c) + Vector2(size) * 0.5
+			var md := cm.distance_to(main_mid)
+			if md < Defs.HALL_SPACING or md > Defs.HALL_SPACING + SLACK or _by_start(cm, starts_mid):
+				continue
+			out.append(c)
+	field["ring"] = out
+	return out
+
+
+## A spot's economy room (ExpansionSpots._room), kept in the field until ground near it changes.
+static func _room_at(g: Game, field: Dictionary, c: Vector2i) -> float:
+	var room: PackedFloat64Array = field["room"]
+	var i := g.idx(c)
+	if room[i] < 0.0:
+		room[i] = ExpansionSpots._room(g, c)
+	return room[i]
+
+
+## A spot's [steps from our main, from the nearest enemy main, cover share, nearest edge (px)]: the walks are over the bare
+## land and the cover is of the main's cliff, so they are kept for good (for these `steps`).
+static func _stat(g: Game, field: Dictionary, steps: Array, c: Vector2i) -> Array:
+	if not is_same(field.get("stat_steps"), steps):
+		field["stat_steps"] = steps
+		field["stat"] = {}
+	var st: Dictionary = field["stat"]
+	if st.has(c):
+		return st[c]
+	var home := ExpansionSpots._foot_d(g, steps[0], c)
+	var foe := INF
+	for fs in steps[1]:
+		foe = minf(foe, ExpansionSpots._foot_d(g, fs, c))
+	var cv := cover_of(g, field, c, MapGen.HALL)
+	var out := [home, foe, float(cv["share"]), float(cv["near"])]
+	st[c] = out
+	return out
+
+
+## (2nd, 3rd) the walk from the main ramp's foot: W_WALK a step, and past WALK_NEAR ("far out") W_FAR_STEP once and W_FAR
+## more a step.
+static func _walk_cost(walk: float) -> float:
+	var c := W_WALK * walk
+	if walk > WALK_NEAR:
+		c += W_FAR_STEP + W_FAR * (walk - WALK_NEAR)
+	return c
 
 
 static func _better(a: Array, b: Array) -> bool:

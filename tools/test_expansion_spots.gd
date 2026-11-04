@@ -115,7 +115,10 @@ func _crown_v2(g: Game, s: Dictionary, sp: Array, bad: Array) -> void:
 	var room := {}
 	var legal: Array = CrownSites._ranked(g, t, [main_mid], 2, int(s["side"]), steps, {}, Callable(), field, room, 100000).filter(
 			func(r: Dictionary) -> bool: return other == Vector2.INF or (Vector2(r["c"]) + Vector2(MapGen.HALL) * 0.5).distance_to(other) >= Defs.HALL_SPACING)
-	if float(s["walk"]) > CrownSites.WALK_NEAR and legal.any(func(r: Dictionary) -> bool: return float(r["walk"]) <= CrownSites.WALK_NEAR):
+	# (a near one for the 2nd only counts within the 5 tiles this test allows it: on some decorations of the classic 4-player
+	# maps the only spots near the ramp are 24.7 tiles out, and the two demands can't both be met; 0.30.5)
+	var lim := Defs.HALL_SPACING + (5.0 if rank == 1 else CrownSites.SLACK)
+	if float(s["walk"]) > CrownSites.WALK_NEAR and legal.any(func(r: Dictionary) -> bool: return float(r["walk"]) <= CrownSites.WALK_NEAR and float(r["main"]) <= lim + 0.01):
 		bad.append("crown #%d %s: %d steps from the ramp's foot (far out)" % [rank, c, int(s["walk"])])
 	if rank == 1:
 		var ns := CrownSites.natural_side(g, t, field)
@@ -130,7 +133,11 @@ func _crown_v2(g: Game, s: Dictionary, sp: Array, bad: Array) -> void:
 	else:
 		for o in sp:
 			if int(o["team"]) == t and int(o["rank"]) == 1:
-				if int(o["side"]) * int(s["side"]) != -1:
+				# (only when a legal spot is there: the rule's own fallback, docs/expansion_spots.md 5, "nothing legal there: the
+				# best on either side"; on some decorations of the classic 4-player maps a player's other side has none)
+				var mid1 := Vector2(o["c"]) + Vector2(MapGen.HALL) * 0.5
+				var there := CrownSites._ranked(g, t, [main_mid, mid1], 3, -int(o["side"]), steps, {}, Callable(), field, room, 1)
+				if int(o["side"]) * int(s["side"]) != -1 and (int(o["side"]) == 0 or not there.is_empty()):
 					bad.append("crown #2 %s is not on the other side of the ramp from #1 %s (%d, %d)" % [c, o["c"], int(s["side"]), int(o["side"])])
 
 

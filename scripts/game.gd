@@ -461,10 +461,16 @@ func _connected(a: Vector2i, b: Vector2i) -> bool:
 	return false
 
 
+## Every footprint _mark changed, in order (CrownSites keeps what it measured of the ground and drops only what lay
+## near a change: its hall pick was a 586 ms frame for the Crown computer in 0.30.4).
+var solid_log: Array = []
+
+
 ## solid: 0 open, 1 terrain, 2 building, 3 gate, 4 wall (paths run through gates; only
 ## units of the gate's side and its allies can actually step on one).
 func _mark(c: Vector2i, size: Vector2i, v: int) -> void:
 	_unknown_dirty = true                 # (what each player knows stands where: worked out again)
+	solid_log.append(Rect2i(c, size))     # (CrownSites' caches drop what lay near it)
 	for y in size.y:
 		for x in size.x:
 			var cc := c + Vector2i(x, y)

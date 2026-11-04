@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.6", "items": [
+		"THE CROWN'S EXPANSION SPOTS, STEADIER: the OPTIMAL EXPANSION SPOT no longer wanders farther along under the main's cliff when a few decorations crowd the ground below the ramp (seen on the classic maps with 4 players). A spot more than 12 steps from the ramp's foot, or a first expansion more than 5 tiles past the least hall distance, now wins only when nothing nearer is free.",
+		"THE CROWN COMPUTER NO LONGER STALLS THE GAME TO PICK ITS NEXT HALL (the owner's 0.30.4 match log: a 0.6-second frame at 5:14): it works the spots out ahead, a few milliseconds a frame, and keeps what it has measured until a building goes up near it. The same spots; the pick takes about 10 ms instead of up to 600.",
+	]},
 	{"v": "0.30.5", "items": [
 		"Watching computers play: the PRODUCTION and ARMY & STRUCTURES panels are drawn again 4 times a second instead of 20. In the owner's Redrock Canyon game they took up to 45% of the computer's time once the armies passed 100 units.",
 	]},

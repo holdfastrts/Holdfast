@@ -880,14 +880,7 @@ func _safe_hall_spot() -> Vector2i:
 		mids.append(h.center() / float(Defs.TILE))
 	if mids.is_empty():
 		return super()
-	if _cs_field.is_empty():
-		_cs_field = CrownSites.edge_field(game, CrownSites.edge_cells(game, team))
-	if _cs_steps.is_empty():
-		var foes: Array = []
-		for o in game.enemies_of(team):
-			if game.starts.size() > o:
-				foes.append(ExpansionSpots._steps(game, game.starts[o]))
-		_cs_steps = [ExpansionSpots._steps(game, game.starts[team]), foes]
+	_cs_prep()
 	var avoid := {}
 	for c in _hall_bad:
 		if float(_hall_bad[c]) > game.clock:
@@ -908,6 +901,34 @@ func _safe_hall_spot() -> Vector2i:
 		return super()
 	site_picks += 1
 	return picks[0]["c"]
+
+
+## The walks from the mains (ours, the enemies') over the bare land, once a game.
+func _cs_prep() -> void:
+	if _cs_steps.is_empty():
+		var foes: Array = []
+		for o in game.enemies_of(team):
+			if game.starts.size() > o:
+				foes.append(ExpansionSpots._steps(game, game.starts[o]))
+		_cs_steps = [ExpansionSpots._steps(game, game.starts[team]), foes]
+
+
+const CS_WARM_US := 3000        # (µs) the hall pick's work ahead on a quiet tick
+var _cs_warm_done := -1         # (the ground's change count when it was last all measured)
+
+## THE HALL PICK WORKED AHEAD (0.30.5, the owner's 0.30.4 log: the 2nd hall pick was a 586 ms frame): on a tick with no
+## think part to run, a few ms of CrownSites.warm (the cliff edge, the walks, the old natural, the 2nd and 3rd candidates'
+## rooms, best first), so _safe_hall_spot finds them measured. The same picks: a pick measures anything missing itself.
+func _cs_warm() -> void:
+	if not on or not sites_on or difficulty < 1 or not doctrine() or _halls().size() > 2:
+		return
+	if _cs_warm_done == game.solid_log.size():
+		return
+	if _cs_steps.is_empty():
+		_cs_prep()          # (a tick of its own)
+		return
+	if CrownSites.warm(game, team, _cs_field, _cs_steps, CS_WARM_US):
+		_cs_warm_done = game.solid_log.size()
 
 
 ## The labourers mending a building under the cliff while the line shoots from the edge are not pulled away by the
@@ -1113,9 +1134,14 @@ func _on_errand(u: Unit) -> bool:
 
 
 func _tick_ai(delta: float) -> void:
+	var quiet := _stage >= STAGES and _think - delta > 0.0     # (no think part runs this tick)
 	super(delta)
 	if dr != null and not game.over:
 		dr.micro()
+	if quiet and game != null and not game.over:
+		var pt := Time.get_ticks_usec()
+		_cs_warm()
+		_lap("ai/sites_warm", pt)
 
 
 func _raid() -> void:
