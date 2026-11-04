@@ -20,6 +20,7 @@ const GLIDE_T := 0.5             # a corrected unit glides to its keyframe place
 const SNAP := 360.0              # ...unless it is farther than this: it is put there
 const FF := 40.0                 # a seek runs the game forward at most this fast
 const BASE_TPS := 30
+const WORK_STEPS := ["to_site", "to_hall", "mining", "manning"]
 
 var keys: Array = []             # [{t0, t1, data}] (ReplayFile.T_KEY)
 var cmd_list: Array = []         # every command: [clock, who, function, args]
@@ -43,6 +44,7 @@ var _ff_t0 := 0
 var _was_playing := true
 var _inc_t := -999.0
 var _slots: Array = []
+var _resume := false             # a seek reached its time in the middle of a frame: held there till the next
 
 
 static func play_mixed(g: Game, d: Dictionary) -> ReplayMix:
@@ -88,6 +90,9 @@ func _exit_tree() -> void:
 
 
 func _process(_delta: float) -> void:
+	if _resume:
+		_resume = false
+		get_tree().paused = not playing
 	if ff_to >= 0.0:
 		changed.emit()           # (the bar shows the seek going)
 
@@ -173,6 +178,9 @@ func _give_cmds(clk: float, upto: int) -> void:
 ## One recorded command, as the player gave it.
 func _give(c: Array) -> void:
 	var fn := String(c[2])
+	if fn == "#b":
+		_new_building(c[3])          # (its id is in it: it isn't looked up)
+		return
 	var who = game if typeof(c[1]) == TYPE_INT else _dec(c[1])
 	if who == null or not is_instance_valid(who) or (who is Entity and (who as Entity).dead):
 		n_lost += 1
@@ -186,7 +194,9 @@ func _give(c: Array) -> void:
 	_outer = fn
 	applying = true
 	game.net_quiet = true        # (no ring on the ground, no voice: as an online guest's order on the host)
-	if fn.begins_with("@"):
+	if fn.begins_with("#"):
+		_decision(fn, args)
+	elif fn.begins_with("@"):
 		if (args as Array).size() == 1:
 			(who as Object).set(fn.substr(1), args[0])
 	elif (who as Object).has_method(fn):
@@ -194,6 +204,50 @@ func _give(c: Array) -> void:
 	game.net_quiet = false
 	applying = false
 	n_run += 1
+
+
+## A computer's decision (ReplayMixRecorder._diffs): a unit's new order, a building's queue and rally.
+func _decision(fn: String, a: Array) -> void:
+	match fn:
+		"#o":
+			var u = a[0]
+			if not (u is Unit) or not is_instance_valid(u) or u.dead or _away(u):
+				n_lost += 1
+				return
+			_order(u, String(a[1]), a[2], a[3])
+		"#q":
+			var b = a[0]
+			if not (b is Building) or not is_instance_valid(b) or b.dead:
+				n_lost += 1
+				return
+			_set_queue(b, a[1], a[2])
+			b.rally = a[3]
+			b.worker_rally = a[4]
+
+
+## A computer's new building (a site it placed): made here with its id, unless the place is taken.
+func _new_building(a: Array) -> void:
+	var nid := int(a[5])
+	var e = _by_nid.get(nid)
+	if e != null and is_instance_valid(e) and not e.dead:
+		return
+	var k := String(a[0])
+	if not Defs.BUILDINGS.has(k):
+		return
+	var c: Vector2i = a[2]
+	for b in game.buildings:
+		if is_instance_valid(b) and not b.dead and b.team == int(a[1]) and b.kind == k and b.cell == c:
+			if b.net_id == 0:
+				b.net_id = nid
+				_by_nid[nid] = b
+			return
+	if game.placement_problem(int(a[1]), k, c) != "":
+		n_lost += 1
+		return
+	var nb := _make_building({"k": k, "t": int(a[1]), "c": [c.x, c.y], "built": bool(a[3]), "ghost": bool(a[4]), "nid": nid})
+	if nb:
+		_by_nid[nid] = nb
+		game._astar_dirty = true
 
 
 ## Game.net_forward while a command runs: the funnel calls it calls in turn were recorded after it, and are skipped.
@@ -431,15 +485,7 @@ func _make_building(bd: Dictionary) -> Building:
 func _set_building(b: Building, bd: Dictionary) -> void:
 	b.progress = float(bd["progress"])
 	b.hp = minf(float(bd["hp"]), b.max_hp) if b.max_hp > 0.0 else float(bd["hp"])
-	var q: Array = Array(bd["queue"])
-	if str(q) != str(b.queue):
-		var kits: Array = Array(bd.get("kits", []))
-		b.queue = []
-		b.kits = []
-		for qi in q.size():
-			var x := String(q[qi]) if String(q[qi]).begins_with("@") else SaveGame._kind(String(q[qi]))
-			if Defs.RESEARCH.has(x.substr(1)) if x.begins_with("@") else Defs.UNITS.has(x):
-				b.add_entry(x, kits[qi] if qi < kits.size() and kits[qi] is Dictionary else {})
+	_set_queue(b, bd["queue"], bd.get("kits", []))
 	b.prod_t = float(bd["prod_t"])
 	b.auto_train = SaveGame._kind(String(bd.get("auto", "")))
 	b.auto_refit = bool(bd.get("ar", false))
@@ -454,6 +500,23 @@ func _set_building(b: Building, bd: Dictionary) -> void:
 		b.lode = float(bd["lode"])
 	b.rally = SaveGame._to_v2(bd["rally"]) if bd["rally"] != null else Vector2.INF
 	b.worker_rally = SaveGame._to_v2(bd["wrally"]) if bd["wrally"] != null else Vector2.INF
+
+
+func _set_queue(b: Building, qa, ka) -> void:
+	var q: Array = Array(qa) if qa is Array else []
+	if str(q) == str(b.queue):
+		return
+	var kits: Array = Array(ka) if ka is Array else []
+	var keep_t := not b.queue.is_empty() and not q.is_empty() and str(b.queue[0]) == str(q[0])
+	var pt := b.prod_t
+	b.queue = []
+	b.kits = []
+	for qi in q.size():
+		var x := String(q[qi]) if String(q[qi]).begins_with("@") else SaveGame._kind(String(q[qi]))
+		if Defs.RESEARCH.has(x.substr(1)) if x.begins_with("@") else Defs.UNITS.has(x):
+			b.add_entry(x, kits[qi] if qi < kits.size() and kits[qi] is Dictionary else {})
+	if keep_t:
+		b.prod_t = pt                # (the one being made goes on where it was)
 
 
 ## A unit the keyframe has and the viewer's game didn't: made as the save makes it (its main values).
@@ -478,6 +541,18 @@ func _set_order(u: Unit, ud: Dictionary) -> void:
 	var ord := String(o[0])
 	var p := SaveGame._to_v2(o[1])
 	var tgt = _by_nid.get(int(o[2])) if int(o[2]) != 0 else null
+	_order(u, ord, p, tgt)
+	# a worker: the step of its round it was at (on its way, at work, carrying back) and what it carries
+	var wk = ud.get("wk")
+	if ord == "gather" and u.order == "gather" and wk is Array and String(wk[0]) in WORK_STEPS:
+		u.work = String(wk[0])
+		u.work_t = float(wk[1])
+		u.carrying = int(ud.get("carry", u.carrying))
+		u.load_f = float(ud.get("lf", u.load_f))
+
+
+## Give `u` order `ord` (to point p or target tgt) unless it has it already.
+func _order(u: Unit, ord: String, p: Vector2, tgt) -> void:
 	if tgt != null and (not is_instance_valid(tgt) or tgt.dead):
 		tgt = null
 	match ord:
@@ -602,7 +677,8 @@ func _ff_end() -> void:
 	_rate(speed)
 	ff_ms = (Time.get_ticks_usec() - _ff_t0) / 1000.0
 	playing = _was_playing
-	get_tree().paused = not playing
+	get_tree().paused = true     # (the frame's other ticks, already counted at FF, don't run: it stops on the time)
+	_resume = true
 	changed.emit()
 
 
@@ -652,12 +728,15 @@ func _cam_ev(e: Array) -> void:
 	_cams[team] = [[was_t, was], [float(e[0]) + 0.5, v], v]
 
 
-## The computers' AI, made anew for each computer side (as Main makes it at the start of a match).
+## The computers' AI: none when the replay has their decisions (ReplayMixRecorder._diffs); else made anew for each
+## computer side (as Main makes it at the start of a match).
 func _fresh_ais() -> void:
 	for ai in game.ais:
 		if is_instance_valid(ai):
 			ai.queue_free()
 	game.ais.clear()
+	if header.has("auto_teams"):
+		return
 	var cfg: Dictionary = header.get("cfg", {})
 	for t in _slots.size():
 		var sl: Dictionary = _slots[t]

@@ -16,7 +16,8 @@ const FORMAT_MIXED := 3
 ## viewer finds it by its id, or by kind, side and place when the viewer's game made it with no id: ReplayMix._ref).
 
 var cmds: Array = []             # since the last keyframe: [clock, who, fn, args]
-var n_cmds := 0                  # every command so far (a keyframe says how many came before it: the viewer goes on from there)
+var n_cmds := 0                  # every entry so far, the computers' too (a keyframe says how many came before it: the viewer goes on from there)
+var n_player := 0                # ...of which the players' own commands
 var n_dropped := 0               # commands that couldn't be written (a Callable in them: a Shift-queued card button)
 var key_us := 0                  # building the keyframes (SaveGame.capture), in all
 var pack_us := 0                 # ...packing and writing them
@@ -24,6 +25,17 @@ var cmd_us := 0                  # ...writing down the commands
 var bytes_keys := 0
 var bytes_cmds := 0
 var _key_due := false
+## The computers' decisions (their AI orders units directly, not through the funnel): every DIFF_SECS each computer
+## unit's order and each computer building's queue is looked at, and what changed is written down with the commands
+## ("#o" an order, "#q" a queue and rally, "#b" a new building). The viewer runs no AI: it gives these instead.
+const DIFF_SECS := 0.25
+var auto_teams: Array = []       # the sides no person plays (computers, a mission's scripted side)
+var diff_us := 0                 # ...looking for them
+var n_diffs := 0
+var _diff_t := -999.0
+var _osig := {}                  # unit -> [order, x, y, target]
+var _bsig := {}                  # building -> [its queue's hash, rally, worker rally]
+var _auto := PackedByteArray()   # team -> 1 for a computer side
 var _camrec_t := -999.0
 var _cfg := {}
 
@@ -54,10 +66,13 @@ static func start_mixed(g: Game, cfg: Dictionary, me: int) -> ReplayMixRecorder:
 		elif who in ["easy", "normal", "hard", "brutal"]:
 			nm += " (%s AI)" % who
 		names.append(nm)
+		if not (who in ["you", "remote"]) and t != me:
+			r.auto_teams.append(t)
 	r.header = {"format": FORMAT_MIXED, "mode": "mixed", "game_version": String(ProjectSettings.get_setting("application/config/version", "dev")),
 		"cfg": c, "me": me, "names": names, "date": int(Time.get_unix_time_from_system()), "map_name": g.map_name,
 		"online": "host" if g.net != null else "", "view_only": false, "sandbox": g.sandbox, "cw_roster": Defs.cw_roster,
-		"rate": 0.0, "key_secs": KEY_SECS, "t0": snappedf(g.clock, 0.01)}
+		"rate": 0.0, "key_secs": KEY_SECS, "t0": snappedf(g.clock, 0.01),
+		"auto_teams": r.auto_teams, "diff_secs": DIFF_SECS}
 	if String(c.get("map", "")).begins_with("custom:"):
 		r.header["custom_map"] = MapGen.load_custom(String(c["map"]).substr(7))
 	r.written = ReplayFile.begin(r.path, r.header)
@@ -75,6 +90,9 @@ func _physics_process(_delta: float) -> void:
 		return
 	if game.clock - last_key >= KEY_SECS - 0.0005:
 		_key_due = true
+	if game.clock - _diff_t >= DIFF_SECS - 0.0005 and not auto_teams.is_empty():
+		_diff_t = game.clock
+		_diffs()
 	# the recording player's camera, twice a second when it moved ("follow my camera")
 	if game.clock - _camrec_t >= 0.5:
 		_camrec_t = game.clock
@@ -122,6 +140,7 @@ func note_cmd(who: Object, fn: String, args: Array) -> void:
 	if ok[0]:
 		cmds.append([snappedf(game.clock, 0.0001), w, fn, a])
 		n_cmds += 1
+		n_player += 1
 	else:
 		n_dropped += 1
 	cmd_us += Time.get_ticks_usec() - t0
@@ -151,6 +170,58 @@ func _enc(v, ok: Array):
 		ok[0] = false
 		return null
 	return v
+
+
+## The computers' new orders, queues and buildings since the last look.
+func _diffs() -> void:
+	var t0 := Time.get_ticks_usec()
+	var clk := snappedf(game.clock, 0.0001)
+	var ok := [true]
+	var seen := {}
+	if _auto.size() != game.n_players():
+		_auto.resize(game.n_players())
+		for t in game.n_players():
+			_auto[t] = 1 if auto_teams.has(t) else 0
+	for b in game.buildings:
+		if not is_instance_valid(b) or b.dead or b.team < 0 or _auto[b.team] == 0:
+			continue
+		var sig := [b.queue.hash(), b.rally, b.worker_rally]
+		var bw = _bsig.get(b.get_instance_id())
+		if bw != null and bw[0] == sig[0] and bw[1] == sig[1] and bw[2] == sig[2]:
+			continue
+		if bw == null and b.net_id == 0:
+			assign(b)
+			cmds.append([clk, 0, "#b", [String(b.kind), b.team, b.cell, bool(b.built), bool(b.ghost), b.net_id]])
+			n_diffs += 1
+			n_cmds += 1
+		_bsig[b.get_instance_id()] = sig
+		cmds.append([clk, 0, "#q", [_enc(b, ok), b.queue.duplicate(), _enc(b.kits.map(func(kt): return SaveGame._kit_save(kt)), ok), b.rally, b.worker_rally]])
+		n_diffs += 1
+		n_cmds += 1
+	for u in game.units:
+		if u.dead or u.team < 0 or _auto[u.team] == 0 or u.off_field or u.aboard != null:
+			continue
+		var uid: int = u.get_instance_id()
+		seen[uid] = true
+		var ot = u.order_target if u.order_target != null and is_instance_valid(u.order_target) else null
+		var tid: int = ot.get_instance_id() if ot != null else 0
+		var was = _osig.get(uid)
+		var ox := roundi(u.order_point.x)
+		var oy := roundi(u.order_point.y)
+		if was != null and was[0] == u.order and was[1] == ox and was[2] == oy and was[3] == tid:
+			continue
+		_osig[uid] = [u.order, ox, oy, tid]
+		if was == null and u.order == "idle":
+			continue             # (new and idle: nothing to tell)
+		cmds.append([clk, 0, "#o", [_enc(u, ok), u.order, Vector2(ox, oy), _enc(ot, ok) if ot is Entity else null]])
+		n_diffs += 1
+		n_cmds += 1
+	if _osig.size() > seen.size() + 64:
+		for k in _osig.keys():
+			if not seen.has(k):
+				_osig.erase(k)
+	diff_us += Time.get_ticks_usec() - t0
+	cost_us += Time.get_ticks_usec() - t0
 
 
 # ------------------------------------------------------------------ the keyframes
@@ -208,7 +279,11 @@ func _flush_cmds() -> void:
 		events = []
 	if cmds.is_empty():
 		return
-	var b := var_to_bytes(cmds)
+	var raw := var_to_bytes(cmds)
+	var b := PackedByteArray()
+	b.resize(4)
+	b.encode_u32(0, raw.size())
+	b.append_array(raw.compress(FileAccess.COMPRESSION_ZSTD))
 	ReplayFile.append(path, ReplayFile.T_CMDS, float(cmds[0][0]), float(cmds.back()[0]), b)
 	bytes_cmds += b.size() + ReplayFile.REC_HEAD
 	bytes_file += b.size() + ReplayFile.REC_HEAD
@@ -238,6 +313,6 @@ func finish(winner: int, left := false) -> String:
 
 func cost_line() -> String:
 	var secs := maxf(game.clock - float(header.get("t0", 0.0)), 1.0)
-	return "MIXED keyframes %d, commands %d (%d dropped), recording %.2f ms per match second (keyframes %.2f, packing %.2f, commands %.3f), file %.0f KB (%.0f KB a minute; keyframes %.0f KB, commands %.0f KB)" % [
-		n_keys, n_cmds, n_dropped, cost_us / 1000.0 / secs, key_us / 1000.0 / secs, pack_us / 1000.0 / secs, cmd_us / 1000.0 / secs,
+	return "MIXED keyframes %d, commands %d (%d dropped), computers' orders %d, recording %.2f ms per match second (keyframes %.2f, packing %.2f, commands %.3f, computers' orders %.2f), file %.0f KB (%.0f KB a minute; keyframes %.0f KB, commands %.0f KB)" % [
+		n_keys, n_player, n_dropped, n_diffs, cost_us / 1000.0 / secs, key_us / 1000.0 / secs, pack_us / 1000.0 / secs, cmd_us / 1000.0 / secs, diff_us / 1000.0 / secs,
 		bytes_file / 1024.0, bytes_file / 1024.0 / secs * 60.0, bytes_keys / 1024.0, bytes_cmds / 1024.0]

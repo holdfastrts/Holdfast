@@ -10,7 +10,7 @@ extends RefCounted
 ##   T_FOOT    var_to_bytes: how it ended (winner, length, note); missing if the game closed before the end
 ## A MIXED replay (format 3, ReplayMixRecorder, docs/replay_mixed.md) has no chunks of pictures; instead:
 ##   T_KEY     the whole match (SaveGame.capture with ids and orders) every ~10 s: u32 raw size + zstd(var_to_bytes)
-##   T_CMDS    var_to_bytes: the commands since the keyframe before, [[clock, who, function, args]...]
+##   T_CMDS    the commands since the keyframe before, [[clock, who, function, args]...]: u32 raw size + zstd(var_to_bytes)
 ## Next to it, replay_<date>.json: what the REPLAYS list shows (players, map, result, length, kept), so the list
 ## never opens the big files.
 
@@ -175,7 +175,7 @@ static func parse(bytes: PackedByteArray) -> Dictionary:
 			T_KEY:
 				(out["keys"] as Array).append({"t0": t0, "t1": t1, "data": body})
 			T_CMDS:
-				var cl = bytes_to_var(body)
+				var cl = bytes_to_var(body.slice(4).decompress(body.decode_u32(0), FileAccess.COMPRESSION_ZSTD)) if body.size() >= 5 and body.decode_u32(0) < 64 * 1024 * 1024 else null
 				if cl is Array:
 					(out["cmds"] as Array).append_array(cl)
 	out["ok"] = not (out["header"] as Dictionary).is_empty() and (not (out["chunks"] as Array).is_empty() or not (out["keys"] as Array).is_empty())

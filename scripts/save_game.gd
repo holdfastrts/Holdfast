@@ -179,6 +179,8 @@ static func capture(game: Game, cfg: Dictionary, replay := false) -> Dictionary:
 			if u.order == "gather" and ot == null and u.home_mine != null and is_instance_valid(u.home_mine):
 				ot = u.home_mine
 			ud["o"] = [u.order, _v2(u.order_point), ot.net_id if ot is Entity else 0]
+			if u.work != "":
+				ud["wk"] = [u.work, snappedf(u.work_t, 0.01)]      # (a worker's step in its round: to the site, at work, back)
 		if Defs.ARMOURED.has(u.kind):
 			ud["kit"] = u.get_kit()
 			if not u.refit.is_empty():
