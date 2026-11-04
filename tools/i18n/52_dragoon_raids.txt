@@ -1,0 +1,18 @@
+# crown-builds-a: the Crown computer's plan "Dragoon raids" (scripts/ai_crown.gd, scripts/ai_dragoon_raid.gd,
+# docs/crown_builds_a.md): its name in the lobby and the AI STORY's sentences for its raids (scripts/ai_story_lines.gd).
+
+> Dragoon raids
+pt Incursões de Dragões
+es Incursiones de Dragones
+
+> %s's Dragoons ride out to raid the enemy's workers.
+pt Os Dragões de %s saem a cavalo para atacar os trabalhadores inimigos.
+es Los Dragones de %s salen a caballo a asaltar a los trabajadores enemigos.
+
+> %s's Dragoons get off their horses and shoot at the workers.
+pt Os Dragões de %s desmontam e atiram nos trabalhadores.
+es Los Dragones de %s desmontan y disparan a los trabajadores.
+
+> %s's Dragoons mount and ride off before the defenders reach them.
+pt Os Dragões de %s montam e partem antes que os defensores os alcancem.
+es Los Dragones de %s montan y se marchan antes de que los defensores los alcancen.

@@ -53,6 +53,9 @@ const STRATEGIES := {
 	# Owls raiding the enemy's economy away from its anti-air; then it plays on these numbers (Balanced, a later first wave:
 	# the Owls are the pressure meanwhile).
 	"owls": {"name": "Owl raids", "wave": 18, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "clock_only": true},
+	# DRAGOON RAIDS (crown-builds-a; scripts/ai_crown.gd plan "dragoon", scripts/ai_dragoon_raid.gd): Musketeers on horseback
+	# raid the workers in small groups while the Musketeer line holds the main.
+	"dragoon": {"name": "Dragoon raids", "wave": 30, "step": 10, "expand": 0.8, "halls": 3, "tech": 1.0, "workers": 1.0, "crown_only": true},
 }
 
 
@@ -66,6 +69,8 @@ static func strategies_for(faction: String, hidden := false) -> Array:
 		if STRATEGIES[k].get("brood_only", false) and faction != "brood":
 			continue
 		if STRATEGIES[k].get("clock_only", false) and faction != "clockwork":
+			continue
+		if STRATEGIES[k].get("crown_only", false) and faction != "crown":
 			continue
 		out.append(k)
 	return out

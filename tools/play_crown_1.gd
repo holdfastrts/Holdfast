@@ -19,6 +19,7 @@ const COACH := {
 	"balanced": {"strategy": "balanced", "set": {}},
 	"timing": {"strategy": "timing", "set": {}},
 	"rush": {"strategy": "rush", "set": {}},
+	"dragoon": {"strategy": "dragoon", "set": {}},     # (crown-builds-a: tools/play_crown_builds_a.gd films the raids)
 	# (variants the coach tries: the plan's settings changed; docs/ai_crown_rebuild.md says which were kept)
 	"eco_late": {"strategy": "economy", "set": {"labs": 99}},
 }

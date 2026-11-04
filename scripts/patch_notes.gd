@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.9", "items": [
+		"A NEW CROWN COMPUTER PLAN, DRAGOON RAIDS (pick it in the lobby, or a random plan may land on it): the safe Musketeer opening and the second hall, then Dragoons, Musketeers on horseback, ride out in groups of four to the enemy's workers: grubs at their Rootmaws, Winders at their presses, Labourers at their farms. They pick an expansion away from the enemy's army, ride round the side of its main, get off to shoot, and mount and ride off as soon as a real defender comes (a Tyrant Sire, a pack of Raptors, an army bigger than the group). The Musketeer line holds the main's high ground meanwhile. Against the Brood a group waits at home for the Brood's army to come out, then raids the grubs it left behind.",
+	]},
 	{"v": "0.29.8", "items": [
 		"A NEW PLAN FOR THE CLOCKWORK COMPUTER, OWL RAIDS: a written opening build (the Light Works, the Mainspring on its big ring, the Escapement, two Clock Aviaries, TICKING OWL researched in one while the other makes Swifts), the first Ticking Owl at about 5:05, the economy growing behind it. Two Winders walk out with the Owls to a post near the enemy, out of sight, to wind them (an Owl runs down in about 80 seconds off its gear field), and the Owls strike its Farms, Mills, new Town Halls and workers from there, away from the anti-air seen, and fly back when it comes. A Swift scouts ahead. A real attack on the base calls the Owls home: Raptors, Horsemen and Clock Soldiers cannot hit them. Against the Brood it is the best Clockwork plan so far; against the Crown its Musketeers drive the Owls off. A computer on RANDOM PLAN can pick it.",
 		"Fixed: the Clockwork computer could turn the Springer raid's scouting Swift into a Ticking Owl late in the game.",
