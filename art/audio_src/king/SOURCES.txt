@@ -1,2 +1,2 @@
 king_line_01.mp3: the owner's ElevenLabs recording of the King (Voice Design), mission 1 line 01 "You ask how the world came to burn...", 2026-11-04.
-Names: king_line_01..06 in the order of docs/campaign_mission1.md.
+Names: king_line_01..05 in the order of docs/campaign_mission1.md.
