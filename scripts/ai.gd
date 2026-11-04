@@ -793,12 +793,6 @@ func _meshed_none() -> bool:
 	return not _mine(_works()).any(func(b: Building) -> bool: return game.gear_net.spring_for(b) != null)
 
 
-## The first Mainspring's search (its spot by every Works and hall, the room for the Escapement and the Heavy Works beside
-## it, then the plain spot search: 100 to 175 ms in one frame in a crowded base) waits this long after it found no room,
-## instead of the usual 3 s (docs/perf_armies.md: a freeze every few seconds for minutes in the owner's Cinder Steps game).
-const SPRING_NONE_WAIT := 8.0
-
-
 func _tier2(t: float) -> void:
 	# (the clock, not only the plan's tech factor: a scout report of a "rush" (a Horseman, a Musketeer line at home) put
 	# the tech off by a quarter, and melee alone is what loses to that defence)
@@ -857,8 +851,6 @@ func _tier2(t: float) -> void:
 				if ce.x >= 0 and game.requirement_met(team, Defs.CW_TECH):
 					_construct(Defs.CW_TECH, ce)
 					break
-			if not _busy_building("mainspring"):
-				_tier2_t = game.clock + SPRING_NONE_WAIT      # (no room found for it: the search waits a little longer)
 			if msc.x >= 0 and _busy_building("mainspring"):
 				# (0.14.94: the spots by the new Mainspring are KEPT for what goes beside it: the Escapement, when it could
 				# not be laid with it (a ring touching only the Mainspring's site does not link until it stands, and its room
@@ -950,6 +942,9 @@ var _keep_fed_t := 0.0
 var field_keep_on := OS.get_cmdline_user_args().has("fieldkeep:on")      # (study switch: off by default, see docs/clockwork_ai_swarm.md)
 
 
+const KEEP_NONE_WAIT := 20.0
+
+
 func _keep_heavy_fed() -> void:
 	if game.clock < _keep_fed_t or not _mine(Defs.CW_HEAVY).is_empty() or not _kept(Defs.CW_HEAVY).is_empty():
 		return
@@ -969,6 +964,9 @@ func _keep_heavy_fed() -> void:
 			if c.x >= 0:
 				break
 	if c.x < 0:
+		# (no room for the big ring anywhere on the field: the search round every gear neighbour took 90 to 180 ms in one
+		# frame, every 5 s for minutes in a crowded base (docs/perf_armies.md): it looks again in KEEP_NONE_WAIT s)
+		_keep_fed_t = game.clock + KEEP_NONE_WAIT
 		return
 	if not game.ai_keep.has(team):
 		game.ai_keep[team] = {}
