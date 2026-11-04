@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.28.5", "items": [
+		"TWO NEW PLANS FOR THE CLOCKWORK COMPUTER, BUILT ROUND THE HEAVY WORKS. PENDULUMS, the answer to the Brood's Raptor swarms: two Clock Soldiers early, the Heavy Works as soon as the Escapement works, three Pendulums with the expansion behind them, then a slow push of Pendulums and Clock Soldiers, with Winders behind them, to the Brood's Rootmaws, its father and then its Mother. HEAVY WORKS PUSH: Clock Soldiers in front, Spring Ballistas behind them and the Great Winder behind those: a slow push that razes expansions from out of musket reach, breaks a wall in its way, waits short of the enemy's main until it is strong enough, and pulls back before it is wiped out. A computer on RANDOM PLAN picks the Pendulums half the time against the Brood.",
+		"The Clockwork computer on these plans sends a Winder out to wind its machines that ran down at home.",
+	]},
 	{"v": "0.28.4", "items": [
 		"THE SPRINGER HAS A REAL ATTACK SOUND: its shot was a tenth of a second of ratchet click, lost under the muskets. Now each shot is either a spring's twang and the clank of the screw flying, or a springy thwip with a lighter clank (the owner's two picks, from his Clockwork recordings).",
 	]},

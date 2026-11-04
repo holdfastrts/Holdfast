@@ -11,7 +11,9 @@ extends RefCounted
 ##    charge). It sieges a Crown wall from out of musket reach; against the Brood it walks to its nests like the Pendulums.
 ## Plan keys (as AIClockwork.PLANS): workers0, steps; and
 ##  push       the push's settings (scripts/ai_cw_push.gd): "need" {kind: n} before it goes ("front": the Clock Soldiers,
-##             Springers and Netters together; against the Brood "need_brood" when given), "min_supply" (the army's supply)
+##             Springers and Netters together; against the Brood "need_brood" when given), "min_supply" (the army's supply),
+##             "main_min" (the least value it goes for the enemy's main with, whatever it has seen of the enemy's army),
+##             "leash" (px: a front unit farther from the anchor in a fight walks back)
 ##  keep       after the opening, the Heavy Works keeps n of each kind first, in order ([[kind, n], ...]); "keep_brood"
 ##             against the Brood. (Pendulums: never fewer than the swarm rule wants, AISwarm.pend_want.)
 ##  front      after the opening, the Light Works keeps this many Clock Soldiers (2 more for each push gone out)
@@ -66,7 +68,7 @@ const PLANS := {
 			"clock_soldier 4",
 			"end",
 		],
-		"push": {"need": {"ballista": 2, "great_winder": 1, "front": 10}, "min_supply": 20,
+		"push": {"need": {"ballista": 2, "great_winder": 1, "front": 10}, "min_supply": 20, "main_min": 2600.0, "leash": 360.0,
 			"need_brood": {"ballista": 2, "great_winder": 1, "front": 6, "pendulum": 1}},
 		"keep": [[Defs.BALLISTA_KIND, 3], [Defs.GREAT_WINDER_KIND, 1]],
 		"keep_brood": [[Defs.PENDULUM, 2], [Defs.BALLISTA_KIND, 2], [Defs.GREAT_WINDER_KIND, 1]],

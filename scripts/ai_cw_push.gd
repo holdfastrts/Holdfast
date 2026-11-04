@@ -27,7 +27,8 @@ const HEAVY_LAG := 320.0        # the anchor waits for the Ballistas and the Gre
 const LOOK := 380.0             # px round the front: armed enemies here start a fight
 const CALM := 3.0               # s with no armed enemy near the front before the march goes on
 const SCREEN_R := 260.0        # px from the anchor: the front meets the enemies within this, holds against the rest
-const LEASH := 520.0           # px: a front unit farther than this from the anchor in a fight walks back to it
+const LEASH := 520.0           # px: a front unit farther than this from the anchor in a fight walks back to it (the plan's
+                                # "leash": the Heavy Works push 360, 520 let its Clock Soldiers chase kiting Musketeers off)
 const GUARD_R := 130.0          # an enemy this close to a Ballista: it rolls back, two front units meet it
 const SIEGE_SEE := 340.0        # a wall or gate this close ahead of the anchor stops the march: the siege
 const SIEGE_FRONT := 215.0      # the front stands this far from the piece (a Musketeer reaches 190 from behind it)
@@ -394,10 +395,12 @@ func _march() -> void:
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
 	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
-	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K)):
+	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and (_value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K)) or _value(units) < float(cfg.get("main_min", 0.0))):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
 		# it took, and the reinforcements join it (Greenhold 11: the push razed the Crown's expansion, walked on up to its
-		# main and met its whole army, 25 Musketeers, at the ramp: 3,100 value lost in a minute)
+		# main and met its whole army, 25 Musketeers, at the ramp: 3,100 value lost in a minute). The plan's "main_min": the
+		# least value it goes in with whatever it has seen (the army in a main is mostly unseen: 8 Clock Soldiers walked up
+		# to a Crown ramp at 7:11 having seen one Musketeer, and died)
 		_note_once("contain", "holds short of the enemy's main: worth %d, the enemy's army seen lately %d" % [int(_value(units)), int(foe_mem())], 40.0)
 		at = false
 	if at and not lag and not arrived:
@@ -541,7 +544,7 @@ func _fight(foes: Array) -> void:
 	for u in front:
 		if _guards.has(u):
 			continue
-		if u.position.distance_to(anchor) > LEASH:
+		if u.position.distance_to(anchor) > float(cfg.get("leash", LEASH)):
 			_order(u, anchor, false, 60.0)        # (too far after a chase: back to the block, not on into the fog)
 			continue
 		if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.position.distance_to(u.target.position) < 220.0:
@@ -670,7 +673,8 @@ func _piece_ahead() -> Building:
 	var best: Building = null
 	var bd := SIEGE_SEE
 	for b in game.buildings:
-		if b.dead or not b.built or not game.hostile(b.team, team) or not (b.kind == "wall" or b.kind == "gate"):
+		# (a wall, a gate, or a Cottage in the way: the Crown plugs its ramp with one)
+		if b.dead or not b.built or not game.hostile(b.team, team) or not (b.kind == "wall" or b.kind == "gate" or b.kind == "cottage"):
 			continue
 		var bc: Vector2 = b.center()
 		var dd: float = bc.distance_to(anchor)
@@ -678,8 +682,9 @@ func _piece_ahead() -> Building:
 			continue
 		# on the way: near the path ahead
 		var on_way := false
+		var near_way := 90.0 if (b.kind == "wall" or b.kind == "gate") else 50.0
 		for i in range(path_i, mini(path.size(), path_i + 40)):
-			if path[i].distance_to(bc) < 90.0:
+			if path[i].distance_to(bc) < near_way:
 				on_way = true
 				break
 		if not on_way and bc.distance_to(goal) > anchor.distance_to(goal):

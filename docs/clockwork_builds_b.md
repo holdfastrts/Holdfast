@@ -127,7 +127,43 @@ from 3,988 to 5,308 (Greenhold 11, against the Crown).
   shared escort winds only when no threat holds the army at home.)
 - The shared computer still defends the base with what is at home, and sends no waves of its own while the plan runs.
 
-ROUNDS
+## The coaching (round A, fixes, round B)
+
+As for the Springer timing and the Brood (docs/brood_new_play_3.md), each plan was played in filmed, coached games
+(tools/play_clockwork_builds_b.gd), and I looked at the pictures myself, frame by frame. Round A: eight filmed games
+(Greenhold 11 and Kestrel Rise 12; the Pendulums against the Brood's Rush and Timing; the Heavy Works push against the
+Hard Crown), and a few measured ones between them. What the films showed, and what was changed:
+
+1. The push waited until 11:00. The shared computer's own training made Springers and a Ballista, few Clock Soldiers,
+   and the push wanted eight. Now the plan trains its own mix after the opening: its heavy machines at the Heavy Works,
+   and its front (Clock Soldiers) at the Light Works, the front's first few before the heavy machine's cogs.
+2. A supply-gated step ("18 regulator") stopped the reading while the Brood's rush kept the supply under 18: the
+   Pendulums waited half a minute. Now that Regulator has no supply number (the supply guard lays one when it is short).
+3. Three Pendulums stood frozen at home for two minutes: they had chased Raptors past the gear field and run down, and
+   the shared escort winds only while no threat holds the army at home. Now a Winder walks out to wind them (THE REWIND).
+4. The big Mainspring's Tension sat at its cap (400) for minutes while the cogs were short: the small one now, three
+   Winders more on a Cog Press (cogs earned by 7:00, Greenhold 11 against the Crown: 3,988 before, 5,308 after).
+5. Against the Crown, the Heavy Works push never went (it wanted 28 supply), and the Crown's Musketeers came to the
+   Clockwork's expansion at 9:12 and wiped out the army at home: the Clockwork lost the game at 13:00. Now it goes with
+   about 20 supply.
+6. Out, the Clock Soldiers charged the Musketeers at the Crown's new Town Hall and died one by one while the Ballistas
+   stood back. Now THE SCREEN: the front holds a line in front of the Ballistas and meets only what comes close.
+7. The push razed the Crown's expansion (the Ballistas' bolts burned its Town Hall and Mills), then walked up to the main
+   and met its whole army at the ramp: 3,100 value lost in a minute. Now THE MAIN WAITS (worth 1.3 times the enemy's army
+   seen lately; for the Heavy Works push also 2,600 value at least, since a main's army is mostly unseen), and it retreats
+   at once from an army worth 1.4 times its own.
+8. On Kestrel Rise the anchor walked past the end of the path, toward the Mother over a footprint, where the front could
+   not follow: the push stood still at her nest's edge for three minutes. Now the anchor stops at the path's end and the
+   front goes for the goal itself.
+9. On Greenhold the reinforcements on the road counted in the front's middle: it never seemed "at" the anchor, the anchor
+   never moved, and new units were fed into the Brood's nest a few at a time for four minutes (6,245 value lost). Now
+   they join on arrival, and the push retreats once it has lost two thirds of what went out and joined.
+10. The Pendulums fought the Brood Mother when her Rootmaws stood beside her: the push's memory of the Brood ran one think
+    in six, and the Rootmaws were "never seen". Now every think: it heads for the Rootmaws, the Mound Turtles and the
+    rooted father first.
+
+Round B is the measured games below (each plan and the old plans on the same maps and seeds), and three filmed games for
+the pictures.
 
 NUMBERS
 

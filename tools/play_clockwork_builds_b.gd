@@ -67,6 +67,8 @@ func _process(delta: float) -> bool:
 						a._b_ready()
 					if main_k >= 0.0 and a.push != null:
 						a.push.cfg["main_k"] = main_k
+						if main_k == 0.0:
+							a.push.cfg["main_min"] = 0.0      # (the siege variant: straight for the main)
 					print("COACH plan %s v %s %s, forced %s, main_k %s" % [cw_plan, fb, fp, str(sets.keys()), str(main_k)])
 		return false
 	g = main.game
