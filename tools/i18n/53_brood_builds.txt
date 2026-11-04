@@ -1,0 +1,41 @@
+# brood-builds: the Brood computer's written builds (scripts/ai_brood_builds.gd, docs/brood_builds.md)
+
+> Spitter timing
+pt Ataque de Cuspidores
+es Ataque de Escupidores
+
+> Brute siege
+pt Cerco de Brutamontes
+es Asedio de Brutos
+
+> %s's Spitter timing goes out: %s supply, %s Spitters behind a pack of Raptors.
+pt O ataque de Cuspidores de %s sai: %s de suprimento, %s Cuspidores atrás de uma matilha de Raptores.
+es El ataque de Escupidores de %s sale: %s de suministro, %s Escupidores detrás de una manada de Raptores.
+
+> %s's Raptors go in and its Spitters spit from behind them.
+pt Os Raptores de %s atacam e os Cuspidores cospem por trás deles.
+es Los Raptores de %s entran y sus Escupidores escupen desde detrás de ellos.
+
+> %s's Brute siege goes out: %s supply, %s Brutes in front to break the way in.
+pt O cerco de Brutamontes de %s sai: %s de suprimento, %s Brutamontes na frente para abrir caminho.
+es El asedio de Brutos de %s sale: %s de suministro, %s Brutos delante para abrir paso.
+
+> %s's Brutes batter the enemy's %s while its Spitters cover them.
+pt Os Brutamontes de %s golpeiam %s do inimigo enquanto os Cuspidores os cobrem.
+es Los Brutos de %s embisten %s del enemigo mientras sus Escupidores los cubren.
+
+> %s's Brutes break through: the swarm pours in through the gap.
+pt Os Brutamontes de %s rompem a defesa: o enxame entra pela brecha.
+es Los Brutos de %s abren brecha: el enjambre entra por el hueco.
+
+> %s's Brute siege falls back: the way in still stands.
+pt O cerco de Brutamontes de %s recua: a entrada ainda resiste.
+es El asedio de Brutos de %s se retira: la entrada sigue en pie.
+
+> %s (%s) plans a Spitter timing: the Venom Sire early and a Spitter-backed wave at about 6:00, its economy growing behind it.
+pt %s (%s) planeja um ataque de Cuspidores: o Sire do Veneno cedo e uma onda apoiada por Cuspidores por volta de 6:00, com a economia crescendo atrás.
+es %s (%s) planea un ataque de Escupidores: el Señor del Veneno pronto y una oleada apoyada por Escupidores hacia las 6:00, con la economía creciendo detrás.
+
+> %s (%s) plans a Brute siege: its Mother grows fast for Brutes that break the walls and turrets, the swarm behind them.
+pt %s (%s) planeja um cerco de Brutamontes: a Mãe cresce rápido para Brutamontes que derrubam muros e torretas, com o enxame atrás.
+es %s (%s) planea un asedio de Brutos: su Madre crece rápido para Brutos que derriban muros y torretas, con el enjambre detrás.

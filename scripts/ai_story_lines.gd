@@ -114,6 +114,14 @@ const RULES := [
 	["^sends (\\d+) Winders to crew its Spring Ballista", "%s sends %s Winders to crew its Spring Ballista.", 1, "army"],
 	["^'s (.+?) shells (\\d+) bodies", "%s's %s shells %s bodies so the Brood cannot feed on them.", 1, "army"],
 	# ---- the Brood (its lines start "'s Brood: ")
+	# ---- the Brood's written builds (brood-builds, scripts/ai_brood_builds.gd)
+	["^'s Brood: spitter timing: goes out at [0-9:]+: (\\d+) supply, (\\d+) Spitters", "%s's Spitter timing goes out: %s supply, %s Spitters behind a pack of Raptors.", 3, "attack"],
+	["^'s Brood: spitter timing: contact", "%s's Raptors go in and its Spitters spit from behind them.", 2, "attack"],
+	["^'s Brood: brute siege: goes out: (\\d+) supply, (\\d+) Brutes", "%s's Brute siege goes out: %s supply, %s Brutes in front to break the way in.", 3, "attack"],
+	["^'s Brood: brute siege: the Brutes batter the (.+?),", "%s's Brutes batter the enemy's %s while its Spitters cover them.", 2, "attack"],
+	["^'s Brood: brute siege: BREACH", "%s's Brutes break through: the swarm pours in through the gap.", 3, "attack"],
+	["^'s Brood: brute siege: falls back", "%s's Brute siege falls back: the way in still stands.", 3, "attack"],
+	["^'s Brood: (?:spitter timing|brute siege): ", "", 1, "attack"],
 	["^'s Brood attacks with", "", 1, "attack"],
 	["^'s Brood: ALARM: an enemy army of (\\d+) out of its main", "%s sounds the alarm: an enemy army of %s is on the move. Warriors gather, grubs pull back.", 3, "defend"],
 	["^'s Brood: ALARM: a Mound Turtle gets up", "%s gets a Mound Turtle up to root in front of its natural.", 2, "defend"],
@@ -145,6 +153,8 @@ const PLANS := {
 	"timing": "%s (%s) plans a timing attack: it builds up and strikes once, in force, at about 4:30.",
 	"air": "%s (%s) plans an air rush: fliers early, before the enemy can shoot them down.",
 	"xrush": "%s (%s) gambles on an extreme rush: everything on Raptors, the first wave as soon as they hatch.",
+	"spitter": "%s (%s) plans a Spitter timing: the Venom Sire early and a Spitter-backed wave at about 6:00, its economy growing behind it.",
+	"brute": "%s (%s) plans a Brute siege: its Mother grows fast for Brutes that break the walls and turrets, the swarm behind them.",
 }
 
 ## The level names shown in the plan lines.

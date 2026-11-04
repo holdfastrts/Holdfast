@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.7", "items": [
+		"TWO NEW PLANS FOR THE BROOD COMPUTER (pick them in the PLAN list, or a random plan may land on them). SPITTER TIMING: the Venom Sire early, Spitters ahead of the Raptors, the Venom line's Bigger Clutch the moment he is on his nest, and a Spitter-backed wave from 6:30 that walks at the Spitters' pace (the Raptors just ahead of them, not running off alone); the economy grows behind it as in Balanced. Once what is left is behind a wall it has no Brutes to break, it comes home.",
+		"BRUTE SIEGE: the Mother grows to her third stage early, food and spoils are kept for Brutes, and with four Brutes and Battering Horns the push goes out: the Brutes batter the wall piece, gate or Ratchet Turret in the way while the Spitters cover them and the Raptors wait, then the whole swarm goes in through the breach. It falls back if its Brutes die or the wall holds.",
+		"In coached games on Hard the Spitter timing won all six (trade 2.7 to 1; Balanced 4 won, 1 drawn, 1 lost on the same games) and its wave hit the Clockwork hard; the Brute siege won 6 of 8 and broke every wall or turret its Brutes reached, but both win about a minute later than Balanced against the Crown.",
+	]},
 	{"v": "0.30.6", "items": [
 		"THE CROWN'S EXPANSION SPOTS, STEADIER: the OPTIMAL EXPANSION SPOT no longer wanders farther along under the main's cliff when a few decorations crowd the ground below the ramp (seen on the classic maps with 4 players). A spot more than 12 steps from the ramp's foot, or a first expansion more than 5 tiles past the least hall distance, now wins only when nothing nearer is free.",
 		"THE CROWN COMPUTER NO LONGER STALLS THE GAME TO PICK ITS NEXT HALL (the owner's 0.30.4 match log: a 0.6-second frame at 5:14): it works the spots out ahead, a few milliseconds a frame, and keeps what it has measured until a building goes up near it. The same spots; the pick takes about 10 ms instead of up to 600.",
