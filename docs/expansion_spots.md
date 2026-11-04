@@ -57,9 +57,10 @@ Code: `scripts/crown_sites.gd` (`CrownSites.pick`), used by the gold marks of a 
    (`CrownSites.side_of`; a spot within 1.5 tiles of the line is on neither).
 3. Each spot is scored on the owner's three aims, all three for every stage:
    - close: minus 2 a tile past the least distance (from the MAIN for the 2nd and 3rd; from the nearest hall for the 4th
-     on), looked at up to 9 tiles past it;
-   - near the ramp (2nd and 3rd): minus 1.5 a step of the walk from the ramp's foot (`CrownSites.steps_from`), and 2
-     more a step past 12 steps ("far out": so the border never pulls a hall round the main's cliff, away from the ramp);
+     on), looked at up to 9 tiles past it; the 2nd 10 more, once, past 5 tiles (0.30.5);
+   - near the ramp (2nd and 3rd): minus 1.5 a step of the walk from the ramp's foot (`CrownSites.steps_from`), and past
+     12 steps ("far out": so the border never pulls a hall round the main's cliff, away from the ramp) 10 once (0.30.5)
+     and 2 more a step;
    - against the border: minus 2 a tile between the hall and the map's border (past the one free cell its ring needs),
      and minus 3 an OPEN side (`CrownSites.open_sides`: a side is shut when the border or ground no army walks comes
      within 3 cells of every cell along it; a hall against the border has 3 open sides);
@@ -82,10 +83,18 @@ its builders were just chased off, where it may not build, on the enemy's side b
 within 14 tiles; nothing found: the shared pick. Its line holds the cliff edge above a hall under attack there
 (docs/crown_cliff_edge.md); a hall against the border below the main's cliff is still often within the line's reach.
 
-Cost: the old (v1) search took 0.8-1.5 s of the computer's frame for its 2nd and 3rd hall; v2 takes 0.15-0.35 s for the
-first (the walk from the ramp and the natural worked out once), then 30-100 ms (it keeps the ramp's walk and the rooms
-it has measured until a building comes or goes). The first marks of both sides: 0.4-0.6 s at the map's start (v1:
-1.7-2.7 s).
+Cost: the old (v1) search took 0.8-1.5 s of the computer's frame for its 2nd and 3rd hall; v2 took 0.15-0.35 s for the
+first, then 30-100 ms, and 220 ms again after every building (the owner's 0.30.4 log, Redrock Canyon: one frame of
+626 ms at 5:14, 586 ms of it the 2nd hall pick). 0.30.5 (tools/time_crown_pick.gd, Redrock Canyon, 2 players): the
+field keeps each spot's cheap terms, its economy room and its walks, and drops only what lay near ground that changed
+(`Game.solid_log`, written by `Game._mark`; a room only on its own level and within its reach); the 2nd/3rd candidates
+are kept in their cheap order; `ExpansionSpots._room` fills a byte grid row by row (0.23 ms a spot, the walk it replaced
+0.83, the same room on every spot); and the computer works ahead on its quiet ticks (`CrownSites.warm`,
+`AICrown._cs_warm`, 3 ms a tick, each piece at most ~14 ms; about 85 ticks for a new game, 25 after a building by the
+candidates). The 2nd hall pick, measured ahead: 6-12 ms (before: 55-65 ms the same call again, 220 ms after a
+building); the 3rd: 10 ms, then 2 ms (25 ms). Left: a pick made before the work ahead has caught up (the first ~3 s of
+a game, or ~1 s after a building right by the best spots) still measures what is missing itself: 45-130 ms (before
+130-285 ms). The picks are the same as working everything out afresh (the timing tool checks each one).
 
 ### Measured (tools/measure_crown_spots.gd, 2 players, both Crown, player 1's top-left main; player 2 gets the twins)
 
@@ -125,6 +134,26 @@ the ramp.
 Pictures: docs/shots/crown_spots_v2/ (captions.md). Tested by tools/test_expansion_spots.gd (each map: the 2nd within
 21 tiles of the main and on the old natural's side, both within 12 steps of the ramp's foot, on opposite sides of the
 line, the 2nd no more than 3 tiles farther from the border than any legal spot on its side as near the main and the ramp).
+
+0.30.5: the test failed now and then (Highmoor 4 players, "#1 (25, 18): 15 steps from the ramp's foot (far out)"): the
+decorations are rolled from each match's seed, so the picks change from game to game (12 seeds of every map: 6 bad runs
+of 324 at the most players, all on the classic 4-player maps; none at 2 players). On those maps the low ground under the
+ramp is shared by both sides, and on some seeds the best 3rd ((3, 25) on Highmoor seed 14) is within 18 tiles of every
+good 2nd near the ramp; the mirrored pair then takes a 2nd farther along under the main's cliff. Three kinds:
+- a 2nd or 3rd 13-14 steps out beat a spot of 12 next to it: 1-2 steps past the line cost only 2-4 points. Now crossing
+  the "far out" line costs 10 points once (`CrownSites.W_FAR_STEP`).
+- with that alone, the 2nd went to a near spot 24.7 tiles from the main (Twin Fords and Mirewood seed 9; Dune Sea on the
+  first try): now the 2nd also pays 10 once past 5 tiles over the least distance (`GAP_NEAR`, `W_GAP_STEP`), the
+  test's own limit for it.
+- where the only spots within 12 steps that leave the 3rd its place lie past those 5 tiles, the test's two demands can't
+  both be met: Highmoor seed 14's (25, 18) is on the low ground under the main's cliff, 18.0 tiles from the main and 21
+  steps from it by land, 15 from the ramp's foot; the near one, (21, 29), is 23.7 tiles out and 25 steps from the main.
+  The test now counts a nearer spot for the 2nd only within its 5 tiles, so (25, 18) stays. Likewise the 3rd on the
+  other side of the ramp is asked only when that side has a legal spot (the rule's own fallback, 5 above; Greenhold and
+  Mirewood 4p, players 2 and 3 on some seeds, have none there).
+Checked over 12 seeds of every map, 2 players and the most (tools/dbg_crown_spots.gd): no bad run. Picks changed in 8 of
+324 runs at the most players (the classic 4-player maps, mostly a 2nd 15 steps out moved to 12, or a 3rd of 13-15 to
+11-12), none at 2 players.
 
 ### v1 (0.29.2, replaced): under the main's cliff
 

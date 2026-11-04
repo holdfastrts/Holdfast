@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.5", "items": [
+		"THE CROWN'S EXPANSION SPOTS, STEADIER: the OPTIMAL EXPANSION SPOT no longer wanders farther along under the main's cliff when a few decorations crowd the ground below the ramp (seen on the classic maps with 4 players). A spot more than 12 steps from the ramp's foot, or a first expansion more than 5 tiles past the least hall distance, now wins only when nothing nearer is free.",
+		"THE CROWN COMPUTER NO LONGER STALLS THE GAME TO PICK ITS NEXT HALL (the owner's 0.30.4 match log: a 0.6-second frame at 5:14): it works the spots out ahead, a few milliseconds a frame, and keeps what it has measured until a building goes up near it. The same spots; the pick takes about 10 ms instead of up to 600.",
+	]},
 	{"v": "0.30.4", "items": [
 		"THE CROWN'S EXPANSION SPOTS, REDONE (the owner: \"I don't know why you left the second expansion so far out\"): the OPTIMAL EXPANSION SPOT is back where the natural expansion was, but pulled in to the least distance a hall allows (18 tiles from the main), as close to the foot of the main's ramp as it can be (a short walk for the army and the workers) and against the edge of the map where there is one (fewer sides to wall). The second spot mirrors it on the other side of the ramp, with the same aims, instead of far round the main's cliff. From the 4th hall on: as close as possible to your other halls, against the map's edge where it may be. The Crown computer expands to the same spots, and finds them about four times faster.",
 	]},
