@@ -1116,6 +1116,31 @@ func ground_r() -> float:
 	return minf(radius, BroodNew.GROUND_R) if _k_root else radius
 
 
+## BroodResearch.speed_add, kept on the unit while its kind, its side's research (the same dictionary, as many entries:
+## research is only ever added) and whether it flies are the same: the same answer without the look-ups every tick
+## (docs/perf_armies.md).
+var _sa_kind := ""
+var _sa_tech = null
+var _sa_n := -1
+var _sa_air := -1
+var _sa_v := 0.0
+
+
+func _speed_add() -> float:
+	if team < 0 or team >= game.players.size():
+		return BroodResearch.speed_add(self)
+	var tech: Dictionary = game.players[team]["tech"]
+	var air := 1 if is_air() else 0
+	if _sa_kind == kind and _sa_n == tech.size() and _sa_air == air and is_same(_sa_tech, tech):
+		return _sa_v
+	_sa_v = BroodResearch.speed_add(self)
+	_sa_kind = kind
+	_sa_tech = tech
+	_sa_n = tech.size()
+	_sa_air = air
+	return _sa_v
+
+
 func _kind_flags() -> void:
 	_k_worker = Defs.is_worker(kind)
 	_k_fac = String(Defs.UNITS[kind]["faction"]) if Defs.UNITS.has(kind) else ""
@@ -3541,7 +3566,7 @@ func _tick_unit(delta: float) -> void:
 	# Brood on swamp: faster, and wounds close up.
 	speed = float(d["speed"])
 	if _k_fac == "brood":
-		speed += BroodResearch.speed_add(self)      # (PACK HUNT, SLITHER, UPDRAFT: scripts/brood_research.gd)
+		speed += _speed_add()      # (PACK HUNT, SLITHER, UPDRAFT: scripts/brood_research.gd)
 	if kind == Defs.BALLISTA_KIND:
 		speed *= Ballista.rate(self)        # (each crewman pushing: +10%)
 	elif kind == Defs.GREAT_WINDER_KIND:
