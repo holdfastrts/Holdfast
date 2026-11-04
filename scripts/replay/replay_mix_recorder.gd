@@ -178,7 +178,6 @@ func _diffs() -> void:
 	var t0 := Time.get_ticks_usec()
 	var clk := snappedf(game.clock, 0.0001)
 	var ok := [true]
-	var seen := {}
 	if _auto.size() != game.n_players():
 		_auto.resize(game.n_players())
 		for t in game.n_players():
@@ -200,31 +199,29 @@ func _diffs() -> void:
 		n_diffs += 1
 		n_cmds += 1
 	for u in game.units:
-		if u.dead or u.team < 0 or _auto[u.team] == 0 or u.off_field or u.aboard != null:
+		if u.dead or u.off_field:
+			continue
+		var tm: int = u.team
+		if tm < 0 or _auto[tm] == 0 or u.aboard != null:
 			continue
 		var uid: int = u.get_instance_id()
-		seen[uid] = true
 		var was = _osig.get(uid)
-		var ox := roundi(u.order_point.x / 16.0)        # (a point moved less than half a tile is the same order)
-		var oy := roundi(u.order_point.y / 16.0)
-		if was != null and was[0] == u.order and was[1] == ox and was[2] == oy:
-			# (the same order: a new target only counts outside a fight, where a unit picks the next one itself)
+		var op: Vector2 = u.order_point
+		if was != null and was[0] == u.order and (was[1] as Vector2).distance_squared_to(op) < 256.0:
+			# (the same order, to within half a tile: a new target only counts for work, not in a fight, where a unit
+			# picks the next one itself)
 			if u.order != "gather" and u.order != "build" and u.order != "repair":
 				continue
 			var tn: int = u.order_target.get_instance_id() if u.order_target != null and is_instance_valid(u.order_target) else 0
-			if tn == int(was[3]):
+			if tn == int(was[2]):
 				continue
 		var ot = u.order_target if u.order_target != null and is_instance_valid(u.order_target) else null
-		_osig[uid] = [u.order, ox, oy, ot.get_instance_id() if ot != null else 0]
-		if was == null and u.order == "idle":
-			continue             # (new and idle: nothing to tell)
-		cmds.append([clk, 0, "#o", [_enc(u, ok), u.order, Vector2(ox, oy), _enc(ot, ok) if ot is Entity else null]])
+		_osig[uid] = [u.order, op, ot.get_instance_id() if ot != null else 0]
+		if u.order == "idle" and (was == null or (was[0] in ["move", "amove"] and u.position.distance_squared_to(was[1]) < 4096.0)):
+			continue             # (new and idle, or there: it stops by itself in the replay too)
+		cmds.append([clk, 0, "#o", [_enc(u, ok), u.order, op.round(), _enc(ot, ok) if ot is Entity else null]])
 		n_diffs += 1
 		n_cmds += 1
-	if _osig.size() > seen.size() + 64:
-		for k in _osig.keys():
-			if not seen.has(k):
-				_osig.erase(k)
 	diff_us += Time.get_ticks_usec() - t0
 	cost_us += Time.get_ticks_usec() - t0
 
@@ -242,6 +239,13 @@ func key() -> void:
 	for u in game.units:
 		if is_instance_valid(u) and not u.dead:
 			assign(u)
+	if _osig.size() > game.units.size() + 64:
+		var live := {}
+		for u in game.units:
+			live[u.get_instance_id()] = true
+		for k in _osig.keys():
+			if not live.has(k):
+				_osig.erase(k)          # (units gone since)
 	var d := SaveGame.capture(game, _cfg, true)
 	if d.is_empty():
 		return

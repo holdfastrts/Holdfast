@@ -124,12 +124,14 @@ static func powder_smoke_level() -> int:
 
 ## REPLAY RECORDING (docs/replays.md "Lighter recording"): how a match is recorded. FULL: 5 pictures a second (the
 ## recorder's own rate), LIGHT: 2 a second (the viewer glides between them), OFF: no replay of a skirmish, a campaign
-## mission or a watched match (online still records, at LIGHT: the friends get the host's replay).
+## mission or a watched match (online still records, at LIGHT: the friends get the host's replay). MIXED (0.29.5,
+## docs/replay_mixed.md): the commands and a keyframe every 10 s, the replay plays the match again from them; the
+## default on a phone (LIGHT was before), where recording pictures costs the most.
 const REPLAY_MODES := ["mixed", "full", "light", "off"]
 static func replay_mode() -> String:
 	if REPLAY_MODES.has(replay_rec):
 		return replay_rec
-	return "light" if phone_device() else "full"
+	return "mixed" if phone_device() else "full"
 
 
 ## The game runs on a phone or tablet (the Android app, a mobile export), not a phone's browser (the web keeps FULL).

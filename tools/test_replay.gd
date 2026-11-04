@@ -785,6 +785,7 @@ func _watch_mixed() -> bool:
 			_bench["drift_corr_p95"] = pc
 			check("mixed_corrected_drift", not wi_c.is_empty() and pc <= maxf(p10, p5) * 1.1 + 1.0 and _p95(wi_after.duplicate()) <= maxf(p5, 40.0),
 				"with the keyframes 95%% of units within %.0f px (without, after 10 s: %.0f px)" % [pc, p10])
+			check("mixed_drift_bounded", p10 <= 250.0 and pc <= 150.0, "95%% of units within %.0f px 10 s after a keyframe without correction (bound 250), %.0f px with it (bound 150)" % [p10, pc])
 			check("mixed_commands_given", mx.n_run > 0 or mx.cmd_list.is_empty(), "%d commands given, %d lost" % [mx.n_run, mx.n_lost])
 			# seeking: to the end of a 10 s stretch (the longest run forward), and back
 			_mseek = []
