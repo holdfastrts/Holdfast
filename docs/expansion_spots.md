@@ -31,51 +31,108 @@ Code: `scripts/expansion_spots.gd`, `ExpansionSpots.rate`. It runs on the bare m
 4. The two best of each side are marked.
 
 This is the rule for the Clockwork (and any side that is not the Crown or the Brood). The Brood has its own (Mound Turtle
-spots, above). The Crown has its own since 0.29.2 (below).
+spots, above). The Crown has its own since 0.29.2, redone in 0.29.5 (below).
 
-## The Crown's rule (0.29.2; the owner, DECIDED 2026-11-03 22:25)
+## The Crown's rule (v2, 0.29.5; the owner, 2026-11-04 07:05)
 
-The owner: "As Crown I think the optimal expansion positions will be as close as possible to each other because of walls
-and trying to use the high ground to our advantage." Each faction gets its own optimal spot. Code: `scripts/crown_sites.gd`
-(`CrownSites.pick`), used by the gold marks of a Crown side (`ExpansionSpots._crown_rule`, `_crown_update`) and by the
-Crown computer's hall pick (`AICrown._safe_hall_spot`).
+The owner, first (2026-11-03 22:25): "As Crown I think the optimal expansion positions will be as close as possible to
+each other because of walls and trying to use the high ground to our advantage." Then, on the spots that gave (v1,
+0.29.2, below): "The first should still be in the same place it was before, just closer. As close to the edge of the map
+as possible, because that's good for walling. The second expansion should mirror the first on the other side of the
+main. So they should be as close as possible, 18 tiles, as close as possible to the ramp, because it's easier for the
+army to reach it and for the workers to reach it, and as close as possible to the edge of the map, so it's easier to wall
+it. I don't know why you left the second expansion so far out."
+
+Code: `scripts/crown_sites.gd` (`CrownSites.pick`), used by the gold marks of a Crown side (`ExpansionSpots._crown_rule`,
+`_crown_update`) and by the Crown computer's hall pick (`AICrown._safe_hall_spot`). Each faction keeps its own rule.
 
 1. The candidates are any free ground, not only the map's base sites: every hall's land holds the same fresh reserve.
    A spot needs its 5 x 4 cells and the ring round them free, on one level, no ramp within two cells (the computer keeps
-   its ramps clear), the economy room round it (`_room` 45% or more), no nearer the enemy by land than us (4 steps of
-   margin), and no lode drawn out by a fallen hall.
-2. **The 2nd and 3rd bases**: at the least hall distance from the Crown's halls (`Defs.HALL_SPACING`, 18 tiles; looked at
-   up to 9 tiles past it), close together, and **under cover of the main's high ground**. The main's EDGE is its
-   high-ground cells next to a drop (`CrownSites.edge_cells`: joined to the main on its level, not over the ramp, not by
-   it). A spot is covered by the share of the cells round its sides (where an attacker stands) within Musketeer reach of an
-   edge cell (200 px: the musket's 190 and the bodies). Score: 40 x room + 60 x cover - 3 a tile past the least distance -
-   1 a tile of the mean distance to the other halls past it + a little for being farther from the enemy - 4 a way in past
-   the first. The 3rd is picked with the 2nd counted as a hall (so it is 18+ tiles from both and close to both).
-3. **The 4th base on**: the same without the cover term (as close to the Crown's halls as it may be, to wall them
-   together).
-4. The marks are worked out on the bare map at the start, and again whenever the side's halls change (for your own side
+   its ramps clear), the economy room round it on its own level (`_room` 30% or more: a spot against the border has
+   only half its circle on the map; 30% is still a Mill and its Farms), at least 18 tiles from every hall
+   (`Defs.HALL_SPACING`, unchanged), no nearer the enemy by land than us (4 steps of margin), and no lode drawn out by a
+   fallen hall.
+2. THE MAIN'S RAMP: the ramp nearest the main hall (`CrownSites.ramp_of`); its FOOT is the cells just below it. The
+   LINE runs from the main hall's middle through the foot; it splits the ground round the main into two SIDES
+   (`CrownSites.side_of`; a spot within 1.5 tiles of the line is on neither).
+3. Each spot is scored on the owner's three aims, all three for every stage:
+   - close: minus 2 a tile past the least distance (from the MAIN for the 2nd and 3rd; from the nearest hall for the 4th
+     on), looked at up to 9 tiles past it;
+   - near the ramp (2nd and 3rd): minus 1.5 a step of the walk from the ramp's foot (`CrownSites.steps_from`), and 2
+     more a step past 12 steps ("far out": so the border never pulls a hall round the main's cliff, away from the ramp);
+   - against the border: minus 2 a tile between the hall and the map's border (past the one free cell its ring needs),
+     and minus 3 an OPEN side (`CrownSites.open_sides`: a side is shut when the border or ground no army walks comes
+     within 3 cells of every cell along it; a hall against the border has 3 open sides);
+   - small terms: + 10 x room, + 3 x the share of its sides the main's cliff edge covers (v1's cover, now only a
+     tie-breaker), + a little for being farther from the enemy; ties go by where the spot lies seen from the main
+     toward the map's middle (it turns with the map).
+4. **The 2nd base** (first expansion): on the side of the line where the old rating's natural lies (`ExpansionSpots
+   .rate_all` #1, the rule above: "the same place it was before"), picked as one of a MIRRORED PAIR: the best 2nd and the
+   best 3rd on the other side a hall's spacing apart, by the sum of their scores (`CrownSites._pair`), so the 2nd never
+   takes the ground below the ramp that its mirror needs. The natural on the line itself: both ways round are tried.
+5. **The 3rd base**: the other side of the line from the Crown's second hall (wherever that was built), same aims.
+   Nothing legal there: the best on either side.
+6. **The 4th base on**: as close as possible to the Crown's halls (2 a tile past 18 from the nearest, 1 a tile of the
+   mean distance to the others past 18), against the border where it may be (the same border and open-side terms).
+7. The marks are worked out on the bare map at the start, and again whenever the side's halls change (for your own side
    and your allies; for every side while watching: an enemy's new hall is not given away by its marks).
-5. The 18-tile rule is kept as it is. (Proposal, not made: nothing seen says it is wrong; at 18 tiles the new hall's farms
-   and the main's still have their own ground, and two halls' walls can join.)
 
 The Crown computer picks the same spot (one pick at a time, its own halls counted, built or not), skipping a spot where
 its builders were just chased off, where it may not build, on the enemy's side by land, or with enemy soldiers in sight
 within 14 tiles; nothing found: the shared pick. Its line holds the cliff edge above a hall under attack there
-(docs/crown_cliff_edge.md).
+(docs/crown_cliff_edge.md); a hall against the border below the main's cliff is still often within the line's reach.
 
-### Measured (tools/measure_cliff_cover.gd, the Crown's main; 2 players)
+Cost: the old (v1) search took 0.8-1.5 s of the computer's frame for its 2nd and 3rd hall; v2 takes 0.15-0.35 s for the
+first (the walk from the ramp and the natural worked out once), then 30-100 ms (it keeps the ramp's walk and the rooms
+it has measured until a building comes or goes). The first marks of both sides: 0.4-0.6 s at the map's start (v1:
+1.7-2.7 s).
 
-| map | old pick (computer) | its nearest side from the edge | covered | new spot | from the main | nearest side from the edge | covered | legal low-ground spots with a side in reach |
-|---|---|---|---|---|---|---|---|---|
-| Thornwood Maze (the owner's game, P2) | 23 tiles out | 8 tiles | 0% | (88, 66) | 18.0 | 2.4 tiles | 45% | 95 of 665 |
-| Greenhold | 22 | 9 | 0% | (27, 14) | 18.0 | 2.0 | 54% | 154 of 910 |
-| Red Coast | 23 | 10 | 0% | (28, 7) | 18.0 | 2.0 | 63% | 133 of 853 |
-| Kestrel Rise | 20 | 7 | 0% | (24, 8) | 18.1 | 2.0 | 54% | 96 of 783 |
+### Measured (tools/measure_crown_spots.gd, 2 players, both Crown, player 1's top-left main; player 2 gets the twins)
 
-So on every map a legal hall spot right under the cliff existed (the owner's question): the old pick (the map's natural,
-the gold mark #1) stood 7-10 tiles from the edge, out of the Musketeers' reach (190 px is 6 tiles). No spot is covered
-on all sides: the cliff covers the side facing it and half of the two ends (45-63%); the far side needs the hall's own
-wall. The 3rd base is usually 18 tiles from both and 0-36% covered. Pictures: docs/shots/crown_cliff_edge/spots_*.jpg.
+"walk" = steps from the main ramp's foot; "border" = tiles from the hall to the map's border; "open" = sides open to wall.
+Before = v1 (0.29.4); after = v2.
+
+| map | base | before: spot, from main, walk, border, open | after: spot, from main, walk, border, open |
+|---|---|---|---|
+| Thornwood Maze | 2nd | (23, 18), 18.0, 9, 18, 4 | (25, 2), 18.0, 5, 2, 3 (top border, north of the ramp, by the natural) |
+| | 3rd | (38, 8), 30.0, 10, 8, 4 | (22, 20), 18.4, 12, 20, 4 (south of the ramp) |
+| | 4th | (18, 37), 30.7, 33, 18, 4 | (43, 2), 35.5 (18 from the 2nd), 20, 2, 3 |
+| Greenhold | 2nd | (27, 14), 18.0, 21, 14, 4 | (1, 24), 18.4, 9, 1, 3 (left border, left of the ramp) |
+| | 3rd | (6, 26), 18.4, 5, 6, 4 | (19, 24), 18.4, 5, 19, 4 (right of the ramp) |
+| | 4th | (23, 32), 27.3, 16, 23, 4 | (2, 42), 34.9 (18 from the 2nd), 25, 2, 3 |
+| Red Coast | 2nd | (27, 14), 18.0, 21, 14, 4 | (1, 25), 19.2, 9, 1, 3 |
+| | 3rd | (6, 26), 18.4, 5, 6, 4 | (19, 24), 18.4, 5, 19, 4 |
+| Kestrel Rise | 2nd | (24, 8), 18.1, 29, 8, 3 | (1, 26), 20.6, 5, 1, 3 (left border by the ramp) |
+| | 3rd | (12, 23), 18.0, 4, 12, 4 | (18, 20), 18.4, 11, 18, 4 |
+| Ashford Crossing | 2nd | (27, 5), 18.4, 36, 5, 3 | (2, 26), 18.4, 10, 2, 3 |
+| | 3rd | (9, 27), 18.0, 3, 9, 4 | (21, 23), 18.4, 6, 21, 3 |
+| Highmoor | 2nd | (28, 9), 18.0, 27, 9, 3 | (1, 25), 19.2, 9, 1, 3 |
+| | 3rd | (6, 26), 18.4, 5, 6, 4 | (19, 24), 18.4, 5, 19, 4 |
+| Redrock Canyon | 2nd | (56, 12), 18.0, 26, 12, 4 | (30, 22), 18.4, 8, 22, 4 (no border near: the main sits mid-top) |
+| | 3rd | (28, 21), 18.6, 11, 21, 4 | (48, 22), 18.4, 8, 22, 4 (the exact mirror) |
+| Cinder Steps | 2nd | (24, 12), 18.4, 28, 12, 4 | (16, 23), 18.0, 9, 16, 4 (right of the ramp, the old natural's side) |
+| | 3rd | (12, 26), 19.0, 4, 12, 4 | (1, 33), 25.5, 9, 1, 3 (left border; 18 from the 2nd) |
+
+So the "far out" spot is gone: before, one of the two spots was 21-36 steps round the main's cliff from the ramp
+(on Thornwood Maze 30 tiles from the main); now both are 5-12 steps from the ramp's foot, 18-21 tiles from the main (Cinder Steps' 3rd 25.5: it must stand
+18 from the 2nd), one either side of the ramp. The 2nd is against the border (1-2 tiles) on six of the eight maps; on
+Redrock Canyon and Cinder Steps no border is near the ramp on its side. On the classic maps (Greenhold, Red Coast,
+Highmoor) the 2nd is the old natural pulled in to 18 tiles and onto the left border; the 3rd is its mirror right of the
+ramp, in the open (no border near that side of the ramp; the top border east of the main is 30+ steps round the cliff).
+Thornwood Maze (the owner's game as P2): his twins are (86, 82) on the bottom border by the natural and (89, 64) north of
+the ramp.
+
+Pictures: docs/shots/crown_spots_v2/ (captions.md). Tested by tools/test_expansion_spots.gd (each map: the 2nd within
+21 tiles of the main and on the old natural's side, both within 12 steps of the ramp's foot, on opposite sides of the
+line, the 2nd no more than 3 tiles farther from the border than any legal spot on its side as near the main and the ramp).
+
+### v1 (0.29.2, replaced): under the main's cliff
+
+The 2nd and 3rd halls at the least hall distance from the Crown's halls, close together, under cover of the main's high
+ground (Score: 40 x room + 60 x the share of the hall's sides within musket reach of the main's cliff edge - 3 a tile past
+18 - 1 a tile of the mean distance to the other halls...). It put the 2nd beside the cliff away from the ramp (21-36 steps
+round) on most maps, and the 3rd 18 tiles from both. Its measurements (tools/measure_cliff_cover.gd) are in
+docs/crown_cliff_edge.md section 4; its pictures in docs/shots/crown_cliff_edge/06-11.
 
 Resources: every hall's land holds the same fresh reserve on a new map. So resources do not change the pick at the start. A spot whose lode a fallen hall drew out is hidden.
 

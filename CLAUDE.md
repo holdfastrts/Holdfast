@@ -35,7 +35,10 @@
   together, covered by the main's high ground (Musketeer range from its edge) and easy to wall (walls join up); 4th base on:
   the same, as close as possible to its other halls, without the main's high ground. Being built by the local job
   crown-cliff-edge (with: Musketeers at the cliff edge above a threatened building, repairers that juke, Foundry/cannon
-  before the Horse Breeder once the Brood is scouted).
+  before the Horse Breeder once the Brood is scouted). REDONE (owner, 2026-11-04 07:05; job crown-spots-v2, 0.29.5): the
+  2nd base where the old natural was but pulled in to 18 tiles, as near the ramp's foot and the map's border as may be;
+  the 3rd its MIRROR on the other side of the main's ramp, same aims ("I don't know why you left the second expansion so
+  far out"); the cliff cover is only a tie-breaker now (docs/expansion_spots.md "The Crown's rule").
 - STATIC DEFENCE IS NOT A BUILD (owner, 2026-11-03 21:45): "Good base design should be for all builds. Static defense
   isn't a good strategy on its own: it is either a desperate attempt to hold a rush or a later security against harass so
   you can concentrate your army." So cw-builds-a's TURRET TURTLE plan is NOT to be merged as a strategy: at merge, take its

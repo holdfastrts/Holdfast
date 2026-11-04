@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.4", "items": [
+		"THE CROWN'S EXPANSION SPOTS, REDONE (the owner: \"I don't know why you left the second expansion so far out\"): the OPTIMAL EXPANSION SPOT is back where the natural expansion was, but pulled in to the least distance a hall allows (18 tiles from the main), as close to the foot of the main's ramp as it can be (a short walk for the army and the workers) and against the edge of the map where there is one (fewer sides to wall). The second spot mirrors it on the other side of the ramp, with the same aims, instead of far round the main's cliff. From the 4th hall on: as close as possible to your other halls, against the map's edge where it may be. The Crown computer expands to the same spots, and finds them about four times faster.",
+	]},
 	{"v": "0.30.3", "items": [
 		"THE MAINSPRING'S COIL GAUGE (the owner): over every Mainspring a brass spring now shows the Tension it holds. Empty, the spring lies relaxed along its slot; as your Tension fills what your Mainsprings store, a plate presses in and the coils squeeze together, tight and bright when full. A Mainspring whose Clocktower's spring life is spent (FATIGUED) shows a dull, slack spring.",
 		"BARS NO LONGER COVER THE BUILDINGS (the owner): every bar and label over a building now stands above its picture's real top, each in its own row: the health bar, then the building, training or crop bar, the coil gauge, the worker label (HAULERS, FARMERS, POWDER MAKERS, WINDERS), the UNLINKED badge and a gate's padlock. They used to lie across spires, chimneys, flags, windmill sails and the Clockwork buildings' tops. The gold spring mark moved just above the building, right of its bars.",
