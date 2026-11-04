@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.3", "items": [
+		"THE MAINSPRING'S COIL GAUGE (the owner): over every Mainspring a brass spring now shows the Tension it holds. Empty, the spring lies relaxed along its slot; as your Tension fills what your Mainsprings store, a plate presses in and the coils squeeze together, tight and bright when full. A Mainspring whose Clocktower's spring life is spent (FATIGUED) shows a dull, slack spring.",
+		"BARS NO LONGER COVER THE BUILDINGS (the owner): every bar and label over a building now stands above its picture's real top, each in its own row: the health bar, then the building, training or crop bar, the coil gauge, the worker label (HAULERS, FARMERS, POWDER MAKERS, WINDERS), the UNLINKED badge and a gate's padlock. They used to lie across spires, chimneys, flags, windmill sails and the Clockwork buildings' tops. The gold spring mark moved just above the building, right of its bars.",
+		"The same for the Brood's rooted creatures: the Rootmaw's food bar, ground bar and DRY label no longer sit on its back, a Sire's nest bar no longer covers his health bar, and the GROWING, ROOTING and RESEARCHING bars go on top, clear of the egg lines and labels.",
+		"THE BROOD MOTHER'S EGG COUNT STAYS CLOSE ABOVE HER (the owner: at stage 2 it went far too high): it was placed at the highest her body reached while laying or swiping; now it sits just over her nest at stages 1, 2 and 3, stays put while she lays, and is centred over her.",
+	]},
 	{"v": "0.30.2", "items": [
 		"SMOOTHER BIG GAMES AGAINST THE BROOD COMPUTER: late in a game with a big Brood, its computer thought for a tenth to a fifth of a second in one frame, two or three times a second (the owner's lag on Cinder Steps). Almost all of it was the search for fresh ground for its Rootmaws, where every spot was checked against every unit on the map. It now lists the units once and gets the same answers, about five times faster, and its thinking is spread over four frames in a row. In the owner's match replayed, the late game went from about 100 frames a minute over 50 ms to one or none.",
 		"The Clockwork computer no longer freezes the game every few seconds in a crowded base: when it finds no room for its Heavy Works' big ring it looks again 20 seconds later (was 5; each search took up to a fifth of a second), and every computer that finds no free spot for a new hall waits 4 seconds before looking again.",

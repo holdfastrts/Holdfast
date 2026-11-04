@@ -103,9 +103,18 @@ const HIT_GROW := 5.0
 ## Where the egg line is, in the world (its whole text, as drawn now; a little slack round it).
 static func label_rect(q: Unit) -> Rect2:
 	var font := ThemeDB.fallback_font
-	var w := font.get_string_size(label_text(q), HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE).x
-	var base := q.global_position + Vector2(X, q.bar_top() - 6.0)
+	var txt := label_text(q)
+	var w := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE).x
+	var base := label_pos(q, font, txt)
 	return Rect2(base + Vector2(0, -font.get_ascent(SIZE)), Vector2(w, font.get_height(SIZE))).grow(HIT_GROW)
+
+
+## The egg line's baseline start in the world: centred over her, on its row of her bar stack (BroodNew.stack: just above
+## her health bar, which sits just above her picture at every stage).
+static func label_pos(q: Unit, font: Font, txt: String) -> Vector2:
+	var w := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE).x
+	var st := BroodNew.stack(q, q.bar_top())
+	return q.global_position + Vector2(-w * 0.5, float(st.get("text", q.bar_top() - 6.0)))
 
 
 ## The Mother whose egg line is under the world point p (one the player may read), or null.

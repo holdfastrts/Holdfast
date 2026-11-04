@@ -1537,8 +1537,61 @@ static func crew_label(g: Game, u: Unit) -> String:
 ## Where its health bar sits, from its feet (Unit._draw_unit's `top`).
 static func label_top(u: Unit) -> float:
 	if u._nb_top > -9000.0:
-		return u._nb_top          # (over its body as drawn: Unit._draw)
+		return u._nb_top          # (the top of its picture as drawn: Unit.bar_top)
 	return -float(ArtData.UNITS[u.art]["anchor"].y) * float(u.d.get("art_scale", 1.0)) - 4.0
+
+
+## Where its worker label's plate ends (local y, its bottom edge: WorkerLabels.layout): a rooted Rootmaw's on its row of
+## the bar stack (stack), a food pile's just over the pile.
+static func label_bottom(u: Unit) -> float:
+	if ROOTERS.has(u.kind):
+		return float(stack(u, u.bar_top())["label"])
+	return label_top(u) - 2.0
+
+
+## THE BAR STACK OVER A ROOTING CREATURE (bars audit, 2026-11-04; the buildings' is Building.bar_slots): from its health
+## bar (`top`, Unit.bar_top: just over its picture) upward, each thing it shows in its own row, none on its picture or on
+## another: a Rootmaw's food and ground bars, its "dry", its worker label; a Sire's nest bar and his egg line; the Mother's
+## egg line; then the progress bar (growing, rooting, researching) with its word. Rows kept for what it can show in its
+## state (rooted or not), shown or not, so the egg line and the labels do not jump. Local y: bars' top edges, texts'
+## baselines, "label" the worker label's bottom edge, "end" the column's top.
+const STACK_GAP := 2.0
+
+
+static func stack(u: Unit, top: float) -> Dictionary:
+	var g := u.game
+	var font := ThemeDB.fallback_font
+	var mine := u.team == g.human or g.demo or g.spectating()
+	var c := top - 1.0 - STACK_GAP            # (the health bar's edge, then the gap)
+	if u.has_attack():
+		c -= Entity.SUB_H + 1.0                # (its reload bar's row, flush over the health bar: Unit._draw_unit)
+	var s := {}
+	if mine and u.kind == MAW:
+		s["food"] = c - 0.5 - 3.0
+		c = float(s["food"]) - 0.5 - 1.0
+		if rooted(u):
+			s["ground"] = c - 0.5 - 2.0
+			c = float(s["ground"]) - 0.5 - STACK_GAP
+			if bool(u.nb.get("dry", false)):
+				s["dry"] = c - font.get_descent(13)
+				c = float(s["dry"]) - font.get_ascent(13) - STACK_GAP
+		else:
+			c -= STACK_GAP - 1.0
+	if mine and is_father(u.kind) and rooted(u):
+		s["nest"] = c - 0.5 - 3.0
+		c = float(s["nest"]) - 0.5 - STACK_GAP
+		s["text"] = c - font.get_descent(14)
+		c = float(s["text"]) - font.get_ascent(14) - STACK_GAP
+	if mine and u.kind == QUEEN:
+		s["text"] = c - font.get_descent(EggTip.SIZE)
+		c = float(s["text"]) - font.get_ascent(EggTip.SIZE) - STACK_GAP
+	s["label"] = c
+	if u.kind == MAW and rooted(u):
+		c -= Building.LABEL_H + STACK_GAP      # (its worker label: GRUBS 4/6)
+	s["prog"] = c - 1.0 - 5.0
+	s["prog_text"] = float(s["prog"]) - 1.0 - 2.0 - font.get_descent(13)
+	s["end"] = float(s["prog_text"]) - font.get_ascent(13)
+	return s
 
 
 ## Where a grub stands to take food: by the Rootmaw's flank (its left side as it faces south-east), spread out.
@@ -1918,28 +1971,33 @@ static func _rally_label(u: Unit, at: Vector2, word: String, col: Color) -> void
 static func draw(u: Unit, top: float) -> void:
 	var g := u.game
 	var mine := u.team == g.human or g.demo or g.spectating()
+	var st := stack(u, top)                # (each thing in its own row above the picture)
 	if u.kind == QUEEN and mine:
 		var font := ThemeDB.fallback_font
 		# and the countdown to her next egg (the owner, 2026-10-30): none when her clutch is full or she is growing
 		# (the owner, 09:27: always the time to her FULL clutch too, at any rate; her next egg in tenths of a second
 		# once it comes within 10 s: "4/10  3.5s · 00:36"). The text and where it is: EggTip (its hover tooltip).
 		var txt := EggTip.label_text(u)
-		u.draw_string_outline(font, Vector2(EggTip.X, top - 6), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, EggTip.SIZE, 4, Color(0, 0, 0, 0.8))
-		u.draw_string(font, Vector2(EggTip.X, top - 6), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, EggTip.SIZE, Color(0.85, 1.0, 0.55) if int(u.nb.get("eggs", 0)) > 0 else Color(1.0, 0.55, 0.45))
+		var ep := EggTip.label_pos(u, font, txt) - u.position
+		u.draw_string_outline(font, ep, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, EggTip.SIZE, 4, Color(0, 0, 0, 0.8))
+		u.draw_string(font, ep, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, EggTip.SIZE, Color(0.85, 1.0, 0.55) if int(u.nb.get("eggs", 0)) > 0 else Color(1.0, 0.55, 0.45))
 	if u.kind == MAW and mine:
 		var bw := u.radius * 2.4
 		var f := clampf(float(u.nb.get("food", 0.0)) / float(Defs.NB["maw_cap"]), 0.0, 1.0)
-		var y := top + 6.0
+		var y := float(st["food"])
 		u.draw_rect(Rect2(-bw * 0.5, y, bw, 3).grow(0.5), Color(0, 0, 0, 0.6))
 		u.draw_rect(Rect2(-bw * 0.5, y, bw * f, 3), Color(0.75, 0.9, 0.25))
 		if rooted(u) and bool(u.nb.get("dry", false)):
 			var font := ThemeDB.fallback_font
-			u.draw_string_outline(font, Vector2(-14, y + 16), Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.8))
-			u.draw_string(font, Vector2(-14, y + 16), Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1.0, 0.6, 0.4))
+			var dw := font.get_string_size(Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+			var dp := Vector2(-dw * 0.5, float(st.get("dry", y - 6.0)))
+			u.draw_string_outline(font, dp, Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.8))
+			u.draw_string(font, dp, Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1.0, 0.6, 0.4))
 		if u.selected and rooted(u):
 			var gl := ground_left(g, u) / float(Defs.PIT_GROUND)
-			u.draw_rect(Rect2(-bw * 0.5, y + 4.5, bw, 2).grow(0.5), Color(0, 0, 0, 0.6))
-			u.draw_rect(Rect2(-bw * 0.5, y + 4.5, bw * gl, 2), Color(0.55, 0.4, 0.25))
+			var gy := float(st.get("ground", y - 4.0))
+			u.draw_rect(Rect2(-bw * 0.5, gy, bw, 2).grow(0.5), Color(0, 0, 0, 0.6))
+			u.draw_rect(Rect2(-bw * 0.5, gy, bw * gl, 2), Color(0.55, 0.4, 0.25))
 	if u.selected and u.kind == MAW and u.team == g.human:
 		u.draw_arc(Vector2.ZERO, float(Defs.PIT_CLAIM) * Defs.TILE, 0, TAU, 48, Color(0.75, 0.9, 0.3, 0.45), 1.5)
 	# (the father's range round the Mother: the game's overlay draws it, BroodRoot.draw_overlay)
@@ -1970,13 +2028,14 @@ static func draw(u: Unit, top: float) -> void:
 		if not pg.is_empty():      # (the father's nest and the eggs have their own)
 			var font3 := ThemeDB.fallback_font
 			var bw3 := maxf(60.0, look_r(u) * 2.0)
-			var y3 := top - 26.0 if u.kind == QUEEN else top - 10.0
+			var y3 := float(st["prog"])
 			u.draw_rect(Rect2(-bw3 * 0.5, y3, bw3, 5).grow(1.0), Color(0, 0, 0, 0.7))
 			u.draw_rect(Rect2(-bw3 * 0.5, y3, bw3 * float(pg["f"]), 5), pg["col"])
 			var lt := Loc.t(String(pg["label"]))
 			var lw := font3.get_string_size(lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-			u.draw_string_outline(font3, Vector2(-lw * 0.5, y3 - 4.0), lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.85))
-			u.draw_string(font3, Vector2(-lw * 0.5, y3 - 4.0), lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, (pg["col"] as Color).lightened(0.3))
+			var lp := Vector2(-lw * 0.5, float(st["prog_text"]))
+			u.draw_string_outline(font3, lp, lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.85))
+			u.draw_string(font3, lp, lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, (pg["col"] as Color).lightened(0.3))
 	if u.nb.has("coc") and mine:
 		# the cocoon's morph, as a building going up
 		var cp := clampf(float(u.nb["coc"]) / maxf(BroodRoot.cocoon_time(u), 0.1), 0.0, 1.0)
@@ -1991,8 +2050,10 @@ static func draw(u: Unit, top: float) -> void:
 		var font2 := ThemeDB.fallback_font
 		var near := father_near(g, u.team, u.kind)
 		var txt2 := (Loc.t("%d eggs") % eggs.size()) if near else Loc.t("too far from the Mother")
-		u.draw_string_outline(font2, Vector2(-30, top - 6), txt2, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, 4, Color(0, 0, 0, 0.8))
-		u.draw_string(font2, Vector2(-30, top - 6), txt2, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1.0, 0.7, 0.45) if near else Color(1.0, 0.5, 0.4))
+		var tw := font2.get_string_size(txt2, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+		var tp := Vector2(-tw * 0.5, float(st.get("text", top - 6.0)))
+		u.draw_string_outline(font2, tp, txt2, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, 4, Color(0, 0, 0, 0.8))
+		u.draw_string(font2, tp, txt2, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1.0, 0.7, 0.45) if near else Color(1.0, 0.5, 0.4))
 		if not eggs.is_empty():
 			var e0: Unit = eggs[0]
 			var fr2 := 0.0
@@ -2000,8 +2061,9 @@ static func draw(u: Unit, top: float) -> void:
 				fr2 = float(e0.nb.get("redden", 0.0))
 			else:
 				fr2 = float(e0.nb.get("t", 0.0)) / egg_time(String(e0.nb.get("k", "grub")))
-			u.draw_rect(Rect2(-30, top - 2, 60, 3).grow(0.5), Color(0, 0, 0, 0.6))
-			u.draw_rect(Rect2(-30, top - 2, 60 * clampf(fr2, 0.0, 1.0), 3), Color(1.0, 0.45, 0.3))
+			var ny := float(st.get("nest", top - 5.0))
+			u.draw_rect(Rect2(-30, ny, 60, 3).grow(0.5), Color(0, 0, 0, 0.6))
+			u.draw_rect(Rect2(-30, ny, 60 * clampf(fr2, 0.0, 1.0), 3), Color(1.0, 0.45, 0.3))
 	if u.kind == EGG and mine and not bool(u.nb.get("nest", false)):
 		var k := String(u.nb.get("k", "grub"))
 		var fr := 0.0

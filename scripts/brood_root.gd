@@ -894,6 +894,45 @@ static func body_rect(u: Unit) -> Rect2:
 	return Rect2(Vector2(minf(a.x, b.x), minf(a.y, b.y)), (b - a).abs())
 
 
+## THE TOP OF ITS PICTURE'S STRIP (bars audit, 2026-11-04): the highest painted row over EVERY frame of the sheet it is
+## drawn from now (its rooted loop, its walk...), as a world y. Steady while that strip plays (a breath or a step does not
+## move it), so the bars and labels over a rooting creature sit just above it without riding up and down.
+static var _strip := {}           # [texture rid, hframes, vframes] -> the strip's highest painted row (in a frame)
+
+
+static func strip_top(u: Unit) -> float:
+	var s := u.sprite
+	if s == null or s.texture == null or not s.visible:
+		return INF
+	var key := [s.texture.get_rid(), s.hframes, s.vframes]
+	var top: float
+	if _strip.has(key):
+		top = _strip[key]
+	else:
+		var fr0 := s.get_rect()
+		top = fr0.size.y * 0.2
+		var img := s.texture.get_image()
+		if img != null and not img.is_empty():
+			if img.is_compressed():
+				img.decompress()
+			var hf := maxi(1, s.hframes)
+			var vf := maxi(1, s.vframes)
+			var fw := img.get_width() / hf
+			var fh := img.get_height() / vf
+			var best := fh
+			for k in hf * vf:
+				var ui := img.get_region(Rect2i((k % hf) * fw, (k / hf) * fh, fw, fh)).get_used_rect()
+				if ui.size.x > 0:
+					best = mini(best, ui.position.y)
+			top = float(best)
+		_strip[key] = top
+	var fr := s.get_rect()
+	var xf := s.get_global_transform()
+	var a: Vector2 = xf * (fr.position + Vector2(fr.size.x * 0.5, top))
+	var b: Vector2 = xf * (fr.position + Vector2(fr.size.x * 0.5, fr.size.y - top))
+	return minf(a.y, b.y)        # (a flipped picture: the other end)
+
+
 static func body_hit(u: Unit, p: Vector2) -> bool:
 	var r := body_rect(u)
 	if r.size.x < 2.0:

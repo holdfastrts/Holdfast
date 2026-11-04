@@ -7864,23 +7864,28 @@ func bar_top(lifted := 0.0) -> float:
 	elif kind == "cannon":
 		top = -64.0 if not ArtData.UNITS["cannon"]["frames"].has("walk_e") else -float(ArtData.UNITS[kind]["anchor"].y) * 0.75
 	if _k_nb and BroodNew.ROOTERS.has(kind):
-		# (the Brood's rooting creatures: their rooted pictures and the Mother's growth stages are not their walk sheet's
-		# size: the bar and the labels go just over the body as drawn now, BroodRoot.body_rect; steady within 14 px)
-		var br := BroodRoot.body_rect(self)
-		if br.size.x > 2.0:
-			var bt := br.position.y - global_position.y - 2.0
-			if kind == BroodNew.QUEEN:
-				# THE MOTHER'S BAR AND EGG LINE STAY PUT (the owner, 2026-10-30: it went up and down with her laying and
-				# swiping): the highest her body has reached in this picture (stage) and rooted state, never lower
-				var key := art + ("|r" if BroodRoot.fixed(self) else "|w")
-				if key != _nb_top_key or _nb_top < -9000.0:
-					_nb_top_key = key
+		# THE BROOD'S ROOTING CREATURES (bars audit, 2026-11-04): their rooted pictures and the Mother's growth stages
+		# are not their walk sheet's size: the bars and labels stand in a column just ABOVE the picture's top
+		# (BroodNew.stack), never on it. The top is the highest row of the strip it plays now (BroodRoot.strip_top:
+		# steady through a breath or a step); one-off shows (the Mother laying or swiping, rooting) keep the loop's place
+		# (the owner, 2026-10-30: her bar and egg line stay put). It rises at once, drops back past TOP_SLACK.
+		if _nb_top < -9000.0 or NB_LOOPS.has(anim) or anim.begins_with("fill"):
+			var st := BroodRoot.strip_top(self)
+			if st != INF:
+				var bt := st - global_position.y
+				if _nb_top < -9000.0 or bt < _nb_top or bt > _nb_top + Building.TOP_SLACK:
 					_nb_top = bt
-				_nb_top = minf(_nb_top, bt)
-			elif absf(bt - _nb_top) > 14.0:
-				_nb_top = bt
-			top = _nb_top
+		if _nb_top > -9000.0:
+			var bw := maxf(radius * 2.0, 16.0)
+			var h := BAR_H_BIG if bw > BAR_BIG_W else BAR_H
+			# (the health bar's top edge: its 1 px edge and the gap above the picture; its reload bar goes above it)
+			top = _nb_top - Building.STACK_GAP - 1.0 - h
 	return top
+
+
+## The loops a rooting creature's bars are placed by (bar_top): its rooted loop (a Rootmaw's: "fill1".."fill5", by how
+## full it is), standing and walking.
+const NB_LOOPS := ["rooted", "idle", "walk", "run"]
 
 
 ## The thin CHARGE bar (SHOW CHARGE BARS): amber, draining as the spring runs down; on the gear field (being wound) it
@@ -7942,6 +7947,8 @@ func _draw_unit() -> void:
 	var sy := top                            # (the secondary bars: flush under the health bar, or where it would be)
 	if kind != BroodNew.PILE:
 		sy = draw_health(top, bw, true)
+	if _k_nb and BroodNew.ROOTERS.has(kind) and _nb_top > -9000.0:
+		sy = top - SUB_H - 1.0      # (a rooting creature: its reload bar ABOVE its health bar, clear of its picture: BroodNew.stack)
 	if _k_nb:
 		BroodNew.draw(self, top)
 	if owl_t >= 0.0:

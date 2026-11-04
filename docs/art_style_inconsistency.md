@@ -421,7 +421,13 @@ The owner, after playing: the legs looked silly. The painted legs are gone from 
   tools/gear_art/make_brass_plate.py (its grey iron mapped onto a brass ramp, a soft diagonal sheen laid over it). Under the
   Mainspring, Escapement, Heavy Works and Clock Aviary. A painted polished brass deck would replace it.
 - SPRING MARK over a building fed by a Mainspring (GearNet._spring_mark): a code-drawn zig-zag coil in a small dark box. An
-  icon would replace it.
+  icon would replace it. (Bars audit, 2026-11-04: it now stands just over the picture's top, right of the bars.)
+- THE MAINSPRING'S COIL GAUGE (scripts/coil_gauge.gd, CoilGauge.draw; the owner, 2026-11-04: "the bar itself is a COIL"):
+  a code-drawn brass helix (its far half darker) in a dark slot with a brass rim, a fixed plate on the left and a
+  pressing plate on a steel rod from the right; the spring shortens and its turns press together as the side's Tension
+  fills its Mainsprings' store; full: pale gold, a bright rim; FATIGUED: dull grey-brown, slack and sagging. In the
+  Mainspring's bar stack (Building.bar_slots). A painted gauge (a sheet of spring frames, empty to full, and a fatigued
+  one) would replace it. Pictures: docs/shots/bars_audit/coil_*.jpg.
 - The placing ghost's MESHING TEETH (green) and CLASHES (red): short code-drawn arcs along both rings where they meet
   (GearNet.draw_contacts).
 - THE GEAR VIEW (GearNet._draw_view): the painted rings washed in code colours (gold drivers, green / yellow / orange / red by

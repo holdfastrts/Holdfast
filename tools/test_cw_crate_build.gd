@@ -80,8 +80,8 @@ func _run() -> void:
 		b.progress = 0.25
 		b._update_sprite()
 		check(b.sprite.region_rect.size.y > r0, "%s: the scaffold rises as it builds" % k)
-		check(absf(b.bar_top() - (b.sprite.position.y + (Building.body_offset(k, b.sprite.texture).y
-			+ g._tex_top(b.sprite.texture)) * b.sprite.scale.y + 2.0)) < 0.5, "%s: its bars stay over the whole picture" % k)
+		check(absf(float(b.bar_slots()["top"]) - (b.sprite.position.y + (Building.body_offset(k, b.sprite.texture).y
+			+ g._tex_top(b.sprite.texture)) * b.sprite.scale.y)) < 0.5, "%s: its bars stay over the whole picture" % k)      # (their stack starts at its top: Building.bar_slots)
 		b.progress = 0.6
 		b._update_sprite()
 		check(not b.sprite.region_enabled, "%s: all of the scaffold stands past half way" % k)
