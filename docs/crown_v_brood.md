@@ -140,6 +140,8 @@ Read:
   lost 20,620 / 15,390 before, 17,985 / 17,540 after. The Crown's gold by 8:00 is the same (its farms pay in lumps), the
   Brood's 1.5-2.3 times it in the Economy, Balanced and Timing games and 1.0-1.3 times it after a Horseman rush.
 - The Brood's Timing on Redrock (`rr_bal_tim`) takes the 2nd hall at 6:13-6:16 and the main by 10:00 before and after.
+- One more game on the final build (the slots closed after 25 s), the owner's Redrock Economy seed: 2 halls lost, 36
+  labourers lost, 730 of army against 2,670 at 8:00, no attack: the same picture.
 
 ## 4. The Horseman rush, again
 
@@ -288,7 +290,10 @@ Open questions:
   try.
 - **The reckoning table** (BROOD_TABLE) was fitted to the Hard Brood of these games; a Normal or Easy Brood has less,
   so the Crown would wait more than it needs against them (the rule is on for Normal and up).
-- **test_crown_dragoon_raid [plan]**: DRAGOON_LINE
+- **test_crown_dragoon_raid [plan]**: on this branch its long check failed once (the group formed with 13 Dragoons
+  but had not ridden out by 11:30); its quick checks pass. Run on main (0.30.5) and on this branch with every new rule
+  switched off (`-- blind:on barmy:off xwbrood:off`), the same test ran past 30 minutes here without finishing, so it could
+  not be compared; nothing in this job touches the raids' own rules (scripts/ai_dragoon_raid.gd). Worth a look at merge.
 - **Corner pocket against the Timing**: B moved the Brood's first blow from the natural to the main on Redrock; one game,
   worth more seeds before the owner's call.
 
