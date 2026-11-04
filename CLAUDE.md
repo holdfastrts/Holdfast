@@ -42,13 +42,14 @@
   good base layout (production behind the hall, Regulators/buildings toward the ramp) as a SHARED rule for every Clockwork
   plan, and turrets only REACTIVE: an emergency vs a scouted/arriving rush, and later at expansions/worker lines against
   harass so the army can leave home. The fast second Clocktower part may become the Clockwork's Economy plan.
-- COACHED BUILDS, "do it all" (owner, 2026-11-03 20:32): running now as cloud jobs: cw-builds-a (Clock Soldier rush,
-  Turret turtle), cw-builds-b (Pendulums v Brood, Heavy Works push), cw-builds-c (air: Swifts -> Ticking Owls), plus
-  brood-ai-tune, perf-stutter, perf-armies (big-army throughput), crown-builds-a (Dragoon raids), crown-builds-c (Balloon harass: a separate build, owner),
-  crown-builds-b (siege push); crown-ai-rebuild MERGED 0.29.0 (scripts/ai_crown.gd AICrown). QUEUED: when brood-ai-tune is
-  merged, Brood builds: a Spitter timing (Venom Sire) and a Brute siege (wall breaking). Later: the computer picks its build
-  by matchup and switches on what its scout sees. Springer balance proposals waiting on the owner: jump recharge 10 -> 6-7 s,
-  jump range 5 -> 6-7 tiles, Springer range 170 -> 190, High Leap 100 -> 50 Tension.
+- COACHED BUILDS, "do it all" (owner, 2026-11-03 20:32): ALL MERGED: brood-ai-tune 0.29.5, cw-builds-a 0.29.6 (Clock
+  Soldier rush; Turret turtle kept but hidden), cw-builds-b 0.29.7 (Pendulums, Heavy Works push), cw-builds-c 0.29.8 (Owl
+  raids), crown-builds-a 0.29.9 (Dragoon raids), crown-builds-b 0.29.11 (Siege push), crown-builds-c 0.29.14 (Balloon
+  harass); the Crown plans keep the Foundry before the second Barracks. RUNNING: cloud job brood-builds (Spitter timing,
+  Brute siege; merge on "DONE: brood-builds:"). Later: the computer picks its build by matchup and switches on what its
+  scout sees. Proposals waiting on the owner: Brood FOOD_BONUS 1.5 -> 0.8 (it out-earns both Hard computers 1.4-2x);
+  Springer: jump recharge 10 -> 6-7 s, range 5 -> 6-7 tiles, Springer range 170 -> 190, High Leap 100 -> 50 Tension; the
+  build reports' own proposals (docs/clockwork_builds_*.md, docs/crown_builds_*.md).
 
 - REPLAYS, NEXT (owner said yes, 2026-11-03): after the perf-stutter job reports, a job for MIXED replays: record the
   players' commands (StarCraft-style) plus one full keyframe every ~10 s instead of 5 pictures a second; playback re-runs
