@@ -12,9 +12,9 @@ const MUTED := Color(0.95, 0.9, 0.78, 0.6)
 const GOOD := Color("#9fd36b")
 const BAD := Color("#e8735a")
 const ACCENT := {
-	"crown": Color("#d9473a"),
+	"crown": Color("#9a5bd0"),        # (the owner, 2026-11-04: the Crown is PURPLE, the Clockwork RED, the Brood GREEN)
 	"brood": Color("#7fb446"),
-	"clockwork": Color("#4aa3d9"),
+	"clockwork": Color("#d9473a"),
 }
 const FACTION_TAG := {
 	"crown": "Shot, shell and black powder",
