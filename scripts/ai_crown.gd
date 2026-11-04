@@ -102,15 +102,13 @@ const PLANS := {
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
-			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9, "look": 1}},      # (after the scout's first look, ~1:10: a
-			# Barracks' gold at hand if it saw a rush or nothing)
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
 			{"do": "hall", "n": 2, "at": {"labs": 11}},
 			{"do": "build", "k": "barracks", "at": {"labs": 14, "halls": 2}},
 			{"do": "build", "k": "powder_mill", "at": {"labs": 14, "halls": 2}},
 			{"do": "army", "k": "musketeer", "cap": 8},
-			{"do": "build", "k": "horse_breeder", "at": {"labs": 18}},
-			{"do": "build", "k": "foundry", "at": {"labs": 20}},
 		],
+		# (the Breeder and the Foundry are milestones: an opening that went on to them kept the army at 8 supply till 6:30)
 		# (against the Brood: the Barracks and the Mill at 7 labourers as before. The Brood's fastest rush has Raptors at our
 		# ramp by ~1:50 and the scout's first look comes at ~1:10: a Barracks laid on what it sees is up at ~1:50 and its first
 		# Musketeer comes at ~2:40, after the gate fell (tools/test_ai_wall_vs_rush.gd, the owner's 6-pool anchor). The
@@ -123,10 +121,8 @@ const PLANS := {
 			{"do": "army", "k": "musketeer", "cap": 8},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
 			{"do": "hall", "n": 2, "at": {"labs": 12}},
-			{"do": "build", "k": "horse_breeder", "at": {"labs": 18}},
-			{"do": "build", "k": "foundry", "at": {"labs": 20}},
 		],
-		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {}], ["barracks", 2, {}],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["barracks", 2, {}], ["horse_breeder", 1, {}],
 			["barracks", 3, {"labs": 24}], ["barracks", 4, {"labs": 30}], ["armoury", 1, {"labs": 30}],
 			["church", 1, {"labs": 36, "halls": 2}], ["foundry", 2, {"labs": 42, "halls": 3}]],
 		"bo_old": [
@@ -391,6 +387,8 @@ func _army_due() -> bool:
 	if _foe_is("brood"):
 		share = maxf(share, ARMY_BROOD)       # (the Brood's Timing attack comes at 5:45-6:30 with 15-30 creatures: ba3 Red Coast)
 	var short: bool = _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) < int(share * game.workers(team).size())
+	if short and owner_labs(game.workers(team).size()):
+		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
 	if not short and blind_guard() and not brood_army_off:
 		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
 		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
@@ -1722,6 +1720,13 @@ func owner_hall_ok() -> bool:
 		return true
 	var labs := game.workers(team).size()
 	return labs >= OWNER_HALL3_LABS + 10 * (_halls().size() - 2) and _army_supply(game.army(team)) >= int(OWNER_HALL_ARMY * labs)
+
+
+## LABOURERS NON-STOP up to two halls' worth (the owner's 38 at 7:00, 42 at 8:00): the shared holds that wait for the army
+## first (AIRound5.hold_labourers against the Clockwork) let them come on the owner's plans, unless a rush is feared or the
+## enemy is at our buildings.
+func owner_labs(labs: int) -> bool:
+	return owner_on() and labs < OWNER_HALL3_LABS and not _defending() and _threat() == Vector2.INF
 
 
 func owner_on() -> bool:

@@ -17,7 +17,7 @@ KIND = {
     "church": (235, 235, 230), "wall": (30, 25, 20), "gate": (90, 60, 30),
 }
 PLAN = {"cottage": (255, 170, 60), "prod": (90, 170, 255), "farm": (255, 235, 120), "mill": (200, 140, 90)}
-CELL = 9
+CELL = 14
 
 
 def font(size):
@@ -27,6 +27,29 @@ def font(size):
         except OSError:
             pass
     return ImageFont.load_default()
+
+
+def crop(d, r=22, m=2):
+    """The main's plateau only: the bounding box of its level's cells within r tiles of its start (with a margin)."""
+    rows = d["rows"]
+    sx, sy = d.get("sx"), d.get("sy")
+    if sx is None:
+        halls = [b for b in d["buildings"] if b["k"] == "town_hall"]
+        if not halls:
+            return d
+        cx, cy = len(rows[0]) / 2, len(rows) / 2
+        h = min(halls, key=lambda b: (b["x"] - cx) ** 2 + (b["y"] - cy) ** 2)
+        sx, sy = h["x"], h["y"]
+    pts = [(x, y) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch in "h#" and (x - sx) ** 2 + (y - sy) ** 2 <= r * r]
+    if not pts:
+        return d
+    x0, x1 = max(0, min(p[0] for p in pts) - m), min(len(rows[0]), max(p[0] for p in pts) + m + 1)
+    y0, y1 = max(0, min(p[1] for p in pts) - m), min(len(rows), max(p[1] for p in pts) + m + 1)
+    out = dict(d)
+    out["rows"] = [row[x0:x1] for row in rows[y0:y1]]
+    out["buildings"] = [dict(b, x=b["x"] - x0, y=b["y"] - y0) for b in d["buildings"]]
+    out["plan"] = [dict(b, x=b["x"] - x0, y=b["y"] - y0) for b in d.get("plan", [])]
+    return out
 
 
 def draw_base(d, plan_only=False):
@@ -68,7 +91,7 @@ def main():
     if plan_only:
         a = a[1:]
     out = a[0]
-    pairs = [(a[i], json.load(open(a[i + 1]))) for i in range(1, len(a) - 1, 2)]
+    pairs = [(a[i], crop(json.load(open(a[i + 1])))) for i in range(1, len(a) - 1, 2)]
     ims = [draw_base(d, plan_only) for _, d in pairs]
     f = font(22)
     fs = font(17)

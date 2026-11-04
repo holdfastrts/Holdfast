@@ -103,7 +103,8 @@ func _coach() -> void:
 		_main_i += 1
 		var mh: Building = _ai.main_hall()
 		if mh != null and not noshots:
-			pending.append(["main_%s.png" % _mmss(c), mh.center() + Vector2(0, 2 * Defs.TILE), 0.62])
+			var mid := Vector2(Game.W, Game.H) * 0.5 * Defs.TILE
+			pending.append(["main_%s.png" % _mmss(c), mh.center() + (mid - mh.center()).normalized() * 5.0 * Defs.TILE, 0.72])
 			for h in halls:
 				if h != mh and h.built:
 					pending.append(["nat_%s.png" % _mmss(c), h.center(), 0.7])
@@ -161,7 +162,7 @@ func _dump(c: float) -> void:
 			var rr: Rect2i = e[0]
 			plan.append({"k": e[1], "x": rr.position.x - x0, "y": rr.position.y - y0, "w": rr.size.x, "h": rr.size.y})
 	var f := FileAccess.open(out.path_join("base_%s.json" % _mmss(c)), FileAccess.WRITE)
-	f.store_string(JSON.stringify({"t": _mmss(c), "map": map, "owner": _ai.owner_on(), "rows": rows, "buildings": bl, "plan": plan}))
+	f.store_string(JSON.stringify({"t": _mmss(c), "map": map, "owner": _ai.owner_on(), "rows": rows, "buildings": bl, "plan": plan, "sx": st.x - x0, "sy": st.y - y0}))
 	f.close()
 
 
