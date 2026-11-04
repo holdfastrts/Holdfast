@@ -321,7 +321,8 @@ func _edge_plan(home: Array, spots: Array) -> void:
 			muskets.append(p)
 	if muskets.size() < mini(EDGE_MIN, maxi(1, n_musk)):
 		return                  # (a corner of the edge with room for one or two: the line stays where it is)
-	var was := edge_live()
+	var was := edge_live() and not _wall_mode
+	_wall_mode = false
 	var moved: bool = not was or _edge_b != best or (not _edge_spots.is_empty() and (_edge_spots[0] as Vector2).distance_to(muskets[0]) > 3.0 * T)
 	_edge_spots = muskets
 	_edge_guns = guns
@@ -685,7 +686,7 @@ func place(units: Array) -> Array:
 	if edge_live():
 		spots_m = _edge_spots       # (5. THE CLIFF EDGE: the line on the high ground's lip above the threatened building)
 		spots_g = _edge_guns
-		mode = "edge"
+		mode = "wall" if _wall_mode else "edge"      # (or inside a walled hall's palisade: _wall_plan)
 	if mode != _slot_mode:
 		_slot.clear()
 		_slot_mode = mode
@@ -723,7 +724,7 @@ func place(units: Array) -> Array:
 			spot = spots_g[(-1 - s) % spots_g.size()] if not spots_g.is_empty() else spots_m[spots_m.size() - 1]
 		else:
 			spot = spots_m[s % spots_m.size()]
-		_post(u, spot, face if face != Vector2.INF else (_edge_aim - spot).normalized(), mode == "edge")
+		_post(u, spot, face if face != Vector2.INF else (_edge_aim - spot).normalized(), mode != "ramp")
 	return rest
 
 
@@ -756,6 +757,13 @@ func hold_top(army: Array, spots: Array) -> bool:
 	for sp in spots:
 		if on_main(sp):
 			return false
+	# (crown-owner-eco, C: an attack on a walled hall's palisade: the army stands inside that wall and shoots over it)
+	if _wall_plan(home, spots):
+		if not ai._det.is_empty():
+			ai._end_defence()
+		place(home)
+		return true
+	_wall_mode = false
 	var foe := force_at(spots)
 	var mine := 0.0
 	for u in home:
@@ -1135,3 +1143,158 @@ func _report() -> void:
 				tech.append(b.kind)
 	_log("'s scouts know: an enemy army of %d (seen in the last %d s), %d enemy hall%s, tech %s" % [int(foe_known()), int(SEEN_FOR),
 			_foe_halls(), "" if _foe_halls() == 1 else "s", ", ".join(PackedStringArray(tech)) if not tech.is_empty() else "none seen"])
+
+
+
+# ============================================================ 6. THE WALL POST (crown-owner-eco, docs/crown_owner_eco.md)
+# The owner (2026-11-04 19:57, pictures eco_v_eco_3 and _5): "the Crown army should have left the high ground for the
+# palisade of the natural base; the high ground only makes sense when there is no wall" and "the Crown is still defending
+# the high ground with a low ground attack at its wall". On the owner's plans (AICrown.owner_on), when the threat is at a
+# hall whose wall ring (AIExpandWall) is closed at least WALL_CLOSED, the army goes to the INSIDE of that wall where it is
+# hit: the muskets in rows WALL_IN tiles behind the palisade nearest the claws (a musket reaches 190 px: well over the
+# stakes), the guns WALL_GUN_IN behind them, on HOLD facing out; labourers mend the hurt piece (the edge post's menders,
+# REPAIR UNDER FIRE). The cliff edge (5) stays for a hall WITHOUT a wall, the ramp post for the main.
+# Study switch: `-- wallpost:off`.
+const WALL_CLOSED := 0.7        # share of a hall's ways-in cells closed for its wall to be stood behind
+const WALL_NEAR := 9.0          # (tiles) a threat this near a ways-in cell of the plan is "at the wall"
+const WALL_IN := Vector2(1.0, 3.3)      # (tiles) the musket rows this far inside the wall's pieces
+const WALL_GUN_IN := Vector2(3.6, 6.5)  # (tiles) the guns
+const WALL_FRONT := 10.0        # (tiles) the stretch of wall stood behind: pieces this near the claws
+var wall_on := not OS.get_cmdline_user_args().has("wallpost:off")
+var _wall_mode := false
+var _wall_t := -99.0
+var _wall_hall: Building = null
+var wall_moves := 0             # (tests, the coach)
+var wall_log: Array = []        # [clock, text]
+
+
+func wall_live() -> bool:
+	return _wall_mode and edge_live()
+
+
+func _wall_plan(home: Array, spots: Array) -> bool:
+	if not wall_on or not ai.has_method("owner_on") or not ai.owner_on() or ai.xw == null:
+		return false
+	var T := float(Defs.TILE)
+	# the walled hall the threat is at
+	var best: Dictionary = {}
+	var bd := INF
+	for id in ai.xw.plans:
+		var p: Dictionary = ai.xw.plans[id]
+		if not p.get("ok", false):
+			continue
+		var h = p.get("hall")
+		if h == null or not is_instance_valid(h) or (h as Building).dead:
+			continue
+		if ai.xw.closed_share(p) < WALL_CLOSED:
+			continue
+		for c in p["exposed"]:
+			var cp: Vector2 = game.cell_center(c)
+			for sp in spots:
+				var d: float = cp.distance_to(sp)
+				if d < bd:
+					bd = d
+					best = p
+	if best.is_empty() or bd > WALL_NEAR * T:
+		return false
+	if _wall_mode and edge_live() and _wall_hall == best["hall"] and game.clock - _wall_t < EDGE_EVERY:
+		_edge_until = game.clock + EDGE_KEEP
+		return true
+	_wall_t = game.clock
+	# the claws at it (or the threat spots)
+	var claws: Array = []
+	for sp in spots:
+		for o in game.units_near(sp, 330.0):
+			if game.hostile(o.team, ai.team) and not o.dead and not o.off_field and ai._armed(o) and ai._sighted(o) and not o.is_air():
+				if not claws.has(o.position):
+					claws.append(o.position)
+	if claws.is_empty():
+		claws = spots.duplicate()
+	# the stretch of wall nearest them
+	var front: Array = []
+	for c in best["exposed"]:
+		var cp: Vector2 = game.cell_center(c)
+		var dmin := INF
+		for q in claws:
+			dmin = minf(dmin, cp.distance_to(q))
+		if dmin <= WALL_FRONT * T:
+			front.append(cp)
+	if front.is_empty():
+		return false
+	var inside: Dictionary = best["inside"]
+	var hall: Building = best["hall"]
+	var lvl: int = game.level_of(hall.center())
+	var cands_m: Array = []
+	var cands_g: Array = []
+	for c in inside:
+		var i: int = game.idx(c)
+		var v := int(game.solid[i])
+		if (v != 0 and v != 5) or game.ramp[i] != 0:
+			continue
+		var p: Vector2 = game.cell_center(c)
+		if game.level_of(p) != lvl:
+			continue
+		var dw := INF
+		for f in front:
+			dw = minf(dw, p.distance_to(f))
+		var dc := INF
+		for q in claws:
+			dc = minf(dc, p.distance_to(q))
+		if dw >= WALL_IN.x * T and dw <= WALL_IN.y * T:
+			cands_m.append([dc + dw * 0.5, p])
+		elif dw >= WALL_GUN_IN.x * T and dw <= WALL_GUN_IN.y * T:
+			cands_g.append([dc, p])
+	var srt := func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]) or (float(a[0]) == float(b[0]) and (a[1] as Vector2).x < (b[1] as Vector2).x)
+	cands_m.sort_custom(srt)
+	cands_g.sort_custom(srt)
+	var n_gun := 0
+	var n_musk := 0
+	for u in home:
+		if u.kind in GUN_KINDS:
+			n_gun += 1
+		elif u.kind in HOLD_KINDS:
+			n_musk += 1
+	var muskets: Array = []
+	var guns: Array = []
+	for e in cands_g:
+		if guns.size() >= n_gun:
+			break
+		var p: Vector2 = e[1]
+		if guns.all(func(q: Vector2) -> bool: return q.distance_to(p) >= EDGE_GUN_GAP * T):
+			guns.append(p)
+	for e in cands_m:
+		if muskets.size() >= maxi(n_musk, 1):
+			break
+		var p: Vector2 = e[1]
+		if muskets.all(func(q: Vector2) -> bool: return q.distance_to(p) >= EDGE_GAP * T):
+			muskets.append(p)
+	if muskets.size() < mini(EDGE_MIN, maxi(1, n_musk)):
+		return false
+	# the piece to mend: the most hurt of the stretch's wall, gate or slot building
+	var mend: Building = null
+	for b in game.buildings:
+		if b.team != ai.team or b.dead or b.hp >= b.max_hp - 1.0:
+			continue
+		var bc: Vector2 = b.center()
+		if front.any(func(f: Vector2) -> bool: return f.distance_to(bc) < 2.0 * T):
+			if mend == null or b.hp / b.max_hp < mend.hp / mend.max_hp:
+				mend = b
+	var aim := Vector2.ZERO
+	for q in claws:
+		aim += q
+	aim /= float(claws.size())
+	var moved: bool = not wall_live() or _wall_hall != hall or (not _edge_spots.is_empty() and (_edge_spots[0] as Vector2).distance_to(muskets[0]) > 3.0 * T)
+	_wall_mode = true
+	_wall_hall = hall
+	_edge_spots = muskets
+	_edge_guns = guns
+	_edge_b = mend
+	_edge_aim = aim
+	_edge_until = game.clock + EDGE_KEEP
+	_edge_foot = hall.center()       # (a mender runs back into the base, behind the line)
+	if moved:
+		wall_moves += 1
+		var txt := "moves its army inside the wall of its new hall where it is attacked: %d musket spots %d-%d tiles behind the palisade, %d guns behind them" % [muskets.size(), int(WALL_IN.x), int(WALL_IN.y), guns.size()]
+		wall_log.append([game.clock, txt])
+		_say(txt)
+	return true

@@ -58,6 +58,7 @@ var decided_at := -999.0
 var unit: Unit = null           # the scout on the road
 var trips := 0
 var next_trip := START_AT
+var min_workers := MIN_WORKERS   # (crown-owner-eco: the owner's plans send the first scout at once, AICrown._ready)
 var sent_at := 0.0
 var last_end := 0.0
 var mod := {}                   # overrides for AI._s()
@@ -229,7 +230,7 @@ func _pick() -> Unit:
 		if best:
 			return best
 	var labs: Array = game.workers(ai.team)
-	if labs.size() < MIN_WORKERS and game.clock < 200.0:
+	if labs.size() < min_workers and game.clock < 200.0:
 		return null
 	var pick: Unit = null
 	for u in labs:
