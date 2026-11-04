@@ -21,7 +21,8 @@ const T := Defs.TILE
 const MARGIN := 16           # cells round a footprint the quick check looks at
 const TINY := 4              # 2x2 nodes: a nook cut off this small, with none of its side in it, is let be
 const RING := 2              # a footprint with this many free cells all round can't cut anything off
-static var off := false      # (tools/study_brood_layout.gd off:1: the computer as it was before, for the numbers)
+static var off := OS.get_environment("BROOD_LAYOUT_OFF") == "1"      # (the computer as it was before, for the numbers:
+                                                                      # tools/study_brood_layout.gd off:1, or BROOD_LAYOUT_OFF=1 for any tool)
 
 
 # ------------------------------------------------------------------ the whole map, in 2-wide lanes (cached)

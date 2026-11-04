@@ -14,4 +14,5 @@ for m in highmoor redrock_canyon thornwood_maze greenhold cinder_steps; do
 	one case:opening map:$m bs:economy foe:crown
 done
 one case:opening map:redrock_canyon bs:spitter foe:clockwork seed:5 end:600
+one case:opening map:cinder_steps bs:economy foe:crown fs:economy seed:11 end:600
 one case:alarm

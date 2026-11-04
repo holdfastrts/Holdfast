@@ -5,7 +5,7 @@ extends SceneTree
 ##       the check itself, on a real map, every 3x3 spot a Mound Turtle could root on (the player's rules): each spot the
 ##       whole-map check lets be really shuts nothing off (rooted for a moment by hand: no own unit leaves the open map,
 ##       no piece of open ground bigger than a nook is cut off), and each it refuses really would; some are refused
-##   godot ... -- case:opening map:<map> [bs:economy] [foe:crown] [end:420] [seed:7]
+##   godot ... -- case:opening map:<map> [bs:economy] [foe:crown] [fs:balanced] [end:420] [seed:7]
 ##       a Hard Brood computer against a Hard computer: after 1:00 no unit of its own stays shut in by its own rooted
 ##       creatures for more than 15 s, and no more than 60 unit-seconds in all
 ##   godot ... -- case:alarm [map:thornwood_maze]
@@ -23,6 +23,7 @@ var bs := "economy"
 var foe := "crown"
 var end_t := 420.0
 var seed_ := 7
+var fs := "balanced"           # the foe computer's plan
 var bt := 1
 var ai: AIBroodNew = null
 
@@ -39,6 +40,7 @@ func _initialize() -> void:
 			"foe": foe = kv[1]
 			"end": end_t = float(kv[1])
 			"seed": seed_ = int(kv[1])
+			"fs": fs = kv[1]
 			"off": BroodLayout.off = kv[1] == "1"      # (the computer before the fix: the cases should fail)
 	if case_ == "alarm" and map == "greenhold":
 		map = "thornwood_maze"
@@ -57,7 +59,7 @@ func _process(_delta: float) -> bool:
 	if t > 0.2 and main.game == null:
 		seed(seed_)
 		main.start({"map": map, "seed": seed_, "slots": [
-			{"who": "hard", "faction": foe, "colour": 0, "side": 0, "strategy": "balanced"},
+			{"who": "hard", "faction": foe, "colour": 0, "side": 0, "strategy": fs},
 			{"who": "hard", "faction": "brood", "colour": 1, "side": 1, "strategy": bs}]})
 		return false
 	if main.game == null:
@@ -262,12 +264,12 @@ func _alarm() -> void:
 	check(nat_at != Vector2.INF, "a natural turtle spot")
 	var nat := rooted_one(BroodNew.TURTLE, nat_at)
 	await wait_until(g.clock + 4.0)
-	var fs = ai._nb_front_spot(q)
-	check(fs != null, "the alarm has a front spot")
-	if fs == null:
+	var fsp = ai._nb_front_spot(q)
+	check(fsp != null, "the alarm has a front spot")
+	if fsp == null:
 		done()
 		return
-	var dir: Vector2 = ((fs as Vector2) - q.position).normalized()
+	var dir: Vector2 = ((fsp as Vector2) - q.position).normalized()
 	var f_at := root_spot(BroodNew.TURTLE, q.position, dir, 9.0)
 	var f := rooted_one(BroodNew.TURTLE, f_at)
 	var s_at := root_spot(BroodNew.TURTLE, q.position, -dir, 9.0)
@@ -294,13 +296,13 @@ func _alarm() -> void:
 		m = rooted_one(BroodNew.MAW, m_at)
 	await wait_until(g.clock + 5.0)
 	var feeds := BroodLayout.feeds_maws(g, f)
-	print("natural %s, front spot %s, F %s, S %s, Rootmaw %s; F feeds %d, S feeds %d" % [str(g.cell_of(nat.position)), str(g.cell_of(fs)),
+	print("natural %s, front spot %s, F %s, S %s, Rootmaw %s; F feeds %d, S feeds %d" % [str(g.cell_of(nat.position)), str(g.cell_of(fsp)),
 		str(g.cell_of(f.position)), str(g.cell_of(s2.position)), str(g.cell_of(m.position)) if m else "none", feeds.size(), BroodLayout.feeds_maws(g, s2).size()])
 	check(m != null and BroodNew.rooted(m) and feeds.has(m), "set up: F's swamp is the only swamp under a rooted Rootmaw")
 	check(BroodLayout.feeds_maws(g, s2).is_empty(), "set up: S feeds no Rootmaw")
-	check(f.position.distance_to(fs) < s2.position.distance_to(fs), "set up: F is the turtle nearest the front spot")
+	check(f.position.distance_to(fsp) < s2.position.distance_to(fsp), "set up: F is the turtle nearest the front spot")
 	ai.alarm_t = g.clock
-	ai.alarm_at = fs
+	ai.alarm_at = fsp
 	ai._front_done = false
 	ai._front_t = null
 	ai._nb_alarm(q)
