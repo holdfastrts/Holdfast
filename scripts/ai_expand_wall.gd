@@ -123,7 +123,7 @@ func _run(p: Dictionary) -> void:
 	var hall: Building = p["hall"]
 	if hall.built and float(p["built_t"]) < 0.0:
 		p["built_t"] = game.clock
-	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > SLOT_WAIT
+	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > (BROOD_SLOT_WAIT if brood_walls() else SLOT_WAIT)
 	for s in p["slots"]:
 		if s["closed"]:
 			continue
@@ -330,6 +330,8 @@ const SHORT_BATCH := 3          # ... and at most this many pieces laid at a tim
 ## Switch: `-- xwbrood:off`.
 const BROOD_RESERVE := 60
 const BROOD_BATCH := 8
+const BROOD_SLOT_WAIT := 25.0   # (s) an empty slot is closed with palisade this soon after the hall stands (a slot left open was
+                                # the Raptors' way in, coached game a_rr_eco_eco 8:23)
 const BROOD_LAY := 4.0
 var brood_on := not OS.get_cmdline_user_args().has("xwbrood:off")
 

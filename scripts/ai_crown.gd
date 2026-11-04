@@ -1279,7 +1279,8 @@ func random_plan(allowed: Array) -> String:
 ## Rootmaws when no grub is in sight, AIHarass rides past the static ones) until they are beaten down, a real answer is at
 ## hand, or nothing has died for HUNT_DRY s.
 const HUNT_KEEP := 0.5          # the riders end the hunt when down to this share of the party (and at least 2 lost)
-const HUNT_ANSWER := 0.9        # ... or the armed defenders seen are worth this times the riders
+const HUNT_ANSWER := 1.15       # ... or the mobile armed creatures at the riders are worth this times them (the shared
+                                # rush verdict's FAILED edge; rooted Rootmaws, turtles and the Mother do not chase: not counted)
 const HUNT_DRY := 75.0          # ... or nothing has been killed for this long
 var _hunt_kill := 0
 var _hunt_kill_t := 0.0
@@ -1292,7 +1293,7 @@ func _rush_hunt_on(party: Array) -> bool:
 	var mine := 0.0
 	for u in party:
 		mine += _unit_value(u)
-	var defv := _rush_defenders(party)
+	var defv := _hunt_answer(party)
 	if defv >= mine * HUNT_ANSWER:
 		return false
 	_hunt_kill = int(game.stats[team]["value_killed"])
@@ -1311,7 +1312,7 @@ func _rush_hunt_over(party: Array) -> String:
 	if k > _hunt_kill:
 		_hunt_kill = k
 		_hunt_kill_t = game.clock
-	var defv := _rush_defenders(party)
+	var defv := _hunt_answer(party)
 	if party.size() < 2 or (float(party.size()) <= float(_rush_n0) * HUNT_KEEP and _rush_n0 - party.size() >= 2):
 		why = "the riders are down to %d of %d" % [party.size(), _rush_n0]
 	elif defv >= mine * HUNT_ANSWER and defv >= 100.0:
@@ -1496,3 +1497,23 @@ func brood_wall_keep() -> int:
 	if cannon_first and _gun_waiting():
 		k += int(Defs.UNITS["cannon"]["cost"])
 	return k
+
+
+
+## The mobile armed creatures in sight within HUNT_R of the riders (value): what could catch and fight them.
+const HUNT_R := 360.0
+
+
+func _hunt_answer(party: Array) -> float:
+	if party.is_empty():
+		return 0.0
+	var c := Vector2.ZERO
+	for u in party:
+		c += u.position
+	c /= float(party.size())
+	var v := 0.0
+	for o in game.units_near(c, HUNT_R):
+		if o.dead or o.off_field or not game.hostile(o.team, team) or o.is_worker() or not _armed(o) or AIHarass.is_static(o) or not _sighted(o):
+			continue
+		v += _unit_value(o)
+	return v

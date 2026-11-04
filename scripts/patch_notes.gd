@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.30.6", "items": [
+		"THE CROWN COMPUTER AGAINST THE BROOD (the owner: \"the problem with Brood vs Crown is the Crown AI\"). NO BLIND ATTACKS: against the Brood a wave or a timing now goes only with a fresh scout report (an enemy soldier seen, or its main looked at, in the last 75 seconds); without one the army waits on the high ground and a scout goes out first. And a Brood army it has not seen no longer counts as nothing: it reckons what a Brood of that age, with the Rootmaws it has seen, would have, and goes only with an army worth half again as much. It no longer lays a new hall while its army is out or clearly behind.",
+		"THE NEW HALL IS WALLED AT ONCE against the Brood: its palisade goes down in the first minutes, in batches, the pieces nearest the enemy first, instead of waiting for a saturated hall and a big army (before, two Cottages of the plan stood alone in the open and no palisade came). The wall never takes the gold set aside for a building, the first Field Cannon, a labourer or a Musketeer. An empty slot in the line is closed with palisade 25 seconds after the hall stands. The ramp wall (the Cottage and the Gate) was already closed: a new test sends Raptors at it on eight maps.",
+		"THE ARMY KEEPS UP: against the Brood the Crown computer keeps its army at about 60% of the Brood army it reckons, training soldiers before labourers while it is behind, and putting up its next Foundry or Barracks early when every one it has is busy.",
+		"THE HORSEMAN RUSH KEEPS RAIDING while it wins against the Brood, hunting grubs and Rootmaws, and rides home only when the riders are beaten down, a real answer comes, or nothing has died for 75 seconds. A RANDOM PLAN against the Brood never picks the Balloon harass. Fixed: the match log said \"found no wall plan for its new Town Hall\" every second; it now says it once, with the reason, and asks again every 30 seconds.",
+	]},
 	{"v": "0.30.5", "items": [
 		"Watching computers play: the PRODUCTION and ARMY & STRUCTURES panels are drawn again 4 times a second instead of 20. In the owner's Redrock Canyon game they took up to 45% of the computer's time once the armies passed 100 units.",
 	]},

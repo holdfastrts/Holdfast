@@ -21,6 +21,8 @@ var raid_arrive := -1.0
 var _nat_shot := false
 var wall_lines: Array = []
 var _band0 := {}
+const NAT_LATE := [360.0, 480.0]     # the 2nd hall and its wall at 6:00 and 8:00 (natural_MMSS.png)
+var _late_done := {}
 
 
 func _coach() -> void:
@@ -49,6 +51,15 @@ func _coach() -> void:
 		var ch = _ai.ch
 		first_att = "%s supply %d knew %d (seen %s)" % [_mmss(c), _ai._army_supply(_ai._wave_set.keys().filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)),
 			int(ch.foe_known()), ("%d s ago" % int(c - ch._last_army_t)) if ch._last_army_t > 0.0 else "never"]
+	for at in NAT_LATE:
+		if c >= at and not _late_done.has(at):
+			_late_done[at] = true
+			var nat: Building = null
+			for h in _ai._halls():
+				if h.center().distance_to(_home()) > 10.0 * Defs.TILE and (nat == null or h.center().distance_to(_home()) < nat.center().distance_to(_home())):
+					nat = h
+			if nat != null:
+				pending.append(["natural_%s.png" % _mmss(c), nat.center(), 0.75])
 	if not _nat_shot:
 		for h in _ai._halls():
 			if h.center().distance_to(_home()) > 10.0 * Defs.TILE:
