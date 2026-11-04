@@ -67,7 +67,7 @@ static func tick(run: MissionRun, dt: float) -> void:
 		if best == null:
 			continue
 		if bd <= TORCH_REACH:
-			best.take_damage(TORCH_DPS * dt, u)
+			best.take_damage(TORCH_DPS * dt + maxf(float(best.armor), 0.0), u)      # (armour ignored: Entity.take_damage takes it off)
 			if randf() < dt * 0.8:
 				g.spawn_effect("fire", best.center() + Vector2(randf_range(-30, 30), randf_range(-20, 20)), 0.8)
 			continue
