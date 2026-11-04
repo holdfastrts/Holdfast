@@ -56,6 +56,9 @@ const STRATEGIES := {
 	# DRAGOON RAIDS (crown-builds-a; scripts/ai_crown.gd plan "dragoon", scripts/ai_dragoon_raid.gd): Musketeers on horseback
 	# raid the workers in small groups while the Musketeer line holds the main.
 	"dragoon": {"name": "Dragoon raids", "wave": 30, "step": 10, "expand": 0.8, "halls": 3, "tech": 1.0, "workers": 1.0, "crown_only": true},
+	# THE SIEGE PUSH (crown-builds-b; scripts/ai_crown_siege.gd, docs/crown_builds_b.md): cannons and mortars behind a Musketeer
+	# line break a turtle. The Crown's own computer plays it (its plan's push); Easy and the shared computer play these numbers.
+	"siege": {"name": "Siege push", "wave": 18, "step": 8, "expand": 1.0, "halls": 3, "tech": 0.9, "workers": 1.0, "crown_only": true},
 }
 
 

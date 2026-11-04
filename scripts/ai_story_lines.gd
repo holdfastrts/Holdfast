@@ -33,6 +33,12 @@ const RULES := [
 	["^'s Dragoon raid: group \\d+ rides off", "%s's Dragoons mount and ride off before the defenders reach them.", 2, "raid"],
 	["^'s Dragoon raid: ", "", 1, "raid"],
 	["^'s plan: ", "", 1, "build"],
+	# ---- the Crown's siege push (crown-builds-b, scripts/ai_crown_siege.gd)
+	["^'s siege push: goes out: (\\d+) supply \\((\\d+) guns", "%s's siege push goes out: %s supply, %s guns behind a line of Musketeers.", 3, "attack"],
+	["^'s siege push: sets up against (?:a|the) (.+?) \\(", "%s's line stands and its guns unlimber behind it, against the enemy's %s.", 2, "attack"],
+	["^'s siege push: falls back", "%s's siege push falls back: the guns limber and go home first.", 3, "attack"],
+	["^'s siege push: waits", "%s holds its siege push back: the enemy army it knows is bigger.", 2, "attack"],
+	["^'s siege push: ", "", 1, "attack"],
 	# ---- scouting and what it decides from it
 	["^scouted: rush \\(", "%s's scout saw a rush coming: it switches to defence, army and walls first, then a counter-attack.", 3, "plan"],
 	["^scouted: greedy economy \\(.*\\), switching to a timing attack at (\\d+:\\d+) \\((\\d+) supply\\)", "%s's scout saw a greedy enemy: it plans one big attack at %s with %s supply.", 3, "plan"],

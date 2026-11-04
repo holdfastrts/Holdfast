@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.29.11", "items": [
+		"A NEW CROWN COMPUTER PLAN, THE SIEGE PUSH (pick it in the PLAN list): Field Cannons and Mortars behind a line of Musketeers go out together to break a defended position, the Clockwork's turrets and the Winders that mend them, or the Brood's rooted creatures. The guns travel limbered behind the line, which stands on HOLD in a row in front of the target while the guns unlimber behind it, out of the defenders' reach. They shoot turrets first, then the workers mending, rooted creatures, enemy guns, the army (canister when it comes close, never through their own men). The Powder Wagon stays well behind the guns, and the push falls back, guns first, when it is losing or home is attacked.",
+		"The Siege push builds its economy first (the second hall at 15 labourers, the safer Musketeer opening against the Brood), then the Horse Breeder and the Foundry; while a gun is wanted its gold is kept from everything else. In coached games against the Clockwork its push went out at 7:45-9:15 and it ended each game with more labourers than the Balanced plan; against the Brood one push broke three Mound Turtles and three Rootmaws for 50 lost.",
+	]},
 	{"v": "0.29.10", "items": [
 		"THE CROWN WEARS PURPLE: the main menu painting is repainted with the Crown's army in royal purple and gold (it was blue), the Crown's new standard colour.",
 	]},

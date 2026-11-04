@@ -22,6 +22,7 @@ const COACH := {
 	"dragoon": {"strategy": "dragoon", "set": {}},     # (crown-builds-a: tools/play_crown_builds_a.gd films the raids)
 	# (variants the coach tries: the plan's settings changed; docs/ai_crown_rebuild.md says which were kept)
 	"eco_late": {"strategy": "economy", "set": {"labs": 99}},
+	"siege": {"strategy": "siege", "set": {}},      # (crown-builds-b: tools/play_crown_siege.gd films its push)
 }
 var coach_plan := "economy"
 var raid_t := -1.0              # raid:SECONDS:N the coach's staged attack: N Raptors (of the enemy) appear 9 tiles out from the
