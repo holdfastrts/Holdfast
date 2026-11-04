@@ -201,6 +201,7 @@ func _nb_think_stage(i: int) -> void:
 			_lap_nb("maw_guard", _nb_maw_guard.bind(q))
 			_lap_nb("rootmaws", _nb_rootmaws.bind(q))
 			_lap_nb("turtles", _nb_turtles.bind(q))
+			_lap_nb("unstick", _nb_unstick.bind(q))
 			_lap_nb("grubs_vs_riders", _nb_grubs_vs_riders.bind(q))
 			if _eco():
 				_lap_nb("alarm", _nb_alarm.bind(q))
@@ -624,6 +625,8 @@ func _find_foe_foot(foe: int, q: Unit) -> void:
 var _pulled := {}                  # grub -> [its Rootmaw, when]
 var _front_t: Unit = null          # the turtle rooting (rooted) in front of the natural
 var _front_done := false
+var _front_kept_t := -99.0
+const DYING := 0.25               # (a turtle under a quarter of its health may get up anyway: it would be lost with its swamp)
 
 
 func _nb_alarm(q: Unit) -> void:
@@ -670,11 +673,20 @@ func _nb_alarm(q: Unit) -> void:
 		return
 	var far := float(Defs.NB["expansion_tiles"]) * Defs.TILE * 0.9
 	var pick: Unit = null
+	var kept := 0
 	for t in _nb_mine(BroodNew.TURTLE):
 		if BroodNew.rooted(t) and t.position.distance_to(q.position) < far and not held.has(t) \
 				and (pick == null or t.position.distance_to(spot) < pick.position.distance_to(spot)):
+			# (brood-layout, the owner's Thornwood log 2026-11-04 3:23-3:42: never a turtle whose swamp is the only swamp
+			# of live rooted Rootmaws: they would go dry and uproot; unless it is dying anyway)
+			if not BroodLayout.off and not BroodLayout.feeds_maws(game, t).is_empty() and t.hp > t.max_hp * DYING:
+				kept += 1
+				continue
 			pick = t
 	if pick == null:
+		if kept > 0 and game.clock - _front_kept_t > 30.0:
+			_front_kept_t = game.clock
+			say("ALARM: no Mound Turtle gets up: its turtles feed the Rootmaws' swamp")
 		return
 	_front_t = pick
 	BroodNew.uproot(pick, false)
@@ -982,6 +994,8 @@ func _nb_morphs(q: Unit) -> void:
 		if u.team == team and not u.dead and u.kind == "grub" and u.carrying == 0 and u.cocoon <= 0.0 and u.order != "nb_morph" \
 				and u != _scout and (best == null or u.position.distance_squared_to(spot) < best.position.distance_squared_to(spot)):
 			best = u
+	if best != null and not _layout_ok(k, spot, null):
+		return
 	if best != null:
 		best.give({"o": "nb_morph", "k": k, "p": spot})      # (it pays at once: BroodRoot.start_morph)
 		if BroodNew.is_father(k):
@@ -1238,6 +1252,8 @@ var _nb_bad_spots := {}            # spot (rounded) -> until when
 
 func _root_to(u: Unit, p: Vector2) -> void:
 	var id: int = u.get_instance_id()
+	if not _layout_ok(u.kind, p, u):
+		return
 	var last = _root_last.get(id)
 	if last != null and (last[0] as Vector2).distance_to(p) < Defs.TILE and game.clock - float(last[1]) < 40.0:
 		_nb_bad_spots[str(p.round())] = game.clock + 180.0
@@ -1273,6 +1289,70 @@ func _nb_root_watch() -> void:
 
 
 var _bad_at := {}                  # (a bad spot's key -> its point, read once: str_to_var for every spot asked was slow)
+
+
+## THE BASE LAYOUT (brood-layout; the owner, 2026-11-04 19:57: "the turtle-locked units are stuck inside"): the spot a
+## spot finder picked (each already passed BroodRoot.place_problem's quick check round the spot) is checked once on the
+## whole map (BroodLayout.exact); one that would shut ground or its own units off is left alone for a minute, and the
+## finder picks another on the next think.
+var layout_refused := 0             # (the study: spots refused by the whole-map check)
+
+
+func _layout_ok(k: String, p: Vector2, me: Unit) -> bool:
+	var why := BroodLayout.exact(game, team, k, p, me, BroodRoot.scale_of(me) if me != null and me.kind == k else 1.0)
+	if why == "":
+		return true
+	_nb_bad_spots[str(p.round())] = game.clock + 60.0
+	layout_refused += 1
+	say("layout: not a %s there (%s)" % [String(Defs.UNITS[k]["name"]) if Defs.UNITS.has(k) else k, why])
+	return false
+
+
+## THE SAFETY NET (brood-layout): its own units shut in a pocket by its own rooted creatures (the Mother rooted back on
+## her home, a creature rooted before the rule, a cocoon opening): the rooted creature that closes the pocket on the
+## open map (a Rootmaw first, then a Sire, then a Mound Turtle feeding no Rootmaw; never the Mother) UPROOTS, keeping
+## its food, and the computer roots it elsewhere (its spot finders now keep the way open); with none, the units walk out
+## through their own creatures (BroodRoot's pass). Every 3 s.
+var _unstick_t := -99.0
+var unstuck_uproots := 0           # (the study)
+var unstuck_passes := 0
+
+
+func _nb_unstick(_q: Unit) -> void:
+	if BroodLayout.off or game.clock - _unstick_t < 3.0:
+		return
+	_unstick_t = game.clock
+	var pk := BroodLayout.pockets(game, team)
+	for r in pk:
+		var units: Array = pk[r]
+		var b := BroodLayout.blocker(game, team, r)
+		if b != null and not held.has(b):
+			if b.kind == BroodNew.MAW:
+				BroodNew.uproot(b, false)
+			elif b.kind == BroodNew.TURTLE:
+				BroodNew.uproot(b, false)
+			else:
+				b.cmd_uproot(false)
+			_nb_bad_spots[str(b.position.round())] = game.clock + 120.0       # (not rooted there again)
+			unstuck_uproots += 1
+			say("layout: a %s uproots to let %d of its own out of a pocket" % [String(Defs.UNITS[b.kind]["name"]), units.size()])
+			continue
+		var sent := 0
+		for u in units:
+			var ex := BroodLayout.exit_cell(game, (u as Unit).position, team)
+			if ex == Vector2.INF:
+				continue
+			var cu := u as Unit
+			var goal := cu.path_goal
+			cu.nb_pass = BroodRoot.PASS_TIME
+			if cu.order == "idle" or cu.order == "" or goal == Vector2.INF:
+				cu.cmd_move(ex)
+			else:
+				cu._request_path(goal)
+			sent += 1
+		if sent > 0:
+			unstuck_passes += sent
+			say("layout: %d of its own walk out of a pocket through its rooted creatures" % sent)
 
 
 func _spot_bad(p: Vector2) -> bool:

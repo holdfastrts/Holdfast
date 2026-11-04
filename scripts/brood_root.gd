@@ -195,7 +195,7 @@ static func boxed(g: Game, u: Unit) -> bool:
 		return false
 	if own_cell(g, g.idx(c), u.team):
 		return true
-	return g.sealed_in(u.position) or not g._clear_at(u.position, u.ground_r(), u.team)
+	return g.sealed_in(u.position) or not g._clear_at(u.position, u.ground_r(), u.team) or BroodLayout.own_pocket(g, c, u.team)
 
 
 static func start_pass(g: Game, u: Unit) -> void:
@@ -223,7 +223,8 @@ static func exit_point(g: Game, p: Vector2, t: int) -> Vector2:
 		var c: Vector2i = q[head]
 		head += 1
 		var i := g.idx(c)
-		if c != start and g._walkable(c) and g.in_open_map(c) and not own_cell(g, i, t):
+		# (brood-layout: out on the open map, not into a big pocket its own creatures shut: BroodLayout.out_ok)
+		if c != start and g._walkable(c) and BroodLayout.out_ok(g, c, t) and not own_cell(g, i, t):
 			# (a cell with room round it: not hugging a footprint's edge)
 			return g.cell_center(c)
 		for dv in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
@@ -267,7 +268,7 @@ static func pass_move(g: Game, u: Unit, p: Vector2, before: Vector2, delta: floa
 		elif clear_for(g, Vector2(before.x, p.y), u.ground_r(), u.team):
 			out = Vector2(before.x, p.y)
 	var c := g.cell_of(out)
-	if g._clear_at(out, u.ground_r(), u.team) and g.in_open_map(c) and not own_cell(g, g.idx(c), u.team):
+	if g._clear_at(out, u.ground_r(), u.team) and BroodLayout.out_ok(g, c, u.team) and not own_cell(g, g.idx(c), u.team):
 		u.nb_pass = 0.0           # (clear of them: a unit like any other)
 	return out
 
@@ -404,6 +405,12 @@ static func place_problem(g: Game, t: int, k: String, p: Vector2, me: Unit = nul
 		var q := BroodNew.queen(g, t)
 		if q == null or q.position.distance_to(p) > father_reach():
 			return "Out of range: he must nest within %d tiles of the Brood Mother." % int(Defs.NB["father_r"])
+	if ai:
+		# THE COMPUTER'S BASE LAYOUT (the owner, 2026-11-04: "the turtle-locked units are stuck inside"): never a footprint
+		# that shuts ground (or its own units) off from the open map; lanes two tiles wide (scripts/brood_layout.gd)
+		var shut := BroodLayout.closes(g, t, k, p, me, sc)
+		if shut != "":
+			return shut
 	return ""
 
 
