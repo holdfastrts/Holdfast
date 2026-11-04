@@ -900,6 +900,23 @@ func fatigued() -> bool:
 	return kind == "mainspring" and Defs.gear_mode and game != null and soil_left() <= 0.0
 
 
+## The coil gauge (CoilGauge) over a Mainspring: shown to its side and allies (spectators, the demo).
+func coil_shown() -> bool:
+	return game != null and (game.demo or game.allied(game.human, team))
+
+
+## How full the coil gauge reads: the side's Tension of what its Mainsprings store (one pool: every Mainspring shows it).
+func coil_fill() -> float:
+	var cap := GearEcon.tension_cap(game, team)
+	return clampf(game.tension(team) / cap, 0.0, 1.0) if cap > 0.0 else 0.0
+
+
+## Eases the coil gauge toward coil_fill (a spend or a refund presses or lets it out over about a second, no jump).
+func _ease_coil(delta: float) -> void:
+	var f := coil_fill()
+	_coil_f = f if _coil_f < 0.0 else move_toward(_coil_f, f, delta * maxf(0.8, absf(f - _coil_f) * 2.0))
+
+
 ## Economy buildings (and the Clocktower): production efficiency right now, as
 ## [efficiency 0..1, crew at work, full crew, reserve left 0..1, reserve name], or [] for
 ## anything else. Efficiency = staffing x the reserve's state: 100% fresh, falling to the
@@ -1068,6 +1085,8 @@ func _physics_process(delta: float) -> void:
 func _tick_building(delta: float) -> void:
 	_process_flash(delta)
 	_process_acid(delta)
+	if kind == "mainspring" and built and not dead and Defs.gear_mode:
+		_ease_coil(delta)
 	if rally_target != null and (not is_instance_valid(rally_target) or rally_target is Unit):
 		# a rally on one of ours follows him (gone: it stays where he was last; freed without dying, e.g. a grub that
 		# became a building: let go too, `is` on a freed object is an error)
@@ -1594,21 +1613,98 @@ func _draw() -> void:
 	Prof.add("building draw", _p0)
 
 
-## Where its bars go (local y): just above the top of the drawing itself, not the picture's
-## empty margin (the Farm: its windmill's top).
-func bar_top() -> float:
+## THE BAR STACK (bars audit, 2026-11-04: bars and labels sat on the picture, over spires, chimneys, flags and sails).
+## Everything shown over a building stands in one column ABOVE its picture's real top (sprite_top), bottom up, each in its
+## own row so none covers the drawing or another: the health bar, the work bar (building / training / research / a Farm's
+## crop), the Mainspring's coil gauge, the worker label (WorkerLabels), the gear badge (UNLINKED / NEEDS MAINSPRING:
+## GearNet._draw_top) and a gate's padlock. A row is kept for each thing the building can ever show, shown or not, so
+## nothing jumps when a bar comes and goes. Local y (up is negative). tools/test_bars_audit.gd checks it for every kind.
+const STACK_GAP := 2.0          # between the picture and the first row, and between rows
+const WORK_H := 4.0             # the work bar
+const LABEL_H := 20.0           # the worker label's plate (WorkerLabels.layout)
+const BADGE_H := 17.0           # the gear badge (GearNet._badge)
+const TOP_SLACK := 6.0          # a picture a little lower than before (another work frame) keeps the bars where they were
+
+## The kinds that research (Defs.RESEARCH "at"): they keep a row for the work bar.
+static var _researchers := {}
+
+var _top_y := INF               # the picture's top as last placed (sprite_top)
+var _coil_f := -1.0             # the coil gauge's shown fill, eased (Mainspring)
+
+
+## The top of the picture as drawn (local y): its sprite's first painted row, the Farm's windmill sails, the Ratchet
+## Turret's head; steady: it rises at once and drops back only when the picture is TOP_SLACK lower.
+func sprite_top() -> float:
+	var t := -rect().size.y
+	if sprite and sprite.texture and game:
+		t = sprite.position.y + (full_offset().y + game._tex_top(sprite.texture)) * sprite.scale.y
+		if sails and sails.texture:
+			var sh := float(sails.texture.get_height()) / float(maxi(1, sails.vframes))
+			t = minf(t, sprite.position.y + (sails.position.y - sh * 0.5 + game._tex_top(sails.texture)) * sprite.scale.y)
+		if turret and turret.head and turret.head.texture and turret.head.visible:
+			var hh := float(turret.head.texture.get_height())
+			t = minf(t, turret.head.position.y - hh * 0.5 + game._tex_top(turret.head.texture))
 	if kind == "farm":
-		return float(FARM_ART["top"])
-	if sprite and sprite.texture:
-		return sprite.position.y + (full_offset().y + game._tex_top(sprite.texture)) * sprite.scale.y + 2.0
-	return -rect().size.y
+		t = minf(t, float(FARM_ART["top"]))
+	if _top_y == INF or t < _top_y or t > _top_y + TOP_SLACK:
+		_top_y = t
+	return _top_y
+
+
+## Does it keep a row for the work bar: a site, a Farm (its crop), anything that trains or researches.
+func has_work_bar() -> bool:
+	if not built or kind == "farm" or not queue.is_empty():
+		return true
+	if not (d.get("trains", []) as Array).is_empty():
+		return true
+	if _researchers.is_empty():
+		for k in Defs.RESEARCH:
+			_researchers[String(Defs.RESEARCH[k].get("at", ""))] = true
+	return _researchers.has(kind)
+
+
+## Does it show a worker label (WorkerLabels.entities' rule, the side aside).
+func has_worker_label() -> bool:
+	return built and (haul_cap() > 0 or crew_max() > 0 or not efficiency().is_empty())
+
+
+## The rows (local y of each one's TOP edge; "label" and "badge" and "lock": their BOTTOM edge), and "top" (sprite_top)
+## and "w" (the bars' width).
+func bar_slots() -> Dictionary:
+	var t := sprite_top()
+	var w := rect().size.x * 0.7
+	var h := BAR_H_BIG if w > BAR_BIG_W else BAR_H
+	var c := t - STACK_GAP
+	var s := {"top": t, "w": w}
+	s["hp"] = c - 1.0 - h                  # (its 1 px edge round it)
+	c = float(s["hp"]) - 1.0 - STACK_GAP
+	if has_work_bar():
+		s["work"] = c - 1.0 - WORK_H
+		c = float(s["work"]) - 1.0 - STACK_GAP
+	if kind == "mainspring" and Defs.gear_mode:
+		s["coil"] = c - 1.0 - CoilGauge.H
+		c = float(s["coil"]) - 1.0 - STACK_GAP
+	s["label"] = c
+	if has_worker_label():
+		c -= LABEL_H + STACK_GAP
+	s["badge"] = c
+	if d["faction"] == "clockwork" and Defs.gear_mode:
+		c -= BADGE_H + STACK_GAP
+	s["lock"] = c
+	s["end"] = c                           # (the top of the whole column)
+	return s
+
+
+## Where its bars go (local y): the health bar's top edge, in the stack (bar_slots).
+func bar_top() -> float:
+	return float(bar_slots()["hp"])
 
 
 ## A gate's state, as a padlock ABOVE the gate (drawn here, no picture, big enough to read at
 ## once): a RED closed lock when it is locked shut, a YELLOW open lock (the shackle swung up
 ## and out to the side) when it is unlocked. No words.
-func _draw_lock(top: float) -> void:
-	var c := Vector2(0.0, top - 16.0)
+func _draw_lock(bottom: float) -> void:
+	var c := Vector2(0.0, bottom - 13.0)       # (its body's lowest edge, 1.5 px of outline included, at `bottom`)
 	var dark := Color(0.06, 0.04, 0.04, 0.95)
 	var body := Color(0.88, 0.16, 0.14) if locked else Color(1.0, 0.82, 0.18)
 	var lite := body.lightened(0.35)
@@ -1653,30 +1749,30 @@ func _draw_building() -> void:
 		if worker_rally != Vector2.INF and (team == game.human or game.spectating()):
 			draw_dashed_line(Vector2(0, -r.size.y * 0.5), worker_rally - global_position, Color(1, 0.85, 0.3, 0.6), 2.0, 6.0)
 			draw_circle(worker_rally - global_position, 4, Color(1, 0.85, 0.3, 0.9))
-	var top := bar_top()
+	var slots := bar_slots()          # (the bar stack: every row above the picture)
+	var w := float(slots["w"])
 	if not ghost:
-		draw_health(top, r.size.x * 0.7)
+		draw_health(float(slots["hp"]), w)
 	if kind == "gate" and built and (team == game.human or game.demo or game.reveal):
-		_draw_lock(top)
+		_draw_lock(float(slots["lock"]))
 	# full batteries waiting at an energy building
 	if built and batteries > 0 and (team == game.human or game.demo or game.reveal):
 		var bt: Texture2D = Game.tex("res://assets/effects/battery_%s.png" % ("blue" if game.blue_energy(team) else "yellow"))
 		var fw := 11.0
 		for i in batteries:
 			draw_texture_rect_region(bt, Rect2(-r.size.x * 0.5 + 2 + i * 8, -18, 8, 16), Rect2(0, 0, fw, 22))
+	var wy := float(slots.get("work", slots["hp"]))
 	if not built:
-		var w := r.size.x * 0.7
-		draw_rect(Rect2(-w * 0.5, top + 7, w, 4).grow(1), Color(0, 0, 0, 0.7))
-		draw_rect(Rect2(-w * 0.5, top + 7, w * progress, 4), Color(0.95, 0.8, 0.3))
+		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7))
+		draw_rect(Rect2(-w * 0.5, wy, w * progress, WORK_H), Color(0.95, 0.8, 0.3))
 	elif kind == "farm" and (team == game.human or game.spectating()):
-		var w := r.size.x * 0.7
-		# (just under the crew label and above the windmill's top: lower it hid behind the mill)
-		draw_rect(Rect2(-w * 0.5, top - 1, w, 4).grow(1), Color(0, 0, 0, 0.7))
-		draw_rect(Rect2(-w * 0.5, top - 1, w * growth, 4), Color(0.95, 0.85, 0.3))
+		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7))
+		draw_rect(Rect2(-w * 0.5, wy, w * growth, WORK_H), Color(0.95, 0.85, 0.3))
 	elif not queue.is_empty() and team == game.human:
-		var w := r.size.x * 0.7
 		var k: String = queue[0]
 		var f: float = prod_t / entry_time(k)
-		draw_rect(Rect2(-w * 0.5, top + 7, w, 4).grow(1), Color(0, 0, 0, 0.7))
-		draw_rect(Rect2(-w * 0.5, top + 7, w * f, 4), Color(0.75, 0.55, 1.0) if is_research(k) else Color(0.4, 0.75, 1.0))
+		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7))
+		draw_rect(Rect2(-w * 0.5, wy, w * f, WORK_H), Color(0.75, 0.55, 1.0) if is_research(k) else Color(0.4, 0.75, 1.0))
+	if slots.has("coil") and built and coil_shown():
+		CoilGauge.draw(self, Rect2(-w * 0.5, float(slots["coil"]), w, CoilGauge.H), maxf(_coil_f, 0.0), fatigued())
 

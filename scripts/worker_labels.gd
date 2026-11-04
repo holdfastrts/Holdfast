@@ -260,7 +260,7 @@ static func layout(g: Game, e: Entity, font: Font = null) -> Dictionary:
 	if e is Building:
 		var b := e as Building
 		x = b.global_position.x
-		y = b.global_position.y + b.bar_top() - 7.0
+		y = b.global_position.y + float(b.bar_slots()["label"]) - 5.0      # (its plate's bottom on its row of the bar stack)
 		if b.haul_cap() > 0:
 			key = b.kind if WORDS.has(b.kind) else "town_hall"
 			var have := b.haulers().size()
@@ -287,7 +287,7 @@ static func layout(g: Game, e: Entity, font: Font = null) -> Dictionary:
 	elif e is Unit and BroodNew.is_source(e):
 		var u := e as Unit
 		x = u.position.x
-		y = u.position.y + BroodNew.label_top(u) - 7.0
+		y = u.position.y + BroodNew.label_bottom(u) - 5.0      # (its plate's bottom on its row of the bar stack)
 		var cm := BroodNew.crew_max(g, u)
 		var have3 := BroodNew.crew(g, u)
 		var txt := BroodNew.crew_label(g, u)

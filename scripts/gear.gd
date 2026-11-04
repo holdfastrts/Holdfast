@@ -1022,7 +1022,7 @@ func _draw_top() -> void:
 			col = Color(1.0, 0.72, 0.3)
 		if txt == "":
 			continue
-		_badge(font, b.rect().get_center() + Vector2(0, -b.rect().size.y * 0.5 - 14.0), txt, col)
+		_badge(font, b.global_position + Vector2(0, float(b.bar_slots()["badge"]) - 8.0), txt, col)      # (its row of the bar stack)
 
 
 ## THE SPRING MARK (owner, 2026-10-27): a little brass coil over a building fed by a Mainspring (through the gear network:
