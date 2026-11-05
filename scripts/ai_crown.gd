@@ -61,10 +61,27 @@ const LAB_COST := 50
 ## the Foundry"): the cannon's canister also hits flyers and its round shot has the longest range in the game. The plans
 ## below are written so, and _construct holds it for every other caller (the shared rules, the scout's plan, the bank).
 const PLANS := {
-	# the Economy plan: the second Farm at 7 labourers, the Gate, the Barracks and the Mill at 8, six Musketeers, then the
-	# second hall at 15 labourers (about 3:10); the Foundry, then the second Barracks; the army waits on the high ground
-	"economy": {"opening": "mill", "labs": 99, "army": 0.4, "mill": [[0, 2], [14, 4], [18, 6]],
+	# the Economy plan, THE OWNER'S OWN OPENING (crown-owner-eco, docs/crown_owner_eco.md; his Highmoor game 0.30.8: the ramp
+	# Cottage and its Gate at 0:36, the second Farm, the SECOND HALL DONE AT 2:46 before any Barracks, a Farm at the new hall
+	# at once, the Mill, then the Barracks at 3:29): no Barracks on a timer. The Barracks comes after the second hall, or at
+	# once when the scout sees a rush coming (_bo_defence inserts it: the shared anti-rush defence); then the Foundry before
+	# the second Barracks (the owner's rule), the Breeder for the guns' horses
+	"economy": {"opening": "mill", "labs": 99, "army": 0.4, "mill": [[0, 2], [17, 4], [22, 6]],
 		"bo": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
+			{"do": "hall", "n": 2, "at": {"labs": 11}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 15, "halls": 2}},
+			{"do": "build", "k": "barracks", "at": {"labs": 17, "halls": 2}},
+			{"do": "army", "k": "musketeer", "cap": 6},
+			{"do": "build", "k": "foundry", "at": {"labs": 21}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 23}},
+		],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {"halls": 2}],
+			["barracks", 3, {"labs": 26}], ["barracks", 4, {"labs": 32}], ["church", 1, {"labs": 38, "halls": 2}],
+			["armoury", 1, {"labs": 42}], ["foundry", 2, {"labs": 44, "halls": 3}]],
+		"bo_old": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
 			{"do": "wall_gate", "at": {"labs": 7}},
@@ -73,15 +90,42 @@ const PLANS := {
 			{"do": "army", "k": "musketeer", "cap": 6},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
 		],
-		"mid": [["barracks", 1, {}], ["foundry", 1, {"labs": 20, "halls": 2}], ["horse_breeder", 1, {"labs": 20}],
+		"mid_old": [["barracks", 1, {}], ["foundry", 1, {"labs": 20, "halls": 2}], ["horse_breeder", 1, {"labs": 20}],
 			["barracks", 2, {"labs": 22, "halls": 2}], ["armoury", 1, {"labs": 30}], ["barracks", 3, {"labs": 34}],
 			["church", 1, {"labs": 40, "halls": 2}], ["foundry", 2, {"labs": 48, "halls": 3}]],
-		"s": {"wave": 34, "step": 10}},
-	# Balanced: the safe Musketeer opening (the ramp Cottage and its Gate, the Barracks and the Mill at once: three Musketeers
-	# by about 2:30 against a rush, tools/test_ai_wall_vs_rush.gd), the second Farm, the Breeder for a rider scout, the second
-	# hall at 15 labourers
-	"balanced": {"opening": "mill", "labs": 99, "army": 0.55, "mill": [[0, 3], [13, 5], [16, 6]],
+		"s": {"wave": 34, "step": 10}, "owner": true},
+	# Balanced: the owner's opening too (crown-owner-eco: "if you scout a rush you need a Barracks, but if you don't scout
+	# that, why make a Barracks?"): the ramp Cottage and its Gate, the second Farm, the second hall at 11 labourers; the
+	# Barracks and the Mill come right behind the hall (sooner than the Economy plan's), more Musketeers, the Breeder for a
+	# rider scout; a scouted rush puts the Barracks and the Mill up at once (_bo_defence; tools/test_ai_wall_vs_rush.gd)
+	"balanced": {"opening": "mill", "labs": 99, "army": 0.55, "mill": [[0, 3], [16, 5], [20, 6]],
 		"bo": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
+			{"do": "hall", "n": 2, "at": {"labs": 11}},
+			{"do": "build", "k": "barracks", "at": {"labs": 14, "halls": 2}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 14, "halls": 2}},
+			{"do": "army", "k": "musketeer", "cap": 8},
+		],
+		# (the Breeder and the Foundry are milestones: an opening that went on to them kept the army at 8 supply till 6:30)
+		# (against the Brood: the Barracks and the Mill at 7 labourers as before. The Brood's fastest rush has Raptors at our
+		# ramp by ~1:50 and the scout's first look comes at ~1:10: a Barracks laid on what it sees is up at ~1:50 and its first
+		# Musketeer comes at ~2:40, after the gate fell (tools/test_ai_wall_vs_rush.gd, the owner's 6-pool anchor). The
+		# reason is the matchup: the second hall at 12 labourers right behind them)
+		"bo_brood": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "army", "k": "musketeer", "cap": 8},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "hall", "n": 2, "at": {"labs": 12}},
+		],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["barracks", 2, {}], ["horse_breeder", 1, {}],
+			["barracks", 3, {"labs": 24}], ["barracks", 4, {"labs": 30}], ["armoury", 1, {"labs": 30}],
+			["church", 1, {"labs": 36, "halls": 2}], ["foundry", 2, {"labs": 42, "halls": 3}]],
+		"bo_old": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
 			{"do": "build", "k": "barracks", "at": {"labs": 7}},
@@ -91,10 +135,10 @@ const PLANS := {
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 13}},
 			{"do": "hall", "n": 2, "at": {"labs": 15}},
 		],
-		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {"labs": 18}], ["barracks", 2, {"labs": 18}],
+		"mid_old": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["foundry", 1, {"labs": 18}], ["barracks", 2, {"labs": 18}],
 			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
 			["foundry", 2, {"labs": 44, "halls": 3}]],
-		"s": {"wave": 18, "step": 8}},
+		"s": {"wave": 18, "step": 8}, "owner": true},
 	# Timing attack: one hall, the Foundry, the Breeder, the second Barracks (a cannon goes with the wave) and the first wave of
 	# 22 supply (about 5:30); the second hall goes down behind it (the milestones)
 	"timing": {"opening": "mill", "labs": 19, "army": 0.7, "mill": [[0, 3], [14, 5]],
@@ -232,6 +276,11 @@ func _ready() -> void:
 	if game.mlog:
 		game.mlog.add("%s opens with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
 	scout = AIScout.new(self)
+	if owner_on():
+		# (crown-owner-eco: no Barracks without a reason, so the scout leaves at once to see a rush in time: a Brood that
+		# rushes has its Tyrant Sire by 0:40, our labourer walks there in ~50 s)
+		scout.next_trip = OWNER_SCOUT_AT
+		scout.min_workers = 4
 	var bo_key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"      # (a plan may open otherwise against the Brood)
 	_bo_plan = (plan[bo_key] as Array).duplicate(true) if difficulty >= 1 else []
 	bo_lab_cap = int(plan.get("labs", 99))
@@ -251,6 +300,12 @@ func _ready() -> void:
 func _make_plan() -> void:
 	_plan_of = strategy
 	plan = (PLANS.get(strategy, PLANS["balanced"]) as Dictionary).duplicate(true)
+	if OS.get_cmdline_user_args().has("owner:off") and plan.has("bo_old"):
+		plan["bo"] = plan["bo_old"]          # (crown-owner-eco off: the 0.30.8 opening and milestones, for "before" games)
+		plan["mid"] = plan["mid_old"]
+		plan.erase("owner")
+		if strategy == "balanced":
+			plan.erase("bo_brood")
 	for k in over:
 		plan[k] = over[k]
 
@@ -332,6 +387,8 @@ func _army_due() -> bool:
 	if _foe_is("brood"):
 		share = maxf(share, ARMY_BROOD)       # (the Brood's Timing attack comes at 5:45-6:30 with 15-30 creatures: ba3 Red Coast)
 	var short: bool = _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) < int(share * game.workers(team).size())
+	if short and owner_labs(game.workers(team).size()):
+		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
 	if not short and blind_guard() and not brood_army_off:
 		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
 		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
@@ -350,6 +407,8 @@ func _plan_tech() -> bool:
 # ------------------------------------------------------------------ the think
 
 func _think_stage(i: int) -> void:
+	if i == 1:
+		_owner_tick()           # (crown-owner-eco: the layout, the new hall's Farm, the wagons)
 	if i == 1 and not cannon_first:
 		_cannon_check()         # (CANNONS AGAINST THE BROOD, below)
 	if not bo_owns():
@@ -440,6 +499,9 @@ func _bo_tick() -> void:
 	if _defending() and not _def_on:
 		_def_on = true
 		_bo_defence()
+	elif not _def_on and not _safe_on and _safe_reason() != "":
+		_safe_on = true
+		_bo_safe()
 	if _attacking:
 		_bo_end("the first attack is out")
 		return
@@ -449,6 +511,15 @@ func _bo_tick() -> void:
 	if _halls().filter(func(h: Building) -> bool: return h.built).is_empty():
 		return
 	bo_reserve = 0
+	if owner_on():
+		# (crown-owner-eco: the Cottages ahead of the supply, and a Farm at a new hall at once, before the next step)
+		if _supply_ahead() and _sup_want > 0:
+			bo_reserve = _sup_want
+			return
+		var hf := _hall_farm()
+		if hf > 0:
+			bo_reserve = hf
+			return
 	if _supply_due():
 		var c := int(Defs.BUILDINGS["cottage"]["cost"])
 		if _gold() >= c:
@@ -520,6 +591,34 @@ func _bo_defence() -> void:
 	say("a rush is scouted: the wall, the Barracks and the Mill first, soldiers before labourers, no new hall till it is held")
 
 
+## THE BALANCED PLAN PLAYS SAFE ON A BLIND LOOK (crown-owner-eco): the owner's plans build no Barracks without a reason;
+## on Balanced a first look at the enemy that saw nothing of its army or economy ("could not see the enemy": the scout's
+## verdict "uncertain") before SAFE_BY is one (a Brood rush keeps its Raptors out of sight till 1:13; the Economy plan takes
+## that risk). The Barracks and the Mill come next and the soldiers from then on; no soldiers-first, the hall still comes.
+const SAFE_BY := 200.0
+const LOOK_WAIT := 100.0         # (s) a step waiting for the scout's first look goes by then anyway
+var _safe_on := false
+
+
+func _safe_reason() -> String:
+	if not owner_on() or strategy != "balanced" or scout == null or game.clock > SAFE_BY or not _mine("barracks").is_empty():
+		return ""
+	if scout.verdict == "uncertain":
+		return "the scout could not see the enemy's army or economy"
+	return ""
+
+
+func _bo_safe() -> void:
+	var ins: Array = []
+	for st in [{"do": "build", "k": "barracks"}, {"do": "build", "k": "powder_mill"}]:
+		if not _st_done(st):
+			ins.append(st)
+	for k in ins.size():
+		_bo_plan.insert(bo_i + k, ins[k])
+	bo_army = true
+	say("plays safe (%s): the Barracks and the Mill next, then Musketeers" % _safe_reason())
+
+
 ## The soldiers come first while a rush is feared: a hall trains a labourer only when every Barracks is busy (gold the
 ## soldiers cannot use now: no powder, no supply) or the line has DEF_MUSK Musketeers.
 const DEF_MUSK := 6
@@ -558,6 +657,8 @@ func _bo_end(why: String) -> void:
 
 ## A Cottage is due: the supply is about to block (two left, more with Barracks training), none going up.
 func _supply_due() -> bool:
+	if owner_on():
+		return false            # (crown-owner-eco: _bo_tick calls _supply_ahead itself)
 	var cap: int = game.players[team]["cap"]
 	if cap >= game.max_supply(team) or _mine("cottage").is_empty():
 		return false            # (the first Cottage is the ramp's: a step of its own)
@@ -622,6 +723,10 @@ func _st_ready(st: Dictionary) -> bool:
 		return false
 	if at.has("has") and _mine(String(at["has"])).filter(func(b: Building) -> bool: return b.built).is_empty():
 		return false
+	if at.has("halls") and _halls().size() < int(at["halls"]):
+		return false            # (crown-owner-eco: the Barracks after the second hall is laid)
+	if at.has("look") and scout != null and scout.verdict == "pending" and game.clock < LOOK_WAIT:
+		return false            # (crown-owner-eco: after the scout's first look)
 	return true
 
 
@@ -630,8 +735,14 @@ func _st_near(st: Dictionary) -> bool:
 	var at: Dictionary = st.get("at", {})
 	if at.has("army") or at.has("has"):
 		return false
+	if at.has("halls") and _halls().size() < int(at["halls"]):
+		return false
+	if at.has("look") and scout != null and scout.verdict == "pending" and game.clock < LOOK_WAIT:
+		return false
 	if String(st["do"]) == "hall" and _hall_waits_gun():
 		return false            # (the gun's gold is not set aside for the hall)
+	if String(st["do"]) == "hall" and _defending():
+		return false            # (crown-owner-eco: no hall's gold kept from the soldiers while a rush is feared)
 	if at.has("sup") and game.supply_used(team) < int(at["sup"]) - 1:
 		return false
 	if at.has("labs") and game.workers(team).size() < int(at["labs"]) - 1:
@@ -828,6 +939,12 @@ func _mill_feedback(mills: int) -> int:
 func _hall_first() -> bool:
 	if not on or not bo_done or difficulty < 1 or _halls().size() < 2:
 		return super()
+	if not owner_hall_ok():
+		# (crown-owner-eco: the third hall when the two are full, not at a labourer count of 16 a hall: his third at 8:15 with
+		# 42 labourers on two halls; the computer's at 5:50 with 33 took the army's gold and was the first lost)
+		_hall_reserve = false
+		_saving = false
+		return false
 	if _best_soil() >= DRY_LAND and (_threat() != Vector2.INF or ch.foe_near() > ch.home_value() * 1.2):
 		_hall_reserve = false
 		_saving = false
@@ -900,6 +1017,8 @@ var site_picks := 0             # (tests, the coach) halls placed by the Crown's
 
 
 func _safe_hall_spot() -> Vector2i:
+	if not owner_hall_ok():
+		return Vector2i(-1, -1)     # (crown-owner-eco: the shared bank's hall waits too)
 	if not on or not sites_on or difficulty < 1 or not doctrine():
 		return super()
 	var mids: Array = []
@@ -1114,7 +1233,8 @@ func _build_up() -> void:
 
 
 func _mid_tick() -> void:
-	if gun_saves and _gun_waiting() and _gun_can():
+	var gun_hold := gun_saves and _gun_waiting() and _gun_can()
+	if gun_hold and not owner_on():
 		return                  # (the first Field Cannon's gold first: CANNONS AGAINST THE BROOD)
 	var labs := game.workers(team).size()
 	var halls := _halls().filter(func(h: Building) -> bool: return h.built).size()
@@ -1125,6 +1245,8 @@ func _mid_tick() -> void:
 		var k := String(m[0])
 		if _mine(k).size() >= int(m[1]):
 			continue
+		if gun_hold and not (k == "barracks" or k == "foundry" or k == "horse_breeder"):
+			continue            # (crown-owner-eco: the gun's gold holds the tech back, not the production)
 		var at: Dictionary = m[2]
 		if labs < int(at.get("labs", 0)) or halls < int(at.get("halls", 0)) or army < int(at.get("army", 0)):
 			continue
@@ -1139,6 +1261,8 @@ func _mid_tick() -> void:
 		if _mine(k).size() > n0:
 			say("milestone: %s %d (%d labourers, %d halls, army %d supply)" % [String(Defs.BUILDINGS[k]["name"]), int(m[1]), labs, halls, army])
 		return
+	if not gun_hold:
+		_scale_prod()           # (crown-owner-eco: every milestone up: more production as the income grows)
 
 
 # ------------------------------------------------------------------ the Dragoon raids (crown-builds-a)
@@ -1543,3 +1667,365 @@ func _hunt_answer(party: Array) -> float:
 			continue
 		v += _unit_value(o)
 	return v
+
+
+# ------------------------------------------------------------------ THE OWNER'S ECONOMY (crown-owner-eco)
+## The owner's own Crown game (docs/playtests/2026-11-04/human_crown_v_brood_brute_siege_highmoor_0308.txt, Highmoor, Hard
+## Brood Brute siege; docs/crown_owner_eco.md): "First we need a better Crown AI ... play my way." On the Economy and
+## Balanced plans (PLANS[...]["owner"]), Normal and up; `-- owner:off` plays as 0.30.8:
+##  - no Barracks on a timer: the opening's Barracks comes after the second hall (the plans) or when the scout sees a rush
+##    (_bo_defence), and no wall slot of the new hall takes a Barracks before that (slot_barracks_ok);
+##  - A FARM AT EVERY NEW HALL AT ONCE (_hall_farm): its gold set aside as the hall nears completion, laid the moment it
+##    stands (his 3:01 farm at the 2:46 hall; the computer's new hall waited 3:52 -> 5:14);
+##  - COTTAGES AHEAD OF THE SUPPLY (_supply_ahead): as many going up at once as the production eats in the time one takes
+##    to build, so it is never blocked with gold in the bank (his own mistake: 105-114/126 for two minutes, 2,600 unspent);
+##  - THE NATURAL'S PALISADE RING by 4-6 minutes in every matchup (owner_walls: the Brood rule of AIExpandWall, a minute
+##    after the hall stands; his ring went down 3:49-5:42);
+##  - PRODUCTION SCALED TO THE INCOME (_scale_prod): Barracks (a Foundry every few) while what they can spend is under the
+##    gold coming in (his 3 Barracks by 5:19, 6 by 6:53, 13 by 11:12 on ~1,500 gold a minute); research from the bank;
+##  - THE BASE LAYOUT (scripts/ai_crown_layout.gd): Cottages packed at the back edge, production in rows with lanes, farms
+##    and the Mill by their hall;
+##  - Powder Wagons spread out at home, never parked together (his four blew up in a chain at 15:20).
+const AICrownLayout := preload("res://scripts/ai_crown_layout.gd")
+var owner_off := OS.get_cmdline_user_args().has("owner:off")
+var layout_off := OS.get_cmdline_user_args().has("layout:off")
+var lay = null                   # AICrownLayout (made on the first think)
+var hall_farm_log: Array = []    # [hall stood at, farm laid at] (tests, the coach)
+var _hall_farm_seen := {}        # hall id -> clock it stood
+var supply_log: Array = []       # [clock, cottages going up at once] when two or more were started together (the coach)
+var prod_log: Array = []         # [clock, kind, income a minute, what the production can spend a minute]
+const HALL_FARM_NEAR := 0.8      # a hall this far built: its Farm's gold is set aside already
+const SUPPLY_LEAD := 26.0        # (s) a Cottage's build (20 s) and its builder's walk: the supply ahead covers this long
+const SUPPLY_MAX_AT_ONCE := 4
+const PROD_SPEND := {"barracks": 240.0, "foundry": 320.0}      # gold a minute one keeps busy (a Musketeer 60 / 15 s; a gun 170 / 32 s)
+const PROD_SHARE := 0.85         # production for this share of the gold coming in (the rest: labourers, buildings, research)
+const PROD_FOUNDRY_EVERY := 5    # a Foundry for every so many Barracks
+const PROD_MAX_BARRACKS := 14
+const OWNER_SCOUT_AT := 2.0      # (s) the first scout leaves (AIScout.START_AT 18 on the other plans)
+const OWNER_HALL3_LABS := 40     # labourers on two halls before the third (two halls' posts: 4 Farms of 8, 2 Mills of 6 = 44)
+const OWNER_HALL3_SOIL := 0.35   # ... or the best soil under this
+
+
+## THE NEXT HALL WHEN THE HALLS ARE FULL AND THE ARMY CAN HOLD THEM (the owner's third at 8:15 with 42 labourers and 29
+## Musketeers, his fourth at 12:25; the computer's at 5:50 and 7:30 took the army's gold and were the first lost): from the
+## third hall on, OWNER_HALL3_LABS labourers and an army of OWNER_HALL_ARMY times them, or the best soil under
+## OWNER_HALL3_SOIL. The opening's second hall is not held.
+const OWNER_HALL_ARMY := 0.7
+
+
+func owner_hall_ok() -> bool:
+	if not owner_on() or _halls().size() < 2:
+		return true
+	if _best_soil() < OWNER_HALL3_SOIL:
+		return true
+	var labs := game.workers(team).size()
+	return labs >= OWNER_HALL3_LABS + 10 * (_halls().size() - 2) and _army_supply(game.army(team)) >= int(OWNER_HALL_ARMY * labs)
+
+
+## LABOURERS NON-STOP up to two halls' worth (the owner's 38 at 7:00, 42 at 8:00): the shared holds that wait for the army
+## first (AIRound5.hold_labourers against the Clockwork) let them come on the owner's plans, unless a rush is feared or the
+## enemy is at our buildings.
+func owner_labs(labs: int) -> bool:
+	return owner_on() and labs < OWNER_HALL3_LABS and not _defending() and _threat() == Vector2.INF
+
+
+func owner_on() -> bool:
+	return on and not owner_off and difficulty >= 1 and bool(plan.get("owner", false))
+
+
+func _layout_on() -> bool:
+	return owner_on() and not layout_off
+
+
+## (AIExpandWall._fill_slot asks) a wall slot of a new hall may take a Barracks: not in the owner's opening before its own
+## Barracks step or a scouted rush ("why make a Barracks if you don't scout a rush?").
+func slot_barracks_ok() -> bool:
+	if not owner_on() or bo_done or not _mine("barracks").is_empty() or _defending():
+		return true
+	for k in range(bo_i, _bo_plan.size()):
+		var st: Dictionary = _bo_plan[k]
+		if String(st["do"]) == "build" and String(st["k"]) == "barracks":
+			return _st_ready(st)
+	return true
+
+
+## (AIExpandWall.brood_walls asks) the natural is walled at once in every matchup on the owner's plans, from a while after
+## the hall stands (the labourers and the hall's Farm first: his ring went down a minute after the hall).
+const OWNER_WALL_AFTER := 45.0
+
+
+func owner_walls() -> bool:
+	if not owner_on():
+		return false
+	for h in _halls():
+		if h.built and float(_hall_farm_seen.get(h.get_instance_id(), 1e9)) + OWNER_WALL_AFTER <= game.clock:
+			return true
+	return false
+
+
+## The main hall (nearest our start).
+func main_hall() -> Building:
+	var best: Building = null
+	if game.starts.size() <= team:
+		return null
+	var st := Vector2(game.starts[team]) * Defs.TILE
+	for h in _halls():
+		if best == null or h.center().distance_to(st) < best.center().distance_to(st):
+			best = h
+	return best
+
+
+func _farms_at(h: Building) -> int:
+	var n := 0
+	for f in _mine("farm"):
+		if game.nearest_hall(f.center(), team) == h:
+			n += 1
+	return n
+
+
+## A FARM AT EVERY NEW HALL AT ONCE. Returns the gold to set aside (0: nothing due).
+func _hall_farm() -> int:
+	if not owner_on() or game.econ_count(team, "farm") >= game.econ_limit(team, "farm"):
+		return 0
+	var cost := int(Defs.BUILDINGS["farm"]["cost"])
+	for h in _halls():
+		var id: int = h.get_instance_id()
+		if h.built and not _hall_farm_seen.has(id):
+			_hall_farm_seen[id] = game.clock
+		if h == main_hall() or _land(h) < DRY_LAND or _farms_at(h) > 0:
+			continue
+		if not h.built:
+			if h.progress >= HALL_FARM_NEAR:
+				return cost      # (its gold kept while the last stretch goes up)
+			continue
+		if _gold() < cost:
+			return cost
+		var spot := Vector2i(-1, -1)
+		if lay != null:
+			spot = lay.econ_spot("farm", h)
+		if spot.x < 0:
+			spot = game.find_spot(team, "farm", h, 4, Defs.ECON_RANGE - 2, "behind", true)
+		if spot.x < 0:
+			spot = game.find_spot(team, "farm", h, 4, Defs.ECON_RANGE - 2, "behind")
+		if spot.x < 0:
+			continue
+		var n0 := _mine("farm").size()
+		_construct("farm", spot)
+		if _mine("farm").size() > n0:
+			hall_farm_log.append([float(_hall_farm_seen.get(id, game.clock)), game.clock])
+			say("a Farm at its new hall at once (%d s after it stood)" % int(game.clock - float(_hall_farm_seen.get(id, game.clock))))
+			return 0
+		return cost
+	return 0
+
+
+## COTTAGES AHEAD OF THE SUPPLY: the supply the production and the halls eat in SUPPLY_LEAD s, plus two; as many Cottages
+## going up at once as that takes (SUPPLY_MAX_AT_ONCE at most). True when one was started or is wanted (its gold: `want`).
+var _sup_want := 0
+
+
+func _supply_ahead() -> bool:
+	_sup_want = 0
+	var cap: int = game.players[team]["cap"]
+	var top: int = game.max_supply(team)
+	if cap >= top or _mine("cottage").is_empty():
+		return false
+	var rate := 0.0
+	for b in _mine("barracks"):
+		if b.built:
+			rate += 1.0 / 15.0
+	for b in _mine("foundry"):
+		if b.built:
+			rate += 4.0 / 32.0
+	for h in _halls():
+		if h.built:
+			rate += 1.0 / 12.0
+	var margin := 2 + int(ceil(rate * SUPPLY_LEAD))
+	if not bo_done:
+		# (the opening's margin, as before: two, and two a Barracks; the gold of a Cottage too early is a Musketeer missing
+		# against a rush, tools/test_ai_wall_vs_rush.gd)
+		margin = 2 + 2 * _mine("barracks").filter(func(b: Building) -> bool: return b.built).size() + _halls().filter(func(h: Building) -> bool: return h.built).size() - 1
+	var going := _mine("cottage").filter(func(b: Building) -> bool: return not b.built).size()
+	var ahead := cap + 8 * going
+	if ahead - game.supply_used(team) > margin or ahead >= top or going >= SUPPLY_MAX_AT_ONCE:
+		return false
+	var cost := int(Defs.BUILDINGS["cottage"]["cost"])
+	var started := 0
+	while ahead - game.supply_used(team) <= margin and ahead < top and going < SUPPLY_MAX_AT_ONCE:
+		if _gold() < cost:
+			_sup_want = cost
+			break
+		var n0 := _mine("cottage").size()
+		_construct("cottage")
+		if _mine("cottage").size() <= n0:
+			break
+		going += 1
+		started += 1
+		ahead += 8
+	if started >= 2:
+		supply_log.append([game.clock, started])
+	return started > 0 or _sup_want > 0
+
+
+func _supply() -> void:
+	if owner_on():
+		_supply_ahead()
+		return
+	super()
+
+
+## PRODUCTION SCALED TO THE INCOME (after the milestones): a Barracks (every PROD_FOUNDRY_EVERY-th time a Foundry) while what
+## the production can spend a minute is under PROD_SHARE of the gold earned in the last minute and a half, every Barracks
+## and Foundry is busy, and nothing else is going up.
+var _inc_samples: Array = []     # [clock, gold earned so far]
+
+
+func income() -> float:
+	var earned := float(game.stats[team]["gold"])
+	if _inc_samples.is_empty() or game.clock - float(_inc_samples[-1][0]) >= 5.0:
+		_inc_samples.append([game.clock, earned])
+	while _inc_samples.size() > 2 and game.clock - float(_inc_samples[1][0]) >= 90.0:
+		_inc_samples.pop_front()
+	var a: Array = _inc_samples[0]
+	var dt := game.clock - float(a[0])
+	if dt < 30.0:
+		return 0.0
+	return (earned - float(a[1])) * 60.0 / dt
+
+
+func _scale_prod() -> void:
+	if not owner_on() or _hall_reserve or _saving:
+		return
+	var inc := income()
+	if inc <= 0.0:
+		return
+	var nb := _mine("barracks").size()
+	var nf := _mine("foundry").size()
+	if nb == 0 or nf == 0 or _busy_building("barracks") or _busy_building("foundry"):
+		return
+	var spend := nb * float(PROD_SPEND["barracks"]) + nf * float(PROD_SPEND["foundry"])
+	# (labourers still coming: their gold is not the soldiers')
+	var lab_spend := 0.0
+	if game.workers(team).size() < _posts():
+		lab_spend = 250.0 * _halls().filter(func(h: Building) -> bool: return h.built).size()
+	if spend >= (inc - lab_spend) * PROD_SHARE:
+		return
+	var idle := false
+	for b in _mine("barracks") + _mine("foundry"):
+		if b.built and (b.queue as Array).is_empty():
+			idle = true
+	if idle and _gold() < 600:
+		return                  # (a free Barracks with no gold to use it: more would idle too)
+	var k := "foundry" if nb >= PROD_FOUNDRY_EVERY * nf else "barracks"
+	if k == "barracks" and nb >= PROD_MAX_BARRACKS:
+		return
+	if _gold() < int(Defs.BUILDINGS[k]["cost"]) + 60:
+		return
+	var n0 := _mine(k).size()
+	_construct(k)
+	if _mine(k).size() > n0:
+		prod_log.append([game.clock, k, int(inc), int(spend)])
+		say("more production: %s %d (income %d a minute, the production spends %d)" % [String(Defs.BUILDINGS[k]["name"]), _mine(k).size(), int(inc), int(spend)])
+
+
+## BUILDINGS BY THE LAYOUT (scripts/ai_crown_layout.gd): a new hall's wall slot first (AIExpandWall), then the layout's
+## slot for the kind, then the shared search.
+func _find_spot(kind: String) -> Vector2i:
+	if _layout_on() and lay != null:
+		var xs: Vector2i = xw.slot_for(kind)
+		if xs.x >= 0:
+			return xs
+		var sp: Vector2i = lay.slot(kind)
+		if sp.x >= 0:
+			return sp
+	return super(kind)
+
+
+func _econ_spot(kind: String) -> Vector2i:
+	if _layout_on() and lay != null and (kind == "farm" or kind == "powder_mill"):
+		var halls := _halls().filter(func(h: Building) -> bool: return h.built)
+		if kind == "farm":
+			halls.sort_custom(func(a: Building, b: Building) -> bool: return a.soil_left() > b.soil_left())
+		else:
+			halls.sort_custom(func(a: Building, b: Building) -> bool: return a.lode_left() > b.lode_left())
+		for h in halls:
+			var inside: Vector2i = xw.inside_spot(kind, h)
+			if inside.x >= 0:
+				return inside
+			var sp: Vector2i = lay.econ_spot(kind, h)
+			if sp.x >= 0:
+				return sp
+	return super(kind)
+
+
+## The tech kept on the main's plateau (AI._keep_tech) is kept in the layout's next production slot instead.
+func _keep_tech() -> void:
+	if not _layout_on() or lay == null:
+		super()
+		return
+	if _mine("barracks").is_empty():
+		return
+	if not game.ai_keep.has(team):
+		game.ai_keep[team] = {}
+	var keeps: Dictionary = game.ai_keep[team]
+	for k in KEY_TECH:
+		if not _mine(k).is_empty():
+			keeps.erase(k)
+			continue
+		if keeps.has(k) and game.placement_problem(team, k, keeps[k]["cell"], true) == "":
+			continue
+		keeps.erase(k)
+		var sp: Vector2i = lay.slot(k, true)
+		if sp.x >= 0:
+			keeps[k] = {"cell": sp, "t": game.clock}
+
+
+## POWDER WAGONS SPREAD OUT (his four parked together blew up in a chain at 15:20 and took the army with them): at home
+## each wagon stands by a different hall, WAGON_GAP apart at least, and never by the ramp post's line.
+const WAGON_GAP := 6.0           # (tiles)
+
+
+func _wagons() -> Array:
+	var out: Array = []
+	for u in game.units:
+		if u.team == team and not u.dead and u.kind == "powder_wagon":
+			out.append(u)
+	return out
+
+
+func _spread_wagons() -> void:
+	var ws := _wagons()
+	if ws.size() < 2 or _attacking:
+		return
+	var halls := _halls().filter(func(h: Building) -> bool: return h.built)
+	if halls.is_empty():
+		return
+	var T := float(Defs.TILE)
+	var taken: Array = []
+	var k := 0
+	for w in ws:
+		if w == _wagon():
+			taken.append(w.position)
+			continue
+		var h: Building = halls[(k + 1) % halls.size()]
+		k += 1
+		var spot: Vector2 = game.approach_point(h, h.center() + Vector2(0, 3 * T).rotated(float(k) * 2.1))
+		for t in taken:
+			if (t as Vector2).distance_to(spot) < WAGON_GAP * T:
+				spot += ((spot - h.center()).normalized() if spot != h.center() else Vector2.RIGHT) * WAGON_GAP * T
+		taken.append(spot)
+		if w.position.distance_to(spot) > 60.0 and (w.order != "move" or w.order_point.distance_to(spot) > 60.0):
+			w.cmd_move(spot)
+
+
+## (stage 1 of the think, every plan on the owner's rules)
+func _owner_tick() -> void:
+	if not owner_on():
+		return
+	if lay == null and _layout_on():
+		lay = AICrownLayout.new(self)
+	if lay != null:
+		lay.tick()
+	if bo_done:
+		_hall_farm()
+		_spread_wagons()

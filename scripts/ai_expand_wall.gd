@@ -177,6 +177,8 @@ func _fill_slot(p: Dictionary, s: Dictionary) -> void:
 		return          # (CROWN ECONOMY FIRST: no Church or Barracks in a slot while a Farm is due or the hands are short)
 	if kind == "barracks" and (ai._mine("barracks").size() >= 9 or spare < 100):
 		return
+	if kind == "barracks" and ai.has_method("slot_barracks_ok") and not ai.slot_barracks_ok():
+		return          # (crown-owner-eco: no Barracks before the opening's own, unless a rush is scouted)
 	ai._construct(kind, s["cell"])
 	s["b"] = _building_at(s["cell"], s["size"])
 
@@ -229,7 +231,8 @@ func _lay_pieces(p: Dictionary) -> void:
 			keep += int(ai.brood_wall_keep())
 		# (the labourers first: a hall that could train one and is not gets its gold before the wall; with the wall laid
 		# at once the Economy plan had 19-20 labourers at 6:00 instead of 27, test_crown_build_order)
-		if game.workers(ai.team).size() < ai._posts():
+		if game.workers(ai.team).size() < ai._posts() and not (ai.has_method("owner_on") and ai.owner_on() and closed_share(p) < CLOSED_SHARE):
+			# (crown-owner-eco: the owner's ring before the next labourers: his palisade went down 3:49-5:42 in bursts)
 			for h in game.halls_of(ai.team, true):
 				if h.built and (h.queue as Array).is_empty():
 					keep += 50
@@ -337,6 +340,8 @@ var brood_on := not OS.get_cmdline_user_args().has("xwbrood:off")
 
 
 func brood_walls() -> bool:
+	if brood_on and ai.has_method("owner_walls") and ai.owner_walls():
+		return true             # (crown-owner-eco: the owner's plans wall the natural at once in every matchup)
 	return brood_on and ai.has_method("blind_guard") and ai._foe_is("brood") and ai.difficulty >= 1
 
 
@@ -348,8 +353,9 @@ func keep() -> int:
 	var debt := 0
 	for id in plans:
 		var p: Dictionary = plans[id]
-		if not p.get("ok", false) or ai._unsafe((p["hall"] as Building).center()):
-			continue
+		var ph = p.get("hall")
+		if not p.get("ok", false) or ph == null or not is_instance_valid(ph) or (ph as Building).dead or ai._unsafe((ph as Building).center()):
+			continue            # (crown-owner-eco: a hall lost since the last tick is skipped: it was a freed-object error)
 		for e in p["pieces"]:
 			var c: Vector2i = e[1]
 			if game.solid[game.idx(c)] != 0 or game.side_ghost_at(ai.team, c) != null:

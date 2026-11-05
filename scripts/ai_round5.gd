@@ -120,6 +120,8 @@ func breeder_chance(normal: float) -> float:
 func hold_labourers(labs: int) -> bool:
 	if not vs_clock():
 		return false
+	if ai.has_method("owner_labs") and ai.owner_labs(labs):
+		return false            # (crown-owner-eco: the owner's plans keep their labourers coming to two halls' worth)
 	if labs >= LAB_CAP:
 		return true
 	if ai.game.clock < 240.0 or labs < LAB_FLOOR:
