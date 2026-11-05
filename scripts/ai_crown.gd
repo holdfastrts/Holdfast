@@ -253,6 +253,30 @@ const PLANS := {
 			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
 			["foundry", 2, {"labs": 44, "halls": 3}]],
 		"s": {"wave": 18, "step": 8}},
+	# OPTIMAL (ai-optimal, scripts/ai_optimal.gd): THE COMMON OPENING the owner described ("most Crown games start the same:
+	# a Cottage, a Gate, then a Farm"), the scout out at once, and the build order waits at "pick" (labourers keep coming)
+	# until OPTIMAL picks a build from the read: that build's steps take over from there (opt_switch). A rush read puts the
+	# Barracks and the Mill up at once (_bo_defence), before any pick.
+	"optimal": {"opening": "mill", "labs": 99, "army": 0.5, "mill": [[0, 3], [16, 5], [20, 6]],
+		"bo": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
+			{"do": "pick"},
+		],
+		# (against the Brood: the Barracks and the Mill at 7 labourers as in Balanced's, the matchup's reason: its fastest
+		# rush is at our ramp by ~1:50, before a scout's read can put a Barracks up in time; tools/test_ai_wall_vs_rush.gd)
+		"bo_brood": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "army", "k": "musketeer", "cap": 4},
+			{"do": "pick"},
+		],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["barracks", 2, {}], ["horse_breeder", 1, {}],
+			["barracks", 3, {"labs": 24}], ["armoury", 1, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}]],
+		"s": {"wave": 18, "step": 8}, "owner": true},
 }
 
 
@@ -267,15 +291,33 @@ func _ready() -> void:
 	# (AI._ready, with the opening from the plan instead of the dice)
 	if not strategies_for("crown").has(strategy):
 		strategy = "balanced"
+	if strategy == "optimal":
+		# OPTIMAL (scripts/ai_optimal.gd): the common opening (PLANS["optimal"]: the ramp Cottage, the Gate, the second Farm,
+		# then the pick), or the Horseman rush when it leans to it before scouting (the matchup, the map)
+		opt = AIOptimal.new(self, "optimal")
+		var ln: String = opt.lean_now() if on else ""
+		if ln != "":
+			strategy = ln
 	_opened = strategy
 	_make_plan()
 	opening = String(plan.get("opening", "mill"))
 	for a in OS.get_cmdline_user_args():
 		if a == "open%d:breeder" % team or a == "open%d:mill" % team:
 			opening = a.split(":")[1]          # (study switch, as in AI._ready)
-	if game.mlog:
-		game.mlog.add("%s opens with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
+	if game.mlog and opt == null:
+		# (ai-optimal story audit: the owner's plans open with the second hall, the Barracks and the Mill after it; "a Powder
+		# Mill: Musketeers first" was wrong there. OPTIMAL tells its own opening)
+		var what := "Horse Breeder (Horseman rush)" if opening == "breeder" else ("its economy (the second hall before the Barracks)" if owner_on() else "Powder Mill (Musketeers)")
+		game.mlog.add("%s opens with %s%s" % [game.mlog.who(team), "" if owner_on() and opening != "breeder" else "a ", what])
 	scout = AIScout.new(self)
+	if opt != null and difficulty >= 1 and not peaceful:
+		scout.enabled = true            # (OPTIMAL always scouts, its Horseman rush too: the read is how it picks)
+		scout.mod = {}
+		scout.next_trip = OWNER_SCOUT_AT
+		scout.min_workers = 4
+		if strategy != "optimal":
+			opt.lean_said(strategy)
+		say("OPTIMAL: the common opening (the ramp Cottage, the Gate, the second Farm), a scout at once, then it picks its build from what it sees")
 	if owner_on():
 		# (crown-owner-eco: no Barracks without a reason, so the scout leaves at once to see a rush in time: a Brood that
 		# rushes has its Tyrant Sire by 0:40, our labourer walks there in ~50 s)
@@ -293,8 +335,43 @@ func _ready() -> void:
 		bl = AICrownBalloon.new(self)
 	if opening == "breeder" and strategy == "rush":
 		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
-	if game.mlog:
+	if game.mlog and strategy != "optimal":
+		# (OPTIMAL's common opening is not a plan of its own: the line comes when it picks, opt_switch)
 		game.mlog.add("%s's plan: %s, a build order of %d steps (scripts/ai_crown.gd)" % [game.mlog.who(team), STRATEGIES.get(strategy, STRATEGIES["balanced"])["name"], _bo_plan.size()])
+
+
+## OPTIMAL's pick (scripts/ai_optimal.gd): play build k from where the game stands. In the opening its build order takes
+## over from the next step (the steps already done are passed by: _st_done); after the opening its milestones and its own
+## parts (the siege push, the balloons, the Dragoon raids, the Horseman rush) play on.
+func opt_switch(k: String) -> bool:
+	if not on or not PLANS.has(k):
+		return super(k)
+	strategy = k
+	_opened = k
+	over.erase("mid")             # (the cannon rule's milestones were the old plan's: _cannon_check looks again)
+	cannon_first = false
+	_make_plan()
+	opening = String(plan.get("opening", "mill"))
+	if difficulty >= 1 and not bo_done:
+		var key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"
+		_bo_plan = _bo_plan.slice(0, bo_i) + (plan[key] as Array).duplicate(true)
+		bo_lab_cap = int(plan.get("labs", 99))
+		if not _def_on:
+			bo_army = false
+			bo_army_cap = 0
+		bo_army_first = false
+		_waits.clear()
+		_att_ready_t = -1.0
+	_attack_at = int(_s("wave"))
+	if k == "rush" and opening == "breeder":
+		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
+	if siege == null and siege_on():
+		siege = AICrownSiege.new(self)
+	if k == "balloon" and bl == null and difficulty >= 1:
+		bl = AICrownBalloon.new(self)
+	if game.mlog:
+		game.mlog.add("%s's plan: %s, a build order of %d steps from here (scripts/ai_crown.gd)" % [game.mlog.who(team), STRATEGIES[k]["name"], maxi(0, _bo_plan.size() - bo_i)])
+	return true
 
 
 func _make_plan() -> void:
@@ -595,7 +672,13 @@ func _bo_defence() -> void:
 	bo_army = true
 	bo_army_cap = 0
 	_step_t = -1.0
-	say("a rush is scouted: the wall, the Barracks and the Mill first, soldiers before labourers, no new hall till it is held")
+	# (ai-optimal story audit: it said "the wall, the Barracks and the Mill first" when all three stood already)
+	var names: Array = ins.map(func(st: Dictionary) -> String: return "the wall" if String(st["do"]).begins_with("wall") else "the %s" % String(Defs.BUILDINGS[st["k"]]["name"]))
+	var uniq: Array = []
+	for n in names:
+		if not uniq.has(n):
+			uniq.append(n)
+	say("a rush is scouted: %ssoldiers before labourers, no new hall till it is held" % ((", ".join(uniq) + " first, ") if not uniq.is_empty() else ""))
 
 
 ## THE BALANCED PLAN PLAYS SAFE ON A BLIND LOOK (crown-owner-eco): the owner's plans build no Barracks without a reason;
@@ -610,8 +693,8 @@ var _safe_on := false
 func _safe_reason() -> String:
 	if not owner_on() or strategy != "balanced" or scout == null or game.clock > SAFE_BY or not _mine("barracks").is_empty():
 		return ""
-	if scout.verdict == "uncertain":
-		return "the scout could not see the enemy's army or economy"
+	if scout.verdict == "uncertain" and not scout.absence_on:
+		return "the scout could not see the enemy's army or economy"     # (ai-optimal: no longer: no army for nothing)
 	return ""
 
 
@@ -766,6 +849,8 @@ func _supply_due() -> bool:
 func _st_text(st: Dictionary) -> String:
 	if String(st["do"]) == "balloons":
 		return "balloon %d" % int(st.get("n", 1))
+	if String(st["do"]) == "pick":
+		return "OPTIMAL's pick: %s" % String(STRATEGIES[strategy]["name"])
 	match String(st["do"]):
 		"wall_cottage": return "the ramp Cottage"
 		"wall_gate": return "the ramp Gate"
@@ -780,6 +865,8 @@ func _st_text(st: Dictionary) -> String:
 func _st_done(st: Dictionary) -> bool:
 	if String(st["do"]) == "balloons":
 		return bl == null or bl.balloons().size() + bl.queued() >= int(st.get("n", 1))
+	if String(st["do"]) == "pick":
+		return opt == null or strategy != "optimal"      # (OPTIMAL has picked: the build's steps follow)
 	match String(st["do"]):
 		"wall_cottage":
 			return _walled or not _cw_active() or (not _cw_plan.is_empty() and _cw_cottage() != null)
@@ -857,6 +944,8 @@ func _st_price(st: Dictionary) -> int:
 func _st_do(st: Dictionary) -> String:
 	if String(st["do"]) == "balloons":
 		return _bl_step(st)
+	if String(st["do"]) == "pick":
+		return "wait"
 	match String(st["do"]):
 		"wall_cottage", "wall_gate":
 			if _cw_active():

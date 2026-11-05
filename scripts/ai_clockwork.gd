@@ -175,10 +175,17 @@ func _ready() -> void:
 	_make_plan()
 	_b_ready()          # (cw-builds-b: the push, scripts/ai_cw_push.gd)
 	bo_on = true
-	if scout != null and not _eco_plan():
-		scout.enabled = false          # (the plan does not change on what a scout sees while it runs; its Swift scouts)
+	if scout != null and not _eco_plan() and opt == null:
+		# (the plan does not change on what a scout sees while it runs; its Swift scouts. ai-optimal: a Winder sent out cost
+		# the Springer timing a fifth of its income, 2,292 cogs by 6:00 against 4,185, and its attack. But SURVIVAL always:
+		# the scout reads what the build's own units see (passive), and a rush read gets the rush reaction (a Light Works
+		# and Clock Soldiers, BuildsEco.urgent) ahead of its steps)
+		scout.enabled = false
+		scout.passive = difficulty >= 1 and not peaceful
 	# (clockwork-eco: the Economy and Balanced openings keep the scout: rush evidence is their only reason for an early army)
 	note("plays the %s: the opening build (%d steps)" % [String(STRATEGIES[strategy]["name"]), steps.size()])
+	if opt != null:
+		note("OPTIMAL: the common opening (the economy opening: Winders non-stop, a fast second Clocktower), a scout, then it picks its build from what it sees")
 
 
 ## clockwork-eco: Economy and Balanced play a written opening (ai_cw_eco.gd) unless `-- cweco:off`.
@@ -189,7 +196,7 @@ func _eco_plan() -> bool:
 ## (clockwork-eco) While the Economy or Balanced opening runs it owns the gold: the scout's "play safe" Works (AIScout
 ## _defence: two Light Works for a scout that saw nothing) are not built; rush evidence is answered by the plan (bte.urgent).
 func bo_owns() -> bool:
-	return bo_on and _eco_plan()
+	return bo_on          # (ai-optimal: every written opening; a rush read is answered by BuildsEco.urgent in _bo_tick)
 
 
 ## (clockwork-eco) After the opening, an enemy the scout could not see is still no reason for two Works at once: only rush
@@ -213,6 +220,67 @@ func _make_plan() -> void:
 	bta = BuildsA.new(self)
 	btc = BuildsC.new(self)
 	bte = BuildsEco.new(self)
+
+
+func say(s: String) -> void:
+	note(s)
+
+
+## OPTIMAL's pick (scripts/ai_optimal.gd): play build k from where the game stands: its written opening again, the steps
+## the computer has already done passed by (_mark_existing), its own parts (the raid, the rush, the Owls, the push) made new.
+func opt_switch(k: String) -> bool:
+	var ok := PLANS.has(k) or PLANS_B.has(k) or BuildsC.PLANS.has(k) or (eco_on and BuildsEco.PLANS.has(k))
+	if not cw_on or not Defs.gear_mode or not ok:
+		return super(k)
+	var old_eco = bte
+	var was_on := bo_on
+	strategy = k
+	_opened = k
+	_make_plan()
+	if old_eco != null and old_eco.rush and bte != null:
+		# (a rush reaction under way goes on: its Works and soldiers are counted, not laid again)
+		bte.rush = true
+		bte.rush_at = old_eco.rush_at
+		bte.rush_n = old_eco.rush_n
+		bte.rush_turret = old_eco.rush_turret
+		bte._works = old_eco._works
+		bte._turret = old_eco._turret
+	_placed.clear()
+	_stood.clear()
+	_queued.clear()
+	push = null
+	_b_ready()
+	_mark_existing()
+	bo_on = true
+	_bo_cap_t = -1.0 if was_on else game.clock + OPT_BO_CAP      # (a build begun after the opening owns the gold so long at most)
+	if scout != null:
+		scout.enabled = difficulty >= 1 and not peaceful      # (OPTIMAL keeps reading while its build runs)
+	note("plays the %s from here: the opening build (%d steps, %d done already)" % [String(STRATEGIES[strategy]["name"]), steps.size(), done.count(true)])
+	return true
+
+
+## A switched build's steps that are already done: the n-th building of a kind when n of it stand (or go up), the
+## Clocktowers counting the first, the n-th soldiers step when that many stand, a research done or going.
+func _mark_existing() -> void:
+	var seen := {}
+	var units := {}
+	for i in steps.size():
+		var parts := String(steps[i]).split(" ")
+		if parts.size() >= 2 and parts[0].is_valid_int():
+			parts = parts.slice(1)
+		var head := String(parts[0])
+		if head == "press_new":
+			head = Defs.GEAR_PRESS
+		var kind := head.trim_suffix(":big")
+		if head == "research" and parts.size() >= 2:
+			done[i] = game.has_tech(team, String(parts[1])) or game.researching(team, String(parts[1]))
+		elif parts.size() >= 2 and Defs.UNITS.has(head) and parts[1].is_valid_int():
+			units[head] = int(units.get(head, 0)) + int(parts[1])
+			done[i] = game.army(team).filter(func(u: Unit) -> bool: return u.kind == head).size() >= int(units[head])
+		elif Defs.BUILDINGS.has(kind):
+			seen[kind] = int(seen.get(kind, 0)) + 1
+			var have := _mine(kind).size()
+			done[i] = have >= int(seen[kind]) + (1 if kind == "clocktower" else 0)
 
 
 func note(s: String) -> void:
@@ -358,14 +426,23 @@ func scout_from_army() -> Unit:
 
 # ------------------------------------------------------------------ the build order
 
+const OPT_BO_CAP := 300.0       # (s) OPTIMAL's switched build: its written steps for this long at most, then the shared rules
+var _bo_cap_t := -1.0
+
+
 func _bo_tick() -> void:
+	if _bo_cap_t > 0.0 and game.clock > _bo_cap_t:
+		_bo_cap_t = -1.0
+		_end_build("time: %d steps of %d done" % [done.count(true), steps.size()])
+		return
 	_watch_sites()
 	_crew_springs()
 	_hold = 0
 	_hold2 = 0.0
 	_supply_guard()
+	if bte != null:
+		bte.urgent()            # (clockwork-eco: the rush reaction, ahead of every step; ai-optimal: in every written build)
 	if bte != null and _eco_plan():
-		bte.urgent()            # (clockwork-eco: the rush reaction, ahead of every step)
 		# (clockwork-eco: Winders NON-STOP from every Clocktower, one in each queue, before the steps put cogs by: the old
 		# order saved 400 cogs for the Clocktower with the Winders stopped at 9 for a minute; the owner's own game kept
 		# them coming, 12 at 2:00, 17 at 3:00)

@@ -407,6 +407,8 @@ func _slot_row(l: NetLobby, i: int) -> Control:
 			st_opts.append(["RANDOM PLAN" if o == "random" else String(AI.STRATEGIES[o]["name"]).to_upper(), o, false])
 		var sb: Button = main._dropdown("RANDOM PLAN" if stg == "random" else String(AI.STRATEGIES[stg]["name"]).to_upper(), 150, st_opts, func(v) -> void: l.set_strategy(i, String(v)), 240.0, "", _nothing)
 		sb.tooltip_text = "How this computer player plays. The list shows the plans of this player's faction."
+		if stg == "optimal":
+			sb.tooltip_text = AI.OPTIMAL_TIP
 		sb.add_theme_color_override("font_disabled_color", UiStyle.TEXT)
 		sb.disabled = not l.is_host
 		h.add_child(sb)

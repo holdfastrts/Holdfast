@@ -68,7 +68,14 @@ const STRATEGIES := {
 	# breach). The Brood's own computer plays them; these shared numbers are Balanced's.
 	"spitter": {"name": "Spitter timing", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "brood_only": true},
 	"brute": {"name": "Brute siege", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0, "brood_only": true},
+	# OPTIMAL (ai-optimal; scripts/ai_optimal.gd, docs/ai_optimal.md): every faction. A common opening, an early scout, then
+	# it picks from ALL its faction's builds by the read, the matchup and the map, and plays that build (these numbers are
+	# only the shared computer's, which has no builds of its own: Balanced's)
+	"optimal": {"name": "Optimal", "wave": 14, "step": 8, "expand": 1.0, "halls": 3, "tech": 1.0, "workers": 1.0,
+		"tip": "plays the best it can: scouts and picks from all its builds"},
 }
+## The lobby's tooltip on the OPTIMAL plan (translated: tools/i18n/55_ai_optimal.txt).
+const OPTIMAL_TIP := "OPTIMAL plays the best it can: scouts and picks from all its builds."
 
 
 ## Which strategies this faction can use ("air" needs flyers: only the Brood has them). Plans marked "hidden" (the Turret
@@ -106,6 +113,43 @@ static func listed_strategies() -> Array:
 ## (AIClockwork weighs it by the matchup: Pendulums preferred against the Brood.)
 func random_plan(allowed: Array) -> String:
 	return String(allowed[randi() % allowed.size()])
+
+
+## THE OPTIMAL PLAN (scripts/ai_optimal.gd): made by a faction's own computer in _ready when the lobby's plan is "optimal";
+## `strategy` is then the build it plays at the moment (it changes when OPTIMAL picks), plan_key() stays "optimal".
+var opt = null
+
+
+func adaptive() -> bool:
+	return opt != null
+
+
+## The plan the lobby picked (the match log, the story, the replays).
+func plan_key() -> String:
+	return "optimal" if opt != null else strategy
+
+
+## A scout report was read (AIScout._apply; the Brood's own _nb_read): OPTIMAL picks from it.
+func on_read(verdict: String, seen: String) -> void:
+	if opt != null:
+		opt.on_read(verdict, seen)
+
+
+## OPTIMAL's pick: play build k from where the game stands. A faction's own computer does it (AICrown, AIClockwork,
+## AIBroodNew); the shared computer only takes the numbers.
+func opt_switch(k: String) -> bool:
+	if not STRATEGIES.has(k):
+		return false
+	strategy = k
+	_opened = k
+	_attack_at = int(_s("wave"))
+	return true
+
+
+## A line of the plan's (the factions' own computers write it their way).
+func say(s: String) -> void:
+	if game and game.mlog:
+		game.mlog.add("%s's plan: %s" % [game.mlog.who(team), s])
 
 
 func _s(key: String) -> Variant:
@@ -174,6 +218,9 @@ var r6_sites := r6 and not OS.get_cmdline_user_args().has("r6:nosites")
 func _ready() -> void:
 	if not strategies_for(game.faction_of(team), true).has(strategy):
 		strategy = "balanced"
+	if strategy == "optimal":
+		strategy = "balanced"
+		opt = AIOptimal.new(self, "balanced")
 	_opened = strategy
 	if game.faction_of(team) == "crown" and (strategy == "rush" or randf() < r5.breeder_chance(0.3)):
 		opening = "breeder"
@@ -561,6 +608,8 @@ func _tick_ai(delta: float) -> void:
 		return
 	_think_dt = [2.2, 1.2, 0.7, 0.4][difficulty]
 	_think = _think_dt
+	if opt != null:
+		opt.tick()                # (OPTIMAL: no read by its time, a normal game for the matchup)
 	_think_stage(0)
 	_stage = 1
 
@@ -1710,7 +1759,8 @@ func _workers() -> void:
 	_repair_wall()
 	_worker_safety()
 	for u in labs:
-		if u.order == "idle" and u.can_gather() and not _escort.has(u) and not _fled.has(u) and not _held_worker(u):
+		# (not the scout: idle a moment on its way, it was sent to a Farm and the trip ended "pulled away", ai-optimal)
+		if u.order == "idle" and u.can_gather() and not _escort.has(u) and not _fled.has(u) and not _held_worker(u) and not (scout != null and scout.is_scout(u)):
 			var site := _farm_first(u) if _crown() else null
 			if site == null:
 				site = _safe_site(u)
@@ -1822,7 +1872,10 @@ func _worker_safety() -> void:
 	for w in _fighters.keys():
 		if not is_instance_valid(w) or w.dead:
 			_fighters.erase(w)
-	var labs: Array = game.workers(team)
+	# (ai-optimal: the scout flees with the others only from shooters, which it may not see in time itself; from melee and
+	# rooted creatures its own stand-off does (AIScout._avoid): the flee list's back-and-forth near the Brood's creatures
+	# turned it round till its trip ran out and the story said "could not see the enemy")
+	var labs: Array = game.workers(team).filter(func(w: Unit) -> bool: return scout == null or not scout.is_scout(w) or _shooter_near(w))
 	var foes := {}
 	for w in labs:
 		for o in game.units_near(w.position, FLEE_R + 100.0):
@@ -2020,6 +2073,11 @@ func _fled_back() -> void:
 
 
 func _resume(w: Unit, e := {}) -> void:
+	if scout != null and scout.is_scout(w):
+		# (ai-optimal: the scout fled with the other workers but goes back to its trip, not to a Farm: "resumed" to work,
+		# its trip ended "pulled away" at 28% of the enemy's main and the story said "could not see the enemy")
+		scout.resume_trip(w)
+		return
 	var site = e.get("site", w.home_mine)
 	var build = e.get("build", null)
 	if is_instance_valid(build) and build is Building and not build.dead and not build.built:
@@ -4104,7 +4162,7 @@ func _cottage_wall() -> void:
 	_wall_done_t = -1.0
 	_assign_wall(crew, made)
 	if game.mlog:
-		game.mlog.add("%s walled its ramp with a Cottage (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if _wall_urgent() else ""])
+		game.mlog.add("%s walled its ramp with a Cottage (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if scout != null and scout.verdict == "rush" else ""])
 
 
 ## Crown: wall the top of each ramp up to the main base, with a two-wide gate in the
@@ -4195,7 +4253,7 @@ func _wall_off() -> bool:
 	_wall_done_t = -1.0
 	_assign_wall(crew, made)
 	if game.mlog:
-		game.mlog.add("%s walled its ramp (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if _wall_urgent() else ""])
+		game.mlog.add("%s walled its ramp (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if scout != null and scout.verdict == "rush" else ""])
 	return true
 
 
@@ -4255,8 +4313,8 @@ func _wall_wanted() -> bool:
 func _army_first() -> bool:
 	if not _crown() or difficulty == 0 or game.clock > 420.0 or scout == null or not scout.enabled:
 		return false
-	if not (scout.verdict == "rush" or scout.verdict == "uncertain") or tr.done:
-		return false
+	if not (scout.verdict == "rush" or (scout.verdict == "uncertain" and not scout.absence_on)) or tr.done:
+		return false            # (ai-optimal: an enemy not seen is no reason for an army first: only a seen rush is)
 	# (the defenders it has: Musketeers, and Horsemen when it opened with the Breeder: a Horseman opening makes no
 	# Musketeers for minutes, and counting only those held its Labourers at eight for seven minutes; coach round 1)
 	var muskets := game.army(team).filter(func(u: Unit) -> bool: return Defs.MUSKETS.has(u.kind) or u.kind == "cuirassier").size()
@@ -6795,6 +6853,15 @@ func _note_guns() -> void:
 	for o in game.units:
 		if o.team != team and game.hostile(o.team, team) and not o.dead and _is_gun(o) and o.order == "idle" and game.is_visible_to(team, o.position):
 			_known_guns[o.get_instance_id()] = {"u": o, "p": o.position, "t": game.clock}
+
+
+## A shooter (range 100 px or more) of the enemy's in sight within its range and a margin of this worker.
+func _shooter_near(w: Unit) -> bool:
+	for o in game.units_near(w.position, 520.0):
+		if game.hostile(o.team, team) and not o.dead and not o.off_field and not o.is_worker() and float(o.d.get("range", 0)) >= 100.0 \
+				and o.position.distance_to(w.position) < float(o.d.get("range", 0)) + 160.0 and game.is_visible_to(team, o.position):
+			return true
+	return false
 
 
 ## Is this ground, outside our own area, under a known enemy gun?
