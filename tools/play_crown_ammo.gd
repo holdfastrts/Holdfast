@@ -7,8 +7,8 @@ extends SceneTree
 ## Numbers: at 4:00, 6:00 and 8:00 (and the end) the Crown's gold and powder earned, the powder in the bank, its army
 ## (supply and value, Musketeers), the enemy's army supply; at the end its losses and kills, halls standing, the powder
 ## spent arming recruits and on refills, recruits out dry / partly armed, blows struck by firearm men with no shot, refill
-## errands, and EMPTY-FIGHT man-seconds (sampled each second: a Crown firearm man with 0 shots and an enemy within
-## 80 px; counted the same way on main).
+## errands, and EMPTY-FIGHT man-seconds (sampled each second: a Crown firearm man with 0 shots and an enemy within 200 px,
+## a musket's reach; counted the same way on main).
 var main: Node
 var g: Game
 var plan := "balanced"
@@ -96,7 +96,7 @@ func _sample() -> void:
 		if not _firearm(u):
 			continue
 		var near := false
-		for o in g.units_near(u.position, 80.0):
+		for o in g.units_near(u.position, 200.0):
 			if g.hostile(o.team, 0) and not o.dead and not o.off_field:
 				near = true
 				break

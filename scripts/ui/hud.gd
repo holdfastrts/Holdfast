@@ -4232,14 +4232,14 @@ func _draw_ammo(p: Vector2, u: Unit) -> float:
 		_ci.draw_line(c + Vector2(-7, -7), c + Vector2(7, 7), Color(0.95, 0.15, 0.12), 2.4)
 		lab = "NO AMMO"
 	elif st["state"] == "reloading":
-		var bar := Rect2(p + Vector2(0, 16), Vector2(maxf(wide - 4.0, 34.0), 3))
+		var bar := Rect2(p + Vector2(0, 17), Vector2(maxf(wide - 4.0, 44.0), 3))
 		_ci.draw_rect(bar.grow(1.0), Color(0, 0, 0, 0.7))
 		_ci.draw_rect(Rect2(bar.position, Vector2(bar.size.x * float(st["frac"]), bar.size.y)), Color(1.0, 0.82, 0.3))
 		lab = "RELOADING"
 	if lab != "":
 		var lt := Loc.t(lab)
-		_text(UiStyle.bold_font(), p + Vector2(0, 28), lt, 10, UiStyle.BAD if lab == "NO AMMO" else Color(1.0, 0.85, 0.4))
-		wide = maxf(wide, UiStyle.bold_font().get_string_size(lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 4.0)
+		_text(UiStyle.bold_font(), p + Vector2(0, 30), lt, 11, UiStyle.BAD if lab == "NO AMMO" else Color(1.0, 0.85, 0.4))
+		wide = maxf(wide, UiStyle.bold_font().get_string_size(lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 4.0)
 	return wide
 
 
