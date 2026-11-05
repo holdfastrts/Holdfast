@@ -40,6 +40,11 @@
   Wagon), the refill taking that powder from the bank. A Barracks toggle ARM WITH POWDER (default ON). PARTIAL ammo when
   the bank holds less than a full load. The gold-only rush is allowed (it is the Horseman rush: the Horse Breeder costs only
   gold). MOUNTED and LIMBERED units keep the Horse Breeder requirement; a Horseman with no horse is an Officer.
+- AI READS THE SCOUT (owner, 2026-11-05 09:34; job ai-reads-scout): "the absence of army or buildings is already
+  information": a scout report reads GREEDY / AGGRESSIVE / DEFENSIVE / UNKNOWN. Fixed plans keep their plan (survival
+  aside; owner: "it is useful to have the AI follow the plan"); Claude's proposal being built: BALANCED becomes the
+  ADAPTIVE plan (v greedy: punish or out-expand; v aggressive: defend then counter; v defensive: out-expand and tech).
+  Also a full audit of the AI STORY lines (wrong lines fixed; wrong logic behind them fixed).
 - EXPANSION SPOTS PER FACTION (owner, DECIDED 2026-11-03 22:25): each faction has its own optimal expansion spot (the Brood
   already does: Mound Turtle spots). CROWN: 2nd and 3rd bases at the MINIMUM hall distance (Defs.HALL_SPACING 18) and close
   together, covered by the main's high ground (Musketeer range from its edge) and easy to wall (walls join up); 4th base on:
