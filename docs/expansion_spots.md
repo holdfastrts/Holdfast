@@ -30,8 +30,30 @@ Code: `scripts/expansion_spots.gd`, `ExpansionSpots.rate`. It runs on the bare m
    - Ways in: minus 6 points for each way in after the first. A way in is a gap in the open land 12 tiles round the spot. Minus a little more for a very wide open front.
 4. The two best of each side are marked.
 
-This is the rule for the Clockwork (and any side that is not the Crown or the Brood). The Brood has its own (Mound Turtle
-spots, above). The Crown has its own since 0.29.2, redone in 0.29.5 (below).
+Since 0.30.10 this rating is no side's marks any more, only the computer's list of base sites (AI round 6). The Brood has
+its own (Mound Turtle spots, above). The Crown has its own since 0.29.2, redone in 0.29.5 (below). The Clockwork has its
+own since 0.30.10 (below, and docs/clockwork_eco.md).
+
+## The Clockwork's rule (0.30.10; the owner, 2026-11-04 20:24)
+
+The owner: "The Clockwork's optimal expansion spot has to be different than it currently is: the Clocktower's gear is very
+important, Clocktowers need room around them. So we have 3 different optimal expansion spots, one for each race." Code:
+`scripts/clock_sites.gd` (ClockSites), used by the marks (ExpansionSpots._clock_rule, _clock_update) and by the Clockwork
+computer's next Clocktower (AIClockwork._safe_hall_spot).
+
+- Candidates: every cell where a Clocktower may stand (any free ground, not only base sites), 18 to 30 tiles from the
+  nearest of the side's halls, and nearer the side than the enemy by land.
+- THE RING: round the Clocktower's big ring, 3x3 buildings on their small rings (a Cog Press, the Mainspring, the
+  Escapement...) are packed one after another, each meshing with the tower's ring directly, each on open ground of the
+  Clocktower's own level, off ramps, with its free lane round it, and each off the others' rings. Open ground holds 9.
+  A spot short of 8 pays 15 points for each one missing; 2 points back for the 9th.
+- THE ROOM BEYOND: the share of the 4-tile band outside that ring (where the next buildings go) that is open ground of the
+  same level: up to 50 points.
+- Near and safe: half a point a tile past the least hall distance, half a point a step of the walk from the main, and a
+  little for being nearer us than the enemy.
+- Two marks a side (the 2nd a hall's spacing from the 1st). Worked out again when the side's halls change.
+- tools/test_expansion_spots.gd checks every map: the marks have room for 7+ of the ring, and on each side's best spot the
+  game itself lets at least 6 of 8 ring buildings be laid (ClockSites.fill_ring).
 
 ## The Crown's rule (v2, 0.29.5; the owner, 2026-11-04 07:05)
 

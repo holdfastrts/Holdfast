@@ -12,7 +12,9 @@ extends Node2D
 ## walks up to it), the walk from its own main, and how much nearer it is to its own main than to the enemy's. The
 ## two best of each side are marked. The map is turned through its middle, so twin spots score the same.
 ## A CROWN side's marks follow its own rule instead (0.29.2, v2 0.29.5, CrownSites: the least hall distance from the main,
-## either side of its ramp, near the ramp's foot and against the map's border; _crown_rule below). The Brood's are its Mound Turtle spots (nb_pick).
+## either side of its ramp, near the ramp's foot and against the map's border; _crown_rule below). A CLOCKWORK side's
+## follow its own too (0.30.10, ClockSites: room for the Clocktower's ring of buildings on its own level; _clock_rule).
+## The Brood's are its Mound Turtle spots (nb_pick).
 ##
 ## Shown to every player (a Brood player sees its best Mound Turtle spots, nb_pick), with a small label (_label), and when watching
 ## (spectator, replay). A spot hides once a building the viewer knows of stands on it (his own and his allies', an
@@ -37,6 +39,7 @@ var _placing := false
 
 func _ready() -> void:
 	_crown_rule()
+	_clock_rule()
 	refresh()
 
 
@@ -96,6 +99,61 @@ func _crown_update() -> void:
 			spots.append(s)
 
 
+# ------------------------------------------------------------------ the Clockwork's own spots (clockwork-eco, 0.30.10)
+
+## THE CLOCKWORK'S RULE (the owner, 2026-11-04 20:24: "Clocktowers need room around them... 3 different optimal expansion
+## spots, one for each race"; ClockSites, docs/clockwork_eco.md): a Clockwork side's spots are where its Clocktower's ring
+## and the ring of buildings it powers fit on open ground of its own level, near its halls and safe. Rated on the bare map
+## at the start; worked out again when the side's halls change (the viewer's side and its allies; every side while
+## watching), as the Crown's. `-- clocksites:off` keeps the base-site rating for the Clockwork (comparisons).
+var clock_on := not OS.get_cmdline_user_args().has("clocksites:off")
+var _clock_halls := {}
+
+
+func _clock_rule() -> void:
+	if not clock_on or game == null:
+		return
+	var ck := {}
+	for t in game.n_players():
+		if game.factions.size() > t and String(game.factions[t]) == "clockwork":
+			ck[t] = true
+	if ck.is_empty():
+		return
+	spots = spots.filter(func(s: Dictionary) -> bool: return not ck.has(int(s["team"])))
+	for s in ClockSites.rate_sides(game):
+		spots.append(s)
+
+
+func _clock_update() -> void:
+	if not clock_on or game == null:
+		return
+	for t in game.n_players():
+		if game.factions.size() <= t or String(game.factions[t]) != "clockwork":
+			continue
+		if not (game.demo or game.replay != null or (game.human >= 0 and game.allied(t, game.human))):
+			continue
+		var halls: Array = game.halls_of(t, false)
+		var key := ""
+		for h in halls:
+			key += str(h.cell)
+		if not _clock_halls.has(t) and halls.size() <= 1:
+			_clock_halls[t] = key
+			continue            # (the main alone: the start's rating stands)
+		if String(_clock_halls.get(t, "-")) == key:
+			continue
+		_clock_halls[t] = key
+		var mids: Array = []
+		for h in halls:
+			mids.append(h.center() / float(Defs.TILE))
+		if mids.is_empty():
+			continue
+		spots = spots.filter(func(s: Dictionary) -> bool: return int(s["team"]) != t)
+		var hall: String = game.faction_hall(t)
+		var check := func(c: Vector2i) -> bool: return game.placement_problem(t, hall, c, true) == ""
+		for s in ClockSites.pick(game, t, mids, PICKS, [], {}, check, ClockSites.rings_of(game)):
+			spots.append(s)
+
+
 ## Should the spots show at all, for this viewer.
 func active() -> bool:
 	if not Settings.expansion_spots or game == null or game.edit_mode:
@@ -124,6 +182,7 @@ func _process(delta: float) -> void:
 ## Work out which spots show now; redraw only if that changed (or the placing look did).
 func refresh() -> void:
 	_crown_update()
+	_clock_update()
 	var now: Array = []
 	if active():
 		if _nb_view():

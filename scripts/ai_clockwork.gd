@@ -29,6 +29,10 @@ var bta = null
 ## (cw-builds-c: the Owl raids, scripts/ai_cw_builds_c.gd, docs/clockwork_builds_c.md)
 const BuildsC := preload("res://scripts/ai_cw_builds_c.gd")
 var btc = null
+## (clockwork-eco: the Economy and Balanced openings, scripts/ai_cw_eco.gd, docs/clockwork_eco.md)
+const BuildsEco := preload("res://scripts/ai_cw_eco.gd")
+var bte = null
+var eco_on := BuildsEco.on()
 
 ## THE PLANS. "steps": the build order, read in order (see _do_step):
 ##   "N kind[:big]"         at N supply (used, queued included), lay a building (a Clockwork building kind)
@@ -153,18 +157,39 @@ func _ready() -> void:
 		_attack_at = int(_s("wave"))
 		note("cwnew:off: the Springer timing plays as the old computer's Balanced")
 		return
-	if not (PLANS.has(strategy) or PLANS_B.has(strategy) or BuildsC.PLANS.has(strategy)) or not Defs.gear_mode:
+	if not (PLANS.has(strategy) or PLANS_B.has(strategy) or BuildsC.PLANS.has(strategy) or _eco_plan()) or not Defs.gear_mode:
 		return
 	_make_plan()
 	_b_ready()          # (cw-builds-b: the push, scripts/ai_cw_push.gd)
 	bo_on = true
-	if scout != null:
+	if scout != null and not _eco_plan():
 		scout.enabled = false          # (the plan does not change on what a scout sees while it runs; its Swift scouts)
+	# (clockwork-eco: the Economy and Balanced openings keep the scout: rush evidence is their only reason for an early army)
 	note("plays the %s: the opening build (%d steps)" % [String(STRATEGIES[strategy]["name"]), steps.size()])
 
 
+## clockwork-eco: Economy and Balanced play a written opening (ai_cw_eco.gd) unless `-- cweco:off`.
+func _eco_plan() -> bool:
+	return eco_on and BuildsEco.PLANS.has(strategy)
+
+
+## (clockwork-eco) While the Economy or Balanced opening runs it owns the gold: the scout's "play safe" Works (AIScout
+## _defence: two Light Works for a scout that saw nothing) are not built; rush evidence is answered by the plan (bte.urgent).
+func bo_owns() -> bool:
+	return bo_on and _eco_plan()
+
+
+## (clockwork-eco) After the opening, an enemy the scout could not see is still no reason for two Works at once: only rush
+## evidence is (AIScout._defence asks).
+func eco_calm() -> bool:
+	return _eco_plan()
+
+
 func _make_plan() -> void:
-	plan = ((PLANS[strategy] if PLANS.has(strategy) else (PLANS_B[strategy] if PLANS_B.has(strategy) else BuildsC.PLANS[strategy])) as Dictionary).duplicate(true)
+	if _eco_plan():
+		plan = (BuildsEco.PLANS[strategy] as Dictionary).duplicate(true)
+	else:
+		plan = ((PLANS[strategy] if PLANS.has(strategy) else (PLANS_B[strategy] if PLANS_B.has(strategy) else BuildsC.PLANS[strategy])) as Dictionary).duplicate(true)
 	for k in over:
 		plan[k] = over[k]
 	steps = (plan["steps"] as Array).duplicate()
@@ -174,6 +199,7 @@ func _make_plan() -> void:
 	raid = SpringerRaid.new(self)
 	bta = BuildsA.new(self)
 	btc = BuildsC.new(self)
+	bte = BuildsEco.new(self)
 
 
 func note(s: String) -> void:
@@ -254,6 +280,12 @@ func _bo_tick() -> void:
 	_hold = 0
 	_hold2 = 0.0
 	_supply_guard()
+	if bte != null and _eco_plan():
+		bte.urgent()            # (clockwork-eco: the rush reaction, ahead of every step)
+		# (clockwork-eco: Winders NON-STOP from every Clocktower, one in each queue, before the steps put cogs by: the old
+		# order saved 400 cogs for the Clocktower with the Winders stopped at 9 for a minute; the owner's own game kept
+		# them coming, 12 at 2:00, 17 at 3:00)
+		_train_workers()
 	var ahead := 0
 	var i := 0
 	while i < steps.size() and ahead < 3:
@@ -336,6 +368,10 @@ func _do_step(i: int) -> Dictionary:
 		var ra: Dictionary = bta.step(i, parts)
 		if not ra.is_empty():
 			return ra
+	if bte != null:
+		var re: Dictionary = bte.step(i, parts)
+		if not re.is_empty():
+			return re
 	if btc != null:
 		var rc: Dictionary = btc.step(i, parts)
 		if not rc.is_empty():
@@ -401,6 +437,8 @@ func _spot(kind: String) -> Vector2i:
 						return c2
 			return _any_gear_spot(kind)
 		"clocktower":
+			if sites_on:
+				return _safe_hall_spot()        # (clockwork-eco: the Clockwork's own spot, room for its ring: ClockSites)
 			if game.expansions.size() > team and game.expansions[team] is Vector2i and game.placement_problem(team, kind, game.expansions[team], true) == "":
 				return game.expansions[team]
 			return _safe_hall_spot()
@@ -515,6 +553,8 @@ func _watch_sites() -> void:
 		if not is_instance_valid(b) or b.dead:
 			_placed.erase(i)
 			done[i] = false
+			if bte != null:
+				bte.lost(i)         # (clockwork-eco: a press lost to the enemy waits before it is laid again)
 			note("its %s was lost before it stood: laid again (step %d)" % [String(steps[i]), i + 1])
 		elif b.built:
 			_stood[i] = true
@@ -730,3 +770,83 @@ func random_plan(allowed: Array) -> String:
 	if brood and allowed.has("pendulum") and randf() < PENDULUM_VS_BROOD:
 		return "pendulum"
 	return super.random_plan(allowed)
+
+
+# ------------------------------------------------------------------ clockwork-eco: the Clockwork's own hall spot
+## THE CLOCKWORK'S HALL SPOT (the owner, 2026-11-04 20:24: "Clocktowers need room around them"; ClockSites,
+## docs/clockwork_eco.md): its next Clocktower where its gear ring and the ring of buildings it powers fit on open ground of
+## its own level, near its halls, on our side by land; not where its builders were chased off or a hall was lost lately
+## (_hall_bad), not where the computer may not build, not by enemy soldiers in sight. Nothing found: the shared pick.
+## `-- clocksites:off` plays the shared pick (comparisons).
+var sites_on := not OS.get_cmdline_user_args().has("clocksites:off")
+var _ck_steps: Array = []
+var _ck_t := -99.0
+var _ck_key := ""
+var _ck_pick := Vector2i(-1, -1)
+var site_picks := 0             # (tests, the coach) halls placed by the Clockwork's rule
+const CK_CACHE := 4.0           # (s) a pick is kept this long while the halls are the same
+
+
+func _safe_hall_spot() -> Vector2i:
+	if not sites_on or not Defs.gear_mode or difficulty < 1:
+		return super()
+	var mids: Array = []
+	var key := ""
+	for h in _halls():
+		mids.append(h.center() / float(Defs.TILE))
+		key += str(h.cell)
+	if mids.is_empty():
+		return super()
+	key += "/%d/%d" % [_hall_bad.size(), _lost_spots.size()]      # (a spot lost lately: worked out again at once)
+	var hall: String = _f()["hall"]
+	if key == _ck_key and game.clock - _ck_t < CK_CACHE and _ck_pick.x >= 0 and game.placement_problem(team, hall, _ck_pick, true) == "" \
+			and float(_hall_bad.get(_ck_pick, -1.0)) <= game.clock:
+		return _ck_pick
+	if _ck_steps.is_empty():
+		var foes: Array = []
+		for o in game.enemies_of(team):
+			if game.starts.size() > o:
+				foes.append(ExpansionSpots._steps(game, game.starts[o]))
+		_ck_steps = [ExpansionSpots._steps(game, game.starts[team]), foes]
+	var avoid := {}
+	for c in _hall_bad:
+		if float(_hall_bad[c]) > game.clock:
+			avoid[c] = true
+	var foe_pts: Array = _foe_ground()
+	var check := func(c: Vector2i) -> bool:
+		if game.placement_problem(team, hall, c, true) != "":
+			return false
+		if r6_sites and _enemy_side(c):
+			return false
+		var cm := Vector2(c) + Vector2(MapGen.HALL) * 0.5
+		for fp in foe_pts:
+			if cm.distance_to(fp) < LOST_NEAR:
+				return false            # (by an enemy hall, or where we lost one lately)
+		var cc := cm * float(Defs.TILE)
+		for u in game.units_near(cc, 14.0 * Defs.TILE):
+			if game.hostile(u.team, team) and not u.dead and not u.is_worker() and u.has_attack() and game.is_visible_to(team, u.position):
+				return false
+		return true
+	var picks: Array = ClockSites.pick(game, team, mids, 1, _ck_steps, avoid, check, ClockSites.rings_of(game))
+	_ck_t = game.clock
+	_ck_key = key
+	if picks.is_empty():
+		_ck_pick = Vector2i(-1, -1)
+		return super()
+	_ck_pick = picks[0]["c"]
+	site_picks += 1
+	if game.clock - float(_said_t.get("site", -99.0)) > 30.0:
+		_said_t["site"] = game.clock
+		note("its next Clocktower's spot: %s, room for %d of its ring's buildings (%d%% open ground beyond), %d steps from its halls" % [
+			str(_ck_pick), int(picks[0]["slots"]), int(round(float(picks[0]["outer"]) * 100.0)), int(picks[0]["walk"])])
+	return _ck_pick
+
+var _said_t := {}
+
+
+## Any free ground holds a fresh reserve for a Clocktower (Game.lode_at_spot), not only the map's base sites: the
+## Clockwork's own spots are often off them.
+func _lode_value(c: Vector2i) -> float:
+	if sites_on and Defs.gear_mode and not game.base_sites.has(_site_alias.get(c, c)):
+		return game.lode_at_spot(c, _f()["hall"]) * 16.0
+	return super(c)

@@ -20,6 +20,13 @@ const RULES := [
 	["^opens with a Horse Breeder", "%s opens with a Horse Breeder: it plans an early Horseman rush.", 3, "plan"],
 	["^opens with a Powder Mill", "%s opens with a Powder Mill: Musketeers first, a steady line of fire.", 3, "plan"],
 	["^plays the Brood", "", 1, "plan"],
+	# ---- the Clockwork's Economy and Balanced openings (clockwork-eco, scripts/ai_cw_eco.gd, scripts/clock_sites.gd)
+	["^'s Clockwork: plays the (?:Economy|Balanced): the opening build", "%s opens for its economy: Winders non-stop and a fast second Clocktower, no army before it without a reason.", 3, "plan"],
+	["^'s Clockwork: rush evidence", "%s saw a rush coming: a Light Works and Clock Soldiers first, then back to its economy.", 3, "defence"],
+	["^'s Clockwork: lays a Light Works against the rush", "", 1, "defence"],
+	["^'s Clockwork: lays a Ratchet Turret by the ramp against the rush", "%s lays a Ratchet Turret by its ramp: an emergency against the rush.", 2, "defence"],
+	["^'s Clockwork: its next Clocktower's spot: .+?, room for (\\d+) of its ring", "%s picks its next Clocktower's spot where its ring of buildings fits (%s of them).", 1, "expand"],
+	["^'s Clockwork: lays a Cog Press by its (?:new|old) Clocktower", "%s lays a Cog Press by its new Clocktower.", 1, "build"],
 	# ---- the Crown's own computer (scripts/ai_crown.gd): its build order and milestones
 	["^'s plan: (.+?), a build order of (\\d+) steps", "%s follows its own %s build order: %s steps, then its milestones.", 3, "plan"],
 	["^'s build order: (?:Town Hall|the ramp)", "", 1, "build"],

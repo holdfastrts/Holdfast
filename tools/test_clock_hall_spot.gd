@@ -82,7 +82,9 @@ func _run() -> void:
 	var crown_main := Vector2(g.starts[0]) + Vector2(2.5, 2.0)
 	# the Clockwork on its main and its natural (its first expansion, "24 tiles from its main", ~6:00)
 	var kx: Vector2i = ai._safe_hall_spot()
-	check(kx == g.expansions[1], "its first expansion is its own natural (%s)" % kx)
+	# (clockwork-eco 0.30.10: the Clockwork's own spot, ClockSites: room for its Clocktower's ring, not the map's natural)
+	var kx_ring: int = int(ClockSites.ring_fit(g, kx, ClockSites._start(kx))[0]) if kx.x >= 0 else 0
+	check(kx.x >= 0 and kx_ring >= 7, "its first expansion has room for its Clocktower's ring (%s, %d of 9; the map's natural %s)" % [kx, kx_ring, g.expansions[1]])
 	g._add_building(hall, 1, kx, true)
 	# the Crown's second Town Hall stands a few tiles off its natural's base site (the player's own choice of ground),
 	# leaving the base site itself free: the only base site with fresh ore left on the map
