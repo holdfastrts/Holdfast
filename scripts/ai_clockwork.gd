@@ -40,6 +40,10 @@ var army_g = null
 ## rush after their openings...): the army goes out as the push's block once it has a few in front and the army's own word
 ## (CwArmy.may_launch: stronger than the enemy army it reckons, with a fresh report).
 const ARMY_PUSH := {"need": {"front": 4}, "min_supply": 8, "leash": 300.0}
+## Against the Crown that push goes up to the enemy's main only worth this much (it holds short of it meanwhile, killing what
+## is outside): 14 Clock Soldiers stood under a Crown main's cliff from 6:15 to 8:09 and lost 1,400 (Frostfang, the first
+## run of this job). The Heavy Works push has its own (2,600).
+const ARMY_MAIN_MIN := 2000.0
 
 ## THE PLANS. "steps": the build order, read in order (see _do_step):
 ##   "N kind[:big]"         at N supply (used, queued included), lay a building (a Clockwork building kind)
@@ -269,7 +273,10 @@ func _build_up() -> void:
 func _army() -> void:
 	if army_g != null:
 		if push == null:
-			push = CwPush.new(self, ARMY_PUSH)       # (clockwork-army: every plan's attack is the push's block)
+			var pc := ARMY_PUSH.duplicate(true)
+			if _foe_is("crown"):
+				pc["main_min"] = ARMY_MAIN_MIN      # (a walled Crown main only with a real army: else it holds short of it)
+			push = CwPush.new(self, pc)       # (clockwork-army: every plan's attack is the push's block)
 		if not push.gate.is_valid():
 			push.gate = _army_gate
 	if bo_on or push != null:
@@ -317,7 +324,24 @@ func _army_gate(home: Array) -> bool:
 		return false
 	if _sw() and swm().hold_attack():
 		return false
+	if not plan.has("push") and not _kit_ready(home):
+		army_g.say("waits for its Springers before it goes at a walled enemy (the shared rule)", "kit", 60.0)
+		return false
 	return army_g.may_launch(home)
+
+
+## (clockwork-army) An escort Winder out with the army (our fighters within 260 px, away from home) stays with it, winding
+## and mending, instead of running from the fight like a raided worker (the shared rule only did so against a swarm: the
+## Heavy Works push fought with 0.7 Winders by it on average, Frostfang 8:00).
+func _escort_stays(w: Unit) -> bool:
+	if army_g == null:
+		return super._escort_stays(w)
+	if not _escort.has(w) or _home_dist(w.position) <= HOME_AREA:
+		return false
+	for u in game.units_near(w.position, 260.0):
+		if u.team == team and not u.dead and not u.is_worker() and _armed(u):
+			return true
+	return false
 
 
 ## (clockwork-army) The army waits at its own gathering point (in front of the hall nearest the enemy), and the push comes
@@ -727,6 +751,10 @@ func _push_anyway(ready: Array) -> bool:
 
 ## The escort Winders (and the Great Winder, the Ballistas' crew) go with the push while it is out.
 func _follow_with_escort(army: Array) -> void:
+	if army_g != null:
+		for u in _escort:
+			if is_instance_valid(u) and _fled.has(u) and _escort_stays(u):
+				_fled.erase(u)          # (clockwork-army: out with the army it does not run home: _escort_stays)
 	if push != null and push.phase != "" and push.phase != "back" and not push.units.is_empty():
 		super._follow_with_escort(push.units.filter(func(u: Unit) -> bool: return u.kind != Defs.GREAT_WINDER_KIND))
 		return

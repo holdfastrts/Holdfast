@@ -35,6 +35,7 @@ const GROUP_MIN := 3            # never fewer defenders than this (unless the ar
 const WHOLE_SHARE := 0.45       # a raid worth this share of the army or more: the whole army meets it
 const GIVE_UP := 0.55           # the whole army worth less than this share of the raid: it holds at the main's gate
 const LEASH := 520.0            # px from our nearest building: defenders further than this walk back
+const STRAY_R := 360.0          # px: in a whole-army defence, one this far from the others and from the raid comes back
 const CALM := 6.0               # s with no raid before the defenders walk back
 const GATHER_R := 200.0         # px: a unit further than this from the gathering point walks to it
 const REGATHER := 12.0          # s between two picks of the gathering point
@@ -356,6 +357,9 @@ func _defend(home: Array, g: Vector2) -> bool:
 		phase = "defend"
 		var c := _centre(home)
 		for u in home:
+			if u.position.distance_to(c) > STRAY_R and u.position.distance_to(big["spot"]) > STRAY_R:
+				_order(u, c, true, 80.0)        # (led off after a runner: back to the others)
+				continue
 			if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.order == "attack":
 				continue
 			# (together: the ones far ahead of the rest wait for them on the way; then all go in)

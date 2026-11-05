@@ -11,8 +11,8 @@ extends SceneTree
 ##    every Clockwork building (sent out alone, not a soldier at its own door). The reason it was where it was (the scout,
 ##    a detachment, the harass, the round-5 guard, a wave, the army group) is written down at the episode's start.
 ##  - FIRST FIGHTS: each combat unit's first fight: with friends or alone (reinforcements must join before they fight).
-##  - WINDERS WITH THE ARMY: while the army group is out (its middle more than OUT tiles from every hall), how many Winders are
-##    within FOLLOW_R tiles of its middle (sampled).
+##  - WINDERS WITH THE ARMY: while the army is out (the push, else the wave, else all of it; its middle more than OUT tiles
+##    from every hall), how many Winders are within FOLLOW_R tiles of its middle (sampled).
 ##  - the army's value (cogs + Tension) at 6:00 / 8:00 / 10:00, both sides, and the trades (value killed and lost).
 ## `cwarmy:off` plays the old army code (the "before" columns). check:1 is the test (until:420 is enough):
 ##  - no combat unit sent alone: at most LONE_AWAY_MAX "away" episodes;
@@ -212,12 +212,17 @@ func _look() -> void:
 			if away:
 				lone_away += 1
 		_last_lone[id] = g.clock
-	# the army out: the Winders with it
-	if mine.size() >= 4:
+	# the army out: the Winders with it (the push's front when a push is out, the wave when one is out, else all of it)
+	var grp: Array = mine
+	if cw.get("push") != null and cw.push != null and cw.push.phase != "" and cw.push.phase != "back" and not cw.push.units.is_empty():
+		grp = (cw.push.units as Array).filter(func(u) -> bool: return is_instance_valid(u) and combat(u))
+	elif cw._attacking:
+		grp = mine.filter(func(u) -> bool: return cw._wave_set.has(u))
+	if grp.size() >= 4:
 		var c := Vector2.ZERO
-		for u in mine:
+		for u in grp:
 			c += u.position
-		c /= float(mine.size())
+		c /= float(grp.size())
 		var hd := INF
 		for h in g.halls_of(cwt, false):
 			hd = minf(hd, h.center().distance_to(c))

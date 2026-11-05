@@ -29,6 +29,7 @@ const CALM := 3.0               # s with no armed enemy near the front before th
 const SCREEN_R := 260.0        # px from the anchor: the front meets the enemies within this, holds against the rest
 const LEASH := 520.0           # px: a front unit farther than this from the anchor in a fight walks back to it (the plan's
                                 # "leash": the Heavy Works push 360, 520 let its Clock Soldiers chase kiting Musketeers off)
+const BAL_LEASH := 380.0        # (clockwork-army) a Ballista further than this from the anchor in a fight walks back to it
 const GUARD_R := 130.0          # an enemy this close to a Ballista: it rolls back, two front units meet it
 const SIEGE_SEE := 340.0        # a wall or gate this close ahead of the anchor stops the march: the siege
 const SIEGE_FRONT := 215.0      # the front stands this far from the piece (a Musketeer reaches 190 from behind it)
@@ -584,7 +585,11 @@ func _fight(foes: Array) -> void:
 	_guard_ballistas(front, foes)
 	if ai.get("army_g") != null and ai.army_g != null:
 		ai.army_g.spring_in(front, foes)      # (clockwork-army: the Springers jump in as the front engages)
-	# the Ballistas hold where they are (behind), the Great Winder behind them
+	# the Ballistas hold where they are (behind), the Great Winder behind them; (clockwork-army) a Ballista that rolled or was
+	# led far from the block walks back behind it (alone they fell to Raptors, 829 px from the anchor, Frostfang 8:19)
+	for h in heavies:
+		if _heavy(h) and ai.get("army_g") != null and ai.army_g != null and h.position.distance_to(anchor) > BAL_LEASH and not _guards.values().any(func(e) -> bool: return is_instance_valid(e) and e.position.distance_to(h.position) < GUARD_R):
+			_order(h, anchor - dir * BACK_BAL, false, 60.0)
 	for h in heavies:
 		if h.kind == Defs.GREAT_WINDER_KIND:
 			if h.order == "cast" or h.order == "mend" or h.order == "sweep":
