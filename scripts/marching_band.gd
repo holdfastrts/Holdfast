@@ -124,6 +124,11 @@ static func muls(u: Unit) -> Vector3:
 static func covers(band: Unit, o: Unit) -> bool:
 	if o == band or o.dead or o.aboard != null or o.off_field or not band.game.allied(band.team, o.team):
 		return false
+	return plays_for(o)
+
+
+## The kinds the music is for: a fighting unit or a gun (not workers, horses, medics, wagons, a band, flyers).
+static func plays_for(o: Unit) -> bool:
 	if o.is_worker() or o.kind == KIND or o.kind == "horse" or o.d.get("medic", false):
 		return false
 	if o.is_air():

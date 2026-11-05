@@ -4857,7 +4857,7 @@ func _band() -> int:
 	for u in army:
 		if u.kind == MarchingBand.KIND:
 			bands += 1
-		elif MarchingBand.covers(u, u) or u.kind == "dragoon":
+		elif not u.dead and MarchingBand.plays_for(u):
 			men += 1
 			if Defs.MUSKETS.has(u.kind) or u.kind in ["cannon", "mortar", "dragoon"]:
 				muskets += 1
