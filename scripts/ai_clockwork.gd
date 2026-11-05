@@ -216,6 +216,7 @@ func opt_switch(k: String) -> bool:
 	if not cw_on or not Defs.gear_mode or not ok:
 		return super(k)
 	var old_eco = bte
+	var was_on := bo_on
 	strategy = k
 	_opened = k
 	_make_plan()
@@ -234,6 +235,7 @@ func opt_switch(k: String) -> bool:
 	_b_ready()
 	_mark_existing()
 	bo_on = true
+	_bo_cap_t = -1.0 if was_on else game.clock + OPT_BO_CAP      # (a build begun after the opening owns the gold so long at most)
 	if scout != null:
 		scout.enabled = difficulty >= 1 and not peaceful      # (OPTIMAL keeps reading while its build runs)
 	note("plays the %s from here: the opening build (%d steps, %d done already)" % [String(STRATEGIES[strategy]["name"]), steps.size(), done.count(true)])
@@ -336,7 +338,15 @@ func _army() -> void:
 
 # ------------------------------------------------------------------ the build order
 
+const OPT_BO_CAP := 300.0       # (s) OPTIMAL's switched build: its written steps for this long at most, then the shared rules
+var _bo_cap_t := -1.0
+
+
 func _bo_tick() -> void:
+	if _bo_cap_t > 0.0 and game.clock > _bo_cap_t:
+		_bo_cap_t = -1.0
+		_end_build("time: %d steps of %d done" % [done.count(true), steps.size()])
+		return
 	_watch_sites()
 	_crew_springs()
 	_hold = 0
