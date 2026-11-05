@@ -223,10 +223,7 @@ func _send() -> void:
 ## that is not carrying anything (a farmer at the hall).
 func _pick() -> Unit:
 	if trips >= 2 and verdict == "uncertain":
-		var best: Unit = null
-		for u in game.army(ai.team):
-			if u.order == "idle" and not ai._raiders.has(u) and (best == null or float(u.d["speed"]) > float(best.d["speed"])):
-				best = u
+		var best: Unit = ai.scout_from_army()       # (clockwork-army: the Clockwork's own pick, never a ground fighter)
 		if best:
 			return best
 	var labs: Array = game.workers(ai.team)

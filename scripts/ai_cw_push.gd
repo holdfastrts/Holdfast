@@ -29,6 +29,7 @@ const CALM := 3.0               # s with no armed enemy near the front before th
 const SCREEN_R := 260.0        # px from the anchor: the front meets the enemies within this, holds against the rest
 const LEASH := 520.0           # px: a front unit farther than this from the anchor in a fight walks back to it (the plan's
                                 # "leash": the Heavy Works push 360, 520 let its Clock Soldiers chase kiting Musketeers off)
+const BAL_LEASH := 380.0        # (clockwork-army) a Ballista further than this from the anchor in a fight walks back to it
 const GUARD_R := 130.0          # an enemy this close to a Ballista: it rolls back, two front units meet it
 const SIEGE_SEE := 340.0        # a wall or gate this close ahead of the anchor stops the march: the siege
 const SIEGE_FRONT := 215.0      # the front stands this far from the piece (a Musketeer reaches 190 from behind it)
@@ -70,6 +71,9 @@ var _brood_seen := {}           # id -> {"u", "p", "kind", "t"}: rooted Brood cr
 var _guards := {}               # front Unit -> the enemy it was sent to meet at a Ballista
 var log_t := {}
 var stats := {"pushes": 0, "sieges": 0, "pieces": 0, "retreats": 0, "goals": 0, "max_out": 0.0}
+## (clockwork-army, scripts/ai_cw_army.gd: the army's own word before a push goes out: stronger than the enemy army it
+## reckons, with a fresh report; an empty Callable = the plan's needs alone, as before)
+var gate := Callable()
 
 
 func _init(a, settings: Dictionary) -> void:
@@ -118,6 +122,8 @@ func _home_army() -> Array:
 			continue
 		if ai.r5 != null and ai.r5.busy(u):
 			continue
+		if ai._on_errand(u) and not joining.has(u):
+			continue          # (clockwork-army: the Clock Soldier rush's and the Owl raids' units too, not only the Springer raid's)
 		out.append(u)
 	return out
 
@@ -169,7 +175,7 @@ func tick() -> void:
 				if u.kind == Defs.PENDULUM and not home.has(u):
 					why.append("pd%s r5%s hz%s w%.2f o%s" % [u.powered_down(), ai.r5.busy(u), ai.harass != null and ai.harass.has(u), u.wind, u.order])
 			print("PUSHDBG %d home %s supply %d need %s up %d army %d out %s" % [int(game.clock), str(kinds), ai._army_supply(home), str(cfg.get("need")), need_up, game.army(team).size(), str(why)])
-		if ready_now(home) and not ai.peaceful and game.clock >= float(cfg.get("not_before", 0.0)):
+		if ready_now(home) and not ai.peaceful and game.clock >= float(cfg.get("not_before", 0.0)) and (not gate.is_valid() or gate.call(home)):
 			_launch(home)
 		return
 	if _should_retreat():
@@ -577,7 +583,13 @@ func _fight(foes: Array) -> void:
 		if not reach and game.clock - since > 6.0 and fcen.distance_to(anchor) > 80.0:
 			anchor = anchor.move_toward(fcen, 60.0)
 	_guard_ballistas(front, foes)
-	# the Ballistas hold where they are (behind), the Great Winder behind them
+	if ai.get("army_g") != null and ai.army_g != null:
+		ai.army_g.spring_in(front, foes)      # (clockwork-army: the Springers jump in as the front engages)
+	# the Ballistas hold where they are (behind), the Great Winder behind them; (clockwork-army) a Ballista that rolled or was
+	# led far from the block walks back behind it (alone they fell to Raptors, 829 px from the anchor, Frostfang 8:19)
+	for h in heavies:
+		if _heavy(h) and ai.get("army_g") != null and ai.army_g != null and h.position.distance_to(anchor) > BAL_LEASH and not _guards.values().any(func(e) -> bool: return is_instance_valid(e) and e.position.distance_to(h.position) < GUARD_R):
+			_order(h, anchor - dir * BACK_BAL, false, 60.0)
 	for h in heavies:
 		if h.kind == Defs.GREAT_WINDER_KIND:
 			if h.order == "cast" or h.order == "mend" or h.order == "sweep":
@@ -643,7 +655,8 @@ func _siege_tick() -> bool:
 		piece_t = game.clock
 		stats["sieges"] = int(stats["sieges"]) + 1
 		_phase("siege")
-		say("a %s in the way at %s: the Ballistas break it from out of musket reach" % [String(p.d["name"]), _where(p.center())])
+		say("a %s in the way at %s: %s" % [String(p.d["name"]), _where(p.center()),
+			"the Ballistas break it from out of musket reach" if units.any(func(u: Unit) -> bool: return _heavy(u)) else "the front breaks it"])
 	if game.clock - piece_t > SIEGE_MAX:
 		say("the %s held for %d s: the push goes home" % [String(piece.d["name"]), int(SIEGE_MAX)])
 		_retreat("the siege took too long")
