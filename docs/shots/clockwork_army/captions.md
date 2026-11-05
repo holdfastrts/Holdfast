@@ -2,7 +2,7 @@
 
 Filmed with tools/film_clockwork_army.gd (Frostfang, seed 11, Hard against Hard; the "before" game with `cwarmy:off`).
 A film's game is not a test game: the same map and seed play a little differently each run. Pictures 03 to 06 and 11 are
-from the final code; 08 to 10 (the Pendulum plan) were filmed earlier in the job, before the last three changes (the bar
+from the final code but with the muster on (since switched off: reinforcements now walk to the army straight away); 08 to 10 (the Pendulum plan) were filmed earlier in the job, before the last three changes (the bar
 after a failed push, the muster of reinforcements, the opening's soldier step), which do not change what they show.
 
 1. `01_owner_0638_army_split.jpg`: the owner's picture (0.31.0, 6:38): the Pendulum and the Springers by the second
