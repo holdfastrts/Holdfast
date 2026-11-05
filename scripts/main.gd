@@ -1802,6 +1802,8 @@ func _slot_row(i: int) -> Control:
 			st_opts.append(["RANDOM PLAN" if o == "random" else String(AI.STRATEGIES[o]["name"]).to_upper(), o, false])
 		var sb := _dropdown("RANDOM PLAN" if st == "random" else String(AI.STRATEGIES[st]["name"]).to_upper(), 150, st_opts, func(v) -> void: sl["strategy"] = v)
 		sb.tooltip_text = "How this computer player plays. The list shows the plans of this player's faction."
+		if st == "optimal":
+			sb.tooltip_text = AI.OPTIMAL_TIP
 		h.add_child(sb)
 	else:
 		var sp := Control.new()
@@ -2823,7 +2825,7 @@ func start(cfg: Dictionary = {}) -> void:
 				lv[t] = String(slots[t]["who"]).to_upper()
 				for ai2 in game.ais:
 					if ai2.team == t:
-						lv[t] += ", " + String(AI.STRATEGIES[ai2.strategy]["name"]).to_upper()
+						lv[t] += ", " + String(AI.STRATEGIES[ai2.plan_key()]["name"]).to_upper()
 		game.mlog.begin(lv)
 		if game.sandbox:
 			game.mlog.add("(sandbox match)")

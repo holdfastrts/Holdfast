@@ -50,7 +50,7 @@ func _process(delta: float) -> void:
 	if not _planned and not game.ais.is_empty():
 		_planned = true
 		for a in game.ais:
-			tell_plan(a.team, String(a.strategy), int(a.difficulty), String(a.opening) if game.faction_of(a.team) == "crown" else "")
+			tell_plan(a.team, String(a.plan_key()), int(a.difficulty), String(a.opening) if game.faction_of(a.team) == "crown" else "")
 	_look_t -= delta
 	if _look_t <= 0.0:
 		_look_t = LOOK

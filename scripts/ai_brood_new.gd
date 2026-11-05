@@ -104,10 +104,27 @@ func _init() -> void:
 func _ready() -> void:
 	if not strategies_for("brood").has(strategy):
 		strategy = "balanced"
+	if strategy == "optimal":
+		# OPTIMAL (scripts/ai_optimal.gd): the common opening is Balanced's economy (the natural, grubs on the curve), a grub
+		# into the enemy's main early, then it picks its build from what it sees
+		strategy = "balanced"
+		opt = AIOptimal.new(self, "balanced")
 	_opened = strategy
 	_make_plan()
 	if game.mlog:
-		game.mlog.add("%s plays the Brood (%s)" % [game.mlog.who(team), STRATEGIES.get(strategy, STRATEGIES["balanced"])["name"]])
+		game.mlog.add("%s plays the Brood (%s)" % [game.mlog.who(team), STRATEGIES.get(plan_key(), STRATEGIES["balanced"])["name"]])
+	if opt != null:
+		say("OPTIMAL: the common opening (Balanced's economy), a grub into the enemy's main early, then it picks its build from what it sees")
+
+
+## OPTIMAL's pick: the next think makes the build's plan (_nb_think_stage: `strategy != _plan_of`); its times run from the
+## game's clock, so what is already past comes at once.
+func opt_switch(k: String) -> bool:
+	if not PLANS.has(k):
+		return false
+	strategy = k
+	_opened = k
+	return true
 
 
 ## This game's plan: the profile, eased by the level (Easy is slower and smaller), then what a tool forced (`over`).
@@ -166,6 +183,8 @@ func _tick_ai(delta: float) -> void:
 	if _nb_think > 0.0:
 		return
 	_nb_think = [1.6, 1.0, 0.6, 0.4][clampi(difficulty, 0, 3)]
+	if opt != null:
+		opt.tick()
 	_nb_think_stage(0)
 	_nb_stage = 1
 
@@ -311,6 +330,7 @@ func _nb_observe(q: Unit) -> void:
 		if u.is_worker() or u.kind == "horse" or u.kind == "messenger" or not u.has_attack() or u.kind == BroodNew.EGG:
 			continue
 		if u._k_nb and (u.kind == BroodNew.QUEEN or BroodNew.rooted(u)):
+			_foe_nb_seen[u] = true          # (the enemy Brood's "buildings": the read counts them, _nb_read)
 			continue
 		var v := float(Game.unit_value(u))
 		val += v
@@ -359,6 +379,7 @@ func _nb_observe(q: Unit) -> void:
 			say("ALARM: an enemy army of %d out of its main at %s: warriors, grubs pulled back, a turtle in front" % [int(past), _mmss()])
 		alarm_t = game.clock
 		alarm_at = past_at / past
+	_nb_read(fst)
 	# rush evidence (before 4:30; what it saw OUT of the enemy's base: an army in its own base is no rush): fast riders
 	# in numbers, an army near home, or a big army on the move very early
 	if rush_seen == "" and game.clock < 270.0:
@@ -373,6 +394,97 @@ func _nb_observe(q: Unit) -> void:
 			rush_seen = why
 			rush_t = game.clock
 			say("rush evidence: %s: holds its army at home and lays warriors" % why)
+
+
+## THE READ (ai-optimal, scripts/ai_read.gd): what its creatures saw of the enemy, read as GREEDY / NORMAL / AGGRESSIVE /
+## DEFENSIVE (the Brood has no AIScout; UNKNOWN is simply no read yet). Once a second, a new read at most every
+## READ_GAP s (a rush at once). A fixed plan keeps its identity (its rush evidence already defends: _rush_on); OPTIMAL
+## picks its build from it (AIOptimal.on_read).
+const READ_GAP := 75.0
+var read := "pending"           # AIScout's verdict keys: rush, greedy, balanced, defensive
+var read_t := -999.0
+var read_saw := ""
+var reads: Array = []           # [clock, verdict, saw]
+var _foe_nb_seen := {}          # enemy Brood rooted creature or Mother -> true
+var _base_seen_t := -1.0        # when the enemy's start was first in sight
+
+
+func _nb_read(fst: Vector2) -> void:
+	if difficulty < 1 or peaceful or fst == Vector2.INF:
+		return
+	var foe := _foe()
+	if foe < 0:
+		return
+	if _base_seen_t < 0.0 and game.is_visible_to(team, fst):
+		_base_seen_t = game.clock
+	var hall_kind: String = game.faction_hall(foe)
+	var halls := 0
+	var mil := 0
+	var defs := 0
+	for b in _foe_blds.keys():
+		if not is_instance_valid(b) or b.dead:
+			continue
+		if b.kind == hall_kind:
+			halls += 1
+		elif AIScout.MILITARY.has(b.kind):
+			mil += 1
+		elif AIRead.DEFENCES.has(b.kind):
+			defs += 1
+	var fq := BroodNew.queen(game, foe)
+	for nu in _foe_nb_seen.keys():
+		if not is_instance_valid(nu) or nu.dead:
+			_foe_nb_seen.erase(nu)
+			continue
+		if nu.kind == BroodNew.QUEEN:
+			halls += 1
+		elif BroodNew.is_father(nu.kind):
+			mil += 1
+		elif nu.kind == BroodNew.TURTLE:
+			if fq != null and fq.position.distance_to(nu.position) >= float(Defs.NB["expansion_tiles"]) * Defs.TILE:
+				halls += 1
+		elif nu.kind != BroodNew.MAW and nu.has_attack():
+			defs += 1
+	var v := ""
+	var seen := ""
+	if _rush_on():
+		v = "rush"
+		seen = "fast rush units early" if rush_seen.contains("riders") else ("an army near its home" if rush_seen.contains("near") else "its army on the move early")
+	elif defs >= 2 or (defs >= 1 and halls <= 1 and game.clock < 300.0):
+		v = "defensive"
+		seen = "turrets or rooted defenders"
+	elif halls >= 2 and seen_army < 150.0 and mil <= 1:
+		v = "greedy"
+		seen = "a new base by its natural" if _base_seen_t < 0.0 else "a second base and little army"
+	elif _base_seen_t >= 0.0 and mil == 0 and seen_army <= 0.0 and game.clock >= AIScout.GREEDY_ABSENT_FROM and game.clock - _base_seen_t >= 4.0:
+		v = "greedy"
+		seen = "no army and no production at its base"
+	elif _base_seen_t >= 0.0 or mil >= 1 or seen_army > 0.0:
+		v = "balanced"
+		seen = "a standard opening"
+	if v == "" or v == read:
+		return
+	if read != "pending" and game.clock - read_t < READ_GAP and v != "rush":
+		return
+	read = v
+	read_t = game.clock
+	read_saw = seen
+	reads.append([game.clock, v, seen])
+	var why := "%d halls, %d production, %d static defences, %d of army seen" % [halls, mil, defs, int(seen_army)]
+	var head := "scouted: %s [%s] (%s)" % [AIRead.word(v), seen, why]
+	var pname := String(STRATEGIES.get(strategy, STRATEGIES["balanced"])["name"])
+	if opt != null:
+		say("%s: OPTIMAL picks its build from this" % head)
+	else:
+		match v:
+			"rush":
+				say("%s: a rush is coming; defends first: its army home, warriors laid" % head)
+			"greedy":
+				say("%s: it is all economy; keeps to its %s plan" % [head, pname])
+			"defensive":
+				say("%s: it turtles; keeps to its %s plan" % [head, pname])
+			_:
+				say("%s: keeps to its %s plan" % [head, pname])
+	on_read(v, seen)
 
 
 ## A fast enemy rider on the ground (a Horseman, a Cuirassier: speed 95 or more, melee): the Tyrant Sire (64) never
@@ -510,6 +622,7 @@ func _scout_go(u: Unit, p: Vector2) -> void:
 ## Hurt, or soldiers close to it, it runs home and goes back to work; another grub goes out after WATCH_GAP s (at most
 ## WATCH_MAX in a game: a grub is an egg and 50 food).
 const WATCH_GAP := 60.0
+const OPT_WATCH_AT := 40.0      # (OPTIMAL: its first watching grub goes this early, the read is how it picks)
 const WATCH_MAX := 4
 var _watch_n := 0
 var _watch_next := 70.0
@@ -525,7 +638,8 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 		_watch_next = game.clock + WATCH_GAP
 	var st := (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE
 	if _scout == null:
-		if game.clock < _watch_next or _watch_n >= WATCH_MAX or BroodNew.count_of(game, team, "grub") < 8:
+		var first_opt := opt != null and _watch_n == 0
+		if (game.clock < (OPT_WATCH_AT if first_opt else _watch_next)) or _watch_n >= WATCH_MAX or BroodNew.count_of(game, team, "grub") < (6 if first_opt else 8):
 			return
 		var pick: Unit = null
 		for u in _nb_mine("grub"):

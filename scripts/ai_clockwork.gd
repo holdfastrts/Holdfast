@@ -166,6 +166,8 @@ func _ready() -> void:
 		scout.enabled = false          # (the plan does not change on what a scout sees while it runs; its Swift scouts)
 	# (clockwork-eco: the Economy and Balanced openings keep the scout: rush evidence is their only reason for an early army)
 	note("plays the %s: the opening build (%d steps)" % [String(STRATEGIES[strategy]["name"]), steps.size()])
+	if opt != null:
+		note("OPTIMAL: the common opening (the economy opening: Winders non-stop, a fast second Clocktower), a scout, then it picks its build from what it sees")
 
 
 ## clockwork-eco: Economy and Balanced play a written opening (ai_cw_eco.gd) unless `-- cweco:off`.
@@ -200,6 +202,65 @@ func _make_plan() -> void:
 	bta = BuildsA.new(self)
 	btc = BuildsC.new(self)
 	bte = BuildsEco.new(self)
+
+
+func say(s: String) -> void:
+	note(s)
+
+
+## OPTIMAL's pick (scripts/ai_optimal.gd): play build k from where the game stands: its written opening again, the steps
+## the computer has already done passed by (_mark_existing), its own parts (the raid, the rush, the Owls, the push) made new.
+func opt_switch(k: String) -> bool:
+	var ok := PLANS.has(k) or PLANS_B.has(k) or BuildsC.PLANS.has(k) or (eco_on and BuildsEco.PLANS.has(k))
+	if not cw_on or not Defs.gear_mode or not ok:
+		return super(k)
+	var old_eco = bte
+	strategy = k
+	_opened = k
+	_make_plan()
+	if old_eco != null and old_eco.rush and bte != null:
+		# (a rush reaction under way goes on: its Works and soldiers are counted, not laid again)
+		bte.rush = true
+		bte.rush_at = old_eco.rush_at
+		bte.rush_n = old_eco.rush_n
+		bte.rush_turret = old_eco.rush_turret
+		bte._works = old_eco._works
+		bte._turret = old_eco._turret
+	_placed.clear()
+	_stood.clear()
+	_queued.clear()
+	push = null
+	_b_ready()
+	_mark_existing()
+	bo_on = true
+	if scout != null:
+		scout.enabled = difficulty >= 1 and not peaceful      # (OPTIMAL keeps reading while its build runs)
+	note("plays the %s from here: the opening build (%d steps, %d done already)" % [String(STRATEGIES[strategy]["name"]), steps.size(), done.count(true)])
+	return true
+
+
+## A switched build's steps that are already done: the n-th building of a kind when n of it stand (or go up), the
+## Clocktowers counting the first, the n-th soldiers step when that many stand, a research done or going.
+func _mark_existing() -> void:
+	var seen := {}
+	var units := {}
+	for i in steps.size():
+		var parts := String(steps[i]).split(" ")
+		if parts.size() >= 2 and parts[0].is_valid_int():
+			parts = parts.slice(1)
+		var head := String(parts[0])
+		if head == "press_new":
+			head = Defs.GEAR_PRESS
+		var kind := head.trim_suffix(":big")
+		if head == "research" and parts.size() >= 2:
+			done[i] = game.has_tech(team, String(parts[1])) or game.researching(team, String(parts[1]))
+		elif parts.size() >= 2 and Defs.UNITS.has(head) and parts[1].is_valid_int():
+			units[head] = int(units.get(head, 0)) + int(parts[1])
+			done[i] = game.army(team).filter(func(u: Unit) -> bool: return u.kind == head).size() >= int(units[head])
+		elif Defs.BUILDINGS.has(kind):
+			seen[kind] = int(seen.get(kind, 0)) + 1
+			var have := _mine(kind).size()
+			done[i] = have >= int(seen[kind]) + (1 if kind == "clocktower" else 0)
 
 
 func note(s: String) -> void:

@@ -267,6 +267,14 @@ func _ready() -> void:
 	# (AI._ready, with the opening from the plan instead of the dice)
 	if not strategies_for("crown").has(strategy):
 		strategy = "balanced"
+	if strategy == "optimal":
+		# OPTIMAL (scripts/ai_optimal.gd): the common opening is Balanced's (the ramp Cottage, the Gate, the second Farm; the
+		# Barracks first against the Brood), or the Horseman rush when it leans to it before scouting (the matchup, the map)
+		strategy = "balanced"
+		opt = AIOptimal.new(self, "balanced")
+		var ln: String = opt.lean_now() if on else ""
+		if ln != "":
+			strategy = ln
 	_opened = strategy
 	_make_plan()
 	opening = String(plan.get("opening", "mill"))
@@ -276,6 +284,14 @@ func _ready() -> void:
 	if game.mlog:
 		game.mlog.add("%s opens with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
 	scout = AIScout.new(self)
+	if opt != null and difficulty >= 1 and not peaceful:
+		scout.enabled = true            # (OPTIMAL always scouts, its Horseman rush too: the read is how it picks)
+		scout.mod = {}
+		scout.next_trip = OWNER_SCOUT_AT
+		scout.min_workers = 4
+		if strategy != "balanced":
+			opt.lean_said(strategy)
+		say("OPTIMAL: the common opening (the ramp Cottage, the Gate, the second Farm), a scout at once, then it picks its build from what it sees")
 	if owner_on():
 		# (crown-owner-eco: no Barracks without a reason, so the scout leaves at once to see a rush in time: a Brood that
 		# rushes has its Tyrant Sire by 0:40, our labourer walks there in ~50 s)
@@ -295,6 +311,36 @@ func _ready() -> void:
 		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
 	if game.mlog:
 		game.mlog.add("%s's plan: %s, a build order of %d steps (scripts/ai_crown.gd)" % [game.mlog.who(team), STRATEGIES.get(strategy, STRATEGIES["balanced"])["name"], _bo_plan.size()])
+
+
+## OPTIMAL's pick (scripts/ai_optimal.gd): play build k from where the game stands. In the opening its build order takes
+## over from the next step (the steps already done are passed by: _st_done); after the opening its milestones and its own
+## parts (the siege push, the balloons, the Dragoon raids, the Horseman rush) play on.
+func opt_switch(k: String) -> bool:
+	if not on or not PLANS.has(k):
+		return super(k)
+	strategy = k
+	_opened = k
+	_make_plan()
+	opening = String(plan.get("opening", "mill"))
+	if difficulty >= 1 and not bo_done:
+		var key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"
+		_bo_plan = _bo_plan.slice(0, bo_i) + (plan[key] as Array).duplicate(true)
+		bo_lab_cap = int(plan.get("labs", 99))
+		if not _def_on:
+			bo_army = false
+			bo_army_cap = 0
+		bo_army_first = false
+		_waits.clear()
+		_att_ready_t = -1.0
+	_attack_at = int(_s("wave"))
+	if k == "rush" and opening == "breeder":
+		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
+	if siege == null and siege_on():
+		siege = AICrownSiege.new(self)
+	if k == "balloon" and bl == null and difficulty >= 1:
+		bl = AICrownBalloon.new(self)
+	return true
 
 
 func _make_plan() -> void:
@@ -603,8 +649,8 @@ var _safe_on := false
 func _safe_reason() -> String:
 	if not owner_on() or strategy != "balanced" or scout == null or game.clock > SAFE_BY or not _mine("barracks").is_empty():
 		return ""
-	if scout.verdict == "uncertain":
-		return "the scout could not see the enemy's army or economy"
+	if scout.verdict == "uncertain" and not scout.absence_on:
+		return "the scout could not see the enemy's army or economy"     # (ai-optimal: no longer: no army for nothing)
 	return ""
 
 

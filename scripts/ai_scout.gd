@@ -180,7 +180,7 @@ func tick() -> void:
 		_follow()
 	elif state == "wait" or state == "done":
 		if verdict == "pending" and game.clock > 260.0 and trips == 0 and state == "wait":
-			_apply("uncertain", "no scout got out")
+			_apply("uncertain", "no scout got out", "no scout got out")
 		if trips < MAX_TRIPS and game.clock >= next_trip and not _busy_with_foe():
 			_send()
 	_redecide()
@@ -206,6 +206,10 @@ func _send() -> void:
 		next_trip = game.clock + 30.0
 		return
 	unit = u
+	if u.is_worker():
+		# (ai-optimal: the WORK autocast took an idle scout back to a post on the way, Unit's idle think: the trip ended
+		# "pulled away" at 28% of the enemy's main and the story said "could not see the enemy". A scout is not for work)
+		u.auto_work = false
 	state = "going"
 	trips += 1
 	sent_at = game.clock
@@ -276,6 +280,8 @@ func _follow() -> void:
 		_finish("killed")
 		return
 	if unit.order == "gather" or unit.order == "build":
+		if debug_trips:
+			_say("scout pulled away: order %s target %s at %s" % [unit.order, str(unit.order_target), str(unit.position)])
 		_finish("pulled away")        # (another part of the computer used it)
 		return
 	var limit: float = 70.0 + 1.8 * game.center_of_team(ai.team).distance_to(Vector2(game.starts[_foe]) * Defs.TILE) / maxf(20.0, float(unit.d["speed"]))
@@ -382,6 +388,8 @@ func _finish(how: String) -> void:
 	if unit != null and is_instance_valid(unit) and not unit.dead:
 		var home := game.center_of_team(ai.team)
 		unit.remove_meta("ai_scout")
+		if unit.is_worker():
+			unit.auto_work = true          # (home: back to work)
 		# (driven off: a retreat, a plain walk home; otherwise a soldier walks home on attack-move)
 		unit.cmd_move(home, how != "driven off" and not unit.is_worker())
 	unit = null
@@ -389,15 +397,44 @@ func _finish(how: String) -> void:
 	if how in ["blocked", "driven off", "timeout"] and not _hall_seen:
 		denied_trips += 1        # (shut out: the sentry's reason to watch the ramp)
 	var r := _evaluate()
+	trip_log.append([game.clock, how, int(_coverage() * 100.0), _hall_seen, String(r["verdict"])])
+	if debug_trips:
+		_say("scout trip %d ends (%s): saw %d%% of its main, hall seen %s, read %s" % [trips, how, int(_coverage() * 100.0), str(_hall_seen), AIRead.word(String(r["verdict"]))])
 	# A scout that was stopped before it saw anything decisive proves nothing (a wall, a
 	# few guards): uncertainty, not a rush. What it did see before it fell still counts.
 	if how in ["killed", "blocked", "timeout", "pulled away", "driven off"] and r["verdict"] == "balanced" and (not _hall_seen or _coverage() < 0.3):
-		r = {"verdict": "uncertain", "reason": "the scout was %s before it saw the base" % _how_text(how)}
-		_say("scout %s: playing safe, will look again" % _how_text(how))
-	next_trip = game.clock + (RESCOUT_DENIED if r["verdict"] == "uncertain" else RESCOUT_REFRESH)
-	# (at most one change of mind every REDECIDE seconds; the first report always counts)
-	if verdict == "pending" or game.clock - decided_at >= REDECIDE:
-		_apply(r["verdict"], r["reason"])
+		if how == "blocked" and int(r["walls"]) >= 2:
+			# (a wall that keeps the scout out is a read too: DEFENSIVE, ai-optimal)
+			r = {"verdict": "defensive", "reason": "a wall shut the scout out (%d wall pieces seen)" % int(r["walls"]), "saw": "a walled ramp that kept the scout out"}
+		else:
+			r = {"verdict": "uncertain", "reason": "the scout was %s before it saw the base" % _how_text(how), "saw": "the scout was %s" % _how_short(how)}
+			_say("scout %s: it saw nothing to go on, will look again soon" % _how_text(how))
+	next_trip = game.clock + (rescout_unknown() if r["verdict"] == "uncertain" else RESCOUT_REFRESH)
+	# (at most one change of mind every REDECIDE seconds; the first report always counts, and so does the first read after
+	# an UNKNOWN: it was no decision)
+	if verdict == "pending" or verdict == "uncertain" or game.clock - decided_at >= REDECIDE:
+		_apply(r["verdict"], r["reason"], String(r.get("saw", "")))
+
+
+## (the saw phrase of a denied trip: AIRead.SAW)
+func _how_short(how: String) -> String:
+	match how:
+		"killed":
+			return "killed"
+		"blocked":
+			return "blocked"
+		"driven off":
+			return "driven off"
+	return "turned back"
+
+
+## UNKNOWN is no reason for an army (the owner, 2026-11-05): the next scout goes soon instead, a minute after the last
+## (a soldier from the second denied trip on, _pick).
+const RESCOUT_UNKNOWN := 45.0
+
+
+func rescout_unknown() -> float:
+	return RESCOUT_UNKNOWN if absence_on else RESCOUT_DENIED
 
 
 func _how_text(how: String) -> String:
@@ -547,11 +584,13 @@ func rush_evidence() -> String:
 		if b.team == _foe and not b.dead and not b.ghost and b.kind == "movement_works" and _seen_b.has(b):
 			works_early += 1
 	if works_early >= 2 and game.clock <= 150.0:
+		rush_saw = "two Light Works very early"
 		return "two Light Works already up at %d:%02d" % [int(game.clock) / 60, int(game.clock) % 60]
 	for k in foe_early_prod:
 		if k == "movement_works":
 			continue
 		if float(foe_early_prod[k]) <= float(EARLY_PROD[k]):
+			rush_saw = "a production building very early"
 			return "a %s already up at %d:%02d" % [String((Defs.BUILDINGS if Defs.BUILDINGS.has(k) else Defs.UNITS)[k]["name"]), int(foe_early_prod[k]) / 60, int(foe_early_prod[k]) % 60]
 	var n := 0
 	var first := INF
@@ -563,6 +602,7 @@ func rush_evidence() -> String:
 	if n <= 0:
 		return ""
 	if first <= EARLY_RUSH_BY and (n >= 2 or first <= 150.0):
+		rush_saw = "fast rush units early"
 		return "%d fast %s seen at %d:%02d" % [n, _rush_names(), int(first) / 60, int(first) % 60]
 	return ""
 
@@ -606,7 +646,7 @@ func _check_rush_units() -> void:
 	var ev := rush_evidence()
 	if ev == "" or verdict == "rush":
 		return
-	_apply("rush", ev)
+	_apply("rush", ev, rush_saw)
 
 
 ## Remember an armed enemy unit in sight: what it is, and where the guns are.
@@ -787,12 +827,16 @@ func _recent_army() -> Array:
 	return [v, s]
 
 
-## What the sightings say: {"verdict", "reason", "halls", "econ", "mil", "walls", "value", "sup"}.
+## What the sightings say: {"verdict", "reason", "saw", "halls", "econ", "mil", "walls", "defs", "value", "sup"}.
+## THE READ (ai-optimal, the owner 2026-11-05: "the absence of army or buildings is already information"): the verdict is
+## one of five reads (AIRead.NAME): rush = AGGRESSIVE, greedy = GREEDY, balanced = NORMAL, defensive = DEFENSIVE,
+## uncertain = UNKNOWN. "saw" is a short fixed phrase of what the scout saw (AIRead.SAW: the story tells it, translated).
 func _evaluate() -> Dictionary:
 	var halls := 0
 	var econ := 0
 	var mil := 0
 	var walls := 0
+	var defs := 0
 	var hall_kind: String = game.faction_hall(_foe)
 	for b in _seen_b.keys():
 		if b.kind == hall_kind:
@@ -803,6 +847,8 @@ func _evaluate() -> Dictionary:
 			mil += 1
 		elif b.kind == "wall" or b.kind == "gate":
 			walls += 1
+		elif AIRead.DEFENCES.has(b.kind):
+			defs += 1
 	var nq := BroodNew.queen(game, _foe) if not _nb_seen.is_empty() else null
 	for nu in _nb_seen.keys():
 		if not is_instance_valid(nu) or nu.dead:
@@ -815,6 +861,8 @@ func _evaluate() -> Dictionary:
 			mil += 1
 		elif nu.kind == BroodNew.TURTLE and nq != null and nq.position.distance_to(nu.position) >= float(Defs.NB["expansion_tiles"]) * Defs.TILE:
 			halls += 1          # (a Mound Turtle rooted on new ground: the Brood's expansion)
+		elif nu.kind != BroodNew.TURTLE and nu.has_attack():
+			defs += 1           # (a warrior rooted to hold ground: the Brood's static defence)
 	var fac: String = game.faction_of(_foe)
 	var econ_cap := BROOD_ECON_CAP if fac == "brood" else 0
 	for k in Defs.econ_of(fac):
@@ -824,38 +872,75 @@ func _evaluate() -> Dictionary:
 	var sup: int = ra[1]
 	var thr: float = RUSH_VALUE.get(fac, 400.0)
 	var clock := game.clock
-	var out := {"verdict": "balanced", "reason": "", "halls": halls, "econ": econ, "mil": mil, "walls": walls, "value": value, "sup": sup}
+	var out := {"verdict": "balanced", "reason": "", "saw": "a standard opening", "halls": halls, "econ": econ, "mil": mil, "walls": walls, "defs": defs, "value": value, "sup": sup}
 	var cov := _coverage()
 	var ev := rush_evidence()
+	var known: float = ai.ch.foe_known() if ai.ch != null and fac == "brood" and brood_read_on else 0.0
+	var nums := "%d halls, %d economy, %d military buildings, %d supply of army" % [halls, econ, mil, sup]
 	if ev != "":
 		out["verdict"] = "rush"
 		out["reason"] = ev
+		out["saw"] = rush_saw
 	elif clock < 400.0 and (value >= thr or (_far_army_t >= 0.0 and clock - _far_army_t < 60.0 and value >= thr * 0.4)):
 		out["verdict"] = "rush"
 		out["reason"] = "early army (%d supply) in or out of its base" % sup
+		out["saw"] = "a big early army"
 	elif mil >= 2 and econ <= econ_cap and halls <= 1 and clock < 240.0 and value > 0.0:
 		out["verdict"] = "rush"
 		out["reason"] = "%d production buildings, %d economy buildings, %d supply of army" % [mil, econ, sup]
+		out["saw"] = "production buildings and a thin economy"
 	elif mil >= 1 and halls <= 1 and econ < econ_cap - 1 and clock < 180.0 and _hall_seen and value >= thr * 0.5:
 		out["verdict"] = "rush"
 		out["reason"] = "a production building, a thin economy and %d supply of army" % sup
+		out["saw"] = "production buildings and a thin economy"
+	elif defs >= DEF_TURRETS or (defs >= 1 and halls <= 1 and clock < 300.0) or (walls >= DEF_WALLS and halls <= 1 and value < thr * 0.5):
+		# (DEFENSIVE: static defence early, or one base walled all round with little army out: it turtles)
+		out["verdict"] = "defensive"
+		out["reason"] = "%d static defences, %d wall pieces, %s" % [defs, walls, nums]
+		out["saw"] = "turrets or rooted defenders" if defs > 0 else "walls all round one base"
+	elif halls >= 2 and value < thr * 0.5 and mil <= 1 and not (fac == "brood" and brood_read_on and known >= thr * 0.5):
+		out["verdict"] = "greedy"
+		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else nums
+		out["saw"] = "a second base and little army"
+	elif absence_on and _hall_seen and mil == 0 and value <= 0.0 and known <= 0.0 and clock >= GREEDY_ABSENT_FROM \
+			and cov >= (BROOD_LOOK_COV if fac == "brood" else ABSENT_COV):
+		# (THE ABSENCE IS INFORMATION, the owner 2026-11-05: its base looked at and no army and no production building, at a
+		# time a rush or a normal opening would have one: it is putting everything into its economy)
+		out["verdict"] = "greedy"
+		out["reason"] = "its base seen (%d%%) at %d:%02d: no army, no production building; %d economy buildings, %d workers" % [
+			int(cov * 100.0), int(clock) / 60, int(clock) % 60, econ, _workers_seen]
+		out["saw"] = "no army and no production at its base"
 	elif fac == "brood" and brood_read_on and not _brood_seen_enough():
 		# (THE BROOD READ: what the scout saw is too little to call it greedy: see _brood_seen_enough)
 		out["reason"] = _brood_reason(halls, econ, mil, sup)
 		if not _hall_seen and cov < 0.35:
 			out["verdict"] = "uncertain"
-	elif halls >= 2 and value < thr * 0.5 and mil <= 1 and not (fac == "brood" and brood_read_on and ai.ch != null and ai.ch.foe_known() >= thr * 0.5):
-		out["verdict"] = "greedy"
-		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else "%d halls, %d economy buildings, %d military buildings, %d supply of army" % [halls, econ, mil, sup]
+			out["saw"] = "too little of its base"
 	elif clock >= 210.0 and econ >= econ_cap and mil == 0 and value <= 0.0 and cov >= 0.55 and _workers_seen >= 10 and not (fac == "brood" and brood_read_on):
 		out["verdict"] = "greedy"
 		out["reason"] = "a full economy (%d buildings, %d workers), no military building, no army" % [econ, _workers_seen]
+		out["saw"] = "a full economy and no military building"
 	elif not _hall_seen and cov < 0.35 and halls == 0:
 		out["verdict"] = "uncertain"
 		out["reason"] = "it saw too little of the base"
+		out["saw"] = "too little of its base"
 	else:
-		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else "%d halls, %d economy, %d military buildings, %d supply of army" % [halls, econ, mil, sup]
+		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else nums
 	return out
+
+
+## (ai-optimal) The read's thresholds. DEFENSIVE: this many static defences seen (turrets, rooted defenders), or one
+## seen on a single base before 5:00, or this many wall pieces round a single base with little army. GREEDY by absence:
+## its base looked at (this share of its main, the Brood's BROOD_LOOK_COV) and nothing military from this time on (a rush
+## has its production by then: the Crown's Barracks at ~0:55, the Clockwork's Light Works at ~0:40, the Brood's Sire at ~0:20).
+const DEF_TURRETS := 2
+const DEF_WALLS := 8
+const ABSENT_COV := 0.4
+const GREEDY_ABSENT_FROM := 55.0
+## (study switch: `-- absence:off` reads as 0.31: an empty base is no read, the scout looks again)
+var absence_on := not OS.get_cmdline_user_args().has("absence:off")
+## The fixed phrase of the rush evidence last found (rush_evidence sets it).
+var rush_saw := "fast rush units early"
 
 
 ## THE BROOD READ (the owner's log 2026-11-03, v0.27.0 Red Coast 5:05: "scouted: greedy economy (2 halls, 0 economy
@@ -908,29 +993,41 @@ func _redecide() -> void:
 		return        # (a defence is held for its time; a smaller sighting is no reason to drop it)
 	var r := _evaluate()
 	if r["verdict"] != verdict and not (r["verdict"] == "balanced" and verdict == "uncertain" and _coverage() < 0.35 and not _hall_seen):
-		_apply(r["verdict"], r["reason"])
+		_apply(r["verdict"], r["reason"], String(r.get("saw", "")))
 
 
-func _apply(v: String, why: String) -> void:
+func _apply(v: String, why: String, seen := "") -> void:
 	var was := verdict
+	if seen == "":
+		seen = AIRead.default_saw(v)
 	if v == was:
 		reason = why
+		saw = seen
 		return
 	verdict = v
 	reason = why
+	saw = seen
 	decided_at = game.clock
+	reads.append([game.clock, v, seen])
 	var fac := _faction()
 	# undo what the last decision changed
 	mod = {}
 	want_wall = false
-	if was == "greedy" and ai.strategy == "timing" and ai._opened != "timing" and not ai._attacking:
+	if was == "greedy" and ai.strategy == "timing" and ai._opened != "timing" and not ai._attacking and not ai.adaptive():
 		ai.strategy = ai._opened
 		ai._attack_at = maxi(int(ai._s("wave")), ai._army_supply(game.army(ai.team)) + 2) if ai._attack_at >= 999 else ai._attack_at
+	# THE READ (ai-optimal): what it saw -> what it makes of it -> what it does. A fixed plan keeps its identity (the owner:
+	# "if I chose an AI to go economic ... it would default to trying to outpace in an economic race"): survival always (a
+	# rush is defended), the obvious answers, and otherwise its own plan. OPTIMAL (ai.adaptive()) picks its build itself
+	# from the read (scripts/ai_optimal.gd), after this.
+	var head := "scouted: %s [%s] (%s)" % [AIRead.word(v), seen, why]
+	var pname := String(AI.STRATEGIES.get(ai.strategy, AI.STRATEGIES["balanced"])["name"])
 	match v:
 		"balanced":
-			if ai.strategy != ai._opened and ai._opened != "timing":
+			if ai.strategy != ai._opened and ai._opened != "timing" and not ai.adaptive():
 				ai.strategy = ai._opened
-			_say("scouted: %s (%s), carrying on with its %s plan" % [v, why, String(AI.STRATEGIES[ai.strategy]["name"]).to_lower()])
+				pname = String(AI.STRATEGIES.get(ai.strategy, AI.STRATEGIES["balanced"])["name"])
+			_say("%s: %s" % [head, "OPTIMAL picks its build from this" if ai.adaptive() else "keeps to its %s plan" % pname])
 		"rush":
 			mod = DEFEND_MOD.duplicate()
 			want_wall = true
@@ -939,20 +1036,45 @@ func _apply(v: String, why: String) -> void:
 			# hold at home until the army is a match for what was seen, then counter
 			ai._attack_at = maxi(maxi(ai._attack_at, 16), int(ceil(float(ra[1]) * 1.4)) + 6)
 			ai._regroup_until = maxf(ai._regroup_until, game.clock + float(ai._lv([200.0, 160.0, 130.0])))
-			_say("scouted: rush (%s), switching to a defensive build: army and %s first, then a counter-attack" % [why, "walls" if fac == "crown" else "production"])
+			_say("%s: a rush is coming; switching to a defensive build: defends first, army and %s, then a counter-attack" % [head, "walls" if fac == "crown" else "production"])
 		"greedy":
-			var plan := _timing_plan(_evaluate())
-			timing_target = plan["target"]
-			mod = {"timing": plan["at"], "expand": 1.0 if fac == "brood" else 1.2, "halls": 3, "tech": 0.6 if fac == "clockwork" else 0.75, "workers": 1.0}
-			if not ai._attacking:
-				ai.strategy = "timing"
-				ai._attack_at = 999
-			_say("scouted: greedy economy (%s), switching to a timing attack at %d:%02d (%d supply)" % [why, int(plan["at"]) / 60, int(plan["at"]) % 60, timing_target])
+			var strong := seen != "no army and no production at its base"
+			if ai.adaptive():
+				_say("%s: OPTIMAL picks its build from this" % head)
+			elif ai.strategy == "timing" or (ai.strategy == "balanced" and strong):
+				# (Balanced and Timing punish a real greed, an expansion or a full economy with no army: the timing attack)
+				var plan := _timing_plan(_evaluate())
+				timing_target = plan["target"]
+				mod = {"timing": plan["at"], "expand": 1.0 if fac == "brood" else 1.2, "halls": 3, "tech": 0.6 if fac == "clockwork" else 0.75, "workers": 1.0}
+				if not ai._attacking:
+					ai.strategy = "timing"
+					ai._attack_at = 999
+				_say("%s: it is all economy; switches to a timing attack at %d:%02d (%d supply)" % [head, int(plan["at"]) / 60, int(plan["at"]) % 60, timing_target])
+			elif ai.strategy == "economy":
+				mod = {"expand": RACE_EXPAND, "halls": 4}
+				_say("%s: it is all economy; races it: more bases sooner" % head)
+			else:
+				_say("%s: it is all economy; keeps to its %s plan" % [head, pname])
+		"defensive":
+			if ai.adaptive():
+				_say("%s: OPTIMAL picks its build from this" % head)
+			elif ai.strategy in ["economy", "balanced"]:
+				mod = {"expand": RACE_EXPAND if ai.strategy == "economy" else 0.7, "tech": 0.85}
+				_say("%s: it turtles; out-expands it and techs up" % head)
+			else:
+				_say("%s: it turtles; keeps to its %s plan" % [head, pname])
 		"uncertain":
-			mod = SAFE_MOD.duplicate()
-			want_wall = true
-			ai._attack_at = maxi(ai._attack_at, 16) if ai._attack_at < 999 else ai._attack_at
-			_say("could not see the enemy (%s): playing safe (army and walls, no greedy economy), scouting again later" % why)
+			# (UNKNOWN is no reason for an army: the owner's "could not see the enemy: playing safe" -> an army for nothing)
+			_say("could not see the enemy [%s] (%s): that proves nothing; no army for it, keeps to its %s plan and looks again soon" % [seen, why, pname])
+	ai.on_read(v, seen)
+
+
+## (ai-optimal) The Economy plan's answer to a greedy or a turtling enemy: the race, its next halls sooner (x the time).
+const RACE_EXPAND := 0.3
+var saw := ""                   # the read's fixed phrase (AIRead.SAW)
+var reads: Array = []           # [clock, verdict, saw] of every read (tests and the coach read it)
+var trip_log: Array = []        # [clock, how it ended, % of its main seen, hall seen, read] of every trip
+var debug_trips := OS.get_cmdline_user_args().has("scoutlog:on")
 
 
 ## When a timing attack goes and how big it is: the more economy and the less army was seen
@@ -998,8 +1120,8 @@ func timing_ok(value: float) -> bool:
 ## A defensive or a safe game builds production earlier and walls the ramp (Crown only: the
 ## other factions have no walls).
 func _defence() -> void:
-	if verdict != "rush" and verdict != "uncertain":
-		return
+	if verdict != "rush" and (verdict != "uncertain" or absence_on):
+		return          # (ai-optimal: an enemy not seen is no reason for an army: only a rush is)
 	if ai.bo_owns():
 		return          # (the Crown's build order owns the gold in its opening: scripts/ai_crown.gd)
 	if verdict == "uncertain" and ai.eco_calm():
