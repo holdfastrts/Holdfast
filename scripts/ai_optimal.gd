@@ -173,6 +173,11 @@ func _punish(f: String, t: float) -> Array:
 				return ["timing", "a timing attack before its economy pays off"]
 			return ["economy", "too late to punish: out-expand it"]
 		"clockwork":
+			if f == "brood":
+				# (coached games, 0.32.0: the Clock Soldier rush on a greedy Brood ended behind or lost in all three, the
+				# Raptors hatch before it arrives; the Owl raids strike its grubs from the air, where its swarm cannot answer:
+				# its best plan against the Brood, docs/clockwork_builds_c.md)
+				return ["owls", "raids on its workers"] if t < TOO_LATE else ["economy", "too late to punish: out-expand it"]
 			if early:
 				return ["cs_rush", "punish the greed before its army is up"]
 			if t < TOO_LATE:
