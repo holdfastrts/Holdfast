@@ -316,6 +316,7 @@ func _nb_observe(q: Unit) -> void:
 	var out := 0.0                  # (value seen OUT of the enemy's own base: an army on the move)
 	var home := 0.0
 	var fast := 0
+	var fast_home := 0
 	var foe := _foe()
 	var fst: Vector2 = (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE if foe >= 0 else Vector2.INF
 	var past := 0.0                 # (value seen past the foot of its ramp: an army that has left its main)
@@ -344,6 +345,8 @@ func _nb_observe(q: Unit) -> void:
 			air += 1
 		if float(u.d.get("speed", 0)) >= 95.0 and not u.is_air() and away:
 			fast += 1
+		elif float(u.d.get("speed", 0)) >= 95.0 and not u.is_air() and game.clock < 150.0:
+			fast_home += 1          # (ai-optimal: fast warriors already at its base this early: a rush getting ready)
 		if is_rider(u):
 			riders_now += 1
 		if u.position.distance_to(q.position) < 24.0 * Defs.TILE:
@@ -386,6 +389,8 @@ func _nb_observe(q: Unit) -> void:
 		var why := ""
 		if fast >= 2:
 			why = "%d fast riders seen at %s" % [fast, _mmss()]
+		elif fast_home >= 2:
+			why = "%d fast warriors at its base at %s" % [fast_home, _mmss()]
 		elif home >= 150.0:
 			why = "an army (%d) near the Mother at %s" % [int(home), _mmss()]
 		elif out >= 300.0 and game.clock < 210.0:
@@ -419,6 +424,7 @@ func _nb_read(fst: Vector2) -> void:
 		_base_seen_t = game.clock
 	var hall_kind: String = game.faction_hall(foe)
 	var halls := 0
+	var exp_seen := 0
 	var mil := 0
 	var defs := 0
 	for b in _foe_blds.keys():
@@ -426,10 +432,14 @@ func _nb_read(fst: Vector2) -> void:
 			continue
 		if b.kind == hall_kind:
 			halls += 1
+			if b.center().distance_to(fst) > 8.0 * Defs.TILE:
+				exp_seen += 1           # (a hall away from its start: an expansion, its main seen or not)
 		elif AIScout.MILITARY.has(b.kind):
 			mil += 1
 		elif AIRead.DEFENCES.has(b.kind):
 			defs += 1
+	if game.faction_of(foe) != "brood":
+		halls = maxi(halls, 1 + exp_seen)     # (its main stands whether it was seen or not; the Brood's Mother counts below)
 	var fq := BroodNew.queen(game, foe)
 	for nu in _foe_nb_seen.keys():
 		if not is_instance_valid(nu) or nu.dead:
@@ -448,7 +458,7 @@ func _nb_read(fst: Vector2) -> void:
 	var seen := ""
 	if _rush_on():
 		v = "rush"
-		seen = "fast rush units early" if rush_seen.contains("riders") else ("an army near its home" if rush_seen.contains("near") else "its army on the move early")
+		seen = "fast rush units early" if rush_seen.contains("riders") or rush_seen.contains("warriors") else ("an army near its home" if rush_seen.contains("near") else "its army on the move early")
 	elif defs >= 2 or (defs >= 1 and halls <= 1 and game.clock < 300.0):
 		v = "defensive"
 		seen = "turrets or rooted defenders"
@@ -662,6 +672,17 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 			var c: Vector2 = _foot + _foot_dir * 5.0 * Defs.TILE if _foot != Vector2.INF else st
 			var side := _foot_dir.orthogonal() * 3.0 * Defs.TILE
 			_scout_pts = [c + side, c - side]
+			if _foot != Vector2.INF:
+				# (ai-optimal: the walled Crown's read is its next hall: a second hall early is greed. The Crown puts it at
+				# the least hall distance from its main, by the foot of its ramp, the third its mirror on the other side
+				# (docs/expansion_spots.md, "The Crown's rule"): the watcher looks at both on its rounds)
+				var hc := st
+				var fd := (_foot - hc).normalized()
+				for ang in [-0.9, 0.9]:
+					var pt: Vector2 = hc + fd.rotated(ang) * float(Defs.HALL_SPACING) * Defs.TILE
+					var cc := Vector2i(pt / Defs.TILE)
+					if game.in_map(cc) and game.solid[game.idx(cc)] == 0:
+						_scout_pts.append(pt)
 		else:
 			var toward := (q.position - st).normalized()
 			_scout_pts = [st + toward * 8.0 * Defs.TILE, st + toward.orthogonal() * 7.0 * Defs.TILE, st - toward * 6.0 * Defs.TILE,

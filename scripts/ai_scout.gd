@@ -522,7 +522,9 @@ func _observe() -> void:
 		_learn(u)
 		# (ai-optimal story audit: fast soldiers seen AT HOME in their own base after the first minutes are its defence, not a
 		# rush: our Horsemen raiding the Brood at 3:58 saw 4 Raptors there and the read said AGGRESSIVE, "a rush is coming")
-		var at_home: bool = u.position.distance_to(st) < HOME_R * Defs.TILE and game.clock > HOME_RUSH_BY
+		var mine := game.center_of_team(ai.team)
+		var at_home: bool = game.clock > HOME_RUSH_BY and (u.position.distance_to(st) < HOME_R * Defs.TILE \
+			or u.position.distance_to(st) < u.position.distance_to(mine))     # (on its own half: not coming at us)
 		if _is_rush_unit(u) and not at_home:
 			rush_now[u.kind] = int(rush_now.get(u.kind, 0)) + 1
 			var e: Dictionary = foe_rush_seen.get(u.kind, {"count": 0, "first": game.clock, "last": game.clock, "speed": float(u.d["speed"]), "pos": u.position})
