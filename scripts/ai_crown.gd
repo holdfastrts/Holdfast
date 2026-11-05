@@ -335,7 +335,8 @@ func _ready() -> void:
 		bl = AICrownBalloon.new(self)
 	if opening == "breeder" and strategy == "rush":
 		_attack_at = maxi(_attack_at, RUSH_HORSEMEN * int(Defs.UNITS["cuirassier"]["supply"]))
-	if game.mlog:
+	if game.mlog and strategy != "optimal":
+		# (OPTIMAL's common opening is not a plan of its own: the line comes when it picks, opt_switch)
 		game.mlog.add("%s's plan: %s, a build order of %d steps (scripts/ai_crown.gd)" % [game.mlog.who(team), STRATEGIES.get(strategy, STRATEGIES["balanced"])["name"], _bo_plan.size()])
 
 
@@ -368,6 +369,8 @@ func opt_switch(k: String) -> bool:
 		siege = AICrownSiege.new(self)
 	if k == "balloon" and bl == null and difficulty >= 1:
 		bl = AICrownBalloon.new(self)
+	if game.mlog:
+		game.mlog.add("%s's plan: %s, a build order of %d steps from here (scripts/ai_crown.gd)" % [game.mlog.who(team), STRATEGIES[k]["name"], maxi(0, _bo_plan.size() - bo_i)])
 	return true
 
 

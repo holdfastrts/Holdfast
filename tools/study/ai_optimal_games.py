@@ -24,14 +24,17 @@ def games(p):
     return out
 
 
+SA = "optimal"
+
+
 def run_one(g, out, end):
     a, b, sb, m, seed = g
-    d = os.path.join(out, "%s_opt_v_%s_%s_%s" % (a, b, sb, m))
+    d = os.path.join(out, "%s_%s_v_%s_%s_%s" % (a, "opt" if SA == "optimal" else SA, b, sb, m))
     if os.path.exists(os.path.join(d, "result.txt")):
         return d
     os.makedirs(d, exist_ok=True)
     cmd = ["timeout", "1500", "godot", "--headless", "--fixed-fps", "30", "--path", ROOT, "--script", "res://tools/play_ai_optimal.gd", "--",
-           "a:" + a, "sa:optimal", "b:" + b, "sb:" + sb, "map:" + m, "seed:%d" % seed, "end:%d" % end, "out:" + d]
+           "a:" + a, "sa:" + SA, "b:" + b, "sb:" + sb, "map:" + m, "seed:%d" % seed, "end:%d" % end, "out:" + d]
     with open(os.path.join(d, "run.out"), "w") as f:
         subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
     return d
@@ -45,10 +48,10 @@ def table(out):
             continue
         txt = open(rp).read()
         head = txt.split("\n")[0]
-        m = re.match(r"map (\S+) seed \d+: P1 (\S+) optimal v P2 (\S+) (\S+)", head)
+        m = re.match(r"map (\S+) seed \d+: P1 (\S+) (\S+) v P2 (\S+) (\S+)", head)
         if not m:
             continue
-        mp, a, b, sb = m.groups()
+        mp, a, sa, b, sb = m.groups()
         endl = re.search(r"end (\S+) winner (\S+)", txt)
         last = {}
         for l in txt.split("\n"):
@@ -90,6 +93,8 @@ if __name__ == "__main__":
         end = int(sys.argv[sys.argv.index("--end") + 1]) if "--end" in sys.argv else 720
         jobs = int(sys.argv[sys.argv.index("--jobs") + 1]) if "--jobs" in sys.argv else 2
         only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else ""
+        if "--plan" in sys.argv:
+            SA = sys.argv[sys.argv.index("--plan") + 1]
         gl = [g for g in games(p) if not only or g[0] == only]
         with ThreadPoolExecutor(jobs) as ex:
             for d in ex.map(lambda g: run_one(g, out, end), gl):

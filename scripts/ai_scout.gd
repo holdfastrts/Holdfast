@@ -131,6 +131,15 @@ func _log_has_text(text: String) -> bool:
 	return log_lines.any(func(l) -> bool: return String(l).contains(text))
 
 
+## (AI._resume: the worker safety let the scout flee with the others; it goes back to its trip, not to work)
+func resume_trip(u: Unit) -> void:
+	if u == unit and state == "going" and _wp_i < _wps.size():
+		_stuck = 0.0
+		_go(u, _wps[_wp_i])
+	elif u == sentry:
+		u.cmd_stop()
+
+
 func is_scout(u: Unit) -> bool:
 	return (unit != null and u == unit) or (sentry != null and u == sentry)
 
@@ -695,7 +704,9 @@ func _learn(u: Unit) -> void:
 		if _is_rush_unit(u):
 			# (ai-optimal story audit: only early is a fast unit a sign of a rush; Raptors first seen at 5:25 said "a sign of
 			# a Brood rush" in the owner's Frostfang log)
-			if game.clock <= EARLY_RUSH_BY:
+			# (one fast rider after 2:30 is a rider scout, not a rush: rush_evidence wants two then; the coached games told
+			# "a sign of a Crown rush" for the Crown's rider scout at 3:30)
+			if game.clock <= HOME_RUSH_BY:
 				_say("saw an enemy %s (fast, a %s rush unit): evidence of a rush" % [String(Defs.UNITS[u.kind]["name"]), fac.capitalize()])
 			else:
 				_say("saw an enemy %s (fast): raiders to watch for" % String(Defs.UNITS[u.kind]["name"]))

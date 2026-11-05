@@ -1863,9 +1863,10 @@ func _worker_safety() -> void:
 	for w in _fighters.keys():
 		if not is_instance_valid(w) or w.dead:
 			_fighters.erase(w)
-	# (not the scout: it has its own stand-off and flight, AIScout._avoid. Taken into the flee list near the enemy's
-	# creatures, it was "resumed" to a Farm at home and its trip ended "pulled away": ai-optimal)
-	var labs: Array = game.workers(team).filter(func(w: Unit) -> bool: return scout == null or not scout.is_scout(w))
+	# (ai-optimal: the scout flees with the others only from shooters, which it may not see in time itself; from melee and
+	# rooted creatures its own stand-off does (AIScout._avoid): the flee list's back-and-forth near the Brood's creatures
+	# turned it round till its trip ran out and the story said "could not see the enemy")
+	var labs: Array = game.workers(team).filter(func(w: Unit) -> bool: return scout == null or not scout.is_scout(w) or _shooter_near(w))
 	var foes := {}
 	for w in labs:
 		for o in game.units_near(w.position, FLEE_R + 100.0):
@@ -2053,6 +2054,11 @@ func _fled_back() -> void:
 
 
 func _resume(w: Unit, e := {}) -> void:
+	if scout != null and scout.is_scout(w):
+		# (ai-optimal: the scout fled with the other workers but goes back to its trip, not to a Farm: "resumed" to work,
+		# its trip ended "pulled away" at 28% of the enemy's main and the story said "could not see the enemy")
+		scout.resume_trip(w)
+		return
 	var site = e.get("site", w.home_mine)
 	var build = e.get("build", null)
 	if is_instance_valid(build) and build is Building and not build.dead and not build.built:
@@ -6814,6 +6820,15 @@ func _note_guns() -> void:
 	for o in game.units:
 		if o.team != team and game.hostile(o.team, team) and not o.dead and _is_gun(o) and o.order == "idle" and game.is_visible_to(team, o.position):
 			_known_guns[o.get_instance_id()] = {"u": o, "p": o.position, "t": game.clock}
+
+
+## A shooter (range 100 px or more) of the enemy's in sight within its range and a margin of this worker.
+func _shooter_near(w: Unit) -> bool:
+	for o in game.units_near(w.position, 520.0):
+		if game.hostile(o.team, team) and not o.dead and not o.off_field and not o.is_worker() and float(o.d.get("range", 0)) >= 100.0 \
+				and o.position.distance_to(w.position) < float(o.d.get("range", 0)) + 160.0 and game.is_visible_to(team, o.position):
+			return true
+	return false
 
 
 ## Is this ground, outside our own area, under a known enemy gun?
