@@ -1292,7 +1292,7 @@ def write_data(data):
     lines.append("}")
     lines.append("")
     lines.append("## Every unit sprite set: the generated ones above plus the roster prototype's (scripts/cw_art.gd).")
-    lines.append("static var UNITS: Dictionary = BASE_UNITS.merged(CwArt.units()).merged(RebelArt.ART)")
+    lines.append("static var UNITS: Dictionary = BASE_UNITS.merged(CwArt.units()).merged(RebelArt.ART).merged(BandArt.ART)")
     with open("scripts/art_data.gd", "w") as f:
         f.write("\n".join(lines) + "\n")
 

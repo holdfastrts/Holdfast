@@ -306,11 +306,10 @@ func set_brace(on: bool) -> void:
 	armor = float(Defs.BRACE["armor"]) if on else float(d["armor"])
 
 
-## THE MARCHING BAND: take on a musician ("drums", "pipes", "fife"; scripts/marching_band.gd).
-func band_hire(ins: String) -> void:
-	if game.net_forward(self, "band_hire", [ins]): return
-	if kind == MarchingBand.KIND:
-		MarchingBand.hire(self, ins)
+## (THE MARCHING BAND's old ADD order of the 0.23 experiment: musicians are Armoury research since 0.33.0. Kept as a
+## no-op so an old replay's or an old guest's command finds it.)
+func band_hire(_ins: String) -> void:
+	pass
 
 
 ## THE MARCHING BAND: an instrument's SOLO.
@@ -408,6 +407,7 @@ var _feather: Node2D             # (a dismounted horseman) the plume on his hat 
 var band := {}
 var band_mul := Vector3.ONE
 var band_until := -1.0
+var band_src := {}               # (each band reaching it: its instance id -> [multipliers, until]; MarchingBand.mix)
 var _band_t := 0.0
 var _band_scan := 0.0
 var _sound_t := 0.0
@@ -981,7 +981,7 @@ func _pistol_reload(delta: float) -> void:
 		return
 	if target and is_instance_valid(target) and target.edge_distance(position) - radius < float(Defs.PISTOL["busy"]):
 		return
-	pistol_t += delta
+	pistol_t += delta * (band_mul.z if band_until > game.clock else 1.0)      # (the band's FIFE: scripts/marching_band.gd)
 	if pistol_t >= float(Defs.PISTOL["reload"]):
 		pistol_t = 0.0
 		pistol = true
@@ -1949,7 +1949,8 @@ func _ready() -> void:
 		add_child(_rein)
 	_update_feather()
 	if kind == MarchingBand.KIND:
-		_band_fx = Node2D.new()          # (its instruments and notes over the sprite: code-drawn stand-ins)
+		MarchingBand.sync(self, true)    # (a new band: the Drummer and every musician researched, +15 health each)
+		_band_fx = Node2D.new()          # (the notes over the band during a solo: code-drawn)
 		_band_fx.draw.connect(func() -> void: MarchingBand.draw_kit(self, _band_fx))
 		add_child(_band_fx)
 	if kind == "cannon" and not ArtData.UNITS["cannon"]["frames"].has("walk_e"):
@@ -3620,7 +3621,7 @@ func _tick_unit(delta: float) -> void:
 	if kind == Defs.BALLISTA_KIND:
 		Ballista.wind(self, delta)                 # (its spring is wound only while it stands, faster with crew)
 	elif kind != "dragoon":
-		cooldown = maxf(cooldown - delta * (band_mul.z if band_until > game.clock and mode != "bayonet" else 1.0), 0.0)     # (a Dragoon's reload waits while he rides; the band's FIFE: MarchingBand)
+		cooldown = maxf(cooldown - delta * (band_mul.z if band_until > game.clock and mode != "bayonet" and (not _k_ammo or ammo_shots() > 0) else 1.0), 0.0)     # (a Dragoon's reload waits while he rides; the band's FIFE: MarchingBand)
 	jump_cd = maxf(jump_cd - delta, 0.0)
 	if _pmax > 0.0:
 		_powder_tick(delta)
@@ -7367,6 +7368,8 @@ func _animate(delta: float) -> void:
 	var sf := clampi(shown, 0, sprite.hframes - 1)
 	if sprite.frame != sf:
 		sprite.frame = sf          # (only when it changes: perf_units)
+	if kind == MarchingBand.KIND:
+		MarchingBand.group_look(self)     # (the Fifer and the Piper behind the Drummer, once researched)
 	if not team_horses.is_empty() or not _team_sprites.is_empty():
 		_update_team(delta, fps)
 	if _front:
@@ -7416,6 +7419,10 @@ func _animate(delta: float) -> void:
 		sprite.position = Vector2(0.0, Ballista.crew_bob(self))     # (a Ballista's pusher: a step bob, scripts/ballista.gd)
 	elif kind == "mist_toad":
 		sprite.position = _hop_off.round()      # (held on the ground frames, carried in the air: ToadHop.track every tick)
+	elif kind == MarchingBand.KIND:
+		var bob := Vector2(0.0, -MarchingBand.lead_bob(self, "drums"))      # (the Drummer bobs in his solo)
+		if sprite.position != bob:
+			sprite.position = bob
 	elif kind != "cannon" and sprite.position != Vector2.ZERO:
 		sprite.position = Vector2.ZERO
 	var asc := float(d.get("art_scale", 1.0))

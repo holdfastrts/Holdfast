@@ -3826,7 +3826,7 @@ func refund(t: int, k: String, kit: Dictionary = {}, at: Building = null) -> voi
 		stats[t]["spent"] -= int(info["cost"])
 		return
 	var fee := kit_fee(kit, k)
-	players[t]["gold"] += int(Defs.UNITS[k]["cost"]) + fee[0]
+	players[t]["gold"] += int(Defs.UNITS[k]["cost"]) + fee[0] + int(kit.get("bandx", 0))
 	if Defs.tension_cost(Defs.UNITS[k]) > 0:
 		add_tension(t, float(Defs.tension_cost(Defs.UNITS[k])))      # (gear mode's Clockwork: its Tension back)
 	elif faction_of(t) == "clockwork":
@@ -4013,10 +4013,6 @@ func can_train(b: Building, key: String) -> String:
 		var allowed := buildings.filter(func(x: Building) -> bool: return x.team == b.team and x.kind == u["per"] and x.built and not x.dead).size()
 		if have >= allowed:
 			return "Only one %s per %s." % [u["name"], Defs.BUILDINGS[u["per"]]["name"]]
-	if k == MarchingBand.KIND:
-		var mbp := MarchingBand.limit_problem(self, b.team)      # (one Marching Band per player; only with the experiment on)
-		if mbp != "":
-			return mbp
 	if Defs.cw_roster and Defs.CW_KINDS.has(k):
 		var cwp := CwUnits.limit_problem(self, b.team, k, b.queue.count(k))
 		if cwp != "":
@@ -4242,6 +4238,8 @@ func unit_price(t: int, key: String) -> Array:
 		var f := kit_fee(kit_for_new(t, key), k)
 		p[0] += f[0]
 		p[1] += f[1]
+	if k == MarchingBand.KIND and t >= 0 and t < players.size():
+		p[0] += MarchingBand.price_extra(self, t)      # (+25 gold for each musician researched: they all come with it)
 	return p
 
 
@@ -4415,6 +4413,9 @@ func train(b: Building, key: String) -> String:
 	if k == "horse":
 		kit = kit.duplicate()
 		kit["coat"] = HorseCoat.pick()      # (decided now: the paddock shows it, the horse comes out in it)
+	if k == MarchingBand.KIND and price[0] > int(Defs.UNITS[k]["cost"]):
+		kit = kit.duplicate()
+		kit["bandx"] = price[0] - int(Defs.UNITS[k]["cost"])      # (its musicians' share of the price: paid back if cancelled)
 	b.add_entry(k, kit)
 	return ""
 
@@ -7469,10 +7470,21 @@ static func spell_info(spell: String) -> Dictionary:
 const CASTERS := {"storm": "stormcaller", "fog": "mist_toad", "miasma": "mist_toad", "scatter": "great_winder"}      # (scatter: the Great Winder's SCATTER COGS, scripts/cog_scatter.gd)
 
 
+## The research a spell needs ("" none): the Mist Toad's FOG and MIASMA (Defs.RESEARCH "spell").
+static func spell_research(spell: String) -> String:
+	for k in Defs.RESEARCH:
+		if String(Defs.RESEARCH[k].get("spell", "")) == spell:
+			return k
+	return ""
+
+
 ## Why this unit can't cast that spell now ("" = it can).
 func spell_problem(u: Unit, spell: String) -> String:
 	if u.net_t > 0.0:
 		return "It is caught in a net: no spells until it is free."
+	var srk := spell_research(spell)
+	if srk != "" and u.team >= 0 and not has_tech(u.team, srk):
+		return "Research %s at the %s first." % [String(Defs.RESEARCH[srk]["name"]), Defs.UNITS[String(Defs.RESEARCH[srk]["at"])]["name"]]
 	if spell == "fog":
 		if u.charge < float(Defs.FOG["cost"]):
 			return "Not enough energy: FOG needs %d (it fills over time, faster on swamp)." % int(Defs.FOG["cost"])

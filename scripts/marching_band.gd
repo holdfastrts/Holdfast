@@ -1,37 +1,90 @@
 class_name MarchingBand
 extends RefCounted
-## THE CROWN'S MARCHING BAND (the owner's idea, 2026-10-30; docs/marching_band.md; an EXPERIMENT behind the setting
-## MARCHING BAND (experiment), off by default, kept in the match's setup: cfg "marching_band", Defs.marching_band).
+## THE CROWN'S MARCHING BAND (the owner's idea 2026-10-30; a real Crown unit since 0.33.0, the owner's decisions of
+## 2026-11-05; docs/marching_band.md).
 ##
-## A 17th-century band that follows the soldiers and plays them into battle. ONE per player, trained at the Barracks.
-## It starts as the bandmaster alone; MUSICIANS are taken on like a refit (ADD DRUMMER / ADD PIPER / ADD FIFER: a price and
-## a few seconds each), each bringing an instrument. Every instrument it has keeps playing as a SECONDARY (a small aura);
-## an instrument's SOLO (an active ability: short, then a long cooldown) puts it in the LEAD for a few seconds: its full
-## buff. One solo at a time. Mechanical, not magic: a drum sets the pace, the pipes stir the blood, the fife keeps time
-## for the loading drill.
-##   DRUMS: movement speed        PIPES: melee damage (bayonets, sabres)        FIFE: reload speed (muskets, pistols, guns)
+## A 17th-century band that follows the soldiers and plays them into battle. Trained at the ARMOURY; a new band is a
+## DRUMMER. The FIFER and the PIPER are Armoury RESEARCH (Defs.RESEARCH "band_fife", "band_pipes"), in any order: done,
+## the musician joins EVERY band of the player (those on the field at once, every new one comes out with him), and every
+## new band costs Defs.MARCHING_BAND "per_musician" more. SEVERAL bands may play (like cannons); their rings don't add
+## up (each stat takes the strongest). Every instrument it has always plays its SECONDARY (+5%); an instrument's SOLO (8 s,
+## then 45 s before it may solo again) puts it in the LEAD (+30%). ONE SOLO AT A TIME PER BAND (two bands may solo at
+## once). Mechanical, not magic: a drum sets the pace, the pipes stir the blood, the fife keeps time for the loading drill.
+##   DRUMS: movement speed    PIPES: melee damage (bayonets, sabres)    FIFE: reload speed (muskets, pistols, guns)
 ## Everything inside its RING (Defs.MARCHING_BAND "area") of its own side and its allies is covered (soldiers and guns,
 ## not workers, horses, wagons, medics or the band). The ring is drawn on the ground for everyone who sees the band
-## (the telegraph: docs/design_principles.md 1), brighter while a solo plays. It is unarmed and fragile: kill it and the
-## music stops (the risk that pays for the buffs).
+## (the telegraph: docs/design_principles.md 1), in the leading instrument's colour during a solo. It is unarmed and
+## fragile (60 + 15 health a musician): kill it and the music stops (the risk that pays for the buffs).
+##
+## Drawn as a GROUP THAT GROWS (group_look): the Drummer is the unit's sprite (art "band"), the Fifer and the Piper are
+## child sprites (arts "band_fifer", "band_piper", tools/import_band.py) that fall in behind him, each once he is in.
 ##
 ## The state lives on the band unit in `Unit.band` (saved, sent online and recorded in replays as one field):
-##   "m": the instruments it has, in the order taken on; "h": the one being taken on now ("" none), "he": the clock it
-##   joins; "s": the instrument playing a solo ("" none), "se": the clock it ends; "cd": {instrument: the clock it may
-##   solo again}. Clocks are the game clock (Game.clock), so the state only changes when something happens.
+##   "m": the instruments it has; "s": the instrument playing a solo ("" none), "se": the clock it ends; "cd":
+##   {instrument: the clock it may solo again}. Clocks are the game clock (Game.clock). (Old saves' "h"/"he", a
+##   musician being taken on in the 0.23 experiment, are ignored: research decides the musicians now.)
 ## The buff a covered unit gets is on that unit: `band_mul` (speed, melee, reload multipliers) until `band_until`.
 
 const KIND := "band"
 const INSTRUMENTS := ["drums", "pipes", "fife"]
+## Where each musician marches in the group, in the sprite's own (SE, unmirrored) space: the Drummer leads, the Fifer and
+## the Piper behind him on either side (a SE view: behind is up-left).
+const SPOT := {"fife": Vector2(8, -7), "pipes": Vector2(-11, -3)}
+const ART := {"drums": "band", "fife": "band_fifer", "pipes": "band_piper"}
 const B := Defs.MARCHING_BAND
 
 
 static func on(g: Game, t: int) -> bool:
-	return Defs.marching_band and t >= 0 and t < g.factions.size() and g.factions[t] == "crown"
+	return t >= 0 and t < g.factions.size() and g.factions[t] == "crown"
 
 
 static func fresh() -> Dictionary:
-	return {"m": [], "h": "", "he": 0.0, "s": "", "se": 0.0, "cd": {}}
+	return {"m": [], "s": "", "se": 0.0, "cd": {}}
+
+
+## The research that brings this musician ("" for the Drummer: every band has him).
+static func research_of(ins: String) -> String:
+	return String(B[ins].get("research", ""))
+
+
+## Is this musician in this side's bands (the Drummer always; the others once researched)?
+static func available(g: Game, t: int, ins: String) -> bool:
+	var rk := research_of(ins)
+	return rk == "" or (t >= 0 and t < g.players.size() and g.has_tech(t, rk))
+
+
+## How many musicians this side has researched (each makes a band dearer).
+static func researched(g: Game, t: int) -> int:
+	var n := 0
+	for ins in INSTRUMENTS:
+		if research_of(ins) != "" and available(g, t, ins):
+			n += 1
+	return n
+
+
+## A new band's extra price in gold: Defs.MARCHING_BAND "per_musician" for each musician researched (Game.unit_price).
+static func price_extra(g: Game, t: int) -> int:
+	return int(B["per_musician"]) * researched(g, t)
+
+
+## The musicians researched join the band (each +15 health); the Drummer is in every band. True if one joined.
+static func sync(u: Unit, quiet := false) -> bool:
+	var g := u.game
+	if u.band.is_empty():
+		u.band = fresh()
+	var joined := false
+	for ins in ["drums", "fife", "pipes"]:
+		if has(u, ins) or not available(g, u.team, ins):
+			continue
+		(u.band["m"] as Array).append(ins)
+		u.max_hp += float(B["hp_per"])
+		u.hp = minf(u.max_hp, u.hp + float(B["hp_per"]))
+		joined = true
+		if not quiet and ins != "drums" and u.team == g.human and u.visible:
+			g.float_text(u.position + Vector2(0, -40), Loc.t("+ %s") % Loc.t(String(B[ins]["who"])), Color(1.0, 0.9, 0.5))
+	if joined:
+		u.queue_redraw()
+	return joined
 
 
 static func has(u: Unit, ins: String) -> bool:
@@ -52,12 +105,6 @@ static func solo_left(u: Unit) -> float:
 
 static func cooldown_left(u: Unit, ins: String) -> float:
 	return maxf(float((u.band.get("cd", {}) as Dictionary).get(ins, 0.0)) - u.game.clock, 0.0)
-
-
-static func hire_left(u: Unit) -> float:
-	if String(u.band.get("h", "")) == "":
-		return 0.0
-	return maxf(float(u.band.get("he", 0.0)) - u.game.clock, 0.0)
 
 
 ## The share an instrument gives now: its full buff leading, a small share as a secondary, nothing if it isn't there.
@@ -90,16 +137,8 @@ static func tick(u: Unit, delta: float) -> void:
 	var g := u.game
 	if u.band.is_empty():
 		u.band = fresh()
-	# a musician joins
-	var h := String(u.band.get("h", ""))
-	if h != "" and g.clock >= float(u.band.get("he", 0.0)):
-		(u.band["m"] as Array).append(h)
-		u.band["h"] = ""
-		u.max_hp += float(B["hp_per"])
-		u.hp = minf(u.max_hp, u.hp + float(B["hp_per"]))
-		if u.team == g.human:
-			g.float_text(u.position + Vector2(0, -40), Loc.t("+ %s") % Loc.t(String(B[h]["who"])), Color(1.0, 0.9, 0.5))
-		u.queue_redraw()
+	# the musicians researched join it (a new band: the Drummer and every one researched)
+	sync(u)
 	if String(u.band.get("s", "")) != "" and g.clock >= float(u.band.get("se", 0.0)):
 		u.band["s"] = ""
 		u.queue_redraw()
@@ -128,16 +167,32 @@ static func play_over(u: Unit) -> int:
 	var g := u.game
 	var until := g.clock + float(B["linger"])
 	var n := 0
+	var id := u.get_instance_id()
 	for o: Unit in g.units_near(u.position, float(B["area"])):
 		if not covers(u, o):
 			continue
-		if o.band_until > g.clock:
-			o.band_mul = Vector3(maxf(o.band_mul.x, m.x), maxf(o.band_mul.y, m.y), maxf(o.band_mul.z, m.z))
-		else:
-			o.band_mul = m
-		o.band_until = until
+		o.band_src[id] = [m, until]
+		mix(o)
 		n += 1
 	return n
+
+
+## A covered unit's buff from every band reaching it: each stat the STRONGEST band's (rings don't add up), until the
+## last of them lapses. (Each band's own entry is replaced on its every pass, so a solo that ended stops counting.)
+static func mix(o: Unit) -> void:
+	var now := o.game.clock
+	var mul := Vector3.ONE
+	var until := -1.0
+	for k in o.band_src.keys():
+		var e: Array = o.band_src[k]
+		if float(e[1]) <= now:
+			o.band_src.erase(k)
+			continue
+		var m: Vector3 = e[0]
+		mul = Vector3(maxf(mul.x, m.x), maxf(mul.y, m.y), maxf(mul.z, m.z))
+		until = maxf(until, float(e[1]))
+	o.band_mul = mul
+	o.band_until = until
 
 
 ## The soldier the band falls in behind when it has no orders: the nearest MOVING one of its side within its leash
@@ -170,46 +225,13 @@ static func reload_mul(o: Unit) -> float:
 	return o.band_mul.z if o.band_until > o.game.clock else 1.0
 
 
-# ------------------------------------------------------------------ orders (Unit.band_hire / band_solo: the net funnel)
-
-## Why the band can't take on this musician now ("" if it can).
-static func hire_problem(u: Unit, ins: String) -> String:
-	if not INSTRUMENTS.has(ins):
-		return "?"
-	if u.dead:
-		return ""
-	if has(u, ins):
-		return "The band already has a %s." % String(B[ins]["who"])
-	if String(u.band.get("h", "")) != "":
-		return "The band is taking on a musician already."
-	var g := u.game
-	if int(g.players[u.team]["gold"]) < int(B[ins]["cost"]):
-		return "Not enough %s." % "gold"
-	if float(g.players[u.team]["res2"]) < float(B[ins]["cost2"]):
-		return "Not enough %s." % "powder"
-	return ""
-
-
-static func hire(u: Unit, ins: String) -> String:
-	if u.band.is_empty():
-		u.band = fresh()
-	var why := hire_problem(u, ins)
-	if why != "":
-		u.game.tell(u.team, why)
-		return why
-	var g := u.game
-	g.pay_refit(u.team, [int(B[ins]["cost"]), float(B[ins]["cost2"])])
-	u.band["h"] = ins
-	u.band["he"] = g.clock + float(B[ins]["time"])
-	u.queue_redraw()
-	if g.mlog:
-		g.mlog.add("%s's band takes on a %s" % [g.mlog.who(u.team), String(B[ins]["who"])])
-	return ""
-
+# ------------------------------------------------------------------ orders (Unit.band_solo: the net funnel)
 
 static func solo_problem(u: Unit, ins: String) -> String:
+	if not INSTRUMENTS.has(ins):
+		return "?"
 	if not has(u, ins):
-		return "No %s in the band yet." % String(B[ins]["who"])
+		return "No %s in the band yet: research him at the Armoury." % String(B[ins]["who"])
 	if lead(u) != "":
 		return "The band is already playing a solo."
 	var cd := cooldown_left(u, ins)
@@ -237,55 +259,116 @@ static func solo(u: Unit, ins: String) -> String:
 	return ""
 
 
-## The train problem at a Barracks: one band per player (counting one waiting in a queue).
-static func limit_problem(g: Game, t: int) -> String:
-	if not on(g, t):
-		return "The marching band is an experiment: switch it on in Settings."
-	var have := 0
-	for o in g.units:
-		if o.team == t and not o.dead and o.kind == KIND:
-			have += 1
-	for b in g.buildings:
-		if b.team == t and not b.dead:
-			have += b.queue.count(KIND)
-	if have >= 1:
-		return "Only one Marching Band per player."
-	return ""
+# ------------------------------------------------------------------ the computer
 
-
-# ------------------------------------------------------------------ the computer (simple: optional)
-
-## The computer's band, if it has one: musicians as money allows (drums first), solos when its soldiers near the band
-## fight (fife for a musket line, pipes when enemies are at bayonet reach, drums when it is walking far).
+## The computer's bands (AI: its army ~10 strong for the first, 30+ for a second; the research in AI._band_research):
+## each keeps behind the line (its escort) and plays its solos where they pay:
+##  - FIFE when 3 or more of the soldiers in its ring are shooting;
+##  - PIPES when half or more of the fighting ones are at the bayonet or the sabre;
+##  - DRUMS to catch a retreating enemy (our men chasing, the enemy's backs turned) or to get out of a lost fight
+##    (more enemies than ours round the band, ours falling back).
 static func ai_tick(g: Game, t: int) -> void:
-	var u: Unit = null
-	for o in g.units:
-		if o.team == t and not o.dead and o.kind == KIND:
-			u = o
-			break
-	if u == null:
-		return
+	for u in g.units:
+		if u.team == t and not u.dead and u.kind == KIND:
+			ai_band(g, t, u)
+
+
+static func ai_band(g: Game, t: int, u: Unit) -> void:
 	if u.band.is_empty():
 		u.band = fresh()
-	for ins in ["drums", "fife", "pipes"]:
-		if not has(u, ins) and hire_problem(u, ins) == "" and int(g.players[t]["gold"]) >= int(B[ins]["cost"]) + 40:
-			hire(u, ins)
-			break
+	ai_place(g, t, u)
 	if lead(u) != "":
 		return
-	var fighting := 0
+	var shooting := 0
 	var close := 0
+	var fighting := 0
+	var ours := 0
+	var back := 0          # ours walking away from the enemy (a retreat)
+	var chasing := 0       # ours walking after a target that walks away
 	for o: Unit in g.units_near(u.position, float(B["area"])):
-		if o.team == t and covers(u, o) and o.target != null and is_instance_valid(o.target):
+		if o.team != t or not covers(u, o):
+			continue
+		ours += 1
+		if o.target != null and is_instance_valid(o.target) and not o.target.dead:
 			fighting += 1
-			if o.mode == "bayonet":
+			var tgt: Entity = o.target
+			if o.mode == "bayonet" or o.mode == "sabre" or o._range() < 60.0:
 				close += 1
-	if fighting >= 3:
-		var want := "pipes" if close * 2 >= fighting else "fife"
-		if solo_problem(u, want) == "":
-			solo(u, want)
-		elif solo_problem(u, "fife" if want == "pipes" else "pipes") == "":
-			solo(u, "fife" if want == "pipes" else "pipes")
+			elif o.phase != "" or o.cooldown > 0.0:
+				shooting += 1
+			if tgt is Unit and (tgt as Unit).velocity.length() > 20.0 and o.velocity.length() > 20.0 \
+					and (tgt as Unit).velocity.dot(tgt.position - o.position) > 0.0:
+				chasing += 1
+	var foes := 0
+	for e: Unit in g.units_near(u.position, float(B["area"]) + 120.0):
+		if g.hostile(e.team, t) and not e.dead and not e.is_worker() and e.has_attack():
+			foes += 1
+			for o: Unit in g.units_near(u.position, float(B["area"])):
+				if o.team == t and covers(u, o) and o.velocity.length() > 20.0 and o.velocity.dot(o.position - e.position) > 0.0:
+					back += 1
+					break
+	var want := ""
+	if fighting >= 3 and close * 2 >= fighting:
+		want = "pipes"
+	elif shooting >= 3:
+		want = "fife"
+	elif (chasing >= 3) or (foes > ours + 2 and back >= 1 and ours >= 1):
+		want = "drums"
+	if want != "" and solo_problem(u, want) == "":
+		solo(u, want)
+	elif want == "pipes" and solo_problem(u, "fife") == "" and shooting >= 2:
+		solo(u, "fife")
+	elif want == "fife" and fighting >= 3 and close >= 1 and solo_problem(u, "pipes") == "":
+		solo(u, "pipes")
+
+
+## BEHIND THE LINE: the band walks to a spot BEHIND its nearest group of soldiers (their middle, 70 px back from the
+## nearest enemy), so the ring covers the line and the enemy meets the soldiers first; with no enemy about it falls in
+## behind them (its escort, tick). Its orders from the army (an attack-move with the soldiers) are overridden.
+const AI_BACK := 70.0
+
+
+static func ai_place(g: Game, t: int, u: Unit) -> void:
+	var men: Array = []
+	for o: Unit in g.units_near(u.position, 420.0):
+		if o.team == t and covers(u, o) and o.kind != "cannon" and o.kind != "mortar":
+			men.append(o)
+	if men.is_empty():
+		# far from the soldiers (just trained, or left behind): to the nearest of them
+		var best: Unit = null
+		var bd := INF
+		for o in g.army(t):
+			if covers(u, o):
+				var dd := o.position.distance_squared_to(u.position)
+				if dd < bd:
+					bd = dd
+					best = o
+		if best and (u.order != "follow" or u.order_target != best):
+			u.cmd_follow(best)
+		return
+	var mid := Vector2.ZERO
+	for o in men:
+		mid += o.position
+	mid /= float(men.size())
+	var foe: Unit = null
+	var fd := INF
+	for e: Unit in g.units_near(mid, 520.0):
+		if g.hostile(e.team, t) and not e.dead and not e.is_worker() and not e.off_field and e.aboard == null:
+			var dd := e.position.distance_squared_to(mid)
+			if dd < fd:
+				fd = dd
+				foe = e
+	if foe == null:
+		if u.order == "amove" or u.order == "attack" or (u.order == "move" and u.position.distance_to(mid) > 220.0):
+			u.cmd_move(mid)
+		return
+	var back := (mid - foe.position).normalized()
+	var spot := mid + back * AI_BACK
+	var cell := Vector2i(floori(spot.x / Defs.TILE), floori(spot.y / Defs.TILE))
+	if not g.passable(cell, t):
+		spot = mid
+	if u.position.distance_to(spot) > 36.0 and (u.order != "move" or u.order_point.distance_to(spot) > 30.0):
+		u.cmd_move(spot)
 
 
 # ------------------------------------------------------------------ the look and the sound (host, guest, replay)
@@ -311,7 +394,7 @@ static func look_tick(u: Unit, delta: float) -> void:
 ## Its ring on the ground (Unit._draw_unit, under it): gold, in the leading instrument's colour and pulsing during a solo;
 ## little ticks round it, one colour per instrument it has. Drawn for everyone who sees the band (the telegraph).
 static func draw_ring(u: Unit) -> void:
-	if u.band.get("m", []).is_empty() and String(u.band.get("h", "")) == "":
+	if u.band.get("m", []).is_empty():
 		return
 	var r := float(B["area"])
 	var ld := lead(u)
@@ -335,52 +418,84 @@ static func draw_ring(u: Unit) -> void:
 		u.draw_line(dv * (r - 7.0), dv * r, cc, 2.0, true)
 
 
-## The instruments (code-drawn stand-ins, docs/art_style_inconsistency.md): the drum at the bandmaster's hip, the pipes'
-## bag and drones over his shoulder, the fife; the lead one bigger, and notes rising over the band while it plays.
+## The notes rising over the band during a SOLO, in the leading instrument's colour (drawn in code over the real art;
+## docs/art_style_inconsistency.md). The leading musician himself stands out by a bob (lead_bob, group_look).
 static func draw_kit(u: Unit, ci: CanvasItem) -> void:
-	var ins: Array = u.band.get("m", [])
 	var ld := lead(u)
-	var t := u.game.clock
-	if ins.has("drums"):
-		var s := 1.25 if ld == "drums" else 1.0
-		var at := Vector2(-11, -9)
-		ci.draw_set_transform(at, 0.0, Vector2(s, s))
-		ci.draw_rect(Rect2(-5, -4, 10, 8), Color(0.75, 0.1, 0.1))
-		ci.draw_rect(Rect2(-5, -4, 10, 8), Color(0.2, 0.1, 0.05), false, 1.0)
-		ci.draw_line(Vector2(-5, -4), Vector2(5, 4), Color(0.95, 0.85, 0.5), 1.0)
-		ci.draw_line(Vector2(-5, 4), Vector2(5, -4), Color(0.95, 0.85, 0.5), 1.0)
-		ci.draw_rect(Rect2(-5, -5, 10, 1.5), Color(0.95, 0.92, 0.85))
-		var hit := 1.5 * sin(t * (16.0 if ld == "drums" else 8.0))
-		ci.draw_line(Vector2(-3, -7 + hit), Vector2(-1, -5), Color(0.4, 0.25, 0.1), 1.2)
-		ci.draw_line(Vector2(3, -7 - hit), Vector2(1, -5), Color(0.4, 0.25, 0.1), 1.2)
-	if ins.has("pipes"):
-		var s2 := 1.25 if ld == "pipes" else 1.0
-		var at2 := Vector2(10, -20)
-		ci.draw_set_transform(at2, 0.0, Vector2(s2, s2))
-		ci.draw_circle(Vector2(0, 3), 4.0, Color(0.15, 0.35, 0.2))
-		ci.draw_circle(Vector2(0, 3), 4.0, Color(0.05, 0.1, 0.05), false, 1.0)
-		for k in 3:
-			ci.draw_line(Vector2(-1 + k * 2, 0), Vector2(-4 + k * 3, -9 + k), Color(0.3, 0.2, 0.1), 1.2)
-		ci.draw_line(Vector2(-2, 5), Vector2(-6, 9), Color(0.3, 0.2, 0.1), 1.2)
-	if ins.has("fife"):
-		var s3 := 1.3 if ld == "fife" else 1.0
-		var at3 := Vector2(6, -25)
-		ci.draw_set_transform(at3, 0.0, Vector2(s3, s3))
-		ci.draw_line(Vector2(-6, 1), Vector2(6, -1), Color(0.85, 0.75, 0.55), 1.6)
-		ci.draw_circle(Vector2(6, -1), 0.9, Color(0.2, 0.15, 0.1))
-	ci.draw_set_transform(Vector2.ZERO)
-	if ins.is_empty():
+	if ld == "" or u.dead:
 		return
-	# notes over the band: more and coloured while one leads
-	var n := 2 + (2 if ld != "" else 0)
+	var t := u.game.clock
+	var at: Vector2 = Vector2.ZERO
+	if ld != "drums":
+		at = SPOT[ld] * Vector2(-1.0 if u.anim_flip else 1.0, 1.0)
+	var n := 4
 	for i in n:
 		var ph := fmod(t * 0.7 + float(i) / float(n), 1.0)
-		var k: String = ld if ld != "" else String(ins[i % ins.size()])
-		var c: Color = B[k]["col"]
+		var c: Color = B[ld]["col"]
 		c.a = (1.0 - ph) * 0.9
-		var p := Vector2(-10.0 + 20.0 * float(i) / maxf(n - 1, 1) + 3.0 * sin(t * 3.0 + i), -36.0 - ph * 22.0)
+		var p := at + Vector2(-10.0 + 20.0 * float(i) / float(n - 1) + 3.0 * sin(t * 3.0 + i), -40.0 - ph * 22.0)
 		ci.draw_circle(p, 2.0, c)
 		ci.draw_line(p + Vector2(1.8, 0), p + Vector2(1.8, -6), c, 1.0)
+
+
+## How high the musician `ins` hops now: a small bob while his instrument leads (0 otherwise).
+static func lead_bob(u: Unit, ins: String) -> float:
+	if u.dead or lead(u) != ins:
+		return 0.0
+	return absf(sin(u.game.clock * 9.0)) * 2.0
+
+
+## THE GROUP (the art: tools/import_band.py): the Fifer and the Piper as child sprites of the Drummer's, behind him on
+## either side, each only once he is in the band, in the same pose and frame (they mirror with him: children of the
+## sprite). Called by Unit._animate after the Drummer's frame is set. The leader of a solo bobs and stands a little
+## bigger.
+static func group_look(u: Unit) -> void:
+	var spr := u.sprite
+	if spr == null:
+		return
+	for ins in ["fife", "pipes"]:
+		var name := "band_" + ins
+		var c: Sprite2D = spr.get_node_or_null(name)
+		if not has(u, ins):
+			if c:
+				c.visible = false
+			continue
+		if c == null:
+			c = Sprite2D.new()
+			c.name = name
+			c.centered = false
+			c.use_parent_material = true
+			c.show_behind_parent = true
+			spr.add_child(c)
+		c.visible = true
+		var art := String(ART[ins])
+		var frames: Dictionary = ArtData.UNITS[art]["frames"]
+		var key := "%s_se" % u.anim
+		if not frames.has(key):
+			key = "idle_se"
+		var ck := art + "/" + key
+		var e = _strips.get(ck)
+		if e == null:
+			var tx := Game.tex("res://assets/units/%s/%s.png" % [art, key])
+			var cell: Vector2i = ArtData.UNITS[art]["cell"]
+			e = [tx, int(frames[key]), -Vector2(ArtData.UNITS[art]["anchor"]) - Vector2(0, tx.get_height() - cell.y)]
+			_strips[ck] = e
+		if c.texture != e[0]:
+			c.texture = e[0]
+		if c.hframes != int(e[1]):
+			c.hframes = int(e[1])
+		c.offset = e[2]
+		# (in step with the Drummer, but a frame apart, so the three don't march as one)
+		var f := posmod(spr.frame + (1 if ins == "fife" else 2), c.hframes) if not u.dead else mini(spr.frame, c.hframes - 1)
+		if c.frame != f:
+			c.frame = f
+		var bob := lead_bob(u, ins)
+		c.position = Vector2(SPOT[ins]) - spr.position + Vector2(0, -bob)
+		var sc := 1.12 if bob > 0.0 or (lead(u) == ins and not u.dead) else 1.0
+		c.scale = Vector2(sc, sc)
+
+
+static var _strips := {}
 
 
 ## A number that changes when the drawing should (Unit's redraw key).
@@ -389,12 +504,19 @@ static func draw_key(u: Unit) -> int:
 	return (u.band.get("m", []) as Array).size() + (8 if ld != "" else 0) + (int(u.game.clock * 6.0) % 97) * 16
 
 
+## The train button's note: who comes out in a new band and why it costs what it does.
+static func train_note(g: Game, t: int) -> String:
+	var who := PackedStringArray()
+	for ins in ["drums", "fife", "pipes"]:
+		if available(g, t, ins):
+			who.append(Loc.t(String(B[ins]["who"])))
+	return Loc.t("Comes out with: %s. Each musician researched at the Armoury adds %d gold to its price.") % [", ".join(who), int(B["per_musician"])]
+
+
 ## The selection card's line.
 static func card_line(u: Unit) -> String:
 	var ins: Array = u.band.get("m", [])
 	var a := int(round(float(B["area"]) / Defs.TILE))
-	if ins.is_empty() and String(u.band.get("h", "")) == "":
-		return Loc.t("The bandmaster alone: ADD a drummer, a piper or a fifer.")
 	var parts := PackedStringArray()
 	for k in ins:
 		parts.append(Loc.t(String(B[k]["label"])))
@@ -402,40 +524,35 @@ static func card_line(u: Unit) -> String:
 	var ld := lead(u)
 	if ld != "":
 		line += " · " + Loc.t("%s SOLO: %d s") % [Loc.t(String(B[ld]["label"])), int(ceil(solo_left(u)))]
-	var h := String(u.band.get("h", ""))
-	if h != "":
-		line += " · " + Loc.t("a %s joins in %d s") % [Loc.t(String(B[h]["who"])), int(ceil(hire_left(u)))]
 	return line
 
 
-## Its command card (HUD._ability_buttons): ADD a musician (each once, one at a time) and each hired instrument's SOLO.
+## Its command card (HUD._ability_buttons): each instrument's SOLO (the Fifer's and the Piper's only once researched:
+## shown locked with where to research them). Several bands selected: a SOLO plays on the first of them that can.
 static func card(hud, list: Array, units: Array) -> void:
-	var bands := units.filter(func(o: Unit) -> bool: return o.kind == KIND and o.team == hud.game.human)
+	var bands := units.filter(func(o: Unit) -> bool: return o.kind == KIND and o.team == hud.game.human and not o.dead)
 	if bands.is_empty():
 		return
-	var u: Unit = bands[0]
 	var a := int(round(float(B["area"]) / Defs.TILE))
 	for ins in INSTRUMENTS:
 		var info: Dictionary = B[ins]
 		var stat := String(info["stat_text"])
-		if not has(u, ins):
-			var lab := "ADD " + String(info["who"]).to_upper()
-			hud._tip_for[lab] = [String(info["add_title"]), "Takes on a %s (%d s): the band plays the %s from then on. As a secondary it gives %s +%d%% to your soldiers within %d tiles of the band; its SOLO gives +%d%% for %d s (then %d s before the next). The band gets %d more health." % [
-				String(info["who"]).to_lower(), int(info["time"]), String(info["label"]).to_lower(), stat, int(round(float(info["second"]) * 100.0)), a,
-				int(round(float(info["lead"]) * 100.0)), int(B["solo"]), int(B["cooldown"]), int(B["hp_per"])]]
-			var why := hire_problem(u, ins)
-			var cost := str(int(info["cost"])) + ("+%d" % int(info["cost2"]) if int(info["cost2"]) > 0 else "")
-			list.append(["ab_band_" + ins, lab, func() -> void:
-				u.band_hire(ins), why == "", why, cost])
-		else:
-			var lab2 := String(info["label"]).to_upper() + " SOLO"
-			hud._tip_for[lab2] = [String(info["solo_title"]), "The %s leads for %d s: %s +%d%% to your soldiers within %d tiles of the band (the other instruments keep playing as secondaries). Then %d s before it can solo again; one solo at a time." % [
-				String(info["label"]).to_lower(), int(B["solo"]), stat, int(round(float(info["lead"]) * 100.0)), a, int(B["cooldown"])]]
-			var why2 := solo_problem(u, ins)
-			var cd := cooldown_left(u, ins)
-			var corner := ("%ds" % int(ceil(solo_left(u)))) if lead(u) == ins else (("%ds" % int(ceil(cd))) if cd > 0.0 else "")
-			list.append(["ab_band_" + ins, ("~ " if lead(u) == ins else "") + lab2, func() -> void:
-				u.band_solo(ins), why2 == "", why2, corner])
+		var lab2 := String(info["label"]).to_upper() + " SOLO"
+		hud._tip_for[lab2] = [String(info["solo_title"]), "The %s leads for %d s: %s +%d%% to your soldiers within %d tiles of the band (always +%d%% while it plays). Then %d s before it can solo again; one solo at a time in each band." % [
+			String(info["label"]).to_lower(), int(B["solo"]), stat, int(round(float(info["lead"]) * 100.0)), a, int(round(float(info["second"]) * 100.0)), int(B["cooldown"])]]
+		# the band that would play it: the first selected one free to (else the first, for its reason and countdown)
+		var u: Unit = bands[0]
+		for o in bands:
+			if solo_problem(o, ins) == "":
+				u = o
+				break
+		var why2 := solo_problem(u, ins)
+		if not available(hud.game, u.team, ins):
+			why2 = "Research the %s at the Armoury first." % String(info["who"])
+		var cd := cooldown_left(u, ins)
+		var corner := ("%ds" % int(ceil(solo_left(u)))) if lead(u) == ins else (("%ds" % int(ceil(cd))) if cd > 0.0 else "")
+		list.append(["ab_band_" + ins, ("~ " if lead(u) == ins else "") + lab2, func() -> void:
+			u.band_solo(ins), why2 == "", why2, corner])
 
 
 # ------------------------------------------------------------------ save / net
@@ -446,17 +563,15 @@ static func save(u: Unit) -> Dictionary:
 	var cd := {}
 	for k in u.band.get("cd", {}):
 		cd[k] = snappedf(float(u.band["cd"][k]), 0.01)
-	return {"m": (u.band.get("m", []) as Array).duplicate(), "h": String(u.band.get("h", "")), "he": snappedf(float(u.band.get("he", 0.0)), 0.01),
-		"s": String(u.band.get("s", "")), "se": snappedf(float(u.band.get("se", 0.0)), 0.01), "cd": cd}
+	return {"m": (u.band.get("m", []) as Array).duplicate(), "s": String(u.band.get("s", "")), "se": snappedf(float(u.band.get("se", 0.0)), 0.01), "cd": cd}
 
 
+## (an old save's "h"/"he", a musician being taken on in the 0.23 experiment, are dropped: the research decides now)
 static func load_state(u: Unit, d: Dictionary) -> void:
 	u.band = fresh()
 	for k in d.get("m", []):
-		if INSTRUMENTS.has(String(k)):
+		if INSTRUMENTS.has(String(k)) and not (u.band["m"] as Array).has(String(k)):
 			(u.band["m"] as Array).append(String(k))
-	u.band["h"] = String(d.get("h", ""))
-	u.band["he"] = float(d.get("he", 0.0))
 	u.band["s"] = String(d.get("s", ""))
 	u.band["se"] = float(d.get("se", 0.0))
 	var cd: Dictionary = d.get("cd", {})

@@ -1,0 +1,81 @@
+# THE MARCHING BAND as a real Crown unit, and the Mist Toad's researched spells (0.33.0; docs/marching_band.md)
+
+> Unarmed musicians who march behind your soldiers. A new band is a Drummer; research the Fifer and the Piper at the Armoury and they join every band. Each instrument always gives your soldiers within 5 tiles +5% (drums: speed, fife: reload, pipes: melee damage); its SOLO gives +30% for 8 s. Several bands may play, but their rings don't add up. Fragile: kill it and the music stops.
+pt Músicos desarmados que marcham atrás dos seus soldados. Uma banda nova é um Tambor; pesquise o Pifeiro e o Gaiteiro no Arsenal e eles entram em todas as bandas. Cada instrumento sempre dá +5% aos seus soldados a até 5 casas (tambores: velocidade, pífaro: recarga, gaita: dano corpo a corpo); o SOLO dele dá +30% por 8 s. Várias bandas podem tocar, mas os círculos delas não se somam. Frágil: mate-a e a música para.
+es Músicos desarmados que marchan tras tus soldados. Una banda nueva es un Tambor; investiga el Pifanero y el Gaitero en la Armería y se unen a todas las bandas. Cada instrumento siempre da +5% a tus soldados a 5 casillas (tambores: velocidad, pífano: recarga, gaita: daño cuerpo a cuerpo); su SOLO da +30% durante 8 s. Pueden tocar varias bandas, pero sus círculos no se suman. Frágil: mátala y la música se acaba.
+
+> Marching Band: a Drummer (speed), and the Fifer (reload) and Piper (melee damage) once researched at the Armoury. Each instrument gives +5% within 5 tiles; its SOLO +30% for 8 s, one solo at a time. Unarmed and fragile.
+pt Banda Marcial: um Tambor (velocidade), e o Pifeiro (recarga) e o Gaiteiro (dano corpo a corpo) depois de pesquisados no Arsenal. Cada instrumento dá +5% a até 5 casas; o SOLO dele, +30% por 8 s, um solo de cada vez. Desarmada e frágil.
+es Banda Militar: un Tambor (velocidad), y el Pifanero (recarga) y el Gaitero (daño cuerpo a cuerpo) una vez investigados en la Armería. Cada instrumento da +5% a 5 casillas; su SOLO, +30% durante 8 s, un solo cada vez. Desarmada y frágil.
+
+> Plays buffs to your soldiers within 5 tiles; SOLOS for big ones. Unarmed.
+pt Toca bônus para os seus soldados a até 5 casas; SOLOS para bônus grandes. Desarmada.
+es Toca mejoras para tus soldados a 5 casillas; SOLOS para las grandes. Desarmada.
+
+> All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills, the Cavalry Charge and the band's Fifer and Piper. Trains the Marching Band. Refits soldiers. Needs a Barracks.
+pt Toda a pesquisa da Coroa: Armadura, os fechos dos mosquetes, a baioneta, os exercícios dos canhões, a Carga de Cavalaria e o Pifeiro e o Gaiteiro da banda. Treina a Banda Marcial. Reequipa soldados. Precisa de um Quartel.
+es Toda la investigación de la Corona: Armadura, las llaves de los mosquetes, la bayoneta, los ejercicios de los cañones, la Carga de Caballería y el Pifanero y el Gaitero de la banda. Entrena la Banda Militar. Reequipa soldados. Necesita un Cuartel.
+
+> A Fifer joins every Marching Band (+15 health each): the fife always gives soldiers in a band's ring +5% reload speed (muskets, pistols, cannons, mortars), and its FIFE SOLO +30% for 8 s. New bands cost 25 gold more.
+pt Um Pifeiro entra em todas as Bandas Marciais (+15 de vida cada): o pífaro sempre dá aos soldados no círculo de uma banda +5% de velocidade de recarga (mosquetes, pistolas, canhões, morteiros), e o SOLO DE PÍFARO +30% por 8 s. Bandas novas custam 25 de ouro a mais.
+es Un Pifanero se une a todas las Bandas Militares (+15 de vida cada una): el pífano siempre da a los soldados en el círculo de una banda +5% de velocidad de recarga (mosquetes, pistolas, cañones, morteros), y el SOLO DE PÍFANO +30% durante 8 s. Las bandas nuevas cuestan 25 de oro más.
+
+> A Piper joins every Marching Band (+15 health each): the bagpipes always give soldiers in a band's ring +5% melee damage (bayonets, sabres), and the PIPES SOLO +30% for 8 s. New bands cost 25 gold more.
+pt Um Gaiteiro entra em todas as Bandas Marciais (+15 de vida cada): a gaita de foles sempre dá aos soldados no círculo de uma banda +5% de dano corpo a corpo (baionetas, sabres), e o SOLO DE GAITA +30% por 8 s. Bandas novas custam 25 de ouro a mais.
+es Un Gaitero se une a todas las Bandas Militares (+15 de vida cada una): la gaita siempre da a los soldados en el círculo de una banda +5% de daño cuerpo a cuerpo (bayonetas, sables), y el SOLO DE GAITA +30% durante 8 s. Las bandas nuevas cuestan 25 de oro más.
+
+> FIFER
+pt PIFEIRO
+es PIFANERO
+
+> PIPER
+pt GAITEIRO
+es GAITERO
+
+> Fog Bank
+pt Banco de Neblina
+es Banco de Niebla
+
+> Miasma
+pt Miasma
+es Miasma
+
+> Every Mist Toad can lay FOG: a swamp fog bank where shots fired from or into it miss half the time and units inside see only 2 tiles.
+pt Todo Sapo da Névoa pode lançar NEBLINA: um banco de neblina do pântano onde os tiros disparados de dentro ou para dentro dele erram metade das vezes, e as unidades dentro veem só 2 casas.
+es Todo Sapo de la Niebla puede lanzar NIEBLA: un banco de niebla del pantano donde los disparos hechos desde dentro o hacia dentro fallan la mitad de las veces, y las unidades dentro ven solo 2 casillas.
+
+> Every Mist Toad can lay MIASMA: a green cloud for 8 s in which the Brood heal up to 30% of their health.
+pt Todo Sapo da Névoa pode lançar MIASMA: uma nuvem verde por 8 s na qual a Ninhada cura até 30% da vida.
+es Todo Sapo de la Niebla puede lanzar MIASMA: una nube verde durante 8 s en la que la Nidada cura hasta el 30% de su vida.
+
+> Research FOG at the Venom Sire first.
+pt Pesquise a NEBLINA no Sire do Veneno primeiro.
+es Investiga la NIEBLA en el Señor del Veneno primero.
+
+> Research MIASMA at the Venom Sire first.
+pt Pesquise o MIASMA no Sire do Veneno primeiro.
+es Investiga el MIASMA en el Señor del Veneno primero.
+
+> No %s in the band yet: research him at the Armoury.
+pt Ainda não há %s na banda: pesquise-o no Arsenal.
+es Aún no hay %s en la banda: investígalo en la Armería.
+
+> Research the %s at the Armoury first.
+pt Pesquise o %s no Arsenal primeiro.
+es Investiga el %s en la Armería primero.
+
+> Comes out with: %s. Each musician researched at the Armoury adds %d gold to its price.
+pt Sai com: %s. Cada músico pesquisado no Arsenal soma %d de ouro ao preço.
+es Sale con: %s. Cada músico investigado en la Armería suma %d de oro a su precio.
+
+> The %s leads for %d s: %s +%d%% to your soldiers within %d tiles of the band (always +%d%% while it plays). Then %d s before it can solo again; one solo at a time in each band.
+pt O %s lidera por %d s: %s +%d%% aos seus soldados a até %d casas da banda (sempre +%d%% enquanto toca). Depois %d s até poder solar de novo; um solo de cada vez em cada banda.
+es El %s lleva la voz cantante %d s: %s +%d%% a tus soldados a %d casillas de la banda (siempre +%d%% mientras toca). Luego %d s hasta que pueda volver a hacer un solo; un solo cada vez en cada banda.
+
+> The Marching Band (Armoury, needs a Barracks): unarmed musicians who march behind your soldiers. A new band is a Drummer; research the Fifer and the Piper at the Armoury, in any order, and they join every band you have (and every new one; each makes a new band 25 gold dearer). Every instrument always gives your soldiers and guns within 5 tiles +5%: drums movement speed, fife reload (muskets, pistols, cannons, mortars; not a man out of shots), pipes melee damage. Its SOLO gives +30% for 8 s, then 45 s before that instrument may solo again; one solo at a time in a band. Several bands may play, but their rings don't add up. The ring changes colour in a solo, so the enemy sees it coming: kill the band and the music stops.
+pt A Banda Marcial (Arsenal, precisa de um Quartel): músicos desarmados que marcham atrás dos seus soldados. Uma banda nova é um Tambor; pesquise o Pifeiro e o Gaiteiro no Arsenal, em qualquer ordem, e eles entram em todas as suas bandas (e em cada nova; cada um deixa uma banda nova 25 de ouro mais cara). Cada instrumento sempre dá +5% aos seus soldados e canhões a até 5 casas: tambores, velocidade de movimento; pífaro, recarga (mosquetes, pistolas, canhões, morteiros; não um homem sem tiros); gaita, dano corpo a corpo. O SOLO dele dá +30% por 8 s, depois 45 s até aquele instrumento poder solar de novo; um solo de cada vez numa banda. Várias bandas podem tocar, mas os círculos delas não se somam. O círculo muda de cor num solo, então o inimigo o vê chegando: mate a banda e a música para.
+es La Banda Militar (Armería, necesita un Cuartel): músicos desarmados que marchan tras tus soldados. Una banda nueva es un Tambor; investiga el Pifanero y el Gaitero en la Armería, en cualquier orden, y se unen a todas tus bandas (y a cada nueva; cada uno encarece una banda nueva 25 de oro). Cada instrumento siempre da +5% a tus soldados y cañones a 5 casillas: tambores, velocidad de movimiento; pífano, recarga (mosquetes, pistolas, cañones, morteros; no un hombre sin disparos); gaita, daño cuerpo a cuerpo. Su SOLO da +30% durante 8 s, luego 45 s hasta que ese instrumento pueda volver a hacer un solo; un solo cada vez en una banda. Pueden tocar varias bandas, pero sus círculos no se suman. El círculo cambia de color en un solo, así que el enemigo lo ve venir: mata la banda y la música se acaba.
+
+> FOG and MIASMA (a green cloud that heals the Brood inside) are research at the Venom Sire, cheap and quick: a new Mist Toad has only TONGUE until then.
+pt NEBLINA e MIASMA (uma nuvem verde que cura a Ninhada dentro dela) são pesquisas no Sire do Veneno, baratas e rápidas: um Sapo da Névoa novo só tem a LÍNGUA até lá.
+es NIEBLA y MIASMA (una nube verde que cura a la Nidada dentro de ella) son investigaciones en el Señor del Veneno, baratas y rápidas: un Sapo de la Niebla nuevo solo tiene la LENGUA hasta entonces.

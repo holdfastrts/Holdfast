@@ -1,7 +1,7 @@
 extends SceneTree
-## Screenshots of THE MARCHING BAND (scripts/marching_band.gd, docs/marching_band.md): the bandmaster alone and his card
-## (the ADD buttons), the full band behind a Musketeer line with its ring and card (the SOLO buttons), the fife's solo
-## while the line fires at Clock Soldiers coming in, the pipes' solo when they reach it, the Settings switch.
+## Screenshots of THE MARCHING BAND (scripts/marching_band.gd, docs/marching_band.md): a new band (the Drummer alone) and
+## its card, the full band (Drummer, Fifer, Piper) behind a Musketeer line with its ring and card, the fife's solo while the
+## line fires at Clock Soldiers coming in, the pipes' solo when they reach it, two bands (one soloing) side by side.
 ##   xvfb-run -a godot --rendering-driver opengl3 --resolution 1600x900 --fixed-fps 30 --script res://tools/shot_marching_band.gd -- <outdir>
 var main: Node
 var g: Game
@@ -20,8 +20,7 @@ func _initialize() -> void:
 func _process(delta: float) -> bool:
 	t += delta
 	if t > 0.2 and main.game == null and not started:
-		Settings.marching_band = true
-		main.start({"map": "dune_sea", "seed": 4242, "marching_band": true, "slots": [
+		main.start({"map": "dune_sea", "seed": 4242, "slots": [
 			{"who": "you", "faction": "crown", "colour": 0, "side": 0},
 			{"who": "easy", "faction": "clockwork", "colour": 1, "side": 1}]})
 		return false
@@ -77,19 +76,18 @@ func _run() -> void:
 	var dir := (Vector2(Game.W, Game.H) * 16.0 - hall.center()).normalized()
 	var mid := _open(hall.center() + dir * 420.0)
 	var perp := Vector2(-dir.y, dir.x)
-	# ---- 0. the bandmaster alone and his card
+	# ---- 0. a new band: the Drummer alone, and its card
 	var band: Unit = g._add_unit("band", 0, _open(mid - dir * 70.0))
 	band.cmd_hold()
 	g.camera.position = band.position
-	g.camera.zoom = Vector2(2.2, 2.2)
+	g.camera.zoom = Vector2(3.0, 3.0)
 	g.set_selection([band])
 	await _frames(20)
-	await _snap("0_bandmaster_alone_card")
-	# ---- 1. the full band behind a line, selected
-	for k in ["drums", "pipes", "fife"]:
-		(band.band["m"] as Array).append(k)
-	band.max_hp = float(band.d["hp"]) + 45.0
-	band.hp = band.max_hp
+	await _snap("0_drummer_band_card")
+	# ---- 1. the Fifer and the Piper researched: the full band behind a line, selected
+	g.players[0]["tech"]["band_fife"] = true
+	g.players[0]["tech"]["band_pipes"] = true
+	await _frames(10)
 	var line: Array = []
 	for i in 12:
 		var rank := i / 6
@@ -140,6 +138,21 @@ func _run() -> void:
 	g.camera.position = mid
 	await _frames(6)
 	await _snap("3_pipe_solo_bayonets", 0.0)
-	# ---- 4. the settings page with the switch
+	# ---- 4. two bands side by side, one soloing (the drums), the other not
+	var spot := _open(hall.center() - dir * 160.0 + perp * 120.0)
+	var b2: Unit = g._add_unit("band", 0, spot)
+	var b3: Unit = g._add_unit("band", 0, _open(spot + perp * 70.0))
+	for b in [b2, b3]:
+		b.cmd_hold()
+	for i in 6:
+		var u: Unit = g._add_unit("musketeer", 0, _open(spot + perp * (i * 22.0 - 20.0) + dir * 50.0))
+		u.cmd_hold()
+	await _frames(10)
+	b2.band_solo("drums")
+	g.set_selection([b2, b3])
+	g.camera.position = spot + perp * 35.0
+	g.camera.zoom = Vector2(2.2, 2.2)
+	await _frames(20)
+	await _snap("4_two_bands_one_solo", 0.0)
 	g.set_selection([])
 	quit(0)

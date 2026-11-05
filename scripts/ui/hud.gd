@@ -1888,7 +1888,7 @@ func _ability_buttons(list: Array, units: Array) -> void:
 	_balloon_buttons(list, units)
 	_ballista_buttons(list, units)
 	GreatWinder.card(self, list, units)     # a Great Winder's MEND and SWEEP autocasts (scripts/great_winder.gd)
-	MarchingBand.card(self, list, units)    # the Marching Band: ADD a musician, each instrument's SOLO (scripts/marching_band.gd)
+	MarchingBand.card(self, list, units)    # the Marching Band: each instrument's SOLO (scripts/marching_band.gd)
 	# (Musketeers pick musket or bayonet by themselves: no button)
 	# spells: pick the spot on the map; the nearest caster that can goes and does it
 	var callers := units.filter(func(u: Unit) -> bool: return u.kind == "stormcaller")
@@ -1952,18 +1952,26 @@ func _ability_buttons(list: Array, units: Array) -> void:
 		for u in toads:
 			top = maxf(top, u.charge)
 		var fog_ok := top >= float(Defs.FOG["cost"])
+		var fog_why := "" if fog_ok else "Not enough energy: FOG needs %d." % int(Defs.FOG["cost"])
+		if not game.has_tech(game.human, "nb_fog"):
+			fog_ok = false
+			fog_why = "Research FOG at the Venom Sire first."      # (locked until researched: Defs.RESEARCH "nb_fog")
 		list.append(["ab_fog", "FOG", func() -> void:
 			controls.mode = "cast"
-			controls.cast_spell = "fog", fog_ok, "" if fog_ok else "Not enough energy: FOG needs %d." % int(Defs.FOG["cost"]), str(int(Defs.FOG["cost"]))])
+			controls.cast_spell = "fog", fog_ok, fog_why, str(int(Defs.FOG["cost"]))])
 		var tongue_ok: bool = toads.any(func(u: Unit) -> bool: return u.charge >= float(Defs.TONGUE["cost"]) and u.tongue_stage == "")
 		list.append(["ab_tongue", "TONGUE", func() -> void:
 			controls.mode = "cast"
 			controls.cast_spell = "tongue", tongue_ok, "" if tongue_ok else "Not enough energy: TONGUE needs %d." % int(Defs.TONGUE["cost"]), str(int(Defs.TONGUE["cost"]))])
 		# MIASMA (the retired Spore Mother's, the owner 2026-10-29): a healing cloud for the Brood, from its energy
 		var mia_ok := top >= float(Defs.MIASMA["cost"])
+		var mia_why := "" if mia_ok else "Not enough energy: MIASMA needs %d." % int(Defs.MIASMA["cost"])
+		if not game.has_tech(game.human, "nb_miasma"):
+			mia_ok = false
+			mia_why = "Research MIASMA at the Venom Sire first."
 		list.append(["ab_miasma", "MIASMA", func() -> void:
 			controls.mode = "cast"
-			controls.cast_spell = "miasma", mia_ok, "" if mia_ok else "Not enough energy: MIASMA needs %d." % int(Defs.MIASMA["cost"]), str(int(Defs.MIASMA["cost"]))])
+			controls.cast_spell = "miasma", mia_ok, mia_why, str(int(Defs.MIASMA["cost"]))])
 	# HOLD FIRE for every Crown firearm (muskets, pistols, guns, the balloon's basket): glowing
 	# = on: they never open fire by themselves, only on what you order them to ATTACK (the
 	# cavalry keep their pistol shot even then); bayonets and sabres still fight. One button
@@ -5037,6 +5045,8 @@ func _card_tip(it: Array) -> Dictionary:
 				parts.append("the Socket Bayonet")
 			if not parts.is_empty():
 				t["body"] += "  Comes out with %s (the refit fees are in the price)." % ", ".join(parts)
+		if kd == MarchingBand.KIND:
+			t["body"] += "  " + MarchingBand.train_note(game, game.human)      # (who comes in it; the price grows with them)
 		t["hint"] = ("Right-click" if Settings.pc() else "Hold") + ": train it automatically (glows while on)."
 	elif Defs.BUILDINGS.has(k) and page in ["build", "advanced"]:
 		var bd: Dictionary = Defs.BUILDINGS[k]
