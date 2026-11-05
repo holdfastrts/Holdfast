@@ -5,8 +5,8 @@ extends RefCounted
 ##  1. TRAINS ARMED MEN: a Musketeer or Dragoon is queued only with a full load's powder in the bank (AI._soldier_key asks
 ##     musket_ok), as before the rule when he cost 10 powder; riders and Officers are queued as before (a dry one has
 ##     his sabre), and a deliberate rush (the Horse Breeder opening) never waits for powder.
-##  2. KEEPS POWDER FOR ITS GUNS (the Barracks' ARM WITH POWDER toggle): off while a Foundry stands, a gun is wanted
-##     or its guns run low, and the bank is under GUN_KEEP; on again once the bank has GUN_KEEP + a load.
+##  2. KEEPS POWDER FOR ITS GUNS (the Barracks' ARM WITH POWDER toggle): off while a Mortar waits in the Foundry's queue
+##     or its guns run low, and the bank is under GUN_KEEP; on again at GUN_KEEP + 10.
 ##  3. SENDS EMPTY MEN TO REFILL BEFORE A FIGHT: a man with a firearm and few shots (under LOW of a load; a dry pistol),
 ##     not fighting (no enemy within SAFE_R) and within REARM_R of a reloading point (a stocked Powder Wagon counts), walks
 ##     to it while the bank (or the wagon) has powder, and stays there out of the army's orders (AI._on_errand) until he
@@ -50,19 +50,20 @@ func tick() -> void:
 	_rearm()
 
 
-## ARM WITH POWDER at every Barracks: off while the guns need the powder more.
+## ARM WITH POWDER at every Barracks: off while the guns need the powder more: a Mortar waits in a Foundry's queue (its
+## 20 powder is paid when queued: the next one's) or a gun of ours is under half its shots, and the bank is under GUN_KEEP
+## (on again at GUN_KEEP + 10). Not before a gun is wanted: the Musketeers are the line (the first look at the coached
+## games: switching it off while a Foundry had no gun yet left the Economy plan with no Musketeers for minutes).
 func _toggle() -> void:
 	var on := true
 	var fd: Array = ai._mine("foundry").filter(func(f: Building) -> bool: return f.built)
 	if not fd.is_empty() and not ai._rush_open():
-		var army: Array = ai.game.army(ai.team)
-		var guns: Array = army.filter(func(u: Unit) -> bool: return u.kind == "cannon" or u.kind == "mortar")
+		var guns: Array = ai.game.army(ai.team).filter(func(u: Unit) -> bool: return u.kind == "cannon" or u.kind == "mortar")
 		var low_guns: bool = guns.any(func(u: Unit) -> bool: return u.powder < u._pmax * 0.5)
-		var queued: bool = fd.any(func(f: Building) -> bool: return f.queue.has("mortar") or f.queue.has("cannon"))
-		var want_gun: bool = guns.is_empty() or queued or low_guns
+		var mortar_wait: bool = fd.any(func(f: Building) -> bool: return f.queue.has("mortar"))
 		var bank: float = ai._res2()
 		var was: bool = ai._mine("barracks").all(func(b: Building) -> bool: return b.arm_powder)
-		if want_gun and bank < (GUN_KEEP if was else GUN_KEEP + 10.0):
+		if (low_guns or mortar_wait) and bank < (GUN_KEEP if was else GUN_KEEP + 10.0):
 			on = false
 	for b in ai._mine("barracks"):
 		if b.arm_powder != on:
