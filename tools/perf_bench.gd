@@ -26,6 +26,8 @@ extends SceneTree
 ## random numbers as the game, are kept silent (SilentSfx below), and the path queue's 6 ms
 ## limit is lifted (Game.path_budget_us: only its 24 paths a tick are left). Add "sound" to
 ## keep both as in a real match (then two runs drift apart within seconds).
+## spectate: every player is a computer and you watch (the spectator's VIEW, PRODUCTION, ARMY & STRUCTURES and AI STORY
+## panels, as the owner watches computer matches; perf-frostfang, 0.31.x). Player 1's plan is strat0:.
 
 var main: Node
 var t := 0.0
@@ -68,6 +70,7 @@ var _cpu0 := 0.0                 # the processor time used when this minute bega
 var log_file := ""               # log:FILE writes the match log there at the end
 var spike_ms := 100.0            # spike:N prints every frame slower than N ms with its parts
 var sound := false               # sounds and music as in a real match (and the path queue's time limit)
+var spectate := false            # spectate: watch computers (no "you"; the spectator panels open)
 
 
 ## The sounds without the wall clock: every name has no sound, so a play stops before it looks at
@@ -157,6 +160,10 @@ func _start() -> void:
 			_trace = FileAccess.open(a.substr(6), FileAccess.WRITE)
 		elif a == "sound":
 			sound = true
+		elif a == "spectate":
+			spectate = true
+		elif a == "kinds":
+			Prof.by_kind = true       # (each minute: the units' and buildings' ticks by kind and order)
 		elif a.begins_with("log:"):
 			log_file = a.substr(4)
 		elif a.begins_with("spike:"):
@@ -175,7 +182,7 @@ func _start() -> void:
 		var side := i
 		if teams:
 			side = 0 if i < facs.size() / 2 else 1
-		slots.append({"who": "you" if i == 0 else level, "faction": facs[i], "colour": i, "side": side, "strategy": strat0 if i == 0 else strat})
+		slots.append({"who": "you" if i == 0 and not spectate else level, "faction": facs[i], "colour": i, "side": side, "strategy": strat0 if i == 0 else strat})
 	if not sound:
 		root.add_child(SilentSfx.new())       # (Sfx.me from now on)
 	seed(match_seed)              # (before the match is made: setting it up draws random numbers too)
@@ -185,6 +192,16 @@ func _start() -> void:
 		g.path_budget_us = 1 << 40
 		if Music.me:
 			Music.me._faction = ""         # (no music in the match: its pieces end by the wall clock)
+	if spectate:
+		_cfg_text = "%s, %s, %s AI, spectating, %s, Godot %s, seed %d, v%s" % [map, " vs ".join(facs), level, "rendered %s" % RenderingServer.get_video_adapter_name() if render else "headless",
+			Engine.get_version_info()["string"], match_seed, ProjectSettings.get_setting("application/config/version", "dev")]
+		print("PERF start: ", _cfg_text)
+		seed(match_seed)
+		_cpu0 = _cpu_ms()
+		_prev = Prof.us.duplicate()
+		_prev_calls = Prof.calls.duplicate()
+		_wall0 = Time.get_ticks_msec()
+		return
 	# player 1 is "you", played by a computer
 	var ai: AI = AIBroodNew.new() if facs[0] == "brood" else (AIClockwork.new() if facs[0] == "clockwork" else (AICrown.new() if facs[0] == "crown" else AI.new()))      # (each faction's own computer, as in a match: main.gd)
 	ai.game = g
@@ -388,6 +405,14 @@ func _minute_row(g: Game) -> void:
 		row["med " + z] = float(vals[vals.size() / 2]) if not vals.is_empty() else 0.0
 	_wins.clear()
 	row["worst_frame_zones"] = "\"%s\"" % _worst_zones
+	if Prof.by_kind:
+		_print_kinds()
+	var each := PackedStringArray()
+	for z in ["hud/rest", "hud/top", "hud/selection", "hud/groups", "hud/pause", "ai/brood/morphs", "game/fog", "buildings"]:
+		var nc := int(_acc_calls.get(z, 0))
+		if nc > 0:
+			each.append("%s %d calls %.2f ms each" % [z, nc, float(_acc.get(z, 0)) / 1000.0 / nc])
+	print("PERF each: ", ", ".join(each))
 	_acc.clear()
 	_acc_calls.clear()
 	_rows.append(row)
@@ -400,6 +425,23 @@ func _minute_row(g: Game) -> void:
 		row["min"], row["fps"], row["low1_fps"], row["worst_ms"], over33, over50, row["cpu_s"], row["paths"], row["paths_shared"], units, row["n_bodies"], row["n_effects"], row["n_projectiles"],
 		row["nodes"], row["objects"], ", ".join(zs)])
 	_frames = PackedFloat32Array()
+
+
+## "kinds": this minute's unit ticks by kind and order (and buildings by kind), the costliest first.
+func _print_kinds() -> void:
+	for pair in [["unit", Prof.kind_us], ["bld", Prof.bkind_us]]:
+		var d: Dictionary = pair[1]
+		var ks: Array = d.keys()
+		ks.sort_custom(func(a, b) -> bool: return int(d[a][0]) > int(d[b][0]))
+		var tot := 0
+		for k in ks:
+			tot += int(d[k][0])
+		var out := PackedStringArray()
+		for k in ks.slice(0, 18):
+			var e: Array = d[k]
+			out.append("%s %.0fms %.0fus/t (%d)" % [k, e[0] / 1000.0, float(e[0]) / maxf(1.0, e[1]), e[1]])
+		print("PERF %s kinds total %.0f ms: %s" % [pair[0], tot / 1000.0, ", ".join(out)])
+		d.clear()
 
 
 func _count_nodes(g: Game) -> Dictionary:

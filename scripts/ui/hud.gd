@@ -398,7 +398,7 @@ func _layer_sig(n: String) -> Array:
 				vals.append_array([_msg, int(minf(_msg_t, 1.0) * 60.0)])
 			if game.spectating():
 				# (the spectator's panels at 4 a second, not 20: with 100+ units their redraw cost 25 ms, 0.30.5 owner log)
-				vals.append_array([_tick_n / 5, m, view_open, spec_panels().drop, SpecPanels.open.values(), SpecPanels.team.values(), Settings.narrator,
+				vals.append_array([_tick_n / 5, spec_panels().hover_key(m), _view_hover(m), view_open, spec_panels().drop, SpecPanels.open.values(), SpecPanels.team.values(), Settings.narrator,
 					game.ai_story.version if game.ai_story else 0])
 			if countdown > 0.0 or _go_t > 0.0:
 				vals.append_array([countdown, _go_t])
@@ -830,6 +830,25 @@ func spec_panels() -> SpecPanels:
 
 ## The PRODUCTION list of side t (watching computers): [icon, progress 0..1 or -1 (waiting), colour] each.
 func prod_items(t: int) -> Array:
+	# (kept for the rest of the frame: the spectator panels ask it two or three times a redraw)
+	var pf := Engine.get_process_frames()
+	if pf != _prod_frame or game != _prod_game:
+		_prod_frame = pf
+		_prod_game = game
+		_prod_memo.clear()
+	if _prod_memo.has(t):
+		return _prod_memo[t]
+	var items := _prod_items(t)
+	_prod_memo[t] = items
+	return items
+
+
+var _prod_memo := {}
+var _prod_frame := -1
+var _prod_game: Game = null
+
+
+func _prod_items(t: int) -> Array:
 	var items: Array = []           # [icon, progress 0..1 or -1, colour]
 	for b in game.buildings:
 		if b.team != t or b.dead:
@@ -892,6 +911,19 @@ func _view_press(p: Vector2) -> void:
 			game.spectator.set_mode(opts[i][1], opts[i][2])
 			Sfx.play_any(["ui/click", "click"])
 			return
+
+
+## What the mouse is over in VIEW (its button, an open list's row), for the "rest" layer's signature.
+func _view_hover(m: Vector2) -> int:
+	if m.x < 0.0:
+		return -1
+	if view_rect().has_point(m):
+		return 0
+	if view_open:
+		for i in game.spectator.options().size():
+			if _view_row(i).has_point(m):
+				return 1 + i
+	return -1
 
 
 func _draw_view(font: Font) -> void:
@@ -5263,7 +5295,6 @@ func _icon_file(name: String) -> Texture2D:
 
 func _text(font: Font, p: Vector2, s: String, sz: int, col: Color, align := 0) -> void:
 	s = Loc.t(s)
-	var w := font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, sz).x
+	var w := TextCache.width(font, s, sz)       # (shaped once and kept: scripts/ui/text_cache.gd)
 	var x := p.x - (w * 0.5 if align == 1 else (w if align == 2 else 0.0))
-	_ci.draw_string_outline(font, Vector2(x, p.y), s, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, 4, Color(0, 0, 0, col.a * 0.8))
-	_ci.draw_string(font, Vector2(x, p.y), s, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, col)
+	TextCache.draw(_ci, font, Vector2(x, p.y), s, sz, col, 4, Color(0, 0, 0, col.a * 0.8))

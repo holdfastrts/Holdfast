@@ -17,6 +17,10 @@ static var bld_n := 0
 ## names it ("slowest unit: raptor 31 ms, order attack").
 static var slow_unit_us := 0
 static var slow_unit: Object = null
+## By kind (tools only: tools/perf_bench.gd "kinds"): "kind order" -> [microseconds, ticks]; off in a match.
+static var by_kind := false
+static var kind_us := {}
+static var bkind_us := {}
 ## Units' and buildings' time this frame (unit_us / bld_us before the frame's flush).
 static var _fu := 0
 static var _fb := 0
