@@ -73,20 +73,51 @@ const SOIL_RESERVE := 9000
 const SOIL_TIRED := 0.0           # share of a harvest that spent soil still pays (none: barren; was 1/3)
 const SOIL_LOW := 0.25            # warn the player below this share of the reserve (a Rootmaw's ground too)
 const MILL_RATE := 0.33           # powder per second per labourer at a Powder Mill (6 per hall: ~2/s, ~120/min) while its saltpetre lasts
-## The Crown starts with no powder: a Powder Mill comes before Musketeers (or a Horse Breeder
-## before Horsemen: the two openings).
+## The Crown starts with no powder. THE OWNER'S RULE (2026-11-05, crown-ammo; docs/crown_ammo.md): no powder lock: the
+## Barracks trains Musketeers and Officers without a Powder Mill; powder buys their ammunition (AMMO).
 const START_POWDER := 0
 ## Personal powder: Musketeers, Cannons and Mortars carry their own, in shots (one per shot:
 ## round shot, canister or shell alike). A dry Musketeer fights with the bayonet until it has
 ## `rearm` shots again. They refill by themselves (`refill` shots a second) within `range` tiles of
-## one of their side's finished `from` buildings, paid from the powder bank at `cost` powder
-## a shot (a full musketeer: 6 powder; with the bank empty the refill waits), or of a Powder
+## one of their side's finished `from` buildings (a Barracks with ARM WITH POWDER off is not one), paid from the powder
+## bank at `cost` powder a shot (with the bank empty the refill waits), or of a Powder
 ## Wagon with powder left (drawn from the wagon's store, already paid for: a cannon shot takes
-## 3 of the wagon's musket shots). Shots themselves don't touch the bank any more.
+## 1.5 of the wagon's musket shots). Shots themselves don't touch the bank any more.
 ## A soldier refitted with the Shot Pouch (RESEARCH "pouch") carries `pouch` musket shots.
+## crown-ammo (2026-11-05): a musket ball and a pistol charge cost 1 powder each, trained or refilled alike (a full
+## Musketeer: 10, what he cost before; the refill was 0.5 a shot, which would have made training dry and refilling at
+## the Barracks the cheap way).
 const POWDER := {"musketeer": 10, "pouch": 20, "cannon": 8, "mortar": 6, "refill": 2.0, "range": 3.0, "rearm": 3,
 	"cuirassier": 4, "dismounted": 4,       # the pistol's charges (Defs.PISTOL): mounted and on foot alike
-	"cost": {"musketeer": 0.5, "cannon": 1.5, "mortar": 1.5, "cuirassier": 0.5, "dismounted": 0.5}, "from": ["powder_mill", "barracks", "town_hall"]}
+	"cost": {"musketeer": 1.0, "dragoon": 1.0, "cannon": 1.5, "mortar": 1.5, "cuirassier": 1.0, "dismounted": 1.0}, "from": ["powder_mill", "barracks", "town_hall"]}
+## AMMUNITION (crown-ammo, the owner 2026-11-05): every Barracks soldier with a firearm comes out with the shots the bank
+## pays for when he comes out (ARM WITH POWDER on, the default): a full load is `shots` (the musket's POWDER shots, the
+## pistol's one loaded shot and its POWDER charges) at POWDER.cost a shot; less powder in the bank, fewer shots; trained with
+## gold only (ARM off, or an empty bank) he comes out with none and fights with the bayonet or the sabre until he refills.
+## `weapon`: the card's picture (musket, pistol). The guns keep their own prices (docs/crown_ammo.md: a proposal).
+const AMMO := {"musketeer": "musket", "dragoon": "musket", "cuirassier": "pistol", "dismounted": "pistol"}
+
+
+## A full load of a Barracks soldier of this kind, in shots (the pistol: its loaded shot and its charges; 0: not one).
+static func ammo_full(k: String) -> int:
+	match String(AMMO.get(k, "")):
+		"musket":
+			return int(POWDER["musketeer"])
+		"pistol":
+			return 1 + int(POWDER.get(k, 0))
+	return 0
+
+
+## The powder a shot of this kind's ammunition costs.
+static func ammo_price(k: String) -> float:
+	return float(POWDER["cost"].get(k, 1.0))
+
+
+## The powder of a full load (what the train button's cost line shows).
+static func ammo_load(k: String) -> int:
+	return int(ceil(ammo_full(k) * ammo_price(k) - 0.001))
+
+
 ## The Horseman's flintlock pistol (Horseman, Cuirassier, Officer, Armoured Officer: `kinds`):
 ## one loaded shot of `damage` at up to `range` px (a single ranged blow, like a musket ball;
 ## ground targets only, never at buildings), aimed in `aim` s; `after` s later his sabre is
@@ -99,11 +130,11 @@ const PISTOL := {"damage": 30.0, "range": 110.0, "aim": 0.35, "after": 0.4, "rel
 	"busy": 40.0, "kinds": ["cuirassier", "dismounted"]}
 ## Powder Wagon: holds `store` musket shots. Parked within POWDER.range tiles of a Powder Mill,
 ## Barracks or Town Hall it fills `fill` shots a second, paid from the powder bank at
-## 1 powder per `per_powder` shots (the musket rate). SUPPLY: the Town Hall's haulers (HAUL)
+## 1 powder per `per_powder` shots (the musket rate: 1, crown-ammo). SUPPLY: the Town Hall's haulers (HAUL)
 ## carry kegs from the nearest Powder Mill to it (`keg` shots a keg, loaded in `keg_load` s, paid
-## the same way: 30 shots = 15 powder). Destroyed, it blows up: up to `blast` damage (scaled by the
+## the same way: 30 shots = 30 powder). Destroyed, it blows up: up to `blast` damage (scaled by the
 ## powder left, never under `blast_min`) within `radius` px, friends included.
-const WAGON := {"store": 120, "fill": 8.0, "per_powder": 2.0, "keg": 30, "keg_load": 1.5,
+const WAGON := {"store": 120, "fill": 8.0, "per_powder": 1.0, "keg": 30, "keg_load": 1.5,
 	"blast": 170.0, "blast_min": 70.0, "radius": 110.0}
 ## HAULERS: Labourers assigned to a Town Hall (up to its "haulers"; the same right-click as a
 ## Farm). They carry what the base asks for, instead of anyone being pulled off a Farm or
@@ -881,9 +912,9 @@ const UNITS := {
 	},
 	"musketeer": {
 		"tags": ["light"],
-		"name": "Musketeer", "hp": 70, "armor": 0, "speed": 62, "cost": 60, "cost2": 10, "time": 15.0, "supply": 1,
-		"sight": 8, "range": 190, "damage": 20, "cooldown": 2.8, "aim": 0.4, "radius": 10, "from": "barracks", "requires": "powder_mill",
-		"anti_air": true, "faction": "crown", "about": "Light line infantry: fires at range and, by itself, stabs with the bayonet when the enemy closes in (or when its 10 shots run dry, 20 with the Shot Pouch; it refills near a Mill, Barracks, Town Hall or Powder Wagon). Long reload. Costs 10 powder: the Powder Mill grinds more. The Armoury researches Armour (he becomes a Guardsman), better locks, the socket bayonet and the shot pouch for him. MOUNT a horse and he rides as a Dragoon.",
+		"name": "Musketeer", "hp": 70, "armor": 0, "speed": 62, "cost": 60, "time": 15.0, "supply": 1,
+		"sight": 8, "range": 190, "damage": 20, "cooldown": 2.8, "aim": 0.4, "radius": 10, "from": "barracks",
+		"anti_air": true, "faction": "crown", "about": "Light line infantry: fires at range and, by itself, stabs with the bayonet when the enemy closes in (or when its 10 shots run dry, 20 with the Shot Pouch; it refills near a Mill, Barracks, Town Hall or Powder Wagon, 1 powder a shot). Long reload. Powder buys his shots: with 10 powder in the bank he comes out with all 10, with less fewer, with none (or ARM WITH POWDER off) he comes out with the bayonet only. The Armoury researches Armour (he becomes a Guardsman), better locks, the socket bayonet and the shot pouch for him. MOUNT a horse and he rides as a Dragoon.",
 	},
 	"cannon": {
 		"tags": ["armored"],
@@ -904,7 +935,7 @@ const UNITS := {
 		"name": "Powder Wagon", "hp": 220, "armor": 1, "speed": 38, "cost": 70, "cost2": 30, "time": 25.0, "supply": 2,
 		"sight": 7, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 16, "from": "foundry",
 		"no_attack": true, "faction": "crown", "needs_horse": true,
-		"about": "Carries 120 shots of powder for the army: musketeers and cannons within 3 tiles refill from it. Fills up near a Mill, Barracks or Town Hall (1 powder per 2 shots); SUPPLY (on from the start; G turns it off) has your Town Hall's haulers bring kegs from the Powder Mill when it's out in the field (assign Labourers to the Town Hall; nobody is taken off a farm or mill). No weapon, and when it's destroyed it blows up (more powder, bigger blast; friends too): guard it.",
+		"about": "Carries 120 shots of powder for the army: musketeers and cannons within 3 tiles refill from it. Fills up near a Mill, Barracks or Town Hall (1 powder a shot); SUPPLY (on from the start; G turns it off) has your Town Hall's haulers bring kegs from the Powder Mill when it's out in the field (assign Labourers to the Town Hall; nobody is taken off a farm or mill). No weapon, and when it's destroyed it blows up (more powder, bigger blast; friends too): guard it.",
 	},
 	# (the kind stays "cuirassier" for saves, the AI and hotkeys: unarmoured he is the
 	# Horseman, with Armour the Cuirassier: see ARMOURED)
@@ -913,7 +944,7 @@ const UNITS := {
 		"name": "Horseman", "hp": 140, "armor": 1, "speed": 112, "cost": 115, "time": 22.0, "supply": 3,
 		"sight": 8, "range": 26, "damage": 18, "cooldown": 1.1, "aim": 0.15, "radius": 15, "from": "barracks",
 		"requires": "horse_breeder", "bonus": {"cannon": 1.6, "spitter": 1.3, "arc_thrower": 1.3}, "charge": true, "faction": "crown", "needs_horse": true,
-		"about": "Fast light horseman with a pistol and a sabre. Trained with his horse in one click (a free one at a breeder, else the breeder trains one: 40 more); he comes out on foot and rides off on it. He opens with his one loaded pistol shot (30 damage, a little over half a musket's reach), then fights with the sabre; he can only reload on foot (DISMOUNT: he's an Officer then). Once the Armoury has drilled the Cavalry Charge, his first sabre blow after a gallop hits double and throws the enemy back. With Armour he becomes a Cuirassier. Bayonets hurt him.",
+		"about": "Fast light horseman with a pistol and a sabre. Trained with his horse in one click (a free one at a breeder, else the breeder trains one: 40 more); he comes out on foot and rides off on it. He opens with his one loaded pistol shot (30 damage, a little over half a musket's reach), then fights with the sabre; he can only reload on foot (DISMOUNT: he's an Officer then). Powder buys his pistol (5 powder: the loaded shot and 4 charges); with none he comes out with the sabre only. Once the Armoury has drilled the Cavalry Charge, his first sabre blow after a gallop hits double and throws the enemy back. With Armour he becomes a Cuirassier. Bayonets hurt him.",
 	},
 	# ---- horses (Defs.HORSES) and the men who ride them. Horses are bought at a Horse Breeder
 	# (trained like soldiers); the rest are a man on a horse (MOUNT) or off it (DISMOUNT): Defs.MOUNTS.
@@ -934,9 +965,9 @@ const UNITS := {
 	# (light he is the Dragoon, with Armour the Armoured Dragoon: see ARMOURED)
 	"dragoon": {
 		"tags": ["light"],
-		"name": "Dragoon", "hp": 90, "armor": 0, "speed": 112, "cost": 60, "cost2": 10, "time": 15.0, "supply": 1,
+		"name": "Dragoon", "hp": 90, "armor": 0, "speed": 112, "cost": 60, "time": 15.0, "supply": 1,
 		"sight": 8, "range": 190, "damage": 0, "cooldown": 2.8, "radius": 14, "from": "barracks",
-		"requires": ["powder_mill", "horse_breeder"], "needs_horse": true,
+		"requires": "horse_breeder", "needs_horse": true,
 		"no_attack": true, "mounted": true, "anti_air": true, "faction": "crown",
 		"about": "A Musketeer on a horse: rides fast but can't fight in the saddle. Trained at the Barracks with his horse in one click, for the Musketeer's price (a free horse at a breeder, else the breeder trains one: 40 more); he comes out on foot and rides off on it. Told to attack, he dismounts (0.8 s), fires as a Musketeer (reloading a third slower), and remounts by himself to move on. His reload waits while he rides.",
 	},
@@ -946,8 +977,8 @@ const UNITS := {
 		"tags": ["light"],
 		"name": "Officer", "hp": 80, "armor": 1, "speed": 64, "cost": 75, "time": 18.0, "supply": 3,
 		"sight": 8, "range": 110, "damage": 30, "cooldown": 1.1, "aim": 0.35, "radius": 10, "from": "barracks",
-		"requires": "horse_breeder", "sabre": {"damage": 18.0, "cooldown": 1.1}, "faction": "crown",
-		"about": "A Horseman on foot: his flintlock pistol (one shot, 30 damage, a little over half a musket's reach) and the same sabre as in the saddle up close (about a plain bayonet's match). On foot he reloads the pistol by himself (4 s, a little powder: his charges refill like a Musketeer's). MOUNT a horse and he rides as a Horseman.",
+		"sabre": {"damage": 18.0, "cooldown": 1.1}, "faction": "crown",
+		"about": "A Horseman on foot: his flintlock pistol (one shot, 30 damage, a little over half a musket's reach) and the same sabre as in the saddle up close (about a plain bayonet's match). On foot he reloads the pistol by himself (4 s, a charge of his powder: his charges refill like a Musketeer's, 1 powder each). Needs no Horse Breeder: without a horse he walks. Powder buys his pistol (5 powder: the loaded shot and 4 charges); with none he comes out with the sabre only. MOUNT a horse and he rides as a Horseman.",
 	},
 	# the PIKEMAN, back for the campaign only (campaign-m1, 2026-11-04): the rebels' pikeman in mission 1 (scripts/campaign/rebels.gd).
 	# Retired from the Crown's roster (the Musketeer's bayonet does his job); no building trains him and no lobby lists him.
@@ -1398,7 +1429,7 @@ const BUILDINGS := {
 	},
 	"barracks": {
 		"name": "Barracks", "hp": 1000, "armor": 2, "cost": 150, "time": 40.0, "size": Vector2i(4, 3),
-		"supply": 0, "sight": 7, "trains": ["musketeer", "dragoon", "cuirassier", "dismounted", "band"], "requires": "cottage", "faction": "crown", "about": "Trains Musketeers (with a Powder Mill), Horsemen and Officers (with a Horse Breeder; a Horseman's horse comes in the same click) and Dragoons (both: a Musketeer and his horse); with Armour, the armoured ones too. Refits soldiers. Needs a Cottage. Two openings: Powder Mill first for Musketeers, or Horse Breeder first for a Horseman rush.",
+		"supply": 0, "sight": 7, "trains": ["musketeer", "dragoon", "cuirassier", "dismounted", "band"], "requires": "cottage", "faction": "crown", "about": "Trains Musketeers and Officers, Horsemen and Dragoons (with a Horse Breeder: a rider's horse comes in the same click); with Armour, the armoured ones too. Powder buys their shots when they come out (ARM WITH POWDER, on: with none in the bank they come out with bayonet or sabre only, and refill later). Refits soldiers. Needs a Cottage. Two openings: Powder Mill first for armed Musketeers, or Horse Breeder first for a Horseman rush.",
 	},
 	"armoury": {
 		"name": "Armoury", "hp": 1000, "armor": 2, "cost": 150, "time": 40.0, "size": Vector2i(4, 3),
@@ -2232,7 +2263,7 @@ const PALETTE := [
 const TIPS := {
 	# Crown units
 	"labourer": "Works Farms and Powder Mills, builds and repairs. Weak in a fight.",
-	"musketeer": "Light line infantry (needs a Powder Mill): 10 shots, a long reload, the bayonet up close. Hits flyers. Refills powder near a Mill, Barracks, Hall or Wagon. MOUNT a horse: a Dragoon.",
+	"musketeer": "Light line infantry: 10 shots (1 powder each, paid when he comes out: no powder, bayonet only), a long reload, the bayonet up close. Hits flyers. Refills near a Mill, Barracks, Hall or Wagon. MOUNT a horse: a Dragoon.",
 	# horse commands (the command card's tooltips)
 	"LEAD": "Each man takes up to 3 of your free horses nearby by the reins; they follow at his side. (Right-click a horse with Labourers: they lead it.)",
 	"RELEASE": "Let go of the reins: the horses stay where they stand and graze. Unattended, an enemy man can steal them.",
@@ -2249,9 +2280,9 @@ const TIPS := {
 	"horse": "Bought at a Horse Breeder (40 gold, 15 s). LEAD it, MOUNT it, harness it to a gun or wagon, or bring it to a Barracks or Foundry: cavalry and guns need one each. Left alone near an enemy man, it's stolen.",
 	"messenger": "A Labourer on a horse: very fast, unarmed, sees far. A scout. He can lead horses too.",
 	"mounted_missionary": "A Missionary on a horse: fast and unarmed. Gets off to bandage (and back on after) and to raise the fallen.",
-	"dragoon": "A Musketeer on a horse: rides fast, dismounts to fire (0.8 s), remounts to move. His reload waits while he rides. Needs a Powder Mill and a Horse Breeder; one click trains him and his horse (40 more without a spare).",
+	"dragoon": "A Musketeer on a horse: rides fast, dismounts to fire (0.8 s), remounts to move. His reload waits while he rides. Needs a Horse Breeder; powder buys his 10 shots; one click trains him and his horse (40 more without a spare).",
 	"armoured_dragoon": "A Guardsman on a horse: rides fast, dismounts to fire, remounts to move. Needs Armour; his horse comes with him (one click).",
-	"dismounted": "Officer: a Horseman on foot. One pistol shot (30 damage, 110 reach), then the sabre; he reloads the pistol by himself on foot (4 s, a little powder). Needs a Horse Breeder. MOUNT a horse: a Horseman.",
+	"dismounted": "Officer: a Horseman on foot. One pistol shot (30 damage, 110 reach), then the sabre; he reloads the pistol by himself on foot (4 s, a charge of powder). Powder buys his pistol (5); no Horse Breeder needed. MOUNT a horse: a Horseman.",
 	"dismounted_cuirassier": "Armoured Officer: a Cuirassier on foot, pistol and sabre, in his cuirass; reloads on foot. Needs Armour. MOUNT a horse: a Cuirassier.",
 	"balloon": "Carries 4 Musketeers or Labourers anywhere, over cliffs too. Musketeers aboard shoot 35% further. Slow and fragile.",
 	"missionary": "Bandages the wounded and raises fallen Crown soldiers. Can't be hurt away from enemy buildings. One per Church.",
@@ -2269,11 +2300,11 @@ const TIPS := {
 	"storm_challenger": "A matured Hatchling, a young Storm Sire: a flyer that swoops to bite flyers and ground units alike.",
 	# Crown buildings
 	"town_hall": "Trains Labourers. Allows 2 Farms and 1 Powder Mill nearby; its soil and saltpetre run out in time.",
-	"horse_breeder": "Trains horses: 40 gold and 15 s each, no supply; RALLY sends them on. Unlocks Horsemen; cavalry, guns and wagons need its horses. Build as many as you like, anywhere. Two openings: Powder Mill first for Musketeers, or Horse Breeder first for a Horseman rush.",
+	"horse_breeder": "Trains horses: 40 gold and 15 s each, no supply; RALLY sends them on. Unlocks Horsemen; cavalry, guns and wagons need its horses. Build as many as you like, anywhere. Two openings: Powder Mill first for armed Musketeers, or Horse Breeder first for a Horseman rush.",
 	"cottage": "Houses 8 more supply. The first one unlocks the Barracks and the palisade.",
 	"wall": "Palisade: blocks the way. Lay it in a line: pick the start, then the end. Needs a Cottage.",
 	"gate": "A palisade piece that opens for your side only. Lay it onto your own palisade to swap a piece. Needs a Cottage.",
-	"barracks": "Trains Musketeers (needs a Powder Mill), Horsemen and Officers (need a Horse Breeder), Dragoons (both), and with Armour the armoured ones. Refits soldiers. Needs a Cottage. Two openings: Powder Mill first for Musketeers, or Horse Breeder first for a Horseman rush.",
+	"barracks": "Trains Musketeers and Officers, Horsemen and Dragoons (need a Horse Breeder), and with Armour the armoured ones. Powder buys their shots as they come out (ARM WITH POWDER). Refits soldiers. Needs a Cottage. Two openings: Powder Mill first for armed Musketeers, or Horse Breeder first for a Horseman rush.",
 	"armoury": "Researches Armour, the musket locks, the socket bayonet, the guns' drills and the Cavalry Charge. Refits soldiers too.",
 	"foundry": "Casts cannons and mortars, rigs balloons, builds powder wagons (each needs a horse: one standing here, else a Town Hall hauler leads one over from the Horse Breeder, or it walks over by itself when you have no haulers).",
 	"farm": "Ripens into a 380-gold harvest about every 40 s with a full crew (up to 8 Labourers).",

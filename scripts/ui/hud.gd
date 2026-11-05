@@ -1224,7 +1224,7 @@ func _build_card() -> Array:
 			list.append([k, ulab, func() -> void:
 				var w := game.train_any(game.selected_buildings(), kk)
 				if w != "":
-					toast(w), why == "", why, _price_chip(game.unit_price(game.human, k), Defs.tension_cost(Defs.UNITS[Defs.train_kind(k)]) > 0)])
+					toast(w), why == "", why, _ammo_chip(b, k, _price_chip(game.unit_price(game.human, k), Defs.tension_cost(Defs.UNITS[Defs.train_kind(k)]) > 0))])
 		if b.dual_rally():
 			list.append(["rally", "RALLY", func() -> void: controls.mode = "rally_army", true, "", ""])
 			list.append(["rally", "WORKERS", func() -> void: controls.mode = "rally_worker", true, "", ""])
@@ -1236,6 +1236,8 @@ func _build_card() -> Array:
 				game.cancel_train(b)
 				if Building.is_research(last):
 					toast("%s research cancelled: paid back." % Defs.RESEARCH[last.substr(1)]["name"]), true, "", ""])
+		if b.kind == "barracks" and b.built and (b.team == game.human or game.demo):
+			_arm_button(list, game.selected_buildings().filter(func(x: Building) -> bool: return x.kind == "barracks" and x.built))
 		if Defs.REFIT_AT.has(b.kind) and (game.has_refits(game.human) or _full_card):
 			# (once there's something to refit with)
 			_auto_refit_button(list, game.selected_buildings().filter(func(x: Building) -> bool: return Defs.REFIT_AT.has(x.kind) and x.built))
@@ -1444,6 +1446,35 @@ func ctrl_hotkey(code: int) -> bool:
 				Sfx.play_any(["ui/click", "click"])
 			return true
 	return false
+
+
+## ARM WITH POWDER on Barracks (crown-ammo; glowing = on, the default): recruits come out with the shots the powder bank
+## pays for. Off: they come out with none (bayonet or sabre) and the powder is kept for the guns; the Barracks refills nobody.
+func _arm_button(list: Array, places: Array) -> void:
+	if places.is_empty():
+		return
+	var on: bool = places.all(func(p) -> bool: return p.arm_powder)
+	_tip_for["ARM WITH POWDER"] = ["Arm with powder (glowing = on)", "On: Musketeers, Officers, Horsemen and Dragoons come out with the shots the powder in the bank pays for (1 powder a shot: 10 a Musketeer, 5 an Officer's pistol; less powder, fewer shots). Off: they come out with no shots and fight with bayonet or sabre until they refill at a Mill, Town Hall or Powder Wagon; the powder is kept for the guns, and this Barracks refills nobody."]
+	list.append(["ab_arm_powder", ("~ " if on else "") + "ARM WITH POWDER", func() -> void:
+		for p in places:
+			if is_instance_valid(p) and not p.dead:
+				game.net_set(p, "arm_powder", not on)
+		toast("Arm with powder off: recruits come out with no shots (bayonet or sabre); the powder is kept for the guns." if on else "Arm with powder on: recruits come out with the shots the bank pays for."), true, "", ""])
+
+
+## The train button's corner (crown-ammo): a soldier with a firearm shows gold+powder for the shots he'd come out with
+## now, gold alone when he'd come out with none.
+func _ammo_chip(b: Building, key: String, chip: String) -> String:
+	var k := Defs.train_kind(key)
+	if Defs.RIDERS.has(k):
+		k = String(Defs.RIDERS[k])
+	var full := Defs.ammo_full(k)
+	if full <= 0 or b == null or not b.arm_powder:
+		return chip
+	var n := mini(full, int(floor(float(game.players[game.human]["res2"]) / Defs.ammo_price(k) + 0.0001)))
+	if n <= 0:
+		return chip
+	return "%s+%d" % [chip, int(ceil(n * Defs.ammo_price(k) - 0.001))]
 
 
 ## AUTO REFIT on Barracks, Armouries or Powder Wagons (glowing = on): idle soldiers within a
@@ -3856,9 +3887,11 @@ func _draw_panel(font: Font) -> void:
 			var cf := clampf(cu.wind, 0.0, 1.0)
 			_ci.draw_rect(Rect2(cb.position, Vector2(cb.size.x * cf, cb.size.y)), Color(1.0, 0.92, 0.55) if cu.charge_winding() else (Unit.CHARGE_BAR if cf > 0.2 else UiStyle.BAD))
 			charge_pre = cu.charge_text()      # (put first on the line once the line is translated, below)
-		if e is Unit and (e as Unit).has_pistol() and (e.team == game.human or game.demo):
-			# the pistol: a little pistol after the health figures, bright loaded, dim and crossed empty
-			_draw_pistol(Vector2(hb.end.x + 16 + font.get_string_size(hpt, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x, hb.position.y), (e as Unit).pistol)
+		var ammo_w := 0.0
+		if e is Unit and (e as Unit).ammo_weapon() != "" and (e.team == game.human or game.demo):
+			# THE AMMO ICON (crown-ammo, the owner 2026-11-05): the weapon after the health figures with the shots left; a red
+			# "no" sign and NO AMMO under it at 0 shots; a bar filling with RELOADING under it while it reloads or refills
+			ammo_w = _draw_ammo(Vector2(hb.end.x + 16 + font.get_string_size(hpt, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x, hb.position.y), e as Unit)
 		if e is Unit and (e as Unit).kills > 0:
 			# veterancy: kills and the damage they've earned
 			var ku := e as Unit
@@ -3866,8 +3899,7 @@ func _draw_panel(font: Font) -> void:
 			var vt := "%s%d kill%s · +%d%% damage" % ["Veteran · " if not ku.is_worker() else "", ku.kills, "" if ku.kills == 1 else "s", int(round(bonus * 100.0))]
 			vt = Loc.t(vt)
 			var vx := hb.position.x + hb.size.x + 22 + font.get_string_size(hpt, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
-			if ku.has_pistol() and (e.team == game.human or game.demo):
-				vx += 30.0           # (after the pistol)
+			vx += ammo_w           # (after the ammo icon)
 			var room := r.end.x - 36 - vx
 			if UiStyle.bold_font().get_string_size(vt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x > room:
 				vt = Loc.t("%d kills +%d%%") % [ku.kills, int(round(bonus * 100.0))]
@@ -4145,7 +4177,7 @@ static func pistol_text(u: Unit) -> String:
 	var t := "Pistol LOADED" if u.pistol else "Pistol EMPTY"
 	if not u.pistol:
 		if u.is_mounted():
-			t += ": reloads on foot"
+			t += ": reloads on foot or at a Mill, Barracks, Hall or Wagon"
 		elif u.powder < float(Defs.PISTOL["powder"]):
 			t += ": no powder to reload"
 		elif u.pistol_t > 0.0:
@@ -4155,6 +4187,83 @@ static func pistol_text(u: Unit) -> String:
 	if u.hold_fire:
 		t += " (HOLD FIRE)"
 	return t
+
+
+## The card's ammunition (crown-ammo): {"weapon": musket / pistol / cannon / mortar, "shots", "max", "state": "ready" /
+## "no_ammo" / "reloading", "frac": how full the RELOADING bar is}. Reloading: refilling at a reloading point (the bar is
+## the load filling up), the pistol being reloaded on foot, a musket or gun between shots.
+static func ammo_state(u: Unit) -> Dictionary:
+	var st := {"weapon": u.ammo_weapon(), "shots": u.ammo_shots(), "max": u.ammo_max(), "state": "ready", "frac": 1.0}
+	if st["weapon"] == "":
+		return st
+	if u.refilling():
+		st["state"] = "reloading"
+		st["frac"] = clampf(float(st["shots"]) / maxf(float(st["max"]), 1.0), 0.0, 1.0)
+	elif int(st["shots"]) <= 0:
+		st["state"] = "no_ammo"
+		st["frac"] = 0.0
+	elif u.has_pistol():
+		if not u.pistol and u.pistol_t > 0.0:
+			st["state"] = "reloading"
+			st["frac"] = clampf(u.pistol_t / float(Defs.PISTOL["reload"]), 0.0, 1.0)
+	elif u.cooldown > 0.0 and u.reload_frac() < 1.0 and u.mode != "bayonet":
+		st["state"] = "reloading"
+		st["frac"] = u.reload_frac()
+	return st
+
+
+## Draws the ammo icon at p (the health bar's top, after its figures); returns the width it took.
+func _draw_ammo(p: Vector2, u: Unit) -> float:
+	var st := ammo_state(u)
+	var w := String(st["weapon"])
+	if w == "pistol":
+		_draw_pistol(p, u.pistol)
+	else:
+		_draw_weapon(p, w, int(st["shots"]) > 0)
+	var nt := str(int(st["shots"]))
+	var col := Color(1, 0.9, 0.6) if int(st["shots"]) > 0 else UiStyle.BAD
+	_text(UiStyle.bold_font(), p + Vector2(27, 11), nt, 14, col)
+	var wide := 30.0 + UiStyle.bold_font().get_string_size(nt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	var lab := ""
+	if st["state"] == "no_ammo":
+		# the red "no" sign over the weapon: a ring and a slash
+		var c := p + Vector2(12, 3)
+		_ci.draw_arc(c, 10.0, 0, TAU, 24, Color(0.95, 0.15, 0.12), 2.4)
+		_ci.draw_line(c + Vector2(-7, -7), c + Vector2(7, 7), Color(0.95, 0.15, 0.12), 2.4)
+		lab = "NO AMMO"
+	elif st["state"] == "reloading":
+		var bar := Rect2(p + Vector2(0, 17), Vector2(maxf(wide - 4.0, 44.0), 3))
+		_ci.draw_rect(bar.grow(1.0), Color(0, 0, 0, 0.7))
+		_ci.draw_rect(Rect2(bar.position, Vector2(bar.size.x * float(st["frac"]), bar.size.y)), Color(1.0, 0.82, 0.3))
+		lab = "RELOADING"
+	if lab != "":
+		var lt := Loc.t(lab)
+		_text(UiStyle.bold_font(), p + Vector2(0, 30), lt, 11, UiStyle.BAD if lab == "NO AMMO" else Color(1.0, 0.85, 0.4))
+		wide = maxf(wide, UiStyle.bold_font().get_string_size(lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 4.0)
+	return wide
+
+
+## A musket, a cannon ball or a mortar shell, about 24 x 12 at p (its top left), drawn in code (no painted icon yet:
+## docs/art_style_inconsistency.md); dim when empty.
+func _draw_weapon(p: Vector2, w: String, has: bool) -> void:
+	var steel := Color(0.85, 0.87, 0.9) if has else Color(0.45, 0.45, 0.48)
+	var wood := Color(0.62, 0.38, 0.18) if has else Color(0.35, 0.28, 0.22)
+	match w:
+		"musket":
+			_ci.draw_line(p + Vector2(0, 8), p + Vector2(10, 3), wood, 4.0)        # stock
+			_ci.draw_line(p + Vector2(8, 3.5), p + Vector2(24, -2), steel, 2.0)     # barrel
+			_ci.draw_rect(Rect2(p + Vector2(8, 1), Vector2(3, 3)), steel)            # the lock
+			_ci.draw_line(p + Vector2(14, 2), p + Vector2(15, 5), steel, 1.0)        # trigger guard
+			if has:
+				_ci.draw_circle(p + Vector2(24.5, -2.2), 1.4, Color(1.0, 0.8, 0.3))
+		"cannon":
+			_ci.draw_circle(p + Vector2(12, 3), 7.0, Color(0.16, 0.16, 0.18) if has else Color(0.3, 0.3, 0.32))
+			_ci.draw_circle(p + Vector2(9.5, 0.5), 2.0, Color(0.6, 0.6, 0.65, 0.8 if has else 0.4))
+		_:
+			_ci.draw_circle(p + Vector2(12, 4), 6.5, Color(0.2, 0.2, 0.22) if has else Color(0.32, 0.32, 0.34))
+			_ci.draw_line(p + Vector2(15, -1), p + Vector2(18, -5), Color(0.6, 0.45, 0.3), 1.5)      # the fuse
+			if has:
+				_ci.draw_circle(p + Vector2(18, -5.5), 1.6, Color(1.0, 0.75, 0.25))
 
 
 ## A small flintlock pistol at p (its top left), about 24 x 12: the painted icon (assets/ui/stats/pistol_loaded.png, a
@@ -4474,7 +4583,7 @@ var _buttons_extra: Array = []
 ## the card shows 3 rows and scrolls when there are more (the wheel over the card, a finger's drag
 ## on phones, the thin bar at its right edge, Tab). The most used first; the rarer ones last, in
 ## this order (rallies also work by right-click; auto-cast toggles; DEMOLISH).
-const CARD_LAST := ["WORK", "AUTO REFIT", "PRESSURE", "TEAM", "HOLD FIRE", "RALLY", "WORKERS", "DEMOLISH"]
+const CARD_LAST := ["WORK", "ARM WITH POWDER", "AUTO REFIT", "PRESSURE", "TEAM", "HOLD FIRE", "RALLY", "WORKERS", "DEMOLISH"]
 var _card_scroll := 0           # the first row shown
 var _card_rows := 0             # rows in all
 var _card_sig := ""             # the command list the scroll belongs to
@@ -4854,6 +4963,9 @@ func _card_tip(it: Array) -> Dictionary:
 		var arm := Defs.train_armoured(k)
 		t["title"] = Defs.train_name(k)
 		t["stats"] = "%s  ·  %d s  ·  %d supply%s" % [_cost_text(price[0], price[1]), int(u["time"]), int(u["supply"]) * n, ("  ·  %d an egg" % n) if n > 1 else ""]
+		var al := game.ammo_line(game.human, k, b if b != null and b.kind == "barracks" else null)
+		if al != "":
+			t["stats"] = "%s  ·  %s  ·  %d s  ·  %d supply" % [_cost_text(price[0], price[1]), Loc.t("ammunition:") + " " + Loc.t(al), int(u["time"]), int(u["supply"])]      # (crown-ammo: the powder for his shots)
 		var tg: Array = ["armored"] if arm else u.get("tags", [])
 		t["body"] = ("[%s] " % " ".join(tg.map(func(x: String) -> String: return x.capitalize())) if not tg.is_empty() else "") + Defs.tip(k)
 		if Defs.ARMOURED.has(kd):

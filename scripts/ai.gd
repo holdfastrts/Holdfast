@@ -133,6 +133,8 @@ var tr = AITransition.new(self)
 ## after the expansion; scripts/ai_crown_hold.gd, docs/ai_crown_transitions.md section 10)
 const AICrownHold := preload("res://scripts/ai_crown_hold.gd")
 var ch = AICrownHold.new(self)
+const AICrownAmmo := preload("res://scripts/ai_crown_ammo.gd")
+var am = AICrownAmmo.new(self)          # (crown-ammo: armed recruits, the ARM WITH POWDER toggle, refill errands)
 ## The harass (scripts/ai_harass.gd, docs/ai_harass.md): a small party out in the enemy's land hunts workers and walks
 ## past structures and rooted Brood creatures; made on first use (hz()).
 var harass: AIHarass = null
@@ -619,6 +621,7 @@ func _think_stage(i: int) -> void:
 			if _crown():
 				var kept := _hide_kept()
 				_tend_wagon()
+				am.tick()
 				_horses()
 				game.players[team]["gold"] += kept
 			pt = _lap("ai/horses", pt)
@@ -4891,6 +4894,8 @@ func _anti_armour() -> float:
 ## The train button for a soldier of this kind: armoured when we want armour and can pay
 ## for it, else light; "" if neither can be trained.
 func _soldier_key(b: Building, kind: String) -> String:
+	if not am.musket_ok(b, kind):
+		return ""               # (crown-ammo: a Musketeer only with his shots' powder in the bank, AICrownAmmo)
 	if _want_armour():
 		var ak := Defs.train_key(kind, true)
 		if game.can_train(b, ak) == "" and _gold() >= game.unit_price(team, ak)[0] + _lv([60, 30, 0]):
@@ -4925,6 +4930,8 @@ func _gun_save() -> bool:
 func _on_errand(u: Unit) -> bool:
 	if u.order in ["courier", "overload", "board", "unload", "heal", "revive", "refit", "restock"]:
 		return true
+	if am.rearming.has(u):
+		return true             # (crown-ammo: walking to a reloading point, AICrownAmmo)
 	if not _drop.is_empty() and (u == _drop.get("b") or (_drop.get("men", []) as Array).has(u)):
 		return true
 	return ch.is_scout(u)       # (a rider scout on its loop: scripts/ai_crown_hold.gd)

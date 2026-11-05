@@ -1536,7 +1536,7 @@ func _train_dragoons() -> bool:
 	for b in _mine("barracks"):
 		if have >= want:
 			return false
-		if b.built and b.queue.size() < 2 and game.can_train(b, "dragoon") == "":
+		if b.built and b.queue.size() < 2 and game.can_train(b, "dragoon") == "" and am.musket_ok(b, "dragoon"):
 			if game.train(b, "dragoon") == "":
 				have += 1
 	return have < want

@@ -591,3 +591,12 @@ The campaign's art is not decided yet (owner, 2026-11-03): until it is, these ar
 - The rebel stand-ins (militia, torch-bearer, Varenne) are Crown sprites in the green team colour; the pikeman is the
   retired Pikeman's old strips (with the audit's faults: docs/animation_audit_units.md). The owner is drawing the rebels.
 - The opening / ending band under the stills (StillShow) and the CHOICE panel: UI drawn in code in the game's panel style.
+
+## The Crown's ammunition (code and composite, 0.32.0, crown-ammo; docs/crown_ammo.md)
+
+| what | where | how | notes |
+| --- | --- | --- | --- |
+| ARM WITH POWDER command icon | assets/icons/ab_arm_powder.png | tools/crown_ammo/make_arm_icon.py: the command icons' dark frame (ab_supply's), the powder keg (assets/ui/stats/res_powder.png) and the loaded pistol (pistol_loaded.png) pasted together | a painted icon wanted (a keg with a musket ball, or a Barracks door with a powder horn) |
+| The unit card's musket, cannon ball and mortar shell | scripts/ui/hud.gd `_draw_weapon` | drawn in code (lines and circles, about 24 x 12) beside the painted pistol icons | ChatGPT: a musket, a round shot and a fused shell in the pistol icons' style (64 x 64, loaded and empty versions like pistol_loaded / pistol_empty) |
+| NO AMMO sign over the card's weapon icon | scripts/ui/hud.gd `_draw_ammo` | a red ring with a slash, drawn in code | fine as a UI mark; a painted one only if the owner wants it |
+| The small no-ammo mark over men on the field | scripts/unit.gd `_draw_no_ammo` | a red ring with a slash beside the health bar, about 9 px | fine as a UI mark |
