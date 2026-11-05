@@ -954,12 +954,14 @@ func _evaluate() -> Dictionary:
 		out["verdict"] = "defensive"
 		out["reason"] = "%d static defences, %d wall pieces, %s" % [defs, walls, nums]
 		out["saw"] = "turrets or rooted defenders" if defs > 0 else "walls all round one base"
-	elif halls >= 2 and value < thr * 0.5 and mil <= 1 and not (fac == "brood" and brood_read_on and known >= thr * 0.5):
+	elif halls >= 2 and value < thr * 0.5 and mil <= 1 and not (fac == "brood" and brood_read_on and (known >= thr * 0.5 or not _brood_seen_enough())):
+		# (the Brood: the Mother and a far turtle alone are no greed: its Rootmaws, grubs and army may be anywhere, the
+		# owner's Red Coast log; THE BROOD READ below)
 		out["verdict"] = "greedy"
 		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else nums
 		out["saw"] = "a second base and little army"
 	elif absence_on and _hall_seen and mil == 0 and value <= 0.0 and known <= 0.0 and clock >= GREEDY_ABSENT_FROM \
-			and cov >= (BROOD_LOOK_COV if fac == "brood" else ABSENT_COV):
+			and cov >= (BROOD_LOOK_COV if fac == "brood" else ABSENT_COV) and not (fac == "brood" and brood_read_on and not _brood_seen_enough()):
 		# (THE ABSENCE IS INFORMATION, the owner 2026-11-05: its base looked at and no army and no production building, at a
 		# time a rush or a normal opening would have one: it is putting everything into its economy)
 		out["verdict"] = "greedy"
