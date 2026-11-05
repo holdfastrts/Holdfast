@@ -40,11 +40,13 @@
   Wagon), the refill taking that powder from the bank. A Barracks toggle ARM WITH POWDER (default ON). PARTIAL ammo when
   the bank holds less than a full load. The gold-only rush is allowed (it is the Horseman rush: the Horse Breeder costs only
   gold). MOUNTED and LIMBERED units keep the Horse Breeder requirement; a Horseman with no horse is an Officer.
-- AI READS THE SCOUT (owner, 2026-11-05 09:34; job ai-reads-scout): "the absence of army or buildings is already
-  information": a scout report reads GREEDY / AGGRESSIVE / DEFENSIVE / UNKNOWN. Fixed plans keep their plan (survival
-  aside; owner: "it is useful to have the AI follow the plan"); Claude's proposal being built: BALANCED becomes the
-  ADAPTIVE plan (v greedy: punish or out-expand; v aggressive: defend then counter; v defensive: out-expand and tech).
-  Also a full audit of the AI STORY lines (wrong lines fixed; wrong logic behind them fixed).
+- AI PLANS: ADAPTIVE + OPTIMAL (owner, DECIDED 2026-11-05 09:54; job ai-optimal): a scout report is information even
+  when it sees nothing (GREEDY / NORMAL / AGGRESSIVE / DEFENSIVE / UNKNOWN). EVERY plan adapts to some point (survival:
+  a seen rush is defended; obvious answers) but keeps its identity so the owner can train against / watch each strategy
+  (Economy still races v a greedy enemy). NEW plan OPTIMAL per faction: a common opening, an early scout, then it picks
+  from ALL the faction's builds by the read, matchup and map (v greedy punish or out-expand; v aggressive defend then
+  counter; v defensive out-expand, tech, siege); switches at most once a stage. Horseman rush: good v the Brood, somewhat
+  v the Clockwork, NOT v the Crown. Also an audit of every AI STORY line (and the logic behind wrong ones).
 - EXPANSION SPOTS PER FACTION (owner, DECIDED 2026-11-03 22:25): each faction has its own optimal expansion spot (the Brood
   already does: Mound Turtle spots). CROWN: 2nd and 3rd bases at the MINIMUM hall distance (Defs.HALL_SPACING 18) and close
   together, covered by the main's high ground (Musketeer range from its edge) and easy to wall (walls join up); 4th base on:
