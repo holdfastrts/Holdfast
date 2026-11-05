@@ -125,8 +125,8 @@ func choose(read: String) -> Array:
 				"brood":
 					return ["brute", "a siege to break its defences"]
 		"NORMAL":
-			if st != "opening":
-				return []        # (a normal read later keeps what it plays)
+			if st != "opening" or not picks.is_empty():
+				return []        # (a normal read later keeps what it plays: the dice are thrown once, no flip-flop)
 			var w: Dictionary = (NORMAL.get(fac, {}) as Dictionary).get(f, {"balanced": 1.0})
 			var k := _weighted(w)
 			return [k, _normal_why(k)]
