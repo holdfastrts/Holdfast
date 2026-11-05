@@ -324,9 +324,6 @@ func _army_gate(home: Array) -> bool:
 		return false
 	if _sw() and swm().hold_attack():
 		return false
-	if not plan.has("push") and not _kit_ready(home):
-		army_g.say("waits for its Springers before it goes at a walled enemy (the shared rule)", "kit", 60.0)
-		return false
 	return army_g.may_launch(home)
 
 
@@ -425,10 +422,19 @@ func _bo_mass() -> void:
 	if news == 0 or laid < news:
 		return
 	var cost := int(Defs.UNITS["clock_soldier"]["cost"])
+	# (they count for the opening's own "clock_soldier N" step: it waits for an idle Works too, and with these in every
+	# queue it never got its turn, so the opening never ended and the cogs piled up: 3,650 in the bank at 9:00, Cinder Steps)
+	var si := -1
+	for i in steps.size():
+		if not done[i] and String(steps[i]).begins_with("clock_soldier "):
+			si = i
+			break
 	for w in _mine(_works()):
 		if not w.built or not (w.queue as Array).is_empty() or _gold() < cost:
 			continue
 		if game.can_train(w, "clock_soldier") == "" and game.train(w, "clock_soldier") == "":
+			if si >= 0:
+				_queued[si] = int(_queued.get(si, 0)) + 1
 			if not _massing:
 				_massing = true
 				note("the second Clocktower's presses are laid: the army grows from now on (a Clock Soldier from every idle Light Works)")

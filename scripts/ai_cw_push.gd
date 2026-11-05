@@ -655,7 +655,8 @@ func _siege_tick() -> bool:
 		piece_t = game.clock
 		stats["sieges"] = int(stats["sieges"]) + 1
 		_phase("siege")
-		say("a %s in the way at %s: the Ballistas break it from out of musket reach" % [String(p.d["name"]), _where(p.center())])
+		say("a %s in the way at %s: %s" % [String(p.d["name"]), _where(p.center()),
+			"the Ballistas break it from out of musket reach" if units.any(func(u: Unit) -> bool: return _heavy(u)) else "the front breaks it"])
 	if game.clock - piece_t > SIEGE_MAX:
 		say("the %s held for %d s: the push goes home" % [String(piece.d["name"]), int(SIEGE_MAX)])
 		_retreat("the siege took too long")

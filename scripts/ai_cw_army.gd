@@ -159,6 +159,11 @@ func may_launch(list: Array) -> bool:
 	var mine: float = ai.push._value(list)
 	var rk := reckon()
 	var edge := EDGE_PLAN if ai.plan.has("push") else EDGE
+	_note_retreat()
+	if _fail_v > 0.0 and mine < _fail_v * AFTER_FAIL:
+		stats["waits"] = int(stats["waits"]) + 1
+		say("holds at its gathering point: its last push (%d) had to pull back; the next goes worth %d (it has %d)" % [int(_fail_v), int(_fail_v * AFTER_FAIL), int(mine)], "fail", 45.0)
+		return false
 	if mine < rk * edge:
 		stats["waits"] = int(stats["waits"]) + 1
 		say("holds at its gathering point: worth %d, the enemy army it reckons %d (it goes at %d)" % [int(mine), int(rk), int(rk * edge)], "weak", 45.0)
@@ -169,6 +174,23 @@ func may_launch(list: Array) -> bool:
 		return false
 	say("goes out: worth %d against the %d it reckons (a report %d s old)" % [int(mine), int(rk), int(game.clock - maxf(_seen_t, _base_t))])
 	return true
+
+
+## A push that had to pull back is news about the enemy too: the next one goes only bigger than it (AFTER_FAIL times what
+## went out and joined). (Highmoor, the Economy against the Crown: a push of 16 went out 25 s after one of 30 had pulled
+## back, and lost 700 for 60.)
+const AFTER_FAIL := 1.25
+var _fail_v := 0.0
+var _retreats := 0
+
+
+func _note_retreat() -> void:
+	if ai.push == null:
+		return
+	var r := int(ai.push.stats["retreats"])
+	if r > _retreats:
+		_retreats = r
+		_fail_v = maxf(float(ai.push.value_in), float(ai.push.value0))
 
 
 func _ask_look() -> void:
