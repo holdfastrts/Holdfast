@@ -28,8 +28,8 @@ coached games and their table), `tools/shot_ai_optimal.gd` (pictures with the AI
 
 The story is the AI STORY panel and the narrator (scripts/ai_story.gd); its sentences come from the computers' match-log
 lines through the phrase book (scripts/ai_story_lines.gd). I read every log line of the three computers (about 300 places
-in 25 scripts), the phrase book, the owner's logs of 2026-11-04 and 2026-11-05 and about 40 AI-v-AI games of this job
-(each faction's OPTIMAL against every faction's Economy, Rush, Timing and Balanced, plus the development games). The lines
+in 25 scripts), the phrase book, the owner's logs of 2026-11-04 and 2026-11-05 and about 100 AI-v-AI games of this job
+(the coached games of section 5, their Balanced baseline and the development games). The lines
 that were wrong, and what was wrong behind them:
 
 | The line (as the story told it) | What was wrong | Fix |
@@ -131,7 +131,102 @@ Owls or push made new; the Brood's plan is remade on its next think (its times r
 
 ## 5. The coached games
 
-RESULTS_HERE
+Each faction's OPTIMAL (Hard) against each faction's Economy, Rush, Timing and Balanced (Hard), mirrors too: 36 games of
+10 minutes, the maps in turn (Highmoor, Redrock Canyon, Thornwood Maze, Greenhold), and the same 36 games with the
+computer on **Balanced** in its seat, as the baseline (`python3 tools/study/ai_optimal_games.py run OUT` and
+`... run BASE --plan balanced`; the table: `tools/study/ai_optimal_report.py OUT BASE`). A game not won by 10:00 is
+"ahead" or "behind" when one side's gold earned plus twice its army is a tenth more than the other's, else "even".
+One game a cell, so a single result is noise (OPTIMAL's own dice change the match's random stream, so even a game
+where it keeps Balanced plays out differently from the baseline); the totals and the picks are what to read.
+
+| OPTIMAL | v | its plan | map | OPTIMAL: result, earned / foe, army / foe at the end | its picks (clock read->build) | Balanced in the same seat |
+|---|---|---|---|---|---|---|
+| brood | brood | balanced | greenhold | even 10:00, 11215 / 14126, 2795 / 1590 | 1:40 GREEDY->rush | ahead 10:00, 16261 / 12199, 2615 / 400 |
+| brood | brood | economy | highmoor | even 10:00, 13392 / 11324, 1370 / 1770 | 1:40 GREEDY->rush; 4:52 GREEDY->timing | behind 10:00, 15710 / 15282, 490 / 3620 |
+| brood | brood | rush | redrock_canyon | ahead 10:00, 13591 / 4290, 995 / 425 | 3:00 UNKNOWN->balanced | ahead 10:00, 12571 / 8280, 3365 / 550 |
+| brood | brood | timing | thornwood_maze | ahead 10:00, 13278 / 10847, 1760 / 1160 | 3:00 UNKNOWN->rush | ahead 10:00, 14674 / 12542, 1740 / 1330 |
+| brood | clockwork | balanced | greenhold | ahead 10:00, 11150 / 9293, 2625 / 1110 | 1:41 GREEDY->rush; 8:24 DEFENSIVE->brute | ahead 10:00, 13841 / 10916, 3200 / 290 |
+| brood | clockwork | economy | highmoor | WON 8:18, 7959 / 4693, 2630 / 0 | 1:40 GREEDY->rush; 8:11 GREEDY->economy | behind 10:00, 13101 / 13215, 400 / 2715 |
+| brood | clockwork | rush | redrock_canyon | ahead 10:00, 8399 / 7890, 1765 / 1415 | 1:33 NORMAL->spitter | ahead 10:00, 10612 / 4766, 1750 / 0 |
+| brood | clockwork | timing | thornwood_maze | ahead 10:00, 13224 / 8654, 2645 / 0 | 1:37 NORMAL->balanced; 9:16 DEFENSIVE->brute | ahead 10:00, 12018 / 8289, 2125 / 200 |
+| brood | crown | balanced | greenhold | ahead 10:00, 15767 / 7600, 3420 / 1675 | 2:18 NORMAL->spitter | ahead 10:00, 16928 / 7600, 3980 / 0 |
+| brood | crown | economy | highmoor | ahead 10:00, 15793 / 12160, 1940 / 315 | 1:47 GREEDY->spitter; 6:59 GREEDY->economy | ahead 10:00, 15835 / 8740, 4370 / 0 |
+| brood | crown | rush | redrock_canyon | ahead 10:00, 9021 / 7220, 1235 / 1480 | 2:01 NORMAL->balanced | ahead 10:00, 11926 / 4560, 2525 / 0 |
+| brood | crown | timing | thornwood_maze | ahead 10:00, 13896 / 6460, 1550 / 190 | 2:27 NORMAL->spitter | ahead 10:00, 12869 / 6460, 1730 / 1005 |
+| clockwork | brood | balanced | greenhold | behind 10:00, 7920 / 10814, 860 / 1455 | 1:42 GREEDY->cs_rush; 3:48 AGGRESSIVE->balanced | behind 10:00, 10948 / 12756, 0 / 3680 |
+| clockwork | brood | economy | highmoor | even 10:00, 8173 / 8296, 470 / 450 | 1:44 GREEDY->cs_rush | behind 10:00, 10556 / 14081, 200 / 1750 |
+| clockwork | brood | rush | redrock_canyon | behind 10:00, 10144 / 11620, 460 / 1475 | 1:45 AGGRESSIVE->balanced | LOST 9:36, 6088 / 8682, 0 / 3155 |
+| clockwork | brood | timing | thornwood_maze | LOST 9:36, 6607 / 8490, 0 / 2650 | 1:41 GREEDY->cs_rush | behind 10:00, 10923 / 11164, 0 / 3025 |
+| clockwork | clockwork | balanced | greenhold | even 10:00, 13544 / 13656, 2430 / 2770 | 1:41 GREEDY->balanced | even 10:00, 13754 / 13527, 2430 / 2720 |
+| clockwork | clockwork | economy | highmoor | behind 10:00, 13371 / 13876, 1350 / 3260 | 1:42 GREEDY->balanced | behind 10:00, 13681 / 14342, 1565 / 2660 |
+| clockwork | clockwork | rush | redrock_canyon | behind 10:00, 7774 / 7515, 595 / 1635 | 1:56 NORMAL->balanced | ahead 10:00, 12320 / 7890, 3030 / 1200 |
+| clockwork | clockwork | timing | thornwood_maze | even 10:00, 11020 / 9837, 1535 / 1615 | 1:43 NORMAL->economy; 5:41 GREEDY->balanced | ahead 10:00, 12951 / 9423, 4305 / 480 |
+| clockwork | crown | balanced | greenhold | ahead 10:00, 12345 / 9880, 2850 / 0 | 3:00 UNKNOWN->economy | ahead 10:00, 13030 / 7980, 5210 / 425 |
+| clockwork | crown | economy | highmoor | even 10:00, 10760 / 9880, 1510 / 1810 | 3:00 UNKNOWN->springer | even 10:00, 12693 / 11020, 1730 / 2755 |
+| clockwork | crown | rush | redrock_canyon | behind 10:00, 3398 / 8360, 0 / 1370 | 1:31 AGGRESSIVE->balanced | ahead 10:00, 10613 / 7600, 2910 / 1115 |
+| clockwork | crown | timing | thornwood_maze | ahead 10:00, 9602 / 6080, 835 / 1045 | 2:18 UNKNOWN->springer | ahead 10:00, 12977 / 6080, 3770 / 630 |
+| crown | brood | balanced | greenhold | behind 10:00, 6080 / 14191, 0 / 3615 | 1:27 GREEDY->siege | behind 10:00, 4940 / 14578, 0 / 3100 |
+| crown | brood | economy | highmoor | behind 10:00, 9120 / 13275, 300 / 3240 | 1:29 GREEDY->siege | behind 10:00, 6840 / 15571, 1515 / 2910 |
+| crown | brood | rush | redrock_canyon | ahead 10:00, 5700 / 4666, 1115 / 1200 | 0:00 LEAN->rush; 3:14 AGGRESSIVE->balanced | behind 10:00, 7980 / 12225, 1850 / 2245 |
+| crown | brood | timing | thornwood_maze | behind 10:00, 5320 / 12434, 0 / 3265 | 1:29 GREEDY->siege | behind 10:00, 6080 / 13174, 75 / 3030 |
+| crown | clockwork | balanced | greenhold | ahead 10:00, 7220 / 4998, 1485 / 140 | 1:29 GREEDY->rush; 7:42 GREEDY->balanced | behind 10:00, 6080 / 11958, 0 / 4350 |
+| crown | clockwork | economy | highmoor | behind 10:00, 11400 / 12825, 1565 / 2500 | 1:30 GREEDY->balanced | behind 10:00, 9500 / 12869, 885 / 4380 |
+| crown | clockwork | rush | redrock_canyon | ahead 10:00, 6840 / 7622, 1185 / 0 | 1:31 NORMAL->timing | behind 10:00, 3420 / 8347, 0 / 2410 |
+| crown | clockwork | timing | thornwood_maze | behind 10:00, 8360 / 10494, 1555 / 1960 | 1:28 NORMAL->dragoon | behind 10:00, 8740 / 10645, 1670 / 2925 |
+| crown | crown | balanced | greenhold | behind 10:00, 7980 / 10640, 1435 / 2160 | 2:34 UNKNOWN->siege | ahead 10:00, 10260 / 10640, 2010 / 760 |
+| crown | crown | economy | highmoor | behind 10:00, 9500 / 10260, 525 / 2795 | 2:35 UNKNOWN->economy | behind 10:00, 8360 / 11020, 410 / 2840 |
+| crown | crown | rush | redrock_canyon | ahead 10:00, 10640 / 7600, 1780 / 585 | 1:07 AGGRESSIVE->balanced | even 10:00, 7600 / 7980, 1320 / 715 |
+| crown | crown | timing | thornwood_maze | ahead 10:00, 7600 / 6840, 1935 / 485 | 2:04 UNKNOWN->timing | even 10:00, 7220 / 6840, 955 / 775 |
+
+- brood OPTIMAL: won or ahead in 10 of 12, lost or behind in 0; Balanced in the same 12 games: won or ahead in 10 (score +11 for OPTIMAL against +8 for Balanced: won 2, ahead 1, even 0, behind -1, lost -2)
+- clockwork OPTIMAL: won or ahead in 2 of 12, lost or behind in 6; Balanced in the same 12 games: won or ahead in 5 (score -5 for OPTIMAL against -1 for Balanced: won 2, ahead 1, even 0, behind -1, lost -2)
+- crown OPTIMAL: won or ahead in 5 of 12, lost or behind in 7; Balanced in the same 12 games: won or ahead in 1 (score -2 for OPTIMAL against -8 for Balanced: won 2, ahead 1, even 0, behind -1, lost -2)
+
+What the games say:
+
+- **The Crown: OPTIMAL is clearly better than Balanced** (5 of 12 won or ahead against 1 of 12). Its gains are the reads:
+  the Crown's Rush read at 1:07 (a Horse Breeder by 1:50) defended and ahead 10,640 to 7,600; the lean's Horseman rush
+  against the Brood's Rush, held by the survival switch at 3:14 (picture `crown_lean_rush_pick_2.png`); the Horseman
+  rush picked against a greedy Clockwork (ahead 7,220 to 5,000, Balanced behind 6,080 to 11,960); the Timing attack
+  against the Clockwork's Rush and the Crown's Timing. Against the Brood it is behind like Balanced (the Brood earns 2 to
+  3 times the Crown in every one of these games, OPTIMAL or not: the FOOD_BONUS question in CLAUDE.md), a little less
+  far behind with the Siege push (9,120 against 6,840 earned on Highmoor).
+- **The Brood: about the same as Balanced, a little better** (10 of 12 either way; score +11 against +8). Its Raptor rush
+  on a greedy Clockwork won the Economy game at 8:18; on a greedy Brood the rush gave an even game where Balanced was
+  ahead once and behind once. Its Spitter timing on the Crown is ahead every time, like Balanced.
+- **The Clockwork: worse than Balanced** (2 of 12 against 5 of 12). Against the Crown's Rush it read the rush at 1:31
+  and defended, and still lost its economy (3,398 earned) where Balanced in the same seat was ahead: its rush reaction
+  (a Light Works and 3 Clock Soldiers) is Balanced's own, so that game is the noise of one seat, but the Clockwork's
+  answer to the Horseman rush is thin in both (docs/ai_round5.md). Against the Brood its Clock Soldier rush on a
+  greedy Brood was even once, behind once and lost once; Balanced was behind three times and lost once there, so the
+  rush is no worse. Against the Crown it reads UNKNOWN (the walled ramp) and picks for the matchup at 3:00.
+
+Builds tried and changed on these games (the same seats, run by the tools above):
+1. **The Crown's Horseman rush on a GREEDY read of the Brood** (the read comes at ~1:30): the riders rode out at 3:52-4:02,
+   after the Brood's Raptors hatched, and the rush FAILED in all three games (3,800-6,500 earned against 10,600-14,800,
+   army 0 in two). The riders only arrive in time when the computer leans to them before scouting; on the read it picks
+   the Siege push now.
+2. **The Clockwork's Clock Soldier rush on a greedy Clockwork**: behind both times (9,000-9,300 earned against
+   11,800-12,500) where Balanced was even or close; the mirror's Clock Soldiers come at 2:00 whatever it plays. It plays
+   Balanced's waves now (then even and behind, as Balanced).
+3. **The Owl raids on a greedy Brood** instead of the Clock Soldier rush: behind in all three games, with less earned
+   (4,800-6,700 against the rush's 6,600-8,200); back to the Clock Soldier rush (your "Clock Soldier/Springer timing").
+
+### Pictures (`docs/shots/ai_optimal/`, the AI STORY open on the OPTIMAL side; `tools/shot_ai_optimal.gd`)
+
+| Picture | What it shows |
+|---|---|
+| `crown_v_brood_pick_1.png` | 1:36, the Crown's OPTIMAL against the Brood's Economy (Highmoor): its scout read the Brood as GREEDY (a second base and little army) and it picks the Siege push, "the riders would come too late". Its Barracks at 0:46 is the common opening against the Brood. |
+| `crown_v_brood_pt_pick_1.png` | The same moment in Portuguese: the reads, the saw phrases and the reasons are translated. |
+| `crown_lean_rush_pick_1.png` | 0:06, the Crown's OPTIMAL against the Brood's Rush (Redrock Canyon) leans to the Horseman rush before it scouts ("Horsemen are good against the Brood's grubs"). |
+| `crown_lean_rush_pick_2.png` | 3:22, the same game: the GREEDY read at 1:26 could not change the build (once a stage: "Siege push waits"); at 3:15 the Raptors at its ramp read AGGRESSIVE and the survival switch puts Balanced's defence in at once; it holds the top of its ramp. |
+| `clockwork_v_crown_rush_pick_1.png` | 1:14, the Clockwork's OPTIMAL against the Crown's Horseman rush (Highmoor): a Horse Breeder seen at 1:08 reads AGGRESSIVE ("a production building very early"): a Light Works and Clock Soldiers first, then back to its economy. |
+| `clockwork_v_brood_eco_pick_1.png` | 1:48, the Clockwork's OPTIMAL against the Brood's Economy (Thornwood Maze): GREEDY, it picks the Clock Soldier rush. |
+| `clockwork_v_brood_eco_attack.png` | 7:28, the same game: its army out. |
+| `brood_v_crown_eco_pick_1.png` | 1:54, the Brood's OPTIMAL against the Crown's Economy (Greenhold): its watching grub saw the Crown's new hall by the ramp's foot ("a new base by its natural"): GREEDY, it picks the Spitter timing. |
+| `brood_v_crown_eco_attack.png` | 6:51, the same game: the Spitter timing goes out. |
+| `crown_v_crown_timing_pick_1.png`, `crown_v_crown_timing_0155.png` | The Crown against a walled Crown (Thornwood Maze): the scout was blocked at 1:19, "that proves nothing, so it builds no army for it and looks again soon"; it picks for the matchup when no read settles it. |
+| `economy_races_0140.png` | A FIXED plan keeping its identity: the Crown's Economy against the Clockwork's Economy (Highmoor) reads GREEDY at 1:28 ("no army and no production at its base") and races it, more bases sooner, instead of turning into a timing attack. |
 
 ## 6. Tests
 
