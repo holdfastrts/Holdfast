@@ -295,7 +295,10 @@ func tick(army: Array) -> void:
 		ai._follow_with_escort(home + low if ai.push == null or ai.push.phase == "" or ai.push.phase == "back" else ai.push.units)
 		return
 	phase = "out" if (ai.push != null and ai.push.phase != "" and ai.push.phase != "back") else "gather"
+	var waiting := _muster(home, g)
 	for u in home:
+		if waiting.has(u):
+			continue
 		if u.order == "attack" and u.target != null and is_instance_valid(u.target) and not u.target.dead and u.position.distance_to(g) < GATHER_R * 1.5:
 			continue          # (fighting something at the gathering point itself)
 		if u.position.distance_to(g) > GATHER_R or u.order == "idle" and u.position.distance_to(g) > GATHER_R * 0.6:
@@ -306,6 +309,54 @@ func tick(army: Array) -> void:
 		ai._follow_with_escort(home + low)     # (the Winders keep the waiting army wound and mended)
 	else:
 		ai._follow_with_escort(ai.push.units)  # (out: the escort goes with the push, AIClockwork._follow_with_escort)
+
+
+## REINFORCEMENTS WALK TOGETHER: a unit made far from the gathering point (more than MUSTER_FAR) first waits at the
+## MUSTER, in front of the main hall, and they walk to the army as a group of GROUP_MIN or more (or MUSTER_SUPPLY supply).
+## (One at a time across the base from the main's Works to a third Clocktower, they met the Raptor raids alone: 16 times in
+## one game, Cinder Steps.) Returns the units waiting there (the gathering orders leave them be).
+const MUSTER_FAR := 640.0
+const MUSTER_R := 220.0
+const MUSTER_SUPPLY := 6
+const MUSTER_MAX := 50.0        # s a unit waits at the muster at most (then it goes anyway)
+var _walking := {}              # Unit -> true: let go from the muster, on its way to the army
+var _mustered := {}             # Unit -> clock it reached the muster
+
+
+func _muster(home: Array, g: Vector2) -> Dictionary:
+	var waiting := {}
+	var m: Vector2 = ai._post_spot()
+	for u in _walking.keys():
+		if not is_instance_valid(u) or u.dead or u.position.distance_to(g) < GATHER_R:
+			_walking.erase(u)
+	for u in _mustered.keys():
+		if not is_instance_valid(u) or u.dead:
+			_mustered.erase(u)
+	if m == Vector2.INF or m.distance_to(g) < MUSTER_FAR:
+		return waiting
+	var far: Array = home.filter(func(u: Unit) -> bool: return not _walking.has(u) and not defenders.has(u) \
+		and u.position.distance_to(g) > MUSTER_FAR and u.position.distance_to(m) < g.distance_to(m))
+	if far.is_empty():
+		return waiting
+	var at_m: Array = far.filter(func(u: Unit) -> bool: return u.position.distance_to(m) < MUSTER_R)
+	for u in at_m:
+		if not _mustered.has(u):
+			_mustered[u] = game.clock
+	var oldest := INF
+	for u in at_m:
+		oldest = minf(oldest, float(_mustered[u]))
+	if at_m.size() >= GROUP_MIN or ai._army_supply(at_m) >= MUSTER_SUPPLY or (not at_m.is_empty() and game.clock - oldest > MUSTER_MAX):
+		for u in at_m:
+			_walking[u] = true
+			_mustered.erase(u)
+			_order(u, ai._home_spot(g), true, 90.0)
+		say("%d fresh units walk from the main to the army together" % at_m.size(), "muster", 30.0)
+		far = far.filter(func(u: Unit) -> bool: return not at_m.has(u))
+	for u in far:
+		waiting[u] = true
+		if u.position.distance_to(m) > MUSTER_R * 0.6:
+			_order(u, ai._home_spot(m), true, 90.0)
+	return waiting
 
 
 func _to_field(low: Array) -> void:
