@@ -107,7 +107,7 @@ func choose(read: String) -> Array:
 	var st := stage_of(t)
 	match read:
 		"AGGRESSIVE":
-			if st == "opening" or current in ["economy"]:
+			if st == "opening" or current in ["economy", "rush", "cs_rush"]:
 				return ["balanced", "defend against the rush before it counter-attacks"]
 			return []
 		"GREEDY":
@@ -157,6 +157,10 @@ func _punish(f: String, t: float) -> Array:
 				return ["rush", "punish the greed before its army is up"]
 			if f == "clockwork" and early and _rng.randf() < 0.35:
 				return ["rush", "punish the greed before its army is up"]
+			if f == "clockwork":
+				# (coached: the one-hall Timing attack lost the race to a Clockwork economy, 9,500 to 16,600 earned by 12:00
+				# on Highmoor; Balanced's waves on two halls kill the most against the Clockwork, docs/crown_builds_a/b.md)
+				return ["balanced", "steady waves punish the greed"]
 			if t < TOO_LATE:
 				if f == "crown":
 					return ["timing", "Horsemen are no answer to Musketeers: a timing attack"]
@@ -208,7 +212,8 @@ func _go(plan: String, why: String, read: String, saw: String) -> void:
 			picks.append([snappedf(game.clock, 0.1), st, read, plan, why])
 		say("reads %s [%s]: keeps %s (%s)" % [read, saw, plan_name(current), why])
 		return
-	var survival := read == "AGGRESSIVE" and current == "economy" and not survival_used
+	# (survival: a rush read while it plays a greedy build or its own early rush, which has no wall gate and no line yet)
+	var survival := read == "AGGRESSIVE" and current in ["economy", "rush", "cs_rush"] and plan in ["balanced"] and not survival_used
 	if switched.has(st) and not survival:
 		if not _held_said.has(st):
 			_held_said[st] = true

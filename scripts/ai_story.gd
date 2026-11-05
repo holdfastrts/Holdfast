@@ -50,7 +50,7 @@ func _process(delta: float) -> void:
 	if not _planned and not game.ais.is_empty():
 		_planned = true
 		for a in game.ais:
-			tell_plan(a.team, String(a.plan_key()), int(a.difficulty), String(a.opening) if game.faction_of(a.team) == "crown" else "")
+			tell_plan(a.team, String(a.plan_key()), int(a.difficulty), _opening_of(a))
 	_look_t -= delta
 	if _look_t <= 0.0:
 		_look_t = LOOK
@@ -69,7 +69,9 @@ static func from_log(g: Game, text: String, team: int) -> void:
 		rest = rest.substr(who.length())
 	rest = rest.strip_edges(true, false) if not rest.begins_with("'s ") else rest
 	var m := AIStoryLines.match_line(rest)
-	var tpl := "%s: %s"
+	# (ai-optimal story audit: a line no rule knows that starts "'s ..." read "P1 Crown: 's base layout ..."; it reads
+	# "P1 Crown's base layout ..." now)
+	var tpl := "%s%s" if rest.begins_with("'s ") else "%s: %s"
 	var args: Array = [rest]
 	var prio := 1
 	var tag := "detail"
@@ -81,7 +83,7 @@ static func from_log(g: Game, text: String, team: int) -> void:
 		if tpl == "":
 			return             # (a duplicate of another line)
 		if tpl.count("%s") != args.size() + 1:
-			tpl = "%s: %s"       # (the phrase book and the line disagree: the line as it is)
+			tpl = "%s%s" if rest.begins_with("'s ") else "%s: %s"       # (the phrase book and the line disagree: the line as it is)
 			args = [rest]
 	if g.rec:
 		g.rec.note_event("ai", [team, tpl, args, prio, tag])
@@ -97,13 +99,23 @@ func from_event(e: Array) -> void:
 	tell(int(e[2]), String(e[3]), e[4] as Array, int(e[5]), String(e[6]), float(e[0]))
 
 
+## The Crown's opening as the story tells it: "breeder", "mill", "eco" (the owner's plans: the second hall before the
+## Barracks) or "" (OPTIMAL, the other factions: their own lines tell it).
+func _opening_of(a: AI) -> String:
+	if game.faction_of(a.team) != "crown" or a.plan_key() == "optimal":
+		return ""
+	if a.opening != "breeder" and a.has_method("owner_on") and a.owner_on():
+		return "eco"
+	return String(a.opening)
+
+
 ## The plan at the start: level and strategy (and the Crown's opening).
 func tell_plan(team: int, strategy: String, level: int, opening := "") -> void:
 	var tpl: String = AIStoryLines.PLANS.get(strategy, AIStoryLines.PLANS["balanced"])
 	var args: Array = [AIStoryLines.LEVELS[clampi(level, 0, 3)]]
 	say_live(team, tpl, args, 3, "plan")
 	if opening != "":
-		var o := "%s opens with a Horse Breeder: it plans an early Horseman rush." if opening == "breeder" else "%s opens with a Powder Mill: Musketeers first, a steady line of fire."
+		var o := "%s opens with a Horse Breeder: it plans an early Horseman rush." if opening == "breeder" else ("%s opens with its economy: the second base before any Barracks, Musketeers when there is a reason." if opening == "eco" else "%s opens with a Powder Mill: Musketeers first, a steady line of fire.")
 		say_live(team, o, [], 2, "opening")
 
 

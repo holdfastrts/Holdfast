@@ -4,7 +4,7 @@ extends SceneTree
 ## Each case: a Hard computer (team 0) against a second player whose own computer is switched off (its workers only
 ## gather), its base dressed for the case on Greenhold:
 ##  1. a GREEDY enemy (a second hall, nothing military) is read GREEDY and OPTIMAL punishes it in time: the Crown's
-##     OPTIMAL against the Clockwork (the Horseman rush or a timing attack, picked by 2:30), the Clockwork's against the
+##     OPTIMAL against the Clockwork (the Horseman rush or Balanced's steady waves, picked by 2:30), the Clockwork's against the
 ##     Crown (the Clock Soldier rush), the Brood's against the Clockwork (the Raptor rush); the build then plays (its
 ##     Horse Breeder / Light Works / Raptors come)
 ##  2. NO ARMY FOR NOTHING: a scout killed before it saw anything reads UNKNOWN: the plan's own settings, no Barracks put
@@ -95,7 +95,7 @@ func _run() -> void:
 	var pk: Array = ai.opt.picks[0] if not (ai.opt.picks as Array).is_empty() else [0.0, "", "", "", ""]
 	print("   Crown OPTIMAL v a greedy Clockwork: %s" % str(pk))
 	check(String(pk[2]) == "GREEDY", "the Crown reads the greedy Clockwork as GREEDY (%s)" % pk[2])
-	check(String(pk[3]) in ["rush", "timing"] and float(pk[0]) <= 150.0, "it punishes it in time: %s at %d s" % [pk[3], int(pk[0])])
+	check(String(pk[3]) in ["rush", "balanced"] and float(pk[0]) <= 150.0, "it punishes it in time: %s at %d s" % [pk[3], int(pk[0])])
 	check(ai.strategy == String(pk[3]), "the picked build plays (strategy %s)" % ai.strategy)
 	await _until(g.clock + 60.0)
 	var built := ai._mine("horse_breeder").size() if ai.strategy == "rush" else ai._mine("barracks").size()

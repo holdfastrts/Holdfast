@@ -78,7 +78,9 @@ var foe_rush_logged := false
 var foe_early_prod := {}        # military building kind -> clock it was first seen
 ## Production buildings that this early (game seconds) are an opening that goes for units at once. (The Brood has no
 ## buildings: its Tyrant Sire rooted on his nest is its barracks, BroodNew.is_father; seen this early, it rushes.)
-const EARLY_PROD := {"tyrannosaur": 130.0, "assembly_works": 100.0, "movement_works": 100.0}
+const EARLY_PROD := {"tyrannosaur": 130.0, "assembly_works": 100.0, "movement_works": 100.0, "horse_breeder": 110.0}
+## (ai-optimal: a Horse Breeder by 1:50 is the Horseman rush's; every other Crown plan has its Breeder from 2:00 on. The
+## coached game c-v-c rush Redrock 1:30 read a Barracks and a Breeder with no Horseman out yet as NORMAL)
 ## THE BROOD'S BUILDINGS ARE CREATURES (0.18.0): rooted, the Brood Mother is its hall, a Rootmaw an economy building, a
 ## Sire a production building, and a Mound Turtle rooted far from her an expansion (BroodNew.expansion_counts). The
 ## scout counts what it saw of them as it counts buildings (_nb_seen); BROOD_ECON_CAP is the Rootmaws of a full early
@@ -921,7 +923,7 @@ func _evaluate() -> Dictionary:
 		out["verdict"] = "rush"
 		out["reason"] = ev
 		out["saw"] = rush_saw
-	elif clock < 400.0 and ((value >= thr and (clock < 240.0 or _far_army_t >= 0.0 and clock - _far_army_t < 60.0)) or (_far_army_t >= 0.0 and clock - _far_army_t < 60.0 and value >= thr * 0.4)):
+	elif clock < RUSH_READ_BY and ((value >= thr and (clock < 240.0 or _far_army_t >= 0.0 and clock - _far_army_t < 60.0)) or (_far_army_t >= 0.0 and clock - _far_army_t < 60.0 and value >= thr * (0.4 if clock < 240.0 else 1.0))):
 		# (an army at home after 4:00 is its defence, not a rush: only an army out of its base counts then, ai-optimal)
 		out["verdict"] = "rush"
 		out["reason"] = "early army (%d supply) in or out of its base" % sup
@@ -934,7 +936,7 @@ func _evaluate() -> Dictionary:
 		out["verdict"] = "rush"
 		out["reason"] = "a production building, a thin economy and %d supply of army" % sup
 		out["saw"] = "production buildings and a thin economy"
-	elif defs >= DEF_TURRETS or (defs >= 1 and halls <= 1 and clock < 300.0) or (walls >= DEF_WALLS and halls <= 1 and value < thr * 0.5):
+	elif defs >= DEF_TURRETS or (defs >= 1 and halls <= 1 and clock < 300.0) or (walls >= (DEF_WALLS_CROWN if fac == "crown" else DEF_WALLS) and halls <= 1 and value < thr * 0.5):
 		# (DEFENSIVE: static defence early, or one base walled all round with little army out: it turtles)
 		out["verdict"] = "defensive"
 		out["reason"] = "%d static defences, %d wall pieces, %s" % [defs, walls, nums]
@@ -976,6 +978,11 @@ func _evaluate() -> Dictionary:
 ## has its production by then: the Crown's Barracks at ~0:55, the Clockwork's Light Works at ~0:40, the Brood's Sire at ~0:20).
 const DEF_TURRETS := 2
 const DEF_WALLS := 8
+const DEF_WALLS_CROWN := 24
+## (ai-optimal) An army seen is a RUSH read only before 5:00 (was 6:40): later an army on the move is the mid game (the
+## home defence answers it); the coached game Crown OPTIMAL v Clockwork Economy read 6 Clock Soldiers out at 5:34 as a
+## rush and its Timing attack put its Barracks and Mill "first" again and was called off.
+const RUSH_READ_BY := 300.0     # (every Crown walls its ramp and each new hall: 8-12 pieces is its normal game)
 const ABSENT_COV := 0.4
 const GREEDY_ABSENT_FROM := 55.0
 ## (study switch: `-- absence:off` reads as 0.31: an empty base is no read, the scout looks again)
@@ -1062,7 +1069,7 @@ func _apply(v: String, why: String, seen := "") -> void:
 	# rush is defended), the obvious answers, and otherwise its own plan. OPTIMAL (ai.adaptive()) picks its build itself
 	# from the read (scripts/ai_optimal.gd), after this.
 	var head := "scouted: %s [%s] (%s)" % [AIRead.word(v), seen, why]
-	var pname := String(AI.STRATEGIES.get(ai.strategy, AI.STRATEGIES["balanced"])["name"])
+	var pname: String = ai.opt.plan_name(ai.strategy) if ai.adaptive() else String(AI.STRATEGIES.get(ai.strategy, AI.STRATEGIES["balanced"])["name"])
 	match v:
 		"balanced":
 			if ai.strategy != ai._opened and ai._opened != "timing" and not ai.adaptive():
@@ -1077,7 +1084,7 @@ func _apply(v: String, why: String, seen := "") -> void:
 			# hold at home until the army is a match for what was seen, then counter
 			ai._attack_at = maxi(maxi(ai._attack_at, 16), int(ceil(float(ra[1]) * 1.4)) + 6)
 			ai._regroup_until = maxf(ai._regroup_until, game.clock + float(ai._lv([200.0, 160.0, 130.0])))
-			_say("%s: a rush is coming; switching to a defensive build: defends first, army and %s, then a counter-attack" % [head, "walls" if fac == "crown" else "production"])
+			_say("%s: %s is coming; switching to a defensive build: defends first, army and %s, then a counter-attack" % [head, "a rush" if game.clock <= EARLY_RUSH_BY else "an attack", "walls" if fac == "crown" else "production"])
 		"greedy":
 			var strong := seen != "no army and no production at its base"
 			if ai.adaptive():
@@ -1106,7 +1113,7 @@ func _apply(v: String, why: String, seen := "") -> void:
 				_say("%s: it turtles; keeps to its %s plan" % [head, pname])
 		"uncertain":
 			# (UNKNOWN is no reason for an army: the owner's "could not see the enemy: playing safe" -> an army for nothing)
-			_say("could not see the enemy [%s] (%s): that proves nothing; no army for it, keeps to its %s plan and looks again soon" % [seen, why, pname])
+			_say("could not see the enemy [%s] (%s): that proves nothing; no army for it, keeps to %s and looks again soon" % [seen, why, pname if ai.adaptive() else "its %s plan" % pname])
 	ai.on_read(v, seen)
 
 

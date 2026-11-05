@@ -4137,7 +4137,7 @@ func _cottage_wall() -> void:
 	_wall_done_t = -1.0
 	_assign_wall(crew, made)
 	if game.mlog:
-		game.mlog.add("%s walled its ramp with a Cottage (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if _wall_urgent() else ""])
+		game.mlog.add("%s walled its ramp with a Cottage (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if scout != null and scout.verdict == "rush" else ""])
 
 
 ## Crown: wall the top of each ramp up to the main base, with a two-wide gate in the
@@ -4228,7 +4228,7 @@ func _wall_off() -> bool:
 	_wall_done_t = -1.0
 	_assign_wall(crew, made)
 	if game.mlog:
-		game.mlog.add("%s walled its ramp (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if _wall_urgent() else ""])
+		game.mlog.add("%s walled its ramp (%d pieces, %d labourers on it%s)" % [game.mlog.who(team), made.size(), crew.size(), ", feared rush" if scout != null and scout.verdict == "rush" else ""])
 	return true
 
 

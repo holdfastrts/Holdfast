@@ -264,6 +264,16 @@ const PLANS := {
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
 			{"do": "pick"},
 		],
+		# (against the Brood: the Barracks and the Mill at 7 labourers as in Balanced's, the matchup's reason: its fastest
+		# rush is at our ramp by ~1:50, before a scout's read can put a Barracks up in time; tools/test_ai_wall_vs_rush.gd)
+		"bo_brood": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "army", "k": "musketeer", "cap": 4},
+			{"do": "pick"},
+		],
 		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["barracks", 2, {}], ["horse_breeder", 1, {}],
 			["barracks", 3, {"labs": 24}], ["armoury", 1, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}]],
 		"s": {"wave": 18, "step": 8}, "owner": true},
@@ -294,8 +304,11 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "open%d:breeder" % team or a == "open%d:mill" % team:
 			opening = a.split(":")[1]          # (study switch, as in AI._ready)
-	if game.mlog:
-		game.mlog.add("%s opens with a %s" % [game.mlog.who(team), "Horse Breeder (Horseman rush)" if opening == "breeder" else "Powder Mill (Musketeers)"])
+	if game.mlog and opt == null:
+		# (ai-optimal story audit: the owner's plans open with the second hall, the Barracks and the Mill after it; "a Powder
+		# Mill: Musketeers first" was wrong there. OPTIMAL tells its own opening)
+		var what := "Horse Breeder (Horseman rush)" if opening == "breeder" else ("its economy (the second hall before the Barracks)" if owner_on() else "Powder Mill (Musketeers)")
+		game.mlog.add("%s opens with %s%s" % [game.mlog.who(team), "" if owner_on() and opening != "breeder" else "a ", what])
 	scout = AIScout.new(self)
 	if opt != null and difficulty >= 1 and not peaceful:
 		scout.enabled = true            # (OPTIMAL always scouts, its Horseman rush too: the read is how it picks)
@@ -649,7 +662,13 @@ func _bo_defence() -> void:
 		_bo_plan.insert(bo_i + k, ins[k])
 	bo_army = true
 	bo_army_cap = 0
-	say("a rush is scouted: the wall, the Barracks and the Mill first, soldiers before labourers, no new hall till it is held")
+	# (ai-optimal story audit: it said "the wall, the Barracks and the Mill first" when all three stood already)
+	var names: Array = ins.map(func(st: Dictionary) -> String: return "the wall" if String(st["do"]).begins_with("wall") else "the %s" % String(Defs.BUILDINGS[st["k"]]["name"]))
+	var uniq: Array = []
+	for n in names:
+		if not uniq.has(n):
+			uniq.append(n)
+	say("a rush is scouted: %ssoldiers before labourers, no new hall till it is held" % ((", ".join(uniq) + " first, ") if not uniq.is_empty() else ""))
 
 
 ## THE BALANCED PLAN PLAYS SAFE ON A BLIND LOOK (crown-owner-eco): the owner's plans build no Barracks without a reason;

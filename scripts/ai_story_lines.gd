@@ -31,6 +31,7 @@ const RULES := [
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; races it", "%s reads the enemy as %s (%s): it is all economy, so its Economy plan races it, more bases sooner.", 3, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; keeps to its (.+) plan", "%s reads the enemy as %s (%s): it is all economy, and it keeps to its %s plan.", 2, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): a rush is coming", "%s reads the enemy as %s (%s): a rush is coming, so it defends first, then counter-attacks.", 3, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): an attack is coming", "%s reads the enemy as %s (%s): an attack is coming, so it defends first, then counter-attacks.", 3, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it turtles; out-expands it", "%s reads the enemy as %s (%s): it turtles, so it out-expands it and techs up.", 3, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it turtles; keeps to its (.+) plan", "%s reads the enemy as %s (%s): it turtles, and it keeps to its %s plan.", 2, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): keeps to its (.+) plan", "%s reads the enemy as %s (%s): it keeps to its %s plan.", 2, "plan"],
@@ -41,6 +42,7 @@ const RULES := [
 	# ---- the opening and the plan
 	["^opens with a Horse Breeder", "%s opens with a Horse Breeder: it plans an early Horseman rush.", 3, "plan"],
 	["^opens with a Powder Mill", "%s opens with a Powder Mill: Musketeers first, a steady line of fire.", 3, "plan"],
+	["^opens with its economy", "%s opens with its economy: the second base before any Barracks, Musketeers when there is a reason.", 3, "plan"],
 	["^plays the Brood", "", 1, "plan"],
 	# ---- the Clockwork's Economy and Balanced openings (clockwork-eco, scripts/ai_cw_eco.gd, scripts/clock_sites.gd)
 	["^'s Clockwork: plays the (?:Economy|Balanced): the opening build", "%s opens for its economy: Winders non-stop and a fast second Clocktower, no army before it without a reason.", 3, "plan"],

@@ -78,7 +78,7 @@ func _process(delta: float) -> bool:
 		started = true
 		for ai in g.ais:
 			if ai.team == 0:
-				if crown_strategy != "rush":
+				if crown_strategy != "rush" and crown_strategy != "optimal":
 					ai.opening = "mill"      # (the Powder Mill opening: Balanced is that about 7 games in 10)
 			elif brood_strategy == "script":
 				ai.strategy = "xrush"         # (the Brood's own computer on its fastest plan; _drive sends the Raptors)
