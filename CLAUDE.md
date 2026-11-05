@@ -139,6 +139,13 @@
   - CROWN COLOUR IS PURPLE (owner, 2026-11-04 11:35): the Crown's standard colour changes to purple (stills done in purple;
   main menu painting assets/menu/battle.jpg to be redone by ChatGPT, the Crown was blue there). The mission 1 stills are in
   art/campaign/stills/p01_01..06 (move into campaign/ when wired in) (king pipe = also a main menu candidate).
+- MARCHING BAND AS A REAL UNIT (owner, 2026-11-05 12:18; experiment since 0.23.0, docs/marching_band.md): BAGPIPES melee,
+  DRUMS movement speed, FIFE ranged (Claude: as reload speed); always +5%, a SOLO +30%, each solo its own cooldown (no
+  energy); both band and Armoury may buff (tune later). Trained at the ARMOURY, which also researches the musicians: the band
+  starts with the Drummer, then Fifer and Piper in any order. Art: a group that grows (drawn as three musicians placed
+  together in code); ChatGPT prompts for the SE marching cycles given, refs in docs/redraw_refs/band/. Also: the Mist Toad's
+  FOG and MIASMA to be locked behind research (at the Dilophosaurus; TONGUE free). OPEN: solos overlap or one at a time;
+  a replacement band's price per researched musician. Job to start after crown-ammo merges.
 - MAP VARIETY (owner, DECIDED 2026-11-04 15:50): no single map rule; a pool with variety (some POCKET naturals sharing
   the main's choke, some open naturals, some between; mains hugging the corner is the milder option). He weighed turning
   every ramp toward a corner pocket and rejected it as a global rule (one point of defence = Crown turtling too strong).
