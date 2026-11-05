@@ -311,7 +311,7 @@ func tick(army: Array) -> void:
 		ai._follow_with_escort(ai.push.units)  # (out: the escort goes with the push, AIClockwork._follow_with_escort)
 
 
-## REINFORCEMENTS WALK TOGETHER: a unit made far from the gathering point (more than MUSTER_FAR) first waits at the
+## REINFORCEMENTS WALK TOGETHER (an experiment, off: see muster_on): a unit made far from the gathering point (more than MUSTER_FAR) first waits at the
 ## MUSTER, in front of the main hall, and they walk to the army as a group of GROUP_MIN or more (or MUSTER_SUPPLY supply).
 ## (One at a time across the base from the main's Works to a third Clocktower, they met the Raptor raids alone: 16 times in
 ## one game, Cinder Steps.) Returns the units waiting there (the gathering orders leave them be).
@@ -319,12 +319,18 @@ const MUSTER_FAR := 640.0
 const MUSTER_R := 220.0
 const MUSTER_SUPPLY := 6
 const MUSTER_MAX := 50.0        # s a unit waits at the muster at most (then it goes anyway)
+## (OFF unless `-- cwmuster:on`: tried and measured, docs/clockwork_army.md "The muster": with it on, 10 games against the
+## Brood lost more (4,507 against 3,818 by 10:00) and fought alone more often (5.8 against 2.7 a game): the units held in
+## the main were missing from the army when the Raptors came, and were raided at the muster themselves.)
+var muster_on := OS.get_cmdline_user_args().has("cwmuster:on")
 var _walking := {}              # Unit -> true: let go from the muster, on its way to the army
 var _mustered := {}             # Unit -> clock it reached the muster
 
 
 func _muster(home: Array, g: Vector2) -> Dictionary:
 	var waiting := {}
+	if not muster_on:
+		return waiting
 	var m: Vector2 = ai._post_spot()
 	for u in _walking.keys():
 		if not is_instance_valid(u) or u.dead or u.position.distance_to(g) < GATHER_R:

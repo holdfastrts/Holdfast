@@ -59,6 +59,10 @@ guard, detachments and rally no longer take any of it.
   over, or when a defender is led 16 tiles from the buildings, they walk back to the gathering point. If the whole army is
   worth less than 55% of a raid away from the main, it does not walk into it: it holds together at the main's gate.
   Unarmed scouts and loose workers are left to the Winders and the turrets.
+- **Reinforcements walk together.** A unit made far from the gathering point (20 tiles or more, in the main's Works when
+  the army stands at a newer Clocktower) first waits at a muster point in front of the main hall. They walk to the army
+  as a group of three or more (or 6 supply), or after 50 s of waiting. One at a time across the base they met the Raptor
+  raids alone: 16 times in one game on Cinder Steps.
 - **No fighter scouts.** The scout's second and later trips take a Swift if there is one, else a Winder, never a ground
   fighter.
 
@@ -133,7 +137,7 @@ last steps.
 
 - `tools/test_clockwork_army.gd`: one game, measured. `check:1` is the test (Frostfang, the Hard Economy Clockwork against
   the Hard Brood Economy, until:600): at most 2 fights alone away from home, at most 2 first fights alone away from home,
-  and the Winders with the army (2 or more on average while it is out). `cwarmy:off` plays the old army code.
+  and the Winders with the army (1.5 or more on average while it is out). `cwarmy:off` plays the old army code.
 - `tools/clockwork_army_report.py`: the tables above from the test's json lines.
 - `tools/film_clockwork_army.gd`: a filmed game (the army at set times, the push, the Springers' jumps, GIF frames).
 - The old tests still pass: test_clockwork_eco, test_clockwork_builds_a (Clock Soldier rush and turtle),
