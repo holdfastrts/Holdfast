@@ -32,6 +32,14 @@
   Dragoon raids might go 2 Barracks before the Foundry, but only when scouted and for a reason, as an answer to something.
   CONFIRMED (owner, 2026-11-04 20:50, asked after his own game went 2 Barracks first): "it depends, but most of the time
   Foundry first is the best option": Foundry first stays the default; a second Barracks first only for a scouted reason.
+- CROWN AMMUNITION, NO POWDER LOCK (owner, DECIDED 2026-11-05 07:48-07:54; job crown-ammo): Barracks units have NO
+  building requirement any more (the Musketeer no longer needs the Powder Mill; the Officer no longer needs the Horse
+  Breeder; an Officer without a horse walks). Every unit with a firearm costs POWDER for its ammunition, the Officer too
+  (pistol): trained with powder in the bank it comes out armed; trained with gold only it comes out with ZERO shots and
+  fights with its melee weapon (bayonet, sabre) until it refills at a reloading point (Mill, Barracks, Town Hall, Powder
+  Wagon), the refill taking that powder from the bank. A Barracks toggle ARM WITH POWDER (default ON). PARTIAL ammo when
+  the bank holds less than a full load. The gold-only rush is allowed (it is the Horseman rush: the Horse Breeder costs only
+  gold). MOUNTED and LIMBERED units keep the Horse Breeder requirement; a Horseman with no horse is an Officer.
 - EXPANSION SPOTS PER FACTION (owner, DECIDED 2026-11-03 22:25): each faction has its own optimal expansion spot (the Brood
   already does: Mound Turtle spots). CROWN: 2nd and 3rd bases at the MINIMUM hall distance (Defs.HALL_SPACING 18) and close
   together, covered by the main's high ground (Musketeer range from its edge) and easy to wall (walls join up); 4th base on:
