@@ -142,7 +142,25 @@ RESULTS_HERE
   picks and 100 leans) and does against a greedy Brood.
 - `tools/test_ai_scout.gd`: case 4 rewritten to the owner's rule (a walled-in empty base reads GREEDY and the Economy
   plan races it; a scout killed early reads UNKNOWN: no army, another scout soon).
-- TESTS_HERE
+- `tools/test_crown_build_order.gd` knows OPTIMAL's "pick" step; `tools/test_ai_wall_vs_rush.gd` takes `crown:optimal`.
+- The whole suite (`tools/test_ai_*`, `test_crown_*`, `test_clockwork_*`, `test_brood_*`: 53 scripts; the coaching tools
+  with `check:1`: test_clockwork_eco (also `rush:1`, `foe:crown`), test_clockwork_springer_timing, test_clockwork_owls,
+  test_clockwork_builds_a) was run on this branch, and every failing one again on origin/main (0.31.1) in a worktree:
+  - pass: all the others, among them test_ai_scout, test_ai_scout_threat, test_ai_scout_sentry, test_ai_scout_defence,
+    test_ai_wall_vs_rush, test_ai_optimal, test_ai_rush, test_ai_harass, test_ai_placement, test_brood_builds,
+    test_brood_layout, test_brood_spend, test_crown_balloon, test_crown_build_order, test_crown_dragoon_raid,
+    test_crown_farms, test_crown_hold, test_crown_siege, test_crown_v_brood, test_clockwork_eco check:1,
+    test_clockwork_springer_timing check:1, test_clockwork_builds_a check:1, test_i18n;
+  - failing on main the same way (not this job's): test_ai_crown_bank (1), test_ai_expand (2, the Clockwork's new hall),
+    test_ai_expand_wall (6 here, 7 on main), test_ai_round6 (7, the first hall spot at the natural), test_ai_rush_followup
+    (13), test_crown_owner_eco (1, the natural's ring by 6:30), test_brood_voices (Hatchlings have no voice);
+    test_brood_new_defence hangs in its Musketeers case at 5:17 on main too (killed by the 30-minute limit);
+  - load-dependent: test_ai_rush's "never supply-blocked for 20 s" read 21 s once with three games running (main the
+    same under the same load); alone it passes (0 s);
+  - test_clockwork_owls check:1 on its default seed 11: the first Owl sortie "never" by 8:00 (the Owls were held at home
+    twice to defend against riders that cannot hit them; main 7:16). On seed 12 it passes here at 6:47 (main 7:18). The
+    games part early (the Crown's scout reads differently), so this one seed is the divergence, not a rule of the Owls.
+    Worth a look when merging.
 
 ## 7. Questions for the owner
 

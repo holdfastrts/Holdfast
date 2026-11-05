@@ -712,7 +712,11 @@ func _learn(u: Unit) -> void:
 			# a Brood rush" in the owner's Frostfang log)
 			# (one fast rider after 2:30 is a rider scout, not a rush: rush_evidence wants two then; the coached games told
 			# "a sign of a Crown rush" for the Crown's rider scout at 3:30)
-			if game.clock <= HOME_RUSH_BY:
+			var pack := 0
+			for o in game.units_near(u.position, 400.0):
+				if o.team == u.team and o.kind == u.kind and not o.dead and game.is_visible_to(ai.team, o.position):
+					pack += 1
+			if game.clock <= HOME_RUSH_BY or (game.clock <= EARLY_RUSH_BY and pack >= 2):
 				_say("saw an enemy %s (fast, a %s rush unit): evidence of a rush" % [String(Defs.UNITS[u.kind]["name"]), fac.capitalize()])
 			else:
 				_say("saw an enemy %s (fast): raiders to watch for" % String(Defs.UNITS[u.kind]["name"]))
