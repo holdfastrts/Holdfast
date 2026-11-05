@@ -148,6 +148,29 @@ def write(out, sig, a):
             f.write('%9.1f %9.1f %8d %7.2f  %s\n' % (st * 1000, tt * 1000, cc, st * 1e6 / max(cc, 1), nm))
 
 
+acc = {}
+
+
+def acc_frame(a):
+    # (Godot 4.7 sends no profile_total: the frames are summed instead; same layout as write's)
+    idx = 7
+    for _ in range(a[6]):
+        idx += 2 + a[idx + 1]
+    n = a[idx]; idx += 1
+    for _ in range(n // 5):
+        sid, calls, self_t, total_t, _internal = a[idx:idx + 5]; idx += 5
+        e = acc.setdefault(sid, [0.0, 0.0, 0])
+        e[0] += self_t; e[1] += total_t; e[2] += calls
+
+
+def write_acc(out, sig):
+    rows = sorted(((v[0], v[1], v[2], sig.get(k, str(k))) for k, v in acc.items()), reverse=True)
+    with open(out, 'w') as f:
+        f.write('  self_ms  total_ms    calls us/call  function\n')
+        for st, tt, cc, nm in rows:
+            f.write('%9.1f %9.1f %8d %7.2f  %s\n' % (st * 1000, tt * 1000, cc, st * 1e6 / max(cc, 1), nm))
+
+
 def main():
     port, out, on_text, off_text = int(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
     srv = socket.socket(); srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -159,12 +182,16 @@ def main():
         b = enc([cmd, tid[0], data]); c.sendall(struct.pack('<I', len(b)) + b)
 
     sig = {}
+    wrote = [False]
     names = collections.Counter()
     buf = b''
     state = 0
     while True:
         d = c.recv(1 << 22)
         if not d:
+            print('messages:', dict(names), flush=True)
+            if acc and not wrote[0]:
+                write_acc(out, sig); print('written (summed frames)', out, flush=True)
             break
         buf += d
         while len(buf) >= 4:
@@ -174,7 +201,10 @@ def main():
             m = buf[4:4 + n]; buf = buf[4 + n:]
             name = first_string(m)
             names[name] += 1
-            if name in ('servers:profile_frame', 'performance:profile_frame', 'error'):
+            if name == 'servers:profile_frame' and state == 1:
+                acc_frame(dec(R(m))[2])
+                continue
+            if name in ('servers:profile_frame', 'performance:profile_frame', 'error', 'scripts:profile_frame'):
                 continue
             msg = dec(R(m)); data = msg[2]
             if name == 'output':
@@ -184,15 +214,15 @@ def main():
                     if 'PERF' in line:
                         print(line[:160], flush=True)
                 if state == 0 and on_text in txt:
-                    state = 1; send('profiler:servers', [True, [5000, False]]); print('PROFILER ON', flush=True)
+                    state = 1; send('profiler:scripts', [True, [5000, False]]); send('profiler:servers', [True, [5000, False]]); print('PROFILER ON', flush=True)
                 elif state == 1 and off_text in txt:
-                    state = 2; send('profiler:servers', [False]); print('PROFILER OFF', flush=True)
+                    state = 2; send('profiler:servers', [False]); send('profiler:scripts', [False]); print('PROFILER OFF', flush=True)
             elif name == 'debug_enter':
                 print('script error, going on:', data[:3], flush=True); send('continue', [])
             elif name == 'servers:function_signature':
                 sig[data[1]] = data[0]
             elif name == 'servers:profile_total':
-                write(out, sig, data); print('written', out, flush=True)
+                write(out, sig, data); wrote[0] = True; print('written', out, flush=True)
 
 
 if __name__ == '__main__':

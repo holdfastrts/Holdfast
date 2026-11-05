@@ -9,7 +9,9 @@ extends RefCounted
 ## and down the left, under the players' resources:
 ##   AI STORY             the computers' plans and decisions with their reasons (AIStory), newest first; the speaker
 ##                        mutes the narrator (also the N key and Settings > SOUND)
-## Drawn by the HUD (hud.gd: _draw_rest) on its "rest" layer; only while game.spectating(), never in a match you play.
+## Drawn by the HUD on a layer each ("spec prod", "spec army", "spec story": draw_one, perf-frostfang), each redrawn only when
+## what it shows changes (sig); an open player list on the "rest" layer (draw_drop); only while game.spectating(), never in a
+## match you play.
 ## Each column stays clear of VIEW, the minimap, the bottom panels, the command card and a replay's bar; the panels of
 ## a column share it (one that needs little gets it all, the others share the rest and show what fits, "... more").
 
@@ -94,8 +96,41 @@ func replay_bar_rect() -> Rect2:
 	return Rect2()
 
 
-## Where each panel sits now: panel -> [header rect, body rect (size 0: closed)].
+## Where each panel sits now: panel -> [header rect, body rect (size 0: closed)]. (Worked out at each of the HUD's looks,
+## 20 a second, and kept till the next, or till a panel is opened, closed or switched.)
 func layout() -> Dictionary:
+	var key: Array = [open.values(), team.values(), hud._vs(), game.view_team, game.n_players(), hud._tick_n]
+	if key != _lay_key or _lay.is_empty():
+		_lay_key = key
+		_lay = _layout()
+	return _lay
+
+
+var _lay_key: Array = []
+var _lay := {}
+
+
+## What the mouse is over that the panels light up (the titles, buttons and the open list's rows): for the HUD's
+## redraw signature (the panels are redrawn when it changes, not whenever the mouse moves).
+func hover_key(m: Vector2) -> int:
+	if m.x < 0.0:
+		return -1
+	var i := 0
+	for r in drop_rows():
+		if (r[0] as Rect2).has_point(m):
+			return 100 + i
+		i += 1
+	var ps := parts()
+	i = 0
+	for p in PANELS:
+		for k in ["title", "speaker", "drop"]:
+			if (ps[p][k] as Rect2).has_point(m):
+				return i
+			i += 1
+	return -1
+
+
+func _layout() -> Dictionary:
 	var out := {}
 	var w := width()
 	for side in COLS:
@@ -304,10 +339,48 @@ func toggle_voice() -> bool:
 # ------------------------------------------------------------------ drawing
 
 func draw() -> void:
+	for p in PANELS:
+		draw_one(p)
+	draw_drop()
+
+
+## The open player list (over the panels: the HUD's "rest" layer).
+func draw_drop() -> void:
+	if drop != "":
+		_draw_drop()
+
+
+## What panel p shows, in short (its layer is redrawn when this changes): where it sits, the mouse on its buttons, its
+## dropdown, and its content: PRODUCTION 4 times a second (its bars move), ARMY & STRUCTURES as its numbers change (worked
+## out twice a second), the AI STORY as lines come in or it is scrolled.
+func sig(p: String, m: Vector2) -> Array:
+	var q: Dictionary = parts()[p]
+	var hv := -1
+	if m.x >= 0.0:
+		for k in ["title", "speaker", "drop"]:
+			if (q[k] as Rect2).has_point(m):
+				hv = ["title", "speaker", "drop"].find(k)
+	var out: Array = [q["title"], q["body"], hv, open[p], team[p], drop == p, Settings.narrator if p == "story" else false]
+	if not open[p] or (q["body"] as Rect2).size.y <= 0.0:
+		return out
+	match p:
+		"prod":
+			out.append(hud._tick_n / 5)
+		"army":
+			for t in teams_of("army"):
+				out.append(army_info(t))
+		"story":
+			var st: AIStory = game.ai_story
+			out.append_array([st.version if st else 0, story_skip, Loc.lang, game.replay != null])
+	return out
+
+
+## One panel: its title row and, open, its body.
+func draw_one(p: String) -> void:
 	var ps := parts()
 	var hv: Vector2 = hud._mouse() if Settings.pc() else Vector2(-1, -1)
 	var font := UiStyle.bold_font()
-	for p in PANELS:
+	if true:
 		var q: Dictionary = ps[p]
 		var tr: Rect2 = q["title"]
 		UiStyle.draw_button(hud._ci, tr, tr.has_point(hv), open[p])
@@ -333,8 +406,6 @@ func draw() -> void:
 					_draw_army(br)
 				"story":
 					_draw_story(br)
-	if drop != "":
-		_draw_drop()
 
 
 func _draw_drop() -> void:
@@ -398,8 +469,8 @@ func _head_line(t: int, br: Rect2, y: float, note := "", right := "") -> void:
 	_txt(UiStyle.bold_font(), Vector2(br.position.x + 26, y + 14), name + ("   " + note if note != "" else ""), 13, UiStyle.TEXT, br.size.x - 36)
 	if right != "":
 		var f := UiStyle.bold_font()
-		var nw := f.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		var rw := f.get_string_size(right, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var nw := TextCache.width(f, name, 13)
+		var rw := TextCache.width(f, right, 12)
 		if br.position.x + 26 + nw + 10 + rw < br.end.x - 8:
 			_txt(f, Vector2(br.end.x - 8 - rw, y + 14), right, 12, Color(1, 0.88, 0.6))
 
@@ -511,7 +582,7 @@ func _draw_army(br: Rect2) -> void:
 				hud._ci.draw_texture_rect(tex, Rect2(x, y + 1, 17, 17), false)
 				x += 20.0
 			_txt(f, Vector2(x, y + 14), String(r[1]), 13, Color(1, 0.92, 0.7))
-			x += f.get_string_size(String(r[1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x + 12.0
+			x += TextCache.width(f, String(r[1]), 13) + 12.0
 		y += 20.0
 		var last_k := ""
 		var fl := _army_flow(t, br.size.x - 20.0)
@@ -543,7 +614,7 @@ func _icon_count(r: Rect2, it: Array, bld: bool) -> void:
 	var n := str(done) if going == 0 else ("%d+%d" % [done, going] if done > 0 else "+%d" % going)
 	if n != "1":
 		var f := UiStyle.bold_font()
-		var w := f.get_string_size(n, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var w := TextCache.width(f, n, 12)
 		_txt(f, Vector2(r.end.x - w - 1, r.end.y - 2), n, 12, Color(1, 0.95, 0.75) if going == 0 else Color(1, 0.8, 0.45))
 
 
@@ -600,27 +671,33 @@ func _draw_story(br: Rect2) -> void:
 		y += 3.0
 
 
-## Word-wrap s to width w at font size sz.
+## Word-wrap s to width w at font size sz (kept: TextCache).
 static func wrap_text(font: Font, s: String, sz: int, w: float) -> Array:
-	var out: Array = []
-	var line := ""
-	for word in s.split(" ", false):
-		var tryl := word if line == "" else line + " " + word
-		if font.get_string_size(tryl, HORIZONTAL_ALIGNMENT_LEFT, -1, sz).x <= w or line == "":
-			line = tryl
-		else:
-			out.append(line)
-			line = word
-	if line != "":
-		out.append(line)
-	return out
+	return TextCache.wrap(font, s, sz, w)
 
 
-## Text as it is (already in the game's language), cut with "…" past max_w.
+## Text as it is (already in the game's language), cut with "…" past max_w (the cut kept: _cut).
 func _txt(font: Font, p: Vector2, s: String, sz: int, col: Color, max_w := -1.0) -> void:
-	if max_w > 0.0 and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, sz).x > max_w:
-		while s.length() > 1 and font.get_string_size(s + "…", HORIZONTAL_ALIGNMENT_LEFT, -1, sz).x > max_w:
-			s = s.substr(0, s.length() - 1)
-		s += "…"
-	hud._ci.draw_string_outline(font, p, s, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, 3, Color(0, 0, 0, col.a * 0.75))
-	hud._ci.draw_string(font, p, s, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, col)
+	if max_w > 0.0:
+		s = _fit(font, s, sz, max_w)
+	TextCache.draw(hud._ci, font, p, s, sz, col, 3, Color(0, 0, 0, col.a * 0.75))
+
+
+static var _cut := {}
+
+
+static func _fit(font: Font, s: String, sz: int, max_w: float) -> String:
+	if TextCache.width(font, s, sz) <= max_w:
+		return s
+	var key := "%d|%d|%.4f|%s" % [font.get_instance_id(), sz, max_w, s]
+	var c = _cut.get(key)
+	if c != null:
+		return c
+	var t := s
+	while t.length() > 1 and font.get_string_size(t + "…", HORIZONTAL_ALIGNMENT_LEFT, -1, sz).x > max_w:
+		t = t.substr(0, t.length() - 1)
+	t += "…"
+	if _cut.size() > 2000:
+		_cut.clear()
+	_cut[key] = t
+	return t

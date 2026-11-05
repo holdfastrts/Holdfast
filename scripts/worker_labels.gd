@@ -228,6 +228,22 @@ static func _home(halls: Array, p: Vector2) -> Building:
 
 ## The entities with a label now, for the player at this screen (yours; everything for a spectator or the demo).
 static func entities(g: Game) -> Array:
+	# (kept for the rest of the frame: the mouse's cursor, the HUD's hover and the labels' drawing all ask it, and with a
+	# Brood on the map it looks at every unit; perf-frostfang)
+	var key: Array = [Engine.get_process_frames(), g.get_instance_id(), g.view_rect, g.human, g.demo]
+	if key == _ent_key:
+		return _ent
+	var out := _entities(g)
+	_ent_key = key
+	_ent = out
+	return out
+
+
+static var _ent_key: Array = []
+static var _ent: Array = []
+
+
+static func _entities(g: Game) -> Array:
 	var out: Array = []
 	for b in g.buildings:
 		if b.dead or not b.built or not b.visible or (b.team != g.human and not g.demo):

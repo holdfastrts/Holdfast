@@ -94,7 +94,7 @@ func draw(hud: Control, ci: CanvasItem, hover: Vector2) -> void:
 		title = "(nothing playing)"
 	var font := UiStyle.bold_font()
 	var fs := 19
-	while fs > 12 and font.get_string_size(Loc.t(title), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > r.size.x - pad * 2.0:
+	while fs > 12 and TextCache.width(font, Loc.t(title), fs) > r.size.x - pad * 2.0:
 		fs -= 1
 	hud._text(font, Vector2(r.position.x + pad, r.position.y + 42), title, fs, UiStyle.TEXT)
 	var len := m.track_length()
@@ -114,7 +114,7 @@ func draw(hud: Control, ci: CanvasItem, hover: Vector2) -> void:
 			var t: String = Loc.t(String(Music.titles().get(stem, stem)))
 			var f2 := UiStyle.body_font()
 			var s2 := 15
-			while s2 > 11 and f2.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, s2).x > hr.size.x - 28.0:
+			while s2 > 11 and TextCache.width(f2, t, s2) > hr.size.x - 28.0:
 				s2 -= 1
 			hud._text(f2, Vector2(hr.position.x + 8, hr.position.y + hr.size.y * 0.5 + 5.0), ("> " if on else "") + t, s2, UiStyle.TRIM if on else UiStyle.TEXT)
 			continue

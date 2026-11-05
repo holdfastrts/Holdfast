@@ -1081,8 +1081,14 @@ func _physics_process(delta: float) -> void:
 		return NetPuppet.tick_building(self, delta)      # (online guest: shown from snapshots, not simulated)
 	var _p0 := Time.get_ticks_usec()
 	_tick_building(delta)
-	Prof.bld_us += Time.get_ticks_usec() - _p0
+	var _du := Time.get_ticks_usec() - _p0
+	Prof.bld_us += _du
 	Prof.bld_n += 1
+	if Prof.by_kind:
+		var e: Array = Prof.bkind_us.get(kind, [0, 0])
+		e[0] += _du
+		e[1] += 1
+		Prof.bkind_us[kind] = e
 
 
 func _tick_building(delta: float) -> void:

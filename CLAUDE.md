@@ -144,8 +144,10 @@
   energy); both band and Armoury may buff (tune later). Trained at the ARMOURY, which also researches the musicians: the band
   starts with the Drummer, then Fifer and Piper in any order. Art: a group that grows (drawn as three musicians placed
   together in code); ChatGPT prompts for the SE marching cycles given, refs in docs/redraw_refs/band/. Also: the Mist Toad's
-  FOG and MIASMA to be locked behind research (at the Dilophosaurus; TONGUE free). OPEN: solos overlap or one at a time;
-  a replacement band's price per researched musician. Job to start after crown-ammo merges.
+  FOG and MIASMA to be locked behind research (at the Dilophosaurus; TONGUE free). DECIDED (owner 13:35): ONE SOLO AT A TIME
+  per band; SEVERAL BANDS allowed (like cannons; rings don't stack: each stat takes the strongest); each band costs MORE per
+  researched musician. The owner's SE art is in art/redraws/band_{drummer,fifer,fifer_b,piper}_walk_se_chatgpt.png (two
+  fifer options). crown-ammo merged 0.32.0, perf-frostfang 0.32.1; job marching-band after them.
 - MAP VARIETY (owner, DECIDED 2026-11-04 15:50): no single map rule; a pool with variety (some POCKET naturals sharing
   the main's choke, some open naturals, some between; mains hugging the corner is the milder option). He weighed turning
   every ramp toward a corner pocket and rejected it as a global rule (one point of defence = Crown turtling too strong).

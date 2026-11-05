@@ -8728,6 +8728,15 @@ func _fog_runs_flush() -> void:
 				_fog_w = _EMPTY
 			ex = explored
 			explored = _EMPTY
+		# watching computers: the side's explored map (as _explore)
+		var exb: PackedByteArray = _EMPTY
+		var xs := -1
+		var watch := false
+		if demo:
+			xs = side_slot(t)
+			exb = explored_by[xs]
+			explored_by[xs] = _EMPTY
+			watch = swn and view_team >= 0 and allied(t, view_team)
 		var n := arr.size()
 		var k := 0
 		while k < n:
@@ -8743,6 +8752,11 @@ func _fog_runs_flush() -> void:
 				b = maxi(b, nk & 65535)
 				k += 1
 			var row := y * W
+			if xs >= 0:
+				for i in range(row + a, row + b + 1):
+					if watch and exb[i] == 0 and sw[i] == 1:
+						new_swamp = true
+					exb[i] = 1
 			if not mine:
 				for i in range(row + a, row + b + 1):
 					v[i] = 1
@@ -8759,6 +8773,8 @@ func _fog_runs_flush() -> void:
 					fw[i * 2 + 1] = 0
 		vis[t] = v
 		_side_vis[sd] = sv
+		if xs >= 0:
+			explored_by[xs] = exb
 		if mine:
 			explored = ex
 			if mode == 1:
@@ -8892,12 +8908,9 @@ func _update_vis() -> void:
 			if done.has(key):
 				continue
 			done[key] = true
-			if demo:
-				if air:
-					_reveal_air(u.team, c, u.sight)
-				else:
-					_reveal(u.team, c, u.sight)
-			elif not air and in_map(c) and height[idx(c)] == 0 and _high_near(c, u.sight):
+			# (watching computers too, since perf-frostfang: the runs also mark the side's explored map, explored_by, as
+			# _explore did disk by disk; it was 5 to 10 ms a fog update with 120 units, the owner's Frostfang log)
+			if not air and in_map(c) and height[idx(c)] == 0 and _high_near(c, u.sight):
 				_reveal(u.team, c, u.sight)
 			else:
 				_fog_runs_add(u.team, c, u.sight)

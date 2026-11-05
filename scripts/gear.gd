@@ -129,6 +129,24 @@ static func tempo(b: Building) -> float:
 
 ## The tooth count of a building kind's ring: footprint half-extent + pad, to whole teeth.
 static func ring_n(kind: String, size: Vector2i, big: bool) -> int:
+	# (asked hundreds of thousands of times a minute by the rings' drawing, turning and drive: kept per kind, size and
+	# gear; perf-frostfang)
+	var mk = _rn_memo.get(kind)
+	if mk == null:
+		mk = {}
+		_rn_memo[kind] = mk
+	var key := Vector3i(size.x, size.y, int(big))
+	var n = mk.get(key)
+	if n == null:
+		n = _ring_n(kind, size, big)
+		mk[key] = n
+	return n
+
+
+static var _rn_memo := {}
+
+
+static func _ring_n(kind: String, size: Vector2i, big: bool) -> int:
 	if big_only(kind):
 		big = true
 	var half := maxf(float(size.x) * T * 0.5, float(size.y) * T * 0.5 / FY)
@@ -553,6 +571,15 @@ func band_at(p: Vector2, grow := 0.0) -> int:
 			bk = k
 			best = i
 	return best
+
+
+## Could band_at(p) (no grow) find a band here: inside the box round every band and in a grid cell some band reaches?
+## (GearTurn.near: units in a big base between its rings ask it every tick; perf-frostfang.)
+func band_maybe(p: Vector2) -> bool:
+	var g := gpos(p)
+	if not _band_box.has_point(g):
+		return false
+	return _band_grid.has(Vector2i(floori(g.x / BAND_CELL), floori(g.y / BAND_CELL)))
 
 
 ## Is the band at index i turning now (its ring connected and turning)?

@@ -3572,6 +3572,12 @@ func _physics_process(delta: float) -> void:
 	var _du := Time.get_ticks_usec() - _p0
 	Prof.unit_us += _du
 	Prof.unit_n += 1
+	if Prof.by_kind:
+		var kk := kind + " " + order
+		var e: Array = Prof.kind_us.get(kk, [0, 0])
+		e[0] += _du
+		e[1] += 1
+		Prof.kind_us[kk] = e
 	if _du > Prof.slow_unit_us:
 		Prof.slow_unit_us = _du
 		Prof.slow_unit = self
