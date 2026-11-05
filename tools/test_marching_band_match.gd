@@ -3,7 +3,7 @@ extends SceneTree
 ## faction. The Crown computer's bands (AI._band: trained at the Armoury, the Fifer and the Piper researched;
 ## MarchingBand.ai_tick: its place behind the line and its solos) are watched: when they are trained, when the musicians are
 ## researched, the solos by instrument, how many soldiers its ring reaches in a solo, losses; the match must run.
-##   godot --headless --fixed-fps 30 --script res://tools/test_marching_band_match.gd [-- map:<id> seed:<n> minutes:<m> vs:<faction> plan:<strategy>]
+##   godot --headless --fixed-fps 30 --script res://tools/test_marching_band_match.gd [-- map:<id> seed:<n> minutes:<m> vs:<faction> who:<level> plan:<strategy>]
 var main: Node
 var t := 0.0
 var g
@@ -13,6 +13,7 @@ var seed_ := 4242
 var minutes := 12.0
 var vs := "brood"
 var plan := "balanced"
+var foe_who := "hard"
 var researched := {}
 var by_ins := {"drums": 0, "fife": 0, "pipes": 0}
 var _lead_of := {}
@@ -39,6 +40,8 @@ func _initialize() -> void:
 			minutes = float(a.substr(8))
 		elif a.begins_with("vs:"):
 			vs = a.substr(3)
+		elif a.begins_with("who:"):
+			foe_who = a.substr(4)          # (the other side's level: easy / normal / hard)
 		elif a.begins_with("plan:"):
 			plan = a.substr(5)
 
@@ -55,7 +58,7 @@ func _process(delta: float) -> bool:
 		seed(seed_)
 		main.start({"map": map, "seed": seed_, "slots": [
 			{"who": "hard", "faction": "crown", "colour": 0, "side": 0, "strategy": plan},
-			{"who": "hard", "faction": vs, "colour": 1, "side": 1, "strategy": "balanced"}]})
+			{"who": foe_who, "faction": vs, "colour": 1, "side": 1, "strategy": "balanced"}]})
 		return false
 	if main.game == null:
 		return false
@@ -112,7 +115,7 @@ func _process(delta: float) -> bool:
 			avg += n
 		avg = avg / maxf(covered.size(), 1.0)
 		check("it played solos", not solos.is_empty(), "%d solos %s (fife %d, pipes %d, drums %d), %.1f soldiers in the ring on average" % [solos.size(), str(solos.slice(0, 10)), by_ins["fife"], by_ins["pipes"], by_ins["drums"], avg])
-		print("SUMMARY vs %s %s seed %d: band %.0f s, fife %s, pipes %s, bands %d (max %d, lost %d), solos fife %d pipes %d drums %d, ring %.1f, ended %.0f s over %s winner %s" % [vs, map, seed_, band_at,
+		print("SUMMARY vs %s (%s) %s seed %d: band %.0f s, fife %s, pipes %s, bands %d (max %d, lost %d), solos fife %d pipes %d drums %d, ring %.1f, ended %.0f s over %s winner %s" % [vs, foe_who, map, seed_, band_at,
 			str(researched.get("band_fife", -1)), str(researched.get("band_pipes", -1)), bands_seen, max_bands, deaths, by_ins["fife"], by_ins["pipes"], by_ins["drums"], avg, g.clock, g.over, str(g.get("winner"))])
 		print("RESULT %s (%d failed)" % ["PASS" if fails == 0 else "FAIL", fails])
 		quit(1 if fails > 0 else 0)

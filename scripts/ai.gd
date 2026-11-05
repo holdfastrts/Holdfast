@@ -4873,7 +4873,7 @@ func _band() -> int:
 				game.train(a, MarchingBand.KIND)
 				_band_say("trains a Marching Band (%d soldiers)" % men)
 				return 0
-		if bands == 0:
+		if bands == 0 and _mine("armoury").any(func(a: Building) -> bool: return a.built):
 			return _band_hold(price)      # (the first band: kept back from the soldiers until it can be trained)
 	if bands == 0:
 		return 0
