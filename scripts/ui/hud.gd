@@ -242,7 +242,7 @@ func _tick_hud(delta: float) -> void:
 		if not _tip.is_empty() and Settings.pc():
 			_tip_at = _mouse()      # (it follows the mouse; what's under it is looked at 20 times a second)
 		_moved_check = true
-		_check(["top", "map view", "groups", "selection", "command card", "rest", "chat", "tooltip", "pause"])
+		_check(["top", "map view", "groups", "selection", "command card", "spec prod", "spec army", "spec story", "rest", "chat", "tooltip", "pause"])
 		_moved_check = false
 		Prof.add("hud/hover", q)
 	else:
@@ -262,7 +262,8 @@ class HudLayer extends Node2D:
 		hud._draw_layer(self)
 
 
-const LAYERS := ["top", "minimap", "map view", "groups", "selection", "command card", "glow", "rest", "chat", "tooltip", "pause"]
+const LAYERS := ["top", "minimap", "map view", "groups", "selection", "command card", "glow", "spec prod", "spec army", "spec story", "rest", "chat", "tooltip", "pause"]
+const SPEC_LAYERS := {"spec prod": "prod", "spec army": "army", "spec story": "story"}     # (the spectator's panels: SpecPanels.draw_one)
 var _layer := {}                 # name -> HudLayer
 var _sig := {}                   # name -> its signature when it was last drawn
 var _ci: CanvasItem = self       # the canvas item being drawn on (a layer)
@@ -306,6 +307,9 @@ func _draw_layer(l: HudLayer) -> void:
 			for b in _card_buttons:
 				if String(b["item"][1]).begins_with("~ "):
 					_autocast_glow(b["rect"])
+		"spec prod", "spec army", "spec story":
+			if game.spectating():
+				spec_panels().draw_one(SPEC_LAYERS[l.fn])
 		"rest":
 			_draw_rest(font)
 		"chat":
@@ -333,7 +337,7 @@ func _layer_sig(n: String) -> Array:
 			var vals: Array = [shown, _vs(), int(game.clock), game.demo, pc, Settings.drag_mode, _help_on(), help_mode, game.spectator == null]
 			if shown >= 0:
 				var pl: Dictionary = game.players[shown]
-				vals.append_array([int(pl["gold"]), int(pl["res2"]), int(pl["cap"]), game.supply_used(shown)])
+				vals.append_array([int(pl["gold"]), int(pl["res2"]), int(pl["cap"]), supply_of(shown)])
 				if game.faction_of(shown) == "clockwork":
 					vals.append_array([int(game.energy[shown]), game.blue_energy(shown), int(float(pl.get("tension", 0.0))), int(GearEcon.tension_cap(game, shown))])
 				if game.faction_of(shown) == "crown":
@@ -397,12 +401,16 @@ func _layer_sig(n: String) -> Array:
 			if _msg_t > 0.0:
 				vals.append_array([_msg, int(minf(_msg_t, 1.0) * 60.0)])
 			if game.spectating():
-				# (the spectator's panels at 4 a second, not 20: with 100+ units their redraw cost 25 ms, 0.30.5 owner log)
-				vals.append_array([_tick_n / 5, spec_panels().hover_key(m), _view_hover(m), view_open, spec_panels().drop, SpecPanels.open.values(), SpecPanels.team.values(), Settings.narrator,
-					game.ai_story.version if game.ai_story else 0])
+				# (the panels themselves are on their own layers since perf-frostfang: here VIEW and an open player list)
+				var sp := spec_panels()
+				vals.append_array([_view_hover(m), view_open, sp.drop, sp.hover_key(m) if sp.drop != "" else -1, sp.layout()[sp.drop] if sp.drop != "" else null])
 			if countdown > 0.0 or _go_t > 0.0:
 				vals.append_array([countdown, _go_t])
 			return vals
+		"spec prod", "spec army", "spec story":
+			if not game.spectating():
+				return []
+			return spec_panels().sig(SPEC_LAYERS[n], m)
 		"chat":
 			if game.chat == null or (game.demo and game.replay == null):
 				return []
@@ -883,6 +891,24 @@ func _prod_items(t: int) -> Array:
 					if Defs.RESEARCH.has(rk):
 						items.append([_research_icon(rk), -1.0, Color(0.75, 0.55, 1.0)])
 	return items
+
+
+## Side t's supply in use (Game.supply_used), kept for the rest of the frame: the top bar's lines and the spectator's
+## panels ask it many times a second, and it counts every unit (perf-frostfang).
+func supply_of(t: int) -> int:
+	var f := Engine.get_process_frames()
+	if f != _sup_frame or game != _sup_game:
+		_sup_frame = f
+		_sup_game = game
+		_sup_memo.clear()
+	if not _sup_memo.has(t):
+		_sup_memo[t] = game.supply_used(t)
+	return _sup_memo[t]
+
+
+var _sup_memo := {}
+var _sup_frame := -1
+var _sup_game: Game = null
 
 
 ## Watching computers: the VIEW button under the clock; its list opens below it.
@@ -3189,7 +3215,7 @@ func _res_line(t: int) -> String:
 	var r2: int = int(game.energy[t]) if fac == "clockwork" else int(pl["res2"])
 	if fac == "clockwork" and Defs.gear_mode:
 		r2 = int(float(pl.get("tension", 0.0)))
-	var line := "P%d %s   %d %s · %d %s · %d/%d supply" % [t + 1, String(Defs.FACTIONS[fac]["name"]), int(pl["gold"]), names[0], r2, names[1], game.supply_used(t), int(pl["cap"])]
+	var line := "P%d %s   %d %s · %d %s · %d/%d supply" % [t + 1, String(Defs.FACTIONS[fac]["name"]), int(pl["gold"]), names[0], r2, names[1], supply_of(t), int(pl["cap"])]
 	if game.replay:
 		line += "   ·   " + game.replay.obs_line(t)      # (a replay: income, army and workers, as an observer sees them)
 	return line
@@ -3344,7 +3370,7 @@ func _draw_rest(font: Font) -> void:
 		sb.draw(_ci.get_canvas_item(), mrr)
 		_text(UiStyle.bold_font(), Vector2(vs.x * 0.5, mrr.position.y + 25), _msg, 21, Color(1, 0.85, 0.65, a), 1)
 	if game.spectating():
-		spec_panels().draw()
+		spec_panels().draw_drop()       # (the panels: their own layers, draw_one)
 		_draw_view(font)
 	if not paused:
 		_draw_countdown()

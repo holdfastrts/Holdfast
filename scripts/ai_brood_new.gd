@@ -951,6 +951,12 @@ var _morph_keep := 0             # food kept for the structure-unit it saves for
 
 
 func _nb_morphs(q: Unit) -> void:
+	BroodRoot.memo_begin()          # (its spot finders ask the same spots again: kept till the order is given, perf-frostfang)
+	_nb_morphs_go(q)
+	BroodRoot.memo_end()
+
+
+func _nb_morphs_go(q: Unit) -> void:
 	_morph_keep = 0
 	var walking := 0
 	for u in game.units:
@@ -1017,6 +1023,7 @@ func _nb_morphs(q: Unit) -> void:
 	if best != null and not _layout_ok(k, spot, null):
 		return
 	if best != null:
+		BroodRoot.memo_end()
 		best.give({"o": "nb_morph", "k": k, "p": spot})      # (it pays at once: BroodRoot.start_morph)
 		if BroodNew.is_father(k):
 			say("a grub goes to grow the %s" % BroodRoot.lure_name(k))

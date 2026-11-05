@@ -346,6 +346,32 @@ static func in_batch(g: Game, t: int) -> bool:
 
 
 static func place_problem(g: Game, t: int, k: String, p: Vector2, me: Unit = null, ai := false, sc := 1.0, swamp_rule := true) -> String:
+	if _pp_memo != null:
+		# (a memo round, memo_begin .. memo_end: nothing moves or is ordered meanwhile, so the same question has the same answer)
+		var key: Array = [g.get_instance_id(), t, k, p, me.get_instance_id() if me != null else 0, ai, sc, swamp_rule]
+		var got = _pp_memo.get(key)
+		if got == null:
+			got = _place_problem(g, t, k, p, me, ai, sc, swamp_rule)
+			_pp_memo[key] = got
+		return got
+	return _place_problem(g, t, k, p, me, ai, sc, swamp_rule)
+
+
+## A MEMO ROUND (perf-frostfang): between memo_begin() and memo_end() place_problem keeps its answers. Only for a stretch
+## where nothing moves, roots, dies or is given an order (the Brood computer's morph choice, up to the order it gives:
+## its spot finders asked the same spots two and three times in one think, 30 to 60 ms in the owner's Frostfang log).
+static var _pp_memo = null
+
+
+static func memo_begin() -> void:
+	_pp_memo = {}
+
+
+static func memo_end() -> void:
+	_pp_memo = null
+
+
+static func _place_problem(g: Game, t: int, k: String, p: Vector2, me: Unit = null, ai := false, sc := 1.0, swamp_rule := true) -> String:
 	p = snap(k, p, sc)
 	var c := cell_for(k, p, sc)
 	var sz: Vector2i = fp(k, sc)[0]
@@ -768,17 +794,26 @@ static func layer(u: Unit) -> void:
 			fpn.name = FP_NODE
 			fpn.draw.connect(_draw_frame.bind(u, fpn))
 			srt.add_child(fpn)
-		srt.position = Vector2(0.0, dy)
-		for n in [u.sprite, u.get_node_or_null("Glow"), u.get_node_or_null("Xf"), u.get_node_or_null(COC), u.get_node_or_null(COC_GRUB), u.get_node_or_null(PUFF), u.get_node_or_null(FLY)]:
-			if n != null and n.get_parent() != srt:
-				n.reparent(srt, false)
+		if srt.position.y != dy:
+			srt.position = Vector2(0.0, dy)
+		# (the pictures under the node: looked for only when the creature's own children change, perf-frostfang: this ran
+		# for every rooted creature on screen at every animation step, seven node look-ups each)
+		var nc := u.get_child_count()
+		var ck: Array = [nc, u.get_child(nc - 1).get_instance_id() if nc > 0 else 0]
+		if srt.get_meta("cc", []) != ck or u.sprite.get_parent() != srt:
+			for n in [u.sprite, u.get_node_or_null("Glow"), u.get_node_or_null("Xf"), u.get_node_or_null(COC), u.get_node_or_null(COC_GRUB), u.get_node_or_null(PUFF), u.get_node_or_null(FLY)]:
+				if n != null and n.get_parent() != srt:
+					n.reparent(srt, false)
+			nc = u.get_child_count()
+			srt.set_meta("cc", [nc, u.get_child(nc - 1).get_instance_id() if nc > 0 else 0])
 		u.sprite.position.y -= dy        # (Unit._animate put it at the feet: under the node it is drawn there again)
-		var fpn2 := srt.get_node_or_null(FP_NODE) as Node2D
+		var fpn2 := srt.get_child(0) as Node2D if srt.get_child_count() > 0 and srt.get_child(0).name == FP_NODE else srt.get_node_or_null(FP_NODE) as Node2D
 		if fpn2 != null:
-			srt.move_child(fpn2, 0)
+			if fpn2.get_index() != 0:
+				srt.move_child(fpn2, 0)
 			var hov: bool = u.game != null and u.game.hover_target == u
-			var key := "%s|%s|%s" % [u.selected, hov, str(rect_of(u))]
-			if hov or String(fpn2.get_meta("k", "")) != key:
+			var key: Array = [u.selected, hov, rect_of(u)]
+			if hov or fpn2.get_meta("k", []) != key:
 				fpn2.set_meta("k", key)
 				fpn2.position = Vector2(0.0, -dy)        # (in the creature's own space again: its feet at the origin)
 				fpn2.queue_redraw()

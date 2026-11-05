@@ -30,13 +30,12 @@ static func on(game: Game) -> bool:
 	return Defs.gear_turn and Defs.gear_mode and game.gear_net != null and not game.gear_net.bands.is_empty()
 
 
-## Near enough a turning band for tick to matter (inside the box round every band; false when the gears don't turn).
+## Near enough a turning band for tick to matter (in a cell of the bands' grid; false when the gears don't turn).
 ## A unit outside it with no ride on it (gt_on 0, gt_off INF, gt_carry zero) would come out of tick the same: Unit skips it.
 static func near(game: Game, p: Vector2) -> bool:
 	if not on(game):
 		return false
-	var net := game.gear_net
-	return net._band_box.has_point(net.gpos(p))
+	return game.gear_net.band_maybe(p)      # (in the box and in a grid cell a band reaches: else band_at is -1, the same tick)
 
 
 ## Could this unit be carried at all (its kind and state)?

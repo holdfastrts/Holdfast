@@ -299,6 +299,15 @@ func _trace_state(g: Game) -> void:
 	for t in g.n_players():
 		var p: Dictionary = g.players[t]
 		out.append("P%d gold %d res2 %d cap %d supply %d" % [t, int(p["gold"]), int(p["res2"]), int(p["cap"]), g.supply_used(t)])
+	if spectate:
+		# (watching: the fog grids too, every side's: they must not change either; perf-frostfang)
+		var fh := PackedStringArray()
+		for t in g.n_players():
+			fh.append("%d" % hash(g.vis[t]))
+		for e in g.explored_by:
+			fh.append("%d" % hash(e))
+		fh.append("%d %d" % [hash(g.explored), int(g._swamp_seen)])
+		out.append("F " + " ".join(fh))
 	for u in g.units:
 		if not is_instance_valid(u):
 			out.append("U freed")
@@ -408,7 +417,7 @@ func _minute_row(g: Game) -> void:
 	if Prof.by_kind:
 		_print_kinds()
 	var each := PackedStringArray()
-	for z in ["hud/rest", "hud/top", "hud/selection", "hud/groups", "hud/pause", "ai/brood/morphs", "game/fog", "buildings"]:
+	for z in ["hud/rest", "hud/spec prod", "hud/spec army", "hud/spec story", "hud/top", "hud/selection", "hud/groups", "hud/pause", "ai/brood/morphs", "game/fog", "buildings"]:
 		var nc := int(_acc_calls.get(z, 0))
 		if nc > 0:
 			each.append("%s %d calls %.2f ms each" % [z, nc, float(_acc.get(z, 0)) / 1000.0 / nc])

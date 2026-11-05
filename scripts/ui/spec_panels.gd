@@ -9,7 +9,9 @@ extends RefCounted
 ## and down the left, under the players' resources:
 ##   AI STORY             the computers' plans and decisions with their reasons (AIStory), newest first; the speaker
 ##                        mutes the narrator (also the N key and Settings > SOUND)
-## Drawn by the HUD (hud.gd: _draw_rest) on its "rest" layer; only while game.spectating(), never in a match you play.
+## Drawn by the HUD on a layer each ("spec prod", "spec army", "spec story": draw_one, perf-frostfang), each redrawn only when
+## what it shows changes (sig); an open player list on the "rest" layer (draw_drop); only while game.spectating(), never in a
+## match you play.
 ## Each column stays clear of VIEW, the minimap, the bottom panels, the command card and a replay's bar; the panels of
 ## a column share it (one that needs little gets it all, the others share the rest and show what fits, "... more").
 
@@ -94,12 +96,11 @@ func replay_bar_rect() -> Rect2:
 	return Rect2()
 
 
-## Where each panel sits now: panel -> [header rect, body rect (size 0: closed)]. (Kept for the rest of the frame: the
-## HUD asks it for the hover, the press and the redraw.)
+## Where each panel sits now: panel -> [header rect, body rect (size 0: closed)]. (Worked out at each of the HUD's looks,
+## 20 a second, and kept till the next, or till a panel is opened, closed or switched.)
 func layout() -> Dictionary:
-	var f := Engine.get_process_frames()
-	var key: Array = [f, open.values(), team.values()]
-	if key != _lay_key:
+	var key: Array = [open.values(), team.values(), hud._vs(), game.view_team, game.n_players(), hud._tick_n]
+	if key != _lay_key or _lay.is_empty():
 		_lay_key = key
 		_lay = _layout()
 	return _lay
@@ -338,10 +339,48 @@ func toggle_voice() -> bool:
 # ------------------------------------------------------------------ drawing
 
 func draw() -> void:
+	for p in PANELS:
+		draw_one(p)
+	draw_drop()
+
+
+## The open player list (over the panels: the HUD's "rest" layer).
+func draw_drop() -> void:
+	if drop != "":
+		_draw_drop()
+
+
+## What panel p shows, in short (its layer is redrawn when this changes): where it sits, the mouse on its buttons, its
+## dropdown, and its content: PRODUCTION 4 times a second (its bars move), ARMY & STRUCTURES as its numbers change (worked
+## out twice a second), the AI STORY as lines come in or it is scrolled.
+func sig(p: String, m: Vector2) -> Array:
+	var q: Dictionary = parts()[p]
+	var hv := -1
+	if m.x >= 0.0:
+		for k in ["title", "speaker", "drop"]:
+			if (q[k] as Rect2).has_point(m):
+				hv = ["title", "speaker", "drop"].find(k)
+	var out: Array = [q["title"], q["body"], hv, open[p], team[p], drop == p, Settings.narrator if p == "story" else false]
+	if not open[p] or (q["body"] as Rect2).size.y <= 0.0:
+		return out
+	match p:
+		"prod":
+			out.append(hud._tick_n / 5)
+		"army":
+			for t in teams_of("army"):
+				out.append(army_info(t))
+		"story":
+			var st: AIStory = game.ai_story
+			out.append_array([st.version if st else 0, story_skip, Loc.lang, game.replay != null])
+	return out
+
+
+## One panel: its title row and, open, its body.
+func draw_one(p: String) -> void:
 	var ps := parts()
 	var hv: Vector2 = hud._mouse() if Settings.pc() else Vector2(-1, -1)
 	var font := UiStyle.bold_font()
-	for p in PANELS:
+	if true:
 		var q: Dictionary = ps[p]
 		var tr: Rect2 = q["title"]
 		UiStyle.draw_button(hud._ci, tr, tr.has_point(hv), open[p])
@@ -367,8 +406,6 @@ func draw() -> void:
 					_draw_army(br)
 				"story":
 					_draw_story(br)
-	if drop != "":
-		_draw_drop()
 
 
 func _draw_drop() -> void:
@@ -487,7 +524,7 @@ func army_info(t: int) -> Dictionary:
 		return out
 	var blist: Array = bld.values()
 	blist.sort_custom(func(a: Array, b: Array) -> bool: return int(a[1]) + int(a[2]) > int(b[1]) + int(b[2]) or (int(a[1]) + int(a[2]) == int(b[1]) + int(b[2]) and String(a[0]) < String(b[0])))
-	var info := {"value": game.army_value(t), "sup": game.supply_used(t), "cap": int(pl["cap"]), "res": res,
+	var info := {"value": game.army_value(t), "sup": hud.supply_of(t), "cap": int(pl["cap"]), "res": res,
 		"army": by_n.call(army), "workers": by_n.call(workers), "buildings": blist}
 	_army[t] = info
 	return info
