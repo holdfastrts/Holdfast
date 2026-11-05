@@ -146,7 +146,7 @@ static func capture(game: Game, cfg: Dictionary, replay := false) -> Dictionary:
 		if b.dead:
 			continue
 		d["buildings"].append({"k": b.kind, "t": b.team, "c": [b.cell.x, b.cell.y], "built": b.built,
-			"progress": b.progress, "hp": b.hp, "queue": b.queue, "kits": b.kits.map(func(kt): return _kit_save(kt)), "ar": b.auto_refit, "prod_t": b.prod_t,
+			"progress": b.progress, "hp": b.hp, "queue": b.queue, "kits": b.kits.map(func(kt): return _kit_save(kt)), "ar": b.auto_refit, "arm": b.arm_powder, "prod_t": b.prod_t,
 			"auto": b.auto_train, "bat": b.batteries, "v": b.vertical, "vl": b.dir_locked, "gl": b.locked,
 			"seeded": b.seeded, "ghost": b.ghost, "growth": b.growth, "gold_acc": b.gold_acc,
 			"stock": snappedf(b.stock, 0.1), "gb": b.gear_big, "soil": b.soil, "sw": b.soil_warned, "tsn": 1 if b.kind == "clocktower" and Defs.gear_mode else 0, "lode": snappedf(b.lode, 0.01), "lw": b.lode_warned,
@@ -454,6 +454,7 @@ static func restore(game: Game, d: Dictionary) -> void:
 			if Defs.RESEARCH.has(x.substr(1)) if x.begins_with("@") else Defs.UNITS.has(x):
 				b.add_entry(x, saved_kits[qi] if qi < saved_kits.size() and saved_kits[qi] is Dictionary else {})
 		b.auto_refit = bool(bd.get("ar", false))
+		b.arm_powder = bool(bd.get("arm", true))
 		b.prod_t = float(bd["prod_t"])
 		# (older saves: research ran beside the queue; it goes to the front now)
 		var old_rs := String(bd.get("research", ""))

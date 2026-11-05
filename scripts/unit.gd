@@ -359,6 +359,8 @@ var team_want := 0              # (a gun, wagon) horses it should draw: haulers 
 var pistol := false             # loaded (trained loaded; fired, it stays empty until he reloads on foot)
 var hold_fire := false          # HOLD FIRE: he never fires the pistol by himself
 var pistol_t := 0.0             # (an Officer) how far through reloading it, in seconds
+var dry_out := false            # crown-ammo: came out of the Barracks with no shots (no "out of powder" call for him till he has some)
+var _refill_at := -100.0        # crown-ammo: the clock a refill last added to his shots (the card's RELOADING bar while it fills)
 # Horses (Defs.HORSES)
 var led: Array = []              # (a man) the horses he leads by the reins, in their string
 var leader: Unit = null          # (a horse) who leads it
@@ -904,6 +906,51 @@ func has_pistol() -> bool:
 	return (Defs.PISTOL["kinds"] as Array).has(kind)
 
 
+## AMMUNITION (crown-ammo, Defs.AMMO): a Barracks recruit's shots, as the bank paid for them (Game.arm_recruit): the pistol's
+## loaded shot first, then its charges; a musket's shots.
+func set_ammo(n: int) -> void:
+	if String(Defs.AMMO.get(kind, "")) == "pistol":
+		pistol = n >= 1
+		powder = clampf(float(n - 1), 0.0, _pmax)
+	else:
+		powder = clampf(float(n), 0.0, _pmax)
+	dry_out = n <= 0
+	_draw_key = Vector4i(-1, -1, -1, -1)
+
+
+## The weapon its ammunition is for (the card's picture): "musket", "pistol", "cannon" (a Field Cannon's round shot and
+## canister), "mortar" (shells), "" for none.
+func ammo_weapon() -> String:
+	if Defs.AMMO.has(kind):
+		return String(Defs.AMMO[kind])
+	if kind == "cannon" or kind == "mortar":
+		return kind
+	return ""
+
+
+## The shots it has now (a pistol: the loaded one and its charges) and a full load.
+func ammo_shots() -> int:
+	if has_pistol():
+		return (1 if pistol else 0) + int(powder + 0.001)
+	return int(powder + 0.001)
+
+
+func ammo_max() -> int:
+	if has_pistol():
+		return 1 + int(_pmax)
+	return int(_pmax)
+
+
+## No shot to fire (a firearm unit with ammunition: Defs.AMMO, the guns).
+func ammo_dry() -> bool:
+	return ammo_weapon() != "" and ammo_shots() <= 0
+
+
+## Refilling at a reloading point (or a wagon) right now: shots came in within the last 0.8 s.
+func refilling() -> bool:
+	return game != null and game.clock - _refill_at < 0.8 and ammo_shots() < ammo_max()
+
+
 ## His blade's mode: the Officer's sabre is his "bayonet" (d.sabre), the rider's his plain blow.
 func _sabre_mode() -> String:
 	return "bayonet" if kind == "dismounted" else ""
@@ -1093,6 +1140,7 @@ var _k_deploys := false
 var _k_cw := false               # CwUnits.hooked(kind)
 var _k_musket := false           # foot_musket()
 var _k_pistol := false           # has_pistol()
+var _k_ammo := false             # crown-ammo: Defs.AMMO has its kind
 var _k_ride := false             # one of the kinds that ride by (Defs.RIDE_BY "kinds")
 var _k_fac := ""                 # (d["faction"]: the kind's faction)
 var _k_nb := false               # one of the Brood's own kinds (BroodNew.KINDS: the Mother, the rooters, eggs, food piles)
@@ -1156,6 +1204,7 @@ func _kind_flags() -> void:
 	_k_cw = CwUnits.hooked(kind)
 	_k_musket = kind == "musketeer"
 	_k_pistol = (Defs.PISTOL["kinds"] as Array).has(kind)
+	_k_ammo = Defs.AMMO.has(kind)
 	_k_ride = (Defs.RIDE_BY["kinds"] as Array).has(kind)
 
 
@@ -1218,9 +1267,12 @@ func _pick_weapon(delta: float) -> void:
 	_melee_t = 0.2
 	if powder < 1.0 and not _auto_bayonet:
 		_auto_bayonet = true
-		game.out_of_powder(self)       # (it fixes bayonets meanwhile)
+		if not dry_out:
+			game.out_of_powder(self)       # (it fixes bayonets meanwhile; a recruit trained with none knows it already)
 	elif _auto_bayonet and powder >= float(Defs.POWDER["rearm"]):
 		_auto_bayonet = false
+	if dry_out and powder >= 1.0:
+		dry_out = false
 	# an enemy on top of us (an ordered target first, then whoever is closest)
 	var close: Unit = null
 	var reach := float(Defs.BAYONET["close"])
@@ -1278,11 +1330,13 @@ func max_powder() -> float:
 	return float(Defs.POWDER.get(kind, 0))
 
 
-## A finished Powder Mill, Barracks or Town Hall of ours within reach (refills for free).
+## A finished Powder Mill, Barracks or Town Hall of ours within reach (refills from the bank; a Barracks with ARM WITH
+## POWDER off is no reloading point: crown-ammo).
 func _powder_building() -> Building:
 	var reach := float(Defs.POWDER["range"]) * Defs.TILE
 	for b in game.buildings:
-		if b.team == team and b.built and not b.dead and (Defs.POWDER["from"] as Array).has(b.kind) and b.edge_distance(position) < reach:
+		if b.team == team and b.built and not b.dead and (Defs.POWDER["from"] as Array).has(b.kind) and b.edge_distance(position) < reach \
+				and (b.arm_powder or b.kind != "barracks"):
 			return b
 	return null
 
@@ -1299,7 +1353,7 @@ func _powder_tick(delta: float) -> void:
 		return
 	_powder_t = 0.5
 	var step := 0.5
-	if powder >= _pmax:
+	if powder >= _pmax and not (_k_pistol and not pistol):
 		return
 	if kind == "powder_wagon":
 		if _powder_building() == null:
@@ -1314,8 +1368,27 @@ func _powder_tick(delta: float) -> void:
 		game.players[team]["res2"] = bank - room / float(Defs.WAGON["per_powder"])
 		powder += room
 		return
+	var cost := float(Defs.POWDER["cost"].get(kind, 1.0))      # powder a shot
+	if has_pistol() and not pistol:
+		# (crown-ammo: an empty pistol is loaded at a reloading point first, mounted or not: a charge's powder)
+		if _take_shots(1.0, cost) >= 1.0:
+			pistol = true
+			pistol_t = 0.0
+			_refill_at = game.clock
+			_draw_key = Vector4i(-1, -1, -1, -1)
+			return
+	if powder >= _pmax:
+		return
 	var amount := minf(float(Defs.POWDER["refill"]) * step, _pmax - powder)
-	var cost := float(Defs.POWDER["cost"].get(kind, 0.5))      # powder a shot
+	var got := _take_shots(amount, cost)
+	if got > 0.0:
+		powder += got
+		_refill_at = game.clock
+
+
+## Up to `amount` shots at `cost` powder a shot from the nearest source: a reloading point (the bank pays; with the bank
+## empty the refill waits), a Powder Wagon's store, a dropped keg. The shots taken.
+func _take_shots(amount: float, cost: float) -> float:
 	if _powder_building() != null:
 		# from the stores: the bank pays; with the bank empty the refill waits
 		var bank := float(game.players[team]["res2"])
@@ -1323,11 +1396,11 @@ func _powder_tick(delta: float) -> void:
 		if amount <= 0.0:
 			if team == game.human:
 				game.powder_short()
-			return
+			return 0.0
 		game.players[team]["res2"] = bank - amount * cost
-		powder += amount
-		return
-	# from a wagon's store (counted in musket shots: a cannon shot takes 3)
+		game.stat_add(team, "refill_powder", amount * cost)
+		return amount
+	# from a wagon's store (counted in musket shots: a cannon shot takes 1.5)
 	var per := cost / float(Defs.POWDER["cost"]["musketeer"])
 	for o in game.units_near(position, float(Defs.POWDER["range"]) * Defs.TILE + 16.0):
 		if o.kind == "powder_wagon" and o.team == team and not o.dead and not o.off_field and o.powder > 0.0:
@@ -1335,8 +1408,7 @@ func _powder_tick(delta: float) -> void:
 			o.powder -= take * per
 			o.powder_out += take * per
 			o._dispense_t = 0.8
-			powder += take
-			return
+			return take
 	# from a powder keg dropped on the ground (PowderKeg), the same way, until it is empty
 	if not game.kegs.is_empty():
 		var reach := float(Defs.POWDER["range"]) * Defs.TILE + 16.0
@@ -1344,8 +1416,8 @@ func _powder_tick(delta: float) -> void:
 			if k.team == team and not k.dead and k.powder > 0.0 and k.position.distance_to(position) < reach:
 				var take2 := minf(amount, k.powder / per)
 				k.powder -= take2 * per
-				powder += take2
-				return
+				return take2
+	return 0.0
 
 
 ## Powder Wagon: SUPPLY on: up to two labourers bring it kegs from the Powder Mill while it
@@ -4017,6 +4089,8 @@ func _tick_unit(delta: float) -> void:
 			extra += BroodNew.draw_key(self) * 1000
 		if kind == "mist_toad":
 			extra += ToadHop.draw_key(self) * 1000000     # (its shadow goes with the hopping body)
+		if _k_ammo and ammo_shots() <= 0:
+			extra += 3000             # (crown-ammo: the NO AMMO mark over him)
 		var key := Vector4i(Settings.health_bars * 536870912 + int(selected) + (2 if carrying > 0 else 0) + (4 if cross_t > 0.0 else 0) + (8 if work == "feeding" else 0) + (16 if carry_empty else 0) + (32 if cocoon > 0 else 0) + kills * 64,
 			int(hp), int(wind * 40.0) + (int(carry_t * 4.0) * 100 if carrying > 0 else 0) + (5000 if charge_winding() else 0) + (10000 if Settings.charge_bars else 0) if _k_fac == "clockwork" else int(powder * 2.0) + (1000 if supplying else 0),
 			int(max_hp) + extra + (int((1.0 if phase == "" and cooldown <= 0.0 else reload_frac()) * 16.0) + 17 * int(tesla_t * 4.0) + 850 * TESLA_MODES.find(tesla_mode)) * 10000 if has_attack() else int(max_hp) + extra)
@@ -4973,6 +5047,8 @@ func _attack_cycle(e: Entity, delta: float) -> void:
 func _strike(e: Entity) -> void:
 	if not _valid_target(e):
 		return
+	if mode != "pistol" and _k_ammo and ammo_shots() <= 0:
+		game.stat_add(team, "empty_blows", 1)      # (crown-ammo's count: a firearm man fighting with no shot)
 	var dmg := float(d["damage"]) * (1.0 + minf(kills * float(Defs.VET["per_kill"]), float(Defs.VET["max"])))
 	if d["faction"] == "clockwork":
 		dmg *= lerpf(0.7, 1.0, wind)
@@ -7908,6 +7984,14 @@ func _draw() -> void:
 	Prof.add("unit draw", _p0)
 
 
+## crown-ammo: the small NO AMMO mark beside a firearm unit's health bar (a red "no" sign: a ring with a slash), drawn in
+## code (docs/art_style_inconsistency.md).
+func _draw_no_ammo(c: Vector2) -> void:
+	draw_circle(c, 4.6, Color(0, 0, 0, 0.55))
+	draw_arc(c, 3.6, 0, TAU, 14, Color(0.95, 0.2, 0.15), 1.6)
+	draw_line(c + Vector2(-2.5, -2.5), c + Vector2(2.5, 2.5), Color(0.95, 0.2, 0.15), 1.6)
+
+
 ## A campaign mission's marks (scripts/campaign/rebels.gd): a named man's name over his bar, a torch-bearer's flame.
 func _draw_mission_marks(top: float) -> void:
 	if has_meta("mission_name"):
@@ -7992,6 +8076,8 @@ func _draw_unit() -> void:
 		sy = _draw_charge_bar(sy, bw)
 	if work == "feeding":
 		return
+	if (_k_ammo or kind == "cannon" or kind == "mortar") and ammo_shots() <= 0 and team >= 0 and (team == game.human or game.demo or game.allied(team, game.human)):
+		_draw_no_ammo(Vector2(bw * 0.5 + 6.0, top + 1.0))
 	if topter_bat != "":
 		# the battery it carries, hanging under it
 		var tb: Texture2D = Game.tex("res://assets/effects/battery_%s.png" % topter_bat)

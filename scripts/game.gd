@@ -4451,6 +4451,55 @@ func cancel_train_at(b: Building, i: int) -> void:
 		_drop_dependent_research(b.team, k.substr(1))
 
 
+## AMMUNITION (crown-ammo, the owner 2026-11-05; Defs.AMMO): a Barracks soldier with a firearm comes out with the shots the
+## bank pays for now, at Defs.ammo_price a shot, up to a full load (Defs.ammo_full); fewer with less powder; none when the
+## Barracks has ARM WITH POWDER off (`b.arm_powder`) or the bank is empty: then he fights with bayonet or sabre until he
+## refills. Returns the shots he got.
+func arm_recruit(u: Unit, b: Building) -> int:
+	var full := Defs.ammo_full(u.kind)
+	if full <= 0:
+		return 0
+	var n := 0
+	if b == null or b.arm_powder:
+		var per := Defs.ammo_price(u.kind)
+		var bank := float(players[u.team]["res2"])
+		n = mini(full, int(floor(bank / per + 0.0001)))
+		if n > 0:
+			players[u.team]["res2"] = bank - n * per
+			stat_add(u.team, "ammo_powder", n * per)
+	if n == 0:
+		stat_add(u.team, "dry_out", 1)
+	elif n < full:
+		stat_add(u.team, "partial_out", 1)
+	u.set_ammo(n)
+	return n
+
+
+## A match statistic that older saves may not have yet (crown-ammo's counters).
+func stat_add(t: int, key: String, v: float) -> void:
+	if t >= 0 and t < stats.size():
+		stats[t][key] = float(stats[t].get(key, 0.0)) + v
+
+
+## What the train button's cost line says about the ammunition (crown-ammo): "+10 powder (shots)" with the bank able
+## to pay a full load, "+6 of 10 shots" with less, "no ammunition" with none or ARM WITH POWDER off; "" for others.
+func ammo_line(t: int, key: String, b: Building = null) -> String:
+	var k := Defs.train_kind(key)
+	if Defs.RIDERS.has(k):
+		k = String(Defs.RIDERS[k])          # (a rider's load is the man's on foot: the same)
+	var full := Defs.ammo_full(k)
+	if full <= 0 or t < 0 or t >= players.size():
+		return ""
+	if b != null and not b.arm_powder:
+		return "no ammunition (ARM WITH POWDER off)"
+	var n := mini(full, int(floor(float(players[t]["res2"]) / Defs.ammo_price(k) + 0.0001)))
+	if n <= 0:
+		return "no ammunition (no powder)"
+	if n < full:
+		return "%d of %d shots (%d powder)" % [n, full, int(ceil(n * Defs.ammo_price(k) - 0.001))]
+	return "%d powder for %d shots" % [Defs.ammo_load(k), full]
+
+
 func spawn_trained(b: Building, k: String, kit: Dictionary = {}) -> void:
 	var r := b.rect()
 	var toward := b.rally if b.rally != Vector2.INF else r.get_center() + Vector2(0, r.size.y)
@@ -4495,6 +4544,8 @@ func spawn_trained(b: Building, k: String, kit: Dictionary = {}) -> void:
 		sk = String(Defs.RIDERS[k])    # trained on foot: he goes and gets on the horse kept for him
 	for n in int(Defs.UNITS[k].get("spawn", 1)):
 		var u := _add_unit(sk, b.team, spawn_at + Vector2(randf_range(-6, 6), randf_range(-6, 6)))
+		if Defs.AMMO.has(sk):
+			arm_recruit(u, b)        # (crown-ammo: the powder in the bank buys his shots as he comes out)
 		if sk != k:
 			u.set_kit(kit)
 			u.horse_rid = rid

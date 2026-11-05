@@ -11,6 +11,8 @@ var progress := 0.0              # 0..1 while under construction
 var queue: Array = []            # unit kinds, and research as "@key" (Defs.RESEARCH)
 var kits: Array = []             # beside `queue`: what a queued Musketeer was paid to come out with ({} for the rest)
 var auto_refit := false          # Barracks: AUTO REFIT (idle Musketeers nearby get the upgrades researched)
+var arm_powder := true           # Barracks: ARM WITH POWDER (crown-ammo: recruits come out with the shots the bank pays for;
+                                 # off: with none, the powder kept for the guns, and this Barracks refills nobody)
 var prod_t := 0.0
 var stock := 0.0                # Ore Drill: ore dug and waiting for a train
 var drill_on := false           # Ore Drill: digging this moment
