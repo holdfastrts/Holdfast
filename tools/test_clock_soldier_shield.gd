@@ -59,6 +59,9 @@ func _run() -> void:
 			and is_equal_approx(g.tension(0), ten0 - float(Defs.tension_cost(info))), why)
 	U.step(g, float(info["time"]) + 1.0)
 	check("after its time SHIELD WALL is researched", g.has_tech(0, ShieldWall.TECH))
+	check("SHIELD WALL: a Clock Soldier already in the field gets +10 health (85)", is_equal_approx(cs.max_hp, 85.0), "%.0f" % cs.max_hp)
+	var fresh: Unit = g._add_unit(K, 0, _open(g, at + Vector2(0, 120)))
+	check("SHIELD WALL: a new Clock Soldier comes out with 85 health", is_equal_approx(fresh.max_hp, 85.0) and is_equal_approx(fresh.hp, 85.0), "%.0f" % fresh.max_hp)
 	check("the research has its icon name (assets/icons/clockwork/research_shield.png drops in)", String(info["icon"]) == "research_shield")
 	_clear(g, g.units.filter(func(u: Unit) -> bool: return u.team == 0 and not u.is_worker()))
 	# ---- the switch takes its moment, standing still

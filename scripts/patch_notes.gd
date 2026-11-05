@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.31.1", "items": [
+		"SHIELD WALL makes the Clock Soldier tougher: +10 health (75 -> 85) for every Clock Soldier, the ones already in the field too (the owner: Clock Soldiers are not that tough).",
+	]},
 	{"v": "0.31.0", "items": [
 		"THE CAMPAIGN'S FIRST MISSION, \"THE LEAF AND THE FIRE\" (Virginia, 2767), as the owner's approved script: it is the Prologue now (the old test mission is gone from the campaign). The King, an old man in Rome, lights his pipe and tells it: five oil-painting stills open it, each with its lines and the speaker's name (THE KING, TOMASZ, LORD FAIRLEIGH); a tap or NEXT moves on, SKIP ends it. The ending plays over the canister still. Every line has a slot for a recorded voice (campaign/voice/p01/<line>.ogg): it plays when the file is there.",
 		"PART 1, NIGHT: hold the plantation (the manor, the chapel, five drying barns) until dawn, about 8 minutes, against waves of the Free Assembly out of the tobacco fields. Torch-bearers set barns alight: kill them first. Varenne shouts his slogans, Captain Ruggieri answers with the guns, Tomasz sees the dead. The scene is tinted dark blue by night and warm at dawn. Lost if the manor falls, if every barn burns, or with fewer than three barns at dawn.",

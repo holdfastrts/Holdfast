@@ -18,9 +18,9 @@ es Muro de Escudos
 pt MURALHA DE ESCUDOS
 es MURO DE ESCUDOS
 
-> Drilled to hold the shield in front: every Clock Soldier gets SHIELD FORWARD. Raised, it walks 40% slower and swings a little slower, but has 1 more armour and takes half the damage from shots coming from the front (a fifth less from blows from the front).
-pt Treinados a segurar o escudo à frente: todo Soldado-Relógio ganha ESCUDO À FRENTE. Erguido, anda 40% mais devagar e golpeia um pouco mais devagar, mas tem 1 de armadura a mais e sofre metade do dano dos tiros vindos da frente (um quinto a menos dos golpes de frente).
-es Entrenados para llevar el escudo delante: cada Soldado Reloj obtiene ESCUDO AL FRENTE. Alzado, camina un 40% más despacio y golpea algo más despacio, pero tiene 1 de armadura más y recibe la mitad del daño de los disparos de frente (una quinta parte menos de los golpes de frente).
+> Drilled to hold the shield in front: every Clock Soldier gets 10 more health and SHIELD FORWARD. Raised, it walks 40% slower and swings a little slower, but has 1 more armour and takes half the damage from shots coming from the front (a fifth less from blows from the front).
+pt Treinados a segurar o escudo à frente: todo Soldado-Relógio ganha 10 de vida a mais e ESCUDO À FRENTE. Erguido, anda 40% mais devagar e golpeia um pouco mais devagar, mas tem 1 de armadura a mais e sofre metade do dano dos tiros vindos da frente (um quinto a menos dos golpes de frente).
+es Entrenados para llevar el escudo delante: cada Soldado Reloj obtiene 10 de vida más y ESCUDO AL FRENTE. Alzado, camina un 40% más despacio y golpea algo más despacio, pero tiene 1 de armadura más y recibe la mitad del daño de los disparos de frente (una quinta parte menos de los golpes de frente).
 
 > SHIELD FORWARD
 pt ESCUDO À FRENTE

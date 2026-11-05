@@ -1592,8 +1592,8 @@ const RESEARCH := {
 	# the Light Works' research (gear mode): SHIELD FORWARD for every Clock Soldier (Defs.SHIELD_WALL). It costs
 	# Tension, so it is made only at a Works whose ring meshes with a Mainspring's (THE TENSION RULE). Guesses.
 	"shield_wall": {"name": "Shield Wall", "label": "SHIELD WALL", "at": "movement_works", "faction": "clockwork", "cost": 100, "cost2": 0,
-		"tension": 50, "time": 45.0, "icon": "research_shield",
-		"about": "Drilled to hold the shield in front: every Clock Soldier gets SHIELD FORWARD. Raised, it walks 40% slower and swings a little slower, but has 1 more armour and takes half the damage from shots coming from the front (a fifth less from blows from the front)."},
+		"tension": 50, "time": 45.0, "icon": "research_shield", "drill": true, "hp": 10.0,
+		"about": "Drilled to hold the shield in front: every Clock Soldier gets 10 more health and SHIELD FORWARD. Raised, it walks 40% slower and swings a little slower, but has 1 more armour and takes half the damage from shots coming from the front (a fifth less from blows from the front)."},
 	# the Clock Aviary's research (gear mode): then each Swift can be morphed into a Ticking Owl (Defs.OWL_MORPH)
 	# (id owl_morph: the unit is ticking_owl)
 	"owl_morph": {"name": "Ticking Owl", "label": "TICKING OWL", "at": "cuckoo_house", "faction": "clockwork", "cost": 150, "cost2": 0, "tension": 150,

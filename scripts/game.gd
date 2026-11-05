@@ -4157,6 +4157,13 @@ func apply_drills(u: Unit) -> void:
 	if u._k_fac == "brood":
 		BroodResearch.apply(self, u)       # (the Brood's LONG SPIT and BATTERING HORNS, scripts/brood_research.gd)
 		return
+	if u.kind == "clock_soldier" and u.team >= 0 and u.team < players.size():
+		# SHIELD WALL also makes him tougher: +10 health (the owner, 2026-11-05: "clock soldiers are not that tough")
+		var want := float(Defs.UNITS["clock_soldier"]["hp"]) + (float(Defs.RESEARCH["shield_wall"]["hp"]) if has_tech(u.team, "shield_wall") else 0.0)
+		if u.max_hp < want:
+			u.hp += want - u.max_hp
+			u.max_hp = want
+		return
 	if not (u.kind in ["cannon", "mortar"]) or u.team < 0 or u.team >= players.size():
 		return
 	var base: Dictionary = Defs.UNITS[u.kind]
