@@ -337,7 +337,7 @@ static func ai_place(g: Game, t: int, u: Unit) -> void:
 		# far from the soldiers (just trained, or left behind): to the nearest of them
 		var best: Unit = null
 		var bd := INF
-		for o in g.army(t):
+		for o: Unit in g.army(t):
 			if covers(u, o):
 				var dd := o.position.distance_squared_to(u.position)
 				if dd < bd:
@@ -454,7 +454,7 @@ static func group_look(u: Unit) -> void:
 	if spr == null:
 		return
 	for ins in ["fife", "pipes"]:
-		var name := "band_" + ins
+		var name: String = "band_" + ins
 		var c: Sprite2D = spr.get_node_or_null(name)
 		if not has(u, ins):
 			if c:
@@ -468,9 +468,11 @@ static func group_look(u: Unit) -> void:
 			c.show_behind_parent = true
 			spr.add_child(c)
 		c.visible = true
-		var art := String(ART[ins])
+		var art: String = String(ART[ins])
 		var frames: Dictionary = ArtData.UNITS[art]["frames"]
-		var key := "%s_se" % u.anim
+		var key := "%s_%s" % [u.anim, u.anim_dir]       # (the Drummer's pose and view: only SE is drawn so far)
+		if not frames.has(key):
+			key = "%s_se" % u.anim
 		if not frames.has(key):
 			key = "idle_se"
 		var ck := art + "/" + key

@@ -173,19 +173,26 @@ func _run() -> void:
 	off.pistol = false
 	off.powder = 10.0
 	off.pistol_t = 0.0
+	t0 = g.clock
 	await step(g, 1.0)
-	var pr := off.pistol_t / 1.0
+	var pr := off.pistol_t / (g.clock - t0)
 	check("FIFE SOLO: the Officer's pistol reloads 30% faster", absf(pr - 1.30) < 0.06, "%.2f s a second" % pr)
 	# a man with no shots: the fife does nothing for him
 	if near._k_ammo:
+		# (a dry man's cooldown runs as it would with no band: compared with one outside the ring, also dry)
 		var keep_p := near.powder
+		var keep_f := far.powder
 		near.powder = 0.0
+		far.powder = 0.0
 		near.cooldown = 3.0
+		far.cooldown = 3.0
 		t0 = g.clock
-		await step(g, 1.0)
+		await step(g, 0.5)
 		var r0 := (3.0 - near.cooldown) / (g.clock - t0)
-		check("a musketeer with no shots isn't sped by the fife (crown-ammo)", absf(r0 - 1.0) < 0.03, "%.2f" % r0)
+		var r1 := (3.0 - far.cooldown) / (g.clock - t0)
+		check("a musketeer with no shots isn't sped by the fife (crown-ammo)", absf(r0 - r1) < 0.03, "%.2f in the ring, %.2f outside" % [r0, r1])
 		near.powder = keep_p
+		far.powder = keep_f
 	# two bands soloing at once; the rings don't stack
 	b2.position = at + Vector2(30, 0)
 	b2.band_solo("drums")

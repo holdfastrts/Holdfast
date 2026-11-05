@@ -36,9 +36,13 @@ es GAITERO
 pt Banco de Neblina
 es Banco de Niebla
 
-> Miasma
-pt Miasma
-es Miasma
+> Miasma Cloud
+pt Nuvem de Miasma
+es Nube de Miasma
+
+> MIASMA CLOUD
+pt NUVEM DE MIASMA
+es NUBE DE MIASMA
 
 > Every Mist Toad can lay FOG: a swamp fog bank where shots fired from or into it miss half the time and units inside see only 2 tiles.
 pt Todo Sapo da Névoa pode lançar NEBLINA: um banco de neblina do pântano onde os tiros disparados de dentro ou para dentro dele erram metade das vezes, e as unidades dentro veem só 2 casas.

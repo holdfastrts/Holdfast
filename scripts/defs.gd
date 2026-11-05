@@ -1671,7 +1671,7 @@ const RESEARCH := {
 	"nb_fog": {"name": "Fog Bank", "label": "FOG", "at": "dilophosaurus", "faction": "brood", "cost": 50, "cost2": 10,
 		"time": 20.0, "stage": 2, "icon": "ab_fog", "spell": "fog",
 		"about": "Every Mist Toad can lay FOG: a swamp fog bank where shots fired from or into it miss half the time and units inside see only 2 tiles."},
-	"nb_miasma": {"name": "Miasma", "label": "MIASMA", "at": "dilophosaurus", "faction": "brood", "cost": 60, "cost2": 15,
+	"nb_miasma": {"name": "Miasma Cloud", "label": "MIASMA CLOUD", "at": "dilophosaurus", "faction": "brood", "cost": 60, "cost2": 15,
 		"time": 25.0, "stage": 2, "icon": "ab_miasma", "spell": "miasma",
 		"about": "Every Mist Toad can lay MIASMA: a green cloud for 8 s in which the Brood heal up to 30% of their health."},
 	"nb_clutch_hatchlings": {"name": "Bigger Clutch", "label": "BIGGER CLUTCH", "at": "pterodactyl", "faction": "brood", "cost": 100, "cost2": 15,
