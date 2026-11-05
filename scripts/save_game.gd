@@ -141,7 +141,8 @@ static func capture(game: Game, cfg: Dictionary, replay := false) -> Dictionary:
 		d["nb"] = BroodNew.save(game)              # (the Brood: the Rootmaws' ground)
 	for ai in game.ais:
 		d["ai"].append({"team": ai.team, "walled": ai._walled, "attack_at": ai._attack_at, "strategy": ai.strategy,
-			"failed": ai._failed, "regroup": ai._regroup_until, "opening": ai.opening})
+			"failed": ai._failed, "regroup": ai._regroup_until, "opening": ai.opening,
+			"opt": {"picks": ai.opt.picks, "switched": ai.opt.switched.keys()} if ai.opt != null else {}})
 	for b in game.buildings:
 		if b.dead:
 			continue
@@ -720,6 +721,13 @@ static func restore(game: Game, d: Dictionary) -> void:
 				ai._failed = int(a.get("failed", 0))
 				ai._regroup_until = float(a.get("regroup", 0.0))
 				ai.opening = String(a.get("opening", ai.opening))
+				var od: Dictionary = a.get("opt", {}) if a.get("opt") is Dictionary else {}
+				if ai.opt != null and not od.is_empty():
+					# (OPTIMAL: the build it plays and the stages it switched in, so a loaded game does not pick again)
+					ai.opt.current = ai.strategy
+					ai.opt.picks = (od.get("picks", []) as Array).duplicate(true)
+					for st in od.get("switched", []):
+						ai.opt.switched[String(st)] = true
 	# (saves from before the windmill stood in the middle of its Farm (v0.7.89): a farm hand
 	# left on an old crop row inside its block steps out onto the fields)
 	for b in game.buildings:

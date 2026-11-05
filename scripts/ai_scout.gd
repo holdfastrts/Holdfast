@@ -426,7 +426,7 @@ func _finish(how: String) -> void:
 	if how in ["killed", "blocked", "timeout", "driven off"] and r["verdict"] == "uncertain":
 		r["saw"] = "the scout was %s" % _how_short(how)
 	if how in ["killed", "blocked", "timeout", "pulled away", "driven off"] and r["verdict"] == "balanced" and (not _hall_seen or _coverage() < 0.3):
-		if how == "blocked" and int(r["walls"]) >= (DEF_WALLS if _foe_faction() == "crown" else 2):
+		if how == "blocked" and int(r["walls"]) >= (DEF_WALLS_CROWN if _foe_faction() == "crown" else 2):
 			# (every Crown walls its ramp in its first minute: only a wall all round says DEFENSIVE there)
 			# (a wall that keeps the scout out is a read too: DEFENSIVE, ai-optimal)
 			r = {"verdict": "defensive", "reason": "a wall shut the scout out (%d wall pieces seen)" % int(r["walls"]), "saw": "a walled ramp that kept the scout out"}

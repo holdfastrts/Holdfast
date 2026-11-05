@@ -20,11 +20,11 @@ const RULES := [
 	# -> what it makes of it -> what it does. The saw phrases and the why phrases are fixed (AIRead.SAW, AIOptimal) and are
 	# translated as words of their own (tools/i18n/55_ai_optimal.txt).
 	["^(?:'s (?:plan|Clockwork|Brood): )?OPTIMAL: the common opening", "", 1, "plan"],
-	["^'s (?:plan|Clockwork|Brood): optimal: leans to (.+?) before it scouts \\((.+)\\)$", "%s leans to %s before it scouts: %s.", 3, "plan"],
-	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: picks (.+?) \\((.+)\\)$", "%s reads the enemy as %s (%s) and picks %s: %s.", 3, "plan"],
-	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\(it switched once this stage already; (.+) waits\\)$", "%s reads the enemy as %s (%s) but keeps %s: it has switched once this stage already, %s waits.", 2, "plan"],
-	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\((.+?) cannot be played from here\\)$", "%s reads the enemy as %s (%s) and keeps %s: %s cannot be played from here.", 2, "plan"],
-	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\((.+)\\)$", "%s reads the enemy as %s (%s) and keeps %s: %s.", 2, "plan"],
+	["^'s (?:plan|Clockwork|Brood): optimal: leans to (.+?) before it scouts \\((.+)\\)$", "%s leans to %s before it scouts: %s.", 3, "pick"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: picks (.+?) \\((.+)\\)$", "%s reads the enemy as %s (%s) and picks %s: %s.", 3, "pick"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\(it switched once this stage already; (.+) waits\\)$", "%s reads the enemy as %s (%s) but keeps %s: it has switched once this stage already, %s waits.", 2, "pick"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\((.+?) cannot be played from here\\)$", "%s reads the enemy as %s (%s) and keeps %s: %s cannot be played from here.", 2, "pick"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\((.+)\\)$", "%s reads the enemy as %s (%s) and keeps %s: %s.", 2, "pick"],
 	["^'s Clockwork: plays the (.+?) from here", "%s now plays the %s from where it stands.", 2, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): OPTIMAL picks its build from this", "%s reads the enemy as %s (%s).", 2, "scout"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; switches to a timing attack at (\\d+:\\d+) \\((\\d+) supply\\)", "%s reads the enemy as %s (%s): it is all economy, so it switches to a timing attack at %s with %s supply.", 3, "plan"],

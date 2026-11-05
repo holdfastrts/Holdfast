@@ -22,6 +22,7 @@ extends RefCounted
 const MIDDLE := 270.0            # (game seconds) the opening stage ends, the middle begins
 const LATE := 600.0
 const DECIDE_BY := 180.0         # no read by then: a normal game for the matchup
+const UNKNOWN_WAIT := 45.0       # ... or this long after a first UNKNOWN with no read since
 const PUNISH_BY := {"crown": 150.0, "clockwork": 150.0, "brood": 150.0}    # a rush to punish greed only before this
 const TOO_LATE := 330.0          # a timing attack to punish greed only before this; later, out-expand it
 
@@ -34,6 +35,7 @@ var opening_plan := ""           # the common opening's
 var picks: Array = []            # [clock, stage, read, plan, why] of every pick
 var switched := {}               # stage -> true once it switched in that stage
 var survival_used := false
+var unknown_t := -1.0            # when the first UNKNOWN came
 var lean := ""                   # the build it leaned to before the scout (the matchup or the map)
 var log: Array = []              # [clock, text]
 var _rng := RandomNumberGenerator.new()
@@ -185,6 +187,8 @@ func _punish(f: String, t: float) -> Array:
 func on_read(verdict: String, saw: String) -> void:
 	var read := AIRead.word(verdict)
 	if read == "UNKNOWN":
+		if unknown_t < 0.0:
+			unknown_t = game.clock
 		return                  # (the scout looks again soon: AIScout.rescout_unknown)
 	var c := choose(read)
 	if c.is_empty():
@@ -195,7 +199,10 @@ func on_read(verdict: String, saw: String) -> void:
 
 ## No read by DECIDE_BY: a normal game for the matchup (once).
 func tick() -> void:
-	if picks.is_empty() and game.clock >= DECIDE_BY and current == opening_plan:
+	# (no read by DECIDE_BY, or an UNKNOWN that the next look did not settle within UNKNOWN_WAIT: the common opening's gold
+	# piled up while it waited, 308 gold at 1:55 against a walled Crown in the coached games)
+	var due := game.clock >= DECIDE_BY or (unknown_t >= 0.0 and game.clock >= unknown_t + UNKNOWN_WAIT)
+	if picks.is_empty() and due and current == opening_plan:
 		var c := choose("NORMAL") if stage_of(game.clock) == "opening" else []
 		if c.is_empty():
 			c = ["balanced", "a normal game"]
