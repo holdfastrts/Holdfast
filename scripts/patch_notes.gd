@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.31.2", "items": [
+		"THE CROWN COMPUTER NO LONGER STALLS ITS BUILD ORDER (the owner's Red Coast game: it opened well, then laid its Foundry at 4:13, the Foundry's labourer was sent at a Brood grub a second later and the site was dropped; the Horse Breeder step behind it waited for that Foundry for ever, so it built nothing but Cottages and labourers: 7 Musketeers, 68 labourers, 3,400 gold in the bank, and it lost). Now a site whose builder is pulled away gets another labourer, a half-built building nobody works on is finished, a dropped site's step comes back, and a step that waits 45 seconds with its gold in the bank goes to the back of the plan (then is dropped): the plan always goes on.",
+		"LABOURERS STOP AT SATURATION (the owner: \"2 bases saturated and a few haulers, maybe 45 to 50 labourers\"): on the Economy and Balanced plans the Crown trains labourers up to the posts of its farms and Mills plus a few, never more than 48 on two halls; more only for a third hall.",
+		"A BIG BANK IS SPENT: with over 700 gold for 15 seconds the Crown adds production (a Barracks, a Foundry, then a Church) whatever its income reckoning says, and a milestone it cannot place no longer holds up the ones after it. On the same Red Coast game: the Foundry stands at 5:04, the opening is over at 5:05, at most 48-51 labourers, under 400 gold in the bank all game, and an army of 1,800 at 8:00 instead of 420.",
+	]},
 	{"v": "0.31.1", "items": [
 		"SHIELD WALL makes the Clock Soldier tougher: +10 health (75 -> 85) for every Clock Soldier, the ones already in the field too (the owner: Clock Soldiers are not that tough).",
 	]},

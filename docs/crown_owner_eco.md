@@ -325,3 +325,66 @@ Read:
   longer does up to 40 labourers (section 2.5). If the Clockwork's early pushes punish that in the owner's own games, a
   lighter hold (the Clock Soldiers seen at our wall, not the clock) is the place to look.
 
+
+
+## 10. The stalled build order (0.31.1)
+
+The owner's log `docs/playtests/2026-11-05/spectate_crown_econ_stalls_v_brood_econ_redcoast_0310.txt` (Red Coast, seed
+1347577666, P1 Hard Brood Economy v P2 Hard Crown Economy, 0.31.0) replays exactly headless
+(`tools/play_crown_owner_eco.gd -- coach:economy b:brood sb:economy map:red_coast seed:1347577666 cslot:1 noshots:1`).
+
+**The cause.** At 0:57 the Brood was seen, so `_cannon_check` put a second Foundry step before the Horse Breeder step
+(whose trigger became "has Foundry"); the plan already had one, hence "Foundry 1" logged twice at 4:13. The Foundry
+site was laid at 4:13; at 4:14 its labourer was picked by the worker defence (`AI._raid_workers`) to fight a Brood grub
+watching the ramp, and `Game.sweep_ghosts` dropped the site ("nobody was coming to start it", refunded). The step had
+already counted as done (the site counted), so the Breeder step behind it waited for a standing Foundry that no longer
+existed, for ever (a "has" trigger never sets gold aside and never times out; only `BO_LIMIT`, 10:00, ends the
+opening). With the opening never over: no milestones (no Foundry, no second Barracks, no Church), the soldiers capped at
+the opening's 6 supply (7 Musketeers), labourers from `_bo_labs` with no cap but the plan's 99 (68 of them, 23 idle at
+8:00), no bank spending (the shared `_build_up` never ran): 3,000-3,400 gold from 8:00.
+
+**The fix** (scripts/ai_crown.gd unless said):
+- `adopt_site`: a production or economy site (Barracks, Foundry, Breeder, Armoury, Church, Mill, Farm) whose builder
+  was pulled off gets the nearest free labourer (`SITE_ADOPT` 3 times), unless enemies stand there; `AI._raid_workers`
+  picks a labourer on his way to a site last (scripts/ai.gd).
+- `_finish_sites`: a begun building nobody has worked on for `FINISH_AFTER` 6 s gets a labourer (a half-built Foundry
+  held the milestones and `_scale_prod` back for good: they wait while one "is going up").
+- `_bo_replace_dropped`: a build step whose site was dropped before it began comes back at once (`BO_REPLACE` 3 a kind).
+- `_bo_stalled`: a step that could go (its trigger met, or one it can never meet: a "has" building with none and no
+  step to make it, more labourers than the cap) with its gold in the bank for `STEP_STALL` 45 s goes to the back of
+  the plan, then is dropped (the milestones see to it); logged once each ("step ... waited 45 s with the gold in the
+  bank"). The attack step keeps its own call-off. `_cannon_check` no longer adds a second Foundry step.
+- `_mid_tick`: a milestone that cannot be placed now no longer holds up the ones after it.
+- `owner_lab_cap` (the owner's plans): labourers up to the halls' posts + `OWNER_SPARE_LABS` 4 (+ `SAT_PRETRAIN` 6
+  while a hall is going up), never over `OWNER_LAB_MAX` 48 on two halls, + `OWNER_LAB_PER_HALL` 14 a hall after; in
+  the opening (`_bo_labs`) and after it (`AI._lab_want`, which on Hard replaces the shared 40). `-- labcap:off` to compare.
+- `_scale_prod`: over `OWNER_BANK_HIGH` 700 gold for 15 s it adds production whatever the income reckoning says (the
+  Church as the third sink once there are 3 Barracks), and it no longer waits for a Foundry to exist before adding one.
+
+**Before / after** (10-minute games, `noshots:1`; "before" is 0.31.0; the games are not fully deterministic, so the
+Clockwork game was run three times each way):
+
+| game | Foundry stands | opening over | labourers 6/8/10 (max) | bank 6/8/10 | army 6/8/10 |
+|---|---|---|---|---|---|
+| Red Coast v Brood Eco (the owner's), before | never | never | 33/53/0 (62) | 915/3135/3355 | 420/420/0 (all halls lost) |
+| ... after | 5:04 | 5:05 | 40/45/48 (51) | 70/384/96 | 220/1815/1200 |
+| ... after, again | 5:04 | 5:05 | 41/46/9 (47) | 80/278/334 | 240/1760/320 |
+| Greenhold 11 v Brood Eco, before | 5:10 | 5:18 | 40/40/40 | 10/25/66 | 360/1800/3440 |
+| ... after | 4:40 | 4:40 | 40/47/52 (3 halls) | 465/3/82 | 400/2075/2155 |
+| Frostfang 4242 v Brood Eco, before | 4:39 | 4:40 | 40/44/16 | 445/60/156 | 340/1930/565 |
+| ... after | 5:08 | 5:12 | 40/45/49 | 115/20/19 | 300/1825/2175 |
+| Highmoor 935948638 v Clockwork Eco, before | 6:04 | 5:14 | 31/40/22 | 3/23/83 | 40/1205/495 |
+| ... after | 5:58 | 5:08 | 32/47/34 | 23/12/87 | 60/1410/865 |
+| Red Coast v Clockwork Balanced, before (3 runs) | 5:48, 5:44, 6:03 | ~5:00 | max 40, 30, 37 | under 200 | 8:00: 1415, 415, 555 |
+| ... after (3 runs) | 5:48, 5:51, 6:04 | ~5:00 | max 38, 49, 32 | under 200 | 8:00: 355, 1245, 390 |
+
+No stall was logged in any after game; the bank never sat over 800 for a minute from 3:00. The Brood Economy still
+out-earns the Crown on Red Coast (its army 4,000+ at 8:00) and takes a hall around 9:00-10:00: that is the open
+FOOD_BONUS question, not this bug. Against the Clockwork Balanced on Red Coast both versions lose two games of three to
+its Springer/Ballista pushes from 6:00.
+
+**Tests:** `tools/test_crown_stall.gd` (the owner's game to 8:00: the Foundry stands by 5:30 (5:04), the opening is over
+by 6:30, at most 50 labourers on two halls (48), under 1,000 gold at 8:00 and 80% of the time from 5:00 (all of it),
+an army of 900+ at 8:00 (1,780); `drop:1` also drops the Foundry's site with nobody to adopt it: the step comes back
+and the Foundry stands at 5:22). test_crown_owner_eco's `[wall]` check (the natural's closed ring by 6:30 on Greenhold)
+fails on 0.31.0 too, before this change.

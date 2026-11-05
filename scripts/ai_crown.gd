@@ -409,6 +409,7 @@ func _plan_tech() -> bool:
 func _think_stage(i: int) -> void:
 	if i == 1:
 		_owner_tick()           # (crown-owner-eco: the layout, the new hall's Farm, the wagons)
+		_finish_sites()
 	if i == 1 and not cannon_first:
 		_cannon_check()         # (CANNONS AGAINST THE BROOD, below)
 	if not bo_owns():
@@ -484,8 +485,9 @@ func _bo_labs() -> void:
 	var free := _gold() - bo_reserve
 	if _soldiers_first():
 		return
+	var top := mini(bo_lab_cap, owner_lab_cap())      # (the owner's plans: never past the halls' saturation)
 	for h in _halls():
-		if not h.built or labs + queued >= bo_lab_cap or free < LAB_COST:
+		if not h.built or labs + queued >= top or free < LAB_COST:
 			continue
 		if h.queue.size() >= (2 if free >= 3 * LAB_COST else 1):
 			continue
@@ -529,11 +531,14 @@ func _bo_tick() -> void:
 				return
 		bo_reserve = c
 		return
+	_bo_replace_dropped()
 	while bo_i < _bo_plan.size():
 		var st: Dictionary = _bo_plan[bo_i]
 		if _st_done(st):
 			_bo_next(st)
 			continue
+		if _bo_stalled(st):
+			continue                # (moved to the back or dropped: the next step goes on)
 		if String(st["do"]) == "army":
 			bo_army = true
 			bo_army_cap = int(st.get("cap", 0))
@@ -562,6 +567,7 @@ func _bo_tick() -> void:
 		if r == "room" and game.clock - float(_waits.get(bo_i, game.clock)) > 60.0:
 			say("step %d (%s) skipped: no room" % [bo_i + 1, _st_text(st)])
 			bo_i += 1
+			_step_t = -1.0
 			continue
 		return
 	_bo_end("the build order is done")
@@ -588,6 +594,7 @@ func _bo_defence() -> void:
 		_bo_plan.insert(bo_i + k, ins[k])
 	bo_army = true
 	bo_army_cap = 0
+	_step_t = -1.0
 	say("a rush is scouted: the wall, the Barracks and the Mill first, soldiers before labourers, no new hall till it is held")
 
 
@@ -616,6 +623,7 @@ func _bo_safe() -> void:
 	for k in ins.size():
 		_bo_plan.insert(bo_i + k, ins[k])
 	bo_army = true
+	_step_t = -1.0
 	say("plays safe (%s): the Barracks and the Mill next, then Musketeers" % _safe_reason())
 
 
@@ -637,7 +645,91 @@ func _soldiers_first() -> bool:
 
 func _bo_next(st: Dictionary) -> void:
 	_bo_log(_st_text(st))
+	if String(st["do"]) == "build":
+		_bo_built.append(st)    # (watched: a site dropped before it began brings its step back, _bo_replace_dropped)
 	bo_i += 1
+	_step_t = -1.0
+
+
+## A STEP NEVER BLOCKS THE PLAN (owner's log 2026-11-05, Red Coast 0.31.0: the Foundry step was laid at 4:13, its builder
+## was pulled into a fight with a Brood grub a second later, the site was dropped "nobody was coming" and refunded; the
+## Horse Breeder step behind it waited for "has Foundry" for ever, so the opening never ended: no milestones, no more
+## Barracks, the army capped at 6 supply, labourers to 68 and 3,400 gold in the bank at 9:00). Now:
+##  - a build step whose site was dropped before it began comes back (BO_REPLACE times a kind at most);
+##  - a step that has waited STEP_STALL s with the gold for it in the bank (a trigger it cannot reach, a "has" building
+##    that is not there, no room, no builder) goes to the back of the plan once, then is dropped; it is logged once.
+const STEP_STALL := 45.0
+const BO_REPLACE := 3
+var _bo_built: Array = []        # build steps done (their site was laid): watched until their building began
+var _bo_replaced := {}           # kind -> times its step came back
+var _bo_moved := {}              # step (its text) -> true: it went to the back once already
+var _step_t := -1.0              # (clock) the current step could go from (-1: it cannot go now)
+var bo_stalls: Array = []        # [clock, step text, what happened] (tests, the coach)
+
+
+func _bo_replace_dropped() -> void:
+	for st in _bo_built.duplicate():
+		var k := String(st["k"])
+		if _st_done(st):
+			if _mine(k).all(func(b: Building) -> bool: return b.built or b.progress > 0.0 or not b.ghost):
+				_bo_built.erase(st)     # (begun: no longer at risk of being dropped)
+			continue
+		_bo_built.erase(st)
+		if int(_bo_replaced.get(k, 0)) >= BO_REPLACE:
+			continue
+		_bo_replaced[k] = int(_bo_replaced.get(k, 0)) + 1
+		var again: Dictionary = st.duplicate(true)
+		again.erase("at")           # (its trigger was met already: at once)
+		_bo_plan.insert(bo_i, again)
+		_step_t = -1.0
+		bo_stalls.append([game.clock, _st_text(st), "site dropped: again"])
+		say("the %s site was dropped before it began: step %d comes back" % [String(Defs.BUILDINGS[k]["name"]), bo_i + 1])
+
+
+## A trigger the step can never meet as things stand: a "has" building with none standing or going up and no step before
+## it to make one, or more labourers than the halls' saturation lets it train (owner_lab_cap).
+func _st_never(st: Dictionary) -> bool:
+	var at: Dictionary = st.get("at", {})
+	if at.has("has") and _mine(String(at["has"])).is_empty():
+		var made := false
+		for k in range(bo_i, _bo_plan.size()):
+			var o: Dictionary = _bo_plan[k]
+			if o == st:
+				break
+			if String(o["do"]) == "build" and String(o.get("k", "")) == String(at["has"]):
+				made = true
+		return not made
+	if at.has("labs") and int(at["labs"]) > owner_lab_cap():
+		return true
+	return false
+
+
+## (the stall clock runs only while the step could go: its trigger met, or a trigger it can never meet, and its gold in
+## the bank; a step waiting for its labourers or its gold is not stalled)
+func _bo_stalled(st: Dictionary) -> bool:
+	if String(st["do"]) in ["attack", "army", "labs"]:
+		return false            # (the attack has its own call-off, ATTACK_WAIT)
+	var could := _gold() >= _st_price(st) and (_st_ready(st) or _st_never(st))
+	if not could:
+		_step_t = -1.0
+		return false
+	if _step_t < 0.0:
+		_step_t = game.clock
+	if game.clock - _step_t < STEP_STALL:
+		return false
+	var txt := _st_text(st)
+	_step_t = -1.0
+	_bo_plan.remove_at(bo_i)
+	if _bo_moved.has(txt):
+		bo_stalls.append([game.clock, txt, "dropped"])
+		say("step %s dropped: it waited %d s with the gold in the bank (the milestones see to it)" % [txt, int(STEP_STALL)])
+		return true
+	_bo_moved[txt] = true
+	_bo_plan.append(st)
+	bo_stalls.append([game.clock, txt, "to the back"])
+	_step_t = -1.0
+	say("step %s waited %d s with the gold in the bank: the next steps first, it is tried again later" % [txt, int(STEP_STALL)])
+	return true
 
 
 func _bo_log(text: String) -> void:
@@ -1113,10 +1205,15 @@ func _cannon_check() -> void:
 	cannon_first = true
 	cannon_first_t = game.clock
 	# the opening: a Horse Breeder step still to come is preceded by the Foundry (at the Breeder's trigger)
+	var fstep := false
 	for k in range(bo_i, _bo_plan.size()):
 		var st: Dictionary = _bo_plan[k]
+		if String(st["do"]) == "build" and String(st["k"]) == "foundry":
+			fstep = true            # (the plan has its own Foundry step before the Breeder: not a second one)
 		if String(st["do"]) == "build" and String(st["k"]) == "horse_breeder":
-			if _mine("foundry").is_empty():
+			if fstep:
+				_bo_plan[k]["at"] = {"has": "foundry"}
+			elif _mine("foundry").is_empty():
 				_bo_plan.insert(k, {"do": "build", "k": "foundry", "at": st.get("at", {})})
 				_bo_plan[k + 1]["at"] = {"has": "foundry"}
 			break
@@ -1218,6 +1315,88 @@ func _construct(kind: String, at := Vector2i(-1, -1)) -> void:
 	super(kind, at)
 
 
+## A PRODUCTION OR ECONOMY SITE NOBODY IS COMING TO (Game.sweep_ghosts asks): its builder was pulled off (the owner's Red
+## Coast log: the Foundry's labourer was sent at a Brood grub a second after it was laid, and the site was dropped): the
+## nearest free labourer takes it up, SITE_ADOPT times at most, unless enemies stand there (then it goes, refunded).
+const SITE_ADOPT := 3
+const ADOPT_KINDS := ["barracks", "foundry", "horse_breeder", "armoury", "church", "powder_mill", "farm"]
+
+
+func adopt_site(b: Building) -> bool:
+	if super(b):
+		return true
+	if not on or peaceful or difficulty < 1 or not ADOPT_KINDS.has(b.kind):
+		return false
+	var id := b.get_instance_id()
+	if int(_adopted.get(id, 0)) >= SITE_ADOPT or _unsafe(b.center()):
+		return false
+	var best: Unit = null
+	var bd := INF
+	for u in game.workers(team):
+		if u.dead or u.order == "build" or u.order == "attack" or _escort.has(u) or (scout != null and scout.is_scout(u)) or _held_worker(u):
+			continue
+		var dd: float = u.position.distance_to(b.center()) + (150.0 if u.carrying > 0 else 0.0)
+		if dd < bd:
+			bd = dd
+			best = u
+	if best == null:
+		return false
+	_adopted[id] = int(_adopted.get(id, 0)) + 1
+	best.give({"o": "build", "e": b})
+	if game.mlog and int(_adopted[id]) == 1:
+		game.mlog.add("%s sends another Labourer to its %s site (its builder was pulled away)" % [game.mlog.who(team), String(b.d["name"])])
+	return true
+
+
+## A BEGUN BUILDING NOBODY WORKS ON ANY MORE (its builder fled, fought or died) is finished: the nearest free labourer
+## goes back to it, unless enemies stand there. A Crown building only grows while a Labourer works on it, and a half-built
+## Foundry or Barracks held the milestones and the production scaling back for good (they wait while one "is going up":
+## Red Coast v the Clockwork, 0.31.0 tests: a Foundry begun at 5:04 still unfinished when it was razed at 8:55).
+const FINISH_AFTER := 6.0        # (s) a begun site left alone this long gets a labourer
+var _alone := {}                 # building id -> clock it was first seen with nobody on it
+var finish_log: Array = []       # [clock, kind] (tests)
+
+
+func _finish_sites() -> void:
+	if not on or peaceful or difficulty < 1:
+		return
+	var sent := 0
+	for b in game.buildings:
+		if b.team != team or b.dead or b.built or b.ghost or Defs.BUILDINGS[b.kind].get("line", false):
+			continue
+		var id: int = b.get_instance_id()
+		var worked := false
+		for u in game.workers(team):
+			if not u.dead and u.order == "build" and u.order_target == b:
+				worked = true
+				break
+		if worked:
+			_alone.erase(id)
+			continue
+		if not _alone.has(id):
+			_alone[id] = game.clock
+			continue
+		if game.clock - float(_alone[id]) < FINISH_AFTER or sent >= 2 or _unsafe(b.center()):
+			continue
+		var best: Unit = null
+		var bd := INF
+		for u in game.workers(team):
+			if u.dead or u.order == "build" or u.order == "attack" or _escort.has(u) or (scout != null and scout.is_scout(u)) or _held_worker(u) or _fled.has(u):
+				continue
+			var dd: float = u.position.distance_to(b.center()) + (150.0 if u.carrying > 0 else 0.0)
+			if dd < bd:
+				bd = dd
+				best = u
+		if best == null:
+			return
+		best.cmd_build(b)
+		_alone.erase(id)
+		sent += 1
+		finish_log.append([game.clock, b.kind])
+		if game.mlog:
+			game.mlog.add("%s sends a Labourer to finish its %s (nobody was working on it)" % [game.mlog.who(team), String(b.d["name"])])
+
+
 ## (AICrownHold.wants_rider asks: against the Brood with the cannon first, the rider waits for the first gun)
 func rider_waits() -> bool:
 	return _gun_waiting()
@@ -1230,6 +1409,9 @@ func _build_up() -> void:
 	if not _plan_tech() or _hall_reserve or (_cw_active() and not _walled):
 		return
 	_mid_tick()
+
+
+var _mid_fail := {}             # milestone kind -> clock it first could not be placed (logged once)
 
 
 func _mid_tick() -> void:
@@ -1256,11 +1438,15 @@ func _mid_tick() -> void:
 		if _gold() < cost:
 			_reserve = maxi(_reserve, cost)     # (the milestone's gold: the soldiers wait for it once the army has its minimum)
 			return
-		var n0 := _mine(k).size()
+		var n0 := _mine(k).size() + _mine("foundry").size()
 		_construct(k)
-		if _mine(k).size() > n0:
+		if _mine(k).size() + _mine("foundry").size() > n0:
 			say("milestone: %s %d (%d labourers, %d halls, army %d supply)" % [String(Defs.BUILDINGS[k]["name"]), int(m[1]), labs, halls, army])
-		return
+			return
+		# (no spot or no builder now: the next milestone is not held up by it, it is tried again next think)
+		if not _mid_fail.has(k):
+			_mid_fail[k] = game.clock
+			say("milestone %s %d could not be placed now: the next ones go on" % [String(Defs.BUILDINGS[k]["name"]), int(m[1])])
 	if not gun_hold:
 		_scale_prod()           # (crown-owner-eco: every milestone up: more production as the income grows)
 
@@ -1726,7 +1912,35 @@ func owner_hall_ok() -> bool:
 ## first (AIRound5.hold_labourers against the Clockwork) let them come on the owner's plans, unless a rush is feared or the
 ## enemy is at our buildings.
 func owner_labs(labs: int) -> bool:
-	return owner_on() and labs < OWNER_HALL3_LABS and not _defending() and _threat() == Vector2.INF
+	return owner_on() and labs < mini(OWNER_HALL3_LABS, owner_lab_cap()) and not _defending() and _threat() == Vector2.INF
+
+
+## LABOURERS STOP AT SATURATION (the owner, 2026-11-05: "Eventually you stop at a good number with base saturation: 2 bases
+## saturated and a few haulers, maybe 45 to 50 labourers"; his log had 68 on two halls, 23 of them idle at 8:00): the
+## posts of the halls' farms and Mills plus OWNER_SPARE_LABS (builders, haulers), SAT_PRETRAIN more while a hall is going
+## up (its farms' hands trained ahead), and never over OWNER_LAB_MAX on two halls (OWNER_LAB_PER_HALL more a hall after).
+const OWNER_SPARE_LABS := 4
+const OWNER_LAB_MAX := 48
+const OWNER_LAB_PER_HALL := 14
+var lab_cap_off := OS.get_cmdline_user_args().has("labcap:off")
+
+
+func owner_lab_cap() -> int:
+	if not owner_on() or lab_cap_off:
+		return 999
+	var built := _halls().filter(func(h: Building) -> bool: return h.built).size()
+	var going := _hall_reserve or _busy_building(_f()["hall"])
+	var top := OWNER_LAB_MAX + OWNER_LAB_PER_HALL * maxi(0, built - 2) + (SAT_PRETRAIN if going and built >= 2 else 0)
+	var cap := _posts() + OWNER_SPARE_LABS + (SAT_PRETRAIN if going else 0)
+	return mini(cap, top)
+
+
+func _lab_want(want: int) -> int:
+	if not owner_on() or lab_cap_off:
+		return want
+	if difficulty < 2:
+		return mini(want, owner_lab_cap())     # (Normal keeps its smaller economy)
+	return owner_lab_cap()
 
 
 func owner_on() -> bool:
@@ -1893,6 +2107,20 @@ func income() -> float:
 	return (earned - float(a[1])) * 60.0 / dt
 
 
+const OWNER_BANK_HIGH := 700
+const OWNER_BANK_WAIT := 15.0
+var _rich_t := -1.0
+
+
+func _rich() -> bool:
+	if _gold() < OWNER_BANK_HIGH:
+		_rich_t = -1.0
+		return false
+	if _rich_t < 0.0:
+		_rich_t = game.clock
+	return game.clock - _rich_t >= OWNER_BANK_WAIT
+
+
 func _scale_prod() -> void:
 	if not owner_on() or _hall_reserve or _saving:
 		return
@@ -1901,14 +2129,17 @@ func _scale_prod() -> void:
 		return
 	var nb := _mine("barracks").size()
 	var nf := _mine("foundry").size()
-	if nb == 0 or nf == 0 or _busy_building("barracks") or _busy_building("foundry"):
+	if nb == 0 or _busy_building("barracks") or _busy_building("foundry"):
 		return
 	var spend := nb * float(PROD_SPEND["barracks"]) + nf * float(PROD_SPEND["foundry"])
 	# (labourers still coming: their gold is not the soldiers')
 	var lab_spend := 0.0
-	if game.workers(team).size() < _posts():
+	if game.workers(team).size() < mini(_posts(), owner_lab_cap()):
 		lab_spend = 250.0 * _halls().filter(func(h: Building) -> bool: return h.built).size()
-	if spend >= (inc - lab_spend) * PROD_SHARE:
+	# A BIG BANK IS SPENT (the owner's log, Red Coast 0.31.0: 3,000-3,400 gold from 9:00 on two halls): over OWNER_BANK_HIGH
+	# for OWNER_BANK_WAIT s, more production whatever the income says
+	var rich := _rich()
+	if spend >= (inc - lab_spend) * PROD_SHARE and not rich:
 		return
 	var idle := false
 	for b in _mine("barracks") + _mine("foundry"):
@@ -1917,6 +2148,8 @@ func _scale_prod() -> void:
 	if idle and _gold() < 600:
 		return                  # (a free Barracks with no gold to use it: more would idle too)
 	var k := "foundry" if nb >= PROD_FOUNDRY_EVERY * nf else "barracks"
+	if rich and _mine("church").is_empty() and game.requirement_met(team, "church") and nb >= 3:
+		k = "church"            # (the bank's third sink after the Barracks and the Foundry)
 	if k == "barracks" and nb >= PROD_MAX_BARRACKS:
 		return
 	if _gold() < int(Defs.BUILDINGS[k]["cost"]) + 60:

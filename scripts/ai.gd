@@ -1677,6 +1677,7 @@ func _workers() -> void:
 		saturated()             # (the match log notes when the economy is saturated on 1 and on 2 halls)
 	if doctrine() and (_hall_reserve or _busy_building(_f()["hall"]) or _bare_hall()):
 		want = mini(want + SAT_PRETRAIN, 46 if difficulty >= 3 else _lv([16, 30, 40]) + SAT_PRETRAIN)    # (DOCTRINE: hands for the new hall's farms, trained ahead)
+	want = _lab_want(want)
 	var worker: String = _f()["worker"]
 	var queued := 0
 	for h in _halls():
@@ -1720,6 +1721,11 @@ func _workers() -> void:
 	_unpark()
 	if _clock():
 		_tend_sites(labs)
+
+
+## (AICrown: the owner's plans cap the labourers at the saturation of their halls, AICrown.owner_lab_cap)
+func _lab_want(want: int) -> int:
+	return want
 
 
 ## AI-EXPAND (0.24.2): hands let go by spent land with no post free become HAULERS waiting at a hall (Game.free_site's
@@ -1867,6 +1873,10 @@ func _worker_safety() -> void:
 	_fled_back()
 
 
+func _to_site(w: Unit) -> bool:
+	return w.order == "build" and is_instance_valid(w.order_target) and w.order_target is Building and (w.order_target as Building).ghost
+
+
 ## One raid: fight with a clear majority, else run (to the army, or away from the raiders).
 func _raid_workers(c: Dictionary, labs: Array, army: Array, stand: Dictionary) -> void:
 	var foes: Array = c["foes"]
@@ -1901,7 +1911,13 @@ func _raid_workers(c: Dictionary, labs: Array, army: Array, stand: Dictionary) -
 	var fight: Array = []
 	if ratio >= FIGHT_RATIO and (game.army(team).size() < 3 or help == 0):
 		# only as many hands as it takes (two at least); the rest keep working
-		fighters.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.distance_to(centre) < b.position.distance_to(centre))
+		# (a labourer on his way to a site not yet begun is picked last: pulled off, his site is dropped; the owner's Red
+		# Coast log 0.31.0, the Foundry's builder sent at a grub)
+		fighters.sort_custom(func(a: Unit, b: Unit) -> bool:
+			var ab := _to_site(a)
+			if ab != _to_site(b):
+				return not ab
+			return a.position.distance_to(centre) < b.position.distance_to(centre))
 		for w in fighters:
 			fight.append(w)
 			if fight.size() >= 2 and _power(fight, armor) >= FIGHT_RATIO * strength:
