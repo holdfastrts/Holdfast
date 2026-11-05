@@ -31,8 +31,21 @@ const COC_FADE_LEFT := 1.2
 
 ## [size in tiles, the middle's offset from the feet in px] for a kind (the Mother: at her stage's scale).
 static func fp(k: String, sc := 1.0) -> Array:
-	var f: Array = Defs.NB["fp"].get(k, [2, 2, 0, 0])
-	return [Vector2i(maxi(1, int(round(float(f[0]) * sc))), maxi(1, int(round(float(f[1]) * sc)))), Vector2(float(f[2]), float(f[3])) * sc]
+	# (kept per kind and scale: every rooted creature's footprint is asked for many thousands of times a second, its edge
+	# for every unit near it; perf-frostfang. Read only: callers take [0] and [1].)
+	var mk = _fp_memo.get(k)
+	if mk == null:
+		mk = {}
+		_fp_memo[k] = mk
+	var got = mk.get(sc)
+	if got == null:
+		var f: Array = Defs.NB["fp"].get(k, [2, 2, 0, 0])
+		got = [Vector2i(maxi(1, int(round(float(f[0]) * sc))), maxi(1, int(round(float(f[1]) * sc)))), Vector2(float(f[2]), float(f[3])) * sc]
+		mk[sc] = got
+	return got
+
+
+static var _fp_memo := {}
 
 
 static func scale_of(u: Unit) -> float:

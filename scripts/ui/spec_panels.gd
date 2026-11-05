@@ -524,7 +524,7 @@ func army_info(t: int) -> Dictionary:
 		return out
 	var blist: Array = bld.values()
 	blist.sort_custom(func(a: Array, b: Array) -> bool: return int(a[1]) + int(a[2]) > int(b[1]) + int(b[2]) or (int(a[1]) + int(a[2]) == int(b[1]) + int(b[2]) and String(a[0]) < String(b[0])))
-	var info := {"value": game.army_value(t), "sup": hud.supply_of(t), "cap": int(pl["cap"]), "res": res,
+	var info := {"value": game.army_value(t), "sup": game.supply_used(t), "cap": int(pl["cap"]), "res": res,
 		"army": by_n.call(army), "workers": by_n.call(workers), "buildings": blist}
 	_army[t] = info
 	return info

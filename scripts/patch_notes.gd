@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.31.2", "items": [
+		"SMOOTHER TO WATCH (the owner's Frostfang log: Hard Brood Economy against Hard Clockwork Economy fell from 87 to 8 frames a second by minute 7). The spectator's PRODUCTION, ARMY & STRUCTURES and AI STORY panels cost about 34 ms every time they were drawn: Godot keeps only its last 64 pieces of text ready, and the panels draw and measure hundreds (the AI STORY measured every line it wraps word by word), so every piece of text was worked out again on every redraw. The text is now kept ready between redraws (scripts/ui/text_cache.gd), each panel is on its own layer and redrawn only when what it shows changes (the AI STORY when a line comes in), and moving the mouse no longer redraws them. The panels went from about 18 ms a redraw (every frame while the mouse moved) to 0.2 to 2 ms, 4 times a second or less; the whole HUD's drawing from 10 to 34 ms a frame to under 1 ms.",
+		"Watching computers, the fog of war (every side's sight and explored ground, worked out 4 times a second) is now worked out a whole row at a time, as in a match you play: 4 to 5 ms an update down to under 2 ms, exactly the same seen and explored ground.",
+		"Smaller savings in the units' and buildings' work (exactly the same game): the turning gears' check for units in a Clockwork base, the Brood's rooted creatures' pictures, the footprints and gear rings asked thousands of times a second, the worker labels under the mouse, the top bar's supply. And the Brood computer's choice of what a grub turns into keeps the answers it already has within one think.",
+	]},
 	{"v": "0.31.1", "items": [
 		"SHIELD WALL makes the Clock Soldier tougher: +10 health (75 -> 85) for every Clock Soldier, the ones already in the field too (the owner: Clock Soldiers are not that tough).",
 	]},
