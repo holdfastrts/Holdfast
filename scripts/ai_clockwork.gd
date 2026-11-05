@@ -162,8 +162,9 @@ func _ready() -> void:
 	_make_plan()
 	_b_ready()          # (cw-builds-b: the push, scripts/ai_cw_push.gd)
 	bo_on = true
-	if scout != null and not _eco_plan():
-		scout.enabled = false          # (the plan does not change on what a scout sees while it runs; its Swift scouts)
+	# (ai-optimal: EVERY plan keeps its scout. A written build keeps its own plan whatever the scout reads, but survival
+	# always: a rush read gets the rush reaction (a Light Works and Clock Soldiers, BuildsEco.urgent) ahead of its steps.
+	# Before, the written builds switched the scout off and saw a rush only when it hit them)
 	# (clockwork-eco: the Economy and Balanced openings keep the scout: rush evidence is their only reason for an early army)
 	note("plays the %s: the opening build (%d steps)" % [String(STRATEGIES[strategy]["name"]), steps.size()])
 	if opt != null:
@@ -178,7 +179,7 @@ func _eco_plan() -> bool:
 ## (clockwork-eco) While the Economy or Balanced opening runs it owns the gold: the scout's "play safe" Works (AIScout
 ## _defence: two Light Works for a scout that saw nothing) are not built; rush evidence is answered by the plan (bte.urgent).
 func bo_owns() -> bool:
-	return bo_on and _eco_plan()
+	return bo_on          # (ai-optimal: every written opening; a rush read is answered by BuildsEco.urgent in _bo_tick)
 
 
 ## (clockwork-eco) After the opening, an enemy the scout could not see is still no reason for two Works at once: only rush
@@ -341,8 +342,9 @@ func _bo_tick() -> void:
 	_hold = 0
 	_hold2 = 0.0
 	_supply_guard()
+	if bte != null:
+		bte.urgent()            # (clockwork-eco: the rush reaction, ahead of every step; ai-optimal: in every written build)
 	if bte != null and _eco_plan():
-		bte.urgent()            # (clockwork-eco: the rush reaction, ahead of every step)
 		# (clockwork-eco: Winders NON-STOP from every Clocktower, one in each queue, before the steps put cogs by: the old
 		# order saved 400 cogs for the Clocktower with the Winders stopped at 9 for a minute; the owner's own game kept
 		# them coming, 12 at 2:00, 17 at 3:00)
