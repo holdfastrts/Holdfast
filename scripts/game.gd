@@ -334,6 +334,8 @@ func _ready() -> void:
 		exp_spots.game = self
 		exp_spots.all = ExpansionSpots.rate_all(self)
 		exp_spots.spots = exp_spots.all.filter(func(s: Dictionary) -> bool: return int(s["rank"]) > 0)
+		if mission and not bool(mission.data.get("expansion_spots", true)):
+			exp_spots.spots = []      # (a campaign mission whose story has no use for them: "expansion_spots": false)
 		exp_spots.z_index = -18
 		add_child(exp_spots)
 	if edit_mode:

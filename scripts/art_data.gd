@@ -1480,4 +1480,4 @@ const CRATE_GROUND := 18
 
 ## Every unit sprite set: the generated ones above plus the roster prototype's (scripts/cw_art.gd: code-drawn
 ## placeholders until their sheets are dropped into assets/units/<kind>/). A static var, not a const, so it can be merged.
-static var UNITS: Dictionary = BASE_UNITS.merged(CwArt.units())
+static var UNITS: Dictionary = BASE_UNITS.merged(CwArt.units()).merged(RebelArt.ART)

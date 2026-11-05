@@ -1,0 +1,447 @@
+# Mission p01_leaf, "The Leaf and the Fire" (campaign/missions/p01_leaf.json, written by tools/campaign/make_m1_mission.py;
+# the approved script: docs/campaign_mission1.md). Tone: short, dignified lines; the Crown and the Church are the good
+# side. Canister = metralha / metralla; Barracks = Quartel / Cuartel; Free Assembly = Assembleia Livre / Asamblea Libre.
+
+> The Leaf and the Fire
+pt A Folha e o Fogo
+es La Hoja y el Fuego
+
+> Virginia, 2767. Rebels of the Free Assembly come out of the tobacco fields by night. Hold the plantation until dawn, march on the fort they took, and break them at its gate.
+pt Virgínia, 2767. Os rebeldes da Assembleia Livre saem dos campos de tabaco à noite. Defenda a fazenda até o amanhecer, marche sobre o forte que tomaram e quebre-os diante do seu portão.
+es Virginia, 2767. Los rebeldes de la Asamblea Libre salen de los campos de tabaco de noche. Defiende la plantación hasta el alba, marcha sobre el fuerte que tomaron y quiébralos ante su puerta.
+
+> Lord Fairleigh, Governor of Virginia, his musketeers and Captain Ruggieri's guns.
+pt Lorde Fairleigh, Governador da Virgínia, seus mosqueteiros e os canhões do Capitão Ruggieri.
+es Lord Fairleigh, Gobernador de Virginia, sus mosqueteros y los cañones del Capitán Ruggieri.
+
+> The Free Assembly
+pt A Assembleia Livre
+es La Asamblea Libre
+
+> Rebels against Church and Crown, under Etienne Varenne. Green and black.
+pt Rebeldes contra a Igreja e a Coroa, sob Etienne Varenne. Verde e preto.
+es Rebeldes contra la Iglesia y la Corona, bajo Etienne Varenne. Verde y negro.
+
+> Put down the rising.
+pt Esmague o levante.
+es Aplasta el levantamiento.
+
+> The manor must stand.
+pt A mansão deve resistir.
+es La mansión debe resistir.
+
+> Do not let every drying barn burn.
+pt Não deixe arder todos os galpões de secagem.
+es No dejes que ardan todos los secaderos.
+
+> Hold until dawn, with at least three barns standing.
+pt Resista até o amanhecer, com ao menos três galpões de pé.
+es Resiste hasta el alba, con al menos tres secaderos en pie.
+
+> Clear the two rebel camps on the road.
+pt Limpe os dois acampamentos rebeldes na estrada.
+es Despeja los dos campamentos rebeldes del camino.
+
+> Save the families at Hollins Farm.
+pt Salve as famílias da Fazenda Hollins.
+es Salva a las familias de la Granja Hollins.
+
+> Bring the army before the fort's gate.
+pt Leve o exército até diante do portão do forte.
+es Lleva el ejército ante la puerta del fuerte.
+
+> Break their charge with canister.
+pt Quebre a carga deles com metralha.
+es Rompe su carga con metralla.
+
+> Burn the Governor's manor.
+pt Incendeie a mansão do Governador.
+es Incendia la mansión del Gobernador.
+
+> Burn every drying barn.
+pt Queime todos os galpões de secagem.
+es Quema todos los secaderos.
+
+> The King
+pt O Rei
+es El Rey
+
+> Tomasz
+pt Tomasz
+es Tomasz
+
+> Lord Fairleigh
+pt Lorde Fairleigh
+es Lord Fairleigh
+
+> Captain Ruggieri
+pt Capitão Ruggieri
+es Capitán Ruggieri
+
+> Varenne
+pt Varenne
+es Varenne
+
+> Etienne Varenne
+pt Etienne Varenne
+es Etienne Varenne
+
+> You ask how the world came to burn. Sit. Let an old man light his pipe first. The leaf is from Virginia. It is fitting. That is where it began.
+pt Você pergunta como o mundo veio a arder. Sente-se. Deixe um velho acender primeiro o cachimbo. A folha é da Virgínia. É justo. Foi lá que tudo começou.
+es Preguntas cómo llegó a arder el mundo. Siéntate. Deja que un viejo encienda primero su pipa. La hoja es de Virginia. Es justo. Allí empezó todo.
+
+> In those days the sun did not set on the Crown. From Rome to the farthest islands there was one faith, one law, one King. We were not perfect. But we were at peace, and we thought peace was the natural state of things.
+pt Naqueles dias o sol não se punha sobre a Coroa. De Roma às ilhas mais distantes havia uma fé, uma lei, um Rei. Não éramos perfeitos. Mas vivíamos em paz, e pensávamos que a paz era o estado natural das coisas.
+es En aquellos días el sol no se ponía sobre la Corona. De Roma a las islas más lejanas había una fe, una ley, un Rey. No éramos perfectos. Pero vivíamos en paz, y creíamos que la paz era el estado natural de las cosas.
+
+> Virginia gave us its golden leaf, and gave its sons to the seminaries. That summer a young Pole, Tomasz Wierzbicki, waited there for his ship to Rome.
+pt A Virgínia nos dava a sua folha dourada, e dava os seus filhos aos seminários. Naquele verão um jovem polonês, Tomasz Wierzbicki, esperava ali o navio para Roma.
+es Virginia nos daba su hoja dorada, y daba sus hijos a los seminarios. Aquel verano un joven polaco, Tomasz Wierzbicki, esperaba allí su barco a Roma.
+
+> I remember the smell of the drying barns, and how quiet the evenings were. I was reading Augustine under the oak. I thought I knew what evil was.
+pt Eu me lembro do cheiro dos galpões de secagem, e de como as tardes eram tranquilas. Eu lia Agostinho debaixo do carvalho. Pensava que sabia o que era o mal.
+es Recuerdo el olor de los secaderos, y qué tranquilas eran las tardes. Leía a Agustín bajo el roble. Creía saber lo que era el mal.
+
+> Then came the men who called themselves the Free Assembly. Free of God, free of their King, free of every bond that had kept them fed and safe. They began, as such men always do, with fire.
+pt Então vieram os homens que se diziam a Assembleia Livre. Livres de Deus, livres do seu Rei, livres de todo laço que os mantinha alimentados e seguros. Começaram, como tais homens sempre começam, pelo fogo.
+es Entonces llegaron los hombres que se llamaban la Asamblea Libre. Libres de Dios, libres de su Rey, libres de todo lazo que los mantenía alimentados y a salvo. Empezaron, como tales hombres siempre empiezan, con fuego.
+
+> Captain Ruggieri, run out the guns. No man burns the King's leaf while I stand on these steps.
+pt Capitão Ruggieri, ponha os canhões em bateria. Nenhum homem queima a folha do Rei enquanto eu estiver nestes degraus.
+es Capitán Ruggieri, saque los cañones. Nadie quema la hoja del Rey mientras yo esté en estos escalones.
+
+> He did not raise his voice. He did not need to.
+pt Ele não levantou a voz. Não precisava.
+es No alzó la voz. No le hacía falta.
+
+> I prayed for them that morning, and I pray for them still. But I never again believed that disorder was a kind of mercy.
+pt Rezei por eles naquela manhã, e rezo por eles ainda. Mas nunca mais acreditei que a desordem fosse uma espécie de misericórdia.
+es Recé por ellos aquella mañana, y rezo por ellos todavía. Pero nunca más creí que el desorden fuera una especie de misericordia.
+
+> Fairleigh ended the rising in a single morning. We thought it was over. It was the first spark.
+pt Fairleigh acabou com o levante numa só manhã. Pensamos que tinha terminado. Era a primeira faísca.
+es Fairleigh acabó con el levantamiento en una sola mañana. Creímos que había terminado. Era la primera chispa.
+
+> Musketeers to the barns. Captain, your guns on the lawn. We hold until the sun comes up.
+pt Mosqueteiros para os galpões. Capitão, seus canhões no gramado. Resistimos até o sol nascer.
+es Mosqueteros a los secaderos. Capitán, sus cañones en el césped. Resistimos hasta que salga el sol.
+
+> The guns are run out, my lord. Let them come into the light.
+pt Os canhões estão prontos, meu senhor. Que venham para a luz.
+es Los cañones están listos, mi señor. Que salgan a la luz.
+
+> Train more men at the Barracks, my lord. Kill the torch-bearers first: a barn they reach will burn.
+pt Treine mais homens no Quartel, meu senhor. Mate primeiro os portadores de tochas: o galpão que alcançarem vai arder.
+es Entrene más hombres en el Cuartel, mi señor. Mate primero a los portadores de antorchas: el secadero que alcancen arderá.
+
+> No king but the people! Burn the leaf of the tyrants!
+pt Nenhum rei senão o povo! Queimem a folha dos tiranos!
+es ¡Ningún rey sino el pueblo! ¡Quemad la hoja de los tiranos!
+
+> Give fire!
+pt Fogo!
+es ¡Fuego!
+
+> They carried pitchforks and torches, and some of them were boys. I knelt by the first one who fell. He was already gone.
+pt Traziam forquilhas e tochas, e alguns eram rapazes. Me ajoelhei junto ao primeiro que caiu. Já tinha partido.
+es Llevaban horcas y antorchas, y algunos eran muchachos. Me arrodillé junto al primero que cayó. Ya se había ido.
+
+> Free of priests! Free of lords! Liberty or the grave!
+pt Livres de padres! Livres de senhores! Liberdade ou a cova!
+es ¡Libres de curas! ¡Libres de señores! ¡Libertad o la tumba!
+
+> That is their orator. He shouts from the dark and sends others into the light.
+pt Aquele é o orador deles. Grita do escuro e manda outros para a luz.
+es Ese es su orador. Grita desde la oscuridad y manda a otros a la luz.
+
+> Steady, gentlemen. Let them close. Then give it to them.
+pt Firmes, senhores. Deixem que se aproximem. E então, fogo neles.
+es Firmes, caballeros. Dejad que se acerquen. Entonces dadles fuego.
+
+> Every barn that burns is a chain broken!
+pt Cada galpão que arde é uma corrente quebrada!
+es ¡Cada secadero que arde es una cadena rota!
+
+> A whole year's leaf, my lord. I could weep. I shall want my pipe after this.
+pt A folha de um ano inteiro, meu senhor. Dá vontade de chorar. Vou querer o meu cachimbo depois disto.
+es La hoja de todo un año, mi señor. Me dan ganas de llorar. Querré mi pipa después de esto.
+
+> You shall have it, Captain. And they shall have the guns.
+pt Terá, Capitão. E eles terão os canhões.
+es La tendrá, Capitán. Y ellos tendrán los cañones.
+
+> Now, brothers! All of you! Let it burn!
+pt Agora, irmãos! Todos! Que arda!
+es ¡Ahora, hermanos! ¡Todos! ¡Que arda!
+
+> They burned the curing sheds with families sleeping beside them. I learned that night what their freedom meant.
+pt Queimaram os galpões de cura com famílias dormindo ao lado. Aprendi naquela noite o que a liberdade deles significava.
+es Quemaron los galpones de curado con familias durmiendo al lado. Aprendí aquella noche lo que significaba su libertad.
+
+> Fewer of them now. Keep firing.
+pt Já são menos. Continuem atirando.
+es Ya son menos. Seguid disparando.
+
+> Then the sky went grey over the woods, and the chapel bell rang for Lauds.
+pt Então o céu ficou cinzento sobre os bosques, e o sino da capela tocou para as Laudes.
+es Entonces el cielo se volvió gris sobre los bosques, y la campana de la capilla tocó a Laudes.
+
+> A barn is alight. Drive them off it!
+pt Um galpão está em chamas. Tirem eles de lá!
+es Un secadero está ardiendo. ¡Echadlos de ahí!
+
+> The first barn fell in. The leaf went up like incense, and the smell was everywhere.
+pt O primeiro galpão desabou. A folha subiu como incenso, e o cheiro estava em toda parte.
+es El primer secadero se hundió. La hoja subió como incienso, y el olor estaba por todas partes.
+
+> They are at the house. To the manor!
+pt Estão na casa. À mansão!
+es Están en la casa. ¡A la mansión!
+
+> The leaf is ash. Virginia has lost its year, and we have lost Virginia.
+pt A folha é cinza. A Virgínia perdeu o seu ano, e nós perdemos a Virgínia.
+es La hoja es ceniza. Virginia ha perdido su año, y nosotros hemos perdido Virginia.
+
+> Dawn. They are falling back to the fort. We follow.
+pt Amanhece. Recuam para o forte. Vamos atrás deles.
+es Amanece. Se retiran al fuerte. Los seguimos.
+
+> Limber the guns! Down the road!
+pt Atrelem os canhões! Pela estrada!
+es ¡Enganchad los cañones! ¡Por el camino!
+
+> Two camps lie on the road to the fort. A cannon must be limbered to march and set up again to fire.
+pt Há dois acampamentos na estrada para o forte. Um canhão tem que ser atrelado para marchar e montado de novo para disparar.
+es Hay dos campamentos en el camino al fuerte. Un cañón debe engancharse para marchar y montarse de nuevo para disparar.
+
+> Tonight we burn their leaf and their manor. Out of the fields, brothers!
+pt Esta noite queimamos a folha e a mansão deles. Fora dos campos, irmãos!
+es Esta noche quemamos su hoja y su mansión. ¡Fuera de los campos, hermanos!
+
+> Back to the fort! Let them come to our walls.
+pt Para o forte! Que venham até as nossas muralhas.
+es ¡Al fuerte! Que vengan a nuestras murallas.
+
+> Smoke to the north, my lord. Hollins Farm. The families there are loyal, and they are trapped.
+pt Fumaça ao norte, meu senhor. A Fazenda Hollins. As famílias dali são leais, e estão encurraladas.
+es Humo al norte, mi señor. La Granja Hollins. Las familias de allí son leales, y están atrapadas.
+
+> Every hour we spend there, they dig in at the fort.
+pt Cada hora que passarmos ali, eles se entrincheiram no forte.
+es Cada hora que pasemos allí, ellos se atrincheran en el fuerte.
+
+> We do not leave the King's people to burn. North.
+pt Não deixamos o povo do Rei queimar. Para norte.
+es No dejamos arder al pueblo del Rey. Al norte.
+
+> The fort first. God keep them.
+pt Primeiro o forte. Deus os guarde.
+es Primero el fuerte. Dios los guarde.
+
+> They came out of the smoke carrying their children. A woman kissed the Governor's hand. He did not know where to look.
+pt Saíram da fumaça com os filhos no colo. Uma mulher beijou a mão do Governador. Ele não sabia para onde olhar.
+es Salieron del humo con sus hijos en brazos. Una mujer besó la mano del Gobernador. Él no sabía adónde mirar.
+
+> To the road again. We are late.
+pt De volta à estrada. Estamos atrasados.
+es Al camino otra vez. Llegamos tarde.
+
+> We came too late. I said the prayers for the dead over them, and we marched on.
+pt Chegamos tarde demais. Rezei sobre eles as orações pelos mortos, e seguimos em marcha.
+es Llegamos demasiado tarde. Recé sobre ellos las oraciones por los difuntos, y seguimos la marcha.
+
+> We saw the smoke of Hollins Farm for an hour. No one spoke of it. I have prayed for those families every year since.
+pt Vimos a fumaça da Fazenda Hollins durante uma hora. Ninguém falou disso. Rezei por aquelas famílias todos os anos desde então.
+es Vimos el humo de la Granja Hollins durante una hora. Nadie habló de ello. He rezado por esas familias cada año desde entonces.
+
+> The road is clear. The fort.
+pt A estrada está livre. O forte.
+es El camino está despejado. El fuerte.
+
+> They are massing behind the gate, my lord. Hundreds of them.
+pt Estão se juntando atrás do portão, meu senhor. Centenas.
+es Se están agolpando tras la puerta, mi señor. Cientos.
+
+> Bring the guns up. Load canister.
+pt Tragam os canhões. Carreguem metralha.
+es Traed los cañones. Cargad metralla.
+
+> Select a cannon and press CANISTER on its card. Canister reaches short and cuts down a crowd.
+pt Selecione um canhão e aperte METRALHA no seu cartão. A metralha tem pouco alcance e ceifa uma multidão.
+es Selecciona un cañón y pulsa METRALLA en su tarjeta. La metralla alcanza poco y siega a una multitud.
+
+> Tap a cannon, then CANISTER on its card. Canister reaches short and cuts down a crowd.
+pt Toque em um canhão, depois em METRALHA no seu cartão. A metralha tem pouco alcance e ceifa uma multidão.
+es Toca un cañón y luego METRALLA en su tarjeta. La metralla alcanza poco y siega a una multitud.
+
+> They have had time to dig in. More of them than I would like.
+pt Tiveram tempo de se entrincheirar. São mais do que eu gostaria.
+es Han tenido tiempo de atrincherarse. Son más de los que quisiera.
+
+> Brothers! Their guns are few! One charge and Virginia is free!
+pt Irmãos! Os canhões deles são poucos! Uma carga e a Virgínia é livre!
+es ¡Hermanos! ¡Sus cañones son pocos! ¡Una carga y Virginia es libre!
+
+> Canister. On my word.
+pt Metralha. À minha voz.
+es Metralla. A mi orden.
+
+> Forward! For the people!
+pt Avante! Pelo povo!
+es ¡Adelante! ¡Por el pueblo!
+
+> Fire.
+pt Fogo.
+es Fuego.
+
+> Their orator is down.
+pt O orador deles caiu.
+es Su orador ha caído.
+
+> Rome, the present. The King lights his pipe.
+pt Roma, o presente. O Rei acende o cachimbo.
+es Roma, el presente. El Rey enciende su pipa.
+
+> The Crown's dominions, from Rome to the farthest islands.
+pt Os domínios da Coroa, de Roma às ilhas mais distantes.
+es Los dominios de la Corona, de Roma a las islas más lejanas.
+
+> A tobacco plantation in Virginia, 2767. Tomasz reads under the oak.
+pt Uma plantação de tabaco na Virgínia, 2767. Tomasz lê debaixo do carvalho.
+es Una plantación de tabaco en Virginia, 2767. Tomasz lee bajo el roble.
+
+> The Free Assembly comes out of the fields with torches.
+pt A Assembleia Livre sai dos campos com tochas.
+es La Asamblea Libre sale de los campos con antorchas.
+
+> Lord Fairleigh on the manor steps; the guns are run out.
+pt Lorde Fairleigh nos degraus da mansão; os canhões estão em bateria.
+es Lord Fairleigh en los escalones de la mansión; los cañones están listos.
+
+> Canister at the fort's gate, at dawn.
+pt Metralha no portão do forte, ao amanhecer.
+es Metralla en la puerta del fuerte, al alba.
+
+> Virginia, 2767. The Free Assembly has risen against Church and Crown, and tonight it comes for the plantation.
+pt Virgínia, 2767. A Assembleia Livre se levantou contra a Igreja e a Coroa, e esta noite vem atrás da fazenda.
+es Virginia, 2767. La Asamblea Libre se ha alzado contra la Iglesia y la Corona, y esta noche viene a por la plantación.
+
+> Hold the manor and the drying barns until dawn. Then march down the road, clear the rebel camps, and break them at the fort they took.
+pt Defenda a mansão e os galpões de secagem até o amanhecer. Depois marche pela estrada, limpe os acampamentos rebeldes e quebre-os no forte que tomaram.
+es Defiende la mansión y los secaderos hasta el alba. Luego marcha por el camino, despeja los campamentos rebeldes y quiébralos en el fuerte que tomaron.
+
+> Kill the torch-bearers first. Keep the guns: you will need canister at the gate.
+pt Mate primeiro os portadores de tochas. Poupe os canhões: vai precisar de metralha no portão.
+es Mata primero a los portadores de antorchas. Conserva los cañones: necesitarás metralla en la puerta.
+
+> Virginia, 2767. You are the Free Assembly. Tonight your men come out of the tobacco fields.
+pt Virgínia, 2767. Você é a Assembleia Livre. Esta noite os seus homens saem dos campos de tabaco.
+es Virginia, 2767. Eres la Asamblea Libre. Esta noche tus hombres salen de los campos de tabaco.
+
+> Burn the Governor's manor before dawn. At dawn fall back to the fort and hold its gate.
+pt Incendeie a mansão do Governador antes do amanhecer. Ao amanhecer recue para o forte e defenda o seu portão.
+es Incendia la mansión del Gobernador antes del alba. Al alba repliégate al fuerte y defiende su puerta.
+
+> The rising is broken
+pt O levante foi esmagado
+es El levantamiento está roto
+
+> Lord Fairleigh ended the rising in a single morning. Virginia's leaf was saved, and Tomasz sailed for Rome.
+pt Lorde Fairleigh acabou com o levante numa só manhã. A folha da Virgínia foi salva, e Tomasz partiu para Roma.
+es Lord Fairleigh acabó con el levantamiento en una sola mañana. La hoja de Virginia se salvó, y Tomasz zarpó hacia Roma.
+
+> Virginia burns
+pt A Virgínia arde
+es Virginia arde
+
+> The manor fell and the leaf burned. The Free Assembly's fire spread along the coast.
+pt A mansão caiu e a folha ardeu. O fogo da Assembleia Livre se espalhou pela costa.
+es La mansión cayó y la hoja ardió. El fuego de la Asamblea Libre se extendió por la costa.
+
+> Hollins Farm is burning, and loyal families are trapped there.
+pt A Fazenda Hollins está ardendo, e há famílias leais encurraladas lá.
+es La Granja Hollins está ardiendo, y hay familias leales atrapadas allí.
+
+> SAVE THE FAMILIES
+pt SALVAR AS FAMÍLIAS
+es SALVAR A LAS FAMILIAS
+
+> March north and drive off the raiders. The rebels will have time to dig in at the fort.
+pt Marche para norte e expulse os saqueadores. Os rebeldes terão tempo de se entrincheirar no forte.
+es Marcha al norte y expulsa a los saqueadores. Los rebeldes tendrán tiempo de atrincherarse en el fuerte.
+
+> MARCH ON
+pt SEGUIR EM MARCHA
+es SEGUIR LA MARCHA
+
+> Keep to the road and strike the fort before it is ready. Tomasz will remember.
+pt Siga pela estrada e ataque o forte antes que esteja pronto. Tomasz vai se lembrar.
+es Sigue por el camino y golpea el fuerte antes de que esté listo. Tomasz lo recordará.
+
+> Prologue: The Leaf and the Fire
+pt Prólogo: A Folha e o Fogo
+es Prólogo: La Hoja y el Fuego
+
+> Virginia, 2767, told by the King in Rome. The Free Assembly rises against Church and Crown, and begins with fire.
+pt Virgínia, 2767, contada pelo Rei em Roma. A Assembleia Livre se levanta contra a Igreja e a Coroa, e começa pelo fogo.
+es Virginia, 2767, contada por el Rey en Roma. La Asamblea Libre se alza contra la Iglesia y la Corona, y empieza con fuego.
+
+> The Governor's House
+pt A Casa do Governador
+es La Casa del Gobernador
+
+> The plantation in Virginia: the drying barns, the manor on its rise, the oak where Tomasz reads.
+pt A plantação na Virgínia: os galpões de secagem, a mansão na colina, o carvalho onde Tomasz lê.
+es La plantación en Virginia: los secaderos, la mansión en su loma, el roble donde lee Tomasz.
+
+> TOMASZ
+pt TOMASZ
+es TOMASZ
+
+> LORD FAIRLEIGH
+pt LORDE FAIRLEIGH
+es LORD FAIRLEIGH
+
+> ARMOURY
+pt ARSENAL
+es ARMERÍA
+
+> My ship to Rome sails at the end of the month. Until then I read, and I help the chaplain.
+pt Meu navio para Roma parte no fim do mês. Até lá leio, e ajudo o capelão.
+es Mi barco a Roma zarpa a final de mes. Hasta entonces leo, y ayudo al capellán.
+
+> The men in the fields talk of an Assembly. I do not understand what they want.
+pt Os homens nos campos falam de uma Assembleia. Não entendo o que querem.
+es Los hombres de los campos hablan de una Asamblea. No entiendo lo que quieren.
+
+> I still smell the smoke when I close my eyes.
+pt Ainda sinto o cheiro da fumaça quando fecho os olhos.
+es Todavía huelo el humo cuando cierro los ojos.
+
+> Two letters came for the Governor: one from an explorer of the deep earth, one from a clockmaker. He gave them to me to read.
+pt Chegaram duas cartas para o Governador: uma de um explorador das profundezas da terra, outra de um relojoeiro. Ele me deu para ler.
+es Llegaron dos cartas para el Gobernador: una de un explorador de las profundidades de la tierra, otra de un relojero. Me las dio a leer.
+
+> The harvest is in the barns. A fortune hangs in those rafters, and every rebel in the county knows it.
+pt A colheita está nos galpões. Há uma fortuna pendurada naquelas vigas, e todo rebelde do condado o sabe.
+es La cosecha está en los secaderos. Hay una fortuna colgada de esas vigas, y todo rebelde del condado lo sabe.
+
+> Study the war table. Then we wait for the night.
+pt Estude a mesa de guerra. Depois esperamos pela noite.
+es Estudie la mesa de guerra. Luego esperamos a la noche.
+
+> It is done. I take no pleasure in it.
+pt Está feito. Não tenho prazer nisso.
+es Está hecho. No me complace.
+
+> Ruggieri has his pipe, and I have the King's leaf. Rome will hear of this.
+pt Ruggieri tem o seu cachimbo, e eu tenho a folha do Rei. Roma vai saber disso.
+es Ruggieri tiene su pipa, y yo tengo la hoja del Rey. Roma sabrá de esto.
+
+> Pikeman
+pt Piqueiro
+es Piquero
+
+> A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket, and little use against walls.
+pt Um rebelde com uma pique longa (só na campanha). Alcança além de uma baioneta, e os cavalos o temem. Sem mosquete, e de pouco uso contra muros.
+es Un rebelde con una pica larga (solo en la campaña). Alcanza más que una bayoneta, y los caballos le temen. Sin mosquete, y de poca utilidad contra muros.

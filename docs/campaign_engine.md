@@ -224,3 +224,23 @@ are close (red and orange, blue and teal) would be hard to tell apart: pick dist
 The TUTORIAL button's lessons run on this engine: missions with "tutorial": true and "steps" (written out by
 Campaign.expand_steps), listed in campaign/tutorial.json and never in the storylines. They add conditions on what the
 player did (selected, camera_moved, built, rooted, crew, did...) and the `point` action. See docs/tutorial.md.
+
+## Added by mission 1 (campaign-m1, 0.31.0; docs/campaign_m1_build.md)
+
+| key / action / condition | what it does |
+| --- | --- |
+| `"opening": [{"still", "lines": [ids]}]` | stills full screen with their lines, before the match (StillShow: tap / NEXT / SKIP) |
+| `"ending": {side: [pages]}` | the same after a win of that side, before the end screen |
+| `"voice": "<folder>"` | recorded lines: `campaign/voice/<folder>/<line id>.ogg` (or .wav / .mp3), played when present (CampaignVoice), in the dialogue box and the shows |
+| `"light": "night"` | the scene's light at the start (night, dusk, dawn, day): a tint on the world only |
+| `"expansion_spots": false` | no gold expansion marks |
+| unit / spawn `"as": "<role>"` | a role from Rebels.ROLES (its own art when drawn, a name, a torch) |
+| unit / spawn `"name": "..."` | a name over the unit's bar |
+| `{"choice": {"id", "side", "title", "line", "options": [{"id", "label", "about", "do": [...]}], "default", "time"}}` | a choice panel for that side's player on this machine (else the default at once); the answer becomes the flag `id` and runs the option's actions; unanswered after `time` s (90): the default |
+| `{"flag": {"name": value}}` | sets this mission's flags (kept in the progress when the mission is won: Campaign.flag) |
+| `{"light": {"to", "secs"}}` | the light changes over secs |
+| `{"build": {"team", "kind", "at", "tag"}}` | a building appears during the mission |
+| `{"hurt": {"tag", "amount"}}` | damage to everything with the tag |
+| `{"point": {"ui": "card", "icon": "ab_canister"}}` | the pointer frames that one button of the command card (the card when it isn't there) |
+| `{"flag": {"name": value}}` (condition) | this mission's flag |
+| `{"past": {"<mission>.<flag>": value}}` (condition) | a flag a finished mission left |

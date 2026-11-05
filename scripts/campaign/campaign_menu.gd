@@ -219,12 +219,23 @@ static func briefing(main: Node, mid: String) -> void:
 	row.add_child(back)
 	var go: Button = main._button("START", func() -> void:
 		Sfx.play_any(["ui/start_match"])
-		main.start(Campaign.make_cfg(mid, "solo")))
+		opening_then_start(main, mid, Campaign.make_cfg(mid, "solo")))
 	go.name = "Briefing_Start"
 	go.custom_minimum_size = Vector2(300, 60)
 	go.add_theme_font_size_override("font_size", 28)
 	UiStyle.primary(go)
 	row.add_child(go)
+
+
+## The mission's OPENING (its stills and lines: StillShow), then the match. None: straight in.
+static func opening_then_start(main: Node, mid: String, cfg: Dictionary) -> void:
+	var m := Campaign.mission(mid)
+	var pages := Campaign.show_pages(m, "opening")
+	if pages.is_empty():
+		main.start(cfg)
+		return
+	main._clear_ui()
+	StillShow.play(main.ui_layer, m, pages, func() -> void: main.start(cfg))
 
 
 # ------------------------------------------------------------------ the end of a mission
@@ -237,8 +248,24 @@ static func mission_end(main: Node, game: Game, winner: int, rp_path: String) ->
 	var mid := run.id
 	var win_side := run.winner_side_of(winner) if winner >= 0 else ""
 	var mine := run.my_side()
-	var nxt := Campaign.record(mid, run.mode, win_side, mine)
+	var nxt := Campaign.record(mid, run.mode, win_side, mine, run.flags)
 	var won := win_side != "" and win_side == mine
+	# the mission's ENDING for the side that won (its stills and lines: StillShow), then this screen
+	var ending := Campaign.show_pages(m, "ending", win_side)
+	if not ending.is_empty() and (won or run.mode == "versus") and not game.has_meta("ending_shown"):
+		game.set_meta("ending_shown", true)
+		StillShow.play(main.ui_layer, m, ending, func() -> void:
+			if is_instance_valid(game):
+				_end_panel(main, game, winner, rp_path, nxt, won, win_side))
+		return
+	_end_panel(main, game, winner, rp_path, nxt, won, win_side)
+
+
+static func _end_panel(main: Node, game: Game, winner: int, rp_path: String, nxt: String, won: bool, win_side: String) -> void:
+	var run := game.mission
+	var m := run.data
+	var mid := run.id
+	var mine := run.my_side()
 	var o := Control.new()
 	o.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	o.theme = UiStyle.theme()

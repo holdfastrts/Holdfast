@@ -1,58 +1,198 @@
 {
 	"title": "THE CAMPAIGN",
 	"storylines": [
-		{"id": "prologue", "title": "Prologue: The Revolt",
-			"about": "The year 2500. The world has fallen back to muskets and sail. A revolt flares against the Crown.",
-			"missions": ["p01_revolt"],
+		{
+			"id": "prologue",
+			"title": "Prologue: The Leaf and the Fire",
+			"about": "Virginia, 2767, told by the King in Rome. The Free Assembly rises against Church and Crown, and begins with fire.",
+			"missions": [
+				"p01_leaf"
+			],
 			"hub": {
-				"title": "The Crown's Camp",
-				"still": {"caption": "The Crown's camp on the east bank: tents, a map table under an awning, the sergeant by the fire."},
-				"colour": 1,
+				"title": "The Governor's House",
+				"still": {
+					"image": "res://campaign/stills/p01_03.jpg",
+					"caption": "The plantation in Virginia: the drying barns, the manor on its rise, the oak where Tomasz reads."
+				},
+				"colour": 4,
 				"hotspots": [
-					{"id": "war_table", "kind": "war_table", "label": "WAR TABLE", "rect": [0.08, 0.30, 0.30, 0.34]},
-					{"id": "sergeant", "kind": "talk", "label": "SERGEANT WICK", "talk": "sergeant", "rect": [0.45, 0.40, 0.18, 0.36]},
-					{"id": "captain", "kind": "talk", "label": "CAPTAIN HALE", "talk": "captain", "rect": [0.68, 0.34, 0.18, 0.42]},
-					{"id": "armoury", "kind": "room", "label": "ARMOURY", "room": "armoury", "rect": [0.84, 0.08, 0.14, 0.24]}
+					{
+						"id": "war_table",
+						"kind": "war_table",
+						"label": "WAR TABLE",
+						"rect": [
+							0.7,
+							0.22,
+							0.24,
+							0.22
+						]
+					},
+					{
+						"id": "tomasz",
+						"kind": "talk",
+						"label": "TOMASZ",
+						"talk": "tomasz",
+						"rect": [
+							0.8,
+							0.48,
+							0.18,
+							0.42
+						]
+					},
+					{
+						"id": "fairleigh",
+						"kind": "talk",
+						"label": "LORD FAIRLEIGH",
+						"talk": "fairleigh",
+						"rect": [
+							0.3,
+							0.38,
+							0.14,
+							0.4
+						]
+					},
+					{
+						"id": "armoury",
+						"kind": "room",
+						"label": "ARMOURY",
+						"room": "armoury",
+						"rect": [
+							0.02,
+							0.08,
+							0.18,
+							0.3
+						]
+					}
 				],
 				"talks": {
-					"sergeant": {"name": "Sergeant Wick", "colour": 1, "entries": [
-						{"after": "", "lines": ["Farmers with muskets, sir. They have courage, I'll grant the varlets that.", "Mind the ford: it's narrow, and they'll be waiting on the far bank."]},
-						{"after": "p01_revolt", "lines": ["Quiet as a churchyard, that village, now.", "There's talk in the camp, sir: of things under the earth, and clocks that walk."]}
-					]},
-					"captain": {"name": "Captain Hale", "colour": 1, "entries": [
-						{"after": "", "lines": ["The Crown wants this revolt ended, and quickly. Zounds, I'd rather be home.", "Study the war table, then we march."]},
-						{"after": "p01_revolt", "lines": ["Well done. By my troth, the Crown has stranger troubles than farmers now.", "Two letters came: one from an explorer of the deep earth, one from a clockmaker. Read them both."]}
-					]}
+					"tomasz": {
+						"name": "Tomasz",
+						"colour": 4,
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"My ship to Rome sails at the end of the month. Until then I read, and I help the chaplain.",
+									"The men in the fields talk of an Assembly. I do not understand what they want."
+								]
+							},
+							{
+								"after": "p01_leaf",
+								"lines": [
+									"I still smell the smoke when I close my eyes.",
+									"Two letters came for the Governor: one from an explorer of the deep earth, one from a clockmaker. He gave them to me to read."
+								]
+							}
+						]
+					},
+					"fairleigh": {
+						"name": "Lord Fairleigh",
+						"colour": 4,
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"The harvest is in the barns. A fortune hangs in those rafters, and every rebel in the county knows it.",
+									"Study the war table. Then we wait for the night."
+								]
+							},
+							{
+								"after": "p01_leaf",
+								"lines": [
+									"It is done. I take no pleasure in it.",
+									"Ruggieri has his pipe, and I have the King's leaf. Rome will hear of this."
+								]
+							}
+						]
+					}
 				}
-			}},
-		{"id": "explorer", "title": "The Explorer", "requires": "p01_revolt",
+			}
+		},
+		{
+			"id": "explorer",
+			"title": "The Explorer",
+			"requires": "p01_leaf",
 			"about": "A Catholic explorer goes down into the deep earth and finds the Brood. (Being written.)",
 			"missions": [],
 			"hub": {
 				"title": "The Explorer's Ship",
-				"still": {"caption": "A ship's cabin lit by a lantern: charts of caverns, a crucifix, a cage of strange eggs."},
+				"still": {
+					"caption": "A ship's cabin lit by a lantern: charts of caverns, a crucifix, a cage of strange eggs."
+				},
 				"colour": 2,
 				"hotspots": [
-					{"id": "war_table", "kind": "war_table", "label": "CHARTS", "rect": [0.10, 0.35, 0.30, 0.30]},
-					{"id": "armoury", "kind": "room", "label": "ARMOURY", "room": "armoury", "rect": [0.70, 0.30, 0.20, 0.30]}
+					{
+						"id": "war_table",
+						"kind": "war_table",
+						"label": "CHARTS",
+						"rect": [
+							0.1,
+							0.35,
+							0.3,
+							0.3
+						]
+					},
+					{
+						"id": "armoury",
+						"kind": "room",
+						"label": "ARMOURY",
+						"room": "armoury",
+						"rect": [
+							0.7,
+							0.3,
+							0.2,
+							0.3
+						]
+					}
 				],
 				"talks": {}
-			}},
-		{"id": "clockmaker", "title": "The Clockmaker", "requires": "p01_revolt",
+			}
+		},
+		{
+			"id": "clockmaker",
+			"title": "The Clockmaker",
+			"requires": "p01_leaf",
 			"about": "A clockmaker grows afraid of his own Clockwork. (Being written.)",
 			"missions": [],
 			"hub": {
 				"title": "The Clockmaker's Workshop",
-				"still": {"caption": "A workshop of gears and springs; a half-built Clock Soldier on the bench, a priest at the door."},
+				"still": {
+					"caption": "A workshop of gears and springs; a half-built Clock Soldier on the bench, a priest at the door."
+				},
 				"colour": 5,
 				"hotspots": [
-					{"id": "war_table", "kind": "war_table", "label": "PLANS", "rect": [0.10, 0.35, 0.30, 0.30]},
-					{"id": "armoury", "kind": "room", "label": "ARMOURY", "room": "armoury", "rect": [0.70, 0.30, 0.20, 0.30]}
+					{
+						"id": "war_table",
+						"kind": "war_table",
+						"label": "PLANS",
+						"rect": [
+							0.1,
+							0.35,
+							0.3,
+							0.3
+						]
+					},
+					{
+						"id": "armoury",
+						"kind": "room",
+						"label": "ARMOURY",
+						"room": "armoury",
+						"rect": [
+							0.7,
+							0.3,
+							0.2,
+							0.3
+						]
+					}
 				],
 				"talks": {}
-			}}
+			}
+		}
 	],
 	"rooms": {
-		"armoury": {"title": "ARMOURY", "text": "Upgrades between missions will be bought here. (Not decided yet: a placeholder.)"}
+		"armoury": {
+			"title": "ARMOURY",
+			"text": "Upgrades between missions will be bought here. (Not decided yet: a placeholder.)"
+		}
 	}
 }

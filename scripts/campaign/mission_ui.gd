@@ -38,6 +38,7 @@ func _ready() -> void:
 	add_child(_obj)
 	_build_box()
 	run.said.connect(_on_said)
+	run.choice_offered.connect(_on_choice)
 	run.objectives_changed.connect(func() -> void: _obj.queue_redraw())
 	get_viewport().size_changed.connect(_layout)
 	_layout()
@@ -144,7 +145,67 @@ func advance() -> void:
 	_box.visible = true
 	_box.size = Vector2(_box.custom_minimum_size.x, 0)
 	_box.reset_size.call_deferred()
-	Sfx.play_any(["ui/click", "click"], Vector2.INF, -10.0)
+	var vsec := CampaignVoice.play(self, run.data, String(current.get("id", "")))      # (a recorded line, if there is one)
+	if vsec > 0.0:
+		line_t = maxf(line_t, vsec + 0.6)
+	else:
+		Sfx.play_any(["ui/click", "click"], Vector2.INF, -10.0)
+
+
+## A CHOICE (MissionRun.offer_choice, campaign-m1): a panel in the middle of the top with the question and a button per
+## option (its label and what it means); the match goes on meanwhile; nobody answering takes the default in time.
+var _choice: PanelContainer = null
+
+
+func _on_choice(ch: Dictionary) -> void:
+	if _choice:
+		_choice.queue_free()
+	var vs := get_viewport_rect().size
+	_choice = PanelContainer.new()
+	_choice.name = "Choice_" + String(ch.get("id", ""))
+	_choice.add_theme_stylebox_override("panel", UiStyle.box(Color(0.09, 0.07, 0.05, 0.95), UiStyle.TRIM, 2, 10, 14.0))
+	_choice.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_choice)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 8)
+	_choice.add_child(v)
+	var fs := int((17 if _pc() else 20) * _scale)
+	var w := minf(vs.x * 0.56, 720.0 * _scale)
+	var t := UiStyle.text(Loc.t(String(ch.get("title", ""))), fs + 3, UiStyle.TRIM, HORIZONTAL_ALIGNMENT_CENTER, true)
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	t.custom_minimum_size.x = w
+	v.add_child(t)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	v.add_child(row)
+	for o in ch.get("options", []):
+		var col := VBoxContainer.new()
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(col)
+		var b := Button.new()
+		b.text = Loc.t(String(o.get("label", o.get("id", ""))))
+		b.name = "Choose_" + String(o.get("id", ""))
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(0, (44 if _pc() else 56) * _scale)
+		b.add_theme_font_size_override("font_size", fs)
+		var cid := String(ch.get("id", ""))
+		var oid := String(o.get("id", ""))
+		b.pressed.connect(func() -> void: pick_choice(cid, oid))
+		col.add_child(b)
+		var ab := UiStyle.text(Loc.t(String(o.get("about", ""))), fs - 3, UiStyle.MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+		ab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ab.custom_minimum_size.x = w * 0.45
+		col.add_child(ab)
+	_choice.reset_size()
+	_choice.position = Vector2((vs.x - w) * 0.5 - 14.0, vs.y * 0.30)
+
+
+## The player's answer (a button, or a test).
+func pick_choice(cid: String, oid: String) -> void:
+	run.choose(cid, oid)
+	if _choice:
+		_choice.queue_free()
+		_choice = null
 
 
 ## SKIP: this line and every one waiting.
@@ -157,6 +218,9 @@ func _process(delta: float) -> void:
 	if is_instance_valid(game) and game.over and _box.visible:
 		skip_all()             # (the mission's end screen takes over)
 	run.talk_busy = not queue.is_empty() or (not current.is_empty() and line_t > 0.0)
+	if _choice and run.choice_open.is_empty():
+		_choice.queue_free()          # (answered by the default in time, or the match ended)
+		_choice = null
 	if current.is_empty() or get_tree().paused and not (game and game.net):
 		return
 	line_t -= delta
@@ -299,6 +363,8 @@ class Pointer extends Control:
 				return ["ui", r]
 			if String(p["ui"]) == "top":
 				r = Rect2(0, 0, hud.size.x, 40)
+			elif p.has("icon") and _card_button(hud, String(p["icon"])).size.x > 0.0:
+				r = _card_button(hud, String(p["icon"]))      # (one button of the card: its icon, e.g. "ab_canister")
 			elif rects.has(key):
 				r = rects[key]
 			else:
@@ -320,6 +386,14 @@ class Pointer extends Control:
 		if not w.is_finite():
 			return ["", null]
 		return ["world", get_viewport().get_canvas_transform() * w]
+
+	## The rect of the command card's button with this icon ({} none on the card now).
+	func _card_button(hud: Control, icon: String) -> Rect2:
+		for b in hud.get("_card_buttons"):
+			var it: Variant = b.get("item", [])
+			if it is Array and not (it as Array).is_empty() and String(it[0]) == icon:
+				return b["rect"]
+		return Rect2()
 
 	func _draw() -> void:
 		var tg := target()

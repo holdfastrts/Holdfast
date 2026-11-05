@@ -582,3 +582,12 @@ The campaign's art is not decided yet (owner, 2026-11-03): until it is, these ar
 - THE TICK (TutorialMenu.Tick): a finished lesson's box on the lesson list and the LESSON DONE title, drawn lines (no
   font carries the mark). The teachers' portraits are the campaign's placeholder (initials in an oval): Sergeant Holt,
   Master Tock, The Old Hunger.
+
+## Campaign mission 1, the Free Assembly (code, 0.31.0, campaign-m1; docs/campaign_m1_build.md)
+
+- The torch-bearer's TORCH: a stick and a flickering flame drawn in code over a green Labourer (Unit._draw_mission_marks).
+  To go when the owner's rebel torch-bearer (torch in hand) is drawn.
+- Names over units (Lord Fairleigh, Tomasz, Etienne Varenne): plain text in the bold UI font over the health bar.
+- The rebel stand-ins (militia, torch-bearer, Varenne) are Crown sprites in the green team colour; the pikeman is the
+  retired Pikeman's old strips (with the audit's faults: docs/animation_audit_units.md). The owner is drawing the rebels.
+- The opening / ending band under the stills (StillShow) and the CHOICE panel: UI drawn in code in the game's panel style.
