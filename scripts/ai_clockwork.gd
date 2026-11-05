@@ -33,6 +33,13 @@ var btc = null
 const BuildsEco := preload("res://scripts/ai_cw_eco.gd")
 var bte = null
 var eco_on := BuildsEco.on()
+## (clockwork-army: the army as ONE army, scripts/ai_cw_army.gd, docs/clockwork_army.md; `-- cwarmy:off` plays the old)
+const CwArmy := preload("res://scripts/ai_cw_army.gd")
+var army_g = null
+## The push settings of the plans that have none of their own (Economy, Balanced, the Springer timing and the Clock Soldier
+## rush after their openings...): the army goes out as the push's block once it has a few in front and the army's own word
+## (CwArmy.may_launch: stronger than the enemy army it reckons, with a fresh report).
+const ARMY_PUSH := {"need": {"front": 4}, "min_supply": 8, "leash": 300.0}
 
 ## THE PLANS. "steps": the build order, read in order (see _do_step):
 ##   "N kind[:big]"         at N supply (used, queued included), lay a building (a Clockwork building kind)
@@ -151,6 +158,8 @@ var _bo_t := 0.0
 
 func _ready() -> void:
 	super()
+	if game != null and game.faction_of(team) == "clockwork" and CwArmy.wanted(self):
+		army_g = CwArmy.new(self)
 	if strategy == "springer" and not cw_on:
 		strategy = "balanced"
 		_opened = "balanced"
@@ -258,6 +267,11 @@ func _build_up() -> void:
 
 
 func _army() -> void:
+	if army_g != null:
+		if push == null:
+			push = CwPush.new(self, ARMY_PUSH)       # (clockwork-army: every plan's attack is the push's block)
+		if not push.gate.is_valid():
+			push.gate = _army_gate
 	if bo_on or push != null:
 		_attack_at = 99999
 	if raid != null:
@@ -269,7 +283,56 @@ func _army() -> void:
 		_b_rewind()
 	if btc != null:
 		btc.tick()
+	if army_g != null:
+		_army_one()
+		return
 	super._army()
+
+
+## (clockwork-army) The shared computer's army rules split the Clockwork's army over the scout, the harass, the round-5
+## guard, the detachments and the rally; ONE ARMY instead (scripts/ai_cw_army.gd): what is not on a plan's errand (nor in
+## the push) gathers, defends and goes out together.
+func _army_one() -> void:
+	if _sw():
+		swm().tick()            # (clock-ai-swarm: the enemy army in sight, the swarm in it: the Pendulums it wants)
+	if not _det.is_empty():
+		for u in _det.keys():
+			if is_instance_valid(u) and not u.dead:
+				u.cmd_stop()
+		_det.clear()
+	for u in game.army(team):
+		if u.kind == "ornithopter" and not u.courier:
+			u.courier = true
+	var army: Array = game.army(team).filter(func(u: Unit) -> bool: return not _raiders.has(u) and not _on_errand(u) \
+		and u.kind != Defs.GREAT_WINDER_KIND and not (scout != null and (u == scout.unit or u == scout.sentry)))
+	army_g.tick(army)
+
+
+## The push goes out only with the army's word (stronger than the enemy army it reckons, a fresh report), and not while the
+## army at home is busy with a raid.
+func _army_gate(home: Array) -> bool:
+	if army_g == null:
+		return true
+	if army_g.phase == "defend" or army_g.phase == "hold" or not army_g.defenders.is_empty():
+		return false
+	if _sw() and swm().hold_attack():
+		return false
+	return army_g.may_launch(home)
+
+
+## (clockwork-army) The army waits at its own gathering point (in front of the hall nearest the enemy), and the push comes
+## home to it.
+func _front() -> Vector2:
+	if army_g != null and army_g.gather_pt != Vector2.INF:
+		return army_g.gather_pt
+	return super._front()
+
+
+## (clockwork-army) The scout is never a ground fighter: a Swift, else a Winder (AIScout._pick).
+func scout_from_army() -> Unit:
+	if army_g != null:
+		return army_g.scout_pick()
+	return super.scout_from_army()
 
 
 # ------------------------------------------------------------------ the build order
@@ -286,6 +349,7 @@ func _bo_tick() -> void:
 		# order saved 400 cogs for the Clocktower with the Winders stopped at 9 for a minute; the owner's own game kept
 		# them coming, 12 at 2:00, 17 at 3:00)
 		_train_workers()
+		_bo_mass()              # (clockwork-army: the army grows from the new presses on, ahead of the later steps)
 	var ahead := 0
 	var i := 0
 	while i < steps.size() and ahead < 3:
@@ -317,6 +381,36 @@ func _bo_tick() -> void:
 		_end_build("the last step")
 		return
 	_train_workers()
+
+
+## (clockwork-army: MASS SOONER, the owner 2026-11-05: "it could have started massing army a bit sooner") In the Economy and
+## Balanced openings, once the second Clocktower's two presses are laid the army grows at once and steadily: every Light
+## Works that stands and is idle trains a Clock Soldier (after the Winders, before the later steps: the Regulators and the
+## Escapement then wait a moment), instead of the army waiting for the opening's last steps (the first soldier came at 4:20,
+## 5 at 5:00).
+func _bo_mass() -> void:
+	if army_g == null or not _eco_plan():
+		return
+	var news := 0
+	var laid := 0
+	for i in steps.size():
+		if String(steps[i]) == "press_new":
+			news += 1
+			if done[i]:
+				laid += 1
+	if news == 0 or laid < news:
+		return
+	var cost := int(Defs.UNITS["clock_soldier"]["cost"])
+	for w in _mine(_works()):
+		if not w.built or not (w.queue as Array).is_empty() or _gold() < cost:
+			continue
+		if game.can_train(w, "clock_soldier") == "" and game.train(w, "clock_soldier") == "":
+			if not _massing:
+				_massing = true
+				note("the second Clocktower's presses are laid: the army grows from now on (a Clock Soldier from every idle Light Works)")
+
+
+var _massing := false
 
 
 func _end_build(why: String) -> void:

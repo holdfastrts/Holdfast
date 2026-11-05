@@ -4906,6 +4906,16 @@ func _gun_save() -> bool:
 	return false
 
 
+## The scout from the army (AIScout._pick, from the second denied trip on): the fastest idle one. (The Clockwork's own
+## computer overrides it: clockwork-army.)
+func scout_from_army() -> Unit:
+	var best: Unit = null
+	for u in game.army(team):
+		if u.order == "idle" and not _raiders.has(u) and (best == null or float(u.d["speed"]) > float(best.d["speed"])):
+			best = u
+	return best
+
+
 func _on_errand(u: Unit) -> bool:
 	if u.order in ["courier", "overload", "board", "unload", "heal", "revive", "refit", "restock"]:
 		return true
