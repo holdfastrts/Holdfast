@@ -111,8 +111,8 @@ and the baseline the coached builds were measured on (and it still answers a rea
 | Read | Crown | Clockwork | Brood |
 |---|---|---|---|
 | AGGRESSIVE | defend, then Balanced (its counter) | defend, then Balanced | defend, then Balanced |
-| GREEDY, early (before 2:30) | v Brood: the **Horseman rush**; v Clockwork: the Horseman rush 35%, else Balanced's steady waves; v Crown: the **Timing attack**, never Horsemen | the **Clock Soldier rush** | v Clockwork, Brood: the **Raptor rush**; v Crown (walled): the **Spitter timing** |
-| GREEDY, later (to 5:30) | Timing attack (v Clockwork: Balanced) | Springer timing | Spitter timing (v Crown), Timing attack |
+| GREEDY, early (before 2:30) | v Brood: the **Siege push** (riders picked on the read come too late: only its lean before scouting rides); v Clockwork: the Horseman rush 35%, else Balanced's steady waves; v Crown: the **Timing attack**, never Horsemen | the **Clock Soldier rush** | v Clockwork, Brood: the **Raptor rush**; v Crown (walled): the **Spitter timing** |
+| GREEDY, later (to 5:30) | Timing attack (v Clockwork: Balanced; v Brood: Siege push) | Springer timing | Spitter timing (v Crown), Timing attack |
 | GREEDY, too late | Economy (out-expand it) | Economy | Economy |
 | NORMAL (weights) | v Brood: Balanced 3, Siege push 2, Timing 2; v Clockwork: Balanced 3, Economy 2, Dragoon raids 2, Timing 1; v Crown: Economy 3, Balanced 2, Dragoon raids 2, Siege push 1, Timing 1 | v Brood: Pendulums 3, Balanced 2, Owl raids 2; v Crown: Balanced 2, Economy 2, Springer timing 2, Heavy Works push 1; v Clockwork: Balanced 2, Economy 2, Springer timing 1, Clock Soldier rush 1 | v Crown: Balanced 2, Spitter timing 2, Brute siege 2, Timing 1; v Clockwork: Timing 2, Spitter timing 2, Balanced 2; v Brood: Balanced 2, Timing 2, Economy 1, Rush 1 |
 | DEFENSIVE | opening: Economy; middle: Siege push | opening: Economy; middle: Heavy Works push | opening: Economy; middle: Brute siege |
@@ -146,4 +146,23 @@ RESULTS_HERE
 
 ## 7. Questions for the owner
 
-QUESTIONS_HERE
+1. **The Crown's lean to the Horseman rush against the Brood before it scouts** (35% on a short map, 20% on a long one):
+   your "it could decide on a Horseman rush based on the map or the matchup". It is a gamble: against the Brood's Extreme
+   rush the riders' opening has no Gate and no line yet (the survival switch puts both in on the rush read, ~1:15). Keep
+   it, make it rarer, or only after the scout's first look?
+2. **The Brood reads GREEDY too easily**: every Brood economy plan roots a Mound Turtle on new ground at 0:00, so at 1:30
+   the Brood always shows "a second base and little army" (Economy and Timing look the same then; its Sire tells them
+   apart only at 2:00-2:45). OPTIMAL's Horseman rush then goes against the Timing plan as well. Should the Brood's first
+   far turtle count as its standard opening (NORMAL), and only a second one, or no Sire by 2:30, as greed?
+3. **The walled Crown is hard to read**: a scout cannot get into a walled main, so it reads the Crown from its natural
+   (a second hall early = GREEDY) and otherwise UNKNOWN; OPTIMAL then picks for the matchup 45 s after the first UNKNOWN.
+   Is a walled ramp with nothing at the natural a NORMAL read for you (most Crown games), or should the scout wait at the
+   ramp foot for the first soldiers?
+4. **Once a stage** (opening to 4:30, middle to 10:00, late): enough room to adapt, or should the middle allow a second
+   switch when the read changes from GREEDY to AGGRESSIVE?
+5. **The NORMAL tables** (section 4) are first guesses from the coached builds' reports; the games below say which picks
+   did well in each matchup. Tell me the ones you would never play (e.g. the Owl raids against the Crown were left out,
+   the Balloon harass is never picked).
+6. **Economy's race** only brings its next halls sooner (`expand` x0.3): the Crown's owner Economy opening already takes
+   its second hall at 11 labourers, so against a greedy Crown it changes little until the third hall. Enough, or should it
+   also skip its Barracks until the second hall stands?

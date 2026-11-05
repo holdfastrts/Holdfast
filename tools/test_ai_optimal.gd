@@ -12,7 +12,8 @@ extends SceneTree
 ##  3. FIXED PLANS KEEP THEIR PLAN: the Crown's Economy against a greedy enemy races it (it does not turn into a timing
 ##     attack); against a rush it still defends (the Barracks and the Mill first) and stays the Economy plan
 ##  4. OPTIMAL NEVER HORSEMAN-RUSHES THE CROWN: its pick against a greedy Crown, 300 times at every early moment, and the
-##     lean before scouting; against the Brood it may (the owner: "good against the Brood")
+##     lean before scouting; against the Brood only its lean before scouting may (the riders picked on a read at 1:30 came
+##     too late in the coached games)
 ## Prints PASS / FAIL per check and "ALL PASS" at the end (exit 1 on a failure).
 var main: Node
 var g: Game
@@ -187,7 +188,13 @@ func _run() -> void:
 		var c2: Array = ai.opt._punish("brood", 60.0)
 		if not c2.is_empty() and String(c2[0]) == "rush":
 			vs_brood += 1
-	check(vs_brood == 300, "against a greedy Brood early it is the Horseman rush (%d of 300)" % vs_brood)
+	check(vs_brood == 0, "against a greedy Brood read at 1:00 it is no Horseman rush: the riders would come too late (%d of 300)" % vs_brood)
+	var leans_b := 0
+	for i in 200:
+		ai.opt.lean = ""
+		if ai.opt._lean_chance("brood", 60.0) > 0.0:
+			leans_b += 1
+	check(leans_b == 200, "against the Brood it may lean to the Horseman rush before it scouts (the matchup)")
 	await _stop()
 
 	print("ALL PASS" if fails == 0 else "%d FAILED" % fails)

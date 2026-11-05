@@ -271,3 +271,7 @@ es %s lee al enemigo como %s (%s): viene un ataque, así que defiende primero y 
 > steady waves punish the greed
 pt ondas constantes punem a ganância
 es oleadas constantes castigan la codicia
+
+> the riders would come too late: a siege push
+pt os cavaleiros chegariam tarde demais: um avanço de cerco
+es los jinetes llegarían demasiado tarde: un avance de asedio

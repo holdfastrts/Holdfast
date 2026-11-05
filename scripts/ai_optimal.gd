@@ -155,8 +155,12 @@ func _punish(f: String, t: float) -> Array:
 	var early := t < float(PUNISH_BY.get(fac, 150.0))
 	match fac:
 		"crown":
-			if f == "brood" and early:
-				return ["rush", "punish the greed before its army is up"]
+			if f == "brood":
+				# (coached games, 0.32.0: the Horseman rush picked on the read at 1:30 rode out at 3:52-4:02, after the
+				# Brood's Raptors hatched, and failed in all three games: 3,800-6,500 earned against 10,600-14,800. The riders
+				# can only arrive in time when the computer leans to them before it scouts. On the read: the Siege push
+				# breaks its rooted economy before it pays off, docs/crown_builds_b.md)
+				return ["siege", "the riders would come too late: a siege push"] if t < TOO_LATE else ["economy", "too late to punish: out-expand it"]
 			if f == "clockwork" and early and _rng.randf() < 0.35:
 				return ["rush", "punish the greed before its army is up"]
 			if f == "clockwork":
@@ -241,15 +245,22 @@ func _go(plan: String, why: String, read: String, saw: String) -> void:
 ## or the matchup"). Only the Crown against the Brood leans to its Horseman rush (short rush distance, more often);
 ## it counts as the opening's pick.
 func lean_now() -> String:
-	if fac != "crown" or foe() != "brood" or ai.difficulty < 1:
+	if ai.difficulty < 1:
 		return ""
 	var f: int = ai._foe()
 	var d: float = Vector2(game.starts[team]).distance_to(Vector2(game.starts[f])) if f >= 0 else 999.0
-	var chance := 0.35 if d < 70.0 else 0.2
-	if _rng.randf() < chance:
+	if _rng.randf() < _lean_chance(foe(), d):
 		lean = "rush"
 		return "rush"
 	return ""
+
+
+## The chance to lean to the Horseman rush before scouting: against the Brood only, more on a short map (start to start
+## in tiles).
+func _lean_chance(f: String, dist: float) -> float:
+	if fac != "crown" or f != "brood":
+		return 0.0
+	return 0.35 if dist < 70.0 else 0.2
 
 
 func lean_said(plan: String) -> void:
