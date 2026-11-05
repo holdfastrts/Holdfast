@@ -22,6 +22,7 @@ var _next := 1.0
 var empty_s := 0.0
 var shots_s := 0.0         # (man-seconds of firearm men in a fight with shots)
 var ai: AI
+var trace := false
 
 
 func _initialize() -> void:
@@ -35,6 +36,7 @@ func _initialize() -> void:
 				"seed": seed_ = int(kv[1])
 				"end": end_t = float(kv[1])
 				"out": out = kv[1]
+				"trace": trace = kv[1] == "1"
 	_run.call_deferred()
 
 
@@ -65,6 +67,8 @@ func _run() -> void:
 		if g.clock >= _next:
 			_next += 1.0
 			_sample()
+			if trace and int(g.clock) % 20 == 0:
+				_trace()
 		for m in [240.0, 360.0, 480.0]:
 			if g.clock >= m and not rec.has("m%d" % int(m / 60.0)):
 				rec["m%d" % int(m / 60.0)] = _snap()
@@ -79,6 +83,19 @@ func _run() -> void:
 		f.store_line(line)
 		f.close()
 	quit(0)
+
+
+## trace:1 a line every 20 s: the bank, the Barracks (armed?, queue), the army by kind (dry ones), attacking.
+func _trace() -> void:
+	var kinds := {}
+	for u in g.army(0):
+		var k: String = u.kind + ("(dry)" if _firearm(u) and _shots(u) <= 0 else "")
+		kinds[k] = int(kinds.get(k, 0)) + 1
+	var bars: Array = []
+	for b in g.buildings:
+		if b.team == 0 and not b.dead and (b.kind == "barracks" or b.kind == "foundry"):
+			bars.append("%s%s%s" % [b.kind.left(3), "" if b.get("arm_powder") == null or b.arm_powder else "(OFF)", str(b.queue)])
+	print("%4d gold %d powder %.0f %s army %s attacking %s" % [int(g.clock), int(g.players[0]["gold"]), float(g.players[0]["res2"]), " ".join(bars), str(kinds), str(ai._attacking)])
 
 
 func _firearm(u: Unit) -> bool:

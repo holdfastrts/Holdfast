@@ -100,7 +100,6 @@ func _run() -> void:
 	var h: Unit = g._add_unit("cuirassier", me, _open(spot + Vector2(40, 50)))
 	h.cmd_hold()
 	h.set_ammo(0)
-	print("  horseman: shots %d, ammo kind %s" % [h.ammo_shots(), str(h._k_ammo)])
 	# 1. a full Musketeer's card
 	await _select(men[0])
 	await _snap("1_card_musketeer_full", _bottom())
@@ -140,6 +139,10 @@ func _run() -> void:
 	await _select(bar)
 	await _snap("7_card_barracks_arm_with_powder", _bottom())
 	Settings.tooltips = true
+	g.players[me]["res2"] = 6.0
+	g.players[me]["cap"] = 100
+	men[3].cmd_move(spot)            # (away from the hall: he takes no more of the bank)
+	g.hud._refresh_card()
 	for bt in g.hud._card_buttons:
 		var lab := String(bt["item"][1]).trim_prefix("~ ")
 		if lab == "MUSKETEER":

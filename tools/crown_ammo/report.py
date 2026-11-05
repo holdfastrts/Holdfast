@@ -11,18 +11,23 @@ def load(p):
         line = line.strip()
         if line:
             r = json.loads(line)
-            out[(r["plan"], r["foe"], r["map"])] = r
+            out[(r["plan"], r["foe"], r["map"], r.get("seed", 1))] = r
     return out
 
 
 b, m = load(sys.argv[1]), load(sys.argv[2])
+for r in b.values():
+    r["_new"] = True
 keys = sorted(set(b) | set(m), key=lambda k: (k[1], k[0], k[2]))
 
 
 def g(r, at, k, d="-"):
     if r is None:
         return d
-    return r.get(at, r.get("end", {})).get(k, d)
+    x = r.get(at, r.get("end", {}))
+    if k == "army_val" and r is not None and r.get("_new"):
+        return x.get(k, 0) + 10 * x.get("musk", 0)      # (a Musketeer's or Dragoon's 10 powder was in his cost2 on main)
+    return x.get(k, d)
 
 
 print("| plan | foe | map | gold in 8:00 (new / main) | powder in | powder left | army supply 8:00 | army value | killed / lost | halls | out dry / partial | empty-fight s | empty blows | refill errands | powder: arming / refills |")
@@ -31,7 +36,7 @@ tot = defaultdict(lambda: [0.0, 0.0, 0])
 for k in keys:
     rb, rm = b.get(k), m.get(k)
     at = "m8"
-    row = [k[0], k[1], k[2]]
+    row = [k[0], k[1], k[2] + ("" if k[3] == 1 else " (seed %d)" % k[3])]
     for f in ["gold_in", "powder_in", "bank2", "army_sup", "army_val"]:
         row.append("%s / %s" % (g(rb, at, f), g(rm, at, f)))
         if rb and rm:
