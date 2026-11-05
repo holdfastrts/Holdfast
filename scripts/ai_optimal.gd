@@ -21,7 +21,7 @@ extends RefCounted
 
 const MIDDLE := 270.0            # (game seconds) the opening stage ends, the middle begins
 const LATE := 600.0
-const DECIDE_BY := 150.0         # no read by then: a normal game for the matchup
+const DECIDE_BY := 180.0         # no read by then: a normal game for the matchup
 const PUNISH_BY := {"crown": 150.0, "clockwork": 150.0, "brood": 150.0}    # a rush to punish greed only before this
 const TOO_LATE := 330.0          # a timing attack to punish greed only before this; later, out-expand it
 
@@ -30,6 +30,7 @@ var game: Game = null
 var team := 0
 var fac := ""
 var current := ""                # the build it plays now (an AI.STRATEGIES key)
+var opening_plan := ""           # the common opening's
 var picks: Array = []            # [clock, stage, read, plan, why] of every pick
 var switched := {}               # stage -> true once it switched in that stage
 var survival_used := false
@@ -45,6 +46,7 @@ func _init(a, opening_plan: String) -> void:
 	team = a.team
 	fac = game.faction_of(team)
 	current = opening_plan
+	self.opening_plan = opening_plan
 	_rng.seed = hash([randi(), team])      # (from the match's seeded dice: the same match picks the same)
 
 
@@ -62,6 +64,8 @@ func foe() -> String:
 
 
 func plan_name(k: String) -> String:
+	if k == "optimal":
+		return "the common opening"
 	return String(AI.STRATEGIES.get(k, AI.STRATEGIES["balanced"])["name"])
 
 
@@ -104,13 +108,13 @@ func choose(read: String) -> Array:
 	match read:
 		"AGGRESSIVE":
 			if st == "opening" or current in ["economy"]:
-				return ["balanced", "defend the rush first, then counter-attack"]
+				return ["balanced", "defend against the rush before it counter-attacks"]
 			return []
 		"GREEDY":
 			return _punish(f, t)
 		"DEFENSIVE":
 			if st == "opening":
-				return ["economy", "out-expand and tech, then a siege"]
+				return ["economy", "out-expand and tech up before a siege"]
 			match fac:
 				"crown":
 					return ["siege", "a siege to break its defences"]
@@ -187,18 +191,21 @@ func on_read(verdict: String, saw: String) -> void:
 
 ## No read by DECIDE_BY: a normal game for the matchup (once).
 func tick() -> void:
-	if picks.is_empty() and game.clock >= DECIDE_BY:
+	if picks.is_empty() and game.clock >= DECIDE_BY and current == opening_plan:
 		var c := choose("NORMAL") if stage_of(game.clock) == "opening" else []
 		if c.is_empty():
 			c = ["balanced", "a normal game"]
-		_go(String(c[0]), "no read yet: " + String(c[1]), "UNKNOWN", "too little of its base")
+		_go(String(c[0]), String(c[1]), "UNKNOWN", "no read yet")
 
 
 func _go(plan: String, why: String, read: String, saw: String) -> void:
 	var st := stage_of(game.clock)
 	if not AI.strategies_for(fac).has(plan):
 		plan = "balanced"
-	if plan == current and not picks.is_empty():
+	if plan == current:
+		# (no change: it is no switch, a later read in this stage may still change the build)
+		if picks.is_empty():
+			picks.append([snappedf(game.clock, 0.1), st, read, plan, why])
 		say("reads %s [%s]: keeps %s (%s)" % [read, saw, plan_name(current), why])
 		return
 	var survival := read == "AGGRESSIVE" and current == "economy" and not survival_used

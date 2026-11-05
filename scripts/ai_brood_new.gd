@@ -455,10 +455,12 @@ func _nb_read(fst: Vector2) -> void:
 	elif halls >= 2 and seen_army < 150.0 and mil <= 1:
 		v = "greedy"
 		seen = "a new base by its natural" if _base_seen_t < 0.0 else "a second base and little army"
-	elif _base_seen_t >= 0.0 and mil == 0 and seen_army <= 0.0 and game.clock >= AIScout.GREEDY_ABSENT_FROM and game.clock - _base_seen_t >= 4.0:
+	elif _base_seen_t >= 0.0 and mil == 0 and seen_army < 50.0:
+		if game.clock < AIScout.GREEDY_ABSENT_FROM or game.clock - _base_seen_t < 6.0:
+			return              # (its base only just in sight: a moment more before the absence says anything)
 		v = "greedy"
 		seen = "no army and no production at its base"
-	elif _base_seen_t >= 0.0 or mil >= 1 or seen_army > 0.0:
+	elif _base_seen_t >= 0.0 or mil >= 1 or seen_army >= 50.0:
 		v = "balanced"
 		seen = "a standard opening"
 	if v == "" or v == read:

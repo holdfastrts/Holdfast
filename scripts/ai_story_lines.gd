@@ -16,6 +16,28 @@ extends RefCounted
 ## A line no row matches is kept as a detail in plain English ("P1 Crown: <the line>").
 
 const RULES := [
+	# ---- THE READ OF A SCOUT REPORT and OPTIMAL's picks (ai-optimal, scripts/ai_read.gd, scripts/ai_optimal.gd): what it saw
+	# -> what it makes of it -> what it does. The saw phrases and the why phrases are fixed (AIRead.SAW, AIOptimal) and are
+	# translated as words of their own (tools/i18n/55_ai_optimal.txt).
+	["^(?:'s (?:plan|Clockwork|Brood): )?OPTIMAL: the common opening", "", 1, "plan"],
+	["^'s (?:plan|Clockwork|Brood): optimal: leans to (.+?) before it scouts \\((.+)\\)$", "%s leans to %s before it scouts: %s.", 3, "plan"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: picks (.+?) \\((.+)\\)$", "%s reads the enemy as %s (%s) and picks %s: %s.", 3, "plan"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\(it switched once this stage already; (.+) waits\\)$", "%s reads the enemy as %s (%s) but keeps %s: it has switched once this stage already, %s waits.", 2, "plan"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\((.+?) cannot be played from here\\)$", "%s reads the enemy as %s (%s) and keeps %s: %s cannot be played from here.", 2, "plan"],
+	["^'s (?:plan|Clockwork|Brood): optimal: reads (\\w+) \\[(.+?)\\]: keeps (.+?) \\((.+)\\)$", "%s reads the enemy as %s (%s) and keeps %s: %s.", 2, "plan"],
+	["^'s Clockwork: plays the (.+?) from here", "%s now plays the %s from where it stands.", 2, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): OPTIMAL picks its build from this", "%s reads the enemy as %s (%s).", 2, "scout"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; switches to a timing attack at (\\d+:\\d+) \\((\\d+) supply\\)", "%s reads the enemy as %s (%s): it is all economy, so it switches to a timing attack at %s with %s supply.", 3, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; races it", "%s reads the enemy as %s (%s): it is all economy, so its Economy plan races it, more bases sooner.", 3, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; keeps to its (.+) plan", "%s reads the enemy as %s (%s): it is all economy, and it keeps to its %s plan.", 2, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): a rush is coming", "%s reads the enemy as %s (%s): a rush is coming, so it defends first, then counter-attacks.", 3, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it turtles; out-expands it", "%s reads the enemy as %s (%s): it turtles, so it out-expands it and techs up.", 3, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it turtles; keeps to its (.+) plan", "%s reads the enemy as %s (%s): it turtles, and it keeps to its %s plan.", 2, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): keeps to its (.+) plan", "%s reads the enemy as %s (%s): it keeps to its %s plan.", 2, "plan"],
+	["^could not see the enemy \\[(.+?)\\]", "%s's scout saw too little (%s): that proves nothing, so it builds no army for it and looks again soon.", 2, "scout"],
+	["^scout trip \\d+ ends", "", 1, "scout"],
+	["^scout under guard \\((.+?)\\)", "%s's scout backs away from a guarded spot (%s) and keeps looking.", 1, "scout"],
+	["^scout pulled away", "", 1, "scout"],
 	# ---- the opening and the plan
 	["^opens with a Horse Breeder", "%s opens with a Horse Breeder: it plans an early Horseman rush.", 3, "plan"],
 	["^opens with a Powder Mill", "%s opens with a Powder Mill: Musketeers first, a steady line of fire.", 3, "plan"],
@@ -47,14 +69,11 @@ const RULES := [
 	["^'s siege push: waits", "%s holds its siege push back: the enemy army it knows is bigger.", 2, "attack"],
 	["^'s siege push: ", "", 1, "attack"],
 	# ---- scouting and what it decides from it
-	["^scouted: rush \\(", "%s's scout saw a rush coming: it switches to defence, army and walls first, then a counter-attack.", 3, "plan"],
-	["^scouted: greedy economy \\(.*\\), switching to a timing attack at (\\d+:\\d+) \\((\\d+) supply\\)", "%s's scout saw a greedy enemy: it plans one big attack at %s with %s supply.", 3, "plan"],
-	["^scouted: (.+?) \\(.*\\), carrying on with its (.+) plan", "%s's scout saw %s: it keeps to its %s plan.", 2, "plan"],
-	["^could not see the enemy", "%s could not see the enemy: it plays safe, army and walls before greed, and will look again.", 2, "plan"],
-	["^saw an enemy (.+?) \\(fast, a (\\w+) rush unit\\)", "%s spots an enemy %s: a sign of a %s rush.", 2, "scout"],
+	["^saw an enemy (.+?) \\(fast, a (\\w+) rush unit\\): evidence of a rush", "%s spots an enemy %s: a sign of a %s rush.", 2, "scout"],
+	["^saw an enemy (.+?) \\(fast\\): raiders to watch for", "%s spots an enemy %s: fast raiders to watch for.", 1, "scout"],
 	["^saw an enemy (.+?): a slow foot soldier", "%s spots an enemy %s: a normal opening, no rush yet.", 1, "scout"],
 	["^sends a (.+?) to scout(?: again)?", "%s sends a %s to scout.", 1, "scout"],
-	["^scout ", "%s's scout plays safe and will look again.", 1, "scout"],
+	["^scout (?:was )?(\\w+).*: it saw nothing to go on", "%s's scout was stopped before it saw anything; it will look again soon.", 1, "scout"],
 	["^the sentry backs away", "", 1, "scout"],
 	["^posts a (.+?) at the foot of the walled ramp", "%s posts a %s at the foot of the enemy's ramp to keep watch.", 1, "scout"],
 	# ---- rushes
@@ -162,6 +181,7 @@ const PLANS := {
 	"xrush": "%s (%s) gambles on an extreme rush: everything on Raptors, the first wave as soon as they hatch.",
 	"spitter": "%s (%s) plans a Spitter timing: the Venom Sire early and a Spitter-backed wave at about 6:00, its economy growing behind it.",
 	"brute": "%s (%s) plans a Brute siege: its Mother grows fast for Brutes that break the walls and turrets, the swarm behind them.",
+	"optimal": "%s (%s) plays OPTIMAL: a common opening and an early scout, then it picks its build from what it sees.",
 }
 
 ## The level names shown in the plan lines.

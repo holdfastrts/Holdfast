@@ -253,6 +253,20 @@ const PLANS := {
 			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
 			["foundry", 2, {"labs": 44, "halls": 3}]],
 		"s": {"wave": 18, "step": 8}},
+	# OPTIMAL (ai-optimal, scripts/ai_optimal.gd): THE COMMON OPENING the owner described ("most Crown games start the same:
+	# a Cottage, a Gate, then a Farm"), the scout out at once, and the build order waits at "pick" (labourers keep coming)
+	# until OPTIMAL picks a build from the read: that build's steps take over from there (opt_switch). A rush read puts the
+	# Barracks and the Mill up at once (_bo_defence), before any pick.
+	"optimal": {"opening": "mill", "labs": 99, "army": 0.5, "mill": [[0, 3], [16, 5], [20, 6]],
+		"bo": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
+			{"do": "pick"},
+		],
+		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["barracks", 2, {}], ["horse_breeder", 1, {}],
+			["barracks", 3, {"labs": 24}], ["armoury", 1, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}]],
+		"s": {"wave": 18, "step": 8}, "owner": true},
 }
 
 
@@ -268,10 +282,9 @@ func _ready() -> void:
 	if not strategies_for("crown").has(strategy):
 		strategy = "balanced"
 	if strategy == "optimal":
-		# OPTIMAL (scripts/ai_optimal.gd): the common opening is Balanced's (the ramp Cottage, the Gate, the second Farm; the
-		# Barracks first against the Brood), or the Horseman rush when it leans to it before scouting (the matchup, the map)
-		strategy = "balanced"
-		opt = AIOptimal.new(self, "balanced")
+		# OPTIMAL (scripts/ai_optimal.gd): the common opening (PLANS["optimal"]: the ramp Cottage, the Gate, the second Farm,
+		# then the pick), or the Horseman rush when it leans to it before scouting (the matchup, the map)
+		opt = AIOptimal.new(self, "optimal")
 		var ln: String = opt.lean_now() if on else ""
 		if ln != "":
 			strategy = ln
@@ -289,7 +302,7 @@ func _ready() -> void:
 		scout.mod = {}
 		scout.next_trip = OWNER_SCOUT_AT
 		scout.min_workers = 4
-		if strategy != "balanced":
+		if strategy != "optimal":
 			opt.lean_said(strategy)
 		say("OPTIMAL: the common opening (the ramp Cottage, the Gate, the second Farm), a scout at once, then it picks its build from what it sees")
 	if owner_on():
@@ -321,6 +334,8 @@ func opt_switch(k: String) -> bool:
 		return super(k)
 	strategy = k
 	_opened = k
+	over.erase("mid")             # (the cannon rule's milestones were the old plan's: _cannon_check looks again)
+	cannon_first = false
 	_make_plan()
 	opening = String(plan.get("opening", "mill"))
 	if difficulty >= 1 and not bo_done:
@@ -720,6 +735,8 @@ func _supply_due() -> bool:
 func _st_text(st: Dictionary) -> String:
 	if String(st["do"]) == "balloons":
 		return "balloon %d" % int(st.get("n", 1))
+	if String(st["do"]) == "pick":
+		return "OPTIMAL's pick: %s" % String(STRATEGIES[strategy]["name"])
 	match String(st["do"]):
 		"wall_cottage": return "the ramp Cottage"
 		"wall_gate": return "the ramp Gate"
@@ -734,6 +751,8 @@ func _st_text(st: Dictionary) -> String:
 func _st_done(st: Dictionary) -> bool:
 	if String(st["do"]) == "balloons":
 		return bl == null or bl.balloons().size() + bl.queued() >= int(st.get("n", 1))
+	if String(st["do"]) == "pick":
+		return opt == null or strategy != "optimal"      # (OPTIMAL has picked: the build's steps follow)
 	match String(st["do"]):
 		"wall_cottage":
 			return _walled or not _cw_active() or (not _cw_plan.is_empty() and _cw_cottage() != null)
@@ -811,6 +830,8 @@ func _st_price(st: Dictionary) -> int:
 func _st_do(st: Dictionary) -> String:
 	if String(st["do"]) == "balloons":
 		return _bl_step(st)
+	if String(st["do"]) == "pick":
+		return "wait"
 	match String(st["do"]):
 		"wall_cottage", "wall_gate":
 			if _cw_active():

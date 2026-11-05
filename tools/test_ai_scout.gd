@@ -8,8 +8,9 @@ extends SceneTree
 ##     plan (army and walls first, no early expansion, no early attack)
 ##  3. a greedy enemy (a second hall up, no military) makes it choose a timing attack, sized
 ##     and timed from what it saw
-##  4. an enemy walled in (the scout is denied): the computer plays safe (not greedy, walls
-##     or an army), and sends a second scout later
+##  4. an enemy walled in with nothing military: it reads GREEDY from the foot of the ramp (ai-optimal: the absence is
+##     information) and the Economy plan races it; a scout killed before it saw anything reads UNKNOWN: no army for it,
+##     another scout soon
 ##  5. the rush plan itself still opens at once, with no scout
 ## Prints PASS / FAIL per check and "ALL PASS" at the end (exit 1 on a failure).
 var main: Node
@@ -139,17 +140,33 @@ func _run() -> void:
 	check(_log_has("timing attack"), "the decision is in the match log")
 	await _stop()
 
-	# 4: a walled-in enemy: the scout is denied
+	# 4: a walled-in enemy (ai-optimal, the owner 2026-11-05: "the absence of army or buildings is already information"):
+	# the scout is kept out of the main but sees it from the foot of the ramp: no army, no production building -> GREEDY.
+	# The Economy plan keeps its identity: it races (its halls sooner), no army is built for it.
 	await _start("economy")
 	_wall_in()
+	var at0 := ai._attack_at
 	await _until(260.0, func() -> bool: return ai.scout.verdict != "pending")
 	print("   verdict at %d s: %s (%s)" % [int(g.clock), ai.scout.verdict, ai.scout.reason])
-	check(ai.scout.verdict == "uncertain", "a denied scout is uncertainty, not a rush or a greedy enemy (verdict %s)" % ai.scout.verdict)
-	check(ai.strategy == "economy" and float(ai._s("expand")) >= 1.3 and ai.scout.mod.get("halls", 9) <= 3, "it plays safe: no greedy expansion (expand x%s, was x0.45)" % ai._s("expand"))
-	check(ai.scout.want_wall, "it walls up")
-	check(_log_has("playing safe"), "the decision is in the match log")
-	await _until(g.clock + 140.0, func() -> bool: return ai.scout.trips >= 2)
-	check(ai.scout.trips >= 2, "it scouts again later (trips %d)" % ai.scout.trips)
+	check(ai.scout.verdict == "greedy", "an empty walled-in base reads GREEDY, not 'could not see' (verdict %s)" % ai.scout.verdict)
+	check(ai.strategy == "economy" and float(ai._s("expand")) <= 0.35, "the Economy plan keeps its plan and races it (expand x%s, was x0.45)" % ai._s("expand"))
+	check(ai._attack_at == at0 and ai.scout.mod.get("timing", 0) == 0, "no army or attack for it (attack at %d)" % ai._attack_at)
+	check(_log_has("races it"), "the read is in the match log")
+	await _stop()
+
+	# 4b: the scout is killed before it sees anything: UNKNOWN is no reason for an army; it looks again soon
+	await _start("economy")
+	await _until(120.0, func() -> bool: return ai.scout.state == "going" and ai.scout.unit != null and g.clock > 25.0)
+	var t_kill := g.clock
+	if ai.scout.unit != null:
+		ai.scout.unit.die()
+	await _until(t_kill + 3.0)
+	print("   verdict at %d s: %s (%s)" % [int(g.clock), ai.scout.verdict, ai.scout.reason])
+	check(ai.scout.verdict == "uncertain", "a scout killed before it saw anything reads UNKNOWN (verdict %s)" % ai.scout.verdict)
+	check(ai.scout.mod.is_empty() and not ai.scout.want_wall and ai.strategy == "economy", "UNKNOWN builds no army for it: the plan's own settings (mod %s)" % str(ai.scout.mod))
+	check(_log_has("that proves nothing"), "the story says it proves nothing")
+	await _until(g.clock + 60.0, func() -> bool: return ai.scout.trips >= 2)
+	check(ai.scout.trips >= 2 and g.clock - t_kill <= 60.0, "it looks again soon (trip 2 after %d s)" % int(g.clock - t_kill))
 	await _stop()
 
 	print("ALL PASS" if fails == 0 else "%d FAILED" % fails)

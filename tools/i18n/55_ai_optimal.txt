@@ -1,0 +1,261 @@
+# ai-optimal (docs/ai_optimal.md): the OPTIMAL plan, the five reads of a scout report and the AI STORY's new sentences
+# (scripts/ai_read.gd, scripts/ai_optimal.gd, scripts/ai_story_lines.gd). The placeholders keep their English order: the
+# first %s is the player ("P1 Crown"), then the read (GREEDY...), what it saw, the plan, the reason.
+
+> Optimal
+pt Ótimo
+es Óptimo
+
+> OPTIMAL plays the best it can: scouts and picks from all its builds.
+pt ÓTIMO joga o melhor que pode: explora e escolhe entre todas as suas estratégias.
+es ÓPTIMO juega lo mejor que puede: explora y elige entre todas sus estrategias.
+
+> %s (%s) plays OPTIMAL: a common opening and an early scout, then it picks its build from what it sees.
+pt %s (%s) joga ÓTIMO: uma abertura comum e um explorador cedo, depois escolhe a estratégia pelo que vê.
+es %s (%s) juega ÓPTIMO: una apertura común y un explorador temprano, después elige la estrategia por lo que ve.
+
+> GREEDY
+pt GANANCIOSO
+es CODICIOSO
+
+> NORMAL
+pt NORMAL
+es NORMAL
+
+> AGGRESSIVE
+pt AGRESSIVO
+es AGRESIVO
+
+> DEFENSIVE
+pt DEFENSIVO
+es DEFENSIVO
+
+> UNKNOWN
+pt DESCONHECIDO
+es DESCONOCIDO
+
+> %s leans to %s before it scouts: %s.
+pt %s tende a %s antes de explorar: %s.
+es %s se inclina por %s antes de explorar: %s.
+
+> %s reads the enemy as %s (%s) and picks %s: %s.
+pt %s lê o inimigo como %s (%s) e escolhe %s: %s.
+es %s lee al enemigo como %s (%s) y elige %s: %s.
+
+> %s reads the enemy as %s (%s) but keeps %s: it has switched once this stage already, %s waits.
+pt %s lê o inimigo como %s (%s) mas mantém %s: já trocou uma vez nesta fase, %s espera.
+es %s lee al enemigo como %s (%s) pero mantiene %s: ya cambió una vez en esta fase, %s espera.
+
+> %s reads the enemy as %s (%s) and keeps %s: %s cannot be played from here.
+pt %s lê o inimigo como %s (%s) e mantém %s: %s não pode ser jogado daqui.
+es %s lee al enemigo como %s (%s) y mantiene %s: %s no se puede jugar desde aquí.
+
+> %s reads the enemy as %s (%s) and keeps %s: %s.
+pt %s lê o inimigo como %s (%s) e mantém %s: %s.
+es %s lee al enemigo como %s (%s) y mantiene %s: %s.
+
+> %s now plays the %s from where it stands.
+pt %s agora joga %s a partir de onde está.
+es %s ahora juega %s desde donde está.
+
+> %s reads the enemy as %s (%s).
+pt %s lê o inimigo como %s (%s).
+es %s lee al enemigo como %s (%s).
+
+> %s reads the enemy as %s (%s): it is all economy, so it switches to a timing attack at %s with %s supply.
+pt %s lê o inimigo como %s (%s): é só economia, então muda para um ataque cronometrado às %s com %s de suprimento.
+es %s lee al enemigo como %s (%s): es todo economía, así que cambia a un ataque programado a las %s con %s de suministro.
+
+> %s reads the enemy as %s (%s): it is all economy, so its Economy plan races it, more bases sooner.
+pt %s lê o inimigo como %s (%s): é só economia, então seu plano Economia corre contra ele, mais bases mais cedo.
+es %s lee al enemigo como %s (%s): es todo economía, así que su plan Economía le hace la carrera, más bases antes.
+
+> %s reads the enemy as %s (%s): it is all economy, and it keeps to its %s plan.
+pt %s lê o inimigo como %s (%s): é só economia, e mantém o plano %s.
+es %s lee al enemigo como %s (%s): es todo economía, y mantiene su plan %s.
+
+> %s reads the enemy as %s (%s): a rush is coming, so it defends first, then counter-attacks.
+pt %s lê o inimigo como %s (%s): vem um ataque rápido, então defende primeiro e depois contra-ataca.
+es %s lee al enemigo como %s (%s): viene un ataque rápido, así que defiende primero y luego contraataca.
+
+> %s reads the enemy as %s (%s): it turtles, so it out-expands it and techs up.
+pt %s lê o inimigo como %s (%s): ele se fecha, então expande mais que ele e avança na tecnologia.
+es %s lee al enemigo como %s (%s): se encierra, así que se expande más que él y avanza en tecnología.
+
+> %s reads the enemy as %s (%s): it turtles, and it keeps to its %s plan.
+pt %s lê o inimigo como %s (%s): ele se fecha, e mantém o plano %s.
+es %s lee al enemigo como %s (%s): se encierra, y mantiene su plan %s.
+
+> %s reads the enemy as %s (%s): it keeps to its %s plan.
+pt %s lê o inimigo como %s (%s): mantém o plano %s.
+es %s lee al enemigo como %s (%s): mantiene su plan %s.
+
+> %s's scout saw too little (%s): that proves nothing, so it builds no army for it and looks again soon.
+pt O explorador de %s viu pouco demais (%s): isso não prova nada, então não faz exército por isso e olha de novo logo.
+es El explorador de %s vio demasiado poco (%s): eso no prueba nada, así que no hace ejército por ello y vuelve a mirar pronto.
+
+> %s's scout backs away from a guarded spot (%s) and keeps looking.
+pt O explorador de %s se afasta de um ponto vigiado (%s) e continua olhando.
+es El explorador de %s se aparta de un punto vigilado (%s) y sigue mirando.
+
+> %s's scout was stopped before it saw anything; it will look again soon.
+pt O explorador de %s foi parado antes de ver algo; vai olhar de novo logo.
+es El explorador de %s fue detenido antes de ver nada; volverá a mirar pronto.
+
+> %s spots an enemy %s: fast raiders to watch for.
+pt %s avista um %s inimigo: atacantes rápidos para vigiar.
+es %s avista un %s enemigo: atacantes rápidos que vigilar.
+
+# what the scout saw (AIRead.SAW)
+> no army and no production at its base
+pt nenhum exército e nenhuma produção na sua base
+es ni ejército ni producción en su base
+
+> a second base and little army
+pt uma segunda base e pouco exército
+es una segunda base y poco ejército
+
+> a full economy and no military building
+pt uma economia cheia e nenhum prédio militar
+es una economía llena y ningún edificio militar
+
+> a standard opening
+pt uma abertura comum
+es una apertura normal
+
+> fast rush units early
+pt unidades rápidas de ataque cedo
+es unidades rápidas de ataque temprano
+
+> a big early army
+pt um grande exército cedo
+es un gran ejército temprano
+
+> production buildings and a thin economy
+pt prédios de produção e uma economia fraca
+es edificios de producción y una economía débil
+
+> two Light Works very early
+pt duas Oficinas Leves muito cedo
+es dos Talleres Ligeros muy temprano
+
+> a production building very early
+pt um prédio de produção muito cedo
+es un edificio de producción muy temprano
+
+> turrets or rooted defenders
+pt torres ou defensores enraizados
+es torretas o defensores enraizados
+
+> walls all round one base
+pt muralhas em volta de uma base
+es murallas alrededor de una base
+
+> a walled ramp that kept the scout out
+pt uma rampa murada que barrou o explorador
+es una rampa amurallada que dejó fuera al explorador
+
+> too little of its base
+pt pouco demais da sua base
+es demasiado poco de su base
+
+> the scout was killed
+pt o explorador foi morto
+es el explorador murió
+
+> the scout was blocked
+pt o explorador foi barrado
+es el explorador fue bloqueado
+
+> the scout was driven off
+pt o explorador foi expulso
+es el explorador fue expulsado
+
+> the scout was turned back
+pt o explorador teve de voltar
+es el explorador tuvo que volver
+
+> no scout got out
+pt nenhum explorador saiu
+es ningún explorador salió
+
+> an army near its home
+pt um exército perto de casa
+es un ejército cerca de casa
+
+> its army on the move early
+pt seu exército em marcha cedo
+es su ejército en marcha temprano
+
+> a new base by its natural
+pt uma nova base na sua natural
+es una nueva base en su natural
+
+> no read yet
+pt nenhuma leitura ainda
+es ninguna lectura aún
+
+# why OPTIMAL picks (AIOptimal)
+> defend against the rush before it counter-attacks
+pt defender o ataque rápido antes de contra-atacar
+es defender el ataque rápido antes de contraatacar
+
+> out-expand and tech up before a siege
+pt expandir mais e avançar na tecnologia antes de um cerco
+es expandirse más y avanzar en tecnología antes de un asedio
+
+> a siege to break its defences
+pt um cerco para romper suas defesas
+es un asedio para romper sus defensas
+
+> an economic race
+pt uma corrida econômica
+es una carrera económica
+
+> a timing attack
+pt um ataque cronometrado
+es un ataque programado
+
+> raids on its workers
+pt ataques aos seus trabalhadores
+es incursiones contra sus trabajadores
+
+> the Pendulums answer its swarm
+pt os Pêndulos respondem ao seu enxame
+es los Péndulos responden a su enjambre
+
+> an early rush
+pt um ataque rápido cedo
+es un ataque rápido temprano
+
+> a normal game
+pt um jogo normal
+es una partida normal
+
+> punish the greed before its army is up
+pt punir a ganância antes que seu exército esteja pronto
+es castigar la codicia antes de que su ejército esté listo
+
+> Horsemen are no answer to Musketeers: a timing attack
+pt Cavaleiros não servem contra Mosqueteiros: um ataque cronometrado
+es Los Jinetes no sirven contra Mosqueteros: un ataque programado
+
+> a timing attack before its economy pays off
+pt um ataque cronometrado antes que sua economia renda
+es un ataque programado antes de que su economía rinda
+
+> too late to punish: out-expand it
+pt tarde demais para punir: expandir mais que ele
+es demasiado tarde para castigar: expandirse más que él
+
+> what it plays already answers it
+pt o que ele joga já responde a isso
+es lo que juega ya responde a eso
+
+> Horsemen are good against the Brood's grubs
+pt Cavaleiros são bons contra as larvas da Ninhada
+es Los Jinetes son buenos contra las larvas de la Nidada
+
+> the common opening
+pt a abertura comum
+es la apertura común
