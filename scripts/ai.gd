@@ -651,9 +651,10 @@ func _think_stage(i: int) -> void:
 		2:
 			var kept := _hide_kept()
 			var ek2 := _hide_econ(true)     # (... and before more soldiers, once the army has its minimum)
+			var bk2 := _band()              # (THE MARCHING BAND: its training and its musicians' research, the gold kept for them)
 			_research()
 			_produce()
-			game.players[team]["gold"] += ek2
+			game.players[team]["gold"] += ek2 + bk2
 			pt = _lap("ai/produce", pt)
 			ch.tick()           # (the rider scouts are picked before the raid party forms)
 			if difficulty >= 1 and _crown() and not peaceful:
@@ -3234,6 +3235,8 @@ func _research() -> void:
 		var info: Dictionary = Defs.RESEARCH[key]
 		if info["faction"] != game.faction_of(team) or game.has_tech(team, key) or game.researching(team, key):
 			continue
+		if info.has("band"):
+			continue        # (the band's musicians: _band)
 		var at: Array = RESEARCH_AT.get(key, ["musket", 0])
 		if int(n[at[0]]) < int(at[1]) * (1.5 if difficulty == 0 else 1.0):
 			continue
@@ -4890,13 +4893,78 @@ func _produce() -> void:
 	for c in _mine("church"):
 		if c.built and c.queue.is_empty() and r5.missionary_ok() and game.can_train(c, "missionary") == "":
 			game.train(c, "missionary")
-	# THE MARCHING BAND (the experiment, scripts/marching_band.gd): one band once the army is 6 strong (into a Barracks queue the
-	# soldiers keep full: up to its 5)
-	if Defs.marching_band and army.size() >= 6 and _gold() >= int(Defs.UNITS[MarchingBand.KIND]["cost"]):
-		for bk in _mine("barracks"):
-			if bk.built and game.can_train(bk, MarchingBand.KIND) == "":
-				game.train(bk, MarchingBand.KIND)
-				break
+
+
+## THE MARCHING BAND (scripts/marching_band.gd; docs/marching_band.md "The computer"): the Crown trains a band at the
+## Armoury once its army is BAND_ARMY strong, a second in a big army (BAND_ARMY2), and researches its musicians: the
+## Fifer first in a musket army (half its soldiers or more with muskets, or guns), else the Piper first. It SAVES for
+## them: the band's price, or the musician's research, is kept back from the soldiers (the gold returned: the caller
+## puts it back after _produce), so the musicians come even when every coin goes into men. Not with an enemy at home,
+## nor while the hall plan keeps its gold. Easy doesn't research the Piper.
+const BAND_ARMY := 10
+const BAND_ARMY2 := 30
+
+
+func _band() -> int:
+	if not _crown() or peaceful or _hall_reserve or _threat() != Vector2.INF:
+		return 0
+	var army := game.army(team)
+	var bands := 0
+	var men := 0
+	var muskets := 0
+	for u in army:
+		if u.kind == MarchingBand.KIND:
+			bands += 1
+		elif not u.dead and MarchingBand.plays_for(u):
+			men += 1
+			if Defs.MUSKETS.has(u.kind) or u.kind in ["cannon", "mortar", "dragoon"]:
+				muskets += 1
+	for a in _mine("armoury"):
+		bands += a.queue.count(MarchingBand.KIND)
+	if men < BAND_ARMY:
+		return 0
+	var want := 2 if men >= BAND_ARMY2 else 1
+	if bands < want:
+		var price: int = game.unit_price(team, MarchingBand.KIND)[0]
+		for a in _mine("armoury"):
+			if a.built and game.can_train(a, MarchingBand.KIND) == "":
+				game.train(a, MarchingBand.KIND)
+				_band_say("trains a Marching Band (%d soldiers)" % men)
+				return 0
+		if bands == 0 and _mine("armoury").any(func(a: Building) -> bool: return a.built):
+			return _band_hold(price)      # (the first band: kept back from the soldiers until it can be trained)
+	if bands == 0:
+		return 0
+	var order := ["band_fife", "band_pipes"] if muskets * 2 >= men else ["band_pipes", "band_fife"]
+	for key in order:
+		if game.has_tech(team, key) or game.researching(team, key):
+			continue
+		if key == "band_pipes" and difficulty == 0:
+			continue
+		var info: Dictionary = Defs.RESEARCH[key]
+		if _gold() >= int(info["cost"]) and _res2() >= float(info.get("cost2", 0)):
+			for a in _mine("armoury"):
+				if game.research_problem(a, key) == "":
+					game.start_research(a, key)
+					_band_say("researches the band's %s" % String(info["name"]))
+					return 0
+			return 0
+		return _band_hold(int(info["cost"]))
+	return 0
+
+
+func _band_say(s: String) -> void:
+	if has_method("say"):
+		call("say", s)          # (the Crown computer's plan notes: AICrown.say)
+	elif game.mlog:
+		game.mlog.add("%s %s" % [game.mlog.who(team), s])
+
+
+## Keep up to `need` gold back from the soldiers this think (returned: the caller adds it back afterwards).
+func _band_hold(need: int) -> int:
+	var k: int = mini(int(game.players[team]["gold"]), need)
+	game.players[team]["gold"] -= k
+	return k
 
 
 ## Gear mode: what the Mainsprings store at most (their Tension cap).
@@ -7212,8 +7280,7 @@ func _abilities() -> void:
 		CogScatter.ai_tick(game, team)     # (a Great Winder's SCATTER COGS on charging or fleeing clumps: scripts/cog_scatter.gd)
 	if not _crown():
 		return
-	if Defs.marching_band:
-		MarchingBand.ai_tick(game, team)     # (its musicians and solos: scripts/marching_band.gd)
+	MarchingBand.ai_tick(game, team)         # (its place behind the line and its solos: scripts/marching_band.gd)
 	for u in game.army(team):
 		if u.kind == "cannon":
 			var crowd := 0
@@ -7414,7 +7481,7 @@ func _toad(u: Unit) -> void:
 		return
 	# FOG: on the enemy's shooters, while our army is in the fight
 	var keep := float(Defs.TONGUE["cost"]) if prize else 0.0
-	if fogging or u.charge < float(Defs.FOG["cost"]) + keep:
+	if fogging or u.charge < float(Defs.FOG["cost"]) + keep or not game.has_tech(team, "nb_fog"):     # (FOG is researched at the Dilophosaurus)
 		return
 	var best := Vector2.INF
 	var score := 2.5

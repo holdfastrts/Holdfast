@@ -386,29 +386,30 @@ static var gear_mode := true
 ## band of a turning Clockwork ring are carried round with it. Set per match from the setting (Settings.gear_turn) and kept
 ## in the match's setup (cfg "gear_turn"), so a continued match, an online guest and a replay agree.
 static var gear_turn := true
-## THE MARCHING BAND (the owner's experiment, 2026-10-30; scripts/marching_band.gd, docs/marching_band.md): the Crown's band
-## of drums, pipes and fife that plays area buffs. Off by default (Settings.marching_band); kept in the match's setup (cfg
-## "marching_band") like TURNING GEARS.
-static var marching_band := false
-## The band's numbers: Claude's first guesses, measured in docs/marching_band.md (the owner's to tune). "area" in px.
-## Each instrument: "who" the musician, "label" the instrument, its price and time to take on, "lead" its SOLO's buff and
-## "second" its share while another leads or none does (+0.30 = +30%).
+## THE MARCHING BAND (the owner's idea 2026-10-30, a real Crown unit since 0.33.0 (the owner, 2026-11-05);
+## scripts/marching_band.gd, docs/marching_band.md): the Crown's band of drums, pipes and fife that plays area buffs.
+## Trained at the Armoury; a new band is a Drummer; the FIFER and the PIPER are Armoury research (RESEARCH "band_fife",
+## "band_pipes") that joins EVERY band of the player. Several bands allowed; their rings don't stack (the strongest).
+## (The old experiment switch "marching_band" in a saved setup, a replay or an online cfg is ignored.)
+## Each instrument always plays its "second" (+5%); its SOLO gives "lead" (+30%) for "solo" s, then "cooldown" s before
+## that instrument may solo again; one solo at a time per band. "area" in px. The owner's numbers (2026-11-05).
 const MARCHING_BAND := {
 	"area": 160.0,          # 5 tiles: its ring (a musket's reach is 190 px: the band stands just behind the line to cover it)
 	"pulse": 0.25,          # s between two passes of the music over the ring
 	"linger": 0.6,          # s a unit keeps the buff after it leaves the ring (no flicker at the edge)
 	"solo": 8.0,            # s a solo lasts: about one exchange of volleys (two or three reloads)
 	"cooldown": 45.0,       # s from a solo's start before that instrument may solo again (about one fight per solo)
-	"hp_per": 15.0,         # health each musician adds to the band (60 alone, 105 with all three)
+	"hp_per": 15.0,         # health each musician adds to the band (60 + 15: a new Drummer band has 75, 105 with all three)
+	"per_musician": 25,     # gold: a band's price grows by this for each musician researched (50, 75, 100)
 	"leash": 224.0,         # px: with no orders it falls in behind the nearest moving soldier this close (7 tiles)
 	"gap": 56.0,            # px: how far behind the man it follows it keeps
 	"phrase": 4.0,          # s: the length of one phrase of its sound loop (assets/audio/band/)
-	"drums": {"who": "Drummer", "label": "Drums", "cost": 50, "cost2": 0, "time": 8.0, "lead": 0.25, "second": 0.05,
-		"stat_text": "movement speed", "col": Color(0.95, 0.35, 0.3), "add_title": "Add a drummer", "solo_title": "Drum solo"},
-	"pipes": {"who": "Piper", "label": "Pipes", "cost": 75, "cost2": 0, "time": 12.0, "lead": 0.35, "second": 0.07,
-		"stat_text": "melee damage", "col": Color(0.45, 0.85, 0.45), "add_title": "Add a piper", "solo_title": "Pipe solo"},
-	"fife": {"who": "Fifer", "label": "Fife", "cost": 60, "cost2": 10, "time": 10.0, "lead": 0.30, "second": 0.05,
-		"stat_text": "reload speed", "col": Color(0.55, 0.75, 1.0), "add_title": "Add a fifer", "solo_title": "Fife solo"},
+	"drums": {"who": "Drummer", "label": "Drums", "research": "", "lead": 0.30, "second": 0.05,
+		"stat_text": "movement speed", "col": Color(0.95, 0.35, 0.3), "solo_title": "Drum solo"},
+	"pipes": {"who": "Piper", "label": "Pipes", "research": "band_pipes", "lead": 0.30, "second": 0.05,
+		"stat_text": "melee damage", "col": Color(0.45, 0.85, 0.45), "solo_title": "Pipe solo"},
+	"fife": {"who": "Fifer", "label": "Fife", "research": "band_fife", "lead": 0.30, "second": 0.05,
+		"stat_text": "reload speed", "col": Color(0.55, 0.75, 1.0), "solo_title": "Fife solo"},
 }
 
 ## The cog-making building's kind (provisional name: change it here and in the loc files only).
@@ -1186,13 +1187,14 @@ const UNITS := {
 		"requires": "charging_pylon", "anti_air": true, "faction": "clockwork",
 		"about": "Fragile lightning caster. STORM stuns everything inside it for 2.5 s, friends too, but does no damage; it burns 2 stored batteries. Its charge only fills inside a Clockwork field.",
 	},
-	# THE MARCHING BAND (experiment: Defs.marching_band; scripts/marching_band.gd): one per player, from the Barracks
+	# THE MARCHING BAND (scripts/marching_band.gd): from the Armoury; its price grows with the musicians researched
+	# (Game.unit_price: + MARCHING_BAND "per_musician" each), its health with the musicians in it (+ "hp_per" each)
 	"band": {
 		"tags": ["light"],
 		"name": "Marching Band", "hp": 60, "armor": 0, "speed": 62, "cost": 50, "time": 15.0, "supply": 1,
-		"sight": 8, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 10, "from": "barracks",
+		"sight": 8, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 12, "from": "armoury",
 		"no_attack": true, "faction": "crown",
-		"about": "The bandmaster, unarmed, and the musicians you add to him (a drummer, a piper, a fifer). Every instrument plays a small buff to your soldiers within 5 tiles; its SOLO gives the full buff for a few seconds. One band per player. Fragile: kill it and the music stops.",
+		"about": "Unarmed musicians who march behind your soldiers. A new band is a Drummer; research the Fifer and the Piper at the Armoury and they join every band. Each instrument always gives your soldiers within 5 tiles +5% (drums: speed, fife: reload, pipes: melee damage); its SOLO gives +30% for 8 s. Several bands may play, but their rings don't add up. Fragile: kill it and the music stops.",
 	},
 	"missionary": {
 		"tags": ["light"],
@@ -1429,12 +1431,12 @@ const BUILDINGS := {
 	},
 	"barracks": {
 		"name": "Barracks", "hp": 1000, "armor": 2, "cost": 150, "time": 40.0, "size": Vector2i(4, 3),
-		"supply": 0, "sight": 7, "trains": ["musketeer", "dragoon", "cuirassier", "dismounted", "band"], "requires": "cottage", "faction": "crown", "about": "Trains Musketeers and Officers, Horsemen and Dragoons (with a Horse Breeder: a rider's horse comes in the same click); with Armour, the armoured ones too. Powder buys their shots when they come out (ARM WITH POWDER, on: with none in the bank they come out with bayonet or sabre only, and refill later). Refits soldiers. Needs a Cottage. Two openings: Powder Mill first for armed Musketeers, or Horse Breeder first for a Horseman rush.",
+		"supply": 0, "sight": 7, "trains": ["musketeer", "dragoon", "cuirassier", "dismounted"], "requires": "cottage", "faction": "crown", "about": "Trains Musketeers and Officers, Horsemen and Dragoons (with a Horse Breeder: a rider's horse comes in the same click); with Armour, the armoured ones too. Powder buys their shots when they come out (ARM WITH POWDER, on: with none in the bank they come out with bayonet or sabre only, and refill later). Refits soldiers. Needs a Cottage. Two openings: Powder Mill first for armed Musketeers, or Horse Breeder first for a Horseman rush.",
 	},
 	"armoury": {
 		"name": "Armoury", "hp": 1000, "armor": 2, "cost": 150, "time": 40.0, "size": Vector2i(4, 3),
-		"supply": 0, "sight": 7, "trains": [], "requires": "barracks", "faction": "crown",
-		"about": "All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills and the Cavalry Charge. Refits soldiers. Needs a Barracks.",
+		"supply": 0, "sight": 7, "trains": ["band"], "requires": "barracks", "faction": "crown",
+		"about": "All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills, the Cavalry Charge and the band's Fifer and Piper. Trains the Marching Band. Refits soldiers. Needs a Barracks.",
 	},
 	"foundry": {
 		"name": "Foundry", "hp": 900, "armor": 2, "cost": 200, "time": 45.0, "size": Vector2i(4, 3),
@@ -1616,6 +1618,14 @@ const RESEARCH := {
 	"charge": {"name": "Cavalry Charge", "label": "CHARGE", "at": "armoury", "faction": "crown", "cost": 60, "cost2": 0, "time": 25.0,
 		"icon": "research_charge", "drill": true, "kinds": ["cuirassier"],
 		"about": "Drilled to charge: after about 2 s at the gallop a Horseman's or Cuirassier's next sabre blow hits double and throws the enemy back."},
+	# THE MARCHING BAND's musicians (scripts/marching_band.gd): each joins every band of the player, those on the field at
+	# once and every new one; any order. Each makes a band 25 gold dearer (MARCHING_BAND "per_musician").
+	"band_fife": {"name": "Fifer", "label": "FIFER", "at": "armoury", "faction": "crown", "cost": 60, "cost2": 10, "time": 25.0,
+		"icon": "ab_band_fife", "band": "fife",
+		"about": "A Fifer joins every Marching Band (+15 health each): the fife always gives soldiers in a band's ring +5% reload speed (muskets, pistols, cannons, mortars), and its FIFE SOLO +30% for 8 s. New bands cost 25 gold more."},
+	"band_pipes": {"name": "Piper", "label": "PIPER", "at": "armoury", "faction": "crown", "cost": 75, "cost2": 0, "time": 25.0,
+		"icon": "ab_band_pipes", "band": "pipes",
+		"about": "A Piper joins every Marching Band (+15 health each): the bagpipes always give soldiers in a band's ring +5% melee damage (bayonets, sabres), and the PIPES SOLO +30% for 8 s. New bands cost 25 gold more."},
 	# the Clockwork's Tension research (gear mode), at the Escapement (it must be working: meshed with a Mainspring)
 	"high_leap": {"name": "High Leap", "label": "HIGH LEAP", "at": "escapement", "faction": "clockwork", "cost": 150, "cost2": 0, "tension": 100,
 		"time": 60.0, "icon": "research_high_leap",
@@ -1656,6 +1666,14 @@ const RESEARCH := {
 	"nb_long_spit": {"name": "Long Spit", "label": "LONG SPIT", "at": "dilophosaurus", "faction": "brood", "cost": 100, "cost2": 25,
 		"time": 45.0, "stage": 0, "icon": "nbr_long_spit", "range": {"spitter": 25.0, "venom_challenger": 25.0},
 		"about": "Spitters and Venom Challengers spit as far as a Musketeer shoots: from 165 to 190."},
+	# THE MIST TOAD's spells (the owner, 2026-11-05: the band's solos are behind research, so are the Toad's): FOG and
+	# MIASMA researched at the Dilophosaurus, cheap and quick (the Toad itself comes at her stage 3); TONGUE is free
+	"nb_fog": {"name": "Fog Bank", "label": "FOG", "at": "dilophosaurus", "faction": "brood", "cost": 50, "cost2": 10,
+		"time": 20.0, "stage": 2, "icon": "ab_fog", "spell": "fog",
+		"about": "Every Mist Toad can lay FOG: a swamp fog bank where shots fired from or into it miss half the time and units inside see only 2 tiles."},
+	"nb_miasma": {"name": "Miasma Cloud", "label": "MIASMA CLOUD", "at": "dilophosaurus", "faction": "brood", "cost": 60, "cost2": 15,
+		"time": 25.0, "stage": 2, "icon": "ab_miasma", "spell": "miasma",
+		"about": "Every Mist Toad can lay MIASMA: a green cloud for 8 s in which the Brood heal up to 30% of their health."},
 	"nb_clutch_hatchlings": {"name": "Bigger Clutch", "label": "BIGGER CLUTCH", "at": "pterodactyl", "faction": "brood", "cost": 100, "cost2": 15,
 		"time": 40.0, "stage": 1, "icon": "nbr_clutch_hatchlings", "young": "hatchlings",
 		"about": "Hatchlings hatch three to an egg instead of two. The egg costs more (120 food and 15 spoils for three), so each Hatchling costs the same: more Hatchlings from each egg, not cheaper ones."},
@@ -1753,7 +1771,6 @@ const TEMP_ART := {
 	"dragoon": {"art": "dragoon", "armoured": "dragoon_armoured", "portrait": "dragoon", "portrait_armoured": "dragoon_armoured"},
 	"dismounted": {"art": "dismounted", "armoured": "dismounted_armoured", "portrait": "dismounted", "portrait_armoured": "dismounted_armoured"},
 	"mounted_missionary": {"art": "missionary_mounted", "portrait": "mounted_missionary"},
-	"band": {"art": "dismounted", "portrait": "band", "tint": Vector3(0.8, 0.9, 1.25), "feather": true},     # (the Marching Band: the Officer's sprites, tinted, with a plume, and its instruments drawn in code until it has its own: docs/art_style_inconsistency.md)
 	"horse_breeder": {"building": "horse_breeder", "portrait": "horse_breeder"},
 	"ore_drill": {"building": "ore_crusher", "portrait": "ore_crusher"},     # (until the Drill sheet is imported)
 	"rail_yard": {"building": "engine_hall", "portrait": "engine_hall"},     # (roster prototype: the Engine Hall's picture until a Rail Yard is drawn)
@@ -1840,8 +1857,6 @@ static func train_keys(kinds: Array, armour: bool) -> Array:
 			continue        # (rail vehicles: shelved with the Line)
 		if energy_only(k):
 			continue        # (gear mode: no power)
-		if k == "band" and not marching_band:
-			continue        # (the Marching Band: an experiment, off unless switched on)
 		if ARMOURED.has(k):
 			out.append(train_key(k, false))
 			if armour:
@@ -2286,7 +2301,7 @@ const TIPS := {
 	"dismounted_cuirassier": "Armoured Officer: a Cuirassier on foot, pistol and sabre, in his cuirass; reloads on foot. Needs Armour. MOUNT a horse: a Cuirassier.",
 	"balloon": "Carries 4 Musketeers or Labourers anywhere, over cliffs too. Musketeers aboard shoot 35% further. Slow and fragile.",
 	"missionary": "Bandages the wounded and raises fallen Crown soldiers. Can't be hurt away from enemy buildings. One per Church.",
-	"band": "Marching Band (experiment): drums (speed), pipes (melee damage) and fife (reload). Each instrument plays a small buff within 5 tiles; its SOLO a big one for 8 s. One per player; unarmed and fragile.",
+	"band": "Marching Band: a Drummer (speed), and the Fifer (reload) and Piper (melee damage) once researched at the Armoury. Each instrument gives +5% within 5 tiles; its SOLO +30% for 8 s, one solo at a time. Unarmed and fragile.",
 	# Brood units
 	"grub": "Carries food from Rootmaws and food piles to the Brood Mother (longer trips pay more). BUILD turns it into a Rootmaw, a Mound Turtle or a Sire.",
 	"raptor": "Fast, flimsy claws. Two hatch from each egg (three with BIGGER CLUTCH).",
@@ -2342,7 +2357,7 @@ const SHORT := {
 	"dragoon": "A Musketeer on a horse: rides fast, dismounts to fire.",
 	"dismounted": "A Horseman on foot: pistol and sabre. MOUNT a horse to ride.",
 	"balloon": "Carries 4 men over anything; Musketeers aboard shoot farther.",
-	"band": "Plays small buffs to your soldiers within 5 tiles. Unarmed.",
+	"band": "Plays buffs to your soldiers within 5 tiles; SOLOS for big ones. Unarmed.",
 	"missionary": "Bandages the wounded and raises fallen soldiers. One per Church.",
 	"mounted_missionary": "A Missionary on a horse: fast and unarmed; gets off to heal.",
 	# Brood

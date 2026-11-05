@@ -1,16 +1,198 @@
-# The Marching Band (experiment, 0.23.0)
+# The Marching Band (a real Crown unit since 0.33.0; the experiment of 0.23.0 below)
 
-The owner's idea (2026-10-30, docs/idea_bucket.md "CROWN MARCHING BAND"): a 17th-century band that follows the soldiers
-and gives AREA BUFFS by the music it plays. One band per player; it starts small and MUSICIANS are added like upgrades,
-each bringing an instrument and its SOLO (an active ability, mechanical, not magic): in a solo that instrument leads and
-gives its full buff, the others keep playing as secondaries. DRUMS: movement speed; BAGPIPES: melee damage; FIFE: reload.
-Crown identity: pound them at range, in trouble up close.
+The owner's idea (2026-10-30, docs/idea_bucket.md "CROWN MARCHING BAND"), made a real Crown unit by his decisions of
+2026-11-05 (CLAUDE.md "MARCHING BAND AS A REAL UNIT"): a 17th-century band that follows the soldiers and gives AREA BUFFS
+by the music it plays. BAGPIPES melee, DRUMS movement speed, FIFE ranged (as reload speed). The experiment's write-up,
+its fight measurements and the answer to "strong or minor buffs?" are kept below ("The 0.23.0 experiment").
 
-This is a PROOF OF CONCEPT behind a switch: **Settings > MARCHING BAND (experiment)**, off by default, kept in the match's
-setup (cfg "marching_band", `Defs.marching_band`) like TURNING GEARS, so a continued match, an online guest and a replay
-keep the rule the match started with. The Armoury study that goes with it: docs/armoury_study.md.
+## What changed in 0.33.0 (job marching-band)
 
-Pictures: docs/shots/marching_band/ (`tools/shot_marching_band.gd`, the PNGs made 1200 px JPEGs): the bandmaster alone and his ADD buttons, the full band's ring and SOLO buttons, the FIFE SOLO (the ring blue) as Clock Soldiers come in, the PIPES SOLO (green) at the bayonet.
+- **No experiment switch.** Settings' MARCHING BAND (experiment) toggle, `Settings.marching_band`, `Defs.marching_band`
+  and its gating (the Barracks' card, the AI hooks, `MarchingBand.on`) are gone. The band is always the Crown's. An old
+  saved setup, replay header or online cfg that carries `"marching_band"` still loads: the key is simply ignored
+  (main.gd). Old saves with a band in them load (their `"h"`/`"he"`, a musician being taken on, are dropped; the
+  research decides the musicians now).
+- **Trained at the ARMOURY** (Defs.BUILDINGS armoury "trains": ["band"]; the Barracks no longer trains it): 15 s, 1
+  supply. **A new band is a DRUMMER**: 60 + 15 = **75 health**, the drums playing from the start. The bandmaster-alone
+  stage is gone.
+- **The FIFER and the PIPER are Armoury research** (Defs.RESEARCH `band_fife`, `band_pipes`), in ANY order:
+
+  | research | price | time | brings |
+  |---|---|---|---|
+  | Fifer | 60 gold + 10 powder | 25 s | the fife: reload speed |
+  | Piper | 75 gold | 25 s | the bagpipes: melee damage |
+
+  (The old ADD prices, 60+10 and 75; the time is research-like, the old 10-12 s join was for one band.) Research is
+  permanent and applies to **every** band of the player: bands on the field gain the musician the moment it finishes
+  (`MarchingBand.sync`, every band tick: +15 health each, "+ Fifer" over it), and new bands come out with every musician
+  researched (`sync` in Unit._ready).
+- **Several bands allowed** (like cannons): the one-per-player limit is gone. **Each band's price grows with the
+  musicians researched: 50 gold + 25 a musician** (50, 75, 100; `Defs.MARCHING_BAND "per_musician"`,
+  `Game.unit_price` -> `MarchingBand.price_extra`). The train button's corner and its tooltip show the real price, and
+  the tooltip says who comes out in it ("Comes out with: Drummer, Fifer. Each musician researched at the Armoury adds 25
+  gold to its price."). A band queued at 100 and cancelled is paid back 100 (the kit's `"bandx"`).
+- **Rings don't stack**: each covered unit keeps one entry per band that reaches it (`Unit.band_src`, its band's
+  multipliers and how long they last) and takes, stat by stat, the strongest (`MarchingBand.mix`). This also FIXES a POC
+  bug: a soldier who stayed in the ring kept a solo's +30% after the solo ended (the old code took the max of the old and
+  new buff on every pass while the buff hadn't lapsed, so it never came down).
+- **The buffs (the owner's numbers)**: every instrument always gives **+5%** (its secondary), and **+30% during its
+  SOLO** (DRUMS movement speed, PIPES melee damage (any blow under 60 px reach: bayonets, sabres), FIFE reload/cooldown
+  speed (muskets, the Dragoon on foot, cannons, mortars, and now the **Officer's pistol** (`Unit._pistol_reload`, Defs.PISTOL
+  "reload") which the POC missed). A solo lasts **8 s**, each instrument has its **own 45 s cooldown** (from the solo's
+  start), no energy. **One solo at a time per band**; a second band may solo at the same time. Kept: the 5-tile ring, the
+  0.6 s linger, the telegraph (the ring turns the leading instrument's colour: drums red, pipes green, fife blue), the
+  escort/follow behaviour, the music, save/load, the online snapshot and the replay field.
+- **CROWN AMMUNITION (0.32.0)**: the band needs no powder (its price is gold; the Fifer research keeps 10 powder). The fife
+  only speeds men who actually have shots: a firearm man with an empty pouch (`_k_ammo` and `ammo_shots() == 0`) gets no
+  reload buff (his cooldown runs as anyone's); his bayonet still gets the pipes'.
+- **The card**: three SOLO buttons (DRUMS / PIPES / FIFE SOLO); the Fifer's and Piper's show locked ("Research the Fifer at
+  the Armoury first.") until researched. With several bands selected a SOLO plays on the first selected band free to play
+  it. The ADD buttons are gone (`Unit.band_hire` is kept as a no-op so an old replay's or old guest's command finds it).
+- **The Mist Toad (fairness)**: FOG and MIASMA are research at the Venom Sire (the Dilophosaurus, the Toad's father):
+  `nb_fog` "Fog Bank" (50 food + 10 spoils, 20 s) and `nb_miasma` "Miasma Cloud" (60 + 15, 25 s), both at the Mother's
+  stage 3, as the Toad itself. TONGUE stays free. `Game.spell_problem` refuses them before ("Research Fog Bank at the
+  Venom Sire first."), the card buttons show them locked, the Brood computer researches FOG then MIASMA as soon as it has a
+  Toad (ai_brood_new.gd `_nb_research`, put first in its list, even while another Sire researches) and its Toads only
+  cast FOG once it is researched (AI._toad).
+- Help (main.gd HELP: a Marching Band paragraph after the Armoury's, a Toad research line), the unit's, the Armoury's and
+  the researches' about texts, tooltips, i18n en/pt/es (tools/i18n/56_marching_band_unit.txt), patch notes.
+
+## The art (tools/import_band.py)
+
+The owner's ChatGPT sheets (art/redraws/band_*_walk_se_chatgpt.png): 4 marching-and-playing frames, south-east, navy
+ground. `tools/import_band.py` keys the navy, finds the 4 figures, scales each sheet so hat-top to soles is 34 game px
+(the drumsticks, drones and flag above it don't count), centres each frame on the coat, snaps the reds below the face to
+the team key reds (so the band wears its side's colour, like a Musketeer) and writes walk / idle / death strips into
+assets/units/band (the Drummer), band_fifer, band_piper (cell 44 x 46, soles on row 43) and `scripts/band_art.gd`
+(BandArt.ART, merged into ArtData.UNITS beside RebelArt's; tools/import_art.py writes the same merge line).
+
+- **The fifer**: of the two options, **B** (band_fifer_walk_se_b_chatgpt.png). Measured on the sheets
+  (`python3 tools/import_band.py --compare-fifers`): hat-to-soles 301-302 sheet px for both (the drummer 304-311, the
+  piper 311-314), but the stride (the feet's spread in the bottom rows) is 149-160 px in all four frames of B (the
+  drummer 130-144, the piper 131-152), while A's feet come together in three of its four frames (50-70 px): A shuffles
+  next to the other two, B marches with them.
+- **A group that grows** (`MarchingBand.group_look`, from Unit._animate): the Drummer is the unit's own sprite and leads in
+  the middle; the Fifer and the Piper are child sprites of it, behind him on either side (MarchingBand.SPOT, in the SE
+  picture's space: the Fifer behind his left shoulder, the Piper behind his right), drawn behind him, each only once
+  researched, so any research order works. They take his pose and view, one and two frames out of step so the three don't
+  march as one, and mirror with him.
+- **Every view uses the SE art** until the others are drawn (Unit falls back to the nearest drawn view; the west views are
+  the east mirrored): logged in docs/art_style_inconsistency.md ("The Marching Band") and docs/art_redraw_queue.md (item
+  43: S, E, NE, N per musician, one direction per ChatGPT request). The importer picks up
+  art/redraws/band_<drummer|fifer|piper>_walk_<dir>_chatgpt.png by itself when they arrive.
+- **Idle** = the walk frames played at the idle pace (2 a second: marking time, still playing). **Death** = the first frame
+  tipped over in three steps (code-made, logged).
+- The tinted-Officer stand-in (Defs.TEMP_ART "band") and the code-drawn instruments are gone. Kept: the code-drawn notes
+  over the band during a solo (now only in a solo, over the leading musician), and the leading musician **bobs 2 px and
+  stands 12% bigger** during his solo.
+- Pictures: docs/shots/marching_band/ (tools/shot_marching_band.gd, 1200 px JPEGs).
+
+## The computer
+
+- **AI._band** (in the produce step, before research and soldiers): the Crown computer trains a band at an Armoury once
+  its army has **10** fighting units (`BAND_ARMY`; workers, horses, bands not counted) and a **second at 30**
+  (`BAND_ARMY2`). It researches the musicians: the **Fifer first** when half or more of its army shoots (muskets, Dragoons,
+  guns), else the Piper first; Easy never takes the Piper. **It saves for them**: while a band is wanted and not yet
+  affordable, or a musician's research is next and not yet affordable, that price is kept back from the soldiers for this
+  think (the gold is put back after `_produce`, like the hall plan's `_hide_kept`), so the research comes even when every
+  coin goes into men (the POC's computer never could afford a musician). Not with an enemy in its base, nor while the
+  hall plan keeps its gold. The plan notes say "trains a Marching Band (12 soldiers)" / "researches the band's Fifer".
+  The shared research loop (`AI._research`) skips the band's research.
+- **MarchingBand.ai_tick** (every think, every band): **behind the line**: each band walks to a spot 70 px behind the
+  middle of its nearest group of soldiers, away from the nearest enemy (its army's attack-moves are overridden: the band
+  never walks in front); with no enemy near it keeps with them; far from all soldiers it follows the nearest.
+  **Solos**: PIPES when 3+ ringed soldiers fight and half or more of them are in melee; FIFE when 3+ are shooting (aiming
+  or reloading at a target); DRUMS when 3+ are chasing a target that walks away (catching a retreat) or when the enemies
+  round the band outnumber its soldiers by 3 and its men are falling back (escaping a lost fight). If the wanted one is on
+  cooldown it plays the other fighting one when that fits.
+
+## THE TESTS AND THE MATCHES
+
+- `tools/test_marching_band.gd` (62 checks, all pass): no switch; the Barracks refuses a band, the Armoury trains it;
+  50 gold with no musician, two queued at once (no limit), paid back; a band out of the Armoury is a Drummer at 75/75
+  playing +5% drums, no fife or pipes solo; the Piper researched FIRST at the Armoury's queue joins the band on the field
+  (90 health) and the price goes to 75; then the Fifer (105 health, price 100, paid back 100 when cancelled); a new band
+  comes out with all three; +5% on every stat with no solo; the ring (in, out, worker, enemy, itself); FIFE SOLO: one solo
+  at a time, +30% reaches the ring while the others stay at +5%, a musket reloads 30% faster (by the game clock), **the
+  Officer's pistol reloads 30% faster**, a musketeer with no shots isn't sped (against one outside the ring, also dry);
+  **two bands soloing at once** (fife and drums), **no stacking** (1.30 / 1.05 / 1.30, the strongest per stat); outside the
+  rings the reload is normal; the solos end after 8 s and **the ring falls back to +5%** (the POC's lingering-solo bug);
+  the cooldown; PIPES SOLO +30% on a bayonet thrust (vs +5%); the drums' +5% and DRUM SOLO +30% on the walk; the drawn
+  group (the Drummer's own strip, the Fifer and the Piper as visible child sprites); a save (state, research, 105 health);
+  an old experiment save (the bandmaster alone, a Piper joining) loads and fills in from the research; the online snapshot
+  and a replay's field list; the command funnel (band_solo, and band_hire kept); the buff gone 0.6 s after the band dies;
+  an old cfg key changes nothing.
+- `tools/test_toad_research.gd` (new, 15 checks, all pass): FOG and MIASMA research at the Venom Sire, stage 3, cheap; no
+  research for TONGUE; a Toad with energy is refused FOG and MIASMA before, can after (each its own); the Brood computer's
+  research list takes them once it has a Toad.
+- Also run and passing: test_files, test_i18n (0 of 411 data texts untranslated in pt and es), test_settings_tabs (the
+  toggle gone), test_crown_ammo (0 failures), test_replay (ALL OK). ("Aborted" at exit is the usual headless exit.)
+- Pictures (tools/shot_marching_band.gd, docs/shots/marching_band/): `0_drummer_band_card` (a new band: the Drummer alone,
+  75/75, DRUMS SOLO live, PIPES and FIFE locked), `1_full_band_ring_and_card` (Drummer, Fifer, Piper behind a Musketeer
+  line, its ring), `2_fife_solo_volleys` (the ring blue), `3_pipe_solo_bayonets` (green), `4_two_bands_one_solo` (two
+  full bands, one in its DRUM SOLO: the red ring).
+
+### Whole matches (tools/test_marching_band_match.gd, Hard Crown computer, Balanced)
+
+| map, seed | against | how it went | the band |
+|---|---|---|---|
+| ashford_crossing 4242 | Hard Brood | Crown lost at 10:20 (army at most 17) | none: no 10 soldiers with an Armoury standing |
+| ashford_crossing 4242 | Hard Clockwork | 12:00 not over; the Crown army never over 7 | none |
+| greenhold 4242 | Hard Brood | Crown lost at 10:58 (13 soldiers at 8-9 min) | none |
+| greenhold 4242 | Hard Clockwork | Crown lost at 15:51 (army at most 5) | none |
+| red_coast 7 | Hard Brood | Crown lost at 11:04 (army at most 12) | none |
+| red_coast 7 | **Hard Clockwork** | 20:00 not over; army 16-21 from 9:00 | **band at 10:22 (Drummer), Fifer 13:17, Piper 13:57 (Fifer first: a musket army; the Piper 40 s later, saved for); solos: DRUMS 11:48 (13 soldiers in the ring), FIFE 15:28 (6), DRUMS 15:36 (2, falling back); never lost** |
+| ashford_crossing 4242 | Normal Brood | Crown lost at 11:19 | none |
+
+The band works in a match (trained, both musicians researched with the gold kept back, behind the line, solos one at a
+time, never lost), but **the Hard Crown computer rarely reaches 10 soldiers with an Armoury standing**: against the Brood
+it is beaten at 10-11 minutes in every game, against the Clockwork it mostly trades its army away. This is not the band:
+the same ashford match on main (0.32.1, the experiment off) ended the same way at 10:14. So the band shows up in the
+computer's mid game only when that mid game happens (here 1 game in 7).
+
+## Claude's choices for the owner
+
+- **Research prices and times**: Fifer 60 gold + 10 powder, Piper 75 gold (the old ADD prices), both 25 s (research-like;
+  the old joins were 10-12 s for one band). Toad: Fog Bank 50 food + 10 spoils, 20 s; Miasma Cloud 60 + 15, 25 s; both at
+  the Mother's stage 3 (as the Toad). Names: the Toad research is "Fog Bank" / "Miasma Cloud" (the bare "Miasma" reads the
+  same in pt/es and test_i18n counts it untranslated).
+- **The band unit**: 50 gold, 15 s, 1 supply, 60 + 15 a musician (75, 90, 105), radius 12 (was 10, for the group).
+- **Rings don't stack, per stat** (the owner's rule), done per band entry on each covered unit so a solo that ends stops
+  counting at the band's next pass (0.25 s).
+- **The fife and dry men**: a firearm man with no shots gets no reload buff (his cooldown runs normally); his bayonet still
+  gets the pipes. A gun is never "dry" in that check unless its own ammunition is 0 (Defs.AMMO kinds).
+- **Several bands selected**: one press of a SOLO plays it on the first selected band free to (so a second press plays it
+  on the next); Ctrl doesn't play it on all (the owner may want that).
+- **The computer**: Fifer first when half or more of its fighting units shoot (muskets, Dragoons, guns), Piper first
+  otherwise; Easy never researches the Piper. It keeps the price of the next band/musician back from the soldiers (only
+  with a built Armoury for the first band). The band is held 70 px behind the middle of its nearest soldiers, away from
+  the nearest enemy. It does NOT make the Crown build its Armoury earlier for the band (the plans' build orders are the
+  owner's coached ones): see the open question.
+- **The art**: fifer option B (its stride matches); the group's places (Fifer behind the Drummer's left shoulder, Piper
+  behind his right) are set for the SE view; idle = the walk slowed; death = code-tipped frames; the portrait and button
+  icons are still the 0.23 PIL ones (now also the research buttons' icons).
+- **Old saves**: a 0.23 band in a save loads; a musician it was taking on is dropped (the research decides); the band ADD
+  order (`band_hire`) is a no-op kept for old replays and guests. The old experiment's i18n strings (tools/i18n/
+  33_marching_band.txt) are kept (unused).
+- **Git**: origin had an old `marching-band` branch from an older, rewritten history (the 0.23 experiment, already in
+  main). A force-push was refused, so it is kept under this branch by an "ours" merge (commit c0538abe: nothing of it
+  changes any file). **Merge this branch into main with a SQUASH** (or merge only from ca162e25 on) so the old history
+  isn't brought into main.
+
+## Open questions for the owner
+
+1. **The Crown computer's mid game**: should a computer that wants a band (10+ soldiers) build its Armoury for it (it comes
+   at 20-42 labourers in the plans), or keep the plans as coached? In 7 matches the band appeared once, because the Crown
+   rarely got to 10 soldiers with an Armoury (it loses to the Brood at 10-11 min with or without this job).
+2. **Price and research**: 50 + 25 a musician, the musicians 60+10 and 75 at 25 s: cheap enough for a second band?
+3. **Ctrl + SOLO** on several selected bands: play the solo on all of them at once?
+4. **Toad research numbers**: 50/10 and 60/15 at the Venom Sire, 20-25 s. And should FOG and MIASMA be one research?
+5. **The art still to draw** (docs/art_redraw_queue.md item 43): S, E, NE, N marching for each of the three musicians, and a
+   death row; a real band portrait and solo icons; real bagpipes audio.
+6. The band could be shown on the Armoury's rally / research buttons' tooltips with its live price only; is the "Comes out
+   with" note enough?
+
+# The 0.23.0 experiment (history: what the proof of concept was and measured)
 
 ## How it plays
 

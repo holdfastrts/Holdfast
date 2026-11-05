@@ -2090,6 +2090,11 @@ func _nb_research(q: Unit) -> void:
 			want.append("nb_clutch_hatchlings")
 		if line.call("hatchlings") + line.call("storm_challenger") >= 4:
 			want.append("nb_updraft")
+	# THE MIST TOAD's spells (Defs.RESEARCH nb_fog, nb_miasma at the Dilophosaurus) once it has Toads: FOG first (its use
+	# in a fight: AI._toad), MIASMA after; cheap, and wanted even while another Sire researches (a Toad without them is a lick)
+	if line.call("mist_toad") >= 1:
+		want.push_front("nb_miasma")
+		want.push_front("nb_fog")
 	if st >= 1 and game.clock >= 480.0:
 		want.append("nb_quick_roots")
 	if st >= 1 and game.clock >= 600.0 and food >= 400:

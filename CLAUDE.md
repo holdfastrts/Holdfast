@@ -147,7 +147,9 @@
   FOG and MIASMA to be locked behind research (at the Dilophosaurus; TONGUE free). DECIDED (owner 13:35): ONE SOLO AT A TIME
   per band; SEVERAL BANDS allowed (like cannons; rings don't stack: each stat takes the strongest); each band costs MORE per
   researched musician. The owner's SE art is in art/redraws/band_{drummer,fifer,fifer_b,piper}_walk_se_chatgpt.png (two
-  fifer options). crown-ammo merged 0.32.0, perf-frostfang 0.32.1; job marching-band after them.
+  fifer options). BUILT by the cloud job marching-band (0.33.0, branch marching-band, docs/marching_band.md: Armoury, research
+  musicians, several bands, fifer art option B, Toad FOG/MIASMA research); MERGE IT WITH A SQUASH (the branch carries an
+  old rewritten history by an "ours" merge); open questions in its doc.
 - MAP VARIETY (owner, DECIDED 2026-11-04 15:50): no single map rule; a pool with variety (some POCKET naturals sharing
   the main's choke, some open naturals, some between; mains hugging the corner is the milder option). He weighed turning
   every ramp toward a corner pocket and rejected it as a global rule (one point of defence = Crown turtling too strong).
