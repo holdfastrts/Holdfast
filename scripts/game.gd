@@ -4491,13 +4491,13 @@ func ammo_line(t: int, key: String, b: Building = null) -> String:
 	if full <= 0 or t < 0 or t >= players.size():
 		return ""
 	if b != null and not b.arm_powder:
-		return "no ammunition (ARM WITH POWDER off)"
+		return Loc.t("no ammunition (ARM WITH POWDER off)")
 	var n := mini(full, int(floor(float(players[t]["res2"]) / Defs.ammo_price(k) + 0.0001)))
 	if n <= 0:
-		return "no ammunition (no powder)"
+		return Loc.t("no ammunition (no powder)")
 	if n < full:
-		return "%d of %d shots (%d powder)" % [n, full, int(ceil(n * Defs.ammo_price(k) - 0.001))]
-	return "%d powder for %d shots" % [Defs.ammo_load(k), full]
+		return Loc.t("%d of %d shots (%d powder)") % [n, full, int(ceil(n * Defs.ammo_price(k) - 0.001))]
+	return Loc.t("%d powder for %d shots") % [Defs.ammo_load(k), full]
 
 
 func spawn_trained(b: Building, k: String, kit: Dictionary = {}) -> void:

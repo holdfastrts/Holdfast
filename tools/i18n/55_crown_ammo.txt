@@ -1,0 +1,53 @@
+# crown-ammo (0.32.0): powder buys the shots, no powder lock (docs/crown_ammo.md)
+
+> ARM WITH POWDER
+pt ARMAR COM PÓLVORA
+es ARMAR CON PÓLVORA
+
+> Arm with powder (glowing = on)
+pt Armar com pólvora (brilhando = ligado)
+es Armar con pólvora (brillando = encendido)
+
+> On: Musketeers, Officers, Horsemen and Dragoons come out with the shots the powder in the bank pays for (1 powder a shot: 10 a Musketeer, 5 an Officer's pistol; less powder, fewer shots). Off: they come out with no shots and fight with bayonet or sabre until they refill at a Mill, Town Hall or Powder Wagon; the powder is kept for the guns, and this Barracks refills nobody.
+pt Ligado: Mosqueteiros, Oficiais, Cavaleiros e Dragões saem com os tiros que a pólvora do banco paga (1 de pólvora por tiro: 10 um Mosqueteiro, 5 a pistola de um Oficial; menos pólvora, menos tiros). Desligado: saem sem tiros e lutam com baioneta ou sabre até reabastecer num Moinho, Prefeitura ou Carroça de Pólvora; a pólvora fica para os canhões, e este Quartel não reabastece ninguém.
+es Encendido: Mosqueteros, Oficiales, Jinetes y Dragones salen con los disparos que paga la pólvora del banco (1 de pólvora por disparo: 10 un Mosquetero, 5 la pistola de un Oficial; menos pólvora, menos disparos). Apagado: salen sin disparos y luchan con bayoneta o sable hasta rellenarse en un Molino, Ayuntamiento o Carro de pólvora; la pólvora se guarda para los cañones, y este Cuartel no rellena a nadie.
+
+> Arm with powder off: recruits come out with no shots (bayonet or sabre); the powder is kept for the guns.
+pt Armar com pólvora desligado: os recrutas saem sem tiros (baioneta ou sabre); a pólvora fica para os canhões.
+es Armar con pólvora apagado: los reclutas salen sin disparos (bayoneta o sable); la pólvora se guarda para los cañones.
+
+> Arm with powder on: recruits come out with the shots the bank pays for.
+pt Armar com pólvora ligado: os recrutas saem com os tiros que o banco paga.
+es Armar con pólvora encendido: los reclutas salen con los disparos que paga el banco.
+
+> ammunition:
+pt munição:
+es munición:
+
+> no ammunition (ARM WITH POWDER off)
+pt sem munição (ARMAR COM PÓLVORA desligado)
+es sin munición (ARMAR CON PÓLVORA apagado)
+
+> no ammunition (no powder)
+pt sem munição (sem pólvora)
+es sin munición (sin pólvora)
+
+> %d of %d shots (%d powder)
+pt %d de %d tiros (%d de pólvora)
+es %d de %d disparos (%d de pólvora)
+
+> %d powder for %d shots
+pt %d de pólvora por %d tiros
+es %d de pólvora por %d disparos
+
+> NO AMMO
+pt SEM MUNIÇÃO
+es SIN MUNICIÓN
+
+> RELOADING
+pt RECARREGANDO
+es RECARGANDO
+
+> reloads on foot or at a Mill, Barracks, Hall or Wagon
+pt recarrega a pé ou num Moinho, Quartel, Prefeitura ou Carroça
+es recarga a pie o en un Molino, Cuartel, Ayuntamiento o Carro

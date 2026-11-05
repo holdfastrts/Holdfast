@@ -150,7 +150,7 @@
   {
    "id": "mill",
    "say": [
-    "Musketeers need black powder. Build a Powder Mill near the hall: each hall allows one."
+    "Musketeers need black powder for their shots. Build a Powder Mill near the hall: each hall allows one."
    ],
    "task": "Build a Powder Mill.",
    "wait": {

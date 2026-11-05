@@ -4965,7 +4965,7 @@ func _card_tip(it: Array) -> Dictionary:
 		t["stats"] = "%s  ·  %d s  ·  %d supply%s" % [_cost_text(price[0], price[1]), int(u["time"]), int(u["supply"]) * n, ("  ·  %d an egg" % n) if n > 1 else ""]
 		var al := game.ammo_line(game.human, k, b if b != null and b.kind == "barracks" else null)
 		if al != "":
-			t["stats"] = "%s  ·  %s  ·  %d s  ·  %d supply" % [_cost_text(price[0], price[1]), Loc.t("ammunition: ") + Loc.t(al), int(u["time"]), int(u["supply"])]      # (crown-ammo: the powder for his shots)
+			t["stats"] = "%s  ·  %s  ·  %d s  ·  %d supply" % [_cost_text(price[0], price[1]), Loc.t("ammunition:") + " " + Loc.t(al), int(u["time"]), int(u["supply"])]      # (crown-ammo: the powder for his shots)
 		var tg: Array = ["armored"] if arm else u.get("tags", [])
 		t["body"] = ("[%s] " % " ".join(tg.map(func(x: String) -> String: return x.capitalize())) if not tg.is_empty() else "") + Defs.tip(k)
 		if Defs.ARMOURED.has(kd):

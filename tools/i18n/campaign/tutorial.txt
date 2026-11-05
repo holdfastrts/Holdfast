@@ -317,9 +317,9 @@ es Selecciona un Peón, pulsa CONSTRUIR (B), elige la CABAÑA y haz clic donde v
 pt Selecione um Operário, toque em CONSTRUIR, escolha o CASEBRE e toque onde ele fica.
 es Selecciona un Peón, toca CONSTRUIR, elige la CABAÑA y toca donde va.
 
-> Musketeers need black powder. Build a Powder Mill near the hall: each hall allows one.
-pt Mosqueteiros precisam de pólvora. Construa um Moinho de Pólvora perto da Prefeitura: cada uma permite um.
-es Los Mosqueteros necesitan pólvora. Construye un Molino de Pólvora cerca del Ayuntamiento: cada uno permite uno.
+> Musketeers need black powder for their shots. Build a Powder Mill near the hall: each hall allows one.
+pt Mosqueteiros precisam de pólvora para seus tiros. Construa um Moinho de Pólvora perto da Prefeitura: cada uma permite um.
+es Los Mosqueteros necesitan pólvora para sus disparos. Construye un Molino de Pólvora cerca del Ayuntamiento: cada uno permite uno.
 
 > It grinds the hall's saltpetre into powder. Saltpetre runs out too.
 pt Ele mói o salitre da Prefeitura em pólvora. O salitre também se esgota.
