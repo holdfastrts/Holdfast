@@ -51,6 +51,7 @@ const DEFEND_MOD := {"expand": 2.2, "halls": 2, "tech": 1.25, "workers": 0.85}
 var ai: AI
 var game: Game
 var enabled := false
+var passive := false            # (not enabled: still reads the rush from what its side's units see; AIClockwork's written builds)
 var state := "wait"             # wait, going, done
 var verdict := "pending"        # pending, balanced, rush, greedy, uncertain
 var reason := ""
@@ -161,6 +162,11 @@ func tick() -> void:
 	if game.over:
 		return
 	if not enabled:
+		if passive and ai._foe() >= 0:
+			# (no scout of its own: what its units see still says a rush is coming, ai-optimal: survival always)
+			_foe = ai._foe()
+			_observe()
+			_check_rush_units()
 		_sentry_alone()
 		return
 	var foe := ai._foe()

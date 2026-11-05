@@ -162,9 +162,13 @@ func _ready() -> void:
 	_make_plan()
 	_b_ready()          # (cw-builds-b: the push, scripts/ai_cw_push.gd)
 	bo_on = true
-	# (ai-optimal: EVERY plan keeps its scout. A written build keeps its own plan whatever the scout reads, but survival
-	# always: a rush read gets the rush reaction (a Light Works and Clock Soldiers, BuildsEco.urgent) ahead of its steps.
-	# Before, the written builds switched the scout off and saw a rush only when it hit them)
+	if scout != null and not _eco_plan() and opt == null:
+		# (the plan does not change on what a scout sees while it runs; its Swift scouts. ai-optimal: a Winder sent out cost
+		# the Springer timing a fifth of its income, 2,292 cogs by 6:00 against 4,185, and its attack. But SURVIVAL always:
+		# the scout reads what the build's own units see (passive), and a rush read gets the rush reaction (a Light Works
+		# and Clock Soldiers, BuildsEco.urgent) ahead of its steps)
+		scout.enabled = false
+		scout.passive = difficulty >= 1 and not peaceful
 	# (clockwork-eco: the Economy and Balanced openings keep the scout: rush evidence is their only reason for an early army)
 	note("plays the %s: the opening build (%d steps)" % [String(STRATEGIES[strategy]["name"]), steps.size()])
 	if opt != null:
