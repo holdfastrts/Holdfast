@@ -83,7 +83,7 @@ const NORMAL := {
 		"crown": {"economy": 3.0, "balanced": 2.0, "dragoon": 2.0, "siege": 1.0, "timing": 1.0}},
 	"clockwork": {"brood": {"pendulum": 3.0, "balanced": 2.0, "owls": 2.0},
 		"crown": {"balanced": 2.0, "economy": 2.0, "springer": 2.0, "heavy": 1.0},
-		"clockwork": {"balanced": 2.0, "economy": 2.0, "springer": 1.0, "cs_rush": 1.0}},
+		"clockwork": {"balanced": 3.0, "economy": 2.0, "springer": 1.0}},
 	"brood": {"crown": {"balanced": 2.0, "spitter": 2.0, "brute": 2.0, "timing": 1.0},
 		"clockwork": {"timing": 2.0, "spitter": 2.0, "balanced": 2.0},
 		"brood": {"balanced": 2.0, "timing": 2.0, "economy": 1.0, "rush": 1.0}},
@@ -173,6 +173,11 @@ func _punish(f: String, t: float) -> Array:
 				return ["timing", "a timing attack before its economy pays off"]
 			return ["economy", "too late to punish: out-expand it"]
 		"clockwork":
+			if f == "clockwork":
+				# (coached games, 0.32.0: the Clock Soldier rush on a greedy Clockwork ended behind both times, 9,000-9,300
+				# earned against 11,800-12,500, where Balanced in the same seat was even or close: the mirror's Clock Soldiers
+				# come at 2:00 whatever it plays. Balanced's steady waves on two Clocktowers)
+				return ["balanced", "steady waves punish the greed"]
 			if early:
 				return ["cs_rush", "punish the greed before its army is up"]
 			if t < TOO_LATE:
