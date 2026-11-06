@@ -34,7 +34,7 @@ const DEF_MARGIN := 1.5         # a raid is met by this many times its value
 const GROUP_MIN := 3            # never fewer defenders than this (unless the army has fewer)
 const WHOLE_SHARE := 0.45       # a raid worth this share of the army or more: the whole army meets it
 const GIVE_UP := 0.55           # the whole army worth less than this share of the raid: it holds at the main's gate
-const HOLD_K := 0.8             # (clockwork-home) worth less than this share of the raid: it holds on its gears instead
+const HOLD_K := 0.55            # (clockwork-home) worth less than this share of the raid: it holds on its gears instead
 const HOLD_FAR := 600.0         # (px from the gathering point: a raid nearer is met where it is)
 const LEASH := 520.0            # px from our nearest building: defenders further than this walk back
 const STRAY_R := 360.0          # px: in a whole-army defence, one this far from the others and from the raid comes back
@@ -271,7 +271,7 @@ func _gather_point() -> Vector2:
 ## `-- cwhome:off` plays 0.33.0's gathering point and raid answers (the "before" columns).
 var home_on := not OS.get_cmdline_user_args().has("cwhome:off")
 const ENTRY_NEAR := 40.0        # gear px past the band's tips: where the path counts as at the gear ground
-const HOME_REPICK := 30.0       # s between two picks of the gathering point (sooner when the halls or the rings change)
+const HOME_REPICK := 30.0       # s between two picks of the gathering point (sooner when a hall comes or goes; never in a fight)
 const SPOT_R := 520.0           # px: rest spots on the rings within this of the gathering point
 const SPOT_GAP := 26.0          # px between two rest spots
 const SPOT_TOL := 40.0          # px: a unit this near its spot is at rest
@@ -279,6 +279,7 @@ const TOP_AT := 0.8             # wind under which a resting unit steps onto the
 const TOP_FULL := 0.98          # it walks back once wound this far
 const TOP_MAX := 12.0           # s a top-up may take at most
 var _home_key := ""
+var _spots_v := -1
 var _home_t := -99.0
 var _spots: Array = []          # [{p, fp (a point on the band beside it), field (on a still plate: wound there)}]
 var _bspots: Array = []         # the band spots for the big machines (not carried)
@@ -304,11 +305,15 @@ func _gather_home() -> Vector2:
 	var bands := _my_bands()
 	if halls.is_empty() or bands.is_empty() or _foe() < 0:
 		return Vector2.INF
-	var key := "%d:" % game.gear_net.version
+	var key := ""
 	for h in halls:
 		key += str(h.get_instance_id()) + ","
-	if key == _home_key and game.clock - _home_t < HOME_REPICK and gather_pt != Vector2.INF:
+	if gather_pt != Vector2.INF and (key == _home_key and game.clock - _home_t < HOME_REPICK or phase == "defend" or phase == "hold"):
+		if game.gear_net.version != _spots_v and phase != "defend" and phase != "hold":
+			_spots_v = game.gear_net.version
+			_build_spots(gather_pt, bands)       # (a ring more or less: the spots again, the point stays)
 		return gather_pt
+	_spots_v = game.gear_net.version
 	_home_key = key
 	_home_t = game.clock
 	var mid := Vector2.ZERO
@@ -738,13 +743,14 @@ func _defend(home: Array, g: Vector2) -> bool:
 	if not home.is_empty() and whole:
 		var main_g: Vector2 = ai._post_spot()
 		if home_on and mine < bv * HOLD_K and (big["spot"] as Vector2).distance_to(g) > HOLD_FAR and not _spots.is_empty():
-			# (clockwork-home) STRONGER THAN THE WHOLE ARMY, away from its gathering point: it does not walk out into it (Kestrel
-			# Rise 8:48: 21 units, 1,470, went to a raid of 300 at the third Clocktower, the Brood's 65 Raptors came in behind it
-			# and 156 were left at 9:05); it holds together on its gears, wound and mended there, and meets it when it comes
+			# (clockwork-home) FAR STRONGER THAN THE WHOLE ARMY (as 0.33.0's rule at the main), away from its gathering point: it
+			# does not walk out into it; it holds together on its gears, wound and mended there, and meets it when it comes.
+			# (Tried at 0.8 of the raid: 7 games against the Brood lost more buildings, 6.3 a game against 1.3: holding while the
+			# Raptors ate the Winders and presses cost more than meeting them.)
 			if phase != "hold":
 				stats["holds"] = int(stats["holds"]) + 1
 			phase = "hold"
-			say("a raid worth %d at %s is stronger than its %d: the whole army holds together on its gears at %s, the Winders mend it" % [int(bv), _where(big["spot"]), int(mine), _where(g)], "hold", 30.0)
+			say("a raid worth %d at %s is far stronger than its %d: the whole army holds together on its gears at %s, the Winders mend it" % [int(bv), _where(big["spot"]), int(mine), _where(g)], "hold", 30.0)
 			for u in home:
 				var sp := _spot_for(u)
 				var to: Vector2 = sp["p"] if not sp.is_empty() else ai._home_spot(g)
