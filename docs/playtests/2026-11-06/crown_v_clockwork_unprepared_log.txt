@@ -1,0 +1,895 @@
+[00:00] P1 Crown's plan: OPTIMAL: the common opening (the ramp Cottage, the Gate, the second Farm), a scout at once, then it picks its build from what it sees
+[00:00] P2 Clockwork's Clockwork: plays the Balanced: the opening build (19 steps)
+[00:00] P2 Clockwork's Clockwork: OPTIMAL: the common opening (the economy opening: Winders non-stop, a fast second Clocktower), a scout, then it picks its build from what it sees
+Working Title for RTS v0.33.0 match log  (2026-11-06 10:46:55)
+Map: Ashford Crossing, 2 players  (seed 2091978150)
+  P1 Crown  side 1  colour Orange  AI: HARD, OPTIMAL
+  P2 Clockwork  side 2  colour Blue  AI: HARD, OPTIMAL
+Device: computer
+
+[00:00] P1 Crown's base layout at its main: 12 Cottage spots in 3 blocks at the back, 5 production rows' spots, 1 Farm and 1 Mill spots by the hall
+[00:00] P1 Crown's build order: the ramp Cottage (supply 5, 4 labourers, 150 gold)
+[00:00] P2 Clockwork's Clockwork: army: gathers in front of its Clocktower at (104, 105)
+[00:00] slow frame 108 ms: ai 56.7, ai/sites_warm 56.5, hud draw 22.7, hud/spec story 16.8, units 5.5, game 2.1, buildings 2.1, hud/groups 2.0, the rest 16.7
+[00:02] P1 Crown sends a Labourer to scout
+[00:12] P1 Crown got its first Labourer
+[00:12] P2 Clockwork got its first Winder
+[00:18] P2 Clockwork sends a Winder to scout
+[00:23] P1 Crown finished a Cottage
+[00:23] P1 Crown walled its ramp with a Cottage (1 pieces, 1 labourers on it)
+[00:23] P1 Crown's build order: the ramp Gate (supply 6, 5 labourers, 50 gold)
+[00:25] P2 Clockwork's Clockwork: lays a Regulator at 7 supply (step 1: 7 regulator)
+[00:37] P1 Crown's ramp wall stands (1 pieces, 13 s after it was laid)
+[00:37] P2 Clockwork's Clockwork: lays a Cog Press at 8 supply (step 2: 8 cog_press)
+[00:45] P1 Crown's build order: Farm 2 (supply 8, 7 labourers, 230 gold)
+[00:49] P2 Clockwork finished a Regulator
+[00:55] slow frame 105 ms: units 8.0 (slowest unit: labourer 2.7 ms, build), game 3.9, overlay draw 2.4, buildings 2.1, game/fog 1.7, game/fog/units 1.3, the rest 86.9
+--- minute 1 ---
+  Performance: 89 fps avg, 1% low 31 fps, worst frame 108 ms, 14 frames over 33 ms, 2 over 50 ms, 0.3 physics steps a frame | units 16, buildings 9, bodies 0, corpses 0, effects 1, smoke puffs 0, nodes 929, objects 4924
+    busy with: units 49.5 ms/s (357 calls/s), hud 37.4 ms/s (89 calls/s), hud draw 32.9 ms/s (31 calls/s), hud/look 24.6 ms/s (19 calls/s), buildings 23.8 ms/s (206 calls/s), ai 23.6 ms/s (60 calls/s), game 19.5 ms/s (30 calls/s), hud/top 12.7 ms/s (8 calls/s), hud/tip check 10.4 ms/s (18 calls/s), ai/sites_warm 9.1 ms/s (23 calls/s), hud/spec prod 5.1 ms/s (4 calls/s), hud/spec army 4.7 ms/s (3 calls/s), ai/build 4.6 ms/s (3 calls/s), overlay draw 3.5 ms/s (4 calls/s), game/unit grid 3.5 ms/s (30 calls/s), game/fog 3.3 ms/s (4 calls/s), ai/workers 3.2 ms/s (3 calls/s), hud/groups 3.2 ms/s (1 calls/s), hud/minimap 3.2 ms/s (6 calls/s), hud/spec story 2.9 ms/s (1 calls/s), building draw 2.8 ms/s (23 calls/s), game/fog/units 2.6 ms/s (4 calls/s), ai/army 2.5 ms/s (3 calls/s), effects 1.4 ms/s (156 calls/s), hud/card build 1.3 ms/s (4 calls/s), ai/raid 1.2 ms/s (3 calls/s), ai/micro 0.6 ms/s (3 calls/s), game/paths 0.6 ms/s (30 calls/s), powder smoke 0.6 ms/s (89 calls/s), game/fog/buildings 0.3 ms/s (4 calls/s), replay/key 0.3 ms/s (0 calls/s), game/path smoothing 0.3 ms/s (0 calls/s), hud/map view 0.3 ms/s (1 calls/s), hud/rest 0.3 ms/s (1 calls/s), ai/produce 0.3 ms/s (3 calls/s), hud/selection 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), game/pathfinder 0.1 ms/s (0 calls/s), ai/abil 0.1 ms/s (1 calls/s), hud/hover 0.1 ms/s (0 calls/s), unit draw 0.0 ms/s (0 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/workers/wall 0.0 ms/s (1 calls/s), ai/build/supply 0.0 ms/s (1 calls/s), ai/build/econ 0.0 ms/s (1 calls/s), ai/gg 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), ai/workers/xwall 0.0 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), ai/econ 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 380 gold total, has 130 + 0 powder | supply 10/18 | workers 8 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | soil 96% | saltpetre 100% | efficiency 60%
+  P2 Clockwork: earned 373 cogs total, has 133 + 0 tension | supply 9/20 | workers 8 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | brass 96% | efficiency 100%
+[01:11] P1 Crown finished a Farm
+[01:14] P2 Clockwork finished a Cog Press
+[01:15] slow frame 74 ms: units 6.4 (slowest unit: winder 2.6 ms, gather), buildings 1.6, game 1.5, hud 1.4, hud/look 1.3, overlay draw 1.0, the rest 61.7
+[01:30] P1 Crown's plan: step OPTIMAL's pick: Optimal waited 45 s with the gold in the bank: the next steps first, it is tried again later
+[01:35] slow frame 57 ms: units 2.6, overlay draw 1.6, game 1.5, the rest 49.7
+[01:38] P1 Crown scouted: GREEDY [no army and no production at its base] (its base seen (92%) at 1:38: no army, no production building; 2 economy buildings, 11 workers, 0 wall pieces): OPTIMAL picks its build from this
+[01:38] P1 Crown's plan: Balanced, a build order of 7 steps from here (scripts/ai_crown.gd)
+[01:38] P1 Crown's plan: optimal: reads GREEDY [no army and no production at its base]: picks Balanced (steady waves punish the greed)
+[01:39] P1 Crown's build order: the ramp Cottage (supply 13, 11 labourers, 360 gold)
+[01:39] P1 Crown's build order: the ramp Gate (supply 13, 11 labourers, 360 gold)
+[01:39] P1 Crown's build order: Farm 2 (supply 13, 11 labourers, 360 gold)
+[01:50] P2 Clockwork's Clockwork: its next Clocktower's spot: (97, 79), room for 8 of its ring's buildings (93% open ground beyond), 24 steps from its halls
+[01:50] P2 Clockwork's Clockwork: lays a Clocktower at 13 supply (step 4: clocktower)
+[01:50] slow frame 315 ms: ai 301.6, ai/build 301.5, units 2.3, building draw 1.7, the rest 8.4
+[01:51] slow frame 407 ms: hud draw 8.5, hud/spec story 6.0, units 2.7, hud/top 1.1, buildings 1.0, the rest 393.5
+--- minute 2 ---
+  Performance: 89 fps avg, 1% low 25 fps, worst frame 407 ms, 7 frames over 33 ms, 4 over 50 ms, 0.3 physics steps a frame | units 26, buildings 10, bodies 0, corpses 0, effects 1, smoke puffs 0, nodes 953, objects 5760
+    busy with: units 67.6 ms/s (626 calls/s), hud 33.3 ms/s (89 calls/s), hud draw 33.0 ms/s (34 calls/s), buildings 26.4 ms/s (274 calls/s), hud/look 22.0 ms/s (19 calls/s), game 22.0 ms/s (30 calls/s), ai 17.9 ms/s (60 calls/s), hud/top 16.6 ms/s (11 calls/s), hud/tip check 9.1 ms/s (18 calls/s), ai/build 6.0 ms/s (3 calls/s), game/unit grid 4.3 ms/s (30 calls/s), game/fog 4.3 ms/s (4 calls/s), ai/workers 4.1 ms/s (3 calls/s), ai/army 3.8 ms/s (3 calls/s), overlay draw 3.8 ms/s (4 calls/s), hud/spec army 3.7 ms/s (3 calls/s), game/fog/units 3.7 ms/s (4 calls/s), building draw 3.4 ms/s (30 calls/s), hud/spec prod 3.2 ms/s (4 calls/s), hud/minimap 3.1 ms/s (6 calls/s), hud/spec story 2.8 ms/s (1 calls/s), hud/groups 2.7 ms/s (1 calls/s), effects 1.4 ms/s (180 calls/s), ai/sites_warm 1.1 ms/s (23 calls/s), game/paths 0.8 ms/s (30 calls/s), ai/micro 0.7 ms/s (3 calls/s), hud/card build 0.6 ms/s (4 calls/s), replay/key 0.5 ms/s (0 calls/s), powder smoke 0.5 ms/s (89 calls/s), ai/raid 0.5 ms/s (3 calls/s), game/pathfinder 0.4 ms/s (2 calls/s), ai/produce 0.3 ms/s (3 calls/s), hud/rest 0.2 ms/s (1 calls/s), game/fog/buildings 0.2 ms/s (4 calls/s), hud/map view 0.2 ms/s (1 calls/s), hud/selection 0.1 ms/s (1 calls/s), game/path smoothing 0.1 ms/s (2 calls/s), ai/abil 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), unit draw 0.1 ms/s (1 calls/s), ai/build/supply 0.0 ms/s (1 calls/s), ai/gg 0.0 ms/s (1 calls/s), ai/workers/wall 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), ai/build/econ 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/workers/xwall 0.0 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), ai/econ 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 760 gold total, has 360 + 0 powder | supply 13/18 | workers 13 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | soil 92% | saltpetre 100% | efficiency 63%
+  P2 Clockwork: earned 1022 cogs total, has 82 + 0 tension | supply 14/20 | workers 13 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | brass 89% | efficiency 100%
+[02:05] P2 Clockwork's Clockwork: lays a Light Works at 14 supply (step 5: movement_works)
+[02:15] P1 Crown is expanding to fresh land (left at its best hall: 87%), 19 tiles from its main (its build order)
+[02:15] P1 Crown's build order: Town Hall 2 (supply 14, 13 labourers, 290 gold)
+[02:15] slow frame 79 ms: ai 59.9, ai/build 59.8, units 3.1, building draw 2.6, the rest 11.3
+[02:16] slow frame 186 ms: units 2.6, buildings 1.1, the rest 181.4
+[02:16] P1 Crown plans a walled expansion: 34 ways-in cells (radius 16), 8 building slots, 7 palisade, 2 gate
+[02:16] slow frame 111 ms: ai 95.6, ai/workers 95.5, units 2.7, game 1.3, the rest 10.1
+[02:18] P2 Clockwork's Clockwork: lays a Mainspring at 15 supply (step 6: mainspring)
+[02:25] P2 Clockwork's Clockwork: lays a Regulator at 15 supply (step 8: 15 regulator)
+[02:28] P1 Crown's build order: Barracks 1 (supply 15, 14 labourers, 84 gold)
+[02:29] P1 Crown sends another Labourer to its Barracks site (its builder was pulled away)
+[02:32] P2 Clockwork could not see the enemy [the scout was killed] (it saw too little of the base): that proves nothing; no army for it, keeps to Balanced and looks again soon
+[02:48] slow frame 618 ms: units 4.2, overlay draw 3.0, building draw 2.5, buildings 1.8, the rest 604.2
+[02:48] slow frame 64 ms: units 15.8, overlay draw 13.7, buildings 5.8, ai 4.8, building draw 4.2, game 4.1, ai/workers 3.1, hud draw 1.4, the rest 12.7
+[02:49] P1 Crown finished a Town Hall (expansion)
+[02:50] P1 Crown's base layout at its new hall: 0 Cottage spots in 0 blocks at the back, 4 production rows' spots, 2 Farm and 1 Mill spots by the hall
+[02:51] P2 Clockwork finished a Light Works
+[02:52] P2 Clockwork finished a Regulator
+[02:56] P2 Clockwork finished a Mainspring
+--- minute 3 ---
+  Performance: 88 fps avg, 1% low 22 fps, worst frame 618 ms, 12 frames over 33 ms, 5 over 50 ms, 0.3 physics steps a frame | units 31, buildings 15, bodies 1, corpses 0, effects 1, smoke puffs 0, nodes 988, objects 6659
+    busy with: units 78.3 ms/s (847 calls/s), hud draw 37.0 ms/s (48 calls/s), hud 34.2 ms/s (88 calls/s), buildings 32.2 ms/s (401 calls/s), game 24.1 ms/s (30 calls/s), ai 21.3 ms/s (60 calls/s), hud/look 21.2 ms/s (19 calls/s), hud/top 18.0 ms/s (15 calls/s), hud/tip check 8.6 ms/s (18 calls/s), ai/workers 7.2 ms/s (3 calls/s), game/fog 5.4 ms/s (4 calls/s), game/unit grid 5.0 ms/s (30 calls/s), game/fog/units 4.5 ms/s (4 calls/s), overlay draw 4.4 ms/s (4 calls/s), building draw 4.1 ms/s (30 calls/s), ai/build 3.8 ms/s (3 calls/s), hud/hover 3.6 ms/s (10 calls/s), hud/spec story 3.5 ms/s (1 calls/s), ai/army 3.4 ms/s (3 calls/s), hud/spec army 3.4 ms/s (3 calls/s), hud/spec prod 3.1 ms/s (4 calls/s), ai/sites_warm 2.8 ms/s (23 calls/s), hud/minimap 2.8 ms/s (6 calls/s), hud/groups 2.3 ms/s (1 calls/s), hud/map view 2.2 ms/s (12 calls/s), ai/raid 1.4 ms/s (3 calls/s), effects 1.2 ms/s (172 calls/s), hud/selection 1.0 ms/s (1 calls/s), ai/micro 0.8 ms/s (3 calls/s), hud/card build 0.6 ms/s (4 calls/s), powder smoke 0.5 ms/s (88 calls/s), game/paths 0.5 ms/s (30 calls/s), game/fog/buildings 0.4 ms/s (4 calls/s), replay/key 0.4 ms/s (0 calls/s), ai/produce 0.2 ms/s (3 calls/s), hud/rest 0.2 ms/s (1 calls/s), unit draw 0.2 ms/s (2 calls/s), ai/abil 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), game/path smoothing 0.1 ms/s (1 calls/s), game/pathfinder 0.0 ms/s (1 calls/s), ai/gg 0.0 ms/s (1 calls/s), ai/build/supply 0.0 ms/s (1 calls/s), game/refit 0.0 ms/s (1 calls/s), ai/workers/wall 0.0 ms/s (1 calls/s), ai/build/econ 0.0 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), ai/loose 0.0 ms/s (1 calls/s), ai/workers/xwall 0.0 ms/s (1 calls/s), ai/econ 0.0 ms/s (1 calls/s), ai/horses 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 1140 gold total, has 84 + 0 powder | supply 15/28 | workers 15 | halls 2 | army (0 value): none | kills +1 (1) losses +0 (0) | soil 87% 100% | saltpetre 100% 100% | efficiency 60%
+  P2 Clockwork: earned 1886 cogs total, has 246 + 2 tension | supply 18/30 | workers 16 | halls 1 | army (0 value): none | kills +0 (0) losses +1 (1) | brass 79% | efficiency 89%
+[03:00] P2 Clockwork's Clockwork: plays the Economy from here: the opening build (18 steps, 7 done already)
+[03:00] P2 Clockwork's Clockwork: optimal: reads UNKNOWN [no read yet]: picks Economy (an economic race)
+[03:03] P2 Clockwork finished a Clocktower (expansion)
+[03:04] P1 Crown's plan: a Farm at its new hall at once (13 s after it stood)
+[03:04] P1 Crown's build order: Powder Mill 1 (supply 17, 15 labourers, 64 gold)
+[03:04] P1 Crown's build order: Musketeers from now on (up to 8 supply) (supply 17, 15 labourers, 64 gold)
+[03:04] P1 Crown's plan: the opening is over (the build order is done): the milestones take over
+[03:04] P2 Clockwork's Clockwork: lays a Cog Press by its new Clocktower at 19 supply (step 10: press_new)
+[03:05] P2 Clockwork got its first Clock Soldier
+[03:05] P2 Clockwork's Clockwork: the second Clocktower's presses are laid: the army grows from now on (a Clock Soldier from every idle Light Works)
+[03:07] P2 Clockwork's Clockwork: army: gathers in front of its Clocktower at (99, 81)
+[03:07] P2 Clockwork sends a Winder to scout again (trip 2)
+[03:12] P2 Clockwork's Clockwork: lays a Regulator at 21 supply (step 12: 21 regulator)
+[03:15] P1 Crown plans palisade for an empty wall slot at its new hall (5 pieces, laid later)
+[03:15] P1 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[03:15] P1 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[03:15] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[03:15] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[03:15] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[03:19] P1 Crown finished a Barracks
+[03:21] slow frame 69 ms: ai 49.7, ai/econ 44.6, ai/workers 4.4, units 3.6, buildings 2.7, building draw 2.4, the rest 10.2
+[03:22] slow frame 55 ms: units 4.4, buildings 1.7, the rest 48.1
+[03:35] P1 Crown finished a Powder Mill
+[03:35] P1 Crown finished a Cottage
+[03:36] P2 Clockwork finished a Regulator
+[03:43] P2 Clockwork finished a Cog Press
+[03:44] P1 Crown finished a Farm
+[03:47] P1 Crown finished a Horse Breeder
+[03:57] P1 Crown lays 6 wall pieces at its new hall (2 labourers on it)
+--- minute 4 ---
+  Performance: 90 fps avg, 1% low 36 fps, worst frame 69 ms, 5 frames over 33 ms, 2 over 50 ms, 0.3 physics steps a frame | units 51, buildings 28, bodies 1, corpses 0, effects 2, smoke puffs 0, nodes 1079, objects 8153
+    busy with: units 96.6 ms/s (1196 calls/s), buildings 43.0 ms/s (613 calls/s), hud draw 34.2 ms/s (46 calls/s), hud 33.4 ms/s (90 calls/s), game 29.5 ms/s (30 calls/s), ai 26.2 ms/s (60 calls/s), hud/look 22.1 ms/s (19 calls/s), hud/top 18.3 ms/s (15 calls/s), hud/tip check 9.2 ms/s (18 calls/s), game/fog 6.6 ms/s (4 calls/s), game/unit grid 5.8 ms/s (30 calls/s), ai/workers 5.7 ms/s (3 calls/s), game/fog/units 5.5 ms/s (4 calls/s), ai/army 4.1 ms/s (3 calls/s), building draw 4.0 ms/s (52 calls/s), overlay draw 3.8 ms/s (4 calls/s), ai/sites_warm 3.5 ms/s (23 calls/s), hud/spec army 3.3 ms/s (3 calls/s), hud/spec prod 2.8 ms/s (4 calls/s), hud/selection 2.8 ms/s (3 calls/s), hud/minimap 2.7 ms/s (6 calls/s), ai/build 2.6 ms/s (3 calls/s), ai/produce 2.4 ms/s (3 calls/s), hud/groups 2.1 ms/s (1 calls/s), hud/hover 1.7 ms/s (5 calls/s), effects 1.6 ms/s (308 calls/s), ai/econ 1.3 ms/s (3 calls/s), ai/workers/xwall 1.3 ms/s (3 calls/s), hud/map view 1.2 ms/s (7 calls/s), ai/raid 1.1 ms/s (3 calls/s), game/paths 0.9 ms/s (30 calls/s), ai/horses 0.7 ms/s (3 calls/s), ai/build/econ 0.7 ms/s (3 calls/s), hud/card build 0.6 ms/s (4 calls/s), ai/abil 0.6 ms/s (3 calls/s), game/fog/buildings 0.5 ms/s (4 calls/s), powder smoke 0.5 ms/s (90 calls/s), replay/key 0.5 ms/s (0 calls/s), game/path smoothing 0.5 ms/s (2 calls/s), ai/build/supply 0.4 ms/s (3 calls/s), hud/spec story 0.4 ms/s (1 calls/s), unit draw 0.3 ms/s (3 calls/s), ai/micro 0.2 ms/s (3 calls/s), game/pathfinder 0.2 ms/s (2 calls/s), ai/gg 0.2 ms/s (3 calls/s), hud/rest 0.2 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/workers/wall 0.1 ms/s (3 calls/s), game/refit 0.1 ms/s (1 calls/s), ai/loose 0.0 ms/s (3 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 2280 gold total, has 4 + 17 powder | supply 26/36 | workers 23 | halls 2 | army (0 value): none | kills +0 (1) losses +0 (0) | soil 75% 100% | saltpetre 99% 100% | efficiency 42%
+  P2 Clockwork: earned 2770 cogs total, has 70 + 116 tension | supply 31/50 | workers 24 | halls 2 | army (280 value): 4 Clock Soldier | kills +0 (0) losses +0 (1) | brass 70% 100% | efficiency 98%
+[04:07] P2 Clockwork's Clockwork: lays a Light Works at 32 supply (step 14: movement_works)
+[04:12] P1 Crown got its first Musketeer
+[04:19] P2 Clockwork's Clockwork: lays a Escapement at 34 supply (step 15: escapement)
+[04:24] P2 Clockwork's Clockwork: lays a Regulator at 34 supply (step 17: 27 regulator)
+[04:27] P2 Clockwork's Clockwork: the opening build is over (its end step) at 35 supply: the computer plays on (Economy numbers)
+[04:28] P2 Clockwork's Clockwork: its next Clocktower's spot: (100, 61), room for 9 of its ring's buildings (94% open ground beyond), 43 steps from its halls
+[04:28] slow frame 252 ms: ai 236.2, ai/build 234.5, units 3.6, hud draw 2.4, buildings 1.5, hud/spec army 1.3, hud/top 1.1, the rest 7.5
+[04:28] slow frame 71 ms: units 27.0, buildings 11.2, ai 7.8, game 7.2, ai/army 3.6, game/fog 2.0, ai/produce 2.0, game/fog/units 1.8, the rest 14.5
+[04:32] P1 Crown sends a Labourer to scout again (trip 2)
+[04:32] P2 Clockwork posts a Winder at the foot of the walled ramp to keep watch
+[04:34] P1 Crown finished a Farm
+[04:35] P1 Crown got its first Horse
+[04:42] P1 Crown got its first Horseman
+[04:44] P1 Crown finished a Powder Mill
+[04:46] P2 Clockwork is expanding to fresh ore (left at its best hall: 96%), 40 tiles from its main
+[04:46] slow frame 462 ms: the rest 461.4
+[04:46] slow frame 70 ms: units 30.3, buildings 11.6, game 7.4, game/fog 2.2, game/fog/units 1.9, game/unit grid 1.7, hud 1.6, hud/look 1.6, the rest 16.3
+[04:46] P2 Clockwork keeps room for a Heavy Works' big ring on its gear field (a Mainspring anywhere in the network feeds it)
+[04:46] slow frame 90 ms: ai 73.9, ai/build 71.7, units 4.0, buildings 1.6, hud draw 1.6, ai/build/econ 1.4, hud/top 1.1, the rest 7.5
+[04:47] P2 Clockwork finished a Regulator
+[04:50] P2 Clockwork finished a Light Works
+--- minute 5 ---
+  Performance: 83 fps avg, 1% low 20 fps, worst frame 462 ms, 25 frames over 33 ms, 5 over 50 ms, 0.4 physics steps a frame | units 64, buildings 35, bodies 1, corpses 0, effects 1, smoke puffs 0, nodes 1139, objects 9610
+    busy with: units 125.6 ms/s (1780 calls/s), buildings 51.8 ms/s (935 calls/s), ai 43.2 ms/s (60 calls/s), game 34.4 ms/s (30 calls/s), hud 32.6 ms/s (83 calls/s), hud draw 31.9 ms/s (39 calls/s), hud/look 23.5 ms/s (19 calls/s), hud/top 19.4 ms/s (16 calls/s), ai/build 10.8 ms/s (3 calls/s), hud/tip check 9.4 ms/s (18 calls/s), game/fog 8.4 ms/s (4 calls/s), ai/workers 7.3 ms/s (3 calls/s), game/unit grid 7.1 ms/s (30 calls/s), game/fog/units 6.7 ms/s (4 calls/s), ai/sites_warm 6.0 ms/s (23 calls/s), building draw 5.5 ms/s (94 calls/s), ai/army 5.4 ms/s (3 calls/s), ai/produce 4.2 ms/s (3 calls/s), overlay draw 3.9 ms/s (4 calls/s), hud/spec army 3.4 ms/s (3 calls/s), hud/minimap 2.9 ms/s (6 calls/s), hud/spec prod 2.6 ms/s (4 calls/s), hud/groups 2.3 ms/s (1 calls/s), effects 1.6 ms/s (352 calls/s), ai/raid 1.5 ms/s (3 calls/s), ai/build/econ 1.3 ms/s (3 calls/s), ai/workers/xwall 1.3 ms/s (3 calls/s), game/paths 1.2 ms/s (30 calls/s), ai/horses 1.1 ms/s (3 calls/s), game/fog/buildings 1.0 ms/s (4 calls/s), ai/build/supply 0.9 ms/s (3 calls/s), ai/econ 0.8 ms/s (3 calls/s), ai/abil 0.8 ms/s (3 calls/s), replay/key 0.6 ms/s (0 calls/s), hud/card build 0.5 ms/s (4 calls/s), game/path smoothing 0.4 ms/s (2 calls/s), powder smoke 0.4 ms/s (83 calls/s), hud/spec story 0.4 ms/s (1 calls/s), ai/gg 0.3 ms/s (3 calls/s), game/pathfinder 0.3 ms/s (2 calls/s), ai/micro 0.3 ms/s (3 calls/s), hud/map view 0.2 ms/s (1 calls/s), hud/rest 0.2 ms/s (1 calls/s), hud/selection 0.1 ms/s (1 calls/s), unit draw 0.1 ms/s (1 calls/s), ai/workers/wall 0.1 ms/s (3 calls/s), hud/command card 0.1 ms/s (1 calls/s), hud/hover 0.1 ms/s (0 calls/s), game/refit 0.1 ms/s (1 calls/s), ai/loose 0.0 ms/s (3 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 3040 gold total, has 7 + 108 powder | supply 35/36 | workers 27 | halls 2 | army (175 value): 1 Musketeer, 1 Horse, 1 Officer | kills +1 (2) losses +0 (0) | soil 66% 100% | saltpetre 91% 100% | efficiency 41%
+  P2 Clockwork: earned 4067 cogs total, has 27 + 200 tension | supply 38/60 | workers 27 | halls 2 | army (490 value): 7 Clock Soldier | kills +0 (0) losses +1 (2) | brass 60% 95% | efficiency 96%
+[05:00] P1 Crown's first horse hauled by a hauler
+[05:03] P1 Crown's first Officer mounted (Horseman)
+[05:03] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[05:03] P1 Crown's scouts know: an enemy army of 0 (seen in the last 120 s), 1 enemy hall, tech none seen
+[05:03] P2 Clockwork's Clockwork: army: waits for a fresh scout report before it goes (worth 560, the enemy army it reckons 156)
+[05:04] P2 Clockwork sends a Winder to scout again (trip 3)
+[05:05] P2 Clockwork finished a Escapement
+[05:10] P1 Crown scout under guard (Clock Soldier), backing out of range
+[05:11] P1 Crown's plan: milestone: Foundry 1 (28 labourers, 2 halls, army 4 supply)
+[05:12] P1 Crown lays 5 wall pieces at its new hall (2 labourers on it)
+[05:13] P1 Crown finished a Cottage
+[05:13] P1 Crown finished a Cottage
+[05:21] P1 Crown scout killed: it saw nothing to go on, will look again soon
+[05:21] P1 Crown could not see the enemy [the scout was killed] (the scout was killed before it saw the base): that proves nothing; no army for it, keeps to Balanced and looks again soon
+[05:29] P1 Crown moves its musket line to the cliff edge above its Palisade: 1 spots on the high ground, the nearest 182 px from it
+[05:35] P1 Crown sends 3 labourers to mend its Palisade under the line's fire
+[05:40] P1 Crown's plan: milestone: Barracks 2 (31 labourers, 2 halls, army 4 supply)
+[05:41] P2 Clockwork lays a Heavy Works on the spot it kept by a Mainspring
+[05:42] P1 Crown's plan: milestone: Armoury 1 (31 labourers, 2 halls, army 4 supply)
+[05:42] slow frame 53 ms: ai 33.3, ai/build 31.1, units 4.8, building draw 1.9, buildings 1.8, hud draw 1.3, hud/top 1.3, the rest 9.1
+[05:43] P2 Clockwork finished a Ratchet Turret
+[05:43] P1 Crown lays 3 wall pieces at its new hall (2 labourers on it)
+[05:49] P2 Clockwork's Clockwork: army: waits for a fresh scout report before it goes (worth 840, the enemy army it reckons 207)
+[05:52] P2 Clockwork saw an enemy Horseman (fast): raiders to watch for
+[05:52] P2 Clockwork's Clockwork: army: sends 3 units (210) as a group at a raid worth 115 at (101, 54)
+[05:52] P2 Clockwork lays a Heavy Works on the spot it kept by a Mainspring
+[05:53] P1 Crown moves its musket line to the cliff edge above its Palisade: 1 spots on the high ground, the nearest 182 px from it
+[05:54] P2 Clockwork finished a Cog Press
+[05:55] P1 Crown moves its musket line to the cliff edge above its Palisade: 2 spots on the high ground, the nearest 158 px from it
+[05:55] P2 Clockwork scout under guard (Musketeer), backing out of range
+[05:57] P2 Clockwork groups its Winders up to fight the riders together (the soldiers are coming)
+[05:57] P1 Crown finished a Foundry
+[05:57] P1 Crown's Horseman goes on to harass the workers (the scout found workers)
+[05:57] P1 Crown's scout found workers to hunt: it hands over to the raid
+[05:58] P1 Crown's first pistol shot (Horseman)
+[05:58] P2 Clockwork finished a Clocktower (expansion)
+--- minute 6 ---
+  Performance: 78 fps avg, 1% low 29 fps, worst frame 53 ms, 24 frames over 33 ms, 1 over 50 ms, 0.4 physics steps a frame | units 81, buildings 50, bodies 2, corpses 0, effects 1, smoke puffs 4, nodes 1223, objects 10992
+    busy with: units 152.4 ms/s (2168 calls/s), buildings 59.1 ms/s (1292 calls/s), ai 45.0 ms/s (60 calls/s), game 42.1 ms/s (30 calls/s), hud 35.0 ms/s (78 calls/s), hud draw 32.6 ms/s (45 calls/s), hud/look 26.0 ms/s (19 calls/s), hud/top 18.4 ms/s (16 calls/s), game/fog 11.2 ms/s (4 calls/s), hud/tip check 10.4 ms/s (18 calls/s), game/fog/units 8.9 ms/s (4 calls/s), ai/workers 8.7 ms/s (3 calls/s), ai/army 8.2 ms/s (3 calls/s), game/unit grid 8.1 ms/s (30 calls/s), building draw 6.9 ms/s (112 calls/s), ai/build 6.6 ms/s (3 calls/s), overlay draw 5.1 ms/s (5 calls/s), ai/produce 5.0 ms/s (3 calls/s), ai/sites_warm 4.8 ms/s (23 calls/s), hud/spec army 3.6 ms/s (3 calls/s), hud/minimap 3.2 ms/s (6 calls/s), hud/spec prod 3.0 ms/s (4 calls/s), game/paths 2.3 ms/s (30 calls/s), hud/groups 2.2 ms/s (1 calls/s), ai/workers/xwall 1.9 ms/s (3 calls/s), ai/raid 1.8 ms/s (3 calls/s), ai/econ 1.4 ms/s (3 calls/s), ai/build/econ 1.4 ms/s (3 calls/s), game/fog/buildings 1.3 ms/s (4 calls/s), ai/horses 1.3 ms/s (3 calls/s), hud/hover 1.3 ms/s (4 calls/s), effects 1.3 ms/s (297 calls/s), hud/map view 1.1 ms/s (7 calls/s), game/path smoothing 1.0 ms/s (6 calls/s), ai/abil 1.0 ms/s (3 calls/s), ai/build/supply 0.8 ms/s (3 calls/s), replay/key 0.8 ms/s (0 calls/s), powder smoke 0.7 ms/s (78 calls/s), hud/card build 0.5 ms/s (4 calls/s), ai/gg 0.4 ms/s (3 calls/s), hud/spec story 0.4 ms/s (1 calls/s), ai/micro 0.4 ms/s (3 calls/s), unit draw 0.4 ms/s (5 calls/s), game/pathfinder 0.3 ms/s (6 calls/s), hud/rest 0.2 ms/s (1 calls/s), ai/workers/wall 0.1 ms/s (3 calls/s), hud/selection 0.1 ms/s (1 calls/s), game/refit 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.1 ms/s (3 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 4560 gold total, has 132 + 139 powder | supply 47/52 | workers 34 | halls 2 | army (275 value): 2 Musketeer, 1 Horseman, 1 Horse | kills +1 (3) losses +1 (1) | soil 54% 96% | saltpetre 88% 100% | efficiency 41%
+  P2 Clockwork: earned 5346 cogs total, has 10 + 113 tension | supply 52/70 | workers 31 | halls 3 | army (840 value): 12 Clock Soldier | kills +1 (1) losses +1 (3) | brass 50% 90% 100% | efficiency 57%
+[06:00] P1 Crown lays 4 wall pieces at its new hall (2 labourers on it)
+[06:01] P2 Clockwork's Clockwork: army: gathers in front of its Clocktower at (102, 63)
+[06:01] P2 Clockwork got its first Netter
+[06:04] slow frame 62 ms: hud draw 34.0, hud/selection 32.9, ai 7.2, units 6.8, ai/workers 5.3, game 3.7, game/fog 2.9, game/fog/units 2.5, the rest 7.4
+[06:06] P1 Crown's Horseman goes home (hurt)
+[06:07] P2 Clockwork's Clockwork: army: sends 3 units (210) as a group at a raid worth 60 at (95, 67)
+[06:09] P2 Clockwork posts a Winder at the foot of the walled ramp to keep watch
+[06:10] P2 Clockwork got its first Springer
+[06:12] P1 Crown finished a Armoury
+[06:13] P1 Crown sends a Musketeer to scout again (trip 3)
+[06:14] P2 Clockwork's Clockwork: army: the raid is over: 3 defenders walk back to the army
+[06:15] P2 Clockwork's Clockwork: army: goes out: worth 1140 against the 206 it reckons (a report 7 s old)
+[06:15] P2 Clockwork's Clockwork: push: push 1 goes out: 14 units, 16 supply, 1140 value { "clock_soldier": 12, "netter": 1, "springer": 1 }
+[06:16] P2 Clockwork's Clockwork: push: heads for the enemy's base at (9, 34)
+[06:20] P1 Crown finished a Cottage
+[06:20] P1 Crown finished a Barracks
+[06:21] P1 Crown's plan: milestone: Barracks 3 (37 labourers, 2 halls, army 3 supply)
+[06:25] P1 Crown's plan: milestone: Church 1 (37 labourers, 2 halls, army 3 supply)
+[06:25] P1 Crown queued research: Socket Bayonet
+[06:27] P1 Crown lays 4 wall pieces at its new hall (2 labourers on it)
+[06:27] slow frame 58 ms: ai 36.6, ai/econ 22.6, ai/workers/xwall 8.0, units 6.4, ai/workers 5.9, buildings 2.4, game 1.6, the rest 9.7
+[06:32] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[06:32] P1 Crown's scouts know: an enemy army of 560 (seen in the last 120 s), 3 enemy halls, tech none seen
+[06:36] P1 Crown lays 2 wall pieces at its new hall (2 labourers on it)
+[06:40] P1 Crown lays 4 wall pieces at its new hall (2 labourers on it)
+[06:41] P1 Crown finished a Cottage
+[06:42] P2 Clockwork sends a Winder to scout again (trip 4)
+[06:43] P2 Clockwork finished a Heavy Works
+[06:44] P2 Clockwork's Clockwork: push: meets 1 armed enemies (115 value) at (49, 51)
+[06:45] P2 Clockwork's Clockwork: push: 3 fresh units walk out to join it (6 supply)
+[06:45] P1 Crown researched Socket Bayonet
+[06:47] P1 Crown moves its army inside the wall of its new hall where it is attacked: 4 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[06:48] P1 Crown sends 3 labourers to mend its Palisade under the line's fire
+[06:49] P1 Crown auto-refit: 1 upgrade ordered
+[06:50] P2 Clockwork scout under guard (Musketeer), backing out of range
+[06:51] slow frame 55 ms: replay/key 10.7, ai 10.0, ai/workers 7.5, units 7.3, game 5.4, game/fog 4.2, game/fog/units 3.6, hud draw 3.6, the rest 23.9
+--- minute 7 ---
+  Performance: 59 fps avg, 1% low 23 fps, worst frame 62 ms, 136 frames over 33 ms, 3 over 50 ms, 0.5 physics steps a frame | units 100, buildings 70, bodies 5, corpses 0, effects 5, smoke puffs 0, nodes 1326, objects 9643
+    busy with: units 214.0 ms/s (2697 calls/s), buildings 80.5 ms/s (1839 calls/s), ai 55.0 ms/s (60 calls/s), game 51.1 ms/s (30 calls/s), hud draw 34.8 ms/s (45 calls/s), hud 34.7 ms/s (59 calls/s), hud/look 28.3 ms/s (17 calls/s), hud/top 17.5 ms/s (15 calls/s), game/fog 14.5 ms/s (4 calls/s), hud/tip check 11.6 ms/s (16 calls/s), game/fog/units 11.2 ms/s (4 calls/s), ai/army 11.2 ms/s (3 calls/s), game/unit grid 9.7 ms/s (30 calls/s), ai/workers 9.2 ms/s (3 calls/s), building draw 9.0 ms/s (202 calls/s), ai/produce 8.1 ms/s (3 calls/s), overlay draw 7.2 ms/s (6 calls/s), ai/build 5.6 ms/s (3 calls/s), ai/sites_warm 4.9 ms/s (23 calls/s), hud/spec army 3.7 ms/s (3 calls/s), hud/minimap 3.4 ms/s (6 calls/s), ai/raid 3.2 ms/s (3 calls/s), game/paths 3.2 ms/s (30 calls/s), hud/selection 2.8 ms/s (3 calls/s), hud/spec prod 2.6 ms/s (4 calls/s), hud/groups 2.3 ms/s (1 calls/s), ai/workers/xwall 2.1 ms/s (3 calls/s), game/fog/buildings 2.1 ms/s (4 calls/s), ai/build/econ 1.8 ms/s (3 calls/s), ai/abil 1.8 ms/s (3 calls/s), ai/horses 1.7 ms/s (3 calls/s), ai/econ 1.7 ms/s (3 calls/s), game/path smoothing 1.3 ms/s (11 calls/s), effects 1.2 ms/s (379 calls/s), ai/build/supply 1.2 ms/s (3 calls/s), hud/hover 1.2 ms/s (3 calls/s), unit draw 1.1 ms/s (11 calls/s), hud/map view 1.0 ms/s (6 calls/s), replay/key 1.0 ms/s (0 calls/s), hud/rest 0.7 ms/s (2 calls/s), ai/gg 0.5 ms/s (3 calls/s), powder smoke 0.5 ms/s (59 calls/s), game/pathfinder 0.5 ms/s (11 calls/s), ai/micro 0.5 ms/s (3 calls/s), hud/card build 0.5 ms/s (4 calls/s), hud/spec story 0.4 ms/s (1 calls/s), ai/workers/wall 0.1 ms/s (3 calls/s), game/refit 0.1 ms/s (1 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.1 ms/s (3 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/pause 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 6080 gold total, has 14 + 141 powder | supply 60/68 | workers 44 | halls 2 | army (455 value): 5 Musketeer, 1 Horseman, 1 Horse | kills +3 (6) losses +1 (2) | soil 45% 87% | saltpetre 86% 99% | efficiency 55%
+  P2 Clockwork: earned 6843 cogs total, has 356 + 33 tension | supply 65/70 | workers 31 | halls 3 | army (1490 value): 12 Clock Soldier, 2 Netter, 4 Springer | kills +1 (2) losses +3 (6) | brass 42% 82% 100% | efficiency 95%
+[07:01] P1 Crown moves its army inside the wall of its new hall where it is attacked: 5 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[07:01] P1 Crown finished a Cottage
+[07:02] P2 Clockwork the sentry backs away from a Musketeer
+[07:04] P1 Crown finished a Barracks
+[07:04] P2 Clockwork finished a Cog Press
+[07:05] P1 Crown finished a Church
+[07:05] slow frame 65 ms: ai 32.5, ai/econ 23.2, units 8.3, ai/workers 8.2, buildings 3.0, hud draw 2.1, game 1.2, hud/top 1.1, the rest 17.6
+[07:05] slow frame 61 ms: ai 18.1, units 16.1, ai/produce 7.9, buildings 5.9, game 5.7, ai/build 4.6, hud 2.6, hud/look 2.5, the rest 11.5
+[07:05] P2 Clockwork's Clockwork: push: heads for the enemy's base at (23, 8)
+[07:05] slow frame 71 ms: ai 21.4, ai/army 17.4, units 15.7, buildings 6.5, building draw 5.0, hud draw 3.0, game 2.0, ai/abil 1.9, the rest 15.3
+[07:05] slow frame 51 ms: units 16.9, game 7.7, buildings 5.9, game/fog 5.5, hud draw 5.3, game/fog/units 4.9, hud/groups 2.4, hud/top 1.8, the rest 12.4
+[07:06] P1 Crown's plan: milestone: Barracks 4 (43 labourers, 2 halls, army 9 supply)
+[07:06] P1 Crown queued research: Armour
+[07:06] P1 Crown queued research: Matchlock
+[07:06] slow frame 50 ms: units 17.8, buildings 5.3, game 4.4, ai 4.3, hud draw 3.7, ai/abil 1.8, hud/groups 1.8, overlay draw 1.7, the rest 11.3
+[07:08] P2 Clockwork finished a Regulator
+[07:09] slow frame 89 ms: hud draw 37.7, hud/pause 35.3, ai 19.3, units 14.4, ai/workers 8.6, buildings 5.9, ai/build 5.4, ai/build/econ 2.1, the rest 9.5
+[07:09] slow frame 50 ms: units 14.2, ai 10.7, game 7.6, ai/army 6.9, buildings 5.5, game/paths 2.1, ai/abil 2.0, hud 1.7, the rest 9.6
+[07:13] P1 Crown queued research: Shot Pouch
+[07:14] P2 Clockwork got its first Spring Ballista
+[07:14] P2 Clockwork's Clockwork: push: 3 fresh units walk out to join it (7 supply)
+[07:15] slow frame 91 ms: ai 68.3, ai/build 65.0, units 9.0, buildings 3.4, game 1.8, ai/build/econ 1.7, the rest 8.6
+[07:16] P1 Crown sent 1 soldier back to refit
+[07:17] P2 Clockwork queued research: Shield Wall
+[07:17] P2 Clockwork researches SHIELD WALL (it met 4 shooters)
+[07:18] P2 Clockwork's Clockwork: army: the whole army (1 units, 100) meets a raid worth 103 at (101, 54)
+[07:19] slow frame 157 ms: units 60.8, buildings 30.8, game 26.1, game/fog 17.7, game/fog/buildings 10.3, game/fog/units 6.9, hud draw 4.8, hud 3.3, the rest 29.6
+[07:19] slow frame 154 ms: units 75.9 (slowest unit: labourer 5.3 ms, gather), buildings 23.3, game 12.3, hud draw 11.4, game/fog 6.8, game/fog/units 6.1, hud 2.7, hud/look 2.7, the rest 26.7
+[07:19] slow frame 154 ms: units 56.4, ai 40.3, buildings 19.0, ai/produce 12.7, game 11.7, ai/army 9.5, game/fog 5.6, ai/build 5.3, the rest 17.8
+[07:19] slow frame 165 ms: units 80.8 (slowest unit: winder 2.6 ms, gather), buildings 28.0, game 9.4, hud draw 4.9, hud/spec army 3.3, game/unit grid 3.1, hud 3.0, hud/look 2.9, the rest 36.5
+[07:19] slow frame 188 ms: units 96.9 (slowest unit: clock_soldier 4.0 ms, amove), buildings 34.6, game 16.3, hud draw 5.0, game/fog 4.8, game/fog/units 4.0, game/unit grid 2.6, hud 2.4, the rest 28.4
+[07:20] slow frame 245 ms: units 142.6 (slowest unit: clock_soldier 4.5 ms, amove), buildings 44.6, game 17.1, hud draw 3.8, game/unit grid 2.9, hud 2.1, hud/look 2.1, hud/top 1.7, the rest 32.7
+[07:20] slow frame 224 ms: units 113.5, buildings 47.2, game 23.4, game/fog 7.5, game/fog/units 5.6, game/unit grid 4.1, hud 3.8, hud/look 3.8, the rest 30.6
+[07:20] P1 Crown got its first Field Cannon
+[07:20] slow frame 238 ms: units 85.1 (slowest unit: labourer 2.8 ms, gather), buildings 62.7, ai 33.4, game 19.7, ai/produce 9.4, ai/workers 7.7, game/fog 7.4, hud draw 7.2, the rest 24.8
+[07:21] slow frame 234 ms: units 108.4 (slowest unit: winder 4.5 ms, gather), buildings 35.7, game 28.3, ai 17.0, ai/army 11.1, hud draw 7.9, building draw 6.6, game/unit grid 6.3, the rest 24.4
+[07:21] slow frame 154 ms: units 78.9, buildings 26.3, game 14.1, game/fog 4.8, hud draw 4.2, game/fog/units 4.0, hud 3.6, hud/look 3.5, the rest 23.7
+[07:21] slow frame 154 ms: units 68.6, buildings 19.6, hud draw 12.4, ai 12.0, ai/workers 8.7, game 6.9, hud/groups 3.1, hud 2.4, the rest 30.6
+[07:23] P1 Crown queued research: Prepared Charges
+[07:23] P1 Crown's Horseman goes on to harass the workers (the scout found workers)
+[07:23] P1 Crown's scout found workers to hunt: it hands over to the raid
+[07:25] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[07:30] P2 Clockwork's Clockwork: army: sends 2 units (170) as a group at a raid worth 70 at (104, 69)
+[07:31] P1 Crown's Horseman goes home (hurt)
+[07:35] P2 Clockwork sends a Winder to scout again (trip 5)
+[07:36] P2 Clockwork finished a Ratchet Turret
+[07:38] P1 Crown finished a Cottage
+[07:38] P1 Crown finished a Cottage
+[07:40] P2 Clockwork's Clockwork: push: meets 1 armed enemies (115 value) at (72, 51)
+[07:40] P2 Clockwork's Clockwork: army: a Springer jumps in to shoot at a Horseman
+[07:40] P2 Clockwork's Netter caught P1 Crown's Horseman
+[07:41] P2 Clockwork's Clockwork: army: the raid is over: 3 defenders walk back to the army
+[07:44] P2 Clockwork finished a Cog Press
+[07:46] P2 Clockwork's Clockwork: push: 5 fresh units walk out to join it (6 supply)
+[07:46] P2 Clockwork's Netter caught P1 Crown's Horseman
+[07:46] P1 Crown finished a Barracks
+[07:47] P1 Crown's scouts know: an enemy army of 1265 (seen in the last 120 s), 3 enemy halls, tech none seen
+[07:51] P1 Crown researched Armour
+[07:51] P2 Clockwork's Clockwork: its next Clocktower's spot: (78, 74), room for 8 of its ring's buildings (93% open ground beyond), 46 steps from its halls
+[07:51] slow frame 365 ms: ai 330.7, ai/build 327.2, units 10.3, buildings 3.4, hud draw 2.3, ai/build/econ 2.1, hud/top 1.2, game 1.2, the rest 16.2
+[07:51] P1 Crown got its first Powder Wagon
+[07:51] slow frame 221 ms: units 94.0 (slowest unit: powder_wagon 5.8 ms, move), buildings 35.9, ai 30.6, game 18.3, ai/produce 11.0, ai/army 10.4, game/fog 4.7, game/fog/units 4.0, the rest 32.2
+[07:52] slow frame 601 ms: units 77.6 (slowest unit: powder_wagon 6.6 ms, move), buildings 22.3, game 13.0, hud draw 5.9, game/fog 4.6, game/fog/units 4.0, game/unit grid 2.7, building draw 2.7, the rest 474.4
+[07:52] slow frame 258 ms: units 114.3, ai 41.7, buildings 35.4, game 17.9, ai/produce 14.1, ai/workers 10.4, ai/build 6.9, game/fog 4.8, the rest 33.8
+[07:52] slow frame 215 ms: units 97.4, buildings 31.2, game 18.7, ai 17.8, ai/army 10.6, hud draw 9.7, game/fog 4.8, game/fog/units 4.0, the rest 32.8
+[07:52] slow frame 154 ms: units 68.4, buildings 22.6, replay/key 12.5, game 10.9, game/fog 4.4, hud draw 3.8, game/fog/units 3.8, game/unit grid 2.6, the rest 40.4
+[07:52] P2 Clockwork's Netter caught P1 Crown's Horseman
+[07:53] P1 Crown's plan: trains a Marching Band (15 soldiers)
+[07:53] P1 Crown sent 1 soldier back to refit
+[07:53] P1 Crown queued research: Flintlock
+[07:57] P1 Crown sent 1 soldier back to refit
+[07:58] P2 Clockwork finished a Regulator
+--- minute 8 ---
+  Performance: 37 fps avg, 1% low 5 fps, worst frame 601 ms, 471 frames over 33 ms, 122 over 50 ms, 0.8 physics steps a frame | units 124, buildings 80, bodies 6, corpses 0, effects 6, smoke puffs 0, nodes 1419, objects 11227
+    busy with: units 290.1 ms/s (3338 calls/s), buildings 100.9 ms/s (2260 calls/s), ai 73.2 ms/s (60 calls/s), game 66.8 ms/s (30 calls/s), hud draw 44.8 ms/s (50 calls/s), hud 36.5 ms/s (40 calls/s), hud/look 32.0 ms/s (16 calls/s), game/fog 19.3 ms/s (4 calls/s), hud/top 17.1 ms/s (14 calls/s), game/fog/units 15.9 ms/s (4 calls/s), ai/build 13.8 ms/s (3 calls/s), ai/army 13.3 ms/s (3 calls/s), ai/produce 12.9 ms/s (3 calls/s), hud/tip check 12.6 ms/s (15 calls/s), game/unit grid 11.6 ms/s (30 calls/s), ai/workers 11.3 ms/s (3 calls/s), hud/selection 9.6 ms/s (8 calls/s), overlay draw 9.6 ms/s (7 calls/s), building draw 8.6 ms/s (212 calls/s), game/paths 8.1 ms/s (30 calls/s), game/path smoothing 4.6 ms/s (18 calls/s), hud/minimap 4.0 ms/s (6 calls/s), hud/spec army 4.0 ms/s (3 calls/s), ai/raid 3.2 ms/s (3 calls/s), hud/groups 2.9 ms/s (1 calls/s), ai/build/econ 2.8 ms/s (3 calls/s), ai/abil 2.8 ms/s (3 calls/s), ai/sites_warm 2.7 ms/s (23 calls/s), hud/spec prod 2.7 ms/s (4 calls/s), ai/horses 2.4 ms/s (3 calls/s), hud/pause 2.1 ms/s (1 calls/s), ai/econ 1.8 ms/s (3 calls/s), game/fog/buildings 1.7 ms/s (4 calls/s), ai/build/supply 1.7 ms/s (3 calls/s), ai/workers/xwall 1.6 ms/s (3 calls/s), game/pathfinder 1.6 ms/s (18 calls/s), unit draw 1.5 ms/s (15 calls/s), hud/hover 1.5 ms/s (4 calls/s), replay/key 1.3 ms/s (0 calls/s), hud/map view 1.2 ms/s (7 calls/s), effects 0.8 ms/s (255 calls/s), ai/gg 0.7 ms/s (3 calls/s), ai/micro 0.7 ms/s (3 calls/s), powder smoke 0.6 ms/s (37 calls/s), hud/card build 0.5 ms/s (3 calls/s), hud/spec story 0.4 ms/s (1 calls/s), hud/rest 0.3 ms/s (1 calls/s), game/refit 0.2 ms/s (1 calls/s), ai/workers/wall 0.1 ms/s (3 calls/s), hud/command card 0.1 ms/s (1 calls/s), ai/loose 0.1 ms/s (3 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 8740 gold total, has 11 + 76 powder | supply 85/92 | workers 49 | halls 2 | army (1170 value): 11 Musketeer, 2 Horse, 1 Horseman, 1 Field Cannon, 1 Armoured Officer, 1 Powder Wagon | kills +3 (9) losses +1 (3) | soil 32% 70% | saltpetre 79% 91% | efficiency 60%
+  P2 Clockwork: earned 8478 cogs total, has 415 + 71 tension | supply 70/90 | workers 32 | halls 3 | army (2190 value): 17 Clock Soldier, 2 Netter, 6 Springer, 1 Spring Ballista | kills +1 (3) losses +3 (9) | brass 32% 74% 100% | efficiency 73%
+[08:00] P2 Clockwork finished a Light Works
+[08:00] P2 Clockwork builds a Mainspring by a Light Works (so it may make Springers)
+[08:00] slow frame 81 ms: ai 52.9, ai/build 49.2, units 9.8, buildings 3.2, ai/build/econ 2.0, hud 1.8, hud/look 1.8, overlay draw 1.3, the rest 10.8
+[08:00] slow frame 74 ms: ai 20.8, units 20.0, ai/produce 9.7, ai/army 8.2, buildings 6.7, game 5.7, ai/raid 2.8, hud 1.8, the rest 16.2
+[08:00] slow frame 75 ms: units 29.6, game 10.8, buildings 9.3, game/fog 4.9, ai 4.8, game/fog/units 4.2, hud draw 2.9, ai/abil 2.3, the rest 14.1
+[08:00] slow frame 54 ms: units 19.2, hud draw 8.2, buildings 6.4, hud 3.3, hud/look 3.3, hud/groups 2.2, game 2.1, hud/tip check 1.9, the rest 12.0
+[08:01] slow frame 71 ms: units 28.0 (slowest unit: musketeer 4.9 ms, move), ai 13.8, ai/army 8.3, buildings 7.5, hud 2.7, hud/look 2.7, ai/abil 2.7, game 2.3, the rest 11.5
+[08:01] slow frame 66 ms: units 26.0 (slowest unit: musketeer 4.3 ms, move), game 7.8, buildings 7.8, game/fog 4.5, game/fog/units 3.9, hud draw 2.2, overlay draw 2.1, hud 1.9, the rest 16.4
+[08:01] slow frame 75 ms: ai 22.4, units 20.9, ai/army 10.6, ai/produce 9.3, buildings 7.0, overlay draw 2.5, ai/raid 2.5, hud 2.0, the rest 16.2
+[08:02] slow frame 51 ms: units 17.3, buildings 5.7, ai 4.5, hud draw 3.7, ai/abil 2.3, game 1.9, hud 1.9, hud/look 1.9, the rest 13.5
+[08:09] P1 Crown's plan: the wave waits: 1010 of army against the 1265 it knows (it wants 1.1 times)
+[08:14] P2 Clockwork researched Shield Wall
+[08:14] P2 Clockwork's Clockwork: push: holds short of the enemy's main: worth 1885, the enemy's army seen lately 355
+[08:17] P1 Crown finished a Cottage
+[08:18] P1 Crown moves its army inside the wall of its new hall where it is attacked: 15 musket spots 1-3 tiles behind the palisade, 1 guns behind them
+[08:18] P2 Clockwork's Clockwork: push: a Palisade in the way at (19, 35): the front breaks it
+[08:19] P2 Clockwork's Clockwork: army: the whole army (3 units, 210) meets a raid worth 300 at (100, 53)
+[08:20] P1 Crown moves its army inside the wall of its new hall where it is attacked: 15 musket spots 1-3 tiles behind the palisade, 1 guns behind them
+[08:21] P1 Crown researched Matchlock
+[08:22] P1 Crown auto-refit: 1 upgrade ordered
+[08:23] P1 Crown lost a Palisade to P2 Clockwork (clock_soldier)
+[08:23] P2 Clockwork's Clockwork: push: the Palisade falls after 5 s; the march goes on
+[08:23] P2 Clockwork's Clockwork: push: meets 1 armed enemies (60 value) at (22, 36)
+[08:23] P2 Clockwork's Clockwork: army: a Springer jumps in to shoot at a Guardsman
+[08:23] P2 Clockwork's Clockwork: push: a Palisade in the way at (18, 36): the front breaks it
+[08:24] P1 Crown's Horseman goes on to harass the workers (the scout found workers)
+[08:24] P1 Crown's scout found workers to hunt: it hands over to the raid
+[08:24] P1 Crown scout under guard (Springer), backing out of range
+[08:26] P1 Crown lost a Palisade to P2 Clockwork (clock_soldier)
+[08:26] P2 Clockwork's Clockwork: push: the Palisade falls after 2 s; the march goes on
+[08:27] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:27] P2 Clockwork's Clockwork: push: heads for the enemy's base at (9, 34)
+[08:28] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:28] P1 Crown's Horseman keeps away from Clock Soldier
+[08:28] P2 Clockwork's Clockwork: army: sends 3 units (210) as a group at a raid worth 106 at (105, 73)
+[08:28] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:29] P1 Crown scout killed: it saw nothing to go on, will look again soon
+[08:29] P1 Crown scouted: NORMAL [a standard opening] (3 halls, 4 economy, 1 military buildings, 32 supply of army): OPTIMAL picks its build from this
+[08:29] P1 Crown's plan: optimal: reads NORMAL [a standard opening]: keeps Balanced (what it plays already answers it)
+[08:29] P1 Crown finished a Cottage
+[08:29] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:30] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:30] P2 Clockwork scout under guard (Field Cannon), backing out of range
+[08:30] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:31] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:31] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[08:31] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:35] P2 Clockwork's Netter caught P1 Crown's Field Cannon
+[08:36] P1 Crown: the soil around a Town Hall is running low (under 25%)
+[08:36] P1 Crown queued research: Cavalry Charge
+[08:38] P2 Clockwork's Clockwork: army: sends 3 units (210) as a group at a raid worth 96 at (105, 87)
+[08:38] P2 Clockwork finished a Regulator
+[08:40] P2 Clockwork's Clockwork: army: a Springer jumps in to shoot at a Musketeer
+[08:42] P2 Clockwork got its first Great Winder
+[08:42] P2 Clockwork's Netter caught P1 Crown's Field Cannon
+[08:42] P1 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 1 guns behind them
+[08:42] P2 Clockwork sends its Great Winder with the army
+[08:42] P1 Crown's Field Cannon was killed and a horse bolted loose (the first: anyone's to catch)
+[08:43] P1 Crown's Horseman keeps away from Clock Soldier
+[08:43] P2 Clockwork's Clockwork: push: a Palisade in the way at (19, 34): the front breaks it
+[08:43] P2 Clockwork finished a Mainspring
+[08:44] P1 Crown's scout rides home (chased)
+[08:44] P1 Crown's Horseman goes home (hurt)
+[08:44] P1 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[08:45] P2 Clockwork finished a Light Works
+[08:46] P1 Crown researched Shot Pouch
+[08:46] P2 Clockwork: the brass at a Clocktower is running low (under 25%)
+[08:46] P1 Crown lost a Palisade to P2 Clockwork (springer)
+[08:47] P2 Clockwork's Clockwork: push: the Palisade falls after 3 s; the march goes on
+[08:47] P2 Clockwork's Clockwork: push: meets 2 armed enemies (190 value) at (20, 33)
+[08:50] P2 Clockwork's Clockwork: army: sends 3 units (201) as a group at a raid worth 65 at (81, 78)
+[08:50] P2 Clockwork sends 2 Winders to crew its Spring Ballista
+[08:50] (stopped watching before the end)
+--- minute 9 ---
+  Performance: 22 fps avg, 1% low 8 fps, worst frame 147 ms, 681 frames over 33 ms, 405 over 50 ms, 1.4 physics steps a frame | units 118, buildings 81, bodies 33, corpses 0, effects 11, smoke puffs 0, nodes 1488, objects 9831
+    busy with: units 359.9 ms/s (3822 calls/s), buildings 107.2 ms/s (2505 calls/s), ai 74.1 ms/s (60 calls/s), game 69.4 ms/s (30 calls/s), hud draw 32.7 ms/s (38 calls/s), hud 30.7 ms/s (22 calls/s), hud/look 29.2 ms/s (14 calls/s), game/fog 19.2 ms/s (4 calls/s), ai/army 18.8 ms/s (3 calls/s), hud/top 16.2 ms/s (13 calls/s), game/fog/units 15.7 ms/s (4 calls/s), ai/workers 14.9 ms/s (3 calls/s), game/unit grid 12.7 ms/s (30 calls/s), hud/tip check 12.3 ms/s (14 calls/s), building draw 12.2 ms/s (296 calls/s), ai/produce 10.8 ms/s (3 calls/s), unit draw 9.7 ms/s (125 calls/s), overlay draw 8.7 ms/s (6 calls/s), ai/build 7.4 ms/s (3 calls/s), game/paths 6.5 ms/s (30 calls/s), hud/spec army 4.0 ms/s (3 calls/s), hud/minimap 3.7 ms/s (5 calls/s), game/path smoothing 3.6 ms/s (27 calls/s), hud/groups 3.5 ms/s (2 calls/s), ai/abil 3.5 ms/s (3 calls/s), ai/sites_warm 2.8 ms/s (23 calls/s), ai/horses 2.8 ms/s (3 calls/s), ai/raid 2.7 ms/s (3 calls/s), hud/spec prod 2.3 ms/s (4 calls/s), ai/build/econ 2.0 ms/s (3 calls/s), ai/workers/xwall 1.9 ms/s (3 calls/s), game/fog/buildings 1.7 ms/s (4 calls/s), ai/econ 1.7 ms/s (3 calls/s), game/pathfinder 1.5 ms/s (27 calls/s), ai/build/supply 1.5 ms/s (3 calls/s), powder smoke 1.3 ms/s (22 calls/s), replay/key 1.3 ms/s (0 calls/s), ai/gg 1.3 ms/s (3 calls/s), ai/micro 1.2 ms/s (3 calls/s), hud/pause 1.1 ms/s (1 calls/s), effects 0.7 ms/s (264 calls/s), hud/rest 0.5 ms/s (2 calls/s), hud/selection 0.4 ms/s (1 calls/s), hud/spec story 0.4 ms/s (1 calls/s), hud/map view 0.3 ms/s (2 calls/s), hud/card build 0.3 ms/s (2 calls/s), game/refit 0.2 ms/s (1 calls/s), hud/hover 0.2 ms/s (0 calls/s), ai/workers/wall 0.2 ms/s (3 calls/s), ai/loose 0.1 ms/s (3 calls/s), hud/command card 0.1 ms/s (1 calls/s), hud/chat 0.0 ms/s (1 calls/s), hud/tooltip 0.0 ms/s (1 calls/s), hud/glow 0.0 ms/s (1 calls/s)
+  P1 Crown: earned 9880 gold total, has 61 + 109 powder | supply 72/108 | workers 50 | halls 2 | army (460 value): 4 Horse, 1 Horseman, 1 Powder Wagon, 1 Cuirassier | kills +10 (19) losses +20 (23) | soil 24% 66% | saltpetre 73% 87% | efficiency 27%
+  P2 Clockwork: earned 9693 cogs total, has 44 + 63 tension | supply 78/100 | workers 28 | halls 3 | army (2715 value): 22 Clock Soldier, 2 Netter, 6 Springer, 1 Spring Ballista, 1 Great Winder | kills +20 (23) losses +10 (19) | brass 24% 68% 100% | efficiency 36%
+
+RESULT at 08:50: no winner
+  Performance per minute: m1 89 fps (1% low 31), m2 89 fps (1% low 25), m3 88 fps (1% low 22), m4 90 fps (1% low 36), m5 83 fps (1% low 20), m6 78 fps (1% low 29), m7 59 fps (1% low 23), m8 37 fps (1% low 5), m9 22 fps (1% low 8). Worst: minute 8 (1% low 5 fps, worst frame 601 ms).
+  P1 Crown: earned 9880, spent 10111, trained 82, built 55, killed 19, lost 23, razed 0, buildings lost 3, peak army 1330. Kills by: Labourer 2, Horseman 8, Musketeer 7, Officer 1, Field Cannon 1 Haulers brought 69 horses and 0 powder kegs. Loose horses: 1 of its own bolted, 0 caught.
+  P2 Clockwork: earned 9693, spent 9800, trained 75, built 25, killed 23, lost 19, razed 3, buildings lost 0, peak army 2715. Kills by: Clock Soldier 16, Springer 6, Netter 1
+
+--- SOUND LOG (every sound and music change, per second; x2 = played twice) ---
+[00:00] MUSIC crown_peace_4, AMBIENCE grass
+[00:03] work/crown_build
+[00:05] work/hoe x2, work/crown_build
+[00:07] work/crown_build, work/hoe
+[00:08] work/hoe
+[00:09] work/crown_build
+[00:10] work/hoe
+[00:11] work/hoe, work/crown_build
+[00:12] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[00:13] work/hoe, work/crown_build
+[00:14] work/hoe
+[00:15] work/crown_build
+[00:16] work/hoe
+[00:17] work/hoe, work/crown_build
+[00:19] work/hoe x2, work/crown_build
+[00:20] work/hoe
+[00:21] work/hoe, work/crown_build
+[00:22] work/hoe x2
+[00:23] crown/built, announcer/crown/building_done
+[00:24] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x2, work/crown_build
+[00:25] work/hoe
+[00:26] work/crown_build
+[00:27] work/hoe x2
+[00:28] work/hoe, work/crown_build
+[00:29] work/hoe
+[00:30] work/hoe x2, work/crown_build
+[00:31] work/hoe
+[00:32] work/hoe, work/crown_build
+[00:33] work/hoe x2
+[00:34] work/crown_build
+[00:35] work/hoe
+[00:36] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe, crown/placed
+[00:37] work/hoe
+[00:38] work/hoe
+[00:39] work/hoe x2
+[00:40] work/hoe
+[00:42] work/hoe
+[00:43] work/hoe x3
+[00:44] work/hoe
+[00:45] work/farm_harvest, done, work/hoe
+[00:46] work/crown_build
+[00:47] work/hoe
+[00:48] work/crown_build
+[00:49] work/hoe
+[00:50] work/hoe, work/crown_build
+[00:51] work/hoe
+[00:52] work/hoe, work/crown_build
+[00:53] work/hoe
+[00:54] work/crown_build, work/hoe
+[00:55] work/hoe
+[00:56] work/hoe, work/crown_build
+[00:57] work/hoe, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[00:58] work/hoe x2, work/crown_build
+[00:59] work/hoe
+[01:00] work/hoe x2, work/crown_build
+[01:01] work/hoe
+[01:02] work/hoe, work/crown_build
+[01:03] work/hoe
+[01:04] work/hoe x2, work/crown_build
+[01:05] work/hoe
+[01:06] work/hoe, work/crown_build
+[01:07] work/hoe
+[01:08] work/hoe, work/crown_build
+[01:09] work/hoe, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[01:10] work/hoe, work/crown_build
+[01:11] work/hoe, crown/built, announcer/crown/building_done
+[01:12] work/hoe
+[01:13] work/hoe
+[01:14] work/hoe
+[01:15] work/hoe x2
+[01:16] work/hoe x2
+[01:17] work/hoe x2
+[01:18] work/hoe x2
+[01:19] work/hoe
+[01:20] work/hoe
+[01:21] work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[01:22] work/hoe
+[01:23] work/hoe x2
+[01:24] combat/winder_attack, work/hoe x3
+[01:25] combat/winder_attack, work/hoe
+[01:26] work/hoe
+[01:27] work/hoe x2, combat/winder_attack
+[01:28] work/hoe x2
+[01:29] combat/winder_attack, work/hoe x2
+[01:30] work/hoe x2, combat/winder_attack
+[01:31] work/hoe x2
+[01:32] work/hoe x2, combat/winder_attack
+[01:33] work/hoe
+[01:34] combat/winder_attack, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x3
+[01:35] work/farm_harvest, done, MUSIC ended crown_peace_4, MUSIC crown_peace, work/hoe, combat/winder_attack
+[01:36] work/hoe x3
+[01:37] work/hoe x2, combat/winder_attack
+[01:38] work/hoe x2
+[01:39] combat/winder_attack, work/hoe
+[01:40] work/hoe, combat/winder_attack
+[01:41] work/hoe x3
+[01:42] work/hoe, combat/winder_attack
+[01:43] work/hoe x2
+[01:44] combat/winder_attack, work/hoe x3
+[01:45] work/hoe x2, combat/winder_attack
+[01:46] work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[01:47] work/hoe, combat/winder_attack
+[01:48] work/hoe x4
+[01:49] combat/winder_attack, work/hoe
+[01:50] work/hoe x3, combat/winder_attack
+[01:51] work/hoe
+[01:52] work/hoe x2, combat/winder_attack
+[01:53] work/hoe x2
+[01:54] work/hoe x2, combat/winder_attack
+[01:55] work/hoe, combat/winder_attack
+[01:56] work/hoe x2
+[01:57] work/hoe x2, combat/winder_attack
+[01:58] work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[01:59] combat/winder_attack, work/hoe x2
+[02:00] combat/winder_attack, work/hoe
+[02:01] work/hoe
+[02:02] work/hoe x4, combat/winder_attack
+[02:03] work/hoe x2
+[02:04] combat/winder_attack, work/hoe x2
+[02:05] work/hoe x2, combat/winder_attack
+[02:06] work/hoe
+[02:07] work/hoe x4, combat/winder_attack
+[02:08] work/hoe x2
+[02:09] work/hoe x4, combat/winder_attack
+[02:10] work/hoe x2, combat/winder_attack
+[02:11] work/hoe
+[02:12] work/hoe x3, combat/winder_attack
+[02:13] work/hoe x2
+[02:14] combat/winder_attack, work/hoe
+[02:15] work/hoe x4, work/farm_harvest, done, combat/winder_attack
+[02:17] work/hoe, combat/winder_attack
+[02:19] combat/winder_attack, work/hoe
+[02:20] work/hoe, combat/winder_attack
+[02:21] work/hoe
+[02:22] combat/winder_attack, work/hoe x2
+[02:23] work/hoe x3
+[02:24] combat/winder_attack, work/crown_build
+[02:25] work/crown_build, work/hoe x2, combat/winder_attack
+[02:26] work/hoe x2, clash
+[02:27] clash, combat/winder_attack, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[02:28] clash, work/hoe
+[02:29] work/hoe x2, combat/winder_attack, clash, work/crown_build
+[02:30] work/crown_build, clash x2, combat/winder_attack
+[02:31] work/hoe x3, work/crown_build
+[02:32] clash x2, work/hoe, work/crown_build, combat/winder_attack, combat/winder_death
+[02:33] work/crown_build, work/hoe
+[02:34] work/hoe x2, work/crown_build
+[02:35] work/hoe, work/crown_build
+[02:36] work/hoe x3, work/crown_build
+[02:37] work/hoe x2, work/crown_build
+[02:38] work/crown_build
+[02:39] work/hoe x3, work/crown_build
+[02:40] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/crown_build, work/hoe x2
+[02:41] work/crown_build
+[02:42] work/hoe x3, work/crown_build
+[02:43] work/crown_build, work/hoe
+[02:44] work/hoe x4, work/crown_build
+[02:45] work/hoe x2, work/crown_build
+[02:46] work/crown_build, work/hoe x3
+[02:47] work/hoe x2, work/crown_build
+[02:48] work/hoe, work/crown_build, work/winder_crank
+[02:49] crown/built, announcer/crown/expansion, work/winder_crank
+[02:51] work/winder_crank
+[02:52] work/winder_crank
+[02:53] work/crown_build
+[02:54] work/hoe x2
+[02:55] ui/click, work/hoe x3, work/crown_build
+[02:57] select/barracks, ui/click, work/hoe x2, work/crown_build
+[02:58] work/hoe x3
+[02:59] work/hoe x2, work/crown_build
+[03:00] work/hoe x3
+[03:01] work/hoe x2, work/crown_build
+[03:02] work/hoe x2
+[03:03] work/hoe, work/winder_crank
+[03:04] work/winder_crank, ratchet
+[03:05] work/winder_crank
+[03:06] work/winder_crank
+[03:07] work/winder_crank
+[03:08] ratchet, work/winder_crank
+[03:09] ratchet x3, work/winder_crank
+[03:10] work/winder_crank
+[03:12] work/winder_crank
+[03:13] work/winder_crank
+[03:14] ratchet, work/winder_crank
+[03:15] work/hoe x2, work/crown_build
+[03:16] work/hoe, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[03:17] work/hoe x3, work/crown_build
+[03:18] work/hoe x2
+[03:19] work/hoe x3, crown/built, announcer/crown/building_done, work/crown_build
+[03:20] work/crown_build, work/hoe x2
+[03:21] work/hoe x3, work/crown_build, work/farm_harvest, done
+[03:22] work/crown_build, MUSIC ended crown_peace, MUSIC crown_peace_6, work/hoe x2
+[03:23] work/crown_build, work/hoe
+[03:24] work/crown_build, work/hoe x3
+[03:25] work/crown_build, work/hoe x2
+[03:26] work/crown_build
+[03:27] work/crown_build, work/hoe x3
+[03:28] work/crown_build, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe
+[03:29] work/crown_build, work/hoe
+[03:30] work/crown_build, work/hoe x3
+[03:31] work/hoe x2, work/crown_build
+[03:32] work/crown_build, work/hoe x2
+[03:33] work/crown_build, work/hoe x3, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[03:34] work/crown_build, work/hoe
+[03:35] crown/built, announcer/crown/building_done, work/hoe x2, work/crown_build
+[03:36] work/hoe x2
+[03:37] work/crown_build, work/hoe
+[03:38] work/hoe
+[03:39] work/crown_build, work/hoe x2
+[03:40] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x2
+[03:41] work/crown_build, work/hoe x3
+[03:42] work/hoe x2
+[03:43] work/crown_build, work/hoe x3
+[03:44] crown/built, announcer/crown/building_done, work/hoe
+[03:45] work/hoe x2, work/crown_build, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[03:46] work/hoe x3
+[03:47] work/crown_build, work/hoe, announcer/crown/building_done
+[03:48] work/hoe x3
+[03:49] work/hoe x3
+[03:50] work/hoe x3
+[03:51] work/hoe x2
+[03:52] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x3
+[03:53] work/hoe x2
+[03:54] work/hoe x3
+[03:55] work/hoe x2
+[03:56] work/hoe x3
+[03:57] work/farm_harvest, done, work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[03:58] work/hoe x2, combat/musketeer_attack
+[03:59] work/hoe x2
+[04:01] work/hoe x4, work/crown_build, combat/musketeer_attack
+[04:02] work/hoe
+[04:03] work/crown_build, work/hoe x2
+[04:04] work/hoe x3, combat/musketeer_attack
+[04:05] work/hoe, work/crown_build
+[04:06] work/hoe, combat/winder_attack
+[04:07] work/hoe x3, work/crown_build, combat/musketeer_attack
+[04:08] combat/winder_attack, crown/placed
+[04:09] work/hoe x3, work/crown_build, crown/placed
+[04:10] work/hoe x3, combat/winder_attack, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, combat/musketeer_attack
+[04:11] work/crown_build, work/hoe, combat/winder_attack
+[04:12] work/hoe x4, voice/crown_recruit/barracks, voice/musketeer/select
+[04:13] work/hoe x2, work/crown_build, combat/winder_attack
+[04:14] work/crown_build, work/hoe x2
+[04:15] work/hoe x3, combat/winder_attack, work/crown_build
+[04:16] work/crown_build, work/hoe, combat/winder_attack
+[04:17] work/hoe x2, work/crown_build, crown/placed
+[04:18] work/hoe x3, work/crown_build, combat/winder_attack
+[04:19] work/crown_build, work/hoe
+[04:20] combat/winder_attack, work/farm_harvest, done, work/crown_build, work/hoe x2
+[04:21] work/hoe x2, work/crown_build, combat/winder_attack
+[04:22] combat/cuirassier_attack x2, work/crown_build, work/hoe x2
+[04:23] work/hoe x3, work/crown_build, combat/winder_attack
+[04:24] work/crown_build
+[04:25] combat/winder_attack, work/crown_build, work/hoe x3
+[04:26] work/hoe x3, crown/placed, combat/cuirassier_attack, work/crown_build, combat/winder_attack
+[04:27] combat/cuirassier_attack, work/crown_build, clash x2
+[04:28] work/hoe, combat/winder_attack, work/crown_build
+[04:29] clash x2, work/hoe x2
+[04:30] combat/winder_attack, combat/cuirassier_attack, work/crown_build, clash, work/hoe
+[04:31] clash, combat/cuirassier_attack, work/crown_build, work/hoe x2, combat/winder_attack
+[04:32] work/hoe, clash x2, work/crown_build, combat/winder_death
+[04:33] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/crown_build, work/hoe
+[04:34] work/hoe x3, crown/built, announcer/crown/building_done, crown/placed, work/crown_build, combat/cuirassier_attack
+[04:35] work/hoe, voice/crown_recruit/horse_breeder, horse/neigh, combat/cuirassier_attack
+[04:36] work/hoe x2, work/crown_build
+[04:37] work/hoe x3
+[04:38] work/hoe, work/crown_build, combat/cuirassier_attack
+[04:39] work/hoe x3, combat/cuirassier_attack, horse/neigh
+[04:40] crown/placed, work/hoe, work/crown_build
+[04:41] work/hoe x4
+[04:42] voice/crown_recruit/barracks, voice/cuirassier/select, work/hoe x2, work/crown_build
+[04:43] work/hoe x3
+[04:44] work/hoe x3, crown/built, announcer/crown/building_done
+[04:45] work/hoe x3
+[04:46] work/hoe x3
+[04:47] work/hoe x3
+[04:48] work/hoe x3
+[04:49] work/hoe
+[04:50] work/hoe x3
+[04:51] work/hoe x2
+[04:52] work/farm_harvest, done, work/hoe x3
+[04:53] work/hoe x3, work/crown_build
+[04:54] work/hoe x2
+[04:55] work/hoe x2, work/crown_build
+[04:56] work/hoe x2
+[04:57] work/hoe x2, work/crown_build
+[04:58] work/hoe x3, work/winder_wind
+[04:59] work/hoe x2, work/crown_build
+[05:00] work/hoe x3
+[05:01] work/hoe x3, work/crown_build
+[05:02] horse/whinny, work/hoe x2
+[05:03] work/hoe x3, ui/click, work/crown_build
+[05:04] work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[05:05] work/hoe x2, work/crown_build
+[05:06] work/hoe x3
+[05:07] work/hoe x3, work/crown_build
+[05:08] work/hoe x2
+[05:09] work/hoe x3, work/crown_build
+[05:10] work/hoe x3
+[05:11] work/hoe x3, work/farm_harvest, done, work/crown_build
+[05:12] work/hoe x2, work/crown_build
+[05:13] work/hoe x3, crown/built, announcer/crown/building_done, work/winder_wind
+[05:14] work/hoe x3, work/crown_build
+[05:15] work/hoe x2, work/winder_wind
+[05:16] work/crown_build x2, work/hoe x2, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[05:17] work/hoe x3, work/winder_wind
+[05:18] work/crown_build x2, work/hoe x2
+[05:19] work/winder_crank, ratchet, combat/clock_soldier_attack x2
+[05:20] work/winder_crank, ratchet x3, combat/clock_soldier_attack x2, combat/crown_death
+[05:21] work/winder_crank
+[05:22] work/crown_build x2, work/hoe x4
+[05:23] work/hoe x3, crown/placed
+[05:24] work/hoe x3, crown/placed, work/crown_build
+[05:25] work/hoe x3
+[05:26] work/hoe x2, work/crown_build
+[05:27] work/hoe x3
+[05:28] work/hoe x3, work/crown_build, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[05:29] work/hoe x4
+[05:30] work/hoe x5, work/crown_build
+[05:31] work/hoe x3
+[05:32] crown/placed, work/hoe x3, work/crown_build
+[05:33] work/hoe x2
+[05:34] work/hoe x4, work/crown_build
+[05:35] work/hoe x3
+[05:36] work/hoe x3, work/crown_build
+[05:37] work/hoe x2, work/winder_crank
+[05:38] work/hoe x3, work/winder_crank, work/crown_build
+[05:39] work/hoe x2, crown/placed
+[05:40] work/hoe x2, work/winder_crank, work/crown_build
+[05:41] work/hoe x3, work/winder_crank, work/farm_harvest, done
+[05:42] work/hoe x2, work/winder_crank, work/crown_build
+[05:43] work/hoe x3, clash
+[05:44] work/crown_build, work/hoe x2, clash
+[05:45] work/hoe x2, work/crown_build x2, work/winder_crank
+[05:46] crown/placed, clash, work/hoe x2, work/crown_build
+[05:47] work/hoe x3, clash, work/crown_build
+[05:48] work/hoe x3, work/winder_wind, work/crown_build
+[05:49] combat/musketeer_attack, work/hoe, clash, work/crown_build
+[05:50] work/hoe x4, work/crown_build
+[05:51] clash, work/hoe x2, work/crown_build
+[05:52] work/hoe x3, combat/musketeer_attack, work/crown_build, clash
+[05:53] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x3, work/crown_build, crown/placed
+[05:54] work/hoe x2, crown/placed x2, work/crown_build
+[05:55] work/hoe x4, voice/crown_recruit/barracks, voice/musketeer/select, combat/musketeer_attack, voice/crown_recruit/horse_breeder
+[05:56] work/hoe x3, work/farm_harvest, done, work/crown_build
+[05:57] work/hoe x2, crown/built, announcer/crown/building_done
+[05:58] work/hoe x3, combat/musketeer_attack, work/crown_build
+[05:59] work/hoe x3, work/crown_build
+[06:00] work/winder_wind, work/hoe x3, work/crown_build
+[06:01] work/hoe x4, horse/neigh, combat/musketeer_attack, work/crown_build
+[06:02] work/hoe x4, MUSIC crown_battle_11, work/crown_build
+[06:03] work/hoe x4, work/crown_build
+[06:04] work/hoe x4, select/barracks, ui/click, work/crown_build
+[06:05] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x3, work/crown_build
+[06:06] work/hoe x4, crown/select_building, ui/click, work/crown_build, combat/musketeer_attack
+[06:07] work/hoe x4, work/crown_build
+[06:08] work/hoe x3, combat/cuirassier_death, combat/clock_soldier_attack, work/crown_build
+[06:09] work/hoe x3, work/crown_build
+[06:10] combat/musketeer_attack, work/hoe x4, voice/crown_recruit/barracks, voice/musketeer/select, work/crown_build
+[06:11] work/hoe x3, crown/placed x2, work/crown_build, combat/cuirassier_attack
+[06:12] crown/built, announcer/crown/building_done, work/hoe x3, work/winder_wind, combat/cuirassier_attack, work/crown_build
+[06:13] work/hoe x4, work/crown_build
+[06:14] work/hoe x3, work/winder_wind, work/crown_build
+[06:15] work/hoe x3, work/crown_build
+[06:16] work/winder_wind, combat/cuirassier_attack x2, work/hoe x4, work/crown_build
+[06:17] voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x2, work/crown_build, work/winder_wind
+[06:18] work/hoe x3, work/crown_build, work/winder_wind
+[06:19] work/hoe x5, work/crown_build, work/winder_wind
+[06:20] work/hoe x2, combat/cuirassier_attack, crown/built, announcer/crown/building_done, work/crown_build, work/farm_harvest, done
+[06:21] combat/cuirassier_attack, work/hoe x3, crown/placed, work/winder_wind, work/crown_build
+[06:22] crown/placed, work/hoe x4
+[06:23] work/hoe x4, work/winder_wind, work/crown_build
+[06:24] work/hoe x3, combat/cuirassier_attack
+[06:25] work/hoe x4, work/crown_build x2, combat/cuirassier_attack, work/farm_harvest, done
+[06:26] work/winder_wind, work/hoe x4, work/winder_crank
+[06:27] work/crown_build x2, work/hoe x3
+[06:28] MUSIC crown_peace_3, work/hoe x3, combat/cuirassier_attack
+[06:29] work/hoe x4, work/crown_build x2, voice/crown_recruit/town_hall, voice/labourer/select, combat/cuirassier_attack
+[06:30] work/hoe x3, work/winder_crank
+[06:31] work/hoe x4, work/crown_build x2
+[06:32] work/hoe x2, voice/crown_recruit/barracks, voice/cuirassier/select, work/winder_wind
+[06:33] work/hoe x2, work/crown_build, voice/crown_recruit/town_hall, work/farm_harvest, done
+[06:34] work/winder_wind, work/winder_crank, work/hoe
+[06:35] work/winder_wind, work/hoe x2, work/winder_crank
+[06:36] work/winder_wind, combat/musketeer_attack, work/hoe x2
+[06:37] work/hoe x4, work/crown_build x2
+[06:38] work/hoe x4, crown/placed x2
+[06:39] work/hoe x5, work/crown_build x2, combat/musketeer_attack
+[06:40] work/hoe x3, work/farm_harvest, done
+[06:41] work/crown_build, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/hoe x3, crown/built, announcer/crown/building_done
+[06:42] work/crown_build x2, work/hoe x3, combat/musketeer_attack
+[06:43] work/hoe x3
+[06:44] work/hoe x3, work/crown_build x2
+[06:45] work/hoe x3, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, combat/musketeer_attack, announcer/crown/research_done
+[06:46] work/crown_build x2, work/hoe x3, combat/cuirassier_attack, crown/placed
+[06:47] work/hoe x4, combat/clock_soldier_attack x3, voice/crown_recruit/barracks, voice/musketeer/select
+[06:48] work/crown_build x2, work/hoe x4, crown/placed x2, select/foundry, ui/click, combat/musketeer_attack, voice/crown_recruit/horse_breeder, horse/neigh, voice/musketeer/select
+[06:49] work/hoe x5, crown/placed
+[06:50] work/hoe x4, work/crown_build, work/winder_wind, combat/cuirassier_attack, crown/placed
+[06:51] crown/placed, work/hoe x3, combat/cuirassier_attack, combat/musketeer_attack
+[06:52] work/hoe x4, work/crown_build
+[06:53] work/winder_wind, work/hoe x4, voice/crown_recruit/town_hall, voice/labourer/select, horse/neigh, combat/winder_death, combat/musketeer_attack
+[06:54] work/hoe x2, work/crown_build
+[06:55] combat/cuirassier_attack x2, work/hoe x5, work/crown_build, work/winder_wind, combat/musketeer_attack
+[06:56] work/hoe x3, work/crown_build
+[06:57] crown/placed, work/hoe x3, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[06:58] work/hoe x5, work/winder_wind, work/crown_build
+[06:59] combat/musketeer_attack, work/crown_build, work/hoe x4, combat/cuirassier_attack x2
+[07:00] work/hoe x4, work/crown_build, crown/placed
+[07:01] work/crown_build, work/hoe x3, crown/built, announcer/crown/building_done
+[07:02] work/hoe x5, combat/musketeer_attack, work/crown_build
+[07:03] work/hoe x4, combat/musketeer_attack, combat/cuirassier_attack, voice/crown_recruit/horse_breeder, voice/crown_recruit/barracks, voice/musketeer/select
+[07:04] work/hoe x5, combat/cuirassier_attack, combat/musketeer_attack, work/crown_build, announcer/crown/building_done
+[07:05] work/hoe x4, combat/winder_death, combat/musketeer_attack, crown/built, work/farm_harvest, done
+[07:06] work/hoe x4, work/crown_build
+[07:07] work/hoe x4
+[07:09] voice/crown_recruit/barracks, horse/neigh, voice/cuirassier/select, ui/click
+[07:10] ui/click x3, work/winder_crank
+[07:11] work/winder_wind, work/winder_crank
+[07:13] work/winder_wind, work/farm_harvest, done, work/hoe
+[07:14] combat/musketeer_attack
+[07:16] ratchet
+[07:17] combat/musketeer_attack
+[07:18] work/winder_wind, work/hoe
+[07:19] voice/crown_recruit/horse_breeder, horse/neigh
+[07:20] work/winder_wind, ratchet, combat/musketeer_attack, voice/crown_recruit/foundry, voice/cannon/select
+[07:21] work/hoe
+[07:22] work/winder_wind, work/winder_crank
+[07:23] combat/musketeer_attack, work/winder_crank
+[07:24] combat/winder_death, combat/cuirassier_attack, horse/whinny, work/winder_wind, combat/winder_attack, work/winder_crank, work/hoe, work/crown_build
+[07:25] work/hoe x4, combat/musketeer_attack x2, ui/click
+[07:26] work/hoe x5, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/winder_wind, work/crown_build
+[07:27] combat/cuirassier_attack x2, work/hoe x3
+[07:28] work/hoe x4, combat/musketeer_attack, voice/crown_recruit/barracks, voice/musketeer/select, work/crown_build
+[07:29] work/hoe x4
+[07:30] work/hoe x5, combat/musketeer_attack, MUSIC crown_battle_7, work/crown_build
+[07:31] work/hoe x4, combat/cuirassier_attack x2, combat/musketeer_attack x2
+[07:32] work/hoe x5, work/crown_build
+[07:33] work/hoe x3, combat/musketeer_attack
+[07:34] voice/crown_recruit/horse_breeder, horse/neigh, work/hoe x4, combat/musketeer_attack, work/crown_build
+[07:35] work/hoe x4, combat/cuirassier_attack, voice/crown_recruit/barracks, voice/cuirassier/select
+[07:36] combat/musketeer_attack x2, work/hoe x4, work/winder_wind, work/crown_build
+[07:37] work/hoe x4, combat/musketeer_attack
+[07:38] work/hoe x4, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, crown/built, announcer/crown/building_done, work/winder_wind, work/crown_build
+[07:39] work/hoe x5, work/winder_crank
+[07:40] work/hoe x5, combat/netter_attack, combat/musketeer_attack, combat/springer_crouch, work/winder_wind, work/crown_build
+[07:41] combat/springer_jump, work/hoe x5, combat/springer_land
+[07:42] work/hoe x3, work/crown_build
+[07:43] work/hoe x5, voice/crown_recruit/barracks, voice/musketeer/select, combat/musketeer_attack
+[07:44] work/winder_wind, work/hoe x5, work/crown_build
+[07:45] work/hoe x4, work/winder_wind
+[07:46] work/hoe x4, combat/netter_attack, horse/neigh, combat/netter_hit, crown/built, announcer/crown/building_done, combat/musketeer_attack
+[07:47] work/hoe x3
+[07:48] work/hoe x5, combat/musketeer_attack, work/winder_wind
+[07:49] voice/crown_recruit/horse_breeder, horse/neigh, work/hoe x4, combat/musketeer_attack
+[07:50] work/hoe x4, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall, work/winder_wind, voice/crown_recruit/barracks
+[07:51] announcer/crown/research_done, work/hoe x5, voice/crown_recruit/foundry, combat/cuirassier_attack
+[07:52] work/hoe x3, MUSIC crown_peace_7
+[07:53] work/winder_wind, work/hoe x4, combat/cuirassier_attack, combat/musketeer_attack, work/farm_harvest x2, done
+[07:54] work/hoe x4, horse/neigh, combat/cuirassier_attack, combat/musketeer_attack x2
+[07:55] work/hoe x4, work/winder_wind, work/crown_build, combat/cuirassier_attack
+[07:56] work/hoe x4, combat/cuirassier_death, combat/clock_soldier_attack, horse/neigh
+[07:57] work/hoe x5, work/crown_build, work/farm_harvest, done, work/winder_wind, combat/musketeer_attack x2
+[07:58] work/hoe x4
+[07:59] work/winder_wind, work/hoe x4, work/crown_build, horse/neigh
+[08:00] work/hoe x4, combat/musketeer_attack x2
+[08:01] work/winder_wind, work/crown_build, work/hoe x4, select/barracks, ui/click
+[08:02] ratchet, horse/neigh, work/hoe x3, combat/musketeer_attack
+[08:03] work/hoe x4, work/winder_wind, work/crown_build, combat/musketeer_attack
+[08:04] combat/musketeer_attack, work/hoe x4, work/winder_wind, horse/neigh
+[08:05] work/hoe x3, work/crown_build, voice/crown_recruit/town_hall, voice/labourer/select, select/town_hall
+[08:06] work/hoe x5, work/winder_wind, combat/musketeer_attack
+[08:07] work/farm_harvest, done, work/hoe x4, work/crown_build, horse/neigh
+[08:08] combat/musketeer_attack, work/hoe x4, work/winder_wind, voice/crown_recruit/barracks, voice/musketeer/select, voice/crown_recruit/horse_breeder
+[08:09] work/hoe x5, work/crown_build
+[08:10] horse/neigh, work/hoe x4, combat/cuirassier_attack x2, work/winder_wind
+[08:11] combat/cuirassier_attack x2, combat/musketeer_attack, work/hoe x4, work/crown_build
+[08:12] work/hoe x5
+[08:13] work/hoe x4, work/crown_build, work/winder_wind, horse/neigh
+[08:14] work/hoe x3, combat/musketeer_attack, combat/cuirassier_attack, work/winder_wind
+[08:15] work/hoe x4, work/crown_build, combat/cuirassier_attack, combat/musketeer_attack, work/winder_wind
+[08:16] work/hoe x4, horse/neigh
+[08:17] crown/built, announcer/crown/building_done, work/hoe x4, work/winder_wind, combat/musketeer_attack x2, work/crown_build
+[08:18] work/hoe x4, work/crown_build, work/winder_wind, combat/springer_attack x2, combat/cuirassier_attack
+[08:19] work/hoe x4, combat/springer_attack x4, horse/neigh, combat/cuirassier_attack, work/crown_build, work/winder_wind
+[08:20] work/hoe x4, combat/musketeer_attack x2, work/crown_build, combat/springer_attack x2, work/winder_wind
+[08:21] work/hoe x5, announcer/crown/research_done, combat/springer_attack x3, combat/clock_soldier_attack x3, work/crown_build
+[08:22] combat/clock_soldier_attack x4, combat/springer_attack x3, voice/crown_recruit/barracks, voice/musketeer/select, MUSIC crown_battle_9, work/hoe x3, work/crown_build, work/winder_wind, combat/cuirassier_attack
+[08:23] work/hoe x5, combat/clock_soldier_attack, announcer/crown/building_lost, combat/building_collapse, combat/springer_crouch, ratchet, combat/musketeer_attack, combat/springer_jump, horse/neigh, combat/cuirassier_attack, voice/musketeer/select, voice/crown_recruit/horse_breeder
+[08:24] work/hoe x4, combat/springer_land, combat/clock_soldier_attack x4, combat/musketeer_attack, work/crown_build, combat/springer_attack x3, work/winder_wind
+[08:25] work/hoe x4, combat/clock_soldier_attack x2, work/winder_wind, combat/springer_attack
+[08:26] work/hoe x3, combat/springer_attack x2, combat/clock_soldier_attack x3, work/crown_build, combat/building_collapse, combat/explosion_big, combat/springer_crouch, work/winder_wind
+[08:27] combat/netter_attack, work/hoe x4, combat/cuirassier_attack x2, combat/clock_soldier_attack x3, combat/musketeer_attack x3, combat/springer_jump, horse/neigh, combat/pikeman_attack x2, combat/springer_attack, combat/netter_hit, combat/springer_land
+[08:28] work/winder_wind, work/hoe x4, combat/netter_attack x2, combat/springer_attack, work/crown_build, combat/crown_death, combat/clock_soldier_attack, combat/pikeman_attack, combat/netter_hit, combat/clock_soldier_death, combat/musketeer_attack
+[08:29] work/hoe x5, combat/pikeman_attack, crown/built, announcer/crown/building_done, combat/clock_soldier_attack x3, combat/crown_death, combat/netter_hit, combat/netter_attack, combat/springer_attack, ratchet
+[08:30] combat/netter_hit x2, combat/pikeman_attack, combat/clock_soldier_attack x2, work/hoe x3, combat/netter_attack x2, combat/springer_attack, ratchet, combat/crown_death, work/winder_wind, combat/musketeer_attack x2, voice/crown_recruit/barracks, horse/neigh, voice/cuirassier/select
+[08:31] combat/netter_hit x2, combat/springer_attack x3, combat/crown_death, ratchet, combat/clock_soldier_attack x2, combat/winder_death, work/hoe x2, combat/pikeman_attack
+[08:32] combat/musketeer_attack, combat/pikeman_attack x3, work/hoe x5, combat/springer_attack x2, combat/clock_soldier_attack, combat/crown_death, work/winder_wind, ratchet
+[08:33] combat/clock_soldier_attack x4, combat/crown_death, combat/pikeman_attack x2, combat/springer_attack x2, work/hoe x2, combat/musketeer_attack x2, ratchet, horse/neigh
+[08:34] combat/clock_soldier_attack, work/hoe x5, combat/springer_attack x2, ratchet, combat/crown_death, combat/musketeer_attack, combat/pikeman_attack x2, combat/clock_soldier_death, combat/netter_attack, work/winder_wind
+[08:35] combat/netter_hit, work/hoe x3, combat/clock_soldier_attack x4, combat/musketeer_attack x2, combat/springer_attack x2, combat/crown_death x2, combat/pikeman_attack, combat/cannon_canister
+[08:36] combat/crown_death x2, combat/clock_soldier_attack x3, work/hoe x4, work/farm_harvest, done, combat/springer_attack x2, horse/neigh, work/winder_wind
+[08:37] combat/clock_soldier_attack x3, work/hoe x4, combat/musketeer_attack, combat/winder_death, combat/pikeman_attack x2, combat/springer_attack
+[08:38] combat/crown_death x2, combat/clock_soldier_attack x4, combat/cuirassier_attack x2, combat/springer_attack x3, work/hoe x2, combat/winder_death, combat/pikeman_attack
+[08:39] voice/crown_recruit/horse_breeder, horse/neigh, combat/clock_soldier_attack x3, combat/pikeman_attack, work/hoe x2, combat/musketeer_attack, combat/crown_death, combat/springer_attack x2, work/winder_wind
+[08:40] work/hoe x3, combat/clock_soldier_attack x5, combat/springer_attack, combat/musketeer_attack, combat/clock_soldier_death, combat/springer_crouch
+[08:41] work/hoe x4, combat/clock_soldier_attack, combat/crown_death, combat/springer_attack x3, combat/springer_land, ratchet, combat/netter_attack, work/winder_wind
+[08:42] combat/musketeer_attack, MUSIC crown_battle_2, combat/netter_hit, combat/springer_crouch, combat/cuirassier_attack, work/hoe x2, combat/clock_soldier_attack, combat/crown_death, combat/springer_jump
+[08:43] combat/clock_soldier_attack, work/hoe x4, combat/cuirassier_attack, combat/springer_land, combat/springer_attack x2, combat/musketeer_attack
+[08:44] work/winder_wind, combat/clock_soldier_attack x4, work/hoe x2, combat/springer_attack
+[08:45] work/hoe x4, combat/clock_soldier_attack x3, combat/musketeer_attack, combat/cuirassier_attack, combat/springer_attack
+[08:46] combat/clock_soldier_attack x3, announcer/crown/research_done, work/hoe x4, combat/springer_attack, combat/musketeer_attack x2, combat/cuirassier_attack, announcer/crown/building_lost, combat/building_collapse, combat/explosion_big
+[08:47] combat/springer_attack x2, work/winder_wind, combat/clock_soldier_attack x2, combat/cuirassier_attack, work/hoe x3, combat/pikeman_attack, horse/neigh, combat/crown_death
+[08:48] work/hoe x3, ratchet, combat/musketeer_attack, combat/mortar_attack, combat/springer_attack
+[08:49] combat/clock_soldier_attack x2, combat/crown_death, work/hoe x4, work/winder_wind, ui/click, combat/musketeer_attack, combat/springer_attack
+[08:50] work/hoe
