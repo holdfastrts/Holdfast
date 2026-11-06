@@ -25,9 +25,10 @@ const DECIDE_BY := 180.0         # no read by then: a normal game for the matchu
 const UNKNOWN_WAIT := 45.0       # ... or this long after a first UNKNOWN with no read since
 const PUNISH_BY := {"crown": 150.0, "clockwork": 150.0, "brood": 150.0}    # a rush to punish greed only before this
 const TOO_LATE := 330.0          # a timing attack to punish greed only before this; later, out-expand it
-const BREEDER_BY := 165.0        # the Crown's Horse Breeder answers a greedy Brood read before this (crown-optimal-opening)
-## (study switch, tools/measure_crown_opening.gd: `-- greedybrood:economy` makes the Crown answer a greedy Brood with that
-## plan instead, to measure the riders against the alternatives; docs/crown_optimal_opening.md)
+const BREEDER_BY := 165.0        # (study switch greedybrood:rush) the Horse Breeder answers a greedy Brood read before this
+## (study switch, tools/measure_crown_opening.gd: `-- greedybrood:rush` makes the Crown answer a greedy Brood with the
+## Horseman rush (the Horse Breeder at once, read before BREEDER_BY), `-- greedybrood:siege` (or another plan) with that
+## plan, to measure them against the Economy plan's out-expanding; docs/crown_optimal_opening.md)
 static var GREEDY_BROOD_TRY := _arg("greedybrood:")
 
 
@@ -168,15 +169,18 @@ func _punish(f: String, t: float) -> Array:
 		"crown":
 			if f == "brood":
 				# (the owner, 2026-11-06 09:17, crown-optimal-opening: "In that particular game I think horse breeder to punish
-				# the greed." The common opening has no Mill and no Musketeers now, so the Horse Breeder goes down the moment the
-				# read says GREEDY and the Horsemen ride before the Brood's army is up. The old answer, the Siege push, put 8
-				# Musketeers, the Farm and the Breeder before the second hall: no punish, and the slowest hall of all (4:45).
-				# Read too late for the riders (BREEDER_BY): out-expand it. docs/crown_optimal_opening.md has the measures)
-				if GREEDY_BROOD_TRY != "":
-					return [GREEDY_BROOD_TRY, "an economic race" if GREEDY_BROOD_TRY == "economy" else "a normal game"]     # (study switch)
-				if t < BREEDER_BY:
+				# the greed", and if the riders measured still come after the Raptors, out-expand it, never the slow Siege push
+				# (it put 8 Musketeers, the Farm and the Breeder before the second hall: no punish, the hall at 4:45). MEASURED
+				# (docs/crown_optimal_opening.md, 10 maps and plans): the Horse Breeder at the read (~1:36) gives the first Horseman
+				# at 2:31-2:55 and the riders out at 3:34-3:58, after the Brood's first Raptors (3:14-3:22) in EVERY game; they
+				# killed 2-19 by 6:00 but the Crown's labourers stood at 10-12 till 4:00 and it lost 5 of 7 by 9:00-14:00. The
+				# Economy plan's hall at 2:21-2:25 kept up with the Brood and lost none by 10:00. So: out-expand it. The riders
+				# stay a study switch (`-- greedybrood:rush`) and the matchup's lean before scouting.)
+				if GREEDY_BROOD_TRY == "rush" and t < BREEDER_BY:
 					return ["rush", "punish the greed: the Horse Breeder at once, the riders before its army"]
-				return ["economy", "too late for the riders: out-expand it"]
+				if GREEDY_BROOD_TRY != "" and GREEDY_BROOD_TRY != "rush":
+					return [GREEDY_BROOD_TRY, _normal_why(GREEDY_BROOD_TRY)]     # (study switch)
+				return ["economy", "the riders would come after its Raptors: out-expand it"]
 			if f == "clockwork" and early and _rng.randf() < 0.35:
 				return ["rush", "punish the greed before its army is up"]
 			if f == "clockwork":

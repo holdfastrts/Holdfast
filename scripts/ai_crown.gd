@@ -173,12 +173,14 @@ const PLANS := {
 		# (OPTIMAL's punish of a greedy Brood, crown-optimal-opening: picked on the read from the common opening, whose
 		# Barracks, Farm and Gate stand already: the Breeder at once, Horsemen before labourers but the labourers never capped
 		# (the hall keeps one coming while the Barracks is busy), the riders out at 9 supply, and the second hall right
-		# behind the raid: the opening goes on past the attack to lay it, _bo_after_attack)
+		# behind the raid with the Powder Mill: the opening goes on past the attack to lay them, _bo_after_attack)
 		"bo_opt": [
 			{"do": "build", "k": "horse_breeder"},
 			{"do": "army", "k": "cuirassier", "cap": 0, "first": true},
 			{"do": "labs", "n": 99},
 			{"do": "attack", "n": 9, "at": {"army": 9}},
+			{"do": "build", "k": "powder_mill"},          # (the riders' pistols and the Musketeers after: without it the
+			# army stood at 12 supply till 7:00 for want of powder and the Brood's Raptors took both halls at 8:20, Greenhold)
 			{"do": "hall", "n": 2, "at": {"labs": 13}},
 		],
 		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["powder_mill", 1, {}], ["foundry", 1, {"labs": 16}],
@@ -673,10 +675,12 @@ func _bo_tick() -> void:
 
 
 ## THE OPENING GOES ON PAST THE RAID (crown-optimal-opening: OPTIMAL's punish of a greedy Brood, PLANS["rush"]["bo_opt"]):
-## when the riders are out and a hall step waits behind the attack step, the opening passes the attack and lays the hall;
-## the labourers come first again. False when no hall step is left (the attack ends the opening, as before).
+## when the riders are out and a hall or build step waits behind the attack step, the opening passes the attack and lays
+## them; the labourers come first again. False when none is left (the attack ends the opening, as before).
 func _bo_after_attack() -> bool:
-	if not _bo_plan.slice(bo_i).any(func(st: Dictionary) -> bool: return String(st["do"]) == "hall" and not _st_done(st)):
+	if strategy != "rush" or _opened_from != "optimal":
+		return false
+	if not _bo_plan.slice(bo_i).any(func(st: Dictionary) -> bool: return String(st["do"]) in ["hall", "build"] and not _st_done(st)):
 		return false
 	if not _raid_out:
 		_raid_out = true

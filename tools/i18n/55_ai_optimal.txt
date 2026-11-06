@@ -276,12 +276,16 @@ es oleadas constantes castigan la codicia
 pt os cavaleiros chegariam tarde demais: um avanço de cerco
 es los jinetes llegarían demasiado tarde: un avance de asedio
 
-# crown-optimal-opening (docs/crown_optimal_opening.md): the Crown's answer to a greedy Brood
+# crown-optimal-opening (docs/crown_optimal_opening.md): the Crown's answer to a greedy Brood (the riders: a study switch)
 
 > punish the greed: the Horse Breeder at once, the riders before its army
 pt punir a ganância: o Criador de Cavalos já, os cavaleiros antes do seu exército
 es castigar la codicia: el Criador de Caballos ya, los jinetes antes de su ejército
 
-> too late for the riders: out-expand it
-pt tarde demais para os cavaleiros: expandir mais que ele
-es demasiado tarde para los jinetes: expandirse más que él
+> %s's riders are out: it lays its second base right behind the raid.
+pt Os cavaleiros de %s saíram: ele ergue a sua segunda base logo atrás da incursão.
+es Los jinetes de %s ya salieron: levanta su segunda base justo detrás de la incursión.
+
+> the riders would come after its Raptors: out-expand it
+pt os cavaleiros chegariam depois dos seus Raptores: expandir mais que ele
+es los jinetes llegarían después de sus Raptores: expandirse más que él
