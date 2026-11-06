@@ -34,14 +34,18 @@ const DEF_MARGIN := 1.5         # a raid is met by this many times its value
 const GROUP_MIN := 3            # never fewer defenders than this (unless the army has fewer)
 const WHOLE_SHARE := 0.45       # a raid worth this share of the army or more: the whole army meets it
 const GIVE_UP := 0.55           # the whole army worth less than this share of the raid: it holds at the main's gate
+const HOLD_K := 0.8             # (clockwork-home) worth less than this share of the raid: it holds on its gears instead
+const HOLD_FAR := 600.0         # (px from the gathering point: a raid nearer is met where it is)
 const LEASH := 520.0            # px from our nearest building: defenders further than this walk back
 const STRAY_R := 360.0          # px: in a whole-army defence, one this far from the others and from the raid comes back
 const CALM := 6.0               # s with no raid before the defenders walk back
 const GATHER_R := 200.0         # px: a unit further than this from the gathering point walks to it
 const REGATHER := 12.0          # s between two picks of the gathering point
-const TOKEN_ABS := 250.0        # (clockwork-home) a raid worth less than this (all its spots together)...
-const TOKEN_SHARE := 0.15       # ...and less than this share of the army...
-const TOKEN_FAR := 700.0        # ...and further than this (px) from the army is a token raid: a group meets it
+const TOKEN_SHARE := 0.12       # (clockwork-home) a TOKEN raid (all its spots together) is worth less than this share of
+const TOKEN_MIN := 150.0        # the army, kept between these (a Raptor is 25, a Clock Soldier 70): a group meets it, the
+const TOKEN_MAX := 300.0        # rest stays on its gears; anything more and the whole army defends the base
+const STAY_DEFEND := 15.0       # s the whole army stays at a raid that has shrunk to a token one (then a group finishes it)
+var _big_t := -99.0
 const MASS_SINCE := 0.0         # (the opening's steady production: AIClockwork._bo_mass)
 ## The enemy army a Hard computer of that faction has at that age (value; [clock s, value]), from the coached games
 ## (docs/clockwork_army.md): the Brood's is the Crown's crown-v-brood table, raised before 7:00 (its Rootmaws and Mound
@@ -720,11 +724,10 @@ func _defend(home: Array, g: Vector2) -> bool:
 		for a in raids:
 			total += float(a["value"])
 		var c0 := _centre(home) if not home.is_empty() else g
-		var far := INF
-		for a in raids:
-			far = minf(far, (a["spot"] as Vector2).distance_to(c0))
-		var token := total < maxf(TOKEN_ABS, mine * TOKEN_SHARE) and far > TOKEN_FAR
-		whole = phase == "defend" or not token
+		var token := total < clampf(mine * TOKEN_SHARE, TOKEN_MIN, TOKEN_MAX) and total < mine * WHOLE_SHARE
+		if not token:
+			_big_t = game.clock
+		whole = not token or (phase == "defend" and game.clock - _big_t < STAY_DEFEND)
 		bv = maxf(bv, total)
 		if whole:
 			# (the raid to go to: the biggest; one nearly as big and much nearer first)
@@ -734,7 +737,23 @@ func _defend(home: Array, g: Vector2) -> bool:
 	# THE WHOLE ARMY: the biggest raid is worth a good share of it
 	if not home.is_empty() and whole:
 		var main_g: Vector2 = ai._post_spot()
-		if mine < bv * GIVE_UP and main_g != Vector2.INF and (big["spot"] as Vector2).distance_to(main_g) > 700.0:
+		if home_on and mine < bv * HOLD_K and (big["spot"] as Vector2).distance_to(g) > HOLD_FAR and not _spots.is_empty():
+			# (clockwork-home) STRONGER THAN THE WHOLE ARMY, away from its gathering point: it does not walk out into it (Kestrel
+			# Rise 8:48: 21 units, 1,470, went to a raid of 300 at the third Clocktower, the Brood's 65 Raptors came in behind it
+			# and 156 were left at 9:05); it holds together on its gears, wound and mended there, and meets it when it comes
+			if phase != "hold":
+				stats["holds"] = int(stats["holds"]) + 1
+			phase = "hold"
+			say("a raid worth %d at %s is stronger than its %d: the whole army holds together on its gears at %s, the Winders mend it" % [int(bv), _where(big["spot"]), int(mine), _where(g)], "hold", 30.0)
+			for u in home:
+				var sp := _spot_for(u)
+				var to: Vector2 = sp["p"] if not sp.is_empty() else ai._home_spot(g)
+				if u.order == "attack" and u.target != null and is_instance_valid(u.target) and not u.target.dead and u.position.distance_to(g) < GATHER_R * 1.5:
+					continue          # (fighting at the gathering point itself)
+				_order(u, to, u.position.distance_to(to) < 300.0, 40.0)
+			defenders.clear()
+			return true
+		if not home_on and mine < bv * GIVE_UP and main_g != Vector2.INF and (big["spot"] as Vector2).distance_to(main_g) > 700.0:
 			# (far worse off, away from the main: the army holds together at the main's gate, the Winders mend it there)
 			if phase != "hold":
 				stats["holds"] = int(stats["holds"]) + 1

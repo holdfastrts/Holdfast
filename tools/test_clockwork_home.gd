@@ -189,7 +189,7 @@ func _look() -> void:
 	var fv := _val(foes)
 	var army_g = cw.get("army_g")
 	if ep == null and fv >= BIG:
-		ep = {"t0": g.clock, "t1": g.clock, "peak": fv, "came": {}, "pool": {}, "army0": _val(mine), "most": 0.0, "lost_b": 0,
+		ep = {"t0": g.clock, "t1": g.clock, "peak": fv, "came": {}, "pool": {}, "army0": _val(mine), "most": 0.0, "with_n": 0, "with_s": 0.0, "lost_b": 0,
 			"wind0": _avg_wind(mine.filter(func(u) -> bool: return cw._home_dist(u.position) < 900.0)), "out": out, "army_max": _val(mine)}
 		_quiet_t = g.clock
 	if ep != null:
@@ -204,6 +204,9 @@ func _look() -> void:
 					at += cw._unit_value(u)
 					break
 		ep["most"] = maxf(float(ep["most"]), at / maxf(1.0, _val(mine)))
+		if fv >= BIG:
+			ep["with_n"] = int(ep["with_n"]) + 1
+			ep["with_s"] = float(ep["with_s"]) + at / maxf(1.0, _val(mine))
 		if fv >= SMALL:
 			_quiet_t = g.clock
 			ep["t1"] = g.clock
@@ -230,6 +233,7 @@ func _close_ep() -> void:
 	for u in ep["pool"]:
 		pool += float(ep["pool"][u])
 	ep["share"] = came / maxf(1.0, pool)
+	ep["with"] = float(ep["with_s"]) / maxf(1.0, float(ep["with_n"]))
 	ep.erase("came")
 	ep.erase("pool")
 	eps.append(ep)
@@ -280,9 +284,9 @@ func _finish() -> void:
 	var shares: Array = []
 	var dw := 0.0
 	for e in eps:
-		print("  base attacked %s-%s: peak %d, army %d, came %d%% (most at once %d%%), wind at the start %.2f, buildings lost %d%s" % [
+		print("  base attacked %s-%s: peak %d, army %d, came %d%% (most at once %d%%, at it while it was big %d%%), wind at the start %.2f, buildings lost %d%s" % [
 			_mmss(float(e["t0"])), _mmss(float(e["t1"])), int(e["peak"]), int(e["army0"]), int(float(e["share"]) * 100.0),
-			int(float(e["most"]) * 100.0), float(e["wind0"]), int(e["lost_b"]), " (the push was out)" if e["out"] else ""])
+			int(float(e["most"]) * 100.0), int(float(e["with"]) * 100.0), float(e["wind0"]), int(e["lost_b"]), " (the push was out)" if e["out"] else ""])
 		shares.append(float(e["share"]))
 		dw += float(e["wind0"])
 	if cw.get("army_g") != null and cw.army_g != null:
