@@ -1,0 +1,42 @@
+# ai-followups (docs/ai_followups.md): the AI STORY's sentences for the Clockwork's push and army and the Crown's
+# "army first" (scripts/ai_story_lines.gd). The placeholders keep their English order: the first %s is the player.
+
+> %s's push does not chase %s fast rider(s) (%s): the march goes on.
+pt O avanço de %s não persegue %s cavaleiro(s) rápido(s) (%s): a marcha continua.
+es El avance de %s no persigue a %s jinete(s) rápido(s) (%s): la marcha sigue.
+
+> %s's push turns home: its %s is about to fall.
+pt O avanço de %s volta para casa: o seu %s está prestes a cair.
+es El avance de %s vuelve a casa: su %s está a punto de caer.
+
+> %s's push turns home: a real attack on its base.
+pt O avanço de %s volta para casa: um ataque de verdade à sua base.
+es El avance de %s vuelve a casa: un ataque de verdad a su base.
+
+> %s's push goes out: %s units in one block.
+pt O avanço de %s sai: %s unidades num só bloco.
+es El avance de %s sale: %s unidades en un solo bloque.
+
+> %s's army gives up a chase out of its base and walks back.
+pt O exército de %s desiste de uma perseguição fora da sua base e volta.
+es El ejército de %s abandona una persecución fuera de su base y vuelve.
+
+> %s's whole army defends its base.
+pt O exército inteiro de %s defende a sua base.
+es Todo el ejército de %s defiende su base.
+
+> %s meets a small raid (%s) with a group; the rest of its army stays on its gears.
+pt %s enfrenta uma pequena incursão (%s) com um grupo; o resto do exército fica nas suas engrenagens.
+es %s enfrenta una pequeña incursión (%s) con un grupo; el resto de su ejército se queda en sus engranajes.
+
+> %s's base is calm again: the army walks back to rest on its gears.
+pt A base de %s está calma de novo: o exército volta para descansar nas suas engrenagens.
+es La base de %s vuelve a estar en calma: el ejército regresa a descansar en sus engranajes.
+
+> %s puts its army first (%s against the %s it reckons the enemy has): the labourers and the tech wait.
+pt %s põe o exército em primeiro lugar (%s contra os %s que calcula que o inimigo tem): os trabalhadores e a tecnologia esperam.
+es %s pone su ejército primero (%s contra los %s que calcula que tiene el enemigo): los trabajadores y la tecnología esperan.
+
+> %s's %s waits: its army comes first.
+pt %s: o seu %s espera, o exército vem primeiro.
+es %s: su %s espera, el ejército va primero.

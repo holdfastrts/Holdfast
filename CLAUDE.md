@@ -37,6 +37,12 @@
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
   alone, cliff edge = no walled natural); SITES KEEP CLEAR for everyone (Game.site_keepout, step_aside keeps HOLD, the
   computer avoids a blocked spot 90 s); 3 Field Cannons before any Mortar in every Crown plan (AI.CANNONS_FIRST).
+- AI FOLLOW-UPS (owner's Crown OPTIMAL v Clockwork game 2026-11-06; job ai-followups, 0.33.3, docs/ai_followups.md): the
+  Crown puts its ARMY FIRST when far behind the enemy's (AICrown.army_lags: 60% of foe_reckon, 90% after a GREEDY read;
+  labourers and tech wait, the natural's wall keeps a few coins); no cliff edge above a walled natural (the gate post at
+  half the wall); the Clockwork's push does not chase fast riders (riders_only, march leash, chase cap) and only a real
+  attack or a hall/Mainspring about to fall calls it home; a defence gives up a chase 520 px out. Open: the Crown's
+  economy (55-75% of the Clockwork's by 8:00; crown-optimal-opening's Barracks-first opening), the late natural wall.
 - CROWN AMMUNITION, NO POWDER LOCK (owner, DECIDED 2026-11-05 07:48-07:54; job crown-ammo): Barracks units have NO
   building requirement any more (the Musketeer no longer needs the Powder Mill; the Officer no longer needs the Horse
   Breeder; an Officer without a horse walks). Every unit with a firearm costs POWDER for its ammunition, the Officer too

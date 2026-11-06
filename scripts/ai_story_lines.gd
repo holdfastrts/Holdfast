@@ -45,6 +45,18 @@ const RULES := [
 	["^opens with its economy", "%s opens with its economy: the second base before any Barracks, Musketeers when there is a reason.", 3, "plan"],
 	["^plays the Brood", "", 1, "plan"],
 	# ---- the Clockwork's Economy and Balanced openings (clockwork-eco, scripts/ai_cw_eco.gd, scripts/clock_sites.gd)
+	# ---- the Clockwork's army and push (clockwork-army, clockwork-home, ai-followups: scripts/ai_cw_army.gd, scripts/ai_cw_push.gd)
+	["^'s Clockwork: push: (\\d+) fast riders? \\((\\d+) value\\) round it: it does not chase them", "%s's push does not chase %s fast rider(s) (%s): the march goes on.", 2, "attack"],
+	["^'s Clockwork: push: pulls back \\(its (.+?) at .+? is about to fall\\)", "%s's push turns home: its %s is about to fall.", 3, "attack"],
+	["^'s Clockwork: push: pulls back \\(the base is attacked", "%s's push turns home: a real attack on its base.", 3, "attack"],
+	["^'s Clockwork: push: push \\d+ goes out: (\\d+) units", "%s's push goes out: %s units in one block.", 3, "attack"],
+	["^'s Clockwork: army: gives up a chase", "%s's army gives up a chase out of its base and walks back.", 2, "defend"],
+	["^'s Clockwork: army: the whole army defends the base", "%s's whole army defends its base.", 3, "defend"],
+	["^'s Clockwork: army: a small raid worth (\\d+)", "%s meets a small raid (%s) with a group; the rest of its army stays on its gears.", 2, "defend"],
+	["^'s Clockwork: army: the base is calm again", "%s's base is calm again: the army walks back to rest on its gears.", 1, "defend"],
+	# ---- the Crown: the army first (ai-followups, scripts/ai_crown.gd army_lags)
+	["^'s plan: the army first: (\\d+) of army against the (\\d+)", "%s puts its army first (%s against the %s it reckons the enemy has): the labourers and the tech wait.", 2, "army"],
+	["^'s plan: milestone (.+?) waits: the army is far behind", "%s's %s waits: its army comes first.", 1, "tech"],
 	["^'s Clockwork: plays the (?:Economy|Balanced): the opening build", "%s opens for its economy: Winders non-stop and a fast second Clocktower, no army before it without a reason.", 3, "plan"],
 	["^'s Clockwork: rush evidence", "%s saw a rush coming: a Light Works and Clock Soldiers first, then back to its economy.", 3, "defence"],
 	["^'s Clockwork: lays a Light Works against the rush", "", 1, "defence"],
