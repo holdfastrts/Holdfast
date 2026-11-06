@@ -96,10 +96,11 @@ the pick (`opt_switch`: AICrown, AIClockwork, AIBroodNew). Balanced stays as it 
 and the baseline the coached builds were measured on (and it still answers a real greed with its timing attack).
 
 **The common opening** (the owner: "most Crown games start the same: a Cottage, a Gate, then a Farm"):
-- the Crown: the ramp Cottage, the Gate, the second Farm, the scout out at once (0:02), then the build order WAITS at a
-  "pick" step (labourers keep coming) until the pick; against the Brood the Barracks and the Mill at 7 labourers instead
-  of the Farm, as Balanced does (the Brood's fastest rush is at the ramp by ~1:50, before a read can put a Barracks up in
-  time: tools/test_ai_wall_vs_rush.gd). Before scouting it may LEAN to the Horseman rush against the Brood (the owner: "it
+- the Crown (since crown-optimal-opening, docs/crown_optimal_opening.md, the owner 2026-11-06): the ramp Cottage, the
+  Gate, the BARRACKS (a rush is not ruled out yet), the second FARM, the scout out at once (0:02), then the build order
+  WAITS at a "pick" step (labourers and Cottages keep coming, nothing is held for it) until the pick; NO Powder Mill before
+  the read, in every matchup (a seen rush puts the Mill and the soldiers first). After the read: the Mill (Musketeer play)
+  or the Horse Breeder (riders). Before scouting it may LEAN to the Horseman rush against the Brood (the owner: "it
   could decide on a Horseman rush based on the map or the matchup"): 35% on a short map, 20% on a long one; never against
   anyone else.
 - the Clockwork: its Balanced economy opening (Winders non-stop, a fast second Clocktower), a Winder scouts at 0:18.
@@ -111,8 +112,8 @@ and the baseline the coached builds were measured on (and it still answers a rea
 | Read | Crown | Clockwork | Brood |
 |---|---|---|---|
 | AGGRESSIVE | defend, then Balanced (its counter) | defend, then Balanced | defend, then Balanced |
-| GREEDY, early (before 2:30) | v Brood: the **Siege push** (riders picked on the read come too late: only its lean before scouting rides); v Clockwork: the Horseman rush 35%, else Balanced's steady waves; v Crown: the **Timing attack**, never Horsemen | the **Clock Soldier rush** | v Clockwork, Brood: the **Raptor rush**; v Crown (walled): the **Spitter timing** |
-| GREEDY, later (to 5:30) | Timing attack (v Clockwork: Balanced; v Brood: Siege push) | Springer timing | Spitter timing (v Crown), Timing attack |
+| GREEDY, early (before 2:30) | v Brood (read before 2:45): the **Horseman rush**, the Horse Breeder at once (the owner, 2026-11-06; later: out-expand, Economy); v Clockwork: the Horseman rush 35%, else Balanced's steady waves; v Crown: the **Timing attack**, never Horsemen | the **Clock Soldier rush** | v Clockwork, Brood: the **Raptor rush**; v Crown (walled): the **Spitter timing** |
+| GREEDY, later (to 5:30) | Timing attack (v Clockwork: Balanced; v Brood: Economy, out-expand it) | Springer timing | Spitter timing (v Crown), Timing attack |
 | GREEDY, too late | Economy (out-expand it) | Economy | Economy |
 | NORMAL (weights) | v Brood: Balanced 3, Siege push 2, Timing 2; v Clockwork: Balanced 3, Economy 2, Dragoon raids 2, Timing 1; v Crown: Economy 3, Balanced 2, Dragoon raids 2, Siege push 1, Timing 1 | v Brood: Pendulums 3, Balanced 2, Owl raids 2; v Crown: Balanced 2, Economy 2, Springer timing 2, Heavy Works push 1; v Clockwork: Balanced 3, Economy 2, Springer timing 1 | v Crown: Balanced 2, Spitter timing 2, Brute siege 2, Timing 1; v Clockwork: Timing 2, Spitter timing 2, Balanced 2; v Brood: Balanced 2, Timing 2, Economy 1, Rush 1 |
 | DEFENSIVE | opening: Economy; middle: Siege push | opening: Economy; middle: Heavy Works push | opening: Economy; middle: Brute siege |
