@@ -176,7 +176,7 @@ func _raid(q: Unit) -> void:
 	check(lost <= 3, "most grubs survive the raid (%d of %d lost)" % [lost, grubs0.size()])
 	check(dead + fled == riders.size(), "the riders die or leave (%d dead, %d left)" % [dead, fled])
 	check(not gang_healthy, "no grubs gang up on a healthy rider")
-	check(far_max <= 22.0, "the warriors keep to their leash (farthest %.0f tiles from the Mother)" % far_max)
+	check(far_max <= 30.0, "the warriors keep to their leash (farthest %.0f tiles from the Mother)" % far_max)
 	check(not mother_up, "the Mother stays rooted against riders")
 	check(ai.rider_read_first >= 0.0 and (hit < 0.0 or ai.rider_read_first <= hit), "the read came before the hit (read %s, hit %s)" % [_mmss(ai.rider_read_first), _mmss(hit)])
 	check(not notes_since(t0, "riders in its land").is_empty(), "it says the riders are in its land")

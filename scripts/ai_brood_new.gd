@@ -695,12 +695,17 @@ func _nb_defend_riders(q: Unit, army: Array, group: Array) -> bool:
 		guard = q.position + Vector2(0, BroodNew.drawn_r(q) + 40.0)
 	_rider_guard = guard
 	_rally = guard
-	var near: Array = group.filter(func(r: Unit) -> bool: return r.position.distance_to(guard) < RIDER_GUARD_R * Defs.TILE or _grub_near(r.position, 5.0))
+	# (strong: worth 2.5 times the riders or more: it pushes them off its land, a wider reach and leash: two riders kited a
+	# guard of 17 Raptors round Dune Sea for two minutes and kept its grubs running)
+	var strong := _value_of(avail) >= _value_of(group) * 2.5
+	var reach := (RIDER_GUARD_R + 8.0 if strong else RIDER_GUARD_R) * Defs.TILE
+	var leash := (RIDER_LEASH + 9.0 if strong else RIDER_LEASH) * Defs.TILE
+	var near: Array = group.filter(func(r: Unit) -> bool: return r.position.distance_to(guard) < reach or _grub_near(r.position, 5.0))
 	_def = avail
 	_def_at = at
 	for u in avail:
 		var cu := u as Unit
-		if cu.position.distance_to(guard) > RIDER_LEASH * Defs.TILE:
+		if cu.position.distance_to(guard) > leash:
 			if cu.order != "move" or cu.path_goal.distance_to(guard) > 120.0:
 				cu.cmd_move(guard)          # (the leash: back to the grubs, a plain walk)
 			continue
@@ -1140,6 +1145,8 @@ func _nb_grubs_vs_riders(q: Unit) -> void:
 		return
 	# (brood-anti-riders: during a rider raid the grubs run sooner, from farther, and to the warriors that guard them)
 	var raid := _riders_on()
+	if raid and _value_of(_nb_army_units().filter(func(u: Unit) -> bool: return not _wave.has(u))) >= _value_of(riders) * 2.5:
+		raid = false          # (warriors worth 2.5 times the riders here: the grubs run only from a rider right at them)
 	var flee_r := (RIDER_FLEE if raid else RIDER_R) * Defs.TILE
 	var guard_v := 0.0
 	for u in _nb_army_units():
@@ -2407,9 +2414,10 @@ const RES_KEEP := 100
 func _nb_research(q: Unit) -> void:
 	if _nb_threat(q) != Vector2.INF or (_nb_saving_growth(q) and BroodNew.stage(q) == 0) or peaceful or (_rush_on() and game.clock < 300.0):
 		return
-	if _riders_on():
+	if _rider_short() or (_riders_on() and _rider_hit_t < 0.0):
 		return          # (brood-anti-riders: a Sire researching fathers no eggs: Bigger Clutch at 3:31-3:33 cost two
-		                # Hollowfen games their Raptors while the riders came; it waits till they are gone)
+		                # Hollowfen games their Raptors while the riders came; it waits till they have come and its
+		                # warriors are enough)
 	var food := _food()
 	var spoils := _spoils()
 	var keep := RES_KEEP + (150 if difficulty == 0 else 0) + _morph_keep
@@ -2796,7 +2804,7 @@ func _nb_army(q: Unit) -> void:
 	var capped0 := game.supply_used(team) >= mini(int(game.players[team]["cap"]), game.max_supply(team)) - 6
 	var banked := capped0 and _food() >= 1500 and sup >= 12
 	if peaceful or game.clock < _retreat_until or (not banked and (game.clock < float(plan["wave_t"]) or _rush_on() or _alarm_on() \
-			or game.clock - _rider_land_t < RIDER_CALM)):
+			or _rider_short())):
 		return
 	var by_build: bool = bb != null and bb.decides() and not banked
 	if by_build and not bb.may_go(q, army, sup):
