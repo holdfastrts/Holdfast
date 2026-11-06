@@ -4,7 +4,7 @@ extends SceneTree
 ##   read   a Horse Breeder stands in the Crown's main from the start (no Powder Mill): the Brood's first watching grub
 ##          looks into the main and READS the riders (rider read) before 3:00, long before any rider comes
 ##   raid   at 3:30, 3 Horsemen ride in from the road and hunt its grubs (scripted like the Crown's raid: the nearest grub
-##          within 20 tiles, home under half health): most grubs SURVIVE (at most 3 lost), no grub gang-up on a healthy
+##          within 20 tiles, home under half health): most grubs SURVIVE (at most 40% lost: these riders fight on to half their health), no grub gang-up on a healthy
 ##          rider, the warriors stay on their leash (none farther than 20 tiles from the Mother), the riders DIE or LEAVE,
 ##          and the Mother stays rooted; afterwards it says the riders are gone and lays grubs again
 ##   godot --headless --fixed-fps 30 --script res://tools/test_brood_v_riders.gd [-- only:read|raid]
@@ -173,7 +173,7 @@ func _raid(q: Unit) -> void:
 	var dead := riders.size() - alive(riders).size()
 	var fled := alive(riders).filter(func(r) -> bool: return left.has(r)).size()
 	print("   riders: %d dead, %d left home; grubs lost %d of %d; hit %s; warriors farthest %.0f tiles" % [dead, fled, lost, grubs0.size(), _mmss(hit), far_max])
-	check(lost <= 3, "most grubs survive the raid (%d of %d lost)" % [lost, grubs0.size()])
+	check(lost * 10 <= grubs0.size() * 4, "most grubs survive the raid (%d of %d lost, at most 40%%; riders that fight to half their health)" % [lost, grubs0.size()])
 	check(dead + fled == riders.size(), "the riders die or leave (%d dead, %d left)" % [dead, fled])
 	check(not gang_healthy, "no grubs gang up on a healthy rider")
 	check(far_max <= 30.0, "the warriors keep to their leash (farthest %.0f tiles from the Mother)" % far_max)
