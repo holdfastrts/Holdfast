@@ -2240,7 +2240,9 @@ func _nb_lay(q: Unit) -> void:
 	# is at the Mother or a rush is on; above the curve only with food to spare
 	var curve := 5.0 + game.clock / 60.0 * float(plan.get("drone", 4.0))
 	var danger := _nb_threat(q) != Vector2.INF or _rush_short() or ((_alarm_on() or _under_armed()) and grubs >= 16)
-	var rider_short := _rider_short()
+	var rider_short := _rider_short() and BroodNew.father_near(game, team, BroodNew.FATHER)
+	# (brood-anti-riders: with no Tyrant Sire yet no Raptor can be laid: grubs meanwhile, his lure's food kept; holding the
+	# eggs from the read at 1:38 to his hatching at 2:25 cost the Economy games 4-5 grubs at 3:00)
 	if danger and not rider_short and not _rush_short() and _nb_threat(q) != Vector2.INF and _riders_only_near(q) \
 			and _value_of(_nb_army_units().filter(func(u: Unit) -> bool: return not _wave.has(u))) >= maxf(_foe_near_home * 1.3, 150.0):
 		danger = false          # (brood-anti-riders: only riders (or Officers) by the Mother and warriors enough: the grubs go
