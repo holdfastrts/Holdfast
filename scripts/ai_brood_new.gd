@@ -574,7 +574,7 @@ const RIDER_FLEE := 8.0          # tiles: grubs a rider comes this near run (5 o
 const RIDER_GUARD_R := 12.0      # tiles from the guard: riders the warriors go for
 const RIDER_LEASH := 15.0        # tiles from the guard: no warrior chases farther
 const RIDER_V := 115.0           # (a Horseman's value: the riders it expects before it has seen them all)
-const RIDER_PRE := 0.6           # the share of the warriors wanted before the riders are seen coming
+const RIDER_PRE := 0.5           # the share of the warriors wanted before the riders are seen coming
 
 
 ## Riders about: read and not come yet (RIDER_FOR s), or in its land lately.
@@ -1450,7 +1450,8 @@ func _nb_morphs_go(q: Unit) -> void:
 	var k := ""
 	var spot = null
 	var tyrant := BroodNew.count_of(game, team, BroodNew.FATHER) > 0
-	if not tyrant and (grubs >= int(plan["sire_g"]) or game.clock > float(plan["sire_t"]) or _rush_on() or _alarm_on() or _riders_on()) and maws >= 1:
+	if not tyrant and (grubs >= int(plan["sire_g"]) or game.clock > float(plan["sire_t"]) or _rush_on() or _alarm_on() \
+			or (_riders_on() and game.clock > float(plan["sire_t"]) - 45.0)) and maws >= 1:      # (brood-anti-riders: riders read: his lure 45 s before the plan's time, in time for Raptors at 3:00, not at the read)
 		k = BroodNew.FATHER         # (the first Sire: the warriors' line)
 	elif _nb_short():
 		k = BroodNew.TURTLE
