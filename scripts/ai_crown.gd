@@ -170,6 +170,19 @@ const PLANS := {
 			{"do": "wall_gate", "at": {"labs": 10}},
 			{"do": "attack", "n": 9, "at": {"army": 9}},
 		],
+		# (OPTIMAL's punish of a greedy Brood, crown-optimal-opening: picked on the read from the common opening, whose
+		# Barracks, Farm and Gate stand already: the Breeder at once, Horsemen before labourers but the labourers never capped
+		# (the hall keeps one coming while the Barracks is busy), the riders out at 9 supply, and the second hall right
+		# behind the raid with the Powder Mill: the opening goes on past the attack to lay them, _bo_after_attack)
+		"bo_opt": [
+			{"do": "build", "k": "horse_breeder"},
+			{"do": "army", "k": "cuirassier", "cap": 0, "first": true},
+			{"do": "labs", "n": 99},
+			{"do": "attack", "n": 9, "at": {"army": 9}},
+			{"do": "build", "k": "powder_mill"},          # (the riders' pistols and the Musketeers after: without it the
+			# army stood at 12 supply till 7:00 for want of powder and the Brood's Raptors took both halls at 8:20, Greenhold)
+			{"do": "hall", "n": 2, "at": {"labs": 13}},
+		],
 		"mid": [["barracks", 1, {}], ["horse_breeder", 1, {}], ["powder_mill", 1, {}], ["foundry", 1, {"labs": 16}],
 			["barracks", 2, {"labs": 16}], ["armoury", 1, {"labs": 24}], ["church", 1, {"labs": 34, "halls": 2}],
 			["barracks", 3, {"labs": 30}]],
@@ -254,25 +267,22 @@ const PLANS := {
 			["armoury", 1, {"labs": 26}], ["barracks", 3, {"labs": 30}], ["church", 1, {"labs": 36, "halls": 2}],
 			["foundry", 2, {"labs": 44, "halls": 3}]],
 		"s": {"wave": 18, "step": 8}},
-	# OPTIMAL (ai-optimal, scripts/ai_optimal.gd): THE COMMON OPENING the owner described ("most Crown games start the same:
-	# a Cottage, a Gate, then a Farm"), the scout out at once, and the build order waits at "pick" (labourers keep coming)
-	# until OPTIMAL picks a build from the read: that build's steps take over from there (opt_switch). A rush read puts the
-	# Barracks and the Mill up at once (_bo_defence), before any pick.
+	# OPTIMAL (ai-optimal, scripts/ai_optimal.gd): THE COMMON OPENING, the owner's (crown-optimal-opening, 2026-11-06 09:17,
+	# docs/crown_optimal_opening.md): "the powder mill was a mistake. It could have made barracks because you don't know if
+	# the enemy is rushing, but after the barracks it should've been a Farm. After scouting, then a decision on powder mill
+	# or horse breeder." The ramp Cottage, the Gate, the BARRACKS (a rush is not ruled out yet), the second FARM, the scout out
+	# at once; NO Powder Mill and no soldiers before the read (a seen rush puts the Mill and the soldiers first: _bo_defence;
+	# a gold-only Musketeer comes out with his bayonet, crown-ammo). The build order then waits at "pick" while the
+	# labourers keep coming (the gold goes to them and to the Cottages ahead, never kept for the pick) until OPTIMAL picks a
+	# build from the read; that build's steps take over (opt_switch): the Mill for Musketeer play, the Horse Breeder for
+	# riders. The same in every matchup (it was the Barracks, the Mill and 4 Musketeers against the Brood: one labourer in
+	# the whole second minute, the second hall at 4:45, docs/playtests/2026-11-06/crown_optimal_slow_expand_log.txt).
 	"optimal": {"opening": "mill", "labs": 99, "army": 0.5, "mill": [[0, 3], [16, 5], [20, 6]],
 		"bo": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
-			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 7}},
-			{"do": "pick"},
-		],
-		# (against the Brood: the Barracks and the Mill at 7 labourers as in Balanced's, the matchup's reason: its fastest
-		# rush is at our ramp by ~1:50, before a scout's read can put a Barracks up in time; tools/test_ai_wall_vs_rush.gd)
-		"bo_brood": [
-			{"do": "wall_cottage", "at": {"sup": 5}},
-			{"do": "wall_gate", "at": {"sup": 5}},
 			{"do": "build", "k": "barracks", "at": {"labs": 7}},
-			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
-			{"do": "army", "k": "musketeer", "cap": 4},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 8}},
 			{"do": "pick"},
 		],
 		"mid": [["barracks", 1, {}], ["foundry", 1, {}], ["barracks", 2, {}], ["horse_breeder", 1, {}],
@@ -293,7 +303,7 @@ func _ready() -> void:
 	if not strategies_for("crown").has(strategy):
 		strategy = "balanced"
 	if strategy == "optimal":
-		# OPTIMAL (scripts/ai_optimal.gd): the common opening (PLANS["optimal"]: the ramp Cottage, the Gate, the second Farm,
+		# OPTIMAL (scripts/ai_optimal.gd): the common opening (PLANS["optimal"]: the ramp Cottage, the Gate, the Barracks, the second Farm,
 		# then the pick), or the Horseman rush when it leans to it before scouting (the matchup, the map)
 		opt = AIOptimal.new(self, "optimal")
 		var ln: String = opt.lean_now() if on else ""
@@ -318,7 +328,7 @@ func _ready() -> void:
 		scout.min_workers = 4
 		if strategy != "optimal":
 			opt.lean_said(strategy)
-		say("OPTIMAL: the common opening (the ramp Cottage, the Gate, the second Farm), a scout at once, then it picks its build from what it sees")
+		say("OPTIMAL: the common opening (the ramp Cottage, the Gate, the Barracks, the second Farm), a scout at once, then it picks its build from what it sees")
 	if owner_on():
 		# (crown-owner-eco: no Barracks without a reason, so the scout leaves at once to see a rush in time: a Brood that
 		# rushes has its Tyrant Sire by 0:40, our labourer walks there in ~50 s)
@@ -341,12 +351,16 @@ func _ready() -> void:
 		game.mlog.add("%s's plan: %s, a build order of %d steps (scripts/ai_crown.gd)" % [game.mlog.who(team), STRATEGIES.get(strategy, STRATEGIES["balanced"])["name"], _bo_plan.size()])
 
 
+var _opened_from := ""            # (opt_switch) the build it played before the pick: "optimal" = the common opening
+
+
 ## OPTIMAL's pick (scripts/ai_optimal.gd): play build k from where the game stands. In the opening its build order takes
 ## over from the next step (the steps already done are passed by: _st_done); after the opening its milestones and its own
 ## parts (the siege push, the balloons, the Dragoon raids, the Horseman rush) play on.
 func opt_switch(k: String) -> bool:
 	if not on or not PLANS.has(k):
 		return super(k)
+	_opened_from = strategy
 	strategy = k
 	_opened = k
 	over.erase("mid")             # (the cannon rule's milestones were the old plan's: _cannon_check looks again)
@@ -355,6 +369,8 @@ func opt_switch(k: String) -> bool:
 	opening = String(plan.get("opening", "mill"))
 	if difficulty >= 1 and not bo_done:
 		var key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"
+		if plan.has("bo_opt") and opt != null and _opened_from == "optimal":
+			key = "bo_opt"         # (the build's own version for a pick from the common opening: the Rush's punish)
 		_bo_plan = _bo_plan.slice(0, bo_i) + (plan[key] as Array).duplicate(true)
 		bo_lab_cap = int(plan.get("labs", 99))
 		if not _def_on:
@@ -520,7 +536,7 @@ func _think_stage(i: int) -> void:
 			_tend_wall()        # (the ramp wall's crew kept at it, as the shared _build_up does)
 			_lap("ai/build", pt)
 		2:
-			if bo_army and (bo_army_cap <= 0 or _army_supply(game.army(team)) < bo_army_cap):
+			if bo_army and (bo_army_cap <= 0 or _army_supply(game.army(team)) < bo_army_cap) and not _breeder_first():
 				_research_off = true
 				_produce()
 				_research_off = false
@@ -554,6 +570,13 @@ func _think_stage(i: int) -> void:
 var _research_off := false
 
 
+## THE RUSH TRAINS RIDERS, NOT A DRY MUSKETEER WHILE THE BREEDER GOES UP (crown-optimal-opening: OPTIMAL's punish trained
+## a Musketeer with no powder at 1:54, 60 gold short of a labourer, before its Horse Breeder stood): no soldiers in the
+## Rush's opening until a Horse Breeder stands, unless a rush is being defended.
+func _breeder_first() -> bool:
+	return strategy == "rush" and opening == "breeder" and not _def_on and not _mine("horse_breeder").any(func(b: Building) -> bool: return b.built)
+
+
 ## Labourers in the opening: every hall keeps one coming while the gold left after the plan's reserve pays for it.
 func _bo_labs() -> void:
 	var labs := game.workers(team).size()
@@ -582,7 +605,7 @@ func _bo_tick() -> void:
 	elif not _def_on and not _safe_on and _safe_reason() != "":
 		_safe_on = true
 		_bo_safe()
-	if _attacking:
+	if _attacking and not _bo_after_attack():
 		_bo_end("the first attack is out")
 		return
 	if game.clock >= BO_LIMIT:
@@ -649,6 +672,25 @@ func _bo_tick() -> void:
 			continue
 		return
 	_bo_end("the build order is done")
+
+
+## THE OPENING GOES ON PAST THE RAID (crown-optimal-opening: OPTIMAL's punish of a greedy Brood, PLANS["rush"]["bo_opt"]):
+## when the riders are out and a hall or build step waits behind the attack step, the opening passes the attack and lays
+## them; the labourers come first again. False when none is left (the attack ends the opening, as before).
+func _bo_after_attack() -> bool:
+	if strategy != "rush" or _opened_from != "optimal":
+		return false
+	if not _bo_plan.slice(bo_i).any(func(st: Dictionary) -> bool: return String(st["do"]) in ["hall", "build"] and not _st_done(st)):
+		return false
+	if not _raid_out:
+		_raid_out = true
+		bo_army_first = false       # (no more riders before labourers: the hall's gold; the raid's losses are made good)
+		bo_army_cap = maxi(_army_supply(game.army(team)), 1)
+		say("the riders are out: the second hall right behind the raid")
+	return true
+
+
+var _raid_out := false
 
 
 ## A RUSH SCOUTED IN THE OPENING (AIScout's verdict "rush", until AITransition calls it held): the plan keeps the gold
@@ -791,8 +833,10 @@ func _st_never(st: Dictionary) -> bool:
 ## (the stall clock runs only while the step could go: its trigger met, or a trigger it can never meet, and its gold in
 ## the bank; a step waiting for its labourers or its gold is not stalled)
 func _bo_stalled(st: Dictionary) -> bool:
-	if String(st["do"]) in ["attack", "army", "labs"]:
-		return false            # (the attack has its own call-off, ATTACK_WAIT)
+	if String(st["do"]) in ["attack", "army", "labs", "pick"]:
+		return false            # (the attack has its own call-off, ATTACK_WAIT; OPTIMAL's pick waits for the read and keeps
+		# no gold: the labourers and the Cottages spend it meanwhile; it was "Optimal waited 45 s with the gold in the bank" at
+		# 1:29, moved to the back, crown-optimal-opening; AIOptimal.tick plays a normal game if no read comes by DECIDE_BY)
 	var could := _gold() >= _st_price(st) and (_st_ready(st) or _st_never(st))
 	if not could:
 		_step_t = -1.0
@@ -840,9 +884,7 @@ func _supply_due() -> bool:
 		return false            # (the first Cottage is the ramp's: a step of its own)
 	if _busy_building("cottage"):
 		return false
-	var prod := _mine("barracks").filter(func(b: Building) -> bool: return b.built).size()
-	var margin := 2 + 2 * prod + (2 if opening == "breeder" and prod > 0 else 0)
-	return cap - game.supply_used(team) <= margin
+	return cap - game.supply_used(team) <= _supply_margin()       # (crown-optimal-opening: the same lead as _supply_ahead)
 
 
 # ------------------------------------------------------------------ the steps
@@ -2147,6 +2189,39 @@ func _hall_farm() -> int:
 	return 0
 
 
+## THE SUPPLY THE PRODUCTION EATS WHILE A COTTAGE GOES UP (SUPPLY_LEAD s), plus two: the halls' labourers, the Barracks'
+## soldiers, the Breeder's Horsemen (3 supply in 22 s), the Foundry's guns. In the opening at least the old margin (two,
+## two a Barracks, one a hall after the first), and only that while a rush is being held (_def_on). Every plan's opening uses it (crown-optimal-opening: the Siege push's
+## opening was blocked at 18/18 at 3:00 in the owner's game, its Cottage laid at 15/18 and done at 3:03, the margin two
+## a Barracks did not cover the 20 s build with the hall and the Barracks both training).
+func _supply_margin() -> int:
+	var rate := 0.0
+	var nb := 0
+	for b in _mine("barracks"):
+		if b.built:
+			rate += 1.0 / 15.0
+			nb += 1
+	for b in _mine("horse_breeder"):
+		if b.built:
+			rate += 3.0 / 22.0
+	for b in _mine("foundry"):
+		if b.built:
+			rate += 4.0 / 32.0
+	var nh := 0
+	for h in _halls():
+		if h.built:
+			rate += 1.0 / 12.0
+			nh += 1
+	var margin := 2 + int(ceil(rate * SUPPLY_LEAD))
+	if not bo_done:
+		var old := 2 + 2 * nb + nh - 1
+		if _def_on:
+			return old          # (a rush is being held: the gold of a Cottage too early is a Musketeer missing at the gate,
+			# tools/test_ai_wall_vs_rush.gd: with the lead the third Musketeer never came by 2:40)
+		margin = maxi(margin, old)
+	return margin
+
+
 ## COTTAGES AHEAD OF THE SUPPLY: the supply the production and the halls eat in SUPPLY_LEAD s, plus two; as many Cottages
 ## going up at once as that takes (SUPPLY_MAX_AT_ONCE at most). True when one was started or is wanted (its gold: `want`).
 var _sup_want := 0
@@ -2158,21 +2233,7 @@ func _supply_ahead() -> bool:
 	var top: int = game.max_supply(team)
 	if cap >= top or _mine("cottage").is_empty():
 		return false
-	var rate := 0.0
-	for b in _mine("barracks"):
-		if b.built:
-			rate += 1.0 / 15.0
-	for b in _mine("foundry"):
-		if b.built:
-			rate += 4.0 / 32.0
-	for h in _halls():
-		if h.built:
-			rate += 1.0 / 12.0
-	var margin := 2 + int(ceil(rate * SUPPLY_LEAD))
-	if not bo_done:
-		# (the opening's margin, as before: two, and two a Barracks; the gold of a Cottage too early is a Musketeer missing
-		# against a rush, tools/test_ai_wall_vs_rush.gd)
-		margin = 2 + 2 * _mine("barracks").filter(func(b: Building) -> bool: return b.built).size() + _halls().filter(func(h: Building) -> bool: return h.built).size() - 1
+	var margin := _supply_margin()
 	var going := _mine("cottage").filter(func(b: Building) -> bool: return not b.built).size()
 	var ahead := cap + 8 * going
 	if ahead - game.supply_used(team) > margin or ahead >= top or going >= SUPPLY_MAX_AT_ONCE:

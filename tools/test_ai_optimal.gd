@@ -12,8 +12,12 @@ extends SceneTree
 ##  3. FIXED PLANS KEEP THEIR PLAN: the Crown's Economy against a greedy enemy races it (it does not turn into a timing
 ##     attack); against a rush it still defends (the Barracks and the Mill first) and stays the Economy plan
 ##  4. OPTIMAL NEVER HORSEMAN-RUSHES THE CROWN: its pick against a greedy Crown, 300 times at every early moment, and the
-##     lean before scouting; against the Brood only its lean before scouting may (the riders picked on a read at 1:30 came
-##     too late in the coached games)
+##     lean before scouting; against a greedy Brood read in time it is the Horseman rush (the owner, 2026-11-06), too late
+##     for the riders it out-expands (never the slow Siege push)
+##  5. THE COMMON OPENING (crown-optimal-opening): the Barracks, then the second Farm, no Powder Mill before the read, the
+##     labourers keep coming, a greedy Brood (its own Economy computer) is read, the Horse Breeder goes down at once, the
+##     riders ride out, the Powder Mill and the second hall go down behind the raid
+##  6. an AGGRESSIVE read puts the Powder Mill up at once, no Horseman rush
 ## Prints PASS / FAIL per check and "ALL PASS" at the end (exit 1 on a failure).
 var main: Node
 var g: Game
@@ -36,7 +40,7 @@ func check(ok: bool, what: String) -> void:
 		fails += 1
 
 
-func _start(fa: String, strategy: String, fb: String, sb := "balanced") -> void:
+func _start(fa: String, strategy: String, fb: String, sb := "balanced", foe_on := false) -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
@@ -53,7 +57,8 @@ func _start(fa: String, strategy: String, fb: String, sb := "balanced") -> void:
 	paused = false
 	for a in g.ais:
 		if a.team == 1:
-			a.process_mode = Node.PROCESS_MODE_DISABLED
+			if not foe_on:
+				a.process_mode = Node.PROCESS_MODE_DISABLED
 		else:
 			ai = a
 	var hs := g.halls_of(1)
@@ -184,17 +189,83 @@ func _run() -> void:
 	await _stop()
 	await _start("crown", "optimal", "clockwork")
 	var vs_brood := 0
+	var late_ok := 0
 	for i in 300:
-		var c2: Array = ai.opt._punish("brood", 60.0)
+		var c2: Array = ai.opt._punish("brood", 60.0 + float(i % 10) * 10.0)
 		if not c2.is_empty() and String(c2[0]) == "rush":
 			vs_brood += 1
-	check(vs_brood == 0, "against a greedy Brood read at 1:00 it is no Horseman rush: the riders would come too late (%d of 300)" % vs_brood)
+		var c3: Array = ai.opt._punish("brood", AIOptimal.BREEDER_BY + 5.0 + float(i % 10) * 20.0)
+		if not c3.is_empty() and String(c3[0]) == "economy":
+			late_ok += 1
+	check(vs_brood == 300, "against a greedy Brood read by 2:30 it is the Horse Breeder and the riders (%d of 300; the owner, 2026-11-06)" % vs_brood)
+	check(late_ok == 300, "read too late for the riders, it out-expands, never the slow Siege push (%d of 300)" % late_ok)
 	var leans_b := 0
 	for i in 200:
 		ai.opt.lean = ""
 		if ai.opt._lean_chance("brood", 60.0) > 0.0:
 			leans_b += 1
 	check(leans_b == 200, "against the Brood it may lean to the Horseman rush before it scouts (the matchup)")
+	await _stop()
+
+	# ---- 5: THE COMMON OPENING (crown-optimal-opening, the owner 2026-11-06): the ramp Cottage, the Gate, the Barracks,
+	# the second Farm; no Powder Mill before the read; labourers never stop; a greedy Brood -> the Horse Breeder at once
+	await _start("crown", "optimal", "brood", "economy", true)     # (the Brood's own Economy computer: a real greed)
+	ai.opt._rng.seed = 7
+	if ai.strategy != "optimal":
+		ai.strategy = "optimal"           # (no lean before the scout for this case: the read decides)
+		ai.opt.current = "optimal"
+		ai.opt.picks.clear()
+		ai.opt.switched.clear()
+		ai.opt_switch("optimal")
+	var t_bar := -1.0
+	var t_farm := -1.0
+	var mill_before := false
+	var labs_90 := -1
+	while g.clock < 230.0 and (ai.opt.picks as Array).is_empty():
+		await physics_frame
+		if t_bar < 0.0 and not ai._mine("barracks").is_empty():
+			t_bar = g.clock
+		if t_farm < 0.0 and ai._mine("farm").size() >= 2:
+			t_farm = g.clock
+		if not ai._mine("powder_mill").is_empty():
+			mill_before = true
+		if labs_90 < 0 and g.clock >= 90.0:
+			labs_90 = g.workers(0).size()
+	pk = ai.opt.picks[0] if not (ai.opt.picks as Array).is_empty() else [0.0, "", "", "", ""]
+	if labs_90 < 0:
+		await _until(90.0)
+		labs_90 = g.workers(0).size()
+	print("   Crown OPTIMAL v a Brood: Barracks %d s, Farm 2 %d s, labourers at 1:30 %d, pick %s" % [int(t_bar), int(t_farm), labs_90, str(pk)])
+	check(t_bar > 0.0 and t_farm > 0.0 and t_bar <= t_farm, "the common opening: the Barracks, then the second Farm (%d s, %d s)" % [int(t_bar), int(t_farm)])
+	check(not mill_before, "no Powder Mill before the scout's read")
+	check(labs_90 >= 9, "the labourers keep coming while it waits for the read (%d at 1:30)" % labs_90)
+	check(not _log_has("Optimal waited") and not _log_has("OPTIMAL's pick: Optimal waited"), "the pick never waits with the gold in the bank")
+	check(String(pk[2]) == "GREEDY" and String(pk[3]) == "rush", "a greedy Brood is punished with the Horseman rush (%s -> %s)" % [pk[2], pk[3]])
+	await _until(g.clock + 20.0)
+	check(not ai._mine("horse_breeder").is_empty(), "the Horse Breeder goes down at once after the read (%d)" % ai._mine("horse_breeder").size())
+	await _until(300.0, func() -> bool: return g.halls_of(0, false).size() >= 2)
+	check(ai._attacking or _log_has("first attack goes out"), "the riders ride out")
+	check(g.halls_of(0, false).size() >= 2, "the second hall goes down behind the raid (%d s)" % int(g.clock))
+	check(not ai._mine("powder_mill").is_empty(), "and the Powder Mill (%d)" % ai._mine("powder_mill").size())
+	await _stop()
+
+	# ---- 6: an AGGRESSIVE read puts the Powder Mill (and the soldiers) up at once
+	await _start("crown", "optimal", "crown")
+	spot = g.find_spot(1, "barracks", foe_hall, 4, 16, "near", true)
+	if spot.x >= 0:
+		g._add_building("barracks", 1, spot, true)
+	spot = g.find_spot(1, "horse_breeder", foe_hall, 4, 16, "near", true)
+	if spot.x >= 0:
+		g._add_building("horse_breeder", 1, spot, true)
+	at = foe_hall.center()
+	for i in 6:
+		g._add_unit("cuirassier", 1, at + Vector2(60 + (i % 3) * 30, 90 + (i / 3) * 30))
+	await _until(220.0, func() -> bool: return ai.scout.verdict == "rush")
+	var t_read := g.clock
+	await _until(g.clock + 25.0, func() -> bool: return not ai._mine("powder_mill").is_empty())
+	print("   Crown OPTIMAL v a rush: read %d s, Mill %s, strategy %s" % [int(t_read), str(not ai._mine("powder_mill").is_empty()), ai.strategy])
+	check(ai.scout.verdict == "rush" and not ai._mine("powder_mill").is_empty(), "an AGGRESSIVE read: the Powder Mill goes down at once (%d s after the read)" % int(g.clock - t_read))
+	check(ai.strategy != "rush" and ai._mine("horse_breeder").is_empty(), "and no Horseman rush (strategy %s)" % ai.strategy)
 	await _stop()
 
 	print("ALL PASS" if fails == 0 else "%d FAILED" % fails)

@@ -3,7 +3,8 @@ extends SceneTree
 ##   godot --headless --fixed-fps 30 --script res://tools/test_ai_wall_vs_rush.gd [-- map:<id> seed:<n> until:<s> brood:<strategy>]
 ## A Hard Crown computer (Balanced, Powder Mill opening) against a Hard Brood computer on the
 ## Rush plan, for `until` game seconds (default 200). Prints the picture every 20 s, then:
-## (crown:<strategy> plays the Crown on another plan: balanced, economy, timing, rush)
+## (crown:<strategy> plays the Crown on another plan: balanced, economy, timing, rush, optimal (with optlean:off: the
+## common opening, the Barracks before the read and the Mill after it))
 ##  1. the Crown's ramp wall (the first Cottage AT the ramp, one Gate beside it, see AI._cottage_wall)
 ##     stands before the first Brood fighter is in its base, and by 1:10 (the owner's own opening had
 ##     the Cottage at 0:35 and the Gate at 0:40); the Barracks and the Mill are placed by 1:15
@@ -16,6 +17,7 @@ const LOST_MAX := 2
 const COTTAGE_BY := 45.0    # (the owner's log: 0:35)
 const WALL_BY := 70.0       # (cottage and gate standing: his gate was laid at 0:40, 12 s to build)
 const PLACED_BY := 75.0     # (Barracks and Mill laid: his were ~0:53)
+const MILL_READ_BY := 110.0 # (crown:optimal: the Mill after the scout's rush read, ~1:20 here, and before the first fighter)
 var main: Node
 var t := 0.0
 var g
@@ -234,7 +236,13 @@ func _run() -> void:
 	if crown_strategy != "rush":
 		check(cottage_done >= 0.0 and cottage_done <= COTTAGE_BY, "the ramp Cottage stands by %d s (%.0f s)" % [int(COTTAGE_BY), cottage_done])
 		check(wall_done >= 0.0 and wall_done <= WALL_BY, "Cottage and Gate stand by %d s (%.0f s)" % [int(WALL_BY), wall_done])
-		check(barracks_placed >= 0.0 and barracks_placed <= PLACED_BY and mill_placed >= 0.0 and mill_placed <= PLACED_BY, "Barracks and Powder Mill are laid by %d s (%.0f s, %.0f s)" % [int(PLACED_BY), barracks_placed, mill_placed])
+		if crown_strategy == "optimal":
+			# (crown-optimal-opening: OPTIMAL's common opening lays the Barracks and no Mill before the scout's read; the rush
+			# read puts the Mill down at once, and its Musketeers come with the bayonet till it grinds. Run with optlean:off,
+			# or it may lean to the Horseman rush before it scouts)
+			check(barracks_placed >= 0.0 and barracks_placed <= PLACED_BY and mill_placed >= 0.0 and mill_placed <= MILL_READ_BY, "the Barracks is laid by %d s, the Powder Mill after the read by %d s (%.0f s, %.0f s)" % [int(PLACED_BY), int(MILL_READ_BY), barracks_placed, mill_placed])
+		else:
+			check(barracks_placed >= 0.0 and barracks_placed <= PLACED_BY and mill_placed >= 0.0 and mill_placed <= PLACED_BY, "Barracks and Powder Mill are laid by %d s (%.0f s, %.0f s)" % [int(PLACED_BY), barracks_placed, mill_placed])
 	if first_arrival >= 0.0:
 		check(wall_done >= 0.0 and wall_done < first_arrival, "... before the first Brood fighter arrives (%.0f s)" % first_arrival)
 	var min_n := 2 if crown_strategy == "rush" else MIN_MUSK

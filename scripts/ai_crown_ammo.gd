@@ -4,7 +4,8 @@ extends RefCounted
 ## at a Mill, Barracks, Town Hall or Powder Wagon. The computer:
 ##  1. TRAINS ARMED MEN: a Musketeer or Dragoon is queued only with a full load's powder in the bank (AI._soldier_key asks
 ##     musket_ok), as before the rule when he cost 10 powder; riders and Officers are queued as before (a dry one has
-##     his sabre), and a deliberate rush (the Horse Breeder opening) never waits for powder.
+##     his sabre), and a deliberate rush (the Horse Breeder opening) never waits for powder; nor does a rush held before
+##     the first Mill stands (_hold_dry: bayonets now, the shots later).
 ##  2. KEEPS POWDER FOR ITS GUNS (the Barracks' ARM WITH POWDER toggle): off while a Mortar waits in the Foundry's queue
 ##     or its guns run low, and the bank is under GUN_KEEP; on again at GUN_KEEP + 10.
 ##  3. SENDS EMPTY MEN TO REFILL BEFORE A FIGHT: a man with a firearm and few shots (under LOW of a load; a dry pistol),
@@ -37,7 +38,20 @@ func musket_ok(b: Building, kind: String) -> bool:
 		return true
 	if ai._rush_open():
 		return true
+	if _hold_dry():
+		return true             # (a rush at the gate and no Mill yet: a bayonet now, the shots when the Mill grinds)
 	return b.arm_powder and ai._res2() >= float(Defs.ammo_load(kind))
+
+
+## A SCOUTED RUSH BEFORE THE MILL (crown-optimal-opening: OPTIMAL's common opening has the Barracks and no Powder Mill
+## before the read; the owner: "a Barracks with no Mill still works for an early defence"): while the Crown holds a rush
+## (AICrown._def_on) and no Mill of its own has ground its first powder, its Musketeers are trained with gold only and
+## come out with the bayonet; they refill (_rearm) once the Mill grinds. Waiting for a full load had the first Musketeer at
+## 3:13 against the 6-pool rush (tools/test_ai_wall_vs_rush.gd crown:optimal).
+func _hold_dry() -> bool:
+	if not ("_def_on" in ai) or not ai._def_on:
+		return false
+	return ai._res2() < 10.0 and ai._mine("powder_mill").filter(func(m: Building) -> bool: return m.built).is_empty()
 
 
 ## The errands and the toggle, on the computer's horse-and-wagon stage (AI._think_stage 4).

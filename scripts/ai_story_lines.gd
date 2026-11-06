@@ -55,6 +55,7 @@ const RULES := [
 	["^'s plan: (.+?), a build order of (\\d+) steps", "%s follows its own %s build order: %s steps, then its milestones.", 3, "plan"],
 	["^'s build order: (?:Town Hall|the ramp)", "", 1, "build"],
 	["^'s build order: (.+?) \\(supply", "%s's build order: %s.", 1, "build"],
+	["^'s plan: the riders are out: the second hall right behind the raid", "%s's riders are out: it lays its second base right behind the raid.", 2, "expand"],
 	["^'s plan: the opening is over", "%s's opening is over: its milestones and its doctrine take over.", 2, "plan"],
 	["^'s plan: milestone: (.+?) \\(", "%s puts up its next milestone: %s.", 2, "tech"],
 	["^'s plan: the wave waits", "%s holds its wave back: the enemy army it knows is bigger.", 2, "attack"],

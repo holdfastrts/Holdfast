@@ -2,7 +2,7 @@ class_name AIOptimal
 extends RefCounted
 ## THE OPTIMAL PLAN (ai-optimal, the owner 2026-11-05 09:54; docs/ai_optimal.md): "a plan called OPTIMAL that is adaptive,
 ## has access to all the plans, and picks from each plan to the adaptive necessities of the matchup". Each faction's own
-## computer (AICrown, AIClockwork, AIBroodNew) plays its COMMON OPENING (the Crown's ramp Cottage, Gate and second Farm;
+## computer (AICrown, AIClockwork, AIBroodNew) plays its COMMON OPENING (the Crown's ramp Cottage, Gate, Barracks and second Farm;
 ## the Clockwork's economy opening; the Brood's Balanced economy opening), scouts early, and on each READ of a scout report
 ## (AIRead: GREEDY / NORMAL / AGGRESSIVE / DEFENSIVE / UNKNOWN) picks one of ALL its faction's builds by the read, the
 ## matchup and the map (choose()), then plays that build's own code (ai.opt_switch: the build order from where it stands,
@@ -25,6 +25,17 @@ const DECIDE_BY := 180.0         # no read by then: a normal game for the matchu
 const UNKNOWN_WAIT := 45.0       # ... or this long after a first UNKNOWN with no read since
 const PUNISH_BY := {"crown": 150.0, "clockwork": 150.0, "brood": 150.0}    # a rush to punish greed only before this
 const TOO_LATE := 330.0          # a timing attack to punish greed only before this; later, out-expand it
+const BREEDER_BY := 165.0        # the Crown's Horse Breeder answers a greedy Brood read before this (crown-optimal-opening)
+## (study switch, tools/measure_crown_opening.gd: `-- greedybrood:economy` (or siege, or another plan) makes the Crown
+## answer a greedy Brood with that plan instead of the riders, to measure them; docs/crown_optimal_opening.md)
+static var GREEDY_BROOD_TRY := _arg("greedybrood:")
+
+
+static func _arg(pre: String) -> String:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with(pre):
+			return a.substr(pre.length())
+	return ""
 
 var ai = null
 var game: Game = null
@@ -156,11 +167,19 @@ func _punish(f: String, t: float) -> Array:
 	match fac:
 		"crown":
 			if f == "brood":
-				# (coached games, 0.32.0: the Horseman rush picked on the read at 1:30 rode out at 3:52-4:02, after the
-				# Brood's Raptors hatched, and failed in all three games: 3,800-6,500 earned against 10,600-14,800. The riders
-				# can only arrive in time when the computer leans to them before it scouts. On the read: the Siege push
-				# breaks its rooted economy before it pays off, docs/crown_builds_b.md)
-				return ["siege", "the riders would come too late: a siege push"] if t < TOO_LATE else ["economy", "too late to punish: out-expand it"]
+				# (the owner, 2026-11-06 09:17, crown-optimal-opening: "In that particular game I think horse breeder to punish
+				# the greed." Not the Siege push any more: it put 8 Musketeers, the Farm and the Breeder before the second hall,
+				# no punish and the hall at 4:45. MEASURED (docs/crown_optimal_opening.md, 4 maps x 3 seeds v the Brood's
+				# OPTIMAL, 4 maps v its Economy, to 15:00): the Horse Breeder at the read (~1:36) has the first Horseman at
+				# 2:30-2:55 and the riders out at 3:34-4:04, after the Brood's first Raptors (3:14-3:22) every time, yet the
+				# raid kills grubs and keeps the Brood's income down: the Crown held to 15:00 in 6 of 16 games; out-expanding
+				# (the Economy plan's hall at 2:22) and the Siege push held in none (losses at 10:28-14:42). Read too late for
+				# the riders (BREEDER_BY): out-expand it.)
+				if GREEDY_BROOD_TRY != "":
+					return [GREEDY_BROOD_TRY, _normal_why(GREEDY_BROOD_TRY)]     # (study switch)
+				if t < BREEDER_BY:
+					return ["rush", "punish the greed: the Horse Breeder at once, the riders before its army"]
+				return ["economy", "too late for the riders: out-expand it"]
 			if f == "clockwork" and early and _rng.randf() < 0.35:
 				return ["rush", "punish the greed before its army is up"]
 			if f == "clockwork":
@@ -250,8 +269,8 @@ func _go(plan: String, why: String, read: String, saw: String) -> void:
 ## or the matchup"). Only the Crown against the Brood leans to its Horseman rush (short rush distance, more often);
 ## it counts as the opening's pick.
 func lean_now() -> String:
-	if ai.difficulty < 1:
-		return ""
+	if ai.difficulty < 1 or OS.get_cmdline_user_args().has("optlean:off"):
+		return ""                # (optlean:off: the tests and studies of the common opening, tools/test_ai_wall_vs_rush.gd)
 	var f: int = ai._foe()
 	var d: float = Vector2(game.starts[team]).distance_to(Vector2(game.starts[f])) if f >= 0 else 999.0
 	if _rng.randf() < _lean_chance(foe(), d):
