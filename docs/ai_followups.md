@@ -54,9 +54,8 @@ back ("the whole army (1 units, 100) meets a raid worth 103" at 7:18 was the one
 - While it lags: `owner_labs` no longer overrides the brakes (the halls train a labourer only when every Barracks is busy,
   `_army_due`); the Church, the Armoury and the like wait; another Barracks or Foundry only when every one of its kind is
   busy or the bank holds 150 more than its price (`_mid_ok_lagging`; the first Foundry and the Horse Breeder always); the
-  natural's wall still gets its few coins (`_wall_keep`, 65 gold kept from the soldiers while the walled natural is under
-  half closed; without it the palisade waited till 6:23 on the owner's seed and there was nothing to stand behind) and is
-  not held back waiting for the expansion to saturate (`wall_sat`).
+  natural's wall is not held back waiting for the expansion to saturate (`wall_sat`). (Keeping 65 gold from the soldiers for
+  the wall while it is under half closed, `_wall_keep`, was tried and left off: `-- wallkeep:on`, numbers below.)
 - A GREEDY READ IS PRESSURE: while OPTIMAL's last pick answered a GREEDY read with an attacking plan (Balanced, Timing, the
   Horseman rush) the army keeps 90% of the enemy's (`pressure()`, `LAG_PRESS`).
 - Study switch `-- armylag:off` plays without it. Match log / AI STORY: "the army first: 160 of army against the 630 it
@@ -97,13 +96,48 @@ FIRSTWAVE line: where the Crown's muskets stood when 300+ of enemy army first ca
 
 Crown army value at 4:00 / 6:00 / 8:00 / 10:00 / 12:00 (the enemy's in brackets), income earned by 8:00, the end:
 
-AFTER_TABLE
+| map, enemy | before: Crown army (enemy) | after | income by 8:00 before / after (Crown/enemy) | end before / after |
+|---|---|---|---|---|
+| Dune Sea v Clockwork | 0/120/175/0/0 (210/995/2530/4120/6520) | 0/460/1015/1530/880 (210/995/2345/2065/4440) | 4940/9431 / 6080/9090 | 12:00 winner none / 12:00 winner none |
+| Dune Sea v Brood | 0/180/525/0/0 (175/725/3120/3885/0) | 0/180/535/0/0 (175/650/2690/3280/0) | 7600/10572 / 7600/10900 | 11:41 winner P2 / 11:57 winner P2 |
+| Greenhold v Clockwork | 0/0/285/1400/955 (210/1065/2010/2985/4515) | 0/60/530/0/0 (210/995/2850/4565/6165) | 5700/8817 / 4940/9388 | 12:00 winner none / 12:00 winner none |
+| Greenhold v Brood | 0/300/0/0/0 (175/950/2955/4345/0) | 0/300/120/0/0 (175/950/2700/4335/0) | 5700/10663 / 6460/11017 | 11:26 winner P2 / 10:57 winner P2 |
+| Red Coast v Clockwork | 0/0/180/60/0 (210/1135/2950/5090/7170) | 0/60/525/180/0 (210/1065/2705/4250/5960) | 6460/9205 / 6080/9401 | 12:00 winner none / 12:00 winner none |
+| Red Coast v Brood | 0/425/125/125/0 (200/815/2880/4285/0) | 0/240/0/0/0 (200/815/2330/3835/0) | 6460/10834 / 7220/11140 | 11:17 winner P2 / 11:05 winner P2 |
+| Kestrel Rise v Clockwork | 0/120/1255/2020/0 (0/0/0/0/0) | 0/135/1140/2235/0 (0/0/0/0/0) | 6840/6047 / 7600/6179 | 10:07 winner P1 / 11:00 winner P1 |
+| Kestrel Rise v Brood | 0/240/375/350/795 (500/1175/3630/4610/4435) | 0/240/295/115/0 (500/1065/3545/4680/4605) | 7220/10918 / 6840/10584 | 12:00 winner none / 12:00 winner none |
 
 Where the Crown's line stood when the first enemy wave came (muskets by its palisade / on the main's high ground /
 elsewhere; gate post up), and the Clockwork's raid answers (riders not chased, chases given up, groups, whole-army
 defences, pushes pulled back):
 
-WAVE_TABLE
+| map, enemy | first wave before | after | cliff-edge moves before / after | Clockwork: riders not chased, chases given up, groups, whole army, push pulled back (before -> after) |
+|---|---|---|---|---|
+| Dune Sea v Clockwork | - | 6:03: 0 / 1 / 0, gate no | 7 / 7 | 0, 0, 0, 0, 0 -> 4, 0, 3, 2, 1 |
+| Dune Sea v Brood | - | 7:21: 9 / 1 / 0, gate up | 2 / 0 | - |
+| Greenhold v Clockwork | 7:02: 2 / 0 / 0, gate up | 5:57: 0 / 1 / 0, gate no | 1 / 7 | 0, 0, 0, 2, 1 -> 7, 0, 0, 0, 0 |
+| Greenhold v Brood | 6:49: 6 / 0 / 0, gate up | 6:53: 8 / 0 / 0, gate up | 3 / 1 | - |
+| Red Coast v Clockwork | 7:06: 0 / 0 / 0, gate up | 6:49: 3 / 0 / 0, gate up | 0 / 8 | 0, 0, 0, 1, 0 -> 5, 0, 0, 1, 0 |
+| Red Coast v Brood | 6:53: 5 / 0 / 0, gate up | 6:56: 7 / 0 / 0, gate up | 14 / 4 | - |
+| Kestrel Rise v Clockwork | - | - | 3 / 1 | 0, 0, 0, 0, 0 -> 0, 0, 0, 0, 0 |
+| Kestrel Rise v Brood | 7:11: 8 / 0 / 0, gate up | 7:08: 5 / 0 / 0, gate up | 2 / 0 | - |
+
+What the tables say (one seed a map, so a direction, not a verdict):
+- Against the Clockwork the Crown's army at 8:00 rose on Dune Sea (175 -> 1,015), Greenhold (285 -> 530) and Red Coast
+  (180 -> 525), and was the same on Kestrel Rise (whose Clockwork never built an army). It still loses the game: the
+  Clockwork earns 1.4-1.9 times the Crown by 8:00 (the open question below), and on Greenhold the after game's first push
+  came a minute earlier (5:33 against 6:31: the riders it no longer chased did not stop it) and broke the Crown at the
+  natural, where the before game's Crown survived to 12:00 with 955. The "army first" line appeared 2-6 times a game
+  against the Clockwork, never against the Brood (by design).
+- Against the Brood nothing in the Crown's rules changed; the differences are the game's own spread.
+- The cliff edge: before, 12 moves "above its Palisade", 4 "above its Gate" and 10 "above its Town Hall" (the natural's);
+  after none of those. What is left is "above its Cottage" (26 moves): Cottages the layout puts below the main, outside
+  the natural's wall.
+- The Clockwork's push left 4-7 lone riders unchased a game and none of its pushes turned round for one; no chase had to be
+  given up at home (the HOME test shows the rule).
+- With the wall's coins kept (`-- wallkeep:on`, a second run of all games): the Crown's army at 8:00 was 650 / 0 / 370 on
+  Dune Sea / Greenhold / Red Coast v the Clockwork, and the line still met the first push without a gate post: left off.
+  Ashford Crossing seed 1 v the Clockwork: before 530 at 8:00 (2,330), with the wall keep 290 (2,900).
 
 The owner's seed (Ashford Crossing 2091978150, to 10:00): before, the Crown's army 60 / 350 / 230 at 6:00 / 8:00 / 10:00
 against 685 / 1,385 / 2,315, the line "on the cliff edge above its Palisade" at 6:26-6:33 (the owner's complaint, again).

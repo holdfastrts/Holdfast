@@ -1680,11 +1680,15 @@ func _raid() -> void:
 ## and the palisade waited till 6:23 on the owner's seed (it was laid from 3:58 before): the line it should stand behind was
 ## not there when the Clockwork's first push came. WALL_KEEP gold is kept from the soldiers while a walled expansion's plan
 ## is under AICrownHold.GATE_CLOSED closed (a palisade piece costs 15, a gate 50).
+## MEASURED AND LEFT OFF (study switch `-- wallkeep:on`): in 8 games against the Clockwork and the Brood the Crown's army at
+## 8:00 was smaller with it (650 / 0 / 370 against 1,015 / 530 / 525 on Dune Sea, Greenhold, Red Coast v the Clockwork) and
+## the line still met the first push without a gate post: the palisade it bought came too late either way.
 const WALL_KEEP := 65
+var wall_keep_on := OS.get_cmdline_user_args().has("wallkeep:on")
 
 
 func _wall_keep() -> int:
-	if xw == null or not army_lags() or _threat() != Vector2.INF:
+	if not wall_keep_on or xw == null or not army_lags() or _threat() != Vector2.INF:
 		return 0
 	for id in xw.plans:
 		var p: Dictionary = xw.plans[id]
