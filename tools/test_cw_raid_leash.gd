@@ -6,13 +6,14 @@ extends SceneTree
 ##  - PUSH: once the Clockwork's push is out and marching (more than OUT px from its buildings), a Horseman raids its base
 ##    (by its Clocktower) and another rides round the push, always staying just out of its reach and drawing it back toward
 ##    the Clockwork's base. Checks: the push does not go home for the raid; its anchor never walks back after the rider more
-##    than PUSH_BACK px (the march goes on: it is nearer its goal after FOR s than when the rider came, or at it); no front
+##    than PUSH_BACK px (the march goes on: it is nearer its goal after FOR s than when the rider came by PROGRESS px, or at it); no front
 ##    unit is further than STRAY px from the anchor for more than STRAY_T s in a row.
 ##  - HOME: the army at home (no push out); a Horseman rides into the base by a Cog Press, then rides off across the map
 ##    away from it. Checks: after FOR s no Clockwork soldier is further than CHASE_MAX px from its nearest building.
 const OUT := 900.0
 const FOR := 40.0
 const PUSH_BACK := 450.0
+const PROGRESS := 200.0
 const STRAY := 700.0
 const STRAY_T := 8.0
 const CHASE_MAX := 900.0
@@ -113,7 +114,7 @@ func _scene_push() -> void:
 	var home := hall.center()
 	var raider: Unit = g._add_unit("cuirassier", 0, home + (push.anchor - home).normalized() * 200.0)
 	var dir: Vector2 = (push.anchor - home).normalized()
-	var bait: Unit = g._add_unit("cuirassier", 0, push.anchor + dir.orthogonal() * 330.0)
+	var bait: Unit = g._add_unit("cuirassier", 0, push.anchor - dir * 330.0)     # (behind it, toward its home: it draws it back)
 	var goal0: Vector2 = push.goal
 	var a0: Vector2 = push.anchor
 	var d0: float = a0.distance_to(goal0) if goal0 != Vector2.INF else INF
@@ -147,10 +148,10 @@ func _scene_push() -> void:
 				stray_run[u] = 0.0
 	var d1: float = push.anchor.distance_to(goal0) if goal0 != Vector2.INF and push.anchor != Vector2.INF else INF
 	print("PUSH %s seed %d: out at %d s; went home %s; anchor walked back %d px; goal %d -> %d px; longest stray %.1f s; riders ignored %d, leashed %d" % [map, seed_, int(t_out),
-		str(went_home), int(back_most), int(d0), int(d1), stray_bad, int(push.stats["riders"]), int(push.stats["leashed"])])
+		str(went_home), int(back_most), int(d0), int(d1), stray_bad, int(push.stats.get("riders", -1)), int(push.stats.get("leashed", -1))])
 	check(not went_home, "the push does not go home for one Horseman at its base")
 	check(back_most < PUSH_BACK, "the push's anchor does not walk back after the bait (%d px, at most %d)" % [int(back_most), int(PUSH_BACK)])
-	check(d1 <= d0 + 60.0 or push.goal != goal0, "the march goes on toward its goal (%d -> %d px)" % [int(d0), int(d1)])
+	check(d1 <= d0 - PROGRESS or d1 < 200.0 or push.goal != goal0, "the march goes on toward its goal (%d -> %d px, at least %d nearer)" % [int(d0), int(d1), int(PROGRESS)])
 	check(stray_bad <= STRAY_T, "no front unit chases off from the block for long (%.1f s, at most %d)" % [stray_bad, int(STRAY_T)])
 	main.queue_free()
 	await process_frame
@@ -167,13 +168,13 @@ func _scene_home() -> void:
 	for b in g.buildings:
 		if b.team == 1 and b.kind == Defs.GEAR_PRESS and b.built and not b.dead:
 			press = b
-	var home := g.halls_of(1)[0].center()
+	var home: Vector2 = g.halls_of(1)[0].center()
 	var soldiers := _soldiers(g)
 	check(press != null and soldiers.size() >= 2, "a Cog Press and %d soldiers at home at %d s" % [soldiers.size(), int(g.clock)])
 	if press == null or soldiers.is_empty():
 		main.queue_free()
 		return
-	var far := Vector2(g.W, g.H) * float(Defs.TILE) - home       # (the far corner from its base)
+	var far: Vector2 = Vector2(g.W, g.H) * float(Defs.TILE) - home       # (the far corner from its base)
 	var h: Unit = g._add_unit("cuirassier", 0, press.center() + Vector2(60, 0))
 	var t0 := g.clock
 	var next := t0

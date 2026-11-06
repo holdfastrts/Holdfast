@@ -1613,8 +1613,9 @@ func _mid_tick() -> void:
 
 
 ## (ai-followups) While the army lags the enemy's (army_lags): the Church, the Armoury and the like wait; a Barracks or a
-## Foundry only when every one standing is busy (one idle means the gold, not the buildings, is short), the first Foundry
-## and the Horse Breeder (the guns' horses) always.
+## Foundry only when every one of its kind standing is busy (one idle means the gold, not the buildings, is short) or the
+## bank holds LAG_BANK more than its price; the first Foundry and the Horse Breeder (the guns' horses) always.
+const LAG_BANK := 150
 var mid_held := 0               # (tests) milestones held back while the army lagged
 var _mid_held_said := -99.0
 
@@ -1623,8 +1624,10 @@ func _mid_ok_lagging(k: String) -> bool:
 	if k == "horse_breeder" or (k == "foundry" and _mine("foundry").is_empty()):
 		return true
 	if k == "barracks" or k == "foundry":
-		var prod: Array = _mine("barracks") + _mine("foundry")
-		if prod.all(func(b: Building) -> bool: return b.built and not b.queue.is_empty()):
+		# (its own kind all busy, or gold in the bank beyond its price: the buildings, not the gold, are short)
+		if _mine(k).all(func(b: Building) -> bool: return b.built and not b.queue.is_empty()):
+			return true
+		if _gold() >= int(Defs.BUILDINGS[k]["cost"]) + LAG_BANK:
 			return true
 	mid_held += 1
 	if game.clock - _mid_held_said > 60.0:
@@ -2133,6 +2136,14 @@ func army_lags(labs := -1) -> bool:
 	else:
 		_lag_t = -1.0
 	return lags
+
+
+## (ai-followups) The natural's wall is defence too: while the labourers wait for the army (army_lags) the expansion is not
+## waited on to saturate before its palisade goes down (it would never saturate: AIExpandWall waited till 8:56 on Dune Sea).
+func wall_sat() -> bool:
+	if army_lags():
+		return true
+	return super()
 
 
 ## A GREEDY READ IS PRESSURE, NOT MORE LABOURERS (ai-followups: the owner's game read GREEDY at 1:38, picked Balanced "steady

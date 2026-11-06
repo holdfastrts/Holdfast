@@ -283,12 +283,16 @@ func _edge_plan(home: Array, spots: Array) -> void:
 	var hall_k: String = game.faction_hall(ai.team)
 	var best: Building = null
 	var bs := INF
+	var skipped := false
 	for b in game.buildings:
 		if b.team != ai.team or b.dead or game.level_of(b.center()) == _home_h:
 			continue
 		if b.kind == "wall" or b.kind == "gate" or _in_walled_natural(b):
-			continue            # (ai-followups: a palisade is held from INSIDE it (_wall_plan, the gate post), never from
-			# the cliff above: the owner's game 0.33.0, 5:29-5:55, "the cliff edge above its Palisade", 158-182 px off it)
+			# (ai-followups: a palisade is held from INSIDE it (_wall_plan, the gate post), never from the cliff above: the
+			# owner's game 0.33.0, 5:29-5:55, "the cliff edge above its Palisade", 158-182 px off it)
+			if below.any(func(sp: Vector2) -> bool: return b.edge_distance(sp) <= 330.0):
+				skipped = true
+			continue
 		for sp in below:
 			var d: float = b.edge_distance(sp)
 			if d > 330.0:
@@ -297,6 +301,8 @@ func _edge_plan(home: Array, spots: Array) -> void:
 			if sc < bs:
 				bs = sc
 				best = b
+	if best == null and skipped:
+		return                  # (ai-followups: the enemy is at the walled natural: the line there meets it, not the edge)
 	var aim: Vector2 = best.center() if best != null else below[0]
 	# (claws at the ramp too: the edge only when most of them are at the building, the gate holds the rest a while)
 	var at_ramp := _armed_value(_bc * T, EDGE_RAMP * T)
@@ -1371,7 +1377,9 @@ func _wall_plan(home: Array, spots: Array) -> bool:
 # facing out. The ramp post (1) is for the main alone, before there is a walled natural; the cliff edge (5) for a building
 # under the cliff without a wall; an attack elsewhere on the palisade moves the line along it (_wall_plan).
 # Study switch: `-- gatepost:off`.
-const GATE_CLOSED := 0.7        # share of the natural's ways-in cells closed before the army moves down to it
+const GATE_CLOSED := 0.5        # share of the natural's ways-in cells closed before the army moves down to it (ai-followups: 0.7 -> 0.5,
+                                # against the Clockwork the wall seldom reached 0.7 before its first push and the line waited
+                                # on the main's high ground; the owner: "it wasn't at the palisade to greet the enemy with fire")
 const GATE_EVERY := 20.0        # (s) the gate post planned again this often (buildings and walls change)
 const GATE_IN := Vector2(1.2, 3.8)      # (tiles) the musket rows this far inside the wall's pieces
 const GATE_GUN_IN := Vector2(3.8, 7.0)  # (tiles) the guns

@@ -17,6 +17,8 @@ extends SceneTree
 ##  5. THE COMMON OPENING (crown-optimal-opening): the Barracks, then the second Farm, no Powder Mill before the read, the
 ##     labourers keep coming, a greedy Brood (its own Economy computer) is read and the second hall goes down soon after
 ##  6. an AGGRESSIVE read puts the Powder Mill up at once, no Horseman rush
+##  7. THE ARMY FIRST (ai-followups): against a greedy Clockwork, Balanced's waves have an army by 8:00 (half the enemy's it
+##     reckons, or half the labourers' count in supply); no Church or Armoury laid while the army lags
 ## Prints PASS / FAIL per check and "ALL PASS" at the end (exit 1 on a failure).
 var main: Node
 var g: Game
@@ -261,6 +263,34 @@ func _run() -> void:
 	print("   Crown OPTIMAL v a rush: read %d s, Mill %s, strategy %s" % [int(t_read), str(not ai._mine("powder_mill").is_empty()), ai.strategy])
 	check(ai.scout.verdict == "rush" and not ai._mine("powder_mill").is_empty(), "an AGGRESSIVE read: the Powder Mill goes down at once (%d s after the read)" % int(g.clock - t_read))
 	check(ai.strategy != "rush" and ai._mine("horse_breeder").is_empty(), "and no Horseman rush (strategy %s)" % ai.strategy)
+	await _stop()
+
+	# ---- 7 (ai-followups): THE ARMY FIRST: the Crown that punishes a greedy Clockwork with Balanced's waves builds an army,
+	# not more labourers and tech (the owner's game 0.33.0: 44 labourers, 455 of army at 7:00, a Church and an Armoury with
+	# an army of 3-4 supply)
+	await _start("crown", "optimal", "clockwork")
+	_greedy_dress()
+	var tech_lagging := 0
+	var lagged := false
+	while g.clock < 480.0 and not g.over:
+		await physics_frame
+		if int(g.clock * 30.0) % 30 != 0:
+			continue
+		var lags: bool = ai.army_lags()
+		lagged = lagged or lags
+		if lags:
+			for b in ai._mine("church") + ai._mine("armoury"):
+				if not b.built and b.hp < b.max_hp * 0.2:
+					tech_lagging += 1          # (a site laid while the army lagged)
+	var val := g.army_value(0)
+	var labs := g.workers(0).size()
+	print("   Crown %s v a greedy Clockwork at 8:00: army %d (supply %d), %d labourers, it reckons %d; lagged %s (%.0f s), tech held %d, pressure %s" % [ai.strategy,
+		val, ai._army_supply(g.army(0)), labs, int(ai.foe_reckon()), str(lagged), ai.lag_time, ai.mid_held, str(ai.pressure())])
+	if ai.strategy == "balanced":
+		check(ai.pressure(), "a GREEDY read answered with Balanced is pressure (the army keeps %d%% of the enemy's)" % int(ai.LAG_PRESS * 100.0))
+	check(float(val) >= 0.5 * ai.foe_reckon() or ai._army_supply(g.army(0)) >= int(0.5 * labs), "the army keeps up: %d of the %d it reckons, %d supply for %d labourers" % [val, int(ai.foe_reckon()), ai._army_supply(g.army(0)), labs])
+	check(tech_lagging == 0, "no Church or Armoury laid while the army lagged (%d)" % tech_lagging)
+	check(_log_has("the army first") == lagged, "the AI STORY's line says when the army comes first")
 	await _stop()
 
 	print("ALL PASS" if fails == 0 else "%d FAILED" % fails)
