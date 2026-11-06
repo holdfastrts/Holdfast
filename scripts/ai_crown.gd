@@ -2167,7 +2167,7 @@ func _hall_farm() -> int:
 
 ## THE SUPPLY THE PRODUCTION EATS WHILE A COTTAGE GOES UP (SUPPLY_LEAD s), plus two: the halls' labourers, the Barracks'
 ## soldiers, the Breeder's Horsemen (3 supply in 22 s), the Foundry's guns. In the opening at least the old margin (two,
-## two a Barracks, one a hall after the first). Every plan's opening uses it (crown-optimal-opening: the Siege push's
+## two a Barracks, one a hall after the first), and only that while a rush is being held (_def_on). Every plan's opening uses it (crown-optimal-opening: the Siege push's
 ## opening was blocked at 18/18 at 3:00 in the owner's game, its Cottage laid at 15/18 and done at 3:03, the margin two
 ## a Barracks did not cover the 20 s build with the hall and the Barracks both training).
 func _supply_margin() -> int:
@@ -2190,9 +2190,11 @@ func _supply_margin() -> int:
 			nh += 1
 	var margin := 2 + int(ceil(rate * SUPPLY_LEAD))
 	if not bo_done:
-		# (the opening's old margin is the floor: the gold of a Cottage too early is a Musketeer missing against a rush,
-		# tools/test_ai_wall_vs_rush.gd)
-		margin = maxi(margin, 2 + 2 * nb + nh - 1)
+		var old := 2 + 2 * nb + nh - 1
+		if _def_on:
+			return old          # (a rush is being held: the gold of a Cottage too early is a Musketeer missing at the gate,
+			# tools/test_ai_wall_vs_rush.gd: with the lead the third Musketeer never came by 2:40)
+		margin = maxi(margin, old)
 	return margin
 
 

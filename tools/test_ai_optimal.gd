@@ -12,10 +12,11 @@ extends SceneTree
 ##  3. FIXED PLANS KEEP THEIR PLAN: the Crown's Economy against a greedy enemy races it (it does not turn into a timing
 ##     attack); against a rush it still defends (the Barracks and the Mill first) and stays the Economy plan
 ##  4. OPTIMAL NEVER HORSEMAN-RUSHES THE CROWN: its pick against a greedy Crown, 300 times at every early moment, and the
-##     lean before scouting; against a greedy Brood it out-expands (the Economy plan: the riders measured came after its
-##     Raptors, docs/crown_optimal_opening.md), never the slow Siege push
+##     lean before scouting; against a greedy Brood read in time it is the Horseman rush (the owner, 2026-11-06), too late
+##     for the riders it out-expands (never the slow Siege push)
 ##  5. THE COMMON OPENING (crown-optimal-opening): the Barracks, then the second Farm, no Powder Mill before the read, the
-##     labourers keep coming, a greedy Brood (its own Economy computer) is read and the second hall goes down soon after
+##     labourers keep coming, a greedy Brood (its own Economy computer) is read, the Horse Breeder goes down at once, the
+##     riders ride out, the Powder Mill and the second hall go down behind the raid
 ##  6. an AGGRESSIVE read puts the Powder Mill up at once, no Horseman rush
 ## Prints PASS / FAIL per check and "ALL PASS" at the end (exit 1 on a failure).
 var main: Node
@@ -188,15 +189,16 @@ func _run() -> void:
 	await _stop()
 	await _start("crown", "optimal", "clockwork")
 	var vs_brood := 0
-	var siege_b := 0
+	var late_ok := 0
 	for i in 300:
-		var c2: Array = ai.opt._punish("brood", 60.0 + float(i % 30) * 10.0)
-		if not c2.is_empty() and String(c2[0]) == "economy":
+		var c2: Array = ai.opt._punish("brood", 60.0 + float(i % 10) * 10.0)
+		if not c2.is_empty() and String(c2[0]) == "rush":
 			vs_brood += 1
-		if not c2.is_empty() and String(c2[0]) in ["siege", "rush"]:
-			siege_b += 1
-	check(vs_brood == 300, "against a greedy Brood it out-expands it (the riders measured came after its Raptors: %d of 300)" % vs_brood)
-	check(siege_b == 0, "never the slow Siege push, no Horseman rush on the read (%d of 300)" % siege_b)
+		var c3: Array = ai.opt._punish("brood", AIOptimal.BREEDER_BY + 5.0 + float(i % 10) * 20.0)
+		if not c3.is_empty() and String(c3[0]) == "economy":
+			late_ok += 1
+	check(vs_brood == 300, "against a greedy Brood read by 2:30 it is the Horse Breeder and the riders (%d of 300; the owner, 2026-11-06)" % vs_brood)
+	check(late_ok == 300, "read too late for the riders, it out-expands, never the slow Siege push (%d of 300)" % late_ok)
 	var leans_b := 0
 	for i in 200:
 		ai.opt.lean = ""
@@ -238,10 +240,13 @@ func _run() -> void:
 	check(not mill_before, "no Powder Mill before the scout's read")
 	check(labs_90 >= 9, "the labourers keep coming while it waits for the read (%d at 1:30)" % labs_90)
 	check(not _log_has("Optimal waited") and not _log_has("OPTIMAL's pick: Optimal waited"), "the pick never waits with the gold in the bank")
-	check(String(pk[2]) == "GREEDY" and String(pk[3]) == "economy", "a greedy Brood is out-expanded (%s -> %s)" % [pk[2], pk[3]])
-	var t_pick := g.clock
-	await _until(g.clock + 75.0, func() -> bool: return g.halls_of(0, false).size() >= 2)
-	check(g.halls_of(0, false).size() >= 2 and g.clock <= 165.0, "its second hall goes down soon after the read (%d s, %d s after it)" % [int(g.clock), int(g.clock - t_pick)])
+	check(String(pk[2]) == "GREEDY" and String(pk[3]) == "rush", "a greedy Brood is punished with the Horseman rush (%s -> %s)" % [pk[2], pk[3]])
+	await _until(g.clock + 20.0)
+	check(not ai._mine("horse_breeder").is_empty(), "the Horse Breeder goes down at once after the read (%d)" % ai._mine("horse_breeder").size())
+	await _until(300.0, func() -> bool: return g.halls_of(0, false).size() >= 2)
+	check(ai._attacking or _log_has("first attack goes out"), "the riders ride out")
+	check(g.halls_of(0, false).size() >= 2, "the second hall goes down behind the raid (%d s)" % int(g.clock))
+	check(not ai._mine("powder_mill").is_empty(), "and the Powder Mill (%d)" % ai._mine("powder_mill").size())
 	await _stop()
 
 	# ---- 6: an AGGRESSIVE read puts the Powder Mill (and the soldiers) up at once
