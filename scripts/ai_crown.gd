@@ -1676,16 +1676,45 @@ func _raid() -> void:
 		dr.tick()
 
 
+## (ai-followups) THE NATURAL'S WALL KEEPS ITS FEW COINS while the army comes first (army_lags): the soldiers took every coin
+## and the palisade waited till 6:23 on the owner's seed (it was laid from 3:58 before): the line it should stand behind was
+## not there when the Clockwork's first push came. WALL_KEEP gold is kept from the soldiers while a walled expansion's plan
+## is under AICrownHold.GATE_CLOSED closed (a palisade piece costs 15, a gate 50).
+const WALL_KEEP := 65
+
+
+func _wall_keep() -> int:
+	if xw == null or not army_lags() or _threat() != Vector2.INF:
+		return 0
+	for id in xw.plans:
+		var p: Dictionary = xw.plans[id]
+		if not p.get("ok", false) or (p["exposed"] as Array).is_empty():
+			continue
+		var h = p.get("hall")
+		if h == null or not is_instance_valid(h) or (h as Building).dead or not (h as Building).built:
+			continue
+		if xw.closed_share(p) < AICrownHold.GATE_CLOSED:
+			return clampi(WALL_KEEP, 0, int(game.players[team]["gold"]))
+	return 0
+
+
 func _produce() -> void:
+	var wk := _wall_keep()
+	game.players[team]["gold"] -= wk
+	_produce_crown()
+	game.players[team]["gold"] += wk
+
+
+func _produce_crown() -> void:
 	if siege != null:
 		siege.produce()           # (the guns first: the shared training adds one now and then)
 		var keep: int = clampi(siege.gun_due(), 0, int(game.players[team]["gold"]))
 		game.players[team]["gold"] -= keep
-		super()
+		super._produce()
 		game.players[team]["gold"] += keep
 		return
 	if not dragoon_plan():
-		super()
+		super._produce()
 		return
 	var short := _train_dragoons()
 	# (the riders short: a Dragoon's gold, horse and all, is kept from the line's Musketeers, unless the enemy is at home)
@@ -1693,7 +1722,7 @@ func _produce() -> void:
 	if short and _threat() == Vector2.INF:
 		held = clampi(DRAGOON_KEEP, 0, int(game.players[team]["gold"]))
 	game.players[team]["gold"] -= held
-	super()
+	super._produce()
 	game.players[team]["gold"] += held
 
 
@@ -2326,6 +2355,10 @@ func _supply_margin() -> int:
 		# (the opening's old margin is the floor: the gold of a Cottage too early is a Musketeer missing against a rush,
 		# tools/test_ai_wall_vs_rush.gd)
 		margin = maxi(margin, 2 + 2 * nb + nh - 1)
+		if _def_on or _defending():
+			# (ai-followups: against a rush in the opening the old margin alone: the rate's bigger lead kept a Cottage's
+			# gold from the Musketeers, one Musketeer by 2:40 instead of three, tools/test_ai_wall_vs_rush.gd)
+			margin = 2 + 2 * nb + nh - 1
 	return margin
 
 
