@@ -39,6 +39,9 @@ const STRAY_R := 360.0          # px: in a whole-army defence, one this far from
 const CALM := 6.0               # s with no raid before the defenders walk back
 const GATHER_R := 200.0         # px: a unit further than this from the gathering point walks to it
 const REGATHER := 12.0          # s between two picks of the gathering point
+const TOKEN_ABS := 250.0        # (clockwork-home) a raid worth less than this (all its spots together)...
+const TOKEN_SHARE := 0.15       # ...and less than this share of the army...
+const TOKEN_FAR := 700.0        # ...and further than this (px) from the army is a token raid: a group meets it
 const MASS_SINCE := 0.0         # (the opening's steady production: AIClockwork._bo_mass)
 ## The enemy army a Hard computer of that faction has at that age (value; [clock s, value]), from the coached games
 ## (docs/clockwork_army.md): the Brood's is the Crown's crown-v-brood table, raised before 7:00 (its Rootmaws and Mound
@@ -216,7 +219,12 @@ func scout_pick() -> Unit:
 # ------------------------------------------------------------------ the gathering point
 
 ## In front of the hall nearest the enemy (the way in), on that hall's ground; picked again every REGATHER s.
+## (clockwork-home: on the edge of its gear ground where the enemy's way in reaches the base: _gather_home)
 func _gather_point() -> Vector2:
+	if home_on:
+		var hp := _gather_home()
+		if hp != Vector2.INF:
+			return hp
 	if game.clock - _gather_t < REGATHER and gather_pt != Vector2.INF and _gather_hall != null and is_instance_valid(_gather_hall) and not _gather_hall.dead:
 		return gather_pt
 	_gather_t = game.clock
@@ -240,6 +248,283 @@ func _gather_point() -> Vector2:
 		say("gathers in front of its Clocktower at %s" % _where(best.center()), "gpt", 30.0)
 	gather_pt = ai._rally_front(best)
 	return gather_pt
+
+
+# ------------------------------------------------------------------ clockwork-home: the army rests on its gears
+
+## THE ARMY RESTS ON ITS GEARS (the owner, 2026-11-06, Hard Brood OPTIMAL v Hard Clockwork OPTIMAL, Kestrel Rise 0.33.0:
+## the idle army wound down; at 9:58 it waited at its gathering point by the newest Clocktower, (70, 45), while the base
+## below was attacked and only pieces of it went; docs/clockwork_home.md):
+##  - THE GATHERING POINT is where the enemy's way in (the path from its main to the middle of our base) first reaches our
+##    gear ground, on that ground's level: between the base and the way enemies come, not in front of the Clocktower that
+##    happens to be nearest the enemy's main in a straight line (Kestrel Rise: the third Clocktower, north, while the Brood
+##    came in from the west);
+##  - each unit has its own REST SPOT round it at the gear ground's edge: on a still floor plate inside a ring when there is
+##    room (wound there for good), else just outside the toothed band (a band turns and would carry it round; the computer
+##    walks its idle units off a band: docs/gear_turn.md); the big machines (not carried) stand on the band itself;
+##  - TOPPING UP: a unit at its spot run down under TOP_AT steps onto the band (0.3 a second on the gear ground: two or
+##    three seconds fill it), a few at a time, and walks back; the escort Winders wind the rest as before.
+## `-- cwhome:off` plays 0.33.0's gathering point and raid answers (the "before" columns).
+var home_on := not OS.get_cmdline_user_args().has("cwhome:off")
+const ENTRY_NEAR := 40.0        # gear px past the band's tips: where the path counts as at the gear ground
+const HOME_REPICK := 30.0       # s between two picks of the gathering point (sooner when the halls or the rings change)
+const SPOT_R := 520.0           # px: rest spots on the rings within this of the gathering point
+const SPOT_GAP := 26.0          # px between two rest spots
+const SPOT_TOL := 40.0          # px: a unit this near its spot is at rest
+const TOP_AT := 0.8             # wind under which a resting unit steps onto the gears to top up
+const TOP_FULL := 0.98          # it walks back once wound this far
+const TOP_MAX := 12.0           # s a top-up may take at most
+var _home_key := ""
+var _home_t := -99.0
+var _spots: Array = []          # [{p, fp (a point on the band beside it), field (on a still plate: wound there)}]
+var _bspots: Array = []         # the band spots for the big machines (not carried)
+var _spot_of := {}              # Unit -> index into _spots (or -1 - index into _bspots)
+var _topping := {}              # Unit -> clock it went to top up
+var home_stats := {"tops": 0, "picks": 0}
+
+
+func _my_bands() -> Array:
+	var out: Array = []
+	if game.gear_net == null:
+		return out
+	for bd in game.gear_net.bands:
+		var b = bd[0]
+		if is_instance_valid(b) and not b.dead and b.team == team:
+			out.append(bd)
+	return out
+
+
+## The gathering point on the enemy's way in, at the edge of our gear ground (INF: none found, the old pick).
+func _gather_home() -> Vector2:
+	var halls: Array = ai._halls().filter(func(h: Building) -> bool: return h.built and not h.dead)
+	var bands := _my_bands()
+	if halls.is_empty() or bands.is_empty() or _foe() < 0:
+		return Vector2.INF
+	var key := "%d:" % game.gear_net.version
+	for h in halls:
+		key += str(h.get_instance_id()) + ","
+	if key == _home_key and game.clock - _home_t < HOME_REPICK and gather_pt != Vector2.INF:
+		return gather_pt
+	_home_key = key
+	_home_t = game.clock
+	var mid := Vector2.ZERO
+	for h in halls:
+		mid += (h as Building).center()
+	mid /= float(halls.size())
+	var their: Vector2 = (Vector2(game.starts[_foe()]) + Vector2(2.5, 2.0)) * Defs.TILE
+	var path: PackedVector2Array = game.find_path(their, mid)
+	var pick := Vector2.INF
+	var prev := their
+	for i in path.size():
+		var a: Vector2 = prev
+		var b: Vector2 = path[i]
+		prev = b
+		var n := maxi(1, int(a.distance_to(b) / 16.0))
+		for k in n + 1:
+			var p := a.lerp(b, float(k) / float(n))
+			var bd = _ring_near(p, bands)
+			if bd != null:
+				pick = p
+				break
+		if pick != Vector2.INF:
+			break
+	if pick == Vector2.INF:
+		pick = _edge_toward(halls, bands, their)
+	if pick == Vector2.INF:
+		return Vector2.INF
+	home_stats["picks"] = int(home_stats["picks"]) + 1
+	var moved := gather_pt == Vector2.INF or gather_pt.distance_to(pick) > 96.0
+	gather_pt = pick
+	_build_spots(pick, bands)
+	if moved:
+		say("the army rests on its gears at %s, where the enemy's way in reaches the base" % _where(pick), "gpt", 30.0)
+	return gather_pt
+
+
+## (no way in found: the path ends short of the gear ground) The edge of the ring of the hall nearest the enemy's main,
+## toward it.
+func _edge_toward(halls: Array, bands: Array, their: Vector2) -> Vector2:
+	var best: Building = null
+	for h in halls:
+		if best == null or (h as Building).center().distance_to(their) < best.center().distance_to(their):
+			best = h
+	for bd in bands:
+		if bd[0] != best:
+			continue
+		var cg: Vector2 = bd[1]
+		var dir := (GearNet.gpos(their) - cg).normalized()
+		var lv := GearNet.b_level(best)
+		for a: float in [0.0, 0.4, -0.4, 0.8, -0.8, 1.2, -1.2, 1.6, -1.6]:
+			var q := cg + dir.rotated(a) * (float(bd[3]) + ENTRY_NEAR * 0.5)
+			var w := Vector2(q.x, q.y * Game.FIELD_Y)
+			var c: Vector2i = game.cell_of(w)
+			if game.in_map(c) and _spot_ok(w, lv, game.region_of(c)):
+				return w
+	return Vector2.INF
+
+
+## A ring of ours whose band's tips are within ENTRY_NEAR (gear px) of p, on p's ground level; else null.
+func _ring_near(p: Vector2, bands: Array):
+	var c: Vector2i = game.cell_of(p)
+	if not game.in_map(c) or not game.open_cell(c):
+		return null
+	var g := GearNet.gpos(p)
+	for bd in bands:
+		if g.distance_to(bd[1]) <= float(bd[3]) + ENTRY_NEAR and GearNet.b_level(bd[0]) == game.height[game.idx(c)]:
+			return bd
+	return null
+
+
+func _spot_ok(w: Vector2, lv: int, reg: int) -> bool:
+	var c: Vector2i = game.cell_of(w)
+	if not game.in_map(c) or not game.open_cell(c) or game.height[game.idx(c)] != lv or game.region_of(c) != reg:
+		return false
+	return game._clear_at(w, 14.0, -2)
+
+
+## The rest spots round the gathering point: still plates first, then rows just outside the bands; nearest first.
+func _build_spots(gp: Vector2, bands: Array) -> void:
+	_spots = []
+	_bspots = []
+	_spot_of.clear()
+	var gc: Vector2i = game.cell_of(gp)
+	var lv: int = game.height[game.idx(gc)]
+	var reg: int = game.region_of(gc)
+	var fy := Game.FIELD_Y
+	var net = game.gear_net
+	var cand: Array = []            # [score, spot]
+	var bcand: Array = []
+	for bd in bands:
+		var cg: Vector2 = bd[1]
+		var r_in := float(bd[2])
+		var r_out := float(bd[3])
+		var cw := Vector2(cg.x, cg.y * fy)
+		if cw.distance_to(gp) - r_out > SPOT_R or GearNet.b_level(bd[0]) != lv:
+			continue
+		var rp := r_out - 6.0
+		for rr: float in [r_in - 14.0, r_out + 18.0, r_out + 44.0, r_out + 70.0, (r_in + rp) * 0.5]:
+			if rr < 20.0:
+				continue
+			var steps := maxi(8, int(TAU * rr / SPOT_GAP))
+			for k in steps:
+				var dir := Vector2.RIGHT.rotated(TAU * float(k) / float(steps))
+				var q := cg + dir * rr
+				var w := Vector2(q.x, q.y * fy)
+				if w.distance_to(gp) > SPOT_R or not _spot_ok(w, lv, reg):
+					continue
+				var on_band: bool = net.band_at(w, 0.0) >= 0
+				var in_f: bool = net.in_field(team, w)
+				if rr == (r_in + rp) * 0.5:
+					if on_band and in_f:
+						bcand.append([w.distance_to(gp), {"p": w}])
+					continue
+				if net.band_at(w, 10.0) >= 0:
+					continue          # (on a band, or at its edge: it would ride)
+				var fpg := cg + dir * ((r_in + rp) * 0.5)
+				var fpw := Vector2(fpg.x, fpg.y * fy)
+				var plate := in_f and rr < r_in
+				cand.append([w.distance_to(gp) - (90.0 if plate else 0.0), {"p": w, "fp": fpw, "field": plate}])
+	cand.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	bcand.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	for e in cand:
+		var s: Dictionary = e[1]
+		if _spots.any(func(o: Dictionary) -> bool: return (o["p"] as Vector2).distance_to(s["p"]) < SPOT_GAP * 0.85):
+			continue
+		_spots.append(s)
+		if _spots.size() >= 90:
+			break
+	for e in bcand:
+		var s: Dictionary = e[1]
+		if _bspots.any(func(o: Dictionary) -> bool: return (o["p"] as Vector2).distance_to(s["p"]) < 40.0):
+			continue
+		_bspots.append(s)
+		if _bspots.size() >= 12:
+			break
+
+
+## The rest spot of this unit (kept while the gathering point stands); {} when there is none free.
+func _spot_for(u: Unit) -> Dictionary:
+	var s := _spot_pick(u, not GearTurn.carriable(u) and not u.is_air())
+	if s.is_empty() and not GearTurn.carriable(u):
+		s = _spot_pick(u, false)
+	return s
+
+
+func _spot_pick(u: Unit, big: bool) -> Dictionary:
+	var have = _spot_of.get(u)
+	if have != null:
+		var i := int(have)
+		if i >= 0 and i < _spots.size():
+			return _spots[i]
+		if i < 0 and -1 - i < _bspots.size():
+			return _bspots[-1 - i]
+	var used := {}
+	for x in _spot_of:
+		used[_spot_of[x]] = true
+	var list: Array = _bspots if big else _spots
+	var best := -1
+	var bd := INF
+	for i in list.size():
+		var key := (-1 - i) if big else i
+		if used.has(key):
+			continue
+		# (the nearest free spot to the gathering point first: they fill from the way in outwards)
+		var d: float = float(i) * 1000.0 + (list[i]["p"] as Vector2).distance_to(u.position) * 0.01
+		if d < bd:
+			bd = d
+			best = i
+	if best < 0:
+		return {}
+	_spot_of[u] = (-1 - best) if big else best
+	return list[best]
+
+
+## At home: each to its rest spot; the run-down ones top up on the band a few at a time.
+func _rest(home: Array, g: Vector2, waiting: Dictionary) -> void:
+	for u in _spot_of.keys():
+		if not is_instance_valid(u) or u.dead or not home.has(u):
+			_spot_of.erase(u)
+	for u in _topping.keys():
+		if not is_instance_valid(u) or u.dead or not home.has(u):
+			_topping.erase(u)
+	var cap := maxi(3, home.size() / 3)
+	var want: Array = []
+	for u in home:
+		if waiting.has(u):
+			continue
+		if u.order == "attack" and u.target != null and is_instance_valid(u.target) and not u.target.dead and u.position.distance_to(g) < GATHER_R * 1.5:
+			continue          # (fighting something at the gathering point itself)
+		var s := _spot_for(u)
+		if s.is_empty():
+			if u.position.distance_to(g) > GATHER_R or u.order == "idle" and u.position.distance_to(g) > GATHER_R * 0.6:
+				_order(u, ai._home_spot(g), true, 90.0)
+			continue
+		var sp: Vector2 = s["p"]
+		var dist: float = u.position.distance_to(sp)
+		if _topping.has(u):
+			if u.wind >= TOP_FULL or game.clock - float(_topping[u]) > TOP_MAX or ai._enemy_near(u.position, 300.0):
+				_topping.erase(u)
+				_order(u, sp, false, 16.0)
+			elif u.order == "idle" and not u._in_field:
+				_order(u, s["fp"], false, 12.0)      # (walked off the band before it was full: once more)
+			continue
+		if dist > SPOT_TOL:
+			_order(u, sp, dist > GATHER_R, 16.0)
+			continue
+		if u.deploys() and u.order == "idle" and u.tesla_mode == "packed":
+			u.cmd_deploy()
+		if s.has("fp") and not bool(s.get("field", false)) and u.wind < TOP_AT and not u.runs_on_spring() and not u._in_field \
+				and u.order == "idle":
+			want.append(u)
+	want.sort_custom(func(a: Unit, b: Unit) -> bool: return a.wind < b.wind)
+	for u in want:
+		if _topping.size() >= cap or ai._enemy_near(u.position, 300.0):
+			break
+		_topping[u] = game.clock
+		home_stats["tops"] = int(home_stats["tops"]) + 1
+		_order(u, _spots[int(_spot_of[u])]["fp"], false, 12.0)
+	if not want.is_empty():
+		say("the army rests on its gears: %d run-down units step onto the gears to wind" % mini(want.size(), cap), "tops", 60.0)
 
 
 func _where(p: Vector2) -> String:
@@ -296,6 +581,13 @@ func tick(army: Array) -> void:
 		return
 	phase = "out" if (ai.push != null and ai.push.phase != "" and ai.push.phase != "back") else "gather"
 	var waiting := _muster(home, g)
+	if home_on and not _spots.is_empty():
+		_rest(home, g, waiting)
+		if ai.push == null or ai.push.phase == "" or ai.push.phase == "back":
+			ai._follow_with_escort(home + low)
+		else:
+			ai._follow_with_escort(ai.push.units)
+		return
 	for u in home:
 		if waiting.has(u):
 			continue
@@ -404,6 +696,8 @@ func _defend(home: Array, g: Vector2) -> bool:
 			defenders.clear()
 		if phase == "defend" and game.clock - _calm_t > CALM:
 			phase = "gather"
+			if home_on:
+				say("the base is calm again: the army walks back to rest on its gears", "calm", 20.0)
 		return phase == "defend"
 	_calm_t = game.clock
 	# defenders led too far, or whose raid is gone: back to the army
@@ -417,8 +711,28 @@ func _defend(home: Array, g: Vector2) -> bool:
 	var mine := _value(home)
 	var big: Dictionary = raids[0]
 	var bv := float(big["value"])
+	var whole := bv >= mine * WHOLE_SHARE
+	if home_on:
+		# (clockwork-home) THE WHOLE ARMY DEFENDS THE BASE unless the raid is a token one far from it: the raids counted
+		# together (a swarm comes in at several buildings at once: Kestrel Rise 9:16-9:56 was one attack of 65 Raptors met by
+		# groups of 4, 13, 7 and 6), and once it has gone it stays until the base is calm again
+		var total := 0.0
+		for a in raids:
+			total += float(a["value"])
+		var c0 := _centre(home) if not home.is_empty() else g
+		var far := INF
+		for a in raids:
+			far = minf(far, (a["spot"] as Vector2).distance_to(c0))
+		var token := total < maxf(TOKEN_ABS, mine * TOKEN_SHARE) and far > TOKEN_FAR
+		whole = phase == "defend" or not token
+		bv = maxf(bv, total)
+		if whole:
+			# (the raid to go to: the biggest; one nearly as big and much nearer first)
+			for a in raids:
+				if float(a["value"]) >= float(big["value"]) * 0.6 and (a["spot"] as Vector2).distance_to(c0) < (big["spot"] as Vector2).distance_to(c0) - 300.0:
+					big = a
 	# THE WHOLE ARMY: the biggest raid is worth a good share of it
-	if not home.is_empty() and bv >= mine * WHOLE_SHARE:
+	if not home.is_empty() and whole:
 		var main_g: Vector2 = ai._post_spot()
 		if mine < bv * GIVE_UP and main_g != Vector2.INF and (big["spot"] as Vector2).distance_to(main_g) > 700.0:
 			# (far worse off, away from the main: the army holds together at the main's gate, the Winders mend it there)
@@ -432,7 +746,10 @@ func _defend(home: Array, g: Vector2) -> bool:
 			return true
 		if phase != "defend":
 			stats["whole"] = int(stats["whole"]) + 1
-			say("the whole army (%d units, %d) meets a raid worth %d at %s" % [home.size(), int(mine), int(bv), _where(big["spot"])], "whole", 20.0)
+			if home_on:
+				say("the whole army defends the base (%d units, %d, with its Winders) against a raid worth %d at %s" % [home.size(), int(mine), int(bv), _where(big["spot"])], "whole", 20.0)
+			else:
+				say("the whole army (%d units, %d) meets a raid worth %d at %s" % [home.size(), int(mine), int(bv), _where(big["spot"])], "whole", 20.0)
 		phase = "defend"
 		var c := _centre(home)
 		for u in home:
@@ -473,7 +790,10 @@ func _defend(home: Array, g: Vector2) -> bool:
 			_order(u, spot + Vector2(randf_range(-30, 30), randf_range(-30, 30)), true, 60.0)
 		if not picks.is_empty():
 			stats["groups"] = int(stats["groups"]) + 1
-			say("sends %d units (%d) as a group at a raid worth %d at %s" % [picks.size() + sent.size(), int(got), int(a["value"]), _where(spot)], "group", 10.0)
+			if home_on:
+				say("a small raid worth %d at %s, far from the army: sends %d units (%d) at it, the rest stays on its gears" % [int(a["value"]), _where(spot), picks.size() + sent.size(), int(got)], "group", 10.0)
+			else:
+				say("sends %d units (%d) as a group at a raid worth %d at %s" % [picks.size() + sent.size(), int(got), int(a["value"]), _where(spot)], "group", 10.0)
 	return false
 
 
