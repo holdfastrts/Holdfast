@@ -724,6 +724,15 @@ func _nb_defend_riders(q: Unit, army: Array, group: Array) -> bool:
 	return true
 
 
+## Every enemy fighter near the Mother (13 tiles) is a rider or an Officer.
+func _riders_only_near(q: Unit) -> bool:
+	for u in game.units_near(q.position, 13.0 * Defs.TILE):
+		if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_worker() \
+				and not is_rider(u) and u.kind != "dismounted":
+			return false
+	return true
+
+
 func _grub_near(p: Vector2, tiles: float) -> bool:
 	for u in game.units_near(p, tiles * Defs.TILE):
 		if u.team == team and not u.dead and (u.kind == "grub" or u.kind == BroodNew.QUEEN):
@@ -2099,8 +2108,8 @@ const RICH_FOOD := 600
 ## 20% faster; his line opens too), or riders are about (the Venom Sire's Spitters answer them).
 func _sire_at(f: String) -> float:
 	var at := float(plan["venom"]) if f == BroodNew.DILO else float(plan["storm"])
-	if f == BroodNew.DILO and riders_about():
-		return 0.0
+	if f == BroodNew.DILO and riders_about() and not _rider_short():
+		return 0.0          # (brood-anti-riders: the Raptors it is short of come first, the Venom Sire's 200 food after)
 	if f == BroodNew.PTERO and bb != null and bb.hold_storm():
 		return at          # (the written build: the Storm Sire waits for its push, unless flyers are seen)
 	if _nb_egg_bound() and BroodNew.count_of(game, team, BroodNew.FATHER) > 0 and not (int(plan["grubs0"]) > 0 and not _first_out):
@@ -2232,8 +2241,10 @@ func _nb_lay(q: Unit) -> void:
 	var curve := 5.0 + game.clock / 60.0 * float(plan.get("drone", 4.0))
 	var danger := _nb_threat(q) != Vector2.INF or _rush_short() or ((_alarm_on() or _under_armed()) and grubs >= 16)
 	var rider_short := _rider_short()
-	if _riders_on() and not rider_short and _nb_threat(q) != Vector2.INF and not _rush_short() and _foe_near_home <= _rider_need():
-		danger = false          # (brood-anti-riders: only riders at the Mother and warriors enough: the grubs go on)
+	if danger and not rider_short and not _rush_short() and _nb_threat(q) != Vector2.INF and _riders_only_near(q) \
+			and _value_of(_nb_army_units().filter(func(u: Unit) -> bool: return not _wave.has(u))) >= maxf(_foe_near_home * 1.3, 150.0):
+		danger = false          # (brood-anti-riders: only riders (or Officers) by the Mother and warriors enough: the grubs go
+		                        # on; a lone rider hovering there laid Raptors for minutes on 11 grubs, Hollowfen seed 7)
 	if rider_short:
 		danger = true           # (brood-anti-riders: Raptors until its army at home beats the riders it expects)
 		keep = mini(keep, _morph_keep)          # (her growth waits; the Sire's lure does not)
@@ -2394,9 +2405,9 @@ const RES_KEEP := 100
 func _nb_research(q: Unit) -> void:
 	if _nb_threat(q) != Vector2.INF or (_nb_saving_growth(q) and BroodNew.stage(q) == 0) or peaceful or (_rush_on() and game.clock < 300.0):
 		return
-	if _rider_short():
-		return          # (brood-anti-riders: a Sire researching fathers no eggs: Bigger Clutch at 3:31 cost the Hollowfen
-		                # game its Raptors while the riders came)
+	if _riders_on():
+		return          # (brood-anti-riders: a Sire researching fathers no eggs: Bigger Clutch at 3:31-3:33 cost two
+		                # Hollowfen games their Raptors while the riders came; it waits till they are gone)
 	var food := _food()
 	var spoils := _spoils()
 	var keep := RES_KEEP + (150 if difficulty == 0 else 0) + _morph_keep
