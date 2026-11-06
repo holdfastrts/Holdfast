@@ -554,6 +554,7 @@ var rider_read := ""             # what it saw
 var rider_read_first := -1.0     # (the study: its first rider read)
 var _rider_seen := {}            # enemy rider -> when last seen
 var _rider_land_t := -999.0      # riders last seen in its land
+var _rider_out_t := -999.0       # riders last seen out of the enemy's main
 var _rider_hit_t := -1.0         # riders first in its land (this raid)
 var _rider_calm_said := true
 var _rider_over := false         # (a raid met and over: the read of the rush is spent)
@@ -571,6 +572,7 @@ const RIDER_FLEE := 8.0          # tiles: grubs a rider comes this near run (5 o
 const RIDER_GUARD_R := 12.0      # tiles from the guard: riders the warriors go for
 const RIDER_LEASH := 15.0        # tiles from the guard: no warrior chases farther
 const RIDER_V := 115.0           # (a Horseman's value: the riders it expects before it has seen them all)
+const RIDER_PRE := 0.6           # the share of the warriors wanted before the riders are seen coming
 
 
 ## Riders about: read and not come yet (RIDER_FOR s), or in its land lately.
@@ -591,7 +593,10 @@ func _rider_need() -> float:
 			n += 1
 	if rider_read_t >= 0.0 and game.clock < RIDER_READ_BY + 60.0:
 		n = maxi(n, 3)
-	return float(n) * RIDER_V * 1.3
+	# (just in time: before the riders are seen on the road or in its land, part of it (the grubs grow meanwhile: the
+	# whole of it from the read cost the Hollowfen games 10 grubs at 4:00); the rest once they are seen coming)
+	var share := 1.0 if game.clock - _rider_land_t < RIDER_CALM or game.clock - _rider_out_t < 60.0 else RIDER_PRE
+	return float(n) * RIDER_V * share
 
 
 ## Short of warriors against the riders it expects (its army at home, not out on a wave).
@@ -602,18 +607,20 @@ func _rider_short() -> bool:
 	return _value_of(home) < _rider_need()
 
 
-## In its land: near its Mother, a rooted creature of its own or one of its grubs.
+## In its land: near its Mother, one of its rooted Rootmaws or one of its grubs.
 func _in_my_land(q: Unit, p: Vector2) -> bool:
 	if q != null and p.distance_to(q.position) < HOME_R * Defs.TILE:
 		return true
 	for u in game.units_near(p, RIDER_LAND_R * Defs.TILE):
-		if u.team == team and not u.dead and (u.kind == "grub" or (BroodNew.ROOTERS.has(u.kind) and BroodNew.rooted(u))):
-			return true
+		if u.team == team and not u.dead and (u.kind == "grub" or (u.kind == BroodNew.MAW and BroodNew.rooted(u))):
+			return true          # (its grubs and its Rootmaws: a turtle staking new ground far out is no worker line)
 	return false
 
 
 func _nb_riders_seen(riders_now: int, riders_out: int, riders_land: int, horses: int) -> void:
 	var c := game.clock
+	if riders_out > 0:
+		_rider_out_t = c
 	for b in _foe_blds.keys():
 		if not is_instance_valid(b) or b.dead:
 			continue
@@ -621,7 +628,7 @@ func _nb_riders_seen(riders_now: int, riders_out: int, riders_land: int, horses:
 			_breeder_t = c
 		elif b.kind == "powder_mill" and _mill_t < 0.0:
 			_mill_t = c
-	if riders_land >= 2 or (riders_land > 0 and not _rider_calm_said):
+	if riders_land >= 2:          # (a lone rider is a harass: the guard and the grubs' own flight answer it, no lockdown)
 		if _rider_calm_said:
 			_rider_calm_said = false
 			_rider_hit_t = c
@@ -676,7 +683,7 @@ func _nb_defend_riders(q: Unit, army: Array, group: Array) -> bool:
 			(u as Unit).cmd_stop()          # (a Sire never catches a rider: back to his nest)
 	var site: Unit = q
 	for u in game.units_near(at, 20.0 * Defs.TILE):
-		if u.team == team and not u.dead and (u.kind == BroodNew.MAW or u.kind == BroodNew.TURTLE) and BroodNew.rooted(u) \
+		if u.team == team and not u.dead and u.kind == BroodNew.MAW and BroodNew.rooted(u) \
 				and u.position.distance_to(at) < site.position.distance_to(at):
 			site = u
 	var guard: Vector2 = q.position + (at - q.position).normalized() * (BroodNew.drawn_r(q) + 40.0)
@@ -1127,6 +1134,11 @@ func _nb_grubs_vs_riders(q: Unit) -> void:
 				for u in _nb_mine("grub"):
 					if u.home_mine == m and not near.has(u) and u != _scout and u.order != "nb_morph" and u.position.distance_to(m.position) < 6.0 * Defs.TILE:
 						near.append(u)
+		if raid and guard_v >= 200.0:
+			# (grubs working by the warriors' guard are covered: only a rider right at them makes them run)
+			var gp: Vector2 = _rider_guard if _rider_guard != Vector2.INF else q.position
+			near = near.filter(func(u: Unit) -> bool: return u.position.distance_to(r.position) < RIDER_R * Defs.TILE \
+				or u.position.distance_to(gp) > 10.0 * Defs.TILE)
 		if near.is_empty():
 			continue
 		var foes: Array = riders.filter(func(o: Unit) -> bool: return o.position.distance_to(r.position) < RIDER_R * Defs.TILE)
