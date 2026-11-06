@@ -767,8 +767,10 @@ func _gun_want() -> Array:
 	var k := ""
 	if cannons < want_c:
 		k = "cannon"
-	elif mortars < want_m:
-		k = "mortar"
+	elif mortars < want_m and cannons >= ai.CANNONS_FIRST:
+		k = "mortar"          # (crown-hold: 3 Field Cannons before the first Mortar, the siege push too)
+	elif mortars < want_m and cannons < CANNONS_MAX:
+		k = "cannon"
 	if k == "":
 		return []
 	for f in ai._mine("foundry"):

@@ -2024,6 +2024,8 @@ func cmd_move(p: Vector2, attack_move := false) -> void:
 	if not can_roll():
 		game.tell(team, "No horse: HARNESS one to move it.")
 		return
+	if not is_air():
+		p = game.site_keepout(team, p, radius)      # (crown-hold: never onto an allied site waiting to start)
 	# a Dragoon fighting on foot gets back on his horse to move (not with the enemy in range
 	# on an attack-move: he goes on shooting)
 	if auto_mount and Defs.MOUNTS.has(kind) and order != "mount" and (not attack_move or _musket_target(_range()) == null):

@@ -3264,11 +3264,13 @@ func site_cells_free(b: Building) -> bool:
 	return true
 
 
-## The nearest free spot just outside a footprint, for a unit standing on it.
+## The nearest free spot just outside a footprint, for a unit standing on it: a cell's margin clear of it first (a unit
+## one cell out still overlapped the footprint and blocked the site: crown-hold), the cell beside it only when there is no
+## room farther out.
 func spot_outside(b: Building, u: Unit) -> Vector2:
 	var best := Vector2.INF
 	var bd := INF
-	for ring in range(1, 5):
+	for ring in [2, 3, 4, 1]:
 		for y in range(-ring, b.size.y + ring):
 			for x in range(-ring, b.size.x + ring):
 				if x > -ring and y > -ring and x < b.size.x + ring - 1 and y < b.size.y + ring - 1:
@@ -3286,6 +3288,47 @@ func spot_outside(b: Building, u: Unit) -> Vector2:
 	return cell_center(nearest_free(cell_of(u.position), 8))
 
 
+const SITE_KEEP := 10.0          # (px) a waiting site's footprint grown by this (and the unit's radius) is kept clear
+
+
+## SITES KEEP CLEAR (crown-hold, the owner 2026-11-06: units shoved off a site walked back onto it and the Crown "couldn't
+## start a Church/Barracks: the spot was blocked" six times): a point a unit of team `t` is sent to (a move, a HOLD or
+## guard post, a rally) inside an allied ghost site still waiting to start (its footprint grown by SITE_KEEP and the
+## unit's radius) is moved just outside it. `p` back unchanged when no site is there.
+func site_keepout(t: int, p: Vector2, radius := 10.0) -> Vector2:
+	if ghost_cells.is_empty():
+		return p
+	var q := p
+	for _k in 3:
+		var c := cell_of(q)
+		var hit: Building = null
+		for dy in range(-1, 2):
+			for dx in range(-1, 2):
+				var g := side_ghost_at(t, c + Vector2i(dx, dy))
+				if g != null and g.ghost and g.rect().grow(SITE_KEEP + radius).has_point(q):
+					hit = g
+		if hit == null:
+			return q
+		var r := hit.rect().grow(SITE_KEEP + radius + 2.0)
+		var opts := [
+			Vector2(r.position.x, q.y), Vector2(r.end.x, q.y),
+			Vector2(q.x, r.position.y), Vector2(q.x, r.end.y)]
+		var best := Vector2.INF
+		var bd := INF
+		for o in opts:
+			var oc := cell_of(o)
+			if not in_map(oc) or not passable(oc, t) or side_ghost_at(t, oc) != null:
+				continue
+			var d: float = o.distance_to(q)
+			if d < bd:
+				bd = d
+				best = o
+		if best == Vector2.INF:
+			return q            # (no open ground beside it: left as it was, the site's own wait sorts it out)
+		q = best
+	return q
+
+
 ## An allied unit on a ghost about to start steps out of the way, then carries on with
 ## what it was doing (a move into the footprint itself is dropped).
 func step_aside(u: Unit, b: Building) -> void:
@@ -3295,6 +3338,8 @@ func step_aside(u: Unit, b: Building) -> void:
 		"move", "amove":
 			if not r.grow(8.0).has_point(u.order_point):
 				resume = {"o": u.order, "p": u.order_point}
+		"hold":
+			resume = {"o": "hold"}          # (crown-hold: a unit on HOLD holds again where it stepped to, out of the way)
 		"attack", "build", "repair":
 			if u.order_target and is_instance_valid(u.order_target) and not u.order_target.dead:
 				resume = {"o": u.order, "e": u.order_target}
@@ -3304,7 +3349,9 @@ func step_aside(u: Unit, b: Building) -> void:
 				resume = {"o": "gather", "e": m}
 	var old_queue: Array = u.queue.duplicate()
 	var old_line: Array = u.line_rest.duplicate()
-	u.give({"o": "move", "p": spot_outside(b, u)})
+	var out := spot_outside(b, u)
+	u.give({"o": "move", "p": out})
+	u.leash_from = out              # (an idle unit that chases comes back here, not onto the site)
 	if not resume.is_empty():
 		u.queue.append(resume)
 	u.queue.append_array(old_queue)

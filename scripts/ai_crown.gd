@@ -2252,8 +2252,8 @@ func _scale_prod() -> void:
 
 
 ## BUILDINGS BY THE LAYOUT (scripts/ai_crown_layout.gd): a new hall's wall slot first (AIExpandWall), then the layout's
-## slot for the kind, then the shared search.
-func _find_spot(kind: String) -> Vector2i:
+## slot for the kind, then the shared search. (AI._find_spot holds the spots that stayed blocked lately round this.)
+func _find_spot_any(kind: String) -> Vector2i:
 	if _layout_on() and lay != null:
 		var xs: Vector2i = xw.slot_for(kind)
 		if xs.x >= 0:

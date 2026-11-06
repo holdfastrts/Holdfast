@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.1", "items": [
+		"THE CROWN COMPUTER HOLDS ITS WALLED NATURAL (the owner's playtest on Dune Sea): the GATE of a walled expansion now goes on the stretch of palisade nearest the foot of the main's ramp, so the army walks out of the main straight through it (on Dune Sea 7 steps from the ramp's foot instead of 17, on the far side of the wall).",
+		"Once the natural's wall is mostly closed and its gate stands, the Crown computer's army waits DOWN at that gate, just inside the palisade, Musketeers on HOLD facing out and the guns behind them, instead of on the main's high ground (the cliff-edge post stays for the main alone, before there is a walled natural). Against a force it can't beat it holds the gate and the labourers run in behind the line.",
+		"SITES KEEP CLEAR, for everyone: soldiers standing on a building you place step a full cell clear of it, a man on HOLD holds again where he stepped to, and nobody is walked back onto a site still waiting to start (a move, a rally or a guard post there stops just outside it). The computer no longer places a building again on a spot that stayed blocked: it looks elsewhere.",
+		"The Crown computer makes 3 Field Cannons before its first Mortar, in every plan (the siege push too).",
+	]},
 	{"v": "0.33.0", "items": [
 		"THE MARCHING BAND IS A REAL CROWN UNIT (the owner's decisions): no more experiment switch. It is trained at the ARMOURY, and a new band is a DRUMMER (75 health). The FIFER and the PIPER are Armoury research, in any order: once done the musician joins every band you have, on the field at once, and every new band comes out with him (+15 health each); each makes a new band 25 gold dearer (50, 75, 100: the train button shows the real price).",
 		"SEVERAL BANDS may play, like cannons, but their rings don't add up: each stat takes the strongest band's. Every instrument always gives +5% within 5 tiles (DRUMS movement speed, FIFE reload, PIPES melee damage) and +30% in its SOLO for 8 s, then 45 s before that instrument may solo again; one solo at a time in a band (two bands may solo at once). The fife now also speeds the Officer's pistol reload, and doesn't speed a man who has no shots. A solo that ended no longer lingers on men who stay in the ring.",
