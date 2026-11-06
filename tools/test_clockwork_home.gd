@@ -15,8 +15,9 @@ extends SceneTree
 ##  - the end: winner and time, buildings lost, army values at 6:00 / 8:00 / 10:00, the trades.
 ## `cwhome:off` plays 0.33.0's gathering point and raid answers (the "before" columns). check:1 is the test:
 ##  - the idle army stays wound: its average wind at home WIND_MIN or more;
-##  - a real attack draws the whole army: in every episode that peaked at WHOLE_PEAK or more, DEFEND_MIN or more of the army
-##    (value) came to it.
+##  - a real attack draws the whole army: in every episode that peaked at WHOLE_PEAK or more (the push at home), DEFEND_MIN
+##    or more of the army (value) came to it, and AT_MIN or more of it was at the fight at once on average while it was big
+##    (groups sent one after another all come in the end, but few are there at once).
 const BIG := 300.0
 const SMALL := 100.0
 const QUIET := 10.0
@@ -24,6 +25,7 @@ const NEAR := 420.0
 const WIND_MIN := 0.8
 const WHOLE_PEAK := 600.0
 const DEFEND_MIN := 0.7
+const AT_MIN := 0.6
 var main: Node
 var g
 var t := 0.0
@@ -316,7 +318,7 @@ func _finish() -> void:
 		if big_eps.is_empty():
 			print("SKIP  a base attack draws the whole army: no attack of %d+ on the base" % int(WHOLE_PEAK))
 		for e in big_eps:
-			_check(float(e["share"]) >= DEFEND_MIN, "the attack at %s (peak %d) drew %d%% of the army (want %d%%+)" % [
-				_mmss(float(e["t0"])), int(e["peak"]), int(float(e["share"]) * 100.0), int(DEFEND_MIN * 100.0)])
+			_check(float(e["share"]) >= DEFEND_MIN and float(e["with"]) >= AT_MIN, "the attack at %s (peak %d) drew %d%% of the army (want %d%%+), %d%% of it at the fight at once on average while it was big (want %d%%+)" % [
+				_mmss(float(e["t0"])), int(e["peak"]), int(float(e["share"]) * 100.0), int(DEFEND_MIN * 100.0), int(float(e["with"]) * 100.0), int(AT_MIN * 100.0)])
 		print("RESULT: %s (%d failed)" % ["PASS" if fails == 0 else "FAIL", fails])
 	quit(1 if fails > 0 else 0)

@@ -205,6 +205,9 @@ AFTER: 11 games, wind at home 0.91, on gears 11%, as a push goes 0.94, as a defe
 
 - `tools/test_clockwork_home.gd`: one game, measured (the columns above). `check:1` is the test (Kestrel Rise, the owner's
   seed, 12 minutes): the idle army's average wind 0.8 or more, and every attack on the base that peaked at 600 or more (with
-  the push at home) drew 70% or more of the army. `cwhome:off` plays 0.33.0.
+  the push at home) drew 70% or more of the army, with 60% or more of it at the fight at once on average while it was big. `cwhome:off` plays 0.33.0.
 - `tools/clockwork_home_report.py`: the tables above from its json lines (docs/clockwork_home/games.jsonl).
-- Run and passing: TESTS
+- Run on 0.33.1 and passing: test_clockwork_home (check:1, the owner's seed: wind at home 0.91, two attacks with 95% and
+  96% of the army coming, 85% and 82% at the fight at once), test_clockwork_army (check:1: 1 fight alone away from home,
+  0 first fights alone, 8.2 Winders with the army out), test_ai_optimal (ALL PASS), test_gear_turn (PASS), test_files (0
+  failures), test_i18n (PASS).
