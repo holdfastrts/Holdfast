@@ -237,6 +237,32 @@ func _main_cells() -> Array:
 	return out
 
 
+## (ai-followups) A building inside a natural with a wall plan (AIExpandWall) that is being laid or stands: its defence is
+## the line inside that palisade, not the main's cliff edge (the edge is for the main alone, before there is a walled
+## natural, or a building right under the cliff without a wall).
+const NATURAL_R := 16.0         # (tiles) round a walled hall
+var edge_skips := 0             # (tests) buildings left to the palisade's line
+
+
+func _in_walled_natural(b: Building) -> bool:
+	if ai.xw == null:
+		return false
+	var T := float(Defs.TILE)
+	for id in ai.xw.plans:
+		var p: Dictionary = ai.xw.plans[id]
+		if not p.get("ok", false) or (p["exposed"] as Array).is_empty():
+			continue
+		var h = p.get("hall")
+		if h == null or not is_instance_valid(h) or (h as Building).dead:
+			continue
+		if ai.xw.closed_share(p) <= 0.0:
+			continue
+		if (h as Building).center().distance_to(b.center()) < NATURAL_R * T:
+			edge_skips += 1
+			return true
+	return false
+
+
 ## Called by hold_top: the threat below is at a building of ours under the main's cliff: the line goes to the edge above it.
 func _edge_plan(home: Array, spots: Array) -> void:
 	if not edge_on or _bc == Vector2.INF:
@@ -260,6 +286,9 @@ func _edge_plan(home: Array, spots: Array) -> void:
 	for b in game.buildings:
 		if b.team != ai.team or b.dead or game.level_of(b.center()) == _home_h:
 			continue
+		if b.kind == "wall" or b.kind == "gate" or _in_walled_natural(b):
+			continue            # (ai-followups: a palisade is held from INSIDE it (_wall_plan, the gate post), never from
+			# the cliff above: the owner's game 0.33.0, 5:29-5:55, "the cliff edge above its Palisade", 158-182 px off it)
 		for sp in below:
 			var d: float = b.edge_distance(sp)
 			if d > 330.0:

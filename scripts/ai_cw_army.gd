@@ -71,7 +71,7 @@ var _base_t := -999.0           # the last time the enemy's main was looked at
 var _orders := {}               # Unit -> [point, clock]
 var alog: Array = []             # [clock, text]
 var _said := {}
-var stats := {"groups": 0, "whole": 0, "holds": 0, "looks": 0, "springs": 0, "waits": 0}
+var stats := {"groups": 0, "whole": 0, "holds": 0, "looks": 0, "springs": 0, "waits": 0, "leashed": 0}
 var _home: Array = []           # the army at home this think (tests)
 
 
@@ -778,6 +778,14 @@ func _defend(home: Array, g: Vector2) -> bool:
 		phase = "defend"
 		var c := _centre(home)
 		for u in home:
+			if ai._home_dist(u.position) > LEASH and u.target != null and is_instance_valid(u.target) and u.target is Unit \
+					and not u.target.dead and ai._home_dist(u.target.position) > LEASH * 0.7:
+				# (ai-followups: THE CHASE ENDS at the leash: a unit led out after a fast rider leaving the base walks back
+				# to the gathering point, not on across the map; the owner's Crown v Clockwork game 0.33.0, 7:18)
+				_order(u, ai._home_spot(g), false, 60.0)
+				stats["leashed"] = int(stats.get("leashed", 0)) + 1
+				say("gives up a chase %d px out from its buildings: back to its gathering point" % int(ai._home_dist(u.position)), "leash", 20.0)
+				continue
 			if u.position.distance_to(c) > STRAY_R and u.position.distance_to(big["spot"]) > STRAY_R:
 				_order(u, c, true, 80.0)        # (led off after a runner: back to the others)
 				continue

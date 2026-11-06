@@ -483,6 +483,8 @@ func _army_due() -> bool:
 	var short: bool = _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) < int(share * game.workers(team).size())
 	if short and owner_labs(game.workers(team).size()):
 		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
+	if not short and army_lags():
+		short = true            # (ai-followups: far behind the enemy's army: the soldiers before more labourers)
 	if not short and blind_guard() and not brood_army_off:
 		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
 		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
@@ -1578,12 +1580,15 @@ func _mid_tick() -> void:
 	var army := _army_supply(game.army(team))
 	if _threat_prod(labs, halls, army):
 		return
+	var lags := army_lags(labs)
 	for m in plan.get("mid", []):
 		var k := String(m[0])
 		if _mine(k).size() >= int(m[1]):
 			continue
 		if (gun_hold or guns_short) and not (k == "barracks" or k == "foundry" or k == "horse_breeder"):
-			continue            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
+			continue
+		if lags and not _mid_ok_lagging(k):
+			continue            # (ai-followups: the army far behind: no tech, and no more Barracks than the gold keeps busy)            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
 			# first AI.CANNONS_FIRST Field Cannons too)
 		var at: Dictionary = m[2]
 		if labs < int(at.get("labs", 0)) or halls < int(at.get("halls", 0)) or army < int(at.get("army", 0)):
@@ -1605,6 +1610,27 @@ func _mid_tick() -> void:
 			say("milestone %s %d could not be placed now: the next ones go on" % [String(Defs.BUILDINGS[k]["name"]), int(m[1])])
 	if not gun_hold:
 		_scale_prod()           # (crown-owner-eco: every milestone up: more production as the income grows)
+
+
+## (ai-followups) While the army lags the enemy's (army_lags): the Church, the Armoury and the like wait; a Barracks or a
+## Foundry only when every one standing is busy (one idle means the gold, not the buildings, is short), the first Foundry
+## and the Horse Breeder (the guns' horses) always.
+var mid_held := 0               # (tests) milestones held back while the army lagged
+var _mid_held_said := -99.0
+
+
+func _mid_ok_lagging(k: String) -> bool:
+	if k == "horse_breeder" or (k == "foundry" and _mine("foundry").is_empty()):
+		return true
+	if k == "barracks" or k == "foundry":
+		var prod: Array = _mine("barracks") + _mine("foundry")
+		if prod.all(func(b: Building) -> bool: return b.built and not b.queue.is_empty()):
+			return true
+	mid_held += 1
+	if game.clock - _mid_held_said > 60.0:
+		_mid_held_said = game.clock
+		say("milestone %s waits: the army is far behind the enemy's (%d against the %d it reckons)" % [String(Defs.BUILDINGS[k]["name"]), game.army_value(team), int(foe_reckon())])
+	return false
 
 
 # ------------------------------------------------------------------ the Dragoon raids (crown-builds-a)
@@ -2068,7 +2094,79 @@ func owner_hall_ok() -> bool:
 ## first (AIRound5.hold_labourers against the Clockwork) let them come on the owner's plans, unless a rush is feared or the
 ## enemy is at our buildings.
 func owner_labs(labs: int) -> bool:
+	if army_lags(labs):
+		return false            # (ai-followups: past one hall's hands, the army first while it is far behind the enemy's)
 	return owner_on() and labs < mini(OWNER_HALL3_LABS, owner_lab_cap()) and not _defending() and _threat() == Vector2.INF
+
+
+## THE ARMY CATCHES UP (ai-followups, the owner's Hard Crown OPTIMAL v Hard Clockwork game 0.33.0: 44 labourers and an army
+## of 455 at 7:00 against the Clockwork's 31 Winders and 1,490; Barracks 2-4, a Church and an Armoury went up with "army 3-4
+## supply"; it never sent a wave): once the second hall stands and LAG_LABS labourers work, the army must be worth LAG_SHARE
+## of the enemy army it reckons (foe_reckon); while it is not, the labourers wait for the soldiers (the army's share of the
+## spending rises), and the tech milestones wait (_mid_tick). Against the Brood the crown-v-brood reckoning does this.
+const LAG_LABS := 22            # (one hall's farms and Mill hands, and a few builders)
+const LAG_SHARE := 0.6
+const LAG_FROM := 210.0         # (s) not before this (the opening's gold is the economy's)
+var lag_off := OS.get_cmdline_user_args().has("armylag:off")     # (study switch: `-- armylag:off` plays as 0.33.0)
+var lag_said := -99.0
+var lag_time := 0.0             # (tests, the report) seconds the labourers and the tech waited for the army
+var _lag_t := -1.0
+
+
+func army_lags(labs := -1) -> bool:
+	if lag_off or not on or difficulty < 1 or peaceful or _foe_is("brood") or game.clock < LAG_FROM:
+		return false
+	if labs < 0:
+		labs = game.workers(team).size()
+	if labs < LAG_LABS or _halls().filter(func(h: Building) -> bool: return h.built).size() < 2:
+		return false
+	var mine := float(game.army_value(team))
+	var est := foe_reckon()
+	var lags := est > 0.0 and mine < est * (LAG_PRESS if pressure() else LAG_SHARE)
+	if lags:
+		if _lag_t >= 0.0:
+			lag_time += maxf(0.0, game.clock - _lag_t)
+		_lag_t = game.clock
+		if game.clock - lag_said > 60.0:
+			lag_said = game.clock
+			say("the army first: %d of army against the %d it reckons the enemy has (it wants %d%%): the labourers and the tech wait for the soldiers" % [int(mine), int(est), int(LAG_SHARE * 100.0)])
+	else:
+		_lag_t = -1.0
+	return lags
+
+
+## A GREEDY READ IS PRESSURE, NOT MORE LABOURERS (ai-followups: the owner's game read GREEDY at 1:38, picked Balanced "steady
+## waves punish the greed" and had no army at 4:00 with 23 labourers): while OPTIMAL's last pick answered a GREEDY read with
+## a plan that attacks (Balanced, Timing, the Horseman rush), the army keeps LAG_PRESS of the enemy's (not LAG_SHARE).
+const LAG_PRESS := 0.9
+
+
+func pressure() -> bool:
+	if opt == null or (opt.picks as Array).is_empty():
+		return false
+	var last: Array = (opt.picks as Array)[-1]
+	return String(last[2]) == "GREEDY" and String(last[3]) in ["balanced", "timing", "rush"]
+
+
+## The enemy's army as reckoned for the army's share (not the Brood: foe_estimate): what it saw in the last two minutes,
+## never less than LAG_TABLE of that age (the lowest a Hard Clockwork or Crown had in the coached games: the Clockwork 280
+## at 4:00, 490 at 5:00, 840 at 6:00, 1,490 at 7:00 in the owner's game), less half of what we have killed.
+const LAG_TABLE := {
+	"clockwork": [[0.0, 0.0], [240.0, 150.0], [300.0, 350.0], [360.0, 600.0], [420.0, 950.0], [480.0, 1400.0], [600.0, 2300.0], [720.0, 3200.0]],
+	"crown": [[0.0, 0.0], [240.0, 100.0], [300.0, 250.0], [360.0, 400.0], [420.0, 600.0], [480.0, 850.0], [600.0, 1300.0], [720.0, 1800.0]],
+}
+
+
+func foe_reckon() -> float:
+	var known: float = ch.foe_known() if ch != null else 0.0
+	var foe := _foe()
+	if foe < 0:
+		return known
+	var tab: Array = LAG_TABLE.get(game.faction_of(foe), [])
+	if tab.is_empty():
+		return known
+	var est := _lerp_table(tab, game.clock) - 0.5 * float(game.stats[team]["value_killed"])
+	return maxf(known, est)
 
 
 ## LABOURERS STOP AT SATURATION (the owner, 2026-11-05: "Eventually you stop at a good number with base saturation: 2 bases

@@ -43,6 +43,15 @@ const LOST_SHARE := 0.33        # ... and it has lost this share of what went ou
 const MIN_LEFT := 3             # fewer fighters than this left: home
 const JOIN_SUPPLY := 6          # reinforcements join as a group of this much supply or more
 const REPATH := 8.0             # s between two paths to the goal
+## (ai-followups, the owner's Crown v Clockwork game 0.33.0, 7:05-7:40: the push turned round on its way to the Crown's base
+## and walked its anchor back across the map after ONE Horseman, "the whole army chases one rider")
+const RIDER_V := 260.0          # fast foes worth less than this in all ...
+const RIDER_SHARE := 0.15       # ... and less than this share of the push, every one faster than its front: RIDERS it does
+const RIDER_FAST := 1.2         # not chase (this many times the front's speed or more); the march goes on, the front shoots
+                                # what comes into its reach
+const MARCH_LEASH := 300.0      # px: on the march, a front unit this far from the anchor (after a rider) walks back to it
+const KEY_LOW := 0.35           # a hall or Mainspring under this share of its health with enemies at it calls the push home
+const CHASE_MAX := 360.0        # px: in a fight the anchor walks toward the enemies at most this far from where it began
 
 var ai = null
 var game: Game = null
@@ -70,7 +79,9 @@ var _orders := {}               # Unit -> [point, clock] the last move given (no
 var _brood_seen := {}           # id -> {"u", "p", "kind", "t"}: rooted Brood creatures and grubs seen
 var _guards := {}               # front Unit -> the enemy it was sent to meet at a Ballista
 var log_t := {}
-var stats := {"pushes": 0, "sieges": 0, "pieces": 0, "retreats": 0, "goals": 0, "max_out": 0.0}
+var stats := {"pushes": 0, "sieges": 0, "pieces": 0, "retreats": 0, "goals": 0, "max_out": 0.0, "riders": 0, "leashed": 0}
+var fight_from := Vector2.INF   # (ai-followups) the anchor where the fight began: CHASE_MAX from it at most
+var _rider_said := -99.0
 ## (clockwork-army, scripts/ai_cw_army.gd: the army's own word before a push goes out: stronger than the enemy army it
 ## reckons, with a fresh report; an empty Callable = the plan's needs alone, as before)
 var gate := Callable()
@@ -187,9 +198,18 @@ func tick() -> void:
 	if _siege_tick():
 		return
 	var foes := _foes_near(anchor, LOOK) + _foes_near(_front_centre(), LOOK * 0.7).filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) >= LOOK)
+	if not foes.is_empty() and riders_only(foes):
+		# (ai-followups) A FEW FAST RIDERS round the push are no reason to stop: it does not chase them, the march goes on and
+		# the front shoots what comes in reach (the leash in _march brings back any that ran after one)
+		if game.clock - _rider_said > 20.0:
+			_rider_said = game.clock
+			stats["riders"] = int(stats["riders"]) + 1
+			say("%d fast rider%s (%d value) round it: it does not chase them, the march goes on" % [foes.size(), "" if foes.size() == 1 else "s", int(_value(foes))])
+		foes = []
 	if not foes.is_empty():
 		calm_t = game.clock
 		if phase != "fight":
+			fight_from = anchor
 			_phase("fight")
 			_note_once("fight", "meets %d armed enemies (%d value) at %s" % [foes.size(), int(_value(foes)), _where(_front_centre())], 15.0)
 		_fight(foes)
@@ -401,6 +421,7 @@ func _march() -> void:
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
 	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
+	_leash(front)
 	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and (_value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K)) or _value(units) < float(cfg.get("main_min", 0.0))):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
 		# it took, and the reinforcements join it (Greenhold 11: the push razed the Crown's expansion, walked on up to its
@@ -419,6 +440,36 @@ func _march() -> void:
 		_arrive_t = -1.0
 		_place_front(front, anchor, dir, true)
 	_place_heavies(heavies, anchor, dir)
+
+
+## (ai-followups) Fast riders only, few and small: every armed foe faster than the push's front (RIDER_FAST times its
+## slowest front unit, or more) and worth less than RIDER_V and RIDER_SHARE of the push together.
+func riders_only(foes: Array) -> bool:
+	if foes.is_empty():
+		return false
+	var v := _value(foes)
+	if v >= RIDER_V or v >= _value(units) * RIDER_SHARE:
+		return false
+	var slow := INF
+	for u in units:
+		if _front_kind(u):
+			slow = minf(slow, float(u.speed))
+	if slow == INF:
+		return false
+	return foes.all(func(o: Unit) -> bool: return float(o.speed) >= slow * RIDER_FAST)
+
+
+## (ai-followups) On the march, a front unit led off after a rider (MARCH_LEASH from the anchor) walks back to the block
+## (a plain move: it stops chasing).
+func _leash(front: Array) -> void:
+	for u in front:
+		if _guards.has(u) or u.position.distance_to(anchor) < MARCH_LEASH:
+			continue
+		if u.target == null or not is_instance_valid(u.target) or not (u.target is Unit) or u.target.dead:
+			continue          # (only one chasing a foe; one still walking to its place is left be)
+		u.cmd_move(anchor, false)
+		_orders[u] = [anchor, game.clock]
+		stats["leashed"] = int(stats["leashed"]) + 1
 
 
 ## At the goal (the end of the path): the front goes for the goal itself (a Brood creature), else for the enemy's buildings
@@ -581,7 +632,10 @@ func _fight(foes: Array) -> void:
 		# (nothing in reach of the line: when no machine of ours reaches them either, it walks on toward them)
 		var reach := units.any(func(u: Unit) -> bool: return _heavy(u) and foes.any(func(o: Unit) -> bool: return o.position.distance_to(u.position) < float(u.d["range"]) + 30.0))
 		if not reach and game.clock - since > 6.0 and fcen.distance_to(anchor) > 80.0:
-			anchor = anchor.move_toward(fcen, 60.0)
+			# (ai-followups: never more than CHASE_MAX from where the fight began: a foe that keeps out of reach is left)
+			var to := anchor.move_toward(fcen, 60.0)
+			if fight_from == Vector2.INF or to.distance_to(fight_from) <= CHASE_MAX:
+				anchor = to
 	_guard_ballistas(front, foes)
 	if ai.get("army_g") != null and ai.army_g != null:
 		ai.army_g.spring_in(front, foes)      # (clockwork-army: the Springers jump in as the front engages)
@@ -754,6 +808,14 @@ func _should_retreat() -> bool:
 		if _value(at_home) > maxf(350.0, ai._guard_value() * 1.5):
 			_retreat("the base is attacked (%d value at %s)" % [int(_value(at_home)), _where(th)])
 			return true
+		# (ai-followups) A KEY BUILDING ABOUT TO FALL: a hall or a Mainspring under KEY_LOW of its health with armed enemies
+		# at it: home, even for a small raid (a token raid alone never turns the push round: the units at home meet it)
+		for b in game.buildings:
+			if b.team != team or b.dead or not b.built or not (b.kind == String(ai._f()["hall"]) or b.kind == "mainspring"):
+				continue
+			if b.hp < b.max_hp * KEY_LOW and not _foes_near(b.center(), 260.0).is_empty():
+				_retreat("its %s at %s is about to fall" % [String(b.d["name"]), _where(b.center())])
+				return true
 	return false
 
 

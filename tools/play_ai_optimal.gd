@@ -21,6 +21,11 @@ var out := "/tmp/ai_optimal"
 var da := "hard"
 var db := "hard"
 var shots := false
+var every := 120.0              # (ai-followups) `every:60`: a line per side every so many seconds
+var diag := false               # (ai-followups) `diag:1`: the Crown's labourer and army gold every 10 s (to stdout)
+var _diag_t := 0.0
+var _fw_t := 0.0
+var _wave_seen := {}            # (ai-followups) team -> true: where the Crown's line stood when the first enemy wave came
 var t := 0.0
 var next_line := 120.0
 var lines: Array = []
@@ -47,6 +52,8 @@ func _initialize() -> void:
 			"da": da = kv[1]
 			"db": db = kv[1]
 			"shots": shots = kv[1] == "1"
+			"every": every = float(kv[1])
+			"diag": diag = kv[1] == "1"
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -83,14 +90,84 @@ func _process(delta: float) -> bool:
 		_shoot()
 		return false
 	_watch()
+	_first_wave()
+	if diag and g.clock >= _diag_t:
+		_diag_t += 10.0
+		_diag()
 	if g.clock >= next_line:
-		next_line += 120.0
+		next_line += every
 		for tm in 2:
 			lines.append(_side_line(tm))
 	if g.over or g.clock >= end_t:
 		_finish()
 		return true
 	return false
+
+
+## (ai-followups) THE FIRST ENEMY WAVE at a Crown side: armed enemies worth WAVE_V or more within 500 px of its buildings
+## (its main's high ground excepted: by its walls, its natural); where its musket line stands then: on the main's high
+## ground, within 260 px of a palisade or gate of its own, or elsewhere.
+const WAVE_V := 300.0
+
+
+func _first_wave() -> void:
+	if g.clock < _fw_t:
+		return
+	_fw_t = g.clock + 1.0
+	for tm in 2:
+		if g.faction_of(tm) != "crown" or _wave_seen.has(tm):
+			continue
+		var a := _ai(tm)
+		if a == null:
+			continue
+		var foe := 1 - tm
+		var v := 0.0
+		var at := Vector2.ZERO
+		var n := 0
+		for u in g.army(foe):
+			if u.dead or u.off_field or u.is_worker() or not u.has_attack():
+				continue
+			var near := false
+			for b in g.buildings:
+				if b.team == tm and not b.dead and b.center().distance_to(u.position) < 500.0:
+					near = true
+					break
+			if near:
+				v += float(Game.unit_value(u))
+				at += u.position
+				n += 1
+		if v < WAVE_V:
+			continue
+		_wave_seen[tm] = true
+		var walls: Array = g.buildings.filter(func(b: Building) -> bool: return b.team == tm and not b.dead and (b.kind == "wall" or b.kind == "gate"))
+		var high := 0
+		var by_wall := 0
+		var other := 0
+		for u in g.army(tm):
+			if u.dead or not Defs.MUSKETS.has(u.kind):
+				continue
+			if a.ch.on_main(u.position):
+				high += 1
+			elif walls.any(func(b: Building) -> bool: return b.center().distance_to(u.position) < 260.0):
+				by_wall += 1
+			else:
+				other += 1
+		lines.append("%s P%d FIRSTWAVE enemy %d at %s: muskets %d by its palisade, %d on the main's high ground, %d elsewhere; gate post %s" % [_mmss(g.clock), tm + 1,
+			int(v), str(Vector2i(at / maxf(1.0, n) / Defs.TILE)), by_wall, high, other, str(a.ch.gate_live())])
+
+
+func _diag() -> void:
+	for tm in 2:
+		var a := _ai(tm)
+		if a == null or g.faction_of(tm) != "crown":
+			continue
+		var q := 0
+		for h in a._halls():
+			q += h.queue.size()
+		print("DIAG %s P%d gold %d res %d bo_res %d bo_i %d/%d done %s labs %d q %d cap %d posts %d army %d sup %d/%d lags %s" % [_mmss(g.clock), tm + 1,
+			int(g.players[tm]["gold"]), int(a._reserve), int(a.bo_reserve), int(a.bo_i), (a._bo_plan as Array).size(), str(a.bo_done),
+			g.workers(tm).size(), q, int(a.owner_lab_cap()), int(a._posts()), _army_value(tm), g.supply_used(tm), int(g.players[tm]["cap"]),
+			str(a.army_lags()) if a.has_method("army_lags") else "-"])
 
 
 func _ai(tm: int) -> AI:
