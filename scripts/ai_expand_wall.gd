@@ -1022,18 +1022,16 @@ func plan_for(cell: Vector2i, h: Building = null) -> Dictionary:
 	var ex_set := {}
 	for c in ex:
 		ex_set[c] = true
-	# the gate: where the expansion's men need to leave: toward the enemy by land when the main's ramp comes down inside
-	# (the main is reached through the area), else the ways-in cell nearest our main by land (and the next one along)
-	var foe_d := {}             # (the enemy's steps to the ways-in cells and the cells beside them, for the gate)
-	if p["ramp_in"]:
-		var fd: PackedInt32Array = foe["d"]
-		for c in ex:
-			for n in [c, c + DIRS4[0], c + DIRS4[1], c + DIRS4[2], c + DIRS4[3]]:
-				if game.in_map(n) and fd[game.idx(n)] >= 0:
-					foe_d[n] = fd[game.idx(n)]
-		if foe_d.is_empty():
-			foe_d[Vector2i(-99, -99)] = 0       # (never empty: the enemy's steps are used, not our own walk)
-	var gates: Array = _gate_cells(ex, ex_set, cell, hsize, foe_d)
+	# the gate (crown-hold, the owner 2026-11-06: "waaay over the top of the palisade in a bad spot"): on the stretch of
+	# palisade nearest the foot of the main's RAMP by land, the way the army comes down from the main and goes out, so it
+	# walks out of the main straight through it; the enemy's steps only break a near tie (GATE_TIE steps). Without a ramp
+	# foot (no ramp off the main): the ways-in cell nearest our main by land, as before.
+	var gates: Array = []
+	if not (mz["foot"] as Dictionary).is_empty():
+		gates = _gate_by_ramp(ex, ex_set, mz["foot"], foe)
+	if gates.is_empty():
+		gates = _gate_cells(ex, ex_set, cell, hsize, {})
+	p["gate_ramp"] = gate_ramp_steps(gates, mz)
 	var gate_set := {}
 	for c in gates:
 		gate_set[c] = true
@@ -1247,6 +1245,63 @@ func _pack_cells(cell: Vector2i, hsize: Vector2i, inside_cells: PackedInt32Array
 
 
 ## GATE_W touching ways-in cells nearest our main by land.
+const GATE_TIE := 3              # (steps) gate cells this close to the nearest-the-ramp one: the enemy's side breaks the tie
+
+
+## The gate's cells by the main's ramp: the ways-in cell the fewest steps by land from the ramp's foot (and the next one
+## along), the enemy's nearest of those within GATE_TIE steps of the best. [] when the foot reaches none of them.
+func _gate_by_ramp(ex: Array, ex_set: Dictionary, foot: Dictionary, foe: Dictionary) -> Array:
+	var rd := _walk_steps_from(foot.keys())
+	var fd: PackedInt32Array = foe.get("d", PackedInt32Array())
+	var best_r := 1 << 30
+	for c in ex:
+		var v: int = rd[game.idx(c)]
+		if v >= 0 and v < best_r:
+			best_r = v
+	if best_r == 1 << 30:
+		return []
+	var best := Vector2i(-1, -1)
+	var bs := INF
+	for c in ex:
+		var v: int = rd[game.idx(c)]
+		if v < 0 or v > best_r + GATE_TIE:
+			continue
+		var f: float = float(fd[game.idx(c)]) if not fd.is_empty() and fd[game.idx(c)] >= 0 else 1e6
+		var sc: float = f * 10.0 + float(v - best_r)
+		if sc < bs or (sc == bs and (c.x < best.x or (c.x == best.x and c.y < best.y))):
+			bs = sc
+			best = c
+	var out: Array = [best]
+	var nb := Vector2i(-1, -1)
+	var nd := 1 << 30
+	for dd in DIRS4:
+		var n: Vector2i = best + dd
+		if ex_set.has(n) and rd[game.idx(n)] >= 0 and rd[game.idx(n)] < nd:
+			nd = rd[game.idx(n)]
+			nb = n
+	if GATE_W >= 2 and nb.x >= 0:
+		out.append(nb)
+	return out
+
+
+## (tests, the match log) Steps by land from the main's ramp foot to the nearest of these gate cells; -1 if none reached.
+func gate_ramp_steps(gates: Array, mz: Dictionary = {}) -> int:
+	if mz.is_empty():
+		mz = main_zone()
+	var foot: Dictionary = mz["foot"]
+	if foot.is_empty() or gates.is_empty():
+		return -1
+	var rd := _walk_steps_from(foot.keys())
+	var best := -1
+	for c in gates:
+		if not game.in_map(c):
+			continue
+		var v: int = rd[game.idx(c)]
+		if v >= 0 and (best < 0 or v < best):
+			best = v
+	return best
+
+
 func _gate_cells(ex: Array, ex_set: Dictionary, cell: Vector2i, hsize: Vector2i, foe: Dictionary = {}) -> Array:
 	var main_at := Vector2(game.starts[ai.team]) + Vector2(2.5, 2.0)
 	var d: Dictionary = foe if not foe.is_empty() else {}
@@ -1304,6 +1359,16 @@ func _walk_dist(from: Vector2i) -> Dictionary:
 ## _walk_dist as map arrays: steps per map cell, -1 where not reached. (0.28.1: the Dictionary of the whole map took
 ## about 18 ms each new hall.)
 func _walk_steps(from: Vector2i) -> PackedInt32Array:
+	var seeds: Array = []
+	for y in range(from.y - 5, from.y + 6):
+		for x in range(from.x - 5, from.x + 6):
+			seeds.append(Vector2i(x, y))
+	return _walk_steps_from(seeds)
+
+
+## _walk_steps from any of these cells (those walkable): steps per map cell, -1 where not reached. Walls and buildings
+## block, our own gates don't; cells the plan has not built on yet are open.
+func _walk_steps_from(seeds: Array) -> PackedInt32Array:
 	var W: int = game.W
 	var H: int = game.H
 	var n_cells := W * H
@@ -1321,16 +1386,13 @@ func _walk_steps(from: Vector2i) -> PackedInt32Array:
 	d.resize(n_cells)
 	d.fill(-1)
 	var q := PackedInt32Array()
-	for y in range(from.y - 5, from.y + 6):
-		if y < 0 or y >= H:
+	for c in seeds:
+		if c.x < 0 or c.y < 0 or c.x >= W or c.y >= H:
 			continue
-		for x in range(from.x - 5, from.x + 6):
-			if x < 0 or x >= W:
-				continue
-			var i := y * W + x
-			if d[i] < 0 and walk[i] == 1:
-				d[i] = 0
-				q.append(i)
+		var i: int = c.y * W + c.x
+		if d[i] < 0 and walk[i] == 1:
+			d[i] = 0
+			q.append(i)
 	var head := 0
 	while head < q.size():
 		var i: int = q[head]

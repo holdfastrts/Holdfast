@@ -687,12 +687,26 @@ func place(units: Array) -> Array:
 		spots_m = _edge_spots       # (5. THE CLIFF EDGE: the line on the high ground's lip above the threatened building)
 		spots_g = _edge_guns
 		mode = "wall" if _wall_mode else "edge"      # (or inside a walled hall's palisade: _wall_plan)
+	else:
+		# (7. THE GATE POST: once there is a walled natural, the army's home is down at its gate, not the main's ramp)
+		var nm := 0
+		var ng := 0
+		for u in units:
+			if u.kind in GUN_KINDS:
+				ng += 1
+			elif u.kind in HOLD_KINDS:
+				nm += 1
+		_gate_plan(nm, ng)
+		if gate_live():
+			spots_m = _gate_spots
+			spots_g = _gate_guns
+			mode = "gate"
 	if mode != _slot_mode:
 		_slot.clear()
 		_slot_mode = mode
 	if spots_m.is_empty():
 		return units
-	var face: Vector2 = -_in if mode == "ramp" else Vector2.INF
+	var face: Vector2 = -_in if mode == "ramp" else (_gate_face if mode == "gate" else Vector2.INF)
 	for u in _slot.keys():
 		if not is_instance_valid(u) or u.dead or not units.has(u):
 			_slot.erase(u)
@@ -729,6 +743,7 @@ func place(units: Array) -> Array:
 
 
 func _post(u: Unit, spot: Vector2, face := Vector2.INF, edge := false) -> void:
+	spot = game.site_keepout(ai.team, spot, u.radius)      # (crown-hold: a post on a site waiting to start stands beside it)
 	if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.order != "move":
 		# (busy fighting: left be; on the way to the edge only a fight at hand keeps him: a gun shooting from the ramp post
 		# at something far below goes to the edge, where the claws at the building are)
@@ -768,6 +783,22 @@ func hold_top(army: Array, spots: Array) -> bool:
 	var mine := 0.0
 	for u in home:
 		mine += ai._unit_value(u)
+	if gate_live():
+		# (7. THE GATE POST: the army's home is the natural's palisade: a force it beats is met the usual way (AI._defend
+		# sizes it); against more it holds the gate, and the labourers run in behind the line)
+		if mine >= foe * _beat():
+			return false
+		if game.clock - _hold_said > 30.0:
+			_hold_said = game.clock
+			holds += 1
+			_say("holds its natural's gate: the force outside (%d) is too strong to go out to with its army at home (%d); the labourers run in behind the line" % [int(foe), int(mine)])
+		if not ai._det.is_empty():
+			ai._end_defence()
+		var rest_g := place(home)
+		for u in rest_g:
+			if u.order == "idle" and u.position.distance_to(_gate_back) > 160.0:
+				u.cmd_move(_gate_back, true)
+		return true
 	if mine >= foe * _beat():
 		# (5. THE CLIFF EDGE: a force it could beat below, but the edge covers where it is: it shoots from the high ground
 		# instead of going down; the claws below cannot climb to it)
@@ -833,6 +864,8 @@ func refuge(w: Unit, centre: Vector2) -> Vector2:
 	var foe: float = force_at([centre])
 	if home_value() >= foe * _beat():
 		return Vector2.INF
+	if gate_live() and _gate_back != Vector2.INF:
+		return _gate_back           # (7. THE GATE POST: in behind the line at the natural's gate)
 	var p: Vector2 = (_bc + _in * (GUN_BACK + 2.0)) * float(Defs.TILE)
 	return p if _spot_ok(p) else Vector2.INF
 
@@ -1298,3 +1331,179 @@ func _wall_plan(home: Array, spots: Array) -> bool:
 		wall_log.append([game.clock, txt])
 		_say(txt)
 	return true
+
+
+# ============================================================ 7. THE GATE POST (crown-hold, 0.33.1, docs/crown_hold.md)
+# The owner (2026-11-06, Dune Sea, Hard Crown Economy v Hard Brood Economy, lost at 8:37 to the Brood at its walled
+# natural): "if Crown had forces on the palisade probably the brood attack would be holdable". Once the Crown has a WALLED
+# NATURAL (an expansion whose wall plan, AIExpandWall, is closed at least GATE_CLOSED and whose gate stands), the army's
+# HOME post is DOWN at that palisade: the muskets in rows GATE_IN tiles inside the stretch of wall either side of the gate
+# (a lane kept open behind the gate itself, so the army files in and out), the guns GATE_GUN_IN behind them, on HOLD,
+# facing out. The ramp post (1) is for the main alone, before there is a walled natural; the cliff edge (5) for a building
+# under the cliff without a wall; an attack elsewhere on the palisade moves the line along it (_wall_plan).
+# Study switch: `-- gatepost:off`.
+const GATE_CLOSED := 0.7        # share of the natural's ways-in cells closed before the army moves down to it
+const GATE_EVERY := 20.0        # (s) the gate post planned again this often (buildings and walls change)
+const GATE_IN := Vector2(1.2, 3.8)      # (tiles) the musket rows this far inside the wall's pieces
+const GATE_GUN_IN := Vector2(3.8, 7.0)  # (tiles) the guns
+const GATE_FRONT := 8.0         # (tiles) the stretch of wall stood behind: pieces this near the gate
+const GATE_LANE := 1.2          # (tiles) half the lane kept open behind the gate
+const GATE_BACK := 7.5          # (tiles) the rally (riders, the rest) this far inside from the gate
+var gate_on := not OS.get_cmdline_user_args().has("gatepost:off")
+var _gate_t := -99.0
+var _gate_hall: Building = null
+var _gate_spots: Array = []
+var _gate_guns: Array = []
+var _gate_face := Vector2.ZERO
+var _gate_at := Vector2.INF     # (px) the gate's middle
+var _gate_back := Vector2.INF   # (px) inside, behind the line: the rally and the labourers' refuge
+var gate_posts := 0             # (tests, the study) times the post was set up at a natural's gate
+var gate_log: Array = []        # [clock, text]
+
+
+func gate_live() -> bool:
+	return gate_on and active() and not _gate_spots.is_empty() and _gate_hall != null and is_instance_valid(_gate_hall) \
+			and not _gate_hall.dead
+
+
+## The walled natural the army stands at: the plan of our nearest hall to the main (not the main) whose wall is closed
+## GATE_CLOSED and whose gate stands; {} if none.
+func _gate_plan_pick() -> Dictionary:
+	if ai.xw == null or game.starts.size() <= ai.team:
+		return {}
+	var home := (Vector2(game.starts[ai.team]) + Vector2(2.5, 2.0)) * float(Defs.TILE)
+	var best: Dictionary = {}
+	var bd := INF
+	for id in ai.xw.plans:
+		var p: Dictionary = ai.xw.plans[id]
+		if not p.get("ok", false) or (p["exposed"] as Array).is_empty():
+			continue
+		var h = p.get("hall")
+		if h == null or not is_instance_valid(h) or (h as Building).dead or not (h as Building).built:
+			continue
+		if ai.xw.closed_share(p) < GATE_CLOSED:
+			continue
+		var gate_up := false
+		for e in p["pieces"]:
+			if e[0] == "gate":
+				var gb: Building = game._own_gate_at(ai.team, e[1])
+				if gb != null and gb.built:
+					gate_up = true
+		if not gate_up:
+			continue
+		var d: float = (h as Building).center().distance_to(home)
+		if d < bd:
+			bd = d
+			best = p
+	return best
+
+
+## Works out the gate post for `n_musk` muskets and `n_gun` guns (every GATE_EVERY s, or when the walled natural changes).
+func _gate_plan(n_musk: int, n_gun: int) -> void:
+	if not gate_on:
+		return
+	if game.clock - _gate_t < (3.0 if _gate_spots.size() < clampi(n_musk, 6, 30) else GATE_EVERY):
+		return
+	_gate_t = game.clock
+	var p := _gate_plan_pick()
+	if p.is_empty():
+		if not _gate_spots.is_empty():
+			_gate_spots.clear()
+			_gate_guns.clear()
+		return
+	var T := float(Defs.TILE)
+	var gates: Array = []
+	for e in p["pieces"]:
+		if e[0] == "gate":
+			gates.append(e[1])
+	var gp := Vector2.ZERO
+	for c in gates:
+		gp += game.cell_center(c)
+	gp /= float(gates.size())
+	var inside: Dictionary = p["inside"]
+	var hall: Building = p["hall"]
+	var lvl: int = game.level_of(gp)
+	# inward: toward the inside cells near the gate
+	var inw := Vector2.ZERO
+	var nin := 0
+	for c in inside:
+		var q: Vector2 = game.cell_center(c)
+		if q.distance_to(gp) < 4.5 * T:
+			inw += q
+			nin += 1
+	var in_dir: Vector2 = (inw / float(nin) - gp).normalized() if nin > 0 else (hall.center() - gp).normalized()
+	if in_dir == Vector2.ZERO:
+		in_dir = (hall.center() - gp).normalized()
+	# the stretch of wall either side of the gate
+	var front: Array = []
+	for c in p["exposed"]:
+		var cp: Vector2 = game.cell_center(c)
+		if cp.distance_to(gp) <= GATE_FRONT * T:
+			front.append(cp)
+	var keep := {}          # (the wall's empty building slots and our sites waiting: never a post on them)
+	for c in ai.xw.reserved():
+		keep[c] = true
+	var lane_end: Vector2 = gp + in_dir * GATE_BACK * T
+	var cands_m: Array = []
+	var cands_g: Array = []
+	for c in inside:
+		var i: int = game.idx(c)
+		var v := int(game.solid[i])
+		if (v != 0 and v != 5) or game.ramp[i] != 0 or game.cliff[i] != 0 or keep.has(c) or game.side_ghost_at(ai.team, c) != null:
+			continue
+		var q: Vector2 = game.cell_center(c)
+		if game.level_of(q) != lvl:
+			continue
+		if Geometry2D.get_closest_point_to_segment(q, gp, lane_end).distance_to(q) < GATE_LANE * T:
+			continue        # (the lane behind the gate: the army files in and out)
+		var dw := INF
+		for f in front:
+			dw = minf(dw, q.distance_to(f))
+		var dg: float = q.distance_to(gp)
+		if dw >= GATE_IN.x * T and dw <= GATE_IN.y * T:
+			cands_m.append([dg + dw * 0.4, q])
+		elif dw >= GATE_GUN_IN.x * T and dw <= GATE_GUN_IN.y * T:
+			cands_g.append([dg, q])
+	var srt := func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]) or (float(a[0]) == float(b[0]) and ((a[1] as Vector2).x < (b[1] as Vector2).x or ((a[1] as Vector2).x == (b[1] as Vector2).x and (a[1] as Vector2).y < (b[1] as Vector2).y)))
+	cands_m.sort_custom(srt)
+	cands_g.sort_custom(srt)
+	var muskets: Array = []
+	var guns: Array = []
+	for e in cands_g:
+		if guns.size() >= maxi(n_gun, 2):
+			break
+		var q: Vector2 = e[1]
+		if guns.all(func(o: Vector2) -> bool: return o.distance_to(q) >= EDGE_GUN_GAP * T):
+			guns.append(q)
+	for e in cands_m:
+		if muskets.size() >= clampi(n_musk, 6, 30):
+			break
+		var q: Vector2 = e[1]
+		if muskets.all(func(o: Vector2) -> bool: return o.distance_to(q) >= EDGE_GAP * T):
+			muskets.append(q)
+	if muskets.size() < 3:
+		_gate_spots.clear()
+		_gate_guns.clear()
+		return
+	var back: Vector2 = lane_end
+	if not game.open_cell(game.cell_of(back)):
+		back = hall.center() + (gp - hall.center()).normalized() * 3.0 * T
+	var moved: bool = _gate_hall != hall or _gate_spots.is_empty() or _gate_at.distance_to(gp) > 2.0 * T
+	_gate_hall = hall
+	_gate_spots = muskets
+	_gate_guns = guns
+	_gate_face = -in_dir
+	_gate_at = gp
+	_gate_back = back
+	if moved:
+		gate_posts += 1
+		var steps: int = int(p.get("gate_ramp", -1))
+		var txt := "posts its army at its natural's gate: %d musket spots behind the palisade, %d guns behind them (the gate %s from the foot of its main's ramp)" % [
+			muskets.size(), guns.size(), ("%d tiles" % steps) if steps >= 0 else "far"]
+		gate_log.append([game.clock, txt])
+		_say(txt)
+
+
+## (AI._army) Where the waiting army's other units (riders, the rest) rally: behind the gate post's line once there is one.
+func home_front(fallback: Vector2) -> Vector2:
+	return _gate_back if gate_live() and _gate_back != Vector2.INF else fallback

@@ -1487,6 +1487,28 @@ func _finish_sites() -> void:
 			game.mlog.add("%s sends a Labourer to finish its %s (nobody was working on it)" % [game.mlog.who(team), String(b.d["name"])])
 
 
+## MASS CANNONS FIRST (crown-hold, the owner 2026-11-06: "probably 3 to 4 cannon before mortar"): a Foundry and a Horse
+## Breeder stand, the line has GUN_LINE_FIRST Musketeers, fewer than CANNONS_FIRST Field Cannons are out or queued and the
+## enemy is not at home: the tech milestones (Church, Armoury...) wait for the guns' gold (production does not), as the
+## Barracks do (AI._produce). `-- gunmass:off` plays without it.
+var gun_mass := not OS.get_cmdline_user_args().has("gunmass:off")
+
+
+func guns_short() -> bool:
+	if not gun_mass or difficulty < 1 or not _gun_can() or _threat() != Vector2.INF:
+		return false
+	var cannons := 0
+	var muskets := 0
+	for u in game.army(team):
+		if u.kind == "cannon":
+			cannons += 1
+		elif Defs.MUSKETS.has(u.kind):
+			muskets += 1
+	for f in _mine("foundry"):
+		cannons += f.queue.count("cannon")
+	return cannons < CANNONS_FIRST and muskets >= GUN_LINE_FIRST
+
+
 ## (AICrownHold.wants_rider asks: against the Brood with the cannon first, the rider waits for the first gun)
 func rider_waits() -> bool:
 	return _gun_waiting()
@@ -1506,6 +1528,7 @@ var _mid_fail := {}             # milestone kind -> clock it first could not be 
 
 func _mid_tick() -> void:
 	var gun_hold := gun_saves and _gun_waiting() and _gun_can()
+	var guns_short := guns_short()
 	if gun_hold and not owner_on():
 		return                  # (the first Field Cannon's gold first: CANNONS AGAINST THE BROOD)
 	var labs := game.workers(team).size()
@@ -1517,8 +1540,9 @@ func _mid_tick() -> void:
 		var k := String(m[0])
 		if _mine(k).size() >= int(m[1]):
 			continue
-		if gun_hold and not (k == "barracks" or k == "foundry" or k == "horse_breeder"):
-			continue            # (crown-owner-eco: the gun's gold holds the tech back, not the production)
+		if (gun_hold or guns_short) and not (k == "barracks" or k == "foundry" or k == "horse_breeder"):
+			continue            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
+			# first AI.CANNONS_FIRST Field Cannons too)
 		var at: Dictionary = m[2]
 		if labs < int(at.get("labs", 0)) or halls < int(at.get("halls", 0)) or army < int(at.get("army", 0)):
 			continue
@@ -2252,8 +2276,8 @@ func _scale_prod() -> void:
 
 
 ## BUILDINGS BY THE LAYOUT (scripts/ai_crown_layout.gd): a new hall's wall slot first (AIExpandWall), then the layout's
-## slot for the kind, then the shared search.
-func _find_spot(kind: String) -> Vector2i:
+## slot for the kind, then the shared search. (AI._find_spot holds the spots that stayed blocked lately round this.)
+func _find_spot_any(kind: String) -> Vector2i:
 	if _layout_on() and lay != null:
 		var xs: Vector2i = xw.slot_for(kind)
 		if xs.x >= 0:

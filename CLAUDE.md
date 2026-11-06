@@ -32,6 +32,11 @@
   Dragoon raids might go 2 Barracks before the Foundry, but only when scouted and for a reason, as an answer to something.
   CONFIRMED (owner, 2026-11-04 20:50, asked after his own game went 2 Barracks first): "it depends, but most of the time
   Foundry first is the best option": Foundry first stays the default; a second Barracks first only for a scouted reason.
+- CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
+  natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
+  closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
+  alone, cliff edge = no walled natural); SITES KEEP CLEAR for everyone (Game.site_keepout, step_aside keeps HOLD, the
+  computer avoids a blocked spot 90 s); 3 Field Cannons before any Mortar in every Crown plan (AI.CANNONS_FIRST).
 - CROWN AMMUNITION, NO POWDER LOCK (owner, DECIDED 2026-11-05 07:48-07:54; job crown-ammo): Barracks units have NO
   building requirement any more (the Musketeer no longer needs the Powder Mill; the Officer no longer needs the Horse
   Breeder; an Officer without a horse walks). Every unit with a firearm costs POWDER for its ammunition, the Officer too

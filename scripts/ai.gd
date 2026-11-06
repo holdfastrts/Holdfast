@@ -4488,9 +4488,23 @@ func _tend_wall() -> void:
 const ABANDON_WAIT := 8.0       # s a dropped site (its builder fled) waits before another of its kind is placed
 
 
+## A site the footprint of which stayed blocked: that spot is not picked again for BAD_SITE_T s (crown-hold: the Crown
+## placed a Barracks on the same blocked spot four times in a row, 7:21-7:47 Dune Sea): _find_spot looks elsewhere.
+const BAD_SITE_T := 90.0
+const CANNONS_FIRST := 3        # (crown-hold) Field Cannons out or queued before the first Mortar, in every Crown plan
+const GUN_LINE_FIRST := 4       # (crown-hold) Musketeers in the line before the Barracks wait for those cannons' gold
+var _bad_sites := {}            # cell -> [size, clock until which it is not picked]
+var bad_site_n := 0             # (tests) sites dropped as blocked
+
+
 func site_failed(b: Building, why := "blocked") -> void:
 	if Defs.BUILDINGS[b.kind].get("line", false):
 		_walled = false
+	if why == "blocked":
+		_bad_sites[b.cell] = [b.size, game.clock + BAD_SITE_T]
+		bad_site_n += 1
+		if game.mlog:
+			game.mlog.add("%s looks for another spot for its %s (that one stayed blocked)" % [game.mlog.who(team), String(b.d["name"])])
 	if why != "abandoned":
 		_no_room.erase(b.kind)
 	else:
@@ -4588,6 +4602,29 @@ func _keep_tech() -> void:
 ## room does it go down, and then to the foot of the nearest ramp (a short walk from the hall,
 ## never over a cliff, never in the ramp's way), else anywhere by a hall.
 func _find_spot(kind: String) -> Vector2i:
+	if _bad_sites.is_empty():
+		return _find_spot_any(kind)
+	# (crown-hold: the spots that stayed blocked lately are held as terrain while it looks, so it picks another)
+	var held := PackedInt32Array()
+	for c in _bad_sites.keys():
+		var e: Array = _bad_sites[c]
+		if game.clock > float(e[1]):
+			_bad_sites.erase(c)
+			continue
+		var sz: Vector2i = e[0]
+		for y in sz.y:
+			for x in sz.x:
+				var cc: Vector2i = c + Vector2i(x, y)
+				if game.in_map(cc) and game.solid[game.idx(cc)] == 0:
+					game.solid[game.idx(cc)] = 1
+					held.append(game.idx(cc))
+	var sp := _find_spot_any(kind)
+	for i in held:
+		game.solid[i] = 0
+	return sp
+
+
+func _find_spot_any(kind: String) -> Vector2i:
 	var ds := _drive_spot(kind)
 	if ds.x >= 0:
 		return ds
@@ -4828,14 +4865,29 @@ func _produce() -> void:
 	var mortars := army.filter(func(u: Unit) -> bool: return u.kind == "mortar").size()
 	var muskets := army.filter(func(u: Unit) -> bool: return Defs.MUSKETS.has(u.kind)).size()
 	var short_powder := _res2() < 20.0
+	# (crown-hold, the owner 2026-11-06: "probably 3 to 4 cannon before mortar": the Field Cannons, queued ones too, come
+	# first; no Mortar before CANNONS_FIRST of them)
+	var cannons_q := cannons
+	for f in _mine("foundry"):
+		cannons_q += f.queue.count("cannon")
+	var mortar_ok := cannons_q >= CANNONS_FIRST
 	# a horse waits at a Foundry for a gun we want: the Barracks saves the gold for it
 	var gun_wait := false
 	if not short_powder and army.size() >= 6 and _gold() < int(Defs.UNITS["cannon"]["cost"]):
 		for f in _mine("foundry"):
-			if f.built and f.queue.is_empty() and game.horses_at(f) > 0 and (cannons * 4 < army.size() + 2 or mortars < mini(2, int(muskets / 6.0))):
+			if f.built and f.queue.is_empty() and game.horses_at(f) > 0 and (cannons * 4 < army.size() + 2 or cannons_q < CANNONS_FIRST or (mortar_ok and mortars < mini(2, int(muskets / 6.0)))):
 				gun_wait = true
 	if not gun_wait and not short_powder and cannons == 0 and _gun_save() and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40:
 		gun_wait = _mine("foundry").any(func(f: Building) -> bool: return f.built and f.queue.is_empty())     # (AICrown: the first gun's gold)
+	if not gun_wait and not short_powder and _crown() and difficulty >= 1 and cannons_q < CANNONS_FIRST and muskets >= GUN_LINE_FIRST \
+			and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40 and _threat() == Vector2.INF:
+		# (crown-hold: the first CANNONS_FIRST Field Cannons are massed: once the line has GUN_LINE_FIRST Musketeers the
+		# Barracks wait for a gun's gold while a Foundry stands idle that may cast one; not while the enemy is at home)
+		for f in _mine("foundry"):
+			if f.built and f.queue.is_empty():
+				var why: String = game.can_train(f, "cannon")
+				if why == "" or why.begins_with("Not enough"):
+					gun_wait = true
 	for b in _mine("barracks"):
 		if gun_wait:
 			break
@@ -4869,12 +4921,14 @@ func _produce() -> void:
 				game.train(f, "cannon")
 				cannons += 1
 			continue
-		# a Mortar or two behind the musketeers (one per 6 of them, 2 at most)
-		if f.queue.size() < 2 and mortars < mini(2, int(muskets / 6.0)) and not f.queue.has("mortar") and game.can_train(f, "mortar") == "":
+		# a Mortar or two behind the musketeers (one per 6 of them, 2 at most), once CANNONS_FIRST Field Cannons are out
+		if mortar_ok and f.queue.size() < 2 and mortars < mini(2, int(muskets / 6.0)) and not f.queue.has("mortar") and game.can_train(f, "mortar") == "":
 			game.train(f, "mortar")
 			mortars += 1
-		elif f.queue.size() < (2 if _gold() > 600 else 1) and cannons * 4 < army.size() + 2:
+		elif f.queue.size() < (2 if _gold() > 600 else 1) and (cannons * 4 < army.size() + 2 or cannons_q < CANNONS_FIRST) and game.can_train(f, "cannon") == "":
 			game.train(f, "cannon")
+			cannons_q += 1
+			mortar_ok = cannons_q >= CANNONS_FIRST
 	# one Powder Wagon once there's a real firing line (6+ musketeers) to keep in powder
 	if _wagon() == null and army.filter(func(u: Unit) -> bool: return u.kind == "musketeer").size() >= 6 and not (cannons == 0 and _gun_first()):
 		var queued := false
@@ -5309,7 +5363,7 @@ func _army() -> void:
 		var hall: Array = _halls()
 		if hall.is_empty():
 			return
-		var front: Vector2 = _rally_front(hall[0])
+		var front: Vector2 = ch.home_front(_rally_front(hall[0]))      # (crown-hold: behind the line at the natural's gate)
 		for u in ch.place(ready):       # (THE OWNER'S DOCTRINE: muskets and guns on HOLD at the ramp's top; the rest at the rally)
 			if u.order == "idle" and u.position.distance_to(front) > 160.0:
 				u.cmd_move(_home_spot(front), true)
