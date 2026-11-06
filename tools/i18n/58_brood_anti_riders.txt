@@ -1,0 +1,43 @@
+# brood-anti-riders (docs/brood_anti_riders.md): the AI STORY's sentences for the Brood against a Horseman rush
+# (scripts/ai_story_lines.gd) and the read's phrase (scripts/ai_read.gd SAW). The placeholders keep their English order:
+# the first %s is the player.
+
+> a Horse Breeder or riders early
+pt um Criador de Cavalos ou cavaleiros cedo
+es un Criador de Caballos o jinetes temprano
+
+> %s saw a Horse Breeder at %s and no Powder Mill: riders are coming. Raptors now, its grubs kept beside them.
+pt %s viu um Criador de Cavalos às %s e nenhum Moinho de Pólvora: vêm cavaleiros. Raptores agora, as larvas guardadas ao lado deles.
+es %s vio un Criador de Caballos a las %s y ningún Molino de Pólvora: vienen jinetes. Raptores ya, sus larvas junto a ellos.
+
+> %s sees %s riders leave the enemy's main at %s: Raptors now, its grubs kept beside them.
+pt %s vê %s cavaleiros saírem da base principal inimiga às %s: Raptores agora, as larvas guardadas ao lado deles.
+es %s ve salir %s jinetes de la base principal enemiga a las %s: Raptores ya, sus larvas junto a ellos.
+
+> %s saw a Horseman at %s: riders are coming. Raptors now, its grubs kept beside them.
+pt %s viu um Cavaleiro às %s: vêm cavaleiros. Raptores agora, as larvas guardadas ao lado deles.
+es %s vio un Jinete a las %s: vienen jinetes. Raptores ya, sus larvas junto a ellos.
+
+> %s saw %s horses at %s: riders are coming. Raptors now, its grubs kept beside them.
+pt %s viu %s cavalos às %s: vêm cavaleiros. Raptores agora, as larvas guardadas ao lado deles.
+es %s vio %s caballos a las %s: vienen jinetes. Raptores ya, sus larvas junto a ellos.
+
+> %s finds %s riders in its land at %s: Raptors now, its grubs kept beside them.
+pt %s encontra %s cavaleiros nas suas terras às %s: Raptores agora, as larvas guardadas ao lado deles.
+es %s encuentra %s jinetes en sus tierras a las %s: Raptores ya, sus larvas junto a ellos.
+
+> %s has %s riders in its land: the grubs run to the warriors, who guard them and do not chase.
+pt %s tem %s cavaleiros nas suas terras: as larvas correm para os guerreiros, que as guardam e não perseguem.
+es %s tiene %s jinetes en sus tierras: las larvas corren hacia los guerreros, que las guardan y no persiguen.
+
+> %s guards its grubs by the Mother with %s warriors against %s riders, no chase.
+pt %s guarda as larvas junto à Mãe com %s guerreiros contra %s cavaleiros, sem perseguir.
+es %s guarda sus larvas junto a la Madre con %s guerreros contra %s jinetes, sin perseguir.
+
+> %s guards its grubs where the riders are with %s warriors against %s riders, no chase.
+pt %s guarda as larvas onde estão os cavaleiros com %s guerreiros contra %s cavaleiros, sem perseguir.
+es %s guarda sus larvas donde están los jinetes con %s guerreros contra %s jinetes, sin perseguir.
+
+> %s: the riders are gone. Its grubs go back to work and it goes back to its plan.
+pt %s: os cavaleiros foram embora. As larvas voltam ao trabalho e ele volta ao seu plano.
+es %s: los jinetes se fueron. Sus larvas vuelven al trabajo y vuelve a su plan.
