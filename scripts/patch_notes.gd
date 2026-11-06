@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.2", "items": [
+		"THE CLOCKWORK COMPUTER'S ARMY RESTS ON ITS GEARS (the owner's Kestrel Rise game: the idle army wound down). At home it now waits at the edge of its own gear ground where the enemy's way in reaches the base, each unit on its own spot beside the turning gears (a still floor plate when there is room); a unit run down to 80% steps onto the gears for two or three seconds (they wind 0.3 a second) and walks back, a few at a time, and the Winders wind the rest. In 16 test games its army waited at 0.91 wind on average, against 0.83 before.",
+		"THE WHOLE ARMY DEFENDS THE BASE: the gathering point is now between the base and the way the enemy comes (it waited by the newest Clocktower, away from where the Brood came in); an attack on any building, the Winders at work or a press is answered by the whole army with its Winders, the raids counted together (a swarm comes in at several buildings at once: 65 Raptors used to be met by groups of 4, 13, 7 and 6), and it stays until the base is calm, then walks back to its gears. Only a token raid (worth less than 12% of the army, at most 300) gets a group. The AI STORY says it: \"the army rests on its gears\", \"the whole army defends the base\".",
+	]},
 	{"v": "0.33.1", "items": [
 		"THE CROWN COMPUTER HOLDS ITS WALLED NATURAL (the owner's playtest on Dune Sea): the GATE of a walled expansion now goes on the stretch of palisade nearest the foot of the main's ramp, so the army walks out of the main straight through it (on Dune Sea 7 steps from the ramp's foot instead of 17, on the far side of the wall).",
 		"Once the natural's wall is mostly closed and its gate stands, the Crown computer's army waits DOWN at that gate, just inside the palisade, Musketeers on HOLD facing out and the guns behind them, instead of on the main's high ground (the cliff-edge post stays for the main alone, before there is a walled natural). Against a force it can't beat it holds the gate and the labourers run in behind the line.",
