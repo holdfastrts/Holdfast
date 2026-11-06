@@ -109,17 +109,20 @@ func _case(tm: int, kind: String, how: String) -> void:
 	var ok_t := -1.0
 	var t0: float = g.clock
 	while g.clock - t0 < 25.0:
-		if how == "guard":
-			# (sent back to their posts every second: the player's rally, or the computer's HOLD post)
-			for i in men.size():
-				var u: Unit = men[i]
-				if u.dead:
-					continue
-				if tm == 1 and a != null:
-					a.ch._post(u, posts[i], Vector2.UP)
-				elif u.order != "move" or u.order_point.distance_to(posts[i]) > 8.0:
-					u.cmd_move(posts[i])
-		await wait(1.0)
+		for _k in 4:
+			if how == "guard":
+				# (sent back to their posts four times a second, as the computer's posts are on every think: the
+				# computer's HOLD post, or a player's guard order given again)
+				for i in men.size():
+					var u: Unit = men[i]
+					if u.dead:
+						continue
+					if tm == 1 and a != null:
+						a.ch._post(u, posts[i], Vector2.UP)
+					elif u.order != "move" or u.order_point.distance_to(posts[i]) > 8.0:
+						if u.position.distance_to(posts[i]) > 16.0:
+							u.cmd_move(posts[i])
+			await wait(0.25)
 		if b.dead:
 			break
 		if not b.ghost and ok_t < 0.0:
@@ -136,7 +139,7 @@ func _case(tm: int, kind: String, how: String) -> void:
 			continue
 		if u.order == "hold":
 			holding += 1
-		if not b.rect().grow(4.0).has_point(u.position):
+		if not b.rect().grow(-2.0).has_point(u.position):
 			clear += 1
 	check(clear == men.size(), "P%d %s: every soldier clear of the footprint (%d / %d)" % [tm + 1, how, clear, men.size()])
 	if how == "hold":

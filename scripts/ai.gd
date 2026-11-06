@@ -4492,6 +4492,7 @@ const ABANDON_WAIT := 8.0       # s a dropped site (its builder fled) waits befo
 ## placed a Barracks on the same blocked spot four times in a row, 7:21-7:47 Dune Sea): _find_spot looks elsewhere.
 const BAD_SITE_T := 90.0
 const CANNONS_FIRST := 3        # (crown-hold) Field Cannons out or queued before the first Mortar, in every Crown plan
+const GUN_LINE_FIRST := 4       # (crown-hold) Musketeers in the line before the Barracks wait for those cannons' gold
 var _bad_sites := {}            # cell -> [size, clock until which it is not picked]
 var bad_site_n := 0             # (tests) sites dropped as blocked
 
@@ -4878,6 +4879,15 @@ func _produce() -> void:
 				gun_wait = true
 	if not gun_wait and not short_powder and cannons == 0 and _gun_save() and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40:
 		gun_wait = _mine("foundry").any(func(f: Building) -> bool: return f.built and f.queue.is_empty())     # (AICrown: the first gun's gold)
+	if not gun_wait and not short_powder and _crown() and difficulty >= 1 and cannons_q < CANNONS_FIRST and muskets >= GUN_LINE_FIRST \
+			and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40 and _threat() == Vector2.INF:
+		# (crown-hold: the first CANNONS_FIRST Field Cannons are massed: once the line has GUN_LINE_FIRST Musketeers the
+		# Barracks wait for a gun's gold while a Foundry stands idle that may cast one; not while the enemy is at home)
+		for f in _mine("foundry"):
+			if f.built and f.queue.is_empty():
+				var why: String = game.can_train(f, "cannon")
+				if why == "" or why.begins_with("Not enough"):
+					gun_wait = true
 	for b in _mine("barracks"):
 		if gun_wait:
 			break
