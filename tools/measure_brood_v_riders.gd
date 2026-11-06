@@ -154,7 +154,7 @@ func _finish() -> void:
 	var a = _ai(bt)
 	var read_t := -1.0
 	if a != null:
-		read_t = float(a.rider_read_t) if "rider_read_t" in a and float(a.rider_read_t) >= 0.0 else (float(a.rush_t) if a.rush_seen != "" else -1.0)
+		read_t = float(a.rider_read_first) if "rider_read_first" in a else (float(a.rush_t) if a.rush_seen != "" else -1.0)
 	var made_by8 := 0
 	for u in riders_made.keys():
 		made_by8 += 1

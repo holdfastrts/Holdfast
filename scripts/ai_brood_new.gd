@@ -273,6 +273,7 @@ var riders_n := 0               # the most fast enemy riders (Horsemen...) seen 
 var riders_t := -999.0          # when riders were last seen
 var rush_seen := ""             # rush evidence: what was seen ("" = none)
 var rush_t := -1.0
+var _rush_v := 0.0                # (the biggest enemy army seen since the rush evidence)
 var _foe_blds := {}             # enemy building -> its centre (seen standing)
 var _foe_near_home := 0.0       # enemy army value seen near the Mother now
 var _obs_t := 0.0
@@ -365,8 +366,8 @@ func _nb_observe(q: Unit) -> void:
 				riders_land += 1
 		if u.position.distance_to(q.position) < 24.0 * Defs.TILE:
 			home += v
-			if not is_rider(u):
-				home_foot += v
+			if not is_rider(u) and u.kind != "dismounted":
+				home_foot += v          # (an Officer is a Horseman off his horse: the riders' business, not a rush)
 	_foe_near_home = home
 	if _attacking and not _explore_cands.is_empty():
 		_nb_mark_explored()          # (the wave sweeping for what is left: what it passes counts as looked at)
@@ -415,6 +416,7 @@ func _nb_observe(q: Unit) -> void:
 		if why != "":
 			rush_seen = why
 			rush_t = game.clock
+			_rush_v = seen_army
 			say("rush evidence: %s: holds its army at home and lays warriors" % why)
 
 
@@ -751,6 +753,17 @@ func _rush_on() -> bool:
 	return rush_seen != "" and game.clock - rush_t < 180.0
 
 
+## The rush evidence and its army at home short of what it saw (1.2 times the biggest enemy army seen since, 300 at
+## least): only then its eggs are warriors first, its grubs capped and no new ground taken (brood-anti-riders: the owner's
+## Hollowfen game laid Raptors for three minutes, 51 of them on 13 grubs, long after the riders had gone).
+func _rush_short() -> bool:
+	if not _rush_on():
+		return false
+	_rush_v = maxf(_rush_v, seen_army)
+	var home := _nb_army_units().filter(func(u: Unit) -> bool: return not _wave.has(u) and u.kind != "hatchlings")
+	return _value_of(home) < maxf(_rush_v * 1.2, 300.0)
+
+
 ## THE SCOUT (Normal and up, not the Extreme rush): a grub at about 1:10 walks to the enemy's start and round it, then
 ## home (a grub is cheap and its trip reveals the opening); at about 4:30 a Raptor looks again (its army, a wall,
 ## flyers, an expansion). It runs home from soldiers that come at it.
@@ -873,7 +886,7 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 		_watch_next = game.clock + WATCH_GAP
 	var st := (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE
 	if _scout == null:
-		var first_opt := opt != null and _watch_n == 0
+		var first_opt := (opt != null or _foe_is("crown")) and _watch_n == 0      # (brood-anti-riders: early against the Crown too, its Horse Breeder)
 		if (game.clock < (OPT_WATCH_AT if first_opt else _watch_next)) or _watch_n >= WATCH_MAX or BroodNew.count_of(game, team, "grub") < (6 if first_opt else 8):
 			return
 		var pick: Unit = null
@@ -930,8 +943,8 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 				break
 		if close or _scout.hp < _scout.max_hp * 0.7:
 			_watch_flee = true
-			_watch_peek = false
 			if _scout.hp < _scout.max_hp * 0.7:
+				_watch_peek = false
 				_watch_back = Vector2.INF
 				_scout.cmd_move(q.position)
 			else:
@@ -950,13 +963,15 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 				break
 		if _scout.hp < _scout.max_hp * 0.7:
 			_watch_back = Vector2.INF
+			_watch_peek = false
 			_scout.cmd_move(q.position)
 		elif not threat and game.clock - _watch_back_t > 5.0:
 			_watch_back = Vector2.INF
 			_watch_flee = false
-			_scout.cmd_move(_scout_pts[_scout_i])
+			_scout.cmd_move(_peek_pts[0] if _watch_peek and not _peek_pts.is_empty() else _scout_pts[_scout_i])     # (its look round the main goes on)
 		elif threat and (_scout.position.distance_to(_watch_back) < 1.5 * Defs.TILE or _scout.order == "idle"):
 			_watch_back = Vector2.INF          # (still hunted there: home)
+			_watch_peek = false
 			_scout.cmd_move(q.position)
 		return
 	else:
@@ -1331,7 +1346,7 @@ func _nb_wanted_maws() -> int:
 	var m: Array = plan["maws"]
 	var n := mini(int(m[0]) + int(game.clock / float(m[1])), int(m[2]))
 	n = mini(n, 2 + BroodNew.count_of(game, team, "grub") / 5)        # (no Rootmaw without grubs to crew it)
-	if _rush_on():
+	if _rush_short():
 		n = mini(n, 2)
 	if int(plan["grubs0"]) > 0 and not _first_out:
 		n = mini(n, int(plan.get("maws0", 2)))      # (a rush: the first wave before more ground)
@@ -1367,7 +1382,7 @@ func _nb_short() -> bool:
 
 ## Far turtles wanted by now (the plan's expansions), none while a rush is on.
 func _nb_far_wanted() -> int:
-	if _rush_on():
+	if _rush_short():
 		return 0
 	var n := 0
 	for e in plan["far"]:
@@ -2215,9 +2230,9 @@ func _nb_lay(q: Unit) -> void:
 	# grubs on the plan's curve ("drone": grubs a minute, from the 5 it starts with) come before warriors, unless the enemy
 	# is at the Mother or a rush is on; above the curve only with food to spare
 	var curve := 5.0 + game.clock / 60.0 * float(plan.get("drone", 4.0))
-	var danger := _nb_threat(q) != Vector2.INF or _rush_on() or ((_alarm_on() or _under_armed()) and grubs >= 16)
+	var danger := _nb_threat(q) != Vector2.INF or _rush_short() or ((_alarm_on() or _under_armed()) and grubs >= 16)
 	var rider_short := _rider_short()
-	if _riders_on() and not rider_short and _nb_threat(q) != Vector2.INF and not _rush_on() and _foe_near_home <= _rider_need():
+	if _riders_on() and not rider_short and _nb_threat(q) != Vector2.INF and not _rush_short() and _foe_near_home <= _rider_need():
 		danger = false          # (brood-anti-riders: only riders at the Mother and warriors enough: the grubs go on)
 	if rider_short:
 		danger = true           # (brood-anti-riders: Raptors until its army at home beats the riders it expects)
@@ -2257,7 +2272,7 @@ func _nb_want_grubs() -> int:
 	var n := maxi(crew + 2, 6)
 	if int(plan["grubs0"]) > 0 and not _first_out:
 		n = mini(n, int(plan["grubs0"]))
-	if _rush_on() and game.clock < 300.0:
+	if _rush_short() and game.clock < 300.0:
 		n = mini(n, 14)
 	if bb != null:
 		n = mini(n, bb.grub_cap())          # (the written build: grubs held until its push)
