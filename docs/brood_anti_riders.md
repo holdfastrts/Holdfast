@@ -26,14 +26,17 @@ proper defence.
    OPTIMAL plays Balanced and defends first. Riders no longer set the generic rush evidence or the ALARM.
 2. **The watcher looks** (`_nb_watch_scout`). Against the Crown, the first watching grub walks **round the Crown's
    main once** (the hall, its sides, its back) before it settles at the foot of the ramp; a walled ramp ends the look at
-   once. Seeing soldiers, a grub that is not hurt **backs off 10 tiles and comes back** when they have gone, instead of
-   walking home.
+   once. Against the Crown the first watcher goes at 0:40 in every eco plan (the Economy's went at 1:10 and arrived
+   after the Breeder was hidden behind a Horseman). Seeing soldiers, a grub that is not hurt **backs off 10 tiles and
+   comes back** when they have gone (its look round the main goes on), instead of walking home.
 3. **The answer while riders are about** (`_riders_on`: the read for up to 3 minutes before they come, or 2+ riders in
    its land in the last 40 s):
-   - **Raptors in time**: the Tyrant Sire's lure goes down at once; while its army at home is worth less than the riders
-     it expects (`_rider_need`: the riders seen alive, at least 3 while it reads a rush, 115 each; 60% of it before they
-     are seen on the road or in its land) its eggs are warriors, the Mother's growth waits and no Sire researches
-     (Bigger Clutch at 3:29-3:31 had stopped every Raptor egg for 40 s in two games).
+   - **Raptors in time**: the Tyrant Sire's lure goes down 45 s before the plan's own time (not at the read: food spent
+     at 1:40 cost 4-5 grubs at 3:00); once he stands, while its army at home is worth less than the riders it expects
+     (`_rider_need`: the riders seen alive, at least 3 while it reads a rush, 115 each; half of it until they are seen
+     on the road or in its land) its eggs are warriors and the Mother's growth waits. No Sire researches before the
+     riders have come or while it is short (Bigger Clutch at 3:29-3:33 had stopped every Raptor egg for 40 s in three
+     games), and the Venom Sire (with riders about it came at once) waits for the Raptors it is short of.
    - **Grubs to safety**: a grub a rider comes within 8 tiles of (5 outside a raid), and the grubs of a Rootmaw a rider
      is at, run to the warriors' guard (or the Mother); grubs working next to a guard of 200 or more only run from a
      rider right at them. They go back to work once their Rootmaw is clear (8 s, at most 40 s).
@@ -42,20 +45,75 @@ proper defence.
    - **The warriors guard the grubs, no chase** (`_nb_defend_riders`, for a group that is mostly riders): at the
      threatened Rootmaw when they beat the riders there clearly, else by the Mother on their side; they go for riders
      within 12 tiles of the guard or at a grub and walk back past 15 tiles (a Horseman at 112 outruns a Raptor at 96).
+     Worth 2.5 times the riders or more, the guard pushes them off its land (20 tiles, leash 24) and the grubs run only
+     from a rider right at them (two riders kited 17 Raptors round Dune Sea for two minutes and kept the grubs running).
      The Sires stay on their nests.
    - **The Mother stays rooted** against riders while her warriors there are worth half of them (her swamp feeds the
      Rootmaws round her); with no warriors she still gets up and fights for the grubs huddled by her.
-   - No wave goes out while riders are in its land.
+   - No wave goes out while it is short of warriors against them. A lone rider (or an Officer) by the Mother no longer
+     stops the grub eggs when the warriors there beat it.
 4. **The recovery**: no 2 riders in its land for 40 s and it says `the riders are gone: its grubs back to work, back to
    its plan`; the warriors wanted fall back to the plan's own (`_under_armed`), grubs on the curve again, no grub cap.
-   A lone rider afterwards is a harass (the guard and the grubs' own flight), not a new lockdown.
+   A lone rider afterwards is a harass (the guard and the grubs' own flight), not a new lockdown. The generic RUSH
+   evidence (an army near the Mother, fast warriors) now lays warriors first, caps the grubs and stops new ground only
+   while its army at home is short of 1.2 times the biggest enemy army seen since (300 at least), not for 3 minutes
+   flat; an Officer (a Horseman off his horse) is not counted as rush evidence.
 
 The AI STORY tells it (scripts/ai_story_lines.gd, tools/i18n/58_brood_anti_riders.txt in pt and es): the read and what
 it saw, the riders in its land, the guard, the riders gone.
 
 ## Numbers
 
-RESULTS_HERE
+`tools/measure_brood_v_riders.gd`: a Hard Crown on its Horseman rush plan against a Hard Brood, OPTIMAL and Economy,
+on Hollowfen (the owner's seed 3233604515 and seed 7), Dune Sea, Greenhold and Red Coast (seeds 1 and 2), 10 minutes
+each: 0.33.4 (before) against 0.33.5 (after). "Lost" counts the Brood's units lost from the riders' first arrival to two
+minutes after; "read before the hit" for 0.33.4 is its rush evidence (it had no rider read).
+
+| averages (8 games each) | OPTIMAL 0.33.4 | OPTIMAL 0.33.5 | Economy 0.33.4 | Economy 0.33.5 |
+|---|---|---|---|---|
+| read before the riders' hit | +6 s (-2 to +13) | **+136 s** (128 to 139) | +5 s (-1 to +10) | **+138 s** (129 to 158) |
+| units lost in the raid (grubs) | 11.2 (7.8) | 8.9 (**4.8**) | 11.4 (6.4) | 11.5 (6.4) |
+| riders killed / sent by 8:00 | 2.4 / 5.1 | 1.2 / 4.1 | 2.0 / 5.5 | 1.4 / 4.5 |
+| grubs at 5:00 | 18.1 | 18.6 | 17.5 | 19.8 |
+| grubs at 8:00 | 32.0 | **45.6** | 38.4 | **53.5** |
+| mobile army at 8:00 | 1,654 | 617 | 1,379 | 702 |
+| food earned by 10:00 | 9,966 | **10,737** (+8%) | 11,074 | **11,747** (+6%) |
+| the Crown's gold by 10:00 | 6,698 | 6,080 | 6,460 | 6,080 |
+
+The read now comes from the first watcher's look round the Crown's main at 1:33-1:41 (the Horse Breeder, no Powder
+Mill), more than two minutes before the riders arrive (3:43-4:12). The Crown computer's own log calls its rush FAILED
+("the defenders are worth more than the riders") in most games. Fewer riders die: they meet a guard and ride off
+instead of riding into a Raptor ball in the field; the guard does not chase them. The Brood's army at 8:00 is smaller
+because it no longer lays Raptors for three minutes after the riders have gone: the food went into grubs (+40% at 8:00)
+and the income at 10:00 is higher.
+
+Game by game (before -> after):
+
+| map, seed | Brood plan | read before the hit (s) | lost in the raid (grubs) | riders killed / made | grubs 5:00 | grubs 8:00 | army 8:00 | food earned by 10:00 |
+|---|---|---|---|---|---|---|---|---|
+| hollowfen 3233604515 | optimal | -2 -> +128 | 12 (7) -> 9 (7) | 4/5 -> 2/3 | 21 -> 24 | 28 -> 54 | 1900 -> 840 | 9251 -> 11705 |
+| hollowfen 7 | optimal | +0 -> +139 | 17 (12) -> 8 (6) | 2/5 -> 1/5 | 16 -> 22 | 27 -> 54 | 1675 -> 1135 | 8048 -> 11007 |
+| dune_sea 1 | optimal | +13 -> +136 | 7 (7) -> 8 (2) | 2/5 -> 1/4 | 16 -> 14 | 28 -> 38 | 1625 -> 250 | 9198 -> 9306 |
+| dune_sea 2 | optimal | +13 -> +137 | 10 (6) -> 17 (5) | 2/5 -> 2/5 | 18 -> 15 | 39 -> 47 | 1525 -> 425 | 12341 -> 11448 |
+| greenhold 1 | optimal | +13 -> +137 | 11 (5) -> 6 (4) | 0/4 -> 1/4 | 18 -> 16 | 25 -> 40 | 1375 -> 75 | 8521 -> 9793 |
+| greenhold 2 | optimal | +12 -> +137 | 7 (5) -> 8 (4) | 0/4 -> 1/4 | 21 -> 17 | 48 -> 42 | 1175 -> 625 | 12633 -> 9991 |
+| red_coast 1 | optimal | -1 -> +134 | 17 (11) -> 6 (5) | 6/7 -> 1/4 | 16 -> 16 | 25 -> 41 | 1600 -> 290 | 8716 -> 10436 |
+| red_coast 2 | optimal | -2 -> +136 | 9 (9) -> 9 (5) | 3/6 -> 1/4 | 19 -> 25 | 36 -> 49 | 2355 -> 1295 | 11017 -> 12213 |
+| hollowfen 3233604515 | economy | -1 -> +136 | 14 (9) -> 23 (11) | 3/6 -> 3/5 | 25 -> 15 | 48 -> 50 | 1195 -> 350 | 11616 -> 12534 |
+| hollowfen 7 | economy | +9 -> +129 | 11 (6) -> 4 (4) | 2/4 -> 1/3 | 17 -> 19 | 46 -> 55 | 1175 -> 275 | 12221 -> 10550 |
+| dune_sea 1 | economy | +7 -> +158 | 14 (6) -> 9 (7) | 4/6 -> 1/4 | 15 -> 25 | 41 -> 57 | 1200 -> 1005 | 11148 -> 12190 |
+| dune_sea 2 | economy | +10 -> +138 | 8 (6) -> 9 (6) | 1/8 -> 1/6 | 16 -> 20 | 44 -> 56 | 1140 -> 690 | 11529 -> 12165 |
+| greenhold 1 | economy | +6 -> +135 | 12 (5) -> 20 (6) | 1/5 -> 4/7 | 16 -> 14 | 33 -> 51 | 1475 -> 325 | 10917 -> 11359 |
+| greenhold 2 | economy | +7 -> +136 | 11 (5) -> 11 (6) | 1/4 -> 0/4 | 15 -> 20 | 26 -> 52 | 1495 -> 850 | 8695 -> 12410 |
+| red_coast 1 | economy | +0 -> +136 | 11 (6) -> 10 (6) | 2/6 -> 0/3 | 20 -> 24 | 35 -> 55 | 1950 -> 980 | 11060 -> 11748 |
+| red_coast 2 | economy | -1 -> +139 | 10 (8) -> 6 (5) | 2/5 -> 1/4 | 16 -> 21 | 34 -> 52 | 1405 -> 1140 | 11406 -> 11022 |
+
+A Brood that ignores the rush is what 0.33.4 was: it read the rush as it hit and lost 7-17 units, 5-12 of them grubs,
+in two minutes (the owner's game: 25 units and 8 of 21 grubs). The rush still hurts that Brood.
+
+CROWN_OPTIMAL_HERE
+
+LONG_HERE
 
 ## Tests
 
@@ -65,7 +123,10 @@ RESULTS_HERE
   lost, the riders die or leave, no grubs on a healthy rider, the warriors within 22 tiles of the Mother, the Mother
   rooted, the read before the hit, the story lines, and grubs laid again after.
 - `tools/measure_brood_v_riders.gd` (new): one line of numbers per game (see above).
-- Run and passing: TESTS_HERE
+- Run and passing: `tools/test_brood_v_riders.gd` ALL PASS (read at 1:41; 6 of 15 grubs lost to riders
+  that fight on to half their health, 1 rider dead and 2 sent home), `tools/test_files.gd` (1303 checks, 0 failures),
+  `tools/test_i18n.gd` PASS, `tools/test_brood_new.gd` (0 failures), `tools/test_ai_optimal.gd` ALL PASS,
+  `tools/test_ai_scout.gd` ALL PASS.
 
 ## Claude's choices for the owner
 
@@ -77,8 +138,8 @@ RESULTS_HERE
   opening has (2 for 50 food); Spitters need the Venom Sire (200 food and 25 spoils) and the Horseman has a 1.3 bonus
   against them. With riders about the old rule (a Spitter for every Raptor once the Venom Sire stands) stays. The Mist
   Toad's TONGUE comes too late (her stage 3) to matter against a 3:40 rush.
-- **How many Raptors**: the riders it expects (at least 3) at 115 each, 60% of it before they are seen coming; about
-  8 Raptors before, 14 once they come. Less and the riders win the fights at the grubs; more and the Brood's economy at
+- **How many Raptors**: the riders it expects (at least 3) at 115 each, half of it before they are seen coming; about
+  7 Raptors before, 14 once they come (60% from the read cost the Economy plan 15% of its income by 10:00). Less and the riders win the fights at the grubs; more and the Brood's economy at
   4:00 falls behind the riders' damage.
 - **The read from one Horseman** before 4:00 counts. A Crown that is not rushing seldom has a Horseman out that early
   (its rider scouts wait for the first gun against the Brood); if it does, the cost is a few Raptors early.
