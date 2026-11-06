@@ -109,9 +109,9 @@ const RULES := [
 	["^'s (.+?) (?:keeps away|pulls back) from (.+?)(?: \\(|$)", "%s's %s keeps away from a %s.", 1, "raid"],
 	# ---- defence
 	["^holds the top of its ramp: the force below \\((\\d+)\\) is more than its army at home \\((\\d+)\\)", "%s holds the top of its ramp: the force below (%s) is more than its army (%s) can beat.", 2, "defend"],
-	["^holds its natural's gate: the force outside \\((\\d+)\\) is more than its army at home \\((\\d+)\\)", "%s holds the gate of its walled natural: the force outside (%s) is more than its army (%s) can beat.", 2, "defend"],
-	["^posts its army at its natural's gate: (\\d+) musket spots behind the palisade, (\\d+) guns", "%s posts its army down at its natural's gate: %s Musketeers behind the palisade, %s guns behind them.", 2, "defend"],
-	["^moves its army inside the wall of its new hall where it is attacked: (\\d+) musket spots", "%s moves its army along the palisade to where it is attacked: %s Musketeers behind the wall.", 2, "defend"],
+	["^holds its natural's gate: the force outside \\((\\d+)\\) is too strong to go out to with its army at home \\((\\d+)\\)", "%s holds the gate of its walled natural: the force outside (%s) is too strong to go out and meet with its army (%s).", 2, "defend"],
+	["^posts its army at its natural's gate: (\\d+) musket spots behind the palisade, (\\d+) guns", "%s posts its army down at its natural's gate: room for %s Musketeers behind the palisade and %s guns behind them.", 2, "defend"],
+	["^moves its army inside the wall of its new hall where it is attacked: (\\d+) musket spots", "%s moves its army along the palisade to where it is attacked (a line of %s behind the wall).", 2, "defend"],
 	["^moves its musket line to the cliff edge above its (.+?):", "%s moves its musket line to the cliff edge above its %s.", 2, "defend"],
 	["^looks for another spot for its (.+?) \\(", "%s looks for another spot for its %s: the first one stayed blocked.", 1, "build"],
 	["^goes down with its army", "%s goes down its ramp with its army.", 2, "defend"],

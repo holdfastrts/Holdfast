@@ -791,7 +791,7 @@ func hold_top(army: Array, spots: Array) -> bool:
 		if game.clock - _hold_said > 30.0:
 			_hold_said = game.clock
 			holds += 1
-			_say("holds its natural's gate: the force outside (%d) is more than its army at home (%d) can beat; the labourers run in behind the line" % [int(foe), int(mine)])
+			_say("holds its natural's gate: the force outside (%d) is too strong to go out to with its army at home (%d); the labourers run in behind the line" % [int(foe), int(mine)])
 		if not ai._det.is_empty():
 			ai._end_defence()
 		var rest_g := place(home)

@@ -77,6 +77,21 @@ func _shoot(c: float) -> void:
 				p = h.center()
 	if p == Vector2.INF:
 		p = g.center_of_team(1)
+	if ai != null:
+		var on_spot := 0
+		var musk := 0
+		for u in g.army(ai.team):
+			if u.kind in ["musketeer", "musketeer_armoured", "cannon", "mortar"]:
+				musk += 1
+				for q in ai.ch._gate_spots + ai.ch._gate_guns:
+					if u.position.distance_to(q) < 24.0:
+						on_spot += 1
+						break
+		print("[shot %d] gate post live %s at %s, %d muskets and guns, %d on a gate spot, edge %s wall %s" % [int(c), str(ai.ch.gate_live()), str(ai.ch._gate_at), musk, on_spot, str(ai.ch.edge_live()), str(ai.ch._wall_mode)])
+		if g.mlog:
+			for l in g.mlog.lines.slice(maxi(0, g.mlog.lines.size() - 400)):
+				if "Crown" in str(l) and ("posts" in str(l) or "holds" in str(l) or "moves its" in str(l)):
+					print("   | " + str(l))
 	g.camera.position = p
 	g.camera.zoom = Vector2(0.7, 0.7)
 	g.camera.reset_smoothing()

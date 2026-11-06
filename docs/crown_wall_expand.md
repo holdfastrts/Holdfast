@@ -25,7 +25,8 @@ Every Town Hall of the Crown computer that is not its main gets a wall plan the 
    together, on the far side: the main and the natural are one walled space and the ramp comes down inside. The main's
    plateau is never part of the area and no expansion piece goes up there; the main's own ramp wall at the top (the
    anti-rush Cottage wall) stays as it is.
-2. **A gate** (two cells where it can): when the main's ramp comes down inside, on the ways-in cell nearest the enemy
+2. **A gate** (two cells where it can). SINCE 0.33.1 (crown-hold, docs/crown_hold.md): on the ways-in cell the fewest steps
+   by land from the foot of the main's ramp (the enemy's side breaks a tie within 3 steps). Before: when the main's ramp comes down inside, on the ways-in cell nearest the enemy
    by land (where the expansion's men leave; the main is reached through the area); otherwise on the ways-in cell
    nearest the main by land. Workers and the army pass it.
 3. **Building slots** over the rest of the ways in: 4x3 (Barracks, Foundry, Horse Breeder, Armoury), 3x3 (Church, only
