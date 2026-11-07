@@ -1,0 +1,36 @@
+test,verdict,exit,seconds,script_errors,parse_errors,fail_lines
+test_ai_abandoned_site,pass,0,7,0,0,
+test_ai_air_defence,pass,-6,10,0,0,
+test_ai_army_response,pass,-6,16,1,0,
+test_ai_crown_bank,pass,-6,20,0,0,
+test_ai_cw_horse_raid,pass,-6,45,0,0,
+test_ai_brood,pass,-6,141,0,0,
+test_ai_expand,fail,-6,158,0,0,FAIL  [clockwork] a new hall laid within 90 s (at -1 s) | FAIL  [clockwork] still earning in the last 60 s (0) | 2 FAILED
+test_ai_gg_rule,pass,0,0,0,0,
+test_ai_expand_wall,fail,-6,98,6,0,FAIL  [ashford_crossing] 10% of its 38 ways-in cells shut 180 s after the hall stood (at least 80%) | FAIL  [ashford_crossing] a gate in the wall (0) | FAIL  [kestrel_rise] 11% of its 35 ways-in cells shut 180 s after the hall stood (at least 80%) | FAIL  [kestrel_rise] a gate in the wall (0)
+test_ai_harass,fail,-6,22,0,0,FAIL  [clock_soldier] within 40 s it hurt the grubs (0 hp) | FAIL  [clock_soldier] it spent little of its time on the rooted turtle (100%) | FAIL  [clock_soldier] a Tyrant Sire comes: it pulls back
+test_ai_optimal,pass,-6,137,0,0,
+test_ai_r5_hold_spots,pass,-6,58,0,0,
+test_ai_placement,pass,-6,219,0,0,
+test_ai_round6_stall,fail,-6,38,0,0,FAIL  [threat] with round 6 the army goes out | FAIL  [ahead] with round 6 the army goes out | 2 FAILED
+test_ai_rush,pass,-6,35,0,0,
+test_ai_rush_followup,fail,-6,28,0,0,"PASS  two of three riders gone, defenders alive: verdict FAILED (the raiding party was cut down) [failed] | FAIL  never a lone soldier far from home (75 sightings) [failed] | FAIL  the surviving rider retreated home or died, he is not left out there [failed] | FAIL  crippled economy, 2 workers left, no defenders: SUCCEEDED / finish (succeeded/hunt) [few]"
+test_ai_scout,pass,-6,45,0,0,
+test_ai_scout_defence,pass,-6,10,0,0,
+test_ai_round6,fail,-6,259,0,0,"FAIL  greenhold crown: the first hall spot (1, 24) is at our natural (7, 30) | FAIL  frostmere crown: the first hall spot (19, 21) is at our natural (6, 28) | FAIL  frostmere clockwork: the first hall spot (64, 95) is at our natural (71, 96) | FAIL  hollowfen crown: the first hall spot (26, 2) is at our natural (30, 7)"
+test_ai_scout_sentry,fail,-6,62,0,0,FAIL  the computer keeps getting sightings of the guard behind the wall (a sighting in 1 of 29 ten-second windows) | 1 FAILED
+test_ai_scout_threat,pass,-6,16,0,0,
+test_ai_wall_vs_rush,pass,-6,30,0,0,
+test_alert_all,pass,-6,13,0,0,
+test_ai_worker_safety,pass,-6,38,0,0,
+test_anim_viewer,pass,-6,11,0,0,
+test_announcers,no-verdict,0,5,0,0,
+test_aoe_show,fail,1,8,0,0,"CHECK a working Cog Press shows ""+N"" over itself every few seconds                   FAIL [] (gold 319 -> 371) | FAIL (1)"
+test_attack_ground,fail,-6,16,0,0,"FAIL  its hotkey hint is Ctrl+A (^A), got 'Ctrl+A' | attack ground: FAIL (1)"
+test_ballista,pass,0,15,0,0,
+test_balloon_death,pass,-6,9,0,0,
+test_barren_gather,pass,-6,8,0,0,
+test_bars_audit,pass,-6,15,0,0,
+test_breeders_share,pass,-6,14,0,0,
+test_brood_ai_defend,pass,-6,16,0,0,
+test_brood_builds,pass,-6,7,0,0,

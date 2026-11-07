@@ -67,6 +67,9 @@ func _case(ai_faction: String) -> void:
 		if a.team == 1:
 			ai = a
 	ai.peaceful = true      # (no attack waves of its own: only the defence is under test)
+	if g.halls_of(1).is_empty():
+		check(false, "the computer has a hall to defend [%s]" % ai_faction)
+		return
 	var hall: Building = g.halls_of(1)[0]
 	var army := _army(g, ai, 8, 6)
 	for u in g.army(1):
@@ -140,7 +143,9 @@ func _run() -> void:
 	var only := OS.get_cmdline_user_args()
 	if only.is_empty() or only[0] == "crown":
 		await _case("crown")
-	if only.is_empty() or only[0] == "brood":
-		await _case("brood")
+	# (the Brood case is gone: since 0.18.0 the Brood has no buildings, so there is no hall to raid, and its computer
+	# defends with its own rules (AIBroodNew._nb_defend, riders guarded against without a chase): those are checked by
+	# tools/test_brood_new_defence.gd and tools/test_brood_v_riders.gd. It used to stop here on halls_of(1)[0] with a
+	# SCRIPT ERROR and still print ALL PASS.)
 	print("ALL PASS" if fails == 0 else "FAILS: %d" % fails)
 	quit()
