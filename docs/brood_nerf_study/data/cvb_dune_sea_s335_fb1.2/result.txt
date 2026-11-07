@@ -1,0 +1,49 @@
+map dune_sea seed 335: P1 crown optimal v P2 brood optimal
+food_bonus 1.2
+1:00 P1 crown optimal (rush): income 380 | workers 7 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 brood optimal (balanced): income 230 | workers 7 | army 0 | halls 2 | supply 9 | maws 2 | res2 0
+2:00 P1 crown optimal (rush): income 760 | workers 9 | army 0 | halls 1 | supply 15 | maws 0 | res2 0
+2:00 P2 brood optimal (spitter): income 627 | workers 9 | army 225 | halls 2 | supply 14 | maws 2 | res2 0
+3:00 P1 crown optimal (rush): income 1140 | workers 8 | army 290 | halls 1 | supply 20 | maws 0 | res2 0
+3:00 P2 brood optimal (spitter): income 1114 | workers 11 | army 175 | halls 2 | supply 23 | maws 3 | res2 30
+4:00 P1 crown optimal (balanced): income 1900 | workers 12 | army 470 | halls 1 | supply 24 | maws 0 | res2 0
+4:00 P2 brood optimal (spitter): income 1584 | workers 13 | army 300 | halls 2 | supply 33 | maws 4 | res2 30
+5:00 P1 crown optimal (balanced): income 2280 | workers 12 | army 470 | halls 1 | supply 24 | maws 0 | res2 42
+5:00 P2 brood optimal (spitter): income 2064 | workers 14 | army 500 | halls 2 | supply 36 | maws 4 | res2 30
+6:00 P1 crown optimal (balanced): income 2660 | workers 14 | army 470 | halls 1 | supply 26 | maws 0 | res2 142
+6:00 P2 brood optimal (spitter): income 2697 | workers 19 | army 575 | halls 3 | supply 40 | maws 4 | res2 90
+7:00 P1 crown optimal (balanced): income 3040 | workers 14 | army 470 | halls 2 | supply 26 | maws 0 | res2 214
+7:00 P2 brood optimal (spitter): income 3499 | workers 28 | army 400 | halls 3 | supply 50 | maws 6 | res2 90
+8:00 P1 crown optimal (economy): income 3800 | workers 14 | army 470 | halls 2 | supply 32 | maws 0 | res2 233
+8:00 P2 brood optimal (spitter): income 4856 | workers 44 | army 375 | halls 4 | supply 69 | maws 6 | res2 90
+9:00 P1 crown optimal (economy): income 3800 | workers 19 | army 590 | halls 2 | supply 33 | maws 0 | res2 263
+9:00 P2 brood optimal (spitter): income 7291 | workers 49 | army 1145 | halls 4 | supply 96 | maws 7 | res2 135
+9:11 P1 FIRSTWAVE enemy 315 at (32, 30): muskets 6 by its palisade, 0 on the main's high ground, 0 elsewhere; gate post true
+10:00 P1 crown optimal (economy): income 4940 | workers 22 | army 585 | halls 2 | supply 42 | maws 0 | res2 284
+10:00 P2 brood optimal (spitter): income 9828 | workers 50 | army 1080 | halls 4 | supply 100 | maws 7 | res2 270
+11:00 P1 crown optimal (economy): income 6840 | workers 27 | army 1175 | halls 2 | supply 60 | maws 0 | res2 312
+11:00 P2 brood optimal (spitter): income 11676 | workers 49 | army 2740 | halls 4 | supply 135 | maws 7 | res2 345
+12:00 P1 crown optimal (economy): income 7220 | workers 26 | army 595 | halls 2 | supply 52 | maws 0 | res2 340
+12:00 P2 brood optimal (spitter): income 13030 | workers 48 | army 1715 | halls 4 | supply 158 | maws 6 | res2 390
+13:00 P1 crown optimal (economy): income 9120 | workers 33 | army 1655 | halls 2 | supply 80 | maws 0 | res2 430
+13:00 P2 brood optimal (spitter): income 14540 | workers 50 | army 3565 | halls 4 | supply 198 | maws 7 | res2 390
+14:00 P1 crown optimal (economy): income 9880 | workers 18 | army 415 | halls 2 | supply 37 | maws 0 | res2 519
+14:00 P2 brood optimal (spitter): income 16790 | workers 50 | army 3815 | halls 4 | supply 199 | maws 6 | res2 390
+15:00 P1 crown optimal (economy): income 9880 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 521
+15:00 P2 brood optimal (spitter): income 18825 | workers 50 | army 3915 | halls 4 | supply 199 | maws 5 | res2 390
+15:00 P1 crown optimal (economy): income 9880 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 521
+15:00 P2 brood optimal (spitter): income 18825 | workers 50 | army 3915 | halls 4 | supply 199 | maws 5 | res2 390
+P1 read 1:27 GREEDY [a second base and little army]
+P1 read 5:59 NORMAL [a standard opening]
+P1 read 7:34 GREEDY [a second base and little army]
+P1 read 9:06 UNKNOWN [the scout was killed]
+P1 read 10:45 NORMAL [a standard opening]
+P1 pick 0:00 opening LEAN -> rush (the matchup)
+P1 pick 7:34 middle GREEDY -> economy (too late for the riders: out-expand it)
+P1 first attack 3:21
+P2 read 1:32 NORMAL [a standard opening]
+P2 read 1:35 AGGRESSIVE [a Horse Breeder or riders early]
+P2 read 4:37 NORMAL [a standard opening]
+P2 pick 1:32 opening NORMAL -> spitter (a timing attack)
+P2 first attack 8:31
+end 15:00 winner none
