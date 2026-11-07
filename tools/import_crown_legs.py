@@ -24,7 +24,7 @@ import experiment_white_pants as W  # noqa: E402
 
 U = os.path.join(ROOT, "assets/units")
 SRC = os.path.join(ROOT, "art/redraws/gait_src")
-TARGETS = {"musketeer_armoured": ["s", "se", "e", "ne", "n"], "musketeer": ["s", "se", "e", "ne", "n"]}
+TARGETS = {"musketeer_armoured": ["s", "se", "e", "ne", "n"]}     # (the Musketeer's walk is the owner's ChatGPT walk since 2026-11-07: tools/import_musket_walk.py)
 SILVER_LEGS = {"musketeer", "musketeer_armoured"}      # (the Musketeer's breeches are silver-grey: the labourer's grey legs are recoloured to his ramp)
 
 

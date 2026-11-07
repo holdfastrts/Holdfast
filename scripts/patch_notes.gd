@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.7", "items": [
+		"THE MUSKETEER MARCHES ON NEW LEGS: a hand-drawn six-step walk in every direction, his musket carried the same way it is held when he aims (before, his legs were the labourer's pasted under him and each direction had its own number of steps, so turning jumped).",
+	]},
 	{"v": "0.33.6", "items": [
 		"THE BROOD EARNS A LITTLE LESS FROM FAR ROOTMAWS: a Rootmaw far from the Brood Mother now pays up to 2.2 times the near rate (was 2.5). Near Rootmaws pay as before.",
 	]},

@@ -133,6 +133,7 @@ python3 tools/anim_audit/fix_brood.py     # Brood strips: raptor/grub up-down wa
 python3 tools/import_crown_legs.py        # labourer's new walk legs under the Armoured Musketeer (all views) and the Musketeer (s, n)
 python3 tools/anim_audit/fix_crown.py    # Crown animation audit fixes (docs/animation_audit_crown.md): Officers' walk on the ground,
                                          # Messenger walk_e frames 4-5, Mortar idle crew, Horseman idle_se (masks follow; idempotent)
+python3 tools/import_musket_walk.py       # the Musketeer's walk, all five views (the owner's ChatGPT sheets, 2026-11-07)
 python3 tools/import_musket_aim_dirs.py  # Musketeer / Guardsman aim, fire, bayonet toward se, ne, s (ChatGPT over tools/musket_guide/aim_dirs.py)
 python3 tools/import_spitter_redo.py     # the Spitter from the owner's ChatGPT sheets (art/redraws/spitter_<d>_chatgpt.png): walk, spit, death in
                                          # every view and its straight glob missile (replaces import_art's; after fix_brood, before the masks)
