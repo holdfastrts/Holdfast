@@ -1,0 +1,47 @@
+map dune_sea seed 301: P1 crown optimal v P2 clockwork optimal
+food_bonus 1.2
+1:00 P1 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 clockwork optimal (balanced): income 370 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 crown optimal (rush): income 760 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P2 clockwork optimal (balanced): income 1029 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+3:00 P1 crown optimal (rush): income 1140 | workers 10 | army 190 | halls 1 | supply 18 | maws 0 | res2 0
+3:00 P2 clockwork optimal (economy): income 1893 | workers 17 | army 0 | halls 1 | supply 18 | maws 0 | res2 0
+4:00 P1 crown optimal (rush): income 1520 | workers 11 | army 465 | halls 1 | supply 23 | maws 0 | res2 0
+4:00 P2 clockwork optimal (economy): income 2797 | workers 24 | army 210 | halls 2 | supply 30 | maws 0 | res2 0
+5:00 P1 crown optimal (rush): income 2280 | workers 14 | army 465 | halls 2 | supply 26 | maws 0 | res2 20
+5:00 P2 clockwork optimal (balanced): income 3996 | workers 26 | army 350 | halls 2 | supply 33 | maws 0 | res2 0
+6:00 P1 crown optimal (rush): income 2660 | workers 13 | army 465 | halls 2 | supply 25 | maws 0 | res2 124
+6:00 P2 clockwork optimal (balanced): income 5280 | workers 26 | army 910 | halls 2 | supply 46 | maws 0 | res2 0
+6:24 P1 FIRSTWAVE enemy 420 at (37, 29): muskets 0 by its palisade, 3 on the main's high ground, 0 elsewhere; gate post false
+7:00 P1 crown optimal (rush): income 3040 | workers 16 | army 470 | halls 2 | supply 27 | maws 0 | res2 185
+7:00 P2 clockwork optimal (balanced): income 6652 | workers 24 | army 565 | halls 2 | supply 45 | maws 0 | res2 0
+8:00 P1 crown optimal (rush): income 4180 | workers 18 | army 355 | halls 2 | supply 33 | maws 0 | res2 202
+8:00 P2 clockwork optimal (balanced): income 8174 | workers 27 | army 1450 | halls 2 | supply 62 | maws 0 | res2 0
+9:00 P1 crown optimal (rush): income 4940 | workers 20 | army 765 | halls 2 | supply 40 | maws 0 | res2 233
+9:00 P2 clockwork optimal (balanced): income 9751 | workers 28 | army 2480 | halls 2 | supply 78 | maws 0 | res2 0
+10:00 P1 crown optimal (rush): income 5320 | workers 17 | army 755 | halls 2 | supply 35 | maws 0 | res2 303
+10:00 P2 clockwork optimal (balanced): income 11066 | workers 28 | army 2535 | halls 3 | supply 71 | maws 0 | res2 0
+11:00 P1 crown optimal (rush): income 6080 | workers 19 | army 0 | halls 2 | supply 20 | maws 0 | res2 394
+11:00 P2 clockwork optimal (balanced): income 11575 | workers 25 | army 1595 | halls 4 | supply 52 | maws 0 | res2 0
+12:00 P1 crown optimal (rush): income 6080 | workers 2 | army 0 | halls 2 | supply 2 | maws 0 | res2 411
+12:00 P2 clockwork optimal (balanced): income 12566 | workers 25 | army 1970 | halls 4 | supply 66 | maws 0 | res2 0
+13:00 P1 crown optimal (rush): income 6080 | workers 0 | army 0 | halls 2 | supply 0 | maws 0 | res2 411
+13:00 P2 clockwork optimal (balanced): income 13855 | workers 31 | army 2740 | halls 4 | supply 87 | maws 0 | res2 0
+14:00 P1 crown optimal (rush): income 6080 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 411
+14:00 P2 clockwork optimal (economy): income 15534 | workers 32 | army 3910 | halls 4 | supply 112 | maws 0 | res2 0
+14:52 P1 crown optimal (rush): income 6080 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 411
+14:52 P2 clockwork optimal (economy): income 16915 | workers 32 | army 5020 | halls 4 | supply 126 | maws 0 | res2 0
+P1 read 1:28 GREEDY [no army and no production at its base]
+P1 read 4:07 NORMAL [a standard opening]
+P1 read 6:44 UNKNOWN [the scout was killed]
+P1 read 8:07 NORMAL [a standard opening]
+P1 pick 1:28 opening GREEDY -> rush (punish the greed before its army is up)
+P1 first attack 3:40
+P2 read 2:03 UNKNOWN [the scout was killed]
+P2 read 4:06 AGGRESSIVE [fast rush units early]
+P2 read 12:36 NORMAL [a standard opening]
+P2 read 13:51 GREEDY [a second base and little army]
+P2 pick 2:48 opening UNKNOWN -> economy (an economic race)
+P2 pick 4:06 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+P2 pick 13:51 late GREEDY -> economy (too late to punish: out-expand it)
+end 14:52 winner P2

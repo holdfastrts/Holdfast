@@ -1,0 +1,44 @@
+map hollowfen seed 304: P1 clockwork optimal v P2 crown optimal
+food_bonus 1.2
+1:00 P1 clockwork optimal (balanced): income 361 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 clockwork optimal (balanced): income 1048 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+2:00 P2 crown optimal (balanced): income 760 | workers 9 | army 0 | halls 1 | supply 11 | maws 0 | res2 0
+3:00 P1 clockwork optimal (springer): income 1893 | workers 17 | army 0 | halls 2 | supply 17 | maws 0 | res2 0
+3:00 P2 crown optimal (balanced): income 1140 | workers 13 | army 0 | halls 2 | supply 13 | maws 0 | res2 0
+4:00 P1 clockwork optimal (springer): income 2757 | workers 18 | army 0 | halls 2 | supply 18 | maws 0 | res2 0
+4:00 P2 crown optimal (balanced): income 1900 | workers 18 | army 0 | halls 2 | supply 19 | maws 0 | res2 0
+5:00 P1 clockwork optimal (springer): income 3621 | workers 18 | army 100 | halls 2 | supply 22 | maws 0 | res2 0
+5:00 P2 crown optimal (balanced): income 2660 | workers 20 | army 0 | halls 2 | supply 24 | maws 0 | res2 79
+6:00 P1 clockwork optimal (springer): income 4426 | workers 21 | army 685 | halls 2 | supply 40 | maws 0 | res2 0
+6:00 P2 crown optimal (balanced): income 3420 | workers 23 | army 235 | halls 2 | supply 33 | maws 0 | res2 186
+6:34 P2 FIRSTWAVE enemy 375 at (103, 65): muskets 1 by its palisade, 3 on the main's high ground, 0 elsewhere; gate post false
+7:00 P1 clockwork optimal (springer): income 5320 | workers 23 | army 1120 | halls 2 | supply 50 | maws 0 | res2 0
+7:00 P2 crown optimal (balanced): income 4560 | workers 27 | army 700 | halls 2 | supply 49 | maws 0 | res2 253
+8:00 P1 clockwork optimal (springer): income 6544 | workers 27 | army 1360 | halls 2 | supply 56 | maws 0 | res2 0
+8:00 P2 crown optimal (balanced): income 6460 | workers 35 | army 1305 | halls 2 | supply 72 | maws 0 | res2 286
+9:00 P1 clockwork optimal (springer): income 8083 | workers 29 | army 1575 | halls 3 | supply 57 | maws 0 | res2 0
+9:00 P2 crown optimal (balanced): income 7980 | workers 44 | army 1725 | halls 2 | supply 82 | maws 0 | res2 356
+10:00 P1 clockwork optimal (springer): income 9408 | workers 30 | army 1330 | halls 2 | supply 61 | maws 0 | res2 0
+10:00 P2 crown optimal (balanced): income 10260 | workers 47 | army 1770 | halls 3 | supply 95 | maws 0 | res2 524
+11:00 P1 clockwork optimal (springer): income 10354 | workers 32 | army 1370 | halls 3 | supply 58 | maws 0 | res2 0
+11:00 P2 crown optimal (balanced): income 12160 | workers 55 | army 1535 | halls 3 | supply 102 | maws 0 | res2 714
+12:00 P1 clockwork optimal (springer): income 11178 | workers 25 | army 1735 | halls 4 | supply 58 | maws 0 | res2 0
+12:00 P2 crown optimal (balanced): income 14060 | workers 62 | army 1295 | halls 3 | supply 98 | maws 0 | res2 890
+13:00 P1 clockwork optimal (springer): income 11810 | workers 26 | army 2215 | halls 4 | supply 65 | maws 0 | res2 0
+13:00 P2 crown optimal (balanced): income 16980 | workers 57 | army 2030 | halls 3 | supply 126 | maws 0 | res2 1081
+14:00 P1 clockwork optimal (springer): income 12653 | workers 30 | army 2015 | halls 4 | supply 67 | maws 0 | res2 0
+14:00 P2 crown optimal (balanced): income 18880 | workers 66 | army 2680 | halls 3 | supply 137 | maws 0 | res2 1344
+15:00 P1 clockwork optimal (springer): income 13797 | workers 30 | army 1020 | halls 4 | supply 50 | maws 0 | res2 0
+15:00 P2 crown optimal (balanced): income 20400 | workers 65 | army 2495 | halls 4 | supply 138 | maws 0 | res2 1543
+15:00 P1 clockwork optimal (springer): income 13797 | workers 30 | army 1020 | halls 4 | supply 50 | maws 0 | res2 0
+15:00 P2 crown optimal (balanced): income 20400 | workers 65 | army 2495 | halls 4 | supply 138 | maws 0 | res2 1543
+P1 read 1:34 UNKNOWN [the scout was blocked]
+P1 pick 2:20 opening UNKNOWN -> springer (a timing attack)
+P2 read 1:16 GREEDY [no army and no production at its base]
+P2 read 6:42 NORMAL [a standard opening]
+P2 read 8:34 UNKNOWN [the scout was killed]
+P2 read 9:49 NORMAL [a standard opening]
+P2 pick 1:16 opening GREEDY -> balanced (steady waves punish the greed)
+P2 first attack 8:13
+end 15:00 winner none

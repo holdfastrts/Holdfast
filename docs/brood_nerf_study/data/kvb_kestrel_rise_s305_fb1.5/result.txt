@@ -1,0 +1,43 @@
+map kestrel_rise seed 305: P1 clockwork optimal v P2 brood optimal
+food_bonus 1.5
+1:00 P1 clockwork optimal (balanced): income 370 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 brood optimal (balanced): income 281 | workers 8 | army 0 | halls 2 | supply 9 | maws 2 | res2 0
+2:00 P1 clockwork optimal (cs_rush): income 1039 | workers 13 | army 0 | halls 1 | supply 13 | maws 0 | res2 0
+2:00 P2 brood optimal (rush): income 768 | workers 10 | army 150 | halls 2 | supply 14 | maws 3 | res2 0
+3:00 P1 clockwork optimal (cs_rush): income 1893 | workers 12 | army 280 | halls 1 | supply 18 | maws 0 | res2 0
+3:00 P2 brood optimal (rush): income 1239 | workers 10 | army 450 | halls 2 | supply 28 | maws 3 | res2 0
+4:00 P1 clockwork optimal (balanced): income 2572 | workers 14 | army 560 | halls 1 | supply 23 | maws 0 | res2 0
+4:00 P2 brood optimal (balanced): income 1814 | workers 15 | army 400 | halls 2 | supply 33 | maws 3 | res2 19
+5:00 P1 clockwork optimal (balanced): income 3399 | workers 21 | army 350 | halls 2 | supply 27 | maws 0 | res2 0
+5:00 P2 brood optimal (balanced): income 2502 | workers 22 | army 525 | halls 3 | supply 44 | maws 3 | res2 19
+6:00 P1 clockwork optimal (balanced): income 4263 | workers 23 | army 700 | halls 2 | supply 36 | maws 0 | res2 0
+6:00 P2 brood optimal (balanced): income 3592 | workers 21 | army 1050 | halls 3 | supply 64 | maws 5 | res2 49
+7:00 P1 clockwork optimal (balanced): income 5299 | workers 21 | army 0 | halls 2 | supply 28 | maws 0 | res2 0
+7:00 P2 brood optimal (balanced): income 4800 | workers 35 | army 675 | halls 4 | supply 71 | maws 5 | res2 64
+8:00 P1 clockwork optimal (balanced): income 6048 | workers 22 | army 270 | halls 2 | supply 32 | maws 0 | res2 0
+8:00 P2 brood optimal (balanced): income 6760 | workers 38 | army 440 | halls 4 | supply 67 | maws 7 | res2 94
+9:00 P1 clockwork optimal (balanced): income 7128 | workers 22 | army 820 | halls 2 | supply 42 | maws 0 | res2 0
+9:00 P2 brood optimal (balanced): income 8936 | workers 47 | army 895 | halls 4 | supply 87 | maws 7 | res2 154
+10:00 P1 clockwork optimal (balanced): income 8445 | workers 23 | army 1215 | halls 2 | supply 55 | maws 0 | res2 0
+10:00 P2 brood optimal (balanced): income 11537 | workers 53 | army 1475 | halls 4 | supply 114 | maws 7 | res2 244
+11:00 P1 clockwork optimal (balanced): income 9901 | workers 28 | army 1795 | halls 2 | supply 65 | maws 0 | res2 0
+11:00 P2 brood optimal (balanced): income 14482 | workers 53 | army 1680 | halls 4 | supply 134 | maws 7 | res2 274
+12:00 P1 clockwork optimal (balanced): income 11366 | workers 27 | army 1740 | halls 2 | supply 66 | maws 0 | res2 0
+12:00 P2 brood optimal (balanced): income 17321 | workers 54 | army 1050 | halls 4 | supply 116 | maws 6 | res2 304
+13:00 P1 clockwork optimal (balanced): income 12412 | workers 29 | army 2100 | halls 3 | supply 67 | maws 0 | res2 0
+13:00 P2 brood optimal (balanced): income 19982 | workers 54 | army 1600 | halls 4 | supply 132 | maws 5 | res2 400
+14:00 P1 clockwork optimal (balanced): income 13271 | workers 29 | army 1890 | halls 3 | supply 70 | maws 0 | res2 0
+14:00 P2 brood optimal (balanced): income 22689 | workers 54 | army 1570 | halls 4 | supply 134 | maws 5 | res2 475
+15:00 P1 clockwork optimal (balanced): income 14512 | workers 29 | army 1920 | halls 4 | supply 73 | maws 0 | res2 0
+15:00 P2 brood optimal (balanced): income 24930 | workers 54 | army 1435 | halls 4 | supply 128 | maws 5 | res2 610
+15:00 P1 clockwork optimal (balanced): income 14512 | workers 29 | army 1920 | halls 4 | supply 73 | maws 0 | res2 0
+15:00 P2 brood optimal (balanced): income 24930 | workers 54 | army 1435 | halls 4 | supply 128 | maws 5 | res2 610
+P1 read 1:39 GREEDY [a second base and little army]
+P1 read 3:04 AGGRESSIVE [fast rush units early]
+P1 pick 1:39 opening GREEDY -> cs_rush (punish the greed before its army is up)
+P1 pick 3:04 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+P2 read 1:32 GREEDY [no army and no production at its base]
+P2 read 3:07 NORMAL [a standard opening]
+P2 pick 1:32 opening GREEDY -> rush (punish the greed before its army is up)
+P2 first attack 2:36
+end 15:00 winner none
