@@ -1,0 +1,43 @@
+map dune_sea seed 369: P1 crown optimal v P2 clockwork optimal
+food_bonus 1.5
+1:00 P1 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 clockwork optimal (balanced): income 369 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 crown optimal (balanced): income 760 | workers 9 | army 0 | halls 1 | supply 11 | maws 0 | res2 0
+2:00 P2 clockwork optimal (balanced): income 1017 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+3:00 P1 crown optimal (balanced): income 1140 | workers 13 | army 0 | halls 2 | supply 13 | maws 0 | res2 0
+3:00 P2 clockwork optimal (balanced): income 1881 | workers 16 | army 0 | halls 1 | supply 18 | maws 0 | res2 0
+4:00 P1 crown optimal (balanced): income 1900 | workers 15 | army 0 | halls 2 | supply 19 | maws 0 | res2 0
+4:00 P2 clockwork optimal (balanced): income 2745 | workers 21 | army 210 | halls 2 | supply 27 | maws 0 | res2 0
+5:00 P1 crown optimal (balanced): income 2280 | workers 22 | army 0 | halls 2 | supply 22 | maws 0 | res2 86
+5:00 P2 clockwork optimal (balanced): income 3930 | workers 26 | army 700 | halls 2 | supply 38 | maws 0 | res2 0
+5:54 P1 FIRSTWAVE enemy 560 at (33, 31): muskets 1 by its palisade, 0 on the main's high ground, 0 elsewhere; gate post true
+6:00 P1 crown optimal (balanced): income 2660 | workers 22 | army 60 | halls 2 | supply 24 | maws 0 | res2 142
+6:00 P2 clockwork optimal (balanced): income 5538 | workers 28 | army 965 | halls 2 | supply 50 | maws 0 | res2 0
+7:00 P1 crown optimal (balanced): income 4180 | workers 27 | army 290 | halls 2 | supply 37 | maws 0 | res2 178
+7:00 P2 clockwork optimal (balanced): income 7180 | workers 32 | army 1710 | halls 3 | supply 68 | maws 0 | res2 0
+8:00 P1 crown optimal (balanced): income 4940 | workers 28 | army 0 | halls 2 | supply 37 | maws 0 | res2 212
+8:00 P2 clockwork optimal (balanced): income 9025 | workers 32 | army 2760 | halls 3 | supply 84 | maws 0 | res2 0
+9:00 P1 crown optimal (balanced): income 6080 | workers 22 | army 0 | halls 1 | supply 31 | maws 0 | res2 271
+9:00 P2 clockwork optimal (balanced): income 10694 | workers 29 | army 3390 | halls 3 | supply 91 | maws 0 | res2 0
+10:00 P1 crown optimal (balanced): income 6840 | workers 22 | army 250 | halls 1 | supply 35 | maws 0 | res2 320
+10:00 P2 clockwork optimal (balanced): income 12217 | workers 31 | army 3800 | halls 3 | supply 101 | maws 0 | res2 0
+11:00 P1 crown optimal (balanced): income 6840 | workers 3 | army 0 | halls 1 | supply 4 | maws 0 | res2 338
+11:00 P2 clockwork optimal (balanced): income 13729 | workers 32 | army 4570 | halls 4 | supply 118 | maws 0 | res2 0
+12:00 P1 crown optimal (balanced): income 6840 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 338
+12:00 P2 clockwork optimal (balanced): income 15104 | workers 32 | army 5890 | halls 4 | supply 132 | maws 0 | res2 0
+13:00 P1 crown optimal (balanced): income 6840 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 338
+13:00 P2 clockwork optimal (balanced): income 16700 | workers 32 | army 6870 | halls 4 | supply 148 | maws 0 | res2 0
+14:00 P1 crown optimal (balanced): income 6840 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 338
+14:00 P2 clockwork optimal (economy): income 17975 | workers 32 | army 7780 | halls 4 | supply 163 | maws 0 | res2 0
+14:14 P1 crown optimal (balanced): income 6840 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 338
+14:14 P2 clockwork optimal (economy): income 18320 | workers 32 | army 8260 | halls 4 | supply 166 | maws 0 | res2 0
+P1 read 1:29 GREEDY [no army and no production at its base]
+P1 read 5:20 UNKNOWN [the scout was killed]
+P1 read 6:36 NORMAL [a standard opening]
+P1 pick 1:29 opening GREEDY -> balanced (steady waves punish the greed)
+P2 read 2:04 UNKNOWN [the scout was killed]
+P2 read 7:50 NORMAL [a standard opening]
+P2 read 13:02 GREEDY [no army and no production at its base]
+P2 pick 2:50 opening UNKNOWN -> balanced (a normal game)
+P2 pick 13:02 late GREEDY -> economy (too late to punish: out-expand it)
+end 14:14 winner P2
