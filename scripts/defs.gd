@@ -162,7 +162,7 @@ const KEG := {"blast": 40.0, "radius": 48.0, "hp": 30.0}
 # the richer it is (Game.food_at, scripts/brood_new.gd).
 ## A load pays for the time its round trip takes, at a rate that rises with the Rootmaw's distance from the Mother
 ## (in tiles; Game.food_mult): FOOD_RATE biomass per grub-second up to FOOD_NEAR tiles, rising to FOOD_BONUS more
-## (x2.5) at FOOD_FAR tiles, flat from there (FOOD_PEAK = FOOD_MAX_D: FOOD_FADE never bites). The same multiplier speeds
+## (x2.2) at FOOD_FAR tiles, flat from there (FOOD_PEAK = FOOD_MAX_D: FOOD_FADE never bites). The same multiplier speeds
 ## how fast a far Rootmaw drinks its ground (Defs.NB "maw_fill" x food_mult), so a far one pays its PIT_GROUND faster
 ## (0.24.22, the owner: "increase the distance buff... isn't snowball"; docs/brood_new.md "0.24.22 distance pay").
 ## The trip is estimated as PIT_TIME + FOOD_TRIP seconds a tile of open ground between the two (less FOOD_REACH).
@@ -171,7 +171,7 @@ const FOOD_RATE := 0.6            # biomass per grub-second of round trip (near 
 const FOOD_NEAR := 8.0           # (was 6 until 0.24.22: the Mother's own Rootmaw, ~8.5 tiles, pays as before)
 const FOOD_FAR := 24.0            # (was 18)
 const FOOD_PEAK := 32.0           # (was 22)
-const FOOD_BONUS := 1.5          # (was 0.3 until 0.24.22)
+const FOOD_BONUS := 1.2          # (0.33.6, the owner: "nerf the Brood's economy, just slightly": was 1.5; 0.3 until 0.24.22)
 const FOOD_FADE := 0.015          # share of the rate lost per tile beyond FOOD_PEAK
 const FOOD_TRIP := 0.8            # seconds of round trip per tile walked (mostly on swamp)
 const FOOD_REACH := 1.5           # tiles of the gap a grub doesn't walk

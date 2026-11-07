@@ -15,10 +15,10 @@ func check(ok: bool, what: String) -> void:
 func _initialize() -> void:
 	var m := func(d: float) -> float: return Game.food_mult(d)
 	check(is_equal_approx(m.call(6.0), 1.0) and m.call(8.5) < 1.06, "near home the pay is as before: x%.2f at 6 tiles, x%.2f at 8.5" % [m.call(6.0), m.call(8.5)])
-	check(m.call(14.0) > 1.5 and m.call(14.0) < 1.6, "x%.2f at 14 tiles" % m.call(14.0))
-	check(m.call(22.0) > 2.2 and m.call(22.0) < 2.4, "x%.2f at 22 tiles" % m.call(22.0))
-	check(is_equal_approx(m.call(24.0), 2.5) and is_equal_approx(m.call(30.0), 2.5) and is_equal_approx(m.call(45.0), 2.5),
-		"x2.5 from 24 tiles out (x%.2f at 30, x%.2f at 45)" % [m.call(30.0), m.call(45.0)])
+	check(m.call(14.0) > 1.4 and m.call(14.0) < 1.5, "x%.2f at 14 tiles" % m.call(14.0))
+	check(m.call(22.0) > 2.0 and m.call(22.0) < 2.1, "x%.2f at 22 tiles" % m.call(22.0))
+	check(is_equal_approx(m.call(24.0), 2.2) and is_equal_approx(m.call(30.0), 2.2) and is_equal_approx(m.call(45.0), 2.2),
+		"x2.2 from 24 tiles out (x%.2f at 30, x%.2f at 45)" % [m.call(30.0), m.call(45.0)])
 	var d := 6.0
 	var last := 0.0
 	var rising := true

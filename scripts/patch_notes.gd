@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.6", "items": [
+		"THE BROOD EARNS A LITTLE LESS FROM FAR ROOTMAWS: a Rootmaw far from the Brood Mother now pays up to 2.2 times the near rate (was 2.5). Near Rootmaws pay as before.",
+	]},
 	{"v": "0.33.5", "items": [
 		"THE BROOD COMPUTER READS THE HORSEMAN RUSH IN TIME (the owner's Hollowfen game: it read \"a standard opening\" one second before three riders hit it). Against the Crown its first watching grub now walks round the Crown's main before it settles at the foot of the ramp: a Horse Breeder early with no Powder Mill, a Horseman or horses early, or riders seen leaving the main is read as a rider rush, about two minutes before the riders come in the computer's games. A watching grub that sees soldiers backs off and comes back instead of walking home.",
 		"IT DEFENDS THE GRUBS, NOT THE OPEN FIELD: on the read the Tyrant Sire comes at once and Raptors are laid just in time (no Sire research meanwhile); grubs a rider comes near run to the warriors, which guard them by the Mother or at the threatened Rootmaw and never chase a rider past a short leash. Grubs no longer gang up on a healthy Horseman (only on a lone hurt one, or as a last resort with no warriors at home), and the Mother stays rooted, her swamp feeding the Rootmaws, while her warriors are there.",
