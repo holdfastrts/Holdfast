@@ -111,9 +111,30 @@ Game by game (before -> after):
 A Brood that ignores the rush is what 0.33.4 was: it read the rush as it hit and lost 7-17 units, 5-12 of them grubs,
 in two minutes (the owner's game: 25 units and 8 of 21 grubs). The rush still hurts that Brood.
 
-CROWN_OPTIMAL_HERE
+Against the Crown's OPTIMAL (it walls its ramp at once, reads the Brood as GREEDY and then builds the Horse Breeder and
+sends its riders: the punish it plays against the Brood), 4 maps, seed 1 (Hollowfen: the owner's seed), 10 minutes:
 
-LONG_HERE
+| averages (4 games each) | OPTIMAL 0.33.4 | OPTIMAL 0.33.5 | Economy 0.33.4 | Economy 0.33.5 |
+|---|---|---|---|---|
+| read before the riders' hit | -1 s | +44 s (-1 to +152) | +5 s | +44 s (-2 to +157) |
+| units lost in the raid (grubs) | 11.2 (7.2) | 11.5 (8.2) | 14.8 (8.0) | 11.2 (7.0) |
+| grubs at 5:00 / 8:00 | 22.2 / 39.5 | 26.5 / 53.2 | 23.0 / 40.2 | 27.0 / 55.8 |
+| food earned by 10:00 | 10,855 | **13,475** (+24%) | 11,666 | **12,790** (+10%) |
+
+Here the walled ramp keeps the watcher's look out (its Breeder goes down after the read, behind the wall), so the read
+comes from the riders leaving past the foot of the ramp (+7 to +14 s) or at the hit; the raid costs about what it cost
+before, but the Brood's economy comes back sooner (grubs on the curve again, no three minutes of Raptors only).
+These 8 games ran on the final code (with the watcher's quick return, below); the 16 rush games above ran on the code
+just before it (the only change after them: a watcher that walked home unhurt goes out again 20 s later, not 60, until
+the riders are read).
+
+To 15:00 (the Crown's rush plan against the Brood's OPTIMAL; the smaller army at 8:00 is no weakness later):
+
+| map, seed | 0.33.4 | 0.33.5 |
+|---|---|---|
+| Hollowfen 3233604515 | the Brood wins at 10:00 | the Brood wins at 13:14 |
+| Dune Sea 1 | no winner at 15:00 | the Brood wins at 14:20 |
+| Greenhold 1 | no winner at 15:00 | the Brood wins at 11:52 |
 
 ## Tests
 
@@ -147,8 +168,12 @@ LONG_HERE
 
 ## Open questions
 
-- A human Crown that walls its ramp in the first minute (the owner did: a Gate piece at 0:40) shuts the look out: the
-  read then comes from the riders leaving past the foot of the ramp (20-40 s before they arrive), not from the Horse
-  Breeder.
+- A Crown that walls its ramp in the first minute (the owner did: a Gate piece at 0:40; the Crown's OPTIMAL does too)
+  shuts the look out: the read then comes from the riders leaving past the foot of the ramp (7-14 s before they arrive
+  in the measured games), or only at the hit when the watcher was away. A watcher standing farther out on the road, or a
+  second one at the natural, would see them sooner; not tried.
+- The Brood's mobile army at 8:00 is about half of what it was (it no longer lays Raptors for minutes after the riders
+  have gone). In the three 15-minute games it won every time, sooner than before; against a Crown that times a real army
+  at 8:00 this needs watching.
 - The Crown computer's riders mostly kite the guard (few are killed): the rush fails (its own log says "FAILED: the
   defenders are worth more") but costs the Crown little. A Brood that wants to punish it needs Spitters or the Toad.

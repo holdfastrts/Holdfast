@@ -994,7 +994,7 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 			_scout.cmd_stop()          # (home: back to work)
 			_scout = null
 			_watch_flee = false
-			_watch_next = game.clock + WATCH_GAP
+			_watch_next = game.clock + (20.0 if _foe_is("crown") and game.clock < RIDER_READ_BY and rider_read_t < 0.0 else WATCH_GAP)      # (brood-anti-riders: home unhurt before the riders are read: the next goes soon; Dune Sea, the foot was empty from 3:00 to 4:00 and the riders left at 3:37 unseen)
 		elif _scout.order != "move":
 			_scout.cmd_move(q.position)
 		return
