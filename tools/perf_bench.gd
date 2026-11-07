@@ -83,6 +83,7 @@ const MED_ZONES := ["units", "buildings", "game", "game/fog", "ai", "hud", "hud 
 ## The parts (Prof keys) in the CSV; "a/b" is part of "a" (game/fog is inside game).
 const ZONES := ["units", "ai", "game", "game/fog", "game/fog/units", "game/fog/buildings", "game/fog/copy", "game/fog/picture", "game/fog/shown",
 	"game/paths", "game/pathfinder", "game/path smoothing", "game/unit grid", "game/refit",
+	"game/econ", "game/line net", "game/gears", "game/zones", "game/swamp", "game/end+ghosts", "game/stats", "replay/record", "replay/key", "replay/write", "powder smoke",
 	"buildings", "effects", "projectiles", "unit draw", "building draw", "hud", "hud draw", "overlay draw", "autosave",
 	"hud/top", "hud/minimap", "hud/map view", "hud/groups", "hud/selection", "hud/command card", "hud/card build", "hud/glow", "hud/rest", "hud/chat", "hud/tooltip", "hud/pause", "hud/look", "hud/hover", "hud/tip check",
 	"ai/workers", "ai/econ", "ai/build", "ai/produce", "ai/raid", "ai/army", "ai/horses", "ai/loose", "ai/abil", "ai/micro", "ai/gg", "ai/brood", "ai/brood/rootmaws", "ai/brood/morphs", "ai/brood/lay", "ai/brood/army", "ai/brood/research", "ai/brood/mature", "ai/brood/alarm", "ai/brood/essence", "ai/brood/maw_guard", "ai/brood/observe"]
@@ -221,8 +222,31 @@ func _start() -> void:
 	_wall0 = Time.get_ticks_msec()
 
 
+## The game's tick (qa-perf, 0.33.8): this script's _physics_process runs first in each physics step and its _process
+## first in the frame's processing after the steps, so the time between them is what the frame's game ticks cost
+## (units, buildings, the game, projectiles, the replay's pictures: everything run in the physics step).
+var _tick_t0 := 0
+var _tick_n := 0
+var _ticks := PackedFloat32Array()      # ms of every frame's game ticks this minute (frames with a tick)
+var _ticks_all := PackedFloat32Array()  # ... the whole game
+
+
+func _physics_process(_delta: float) -> bool:
+	if _tick_n == 0:
+		_tick_t0 = Time.get_ticks_usec()
+	_tick_n += 1
+	return false
+
+
 func _process(delta: float) -> bool:
 	var now := Time.get_ticks_usec()
+	if _tick_n > 0:
+		if started and main.game != null and not paused:
+			var tk := (now - _tick_t0) / 1000.0 / _tick_n
+			for i in _tick_n:
+				_ticks.append(tk)
+				_ticks_all.append(tk)
+		_tick_n = 0
 	t += delta
 	if not started:
 		if t > 0.2:
@@ -276,6 +300,18 @@ func _process(delta: float) -> bool:
 			_trace.close()
 		return true
 	return false
+
+
+## The program's resident memory (Linux: /proc/self/status VmRSS), MB; -1 elsewhere.
+func _rss_mb() -> float:
+	var f := FileAccess.open("/proc/self/status", FileAccess.READ)
+	if f == null:
+		return -1.0
+	while not f.eof_reached():
+		var l := f.get_line()
+		if l.begins_with("VmRSS:"):
+			return float(l.split(":")[1].strip_edges().split(" ")[0]) / 1024.0
+	return -1.0
 
 
 ## The processor time this program has used so far, in ms (Linux: /proc/self/stat, user + system;
@@ -399,6 +435,25 @@ func _minute_row(g: Game) -> void:
 		"draw_calls": int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)),
 		"mem_mb": OS.get_static_memory_usage() / 1048576.0, "log_lines": g.mlog.lines.size() if g.mlog else 0,
 		"wall_s": (Time.get_ticks_msec() - _wall0) / 1000.0}
+	var tks := _ticks.duplicate()
+	tks.sort()
+	var tsum := 0.0
+	for x in tks:
+		tsum += x
+	row["tick_n"] = tks.size()
+	row["tick_avg"] = tsum / maxf(1.0, tks.size())
+	row["tick_p95"] = float(tks[int(tks.size() * 0.95)]) if tks.size() > 0 else 0.0
+	row["tick_max"] = float(tks[tks.size() - 1]) if tks.size() > 0 else 0.0
+	_ticks = PackedFloat32Array()
+	row["rss_mb"] = _rss_mb()
+	row["mem_static_mb"] = Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0
+	row["tex_mb"] = Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0
+	row["vid_mb"] = Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0
+	row["resources"] = int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT))
+	row["n_dead_units"] = g.units.filter(func(u) -> bool: return not is_instance_valid(u) or u.dead).size()
+	var rec = g.get("rec")
+	row["replay_kb"] = (float(rec.bytes_file) / 1024.0) if rec != null and is_instance_valid(rec) and rec.get("bytes_file") != null else -1.0
+	row["replay_frames_buf"] = (rec.frames as Array).size() if rec != null and is_instance_valid(rec) and rec.get("frames") != null else -1
 	var cpu := _cpu_ms()
 	row["cpu_s"] = (cpu - _cpu0) / 1000.0 if cpu >= 0.0 else -1.0
 	_cpu0 = cpu
@@ -430,6 +485,8 @@ func _minute_row(g: Game) -> void:
 		zs.append("%s %.2f" % [z, row[z]])
 	print("PERF worst frame %.0f ms: %s" % [_worst_ms, _worst_zones])
 	_worst_ms = 0.0
+	print("PERF tick min %2d | ticks %d | ms avg %.2f p95 %.2f max %.1f | rss %.0f MB static %.0f MB tex %.0f MB res %d | dead units listed %d | replay %.0f kB" % [row["min"], row["tick_n"], row["tick_avg"], row["tick_p95"], row["tick_max"],
+		row["rss_mb"], row["mem_static_mb"], row["tex_mb"], row["resources"], row["n_dead_units"], row["replay_kb"]])
 	print("PERF min %2d | %5.1f fps avg, 1%% low %5.1f, worst %6.1f ms, >33ms %4d, >50ms %4d | cpu %.1f s | paths %d (shared %d) | units %d bodies %d fx %d proj %d nodes %d objs %d | ms/frame: %s" % [
 		row["min"], row["fps"], row["low1_fps"], row["worst_ms"], over33, over50, row["cpu_s"], row["paths"], row["paths_shared"], units, row["n_bodies"], row["n_effects"], row["n_projectiles"],
 		row["nodes"], row["objects"], ", ".join(zs)])
@@ -467,7 +524,14 @@ func _count_nodes(g: Game) -> Dictionary:
 
 
 func _save() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://docs/perf"))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://docs/perf/%s" % out_name).get_base_dir())
+	var all := _ticks_all.duplicate()
+	all.sort()
+	if all.size() > 0:
+		var sm := 0.0
+		for x in all:
+			sm += x
+		print("PERF game ticks %d: ms avg %.2f, p95 %.2f, p99 %.2f, max %.1f" % [all.size(), sm / all.size(), all[int(all.size() * 0.95)], all[int(all.size() * 0.99)], all[all.size() - 1]])
 	var cols: Array = _rows[0].keys() if not _rows.is_empty() else []
 	var csv := PackedStringArray([",".join(cols)])
 	for r in _rows:
