@@ -54,6 +54,7 @@ func _initialize() -> void:
 			"shots": shots = kv[1] == "1"
 			"every": every = float(kv[1])
 			"diag": diag = kv[1] == "1"
+			"fb": Game.food_bonus = float(kv[1])
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -192,8 +193,13 @@ func _army_value(tm: int) -> int:
 func _side_line(tm: int) -> String:
 	var a := _ai(tm)
 	var halls := g.halls_of(tm).size() if g.faction_of(tm) != "brood" else 1 + (BroodNew.expansions(g, BroodNew.queen(g, tm)).size() if BroodNew.queen(g, tm) else 0)
-	return "%s P%d %s %s (%s): income %d | workers %d | army %d | halls %d | supply %d" % [_mmss(g.clock), tm + 1, g.faction_of(tm),
-		a.plan_key() if a else "?", a.strategy if a else "?", int(g.stats[tm]["gold"]), g.workers(tm).size(), _army_value(tm), halls, g.supply_used(tm)]
+	var maws := 0
+	if g.faction_of(tm) == "brood":
+		for u in g.units:
+			if u.team == tm and u.kind == BroodNew.MAW and not u.dead and BroodNew.rooted(u):
+				maws += 1
+	return "%s P%d %s %s (%s): income %d | workers %d | army %d | halls %d | supply %d | maws %d | res2 %d" % [_mmss(g.clock), tm + 1, g.faction_of(tm),
+		a.plan_key() if a else "?", a.strategy if a else "?", int(g.stats[tm]["gold"]), g.workers(tm).size(), _army_value(tm), halls, g.supply_used(tm), maws, int(g.stats[tm].get("res2_in", 0.0))]
 
 
 func _watch() -> void:
@@ -262,6 +268,7 @@ func _finish() -> void:
 		lines.append(_side_line(tm))
 	var r := FileAccess.open(out.path_join("result.txt"), FileAccess.WRITE)
 	r.store_line("map %s seed %d: P1 %s %s v P2 %s %s" % [map, seed_, fa, sa, fb, sb])
+	r.store_line("food_bonus %s" % str(Game.food_bonus))
 	for l in lines:
 		r.store_line(l)
 	for tm in 2:
