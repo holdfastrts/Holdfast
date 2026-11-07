@@ -1,0 +1,33 @@
+map greenhold seed 336: P1 clockwork optimal v P2 crown optimal
+food_bonus 1.5
+1:00 P1 clockwork optimal (balanced): income 361 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 clockwork optimal (balanced): income 1065 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+2:00 P2 crown optimal (balanced): income 760 | workers 9 | army 0 | halls 1 | supply 11 | maws 0 | res2 0
+3:00 P1 clockwork optimal (balanced): income 1929 | workers 17 | army 70 | halls 2 | supply 21 | maws 0 | res2 0
+3:00 P2 crown optimal (balanced): income 1140 | workers 13 | army 0 | halls 2 | supply 13 | maws 0 | res2 0
+4:00 P1 clockwork optimal (balanced): income 2864 | workers 22 | army 280 | halls 2 | supply 26 | maws 0 | res2 0
+4:00 P2 crown optimal (balanced): income 1900 | workers 15 | army 0 | halls 2 | supply 15 | maws 0 | res2 3
+5:00 P1 clockwork optimal (balanced): income 4368 | workers 27 | army 700 | halls 2 | supply 42 | maws 0 | res2 0
+5:00 P2 crown optimal (balanced): income 2280 | workers 14 | army 0 | halls 2 | supply 15 | maws 0 | res2 97
+6:00 P1 clockwork optimal (balanced): income 6052 | workers 28 | army 1195 | halls 2 | supply 56 | maws 0 | res2 0
+6:00 P2 crown optimal (balanced): income 2660 | workers 14 | army 0 | halls 2 | supply 16 | maws 0 | res2 188
+7:00 P1 clockwork optimal (balanced): income 7692 | workers 32 | army 1890 | halls 3 | supply 74 | maws 0 | res2 0
+7:00 P2 crown optimal (balanced): income 3040 | workers 14 | army 120 | halls 2 | supply 23 | maws 0 | res2 223
+7:30 P2 FIRSTWAVE enemy 1370 at (74, 48): muskets 0 by its palisade, 2 on the main's high ground, 0 elsewhere; gate post false
+8:00 P1 clockwork optimal (balanced): income 9504 | workers 32 | army 3140 | halls 3 | supply 95 | maws 0 | res2 0
+8:00 P2 crown optimal (balanced): income 3420 | workers 13 | army 350 | halls 2 | supply 22 | maws 0 | res2 256
+9:00 P1 clockwork optimal (balanced): income 11169 | workers 32 | army 4460 | halls 3 | supply 110 | maws 0 | res2 0
+9:00 P2 crown optimal (balanced): income 4180 | workers 10 | army 250 | halls 2 | supply 20 | maws 0 | res2 274
+10:00 P1 clockwork optimal (balanced): income 12675 | workers 32 | army 5430 | halls 3 | supply 127 | maws 0 | res2 0
+10:00 P2 crown optimal (balanced): income 4180 | workers 10 | army 0 | halls 0 | supply 10 | maws 0 | res2 287
+10:58 P1 clockwork optimal (balanced): income 14225 | workers 32 | army 6820 | halls 4 | supply 148 | maws 0 | res2 0
+10:58 P2 crown optimal (balanced): income 4180 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 287
+P1 read 2:11 UNKNOWN [the scout was killed]
+P1 read 9:19 NORMAL [a standard opening]
+P1 pick 2:56 opening UNKNOWN -> balanced (a normal game)
+P2 read 1:15 GREEDY [no army and no production at its base]
+P2 read 4:57 AGGRESSIVE [a big early army]
+P2 read 8:28 NORMAL [a standard opening]
+P2 pick 1:15 opening GREEDY -> balanced (steady waves punish the greed)
+end 10:58 winner P1
