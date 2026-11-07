@@ -32,6 +32,12 @@
   Dragoon raids might go 2 Barracks before the Foundry, but only when scouted and for a reason, as an answer to something.
   CONFIRMED (owner, 2026-11-04 20:50, asked after his own game went 2 Barracks first): "it depends, but most of the time
   Foundry first is the best option": Foundry first stays the default; a second Barracks first only for a scouted reason.
+- FULL QA STUDY (owner, 2026-11-07 23:20: "an overall study and complete systematic test of the game"): five cloud jobs,
+  each on its own branch, merge on "DONE: <job>:": qa-tests (run all ~244 tools/test_*.gd, fix/refresh, list untested
+  areas), qa-content (tools/test_content_all.gd: every unit/building/ability/research of every faction), qa-matches (Hard v
+  Hard, all 9 matchups incl. mirrors, every map, 15:00), qa-ui (every screen, 3 languages, desktop + phone sizes, tutorial,
+  campaign, editor, save/load, replays, online loopback, web), qa-perf (tick/draw/memory on every map, big battles).
+  Reports docs/qa_2026_11_08_<area>.md. Also DONE before it: brood-nerf-study (docs/brood_nerf_study.md, not merged yet).
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
