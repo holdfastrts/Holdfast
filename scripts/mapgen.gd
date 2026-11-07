@@ -254,6 +254,15 @@ static func pool_maps(pool_id: String, n: int) -> Array:
 	return out
 
 
+## The line under the lobby's map picker for a random pool: "One of 19 maps that hold 2 players..." (QA 2026-11-08:
+## a pool with a single fitting map said "One of 1 maps").
+static func pool_desc(pool_id: String, n: int) -> String:
+	var fit := pool_maps(pool_id, n)
+	if fit.size() == 1:
+		return Loc.t("The only map that holds %d players: %s.") % [n, Loc.t(display_name(String(fit[0])).trim_prefix("custom:"))]
+	return Loc.t("One of %d maps that hold %d players, picked when the match starts.") % [fit.size(), n]
+
+
 ## "Ashford Crossing (1v1, 96x96)", "My map (your map, 2v2, 120x100)"
 static func label(map_id: String) -> String:
 	for p in POOLS:

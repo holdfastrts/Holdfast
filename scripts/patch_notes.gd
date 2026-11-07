@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.8", "items": [
+		"QA OF THE INTERFACE (docs/qa_2026_11_08_ui.md): every menu page, Settings tab, skirmish setup, the in-game HUD of each faction, the end screen, the tutorial, the campaign, the map editor, saves, replays and online play were checked at two computer sizes and two phone sizes in English, Portuguese and Spanish. Fixed: the Town Hall's card said \"Soil\" and \"Saltpetre\" in English in Portuguese and Spanish (a short pattern cut the line at its first colon); the AI STORY and the spectator's panels say J1, J2 in Portuguese and Spanish like the lines above them, and a build-order step (\"Farm 2\") is translated; the interface layout page, the animation viewer and the relay address row are translated; a new map in the editor is named in your language; HOW TO PLAY and other menu buttons of two words may take two lines instead of shrinking to a tiny font; a random pool with one fitting map no longer says \"One of 1 maps\".",
+	]},
 	{"v": "0.33.7", "items": [
 		"THE MUSKETEER MARCHES ON NEW LEGS: a hand-drawn six-step walk in every direction, his musket carried the same way it is held when he aims (before, his legs were the labourer's pasted under him and each direction had its own number of steps, so turning jumped).",
 	]},

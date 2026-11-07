@@ -90,7 +90,9 @@ static func _build_patterns() -> void:
 		rx += _esc(key.substr(at).replace("%%", "%")) + "$"
 		var re := RegEx.new()
 		re.compile(rx)
-		var entry := [re, key, kinds]
+		# a "bare" key ("%s: %s", "+ %s"): almost no words of its own (see _pattern)
+		var bare := RegEx.create_from_string("[A-Za-z]").search_all(ph.sub(key, "", true)).size() < 3
+		var entry := [re, key, kinds, bare]
 		if first_lit.length() >= 4:
 			var k := first_lit.substr(0, 4)
 			if not _pats.has(k):
@@ -150,8 +152,13 @@ static func _pattern(s: String) -> String:
 	var cands: Array = []
 	if s.length() >= 4 and _pats.has(s.substr(0, 4)):
 		cands = _pats[s.substr(0, 4)]
+	# a text of several pieces ("Haulers 0/0 · Soil: 96% (8620 gold) · ...") is not taken by a bare key such as
+	# "%s: %s": that cut it at the first colon and left half of it English (QA 2026-11-08); it goes piece by piece below
+	var pieces := s.contains(" · ") or s.contains("\n")
 	for group in [cands, _pats_any]:
 		for e in group:
+			if pieces and e[3]:
+				continue
 			var m: RegExMatch = e[0].search(s)
 			if m == null:
 				continue

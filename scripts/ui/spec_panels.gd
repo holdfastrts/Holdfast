@@ -228,7 +228,7 @@ func options(p: String) -> Array:
 
 
 func _who(t: int) -> String:
-	return "P%d %s" % [t + 1, Loc.t(game.faction_of(t).capitalize())]
+	return (Loc.t("P%d") + " %s") % [t + 1, Loc.t(game.faction_of(t).capitalize())]     # (J1 in pt / es, as the top lines)
 
 
 func pick_label(p: String) -> String:
@@ -441,7 +441,7 @@ func _draw_prod(br: Rect2) -> void:
 			break
 		var x0 := br.position.x + 8.0
 		hud._ci.draw_rect(Rect2(x0, y + 8, 4, 14), game.team_colour(t))
-		_txt(fb, Vector2(x0 + 8, y + 20), "P%d" % (t + 1), 13, UiStyle.TEXT)
+		_txt(fb, Vector2(x0 + 8, y + 20), Loc.t("P%d") % (t + 1), 13, UiStyle.TEXT)
 		if items.is_empty():
 			_txt(UiStyle.body_font(), Vector2(x0 + LABEL_W, y + 16), Loc.t("(nothing in production)"), 12, UiStyle.MUTED, br.end.x - x0 - LABEL_W - 6)
 		for i in items.size():

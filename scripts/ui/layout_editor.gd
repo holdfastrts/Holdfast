@@ -58,7 +58,7 @@ func _build() -> void:
 	top.add_child(_btn("BACK", 86, func() -> void: done.emit()))
 	for p in UiLayout.BUILT_IN + UiLayout.CUSTOM:
 		var pp: String = p
-		var b := _btn(("» " if UiLayout.active == p else "") + p, 0, func() -> void:
+		var b := _btn(("» " if UiLayout.active == p else "") + Loc.t(p), 0, func() -> void:
 			profile = pp
 			_build())
 		b.add_theme_font_size_override("font_size", 14)
@@ -274,11 +274,11 @@ func _draw() -> void:
 		var sr := Rect2(r.position * s, r.size * s)
 		UiStyle.draw_panel(self, sr, UiStyle.TRIM if _drag == part else Color(0, 0, 0, 0))
 		var f := UiStyle.bold_font()
-		var label: String = UiLayout.PART_NAMES[part]
+		var label := Loc.t(String(UiLayout.PART_NAMES[part]))       # (drawn by hand: translated here; QA 2026-11-08)
 		var w := f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
 		draw_string(f, sr.get_center() + Vector2(-w * 0.5, 6), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, UiStyle.TEXT)
-	var hint := "Drag the boxes to move them. Saved as you go." if editable else "Built-in layout. Pick a CUSTOM slot to make your own."
-	hint += "   (Enter: chat)"
+	var hint := Loc.t("Drag the boxes to move them. Saved as you go." if editable else "Built-in layout. Pick a CUSTOM slot to make your own.")
+	hint += "   " + Loc.t("(Enter: chat)")
 	var f2 := UiStyle.bold_font()
 	var w2 := f2.get_string_size(hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
 	draw_string(f2, Vector2(size.x * 0.5 - w2 * 0.5, size.y * 0.5), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, UiStyle.MUTED)

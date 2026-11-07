@@ -157,9 +157,10 @@ func load_from(data: Dictionary) -> void:
 func _free_name() -> String:
 	var names := MapGen.custom_names()
 	var i := 1
-	while names.has("My map %d" % i):
+	var base := Loc.t("My map %d")       # (the new map's name in the player's language; QA 2026-11-08)
+	while names.has(base % i):
 		i += 1
-	return "My map %d" % i
+	return base % i
 
 
 func mode() -> String:

@@ -192,7 +192,7 @@ func clear() -> void:
 
 ## The player's name as the panel shows it: "P1 Crown".
 func who(team: int) -> String:
-	return "P%d %s" % [team + 1, Loc.t(game.faction_of(team).capitalize())]
+	return (Loc.t("P%d") + " %s") % [team + 1, Loc.t(game.faction_of(team).capitalize())]     # (J1 in pt / es, as the top lines)
 
 
 ## An entry's sentence in the game's language.
@@ -203,12 +203,24 @@ func text_of(e: Dictionary) -> String:
 		if s.is_valid_int() or (s.contains(":") and s.replace(":", "").is_valid_int()):
 			args.append(s)
 		else:
-			args.append(", ".join(Array(s.split(", ")).map(func(x: String) -> String: return Loc.t(x))))
+			args.append(", ".join(Array(s.split(", ")).map(func(x: String) -> String: return _t_arg(x))))
 	var tpl := Loc.t(String(e["tpl"]))
 	var out := tpl % args if tpl.count("%s") == args.size() else String(e["tpl"]).replace("%s", "?")
 	if int(e["n"]) > 1:
 		out += "  ×%d" % int(e["n"])
 	return out
+
+
+## One piece of a line in the game's language; a numbered step ("Farm 2", "Barracks 1") translates its name
+## (QA 2026-11-08: "Orden de construcción de J1 Corona: Farm 2.").
+static func _t_arg(x: String) -> String:
+	var r := Loc.t(x)
+	if r != x:
+		return r
+	var sp := x.rfind(" ")
+	if sp > 0 and x.substr(sp + 1).is_valid_int():
+		return Loc.t(x.substr(0, sp)) + x.substr(sp)
+	return r
 
 
 ## The feed for one AI (-1: every one), newest first.
