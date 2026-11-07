@@ -55,6 +55,7 @@ func _initialize() -> void:
 			"every": every = float(kv[1])
 			"diag": diag = kv[1] == "1"
 			"fb": Game.food_bonus = float(kv[1])
+	next_line = every
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"

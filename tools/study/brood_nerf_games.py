@@ -16,15 +16,15 @@ MAPS = ["dune_sea", "greenhold", "red_coast", "hollowfen", "kestrel_rise"]
 MATCHUPS = [
     ("cvb", "crown", "brood", "optimal", ["1.2", "1.5"]),
     ("kvb", "clockwork", "brood", "optimal", ["1.2", "1.5"]),
-    ("cvk", "crown", "clockwork", "optimal", ["1.2"]),
+    ("cvk", "crown", "clockwork", "optimal", ["1.2", "1.5"]),   # the bonus cannot touch it: twin runs = the noise
 ]
-EXTRA = [("cvbe", "crown", "brood", "economy", ["1.2", "1.5"])]     # the Brood on Economy: one round only
+EXTRA = [("cvbe", "crown", "brood", "economy", ["1.2", "1.5"])]     # the Brood on Economy: two rounds
 
 
 def games(rounds):
     out = []
     for r in range(rounds):
-        for mu in MATCHUPS + (EXTRA if r == 0 else []):
+        for mu in MATCHUPS + (EXTRA if r < 2 else []):
             name, fa, fb, plan, bonuses = mu
             for mi, m in enumerate(MAPS):
                 seed = 301 + 17 * r + mi
