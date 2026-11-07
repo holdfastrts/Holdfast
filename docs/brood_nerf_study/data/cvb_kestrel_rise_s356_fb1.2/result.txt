@@ -1,0 +1,48 @@
+map kestrel_rise seed 356: P1 brood optimal v P2 crown optimal
+food_bonus 1.2
+1:00 P1 brood optimal (balanced): income 207 | workers 7 | army 0 | halls 2 | supply 8 | maws 2 | res2 0
+1:00 P2 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 brood optimal (balanced): income 608 | workers 11 | army 0 | halls 2 | supply 12 | maws 3 | res2 0
+2:00 P2 crown optimal (rush): income 760 | workers 9 | army 0 | halls 1 | supply 10 | maws 0 | res2 0
+3:00 P1 brood optimal (balanced): income 1233 | workers 16 | army 75 | halls 2 | supply 23 | maws 3 | res2 0
+3:00 P2 crown optimal (rush): income 1140 | workers 10 | army 230 | halls 1 | supply 18 | maws 0 | res2 0
+4:00 P1 brood optimal (spitter): income 2179 | workers 20 | army 475 | halls 2 | supply 38 | maws 3 | res2 60
+4:00 P2 crown optimal (rush): income 1900 | workers 10 | army 520 | halls 1 | supply 27 | maws 0 | res2 0
+5:00 P1 brood optimal (spitter): income 2677 | workers 23 | army 275 | halls 3 | supply 41 | maws 3 | res2 90
+5:00 P2 crown optimal (balanced): income 2280 | workers 13 | army 520 | halls 2 | supply 28 | maws 0 | res2 23
+6:00 P1 brood optimal (spitter): income 3354 | workers 30 | army 175 | halls 4 | supply 51 | maws 4 | res2 90
+6:00 P2 crown optimal (balanced): income 2280 | workers 13 | army 520 | halls 2 | supply 28 | maws 0 | res2 129
+7:00 P1 brood optimal (spitter): income 4901 | workers 40 | army 875 | halls 4 | supply 73 | maws 4 | res2 120
+7:00 P2 crown optimal (balanced): income 3040 | workers 19 | army 465 | halls 2 | supply 32 | maws 0 | res2 176
+8:00 P1 brood optimal (spitter): income 6458 | workers 50 | army 1200 | halls 4 | supply 105 | maws 6 | res2 135
+8:00 P2 crown optimal (balanced): income 4180 | workers 22 | army 695 | halls 2 | supply 40 | maws 0 | res2 209
+8:01 P2 FIRSTWAVE enemy 320 at (62, 58): muskets 0 by its palisade, 3 on the main's high ground, 0 elsewhere; gate post false
+9:00 P1 brood optimal (spitter): income 7938 | workers 50 | army 1130 | halls 4 | supply 101 | maws 7 | res2 135
+9:00 P2 crown optimal (balanced): income 4940 | workers 23 | army 985 | halls 2 | supply 51 | maws 0 | res2 243
+10:00 P1 brood optimal (spitter): income 9410 | workers 50 | army 950 | halls 4 | supply 106 | maws 7 | res2 150
+10:00 P2 crown optimal (balanced): income 6080 | workers 23 | army 1265 | halls 1 | supply 54 | maws 0 | res2 285
+11:00 P1 brood optimal (spitter): income 10787 | workers 49 | army 1300 | halls 4 | supply 125 | maws 6 | res2 195
+11:00 P2 crown optimal (balanced): income 6840 | workers 22 | army 1030 | halls 2 | supply 51 | maws 0 | res2 303
+12:00 P1 brood optimal (spitter): income 13115 | workers 49 | army 3120 | halls 4 | supply 172 | maws 5 | res2 225
+12:00 P2 crown optimal (balanced): income 7980 | workers 28 | army 1380 | halls 2 | supply 68 | maws 0 | res2 368
+13:00 P1 brood optimal (spitter): income 15519 | workers 50 | army 1965 | halls 4 | supply 143 | maws 7 | res2 255
+13:00 P2 crown optimal (balanced): income 8360 | workers 24 | army 1090 | halls 1 | supply 51 | maws 0 | res2 396
+14:00 P1 brood optimal (spitter): income 17918 | workers 50 | army 1335 | halls 4 | supply 115 | maws 6 | res2 330
+14:00 P2 crown optimal (balanced): income 8740 | workers 0 | army 0 | halls 1 | supply 0 | maws 0 | res2 402
+15:00 P1 brood optimal (spitter): income 19994 | workers 50 | army 1785 | halls 4 | supply 172 | maws 5 | res2 330
+15:00 P2 crown optimal (balanced): income 8740 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 402
+15:00 P1 brood optimal (spitter): income 19994 | workers 50 | army 1785 | halls 4 | supply 172 | maws 5 | res2 330
+15:00 P2 crown optimal (balanced): income 8740 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 402
+P1 read 3:40 AGGRESSIVE [a Horse Breeder or riders early]
+P1 read 4:56 NORMAL [a standard opening]
+P1 pick 3:00 opening UNKNOWN -> spitter (a timing attack)
+P1 first attack 7:37
+P2 read 1:35 GREEDY [a second base and little army]
+P2 read 4:05 NORMAL [a standard opening]
+P2 read 5:27 UNKNOWN [the scout was driven off]
+P2 read 6:43 NORMAL [a standard opening]
+P2 read 10:27 UNKNOWN [the scout was killed]
+P2 read 11:43 NORMAL [a standard opening]
+P2 pick 1:35 opening GREEDY -> rush (punish the greed: the Horse Breeder at once, the riders before its army)
+P2 first attack 3:34
+end 15:00 winner none

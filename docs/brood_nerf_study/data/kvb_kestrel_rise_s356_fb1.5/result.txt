@@ -1,0 +1,44 @@
+map kestrel_rise seed 356: P1 brood optimal v P2 clockwork optimal
+food_bonus 1.5
+1:00 P1 brood optimal (balanced): income 211 | workers 7 | army 0 | halls 2 | supply 8 | maws 2 | res2 0
+1:00 P2 clockwork optimal (balanced): income 373 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 brood optimal (rush): income 610 | workers 9 | army 150 | halls 2 | supply 13 | maws 3 | res2 0
+2:00 P2 clockwork optimal (cs_rush): income 997 | workers 13 | army 0 | halls 1 | supply 13 | maws 0 | res2 0
+3:00 P1 brood optimal (rush): income 995 | workers 8 | army 400 | halls 2 | supply 24 | maws 3 | res2 0
+3:00 P2 clockwork optimal (cs_rush): income 1855 | workers 12 | army 140 | halls 1 | supply 16 | maws 0 | res2 0
+4:00 P1 brood optimal (balanced): income 1384 | workers 12 | army 150 | halls 2 | supply 21 | maws 3 | res2 15
+4:00 P2 clockwork optimal (balanced): income 2328 | workers 12 | army 280 | halls 1 | supply 18 | maws 0 | res2 0
+5:00 P1 brood optimal (balanced): income 2117 | workers 14 | army 500 | halls 2 | supply 37 | maws 4 | res2 30
+5:00 P2 clockwork optimal (balanced): income 3063 | workers 16 | army 560 | halls 2 | supply 28 | maws 0 | res2 0
+6:00 P1 brood optimal (balanced): income 3093 | workers 24 | army 625 | halls 3 | supply 56 | maws 4 | res2 30
+6:00 P2 clockwork optimal (balanced): income 3893 | workers 22 | army 910 | halls 2 | supply 37 | maws 0 | res2 0
+7:00 P1 brood optimal (balanced): income 4206 | workers 26 | army 825 | halls 4 | supply 71 | maws 5 | res2 30
+7:00 P2 clockwork optimal (balanced): income 5035 | workers 26 | army 980 | halls 2 | supply 41 | maws 0 | res2 0
+8:00 P1 brood optimal (balanced): income 5798 | workers 34 | army 1000 | halls 4 | supply 88 | maws 5 | res2 45
+8:00 P2 clockwork optimal (balanced): income 6388 | workers 27 | army 1400 | halls 2 | supply 49 | maws 0 | res2 0
+9:00 P1 brood optimal (balanced): income 7664 | workers 52 | army 300 | halls 4 | supply 67 | maws 6 | res2 90
+9:00 P2 clockwork optimal (balanced): income 7870 | workers 28 | army 1335 | halls 2 | supply 61 | maws 0 | res2 0
+10:00 P1 brood optimal (balanced): income 9691 | workers 53 | army 1340 | halls 4 | supply 127 | maws 7 | res2 150
+10:00 P2 clockwork optimal (balanced): income 9438 | workers 30 | army 1760 | halls 3 | supply 71 | maws 0 | res2 0
+11:00 P1 brood optimal (balanced): income 12357 | workers 51 | army 2640 | halls 4 | supply 171 | maws 7 | res2 180
+11:00 P2 clockwork optimal (balanced): income 11218 | workers 32 | army 2530 | halls 4 | supply 86 | maws 0 | res2 0
+12:00 P1 brood optimal (balanced): income 14962 | workers 54 | army 2095 | halls 4 | supply 159 | maws 7 | res2 195
+12:00 P2 clockwork optimal (balanced): income 12641 | workers 26 | army 140 | halls 4 | supply 40 | maws 0 | res2 0
+13:00 P1 brood optimal (brute): income 17700 | workers 54 | army 3695 | halls 4 | supply 199 | maws 6 | res2 270
+13:00 P2 clockwork optimal (balanced): income 12799 | workers 10 | army 0 | halls 2 | supply 10 | maws 0 | res2 0
+14:00 P1 brood optimal (brute): income 20573 | workers 54 | army 4145 | halls 4 | supply 199 | maws 5 | res2 285
+14:00 P2 clockwork optimal (balanced): income 12799 | workers 0 | army 0 | halls 1 | supply 0 | maws 0 | res2 0
+14:36 P1 brood optimal (brute): income 22193 | workers 54 | army 4145 | halls 4 | supply 199 | maws 5 | res2 285
+14:36 P2 clockwork optimal (balanced): income 12799 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 0
+P1 read 1:36 GREEDY [no army and no production at its base]
+P1 read 3:08 NORMAL [a standard opening]
+P1 read 12:15 DEFENSIVE [turrets or rooted defenders]
+P1 read 13:31 NORMAL [a standard opening]
+P1 pick 1:36 opening GREEDY -> rush (punish the greed before its army is up)
+P1 pick 12:16 late DEFENSIVE -> brute (a siege to break its defences)
+P1 first attack 2:41
+P2 read 1:51 GREEDY [a second base and little army]
+P2 read 3:07 AGGRESSIVE [fast rush units early]
+P2 pick 1:51 opening GREEDY -> cs_rush (punish the greed before its army is up)
+P2 pick 3:07 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+end 14:36 winner P1

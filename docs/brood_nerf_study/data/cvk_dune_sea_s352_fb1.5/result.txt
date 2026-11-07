@@ -1,0 +1,39 @@
+map dune_sea seed 352: P1 clockwork optimal v P2 crown optimal
+food_bonus 1.5
+1:00 P1 clockwork optimal (balanced): income 361 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 clockwork optimal (balanced): income 1056 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+2:00 P2 crown optimal (rush): income 760 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+3:00 P1 clockwork optimal (springer): income 1920 | workers 17 | army 70 | halls 2 | supply 18 | maws 0 | res2 0
+3:00 P2 crown optimal (rush): income 1140 | workers 9 | army 230 | halls 1 | supply 16 | maws 0 | res2 0
+4:00 P1 clockwork optimal (springer): income 2784 | workers 18 | army 70 | halls 2 | supply 19 | maws 0 | res2 0
+4:00 P2 crown optimal (rush): income 1900 | workers 11 | army 345 | halls 1 | supply 26 | maws 0 | res2 0
+5:00 P1 clockwork optimal (springer): income 3116 | workers 12 | army 350 | halls 2 | supply 18 | maws 0 | res2 0
+5:00 P2 crown optimal (rush): income 2280 | workers 12 | army 115 | halls 1 | supply 16 | maws 0 | res2 16
+6:00 P1 clockwork optimal (springer): income 3537 | workers 11 | army 560 | halls 2 | supply 21 | maws 0 | res2 0
+6:00 P2 crown optimal (rush): income 2280 | workers 12 | army 115 | halls 2 | supply 16 | maws 0 | res2 117
+6:35 P2 FIRSTWAVE enemy 490 at (82, 52): muskets 0 by its palisade, 1 on the main's high ground, 0 elsewhere; gate post false
+7:00 P1 clockwork optimal (springer): income 3969 | workers 11 | army 960 | halls 2 | supply 30 | maws 0 | res2 0
+7:00 P2 crown optimal (rush): income 3040 | workers 17 | army 235 | halls 2 | supply 26 | maws 0 | res2 148
+8:00 P1 clockwork optimal (springer): income 4307 | workers 10 | army 1315 | halls 2 | supply 32 | maws 0 | res2 0
+8:00 P2 crown optimal (rush): income 4180 | workers 24 | army 410 | halls 2 | supply 38 | maws 0 | res2 166
+9:00 P1 clockwork optimal (springer): income 4428 | workers 8 | army 655 | halls 2 | supply 20 | maws 0 | res2 0
+9:00 P2 crown optimal (rush): income 5320 | workers 26 | army 765 | halls 2 | supply 52 | maws 0 | res2 225
+10:00 P1 clockwork optimal (springer): income 4450 | workers 2 | army 100 | halls 2 | supply 4 | maws 0 | res2 0
+10:00 P2 crown optimal (rush): income 6080 | workers 34 | army 1075 | halls 2 | supply 60 | maws 0 | res2 286
+11:00 P1 clockwork optimal (springer): income 4450 | workers 0 | army 0 | halls 1 | supply 0 | maws 0 | res2 0
+11:00 P2 crown optimal (rush): income 7980 | workers 41 | army 1365 | halls 3 | supply 76 | maws 0 | res2 379
+12:00 P1 clockwork optimal (springer): income 4450 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 0
+12:00 P2 crown optimal (rush): income 9500 | workers 44 | army 2185 | halls 4 | supply 95 | maws 0 | res2 513
+12:28 P1 clockwork optimal (springer): income 4450 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 0
+12:28 P2 crown optimal (rush): income 10640 | workers 44 | army 2485 | halls 4 | supply 105 | maws 0 | res2 583
+P1 read 2:08 UNKNOWN [the scout was killed]
+P1 read 4:02 AGGRESSIVE [fast rush units early]
+P1 read 8:36 NORMAL [a standard opening]
+P1 read 9:29 AGGRESSIVE [fast rush units early]
+P1 pick 2:53 opening UNKNOWN -> springer (a timing attack)
+P2 read 1:14 GREEDY [no army and no production at its base]
+P2 read 4:51 NORMAL [a standard opening]
+P2 pick 1:14 opening GREEDY -> rush (punish the greed before its army is up)
+P2 first attack 3:39
+end 12:28 winner P2
