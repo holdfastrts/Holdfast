@@ -110,6 +110,68 @@ def pair_key(g):
     ia, ib = ORDER.index(a), ORDER.index(b)
     return (a, b) if ia <= ib else (b, a)
 
+import re
+STORY_RULES = []
+
+
+def _foe_row(g, p, sec):
+    if g["n"] != 2:
+        return None
+    m = max(1, int(round(sec / 60)))
+    return row(g, 1 - p, m) or row(g, 1 - p, m - 1)
+
+
+def _own_row(g, p, sec):
+    m = max(1, int(round(sec / 60)))
+    return row(g, p, m) or row(g, p, m - 1)
+
+
+def story_checks(games):
+    """AI STORY lines that say something the measured game does not bear out (2-player games). Returns
+    {rule: [(game, line), ...]}"""
+    hits = collections.defaultdict(list)
+    for g in games:
+        if g["n"] != 2:
+            continue
+        for line in g["story"]:
+            mt = re.match(r"\[(\d+):(\d+)\] P(\d) (\w+)(.*)", line)
+            if not mt:
+                continue
+            sec = int(mt.group(1)) * 60 + int(mt.group(2))
+            p = int(mt.group(3)) - 1
+            txt = mt.group(5)
+            foe = g["fac"][1 - p]
+            fr = _foe_row(g, p, sec)
+            orow = _own_row(g, p, sec)
+            m = re.search(r"holds the top of its ramp: the force below \((\d+)\) is more than its army \((\d+)\)", txt)
+            if m and int(m.group(1)) <= int(m.group(2)):
+                hits["ramp hold: 'the force below is more than its army can beat' with the force below SMALLER or equal"].append((g, line))
+            m = re.search(r"holds the gate of its walled natural: the force outside \((\d+)\) is too strong to go out and meet with its army \((\d+)\)", txt)
+            if m and int(m.group(1)) <= int(m.group(2)):
+                hits["gate hold: 'the force outside is too strong' with the force outside SMALLER or equal"].append((g, line))
+            m = re.search(r"its best base has only (\d+)% left", txt)
+            if m and int(m.group(1)) >= 90:
+                hits["expansion: 'its best base has ONLY 90-100% left' (the line gives a reason that is not one)"].append((g, line))
+            if foe != "crown" and re.search(r"Horse Breeder or riders|riders (leave|in its land)|against \d+ riders|fast rider", txt):
+                hits["riders / Horse Breeder named against a %s enemy (it has neither)" % FN[foe]].append((g, line))
+            m = re.search(r"puts its army first \((\d+) against the (\d+) it reckons the enemy has\)", txt)
+            if m and fr and fr["army"] > 0:
+                r = int(m.group(2)) / fr["army"]
+                if r > 1.5 or r < 0.67:
+                    hits["army first: the enemy army it reckons is off by 1.5x or more (measured %s)" % ("smaller" if r > 1.5 else "bigger")].append((g, line + "  [measured enemy army %d]" % fr["army"]))
+            if "reads the enemy as GREEDY (no army and no production" in txt and fr and fr["army"] >= 250:
+                hits["GREEDY (no army) read while the enemy had 250+ army value"].append((g, line + "  [measured %d]" % fr["army"]))
+            if "reads the enemy as GREEDY (a second base and little army)" in txt and fr and fr["halls"] < 2:
+                hits["GREEDY (a second base) read while the enemy had one hall"].append((g, line))
+            if "'s rush worked" in txt:
+                e = [x for x in g["events"] if x["ev"] == "first_attack" and x["p"] == p and "lost" in x]
+                if e and e[0]["lost"] > e[0]["foe_lost"] and e[0]["foe_bld"] == 0:
+                    hits["'rush worked' but its first attack lost more units than it killed and razed nothing"].append((g, line + "  [lost %d killed %d]" % (e[0]["lost"], e[0]["foe_lost"])))
+            m = re.search(r"defends its (?:home|Mother) with (\d+) against (\d+)", txt)
+            if m and int(m.group(2)) == 0:
+                hits["defends against 0"].append((g, line))
+    return hits
+
 
 def main():
     games, failed = load()
@@ -434,6 +496,14 @@ def main():
     P("Spots where units got stuck in more than one case: " + "; ".join("%s %s x%d" % (m, a, c) for (m, a), c in spots.most_common(15) if c > 1))
     P("")
     P("Examples: " + "; ".join("%s P%d %s %s at %s -> %s (%s)" % (g["tag"], e["p"] + 1, e["kind"], mmss(e["t"]), e["at"], e["goal"], e["order"]) for g, e in st[:12]))
+    P("")
+    P("### AI STORY lines that the game does not bear out")
+    P("")
+    hits = story_checks(games)
+    P("| rule | lines | games | example |")
+    P("|---|---|---|---|")
+    for k, lst in sorted(hits.items(), key=lambda x: -len(x[1])):
+        P("| %s | %d | %d | %s: `%s` |" % (k, len(lst), len(set(g["tag"] for g, l in lst)), lst[0][0]["tag"], lst[0][1][:200]))
     P("")
     P("### Script errors and failed games")
     P("")
