@@ -7,7 +7,7 @@ The queue, in order (a cut run still has balanced data):
   base round 0 and 1: every 2-player map x the six pairings (Crown v Brood, Crown v Clockwork, Brood v Clockwork and the
       three mirrors), OPTIMAL on both sides; round 0 and round 1 swap the sides on each map (and alternate by map), so each
       cross pairing plays each start spot once per map;
-  plans: each faction's other listed plans against OPTIMAL of each faction, one game each, the map rotating;
+  plans: each faction's other listed plans once against OPTIMAL of a rotating faction, the map rotating;
   multi: a few 4-player games (free-for-all on classic maps, 2v2 on team maps).
 A game is done when DATA/<tag>/result.json exists; run again to resume. Raw output goes to OUT/<tag>/run.out; the kept
 data (result.json, story.txt, errors.txt with every SCRIPT ERROR / ERROR line) to DATA/<tag>/."""
@@ -43,19 +43,21 @@ def base(r):
 
 
 def plans():
+    """each other plan of each faction once, against OPTIMAL of a rotating opponent faction (each faction's plans meet
+    all three), the map rotating, sides alternating"""
     out = []
     k = 0
-    for f in FACS:
-        for p in PLANS[f]:
-            for o in FACS:
-                m = MAPS[(k * 7) % len(MAPS)]
-                seed = 5100 + k
-                swap = k % 2 == 1
-                me, foe = (f, p), (o, "optimal")
-                s1, s2 = (foe, me) if swap else (me, foe)
-                tag = "plan_%s-%s_v_%s_%s" % (SHORT[f], p, SHORT[o], m)
-                out.append((tag, m, seed, [(s1[0], s1[1], 0), (s2[0], s2[1], 1)]))
-                k += 1
+    for fi, f in enumerate(FACS):
+        for pi, p in enumerate(PLANS[f]):
+            o = FACS[(fi + pi) % 3]
+            m = MAPS[(k * 7) % len(MAPS)]
+            seed = 5100 + k
+            swap = k % 2 == 1
+            me, foe = (f, p), (o, "optimal")
+            s1, s2 = (foe, me) if swap else (me, foe)
+            tag = "plan_%s-%s_v_%s_%s" % (SHORT[f], p, SHORT[o], m)
+            out.append((tag, m, seed, [(s1[0], s1[1], 0), (s2[0], s2[1], 1)]))
+            k += 1
     return out
 
 

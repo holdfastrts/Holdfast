@@ -34,6 +34,7 @@ var _army_snaps: Array = []     # per player: Array of {id: pos} every 10 s (las
 var _unit_last: Dictionary = {} # unit id -> [pos, order_point, since]
 var _stuck_seen: Dictionary = {} # unit id -> true (reported)
 var _enemy_in_since: Array = []
+var _arr: Array = []            # per victim: the first enemy arrival in its base (300+ army value within 500 px)
 
 
 func _initialize() -> void:
@@ -62,6 +63,7 @@ func _initialize() -> void:
 		_stall_open.append({})
 		_army_snaps.append([])
 		_enemy_in_since.append(-1.0)
+		_arr.append({})
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -208,13 +210,15 @@ func _every5() -> void:
 		if g.faction_of(tm) != "brood":
 			for h in g.halls_of(tm, false):
 				now[h.get_instance_id()] = true
+				if seen.has(h.get_instance_id()) and h.built:
+					seen[h.get_instance_id()][2] = true
 				if not seen.has(h.get_instance_id()):
 					seen[h.get_instance_id()] = [String(h.kind), str(Vector2i(h.center() / Defs.TILE)), bool(h.built if "built" in h else true)]
 			for id in seen.keys():
 				if not now.has(id):
 					var inst = instance_from_id(id)
 					var died: bool = inst == null or (inst is Entity and inst.dead)
-					events.append({"t": int(g.clock), "p": tm, "ev": "hall_lost" if died else "hall_gone", "kind": seen[id][0], "at": seen[id][1]})
+					events.append({"t": int(g.clock), "p": tm, "ev": "hall_lost" if died else "hall_gone", "kind": seen[id][0], "at": seen[id][1], "built": seen[id][2]})
 					seen.erase(id)
 		else:
 			var c := _halls(tm)
@@ -291,6 +295,7 @@ func _every10() -> void:
 			if ds.size() >= 4:
 				ds.sort()
 				still = float(ds[ds.size() / 2]) < 40.0
+		_arrival(tm, ev)
 		_stall(tm, "army_idle_enemy_in_base", ev >= 300 and still and engaged * 4 < au.size(),
 			"enemy %d in base, army %d (%d units) still" % [ev, _army_value(tm), au.size()], 60.0)
 	# units stuck on a move order (moved under 8 px in 30 s with the same order point)
@@ -314,6 +319,31 @@ func _every10() -> void:
 			_stuck_seen[id] = true
 			events.append({"t": int(l[2]), "p": u.team, "ev": "stuck", "kind": String(u.kind), "order": u.order,
 				"at": str(Vector2i(u.position / Defs.TILE)), "goal": str(Vector2i(u.order_point / Defs.TILE))})
+
+
+## THE FIRST ARRIVAL of an enemy army in a player's base (whatever the attacker's computer calls it: the Clockwork's
+## push never marks itself attacking): when, how big, and 90 s later what each side lost (units; the victim's buildings).
+func _lost_units(ts: Array) -> int:
+	var k := 0
+	for e in ts:
+		k += int(g.stats[e]["lost"])
+	return k
+
+
+func _arrival(tm: int, ev: int) -> void:
+	var r: Dictionary = _arr[tm]
+	var foes := g.enemies_of(tm)
+	if r.is_empty() and ev >= 300:
+		var fv := 0
+		for e in foes:
+			fv += _army_value(e)
+		r.merge({"t": int(g.clock), "value": ev, "foe_army": fv, "own_army": _army_value(tm), "v_lost0": int(g.stats[tm]["lost"]),
+			"v_bld0": int(g.stats[tm]["bld_lost"]), "a_lost0": _lost_units(foes), "done": false})
+	elif not r.is_empty() and not r["done"] and g.clock >= float(r["t"]) + 90.0:
+		r["done"] = true
+		events.append({"t": int(r["t"]), "p": tm, "ev": "first_arrival", "value": r["value"], "foe_army": r["foe_army"],
+			"own_army": r["own_army"], "own_lost": int(g.stats[tm]["lost"]) - int(r["v_lost0"]), "own_bld": int(g.stats[tm]["bld_lost"]) - int(r["v_bld0"]),
+			"foe_lost": _lost_units(foes) - int(r["a_lost0"]), "own_army90": _army_value(tm), "foe_army90": foes.reduce(func(acc, e): return acc + _army_value(e), 0)})
 
 
 func _finish() -> void:
