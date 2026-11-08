@@ -1,0 +1,44 @@
+map dune_sea seed 369: P1 clockwork optimal v P2 brood optimal
+food_bonus 1.2
+1:00 P1 clockwork optimal (balanced): income 361 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 brood optimal (balanced): income 237 | workers 8 | army 0 | halls 2 | supply 9 | maws 2 | res2 0
+2:00 P1 clockwork optimal (cs_rush): income 1026 | workers 13 | army 0 | halls 1 | supply 13 | maws 0 | res2 0
+2:00 P2 brood optimal (rush): income 642 | workers 12 | army 0 | halls 2 | supply 12 | maws 3 | res2 0
+3:00 P1 clockwork optimal (cs_rush): income 1890 | workers 13 | army 280 | halls 1 | supply 19 | maws 0 | res2 0
+3:00 P2 brood optimal (rush): income 1119 | workers 10 | army 350 | halls 2 | supply 26 | maws 3 | res2 0
+4:00 P1 clockwork optimal (balanced): income 2714 | workers 16 | army 490 | halls 1 | supply 24 | maws 0 | res2 0
+4:00 P2 brood optimal (balanced): income 1648 | workers 16 | army 275 | halls 2 | supply 28 | maws 4 | res2 0
+5:00 P1 clockwork optimal (balanced): income 3574 | workers 20 | army 910 | halls 2 | supply 35 | maws 0 | res2 0
+5:00 P2 brood optimal (balanced): income 2541 | workers 18 | army 525 | halls 2 | supply 51 | maws 4 | res2 30
+6:00 P1 clockwork optimal (balanced): income 4448 | workers 26 | army 770 | halls 2 | supply 37 | maws 0 | res2 0
+6:00 P2 brood optimal (balanced): income 3391 | workers 17 | army 1050 | halls 3 | supply 66 | maws 5 | res2 45
+7:00 P1 clockwork optimal (balanced): income 5815 | workers 26 | army 1095 | halls 2 | supply 51 | maws 0 | res2 0
+7:00 P2 brood optimal (balanced): income 4307 | workers 21 | army 1525 | halls 3 | supply 87 | maws 5 | res2 45
+8:00 P1 clockwork optimal (balanced): income 7374 | workers 26 | army 1250 | halls 2 | supply 62 | maws 0 | res2 0
+8:00 P2 brood optimal (balanced): income 5405 | workers 30 | army 1625 | halls 3 | supply 101 | maws 6 | res2 60
+9:00 P1 clockwork optimal (balanced): income 8879 | workers 27 | army 70 | halls 2 | supply 37 | maws 0 | res2 0
+9:00 P2 brood optimal (brute): income 7174 | workers 45 | army 1050 | halls 4 | supply 97 | maws 7 | res2 60
+10:00 P1 clockwork optimal (balanced): income 9512 | workers 18 | army 440 | halls 3 | supply 30 | maws 0 | res2 0
+10:00 P2 brood optimal (brute): income 9667 | workers 49 | army 1400 | halls 4 | supply 115 | maws 7 | res2 180
+11:00 P1 clockwork optimal (balanced): income 10992 | workers 25 | army 0 | halls 3 | supply 36 | maws 0 | res2 0
+11:00 P2 brood optimal (brute): income 12061 | workers 48 | army 2295 | halls 4 | supply 147 | maws 7 | res2 270
+12:00 P1 clockwork optimal (balanced): income 11695 | workers 14 | army 0 | halls 1 | supply 15 | maws 0 | res2 0
+12:00 P2 brood optimal (brute): income 14449 | workers 49 | army 2085 | halls 4 | supply 168 | maws 7 | res2 300
+13:00 P1 clockwork optimal (balanced): income 11866 | workers 15 | army 0 | halls 1 | supply 15 | maws 0 | res2 0
+13:00 P2 brood optimal (brute): income 16114 | workers 49 | army 4335 | halls 4 | supply 199 | maws 6 | res2 345
+13:49 P1 clockwork optimal (balanced): income 11866 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 0
+13:49 P2 brood optimal (brute): income 18198 | workers 50 | army 4235 | halls 4 | supply 199 | maws 8 | res2 345
+P1 read 1:42 GREEDY [a second base and little army]
+P1 read 3:12 AGGRESSIVE [fast rush units early]
+P1 read 7:39 NORMAL [a standard opening]
+P1 read 8:34 AGGRESSIVE [fast rush units early]
+P1 pick 1:42 opening GREEDY -> cs_rush (punish the greed before its army is up)
+P1 pick 3:12 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+P2 read 1:41 GREEDY [no army and no production at its base]
+P2 read 3:17 NORMAL [a standard opening]
+P2 read 8:59 DEFENSIVE [turrets or rooted defenders]
+P2 read 13:23 NORMAL [a standard opening]
+P2 pick 1:41 opening GREEDY -> rush (punish the greed before its army is up)
+P2 pick 8:59 middle DEFENSIVE -> brute (a siege to break its defences)
+P2 first attack 2:49
+end 13:49 winner P2

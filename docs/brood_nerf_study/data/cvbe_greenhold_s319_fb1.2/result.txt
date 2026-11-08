@@ -1,0 +1,46 @@
+map greenhold seed 319: P1 crown optimal v P2 brood economy
+food_bonus 1.2
+1:00 P1 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 brood economy (economy): income 230 | workers 7 | army 0 | halls 2 | supply 9 | maws 2 | res2 0
+2:00 P1 crown optimal (rush): income 760 | workers 9 | army 0 | halls 1 | supply 10 | maws 0 | res2 0
+2:00 P2 brood economy (economy): income 636 | workers 12 | army 0 | halls 2 | supply 13 | maws 3 | res2 0
+3:00 P1 crown optimal (rush): income 1140 | workers 10 | army 230 | halls 1 | supply 17 | maws 0 | res2 0
+3:00 P2 brood economy (economy): income 1179 | workers 16 | army 0 | halls 2 | supply 23 | maws 4 | res2 0
+4:00 P1 crown optimal (rush): income 1900 | workers 11 | army 460 | halls 1 | supply 26 | maws 0 | res2 0
+4:00 P2 brood economy (economy): income 1980 | workers 22 | army 200 | halls 2 | supply 36 | maws 4 | res2 30
+5:00 P1 crown optimal (balanced): income 2280 | workers 14 | army 345 | halls 2 | supply 24 | maws 0 | res2 32
+5:00 P2 brood economy (economy): income 2668 | workers 19 | army 525 | halls 3 | supply 43 | maws 5 | res2 30
+6:00 P1 crown optimal (balanced): income 3040 | workers 16 | army 345 | halls 2 | supply 31 | maws 0 | res2 131
+6:00 P2 brood economy (economy): income 3344 | workers 27 | army 450 | halls 3 | supply 51 | maws 6 | res2 80
+7:00 P1 crown optimal (balanced): income 3800 | workers 22 | army 405 | halls 2 | supply 40 | maws 0 | res2 177
+7:00 P2 brood economy (economy): income 4433 | workers 38 | army 600 | halls 4 | supply 67 | maws 5 | res2 80
+8:00 P1 crown optimal (balanced): income 4560 | workers 29 | army 695 | halls 2 | supply 47 | maws 0 | res2 212
+8:00 P2 brood economy (economy): income 6152 | workers 57 | army 875 | halls 4 | supply 88 | maws 6 | res2 80
+9:00 P1 crown optimal (balanced): income 6080 | workers 34 | army 875 | halls 2 | supply 55 | maws 0 | res2 246
+9:00 P2 brood economy (economy): income 7610 | workers 57 | army 1190 | halls 4 | supply 112 | maws 6 | res2 125
+9:21 P1 FIRSTWAVE enemy 325 at (32, 34): muskets 6 by its palisade, 0 on the main's high ground, 0 elsewhere; gate post true
+10:00 P1 crown optimal (balanced): income 7980 | workers 36 | army 1100 | halls 2 | supply 70 | maws 0 | res2 307
+10:00 P2 brood economy (economy): income 10054 | workers 57 | army 1780 | halls 4 | supply 136 | maws 6 | res2 170
+11:00 P1 crown optimal (balanced): income 9500 | workers 36 | army 2000 | halls 2 | supply 88 | maws 0 | res2 399
+11:00 P2 brood economy (economy): income 12415 | workers 57 | army 2975 | halls 4 | supply 180 | maws 6 | res2 275
+12:00 P1 crown optimal (balanced): income 9880 | workers 28 | army 235 | halls 2 | supply 39 | maws 0 | res2 484
+12:00 P2 brood economy (economy): income 14391 | workers 58 | army 2330 | halls 4 | supply 160 | maws 7 | res2 320
+13:00 P1 crown optimal (balanced): income 10640 | workers 22 | army 70 | halls 1 | supply 34 | maws 0 | res2 563
+13:00 P2 brood economy (economy): income 17160 | workers 58 | army 4060 | halls 4 | supply 200 | maws 6 | res2 350
+14:00 P1 crown optimal (balanced): income 10640 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 572
+14:00 P2 brood economy (economy): income 19468 | workers 58 | army 3945 | halls 4 | supply 199 | maws 6 | res2 410
+15:00 P1 crown optimal (balanced): income 10640 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 572
+15:00 P2 brood economy (economy): income 21858 | workers 58 | army 3945 | halls 4 | supply 199 | maws 6 | res2 410
+15:00 P1 crown optimal (balanced): income 10640 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 572
+15:00 P2 brood economy (economy): income 21858 | workers 58 | army 3945 | halls 4 | supply 199 | maws 6 | res2 410
+P1 read 1:28 GREEDY [a second base and little army]
+P1 read 6:19 UNKNOWN [the scout was driven off]
+P1 read 7:34 NORMAL [a standard opening]
+P1 read 9:04 UNKNOWN [the scout was killed]
+P1 read 11:00 NORMAL [a standard opening]
+P1 pick 1:28 opening GREEDY -> rush (punish the greed: the Horse Breeder at once, the riders before its army)
+P1 first attack 3:35
+P2 read 3:46 AGGRESSIVE [a Horse Breeder or riders early]
+P2 read 5:02 NORMAL [a standard opening]
+P2 first attack 9:01
+end 15:00 winner none

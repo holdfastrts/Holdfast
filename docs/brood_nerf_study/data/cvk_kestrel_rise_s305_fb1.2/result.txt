@@ -1,0 +1,39 @@
+map kestrel_rise seed 305: P1 crown optimal v P2 clockwork optimal
+food_bonus 1.2
+1:00 P1 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 clockwork optimal (balanced): income 372 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 crown optimal (rush): income 760 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P2 clockwork optimal (balanced): income 1039 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+3:00 P1 crown optimal (rush): income 1140 | workers 9 | army 230 | halls 1 | supply 17 | maws 0 | res2 0
+3:00 P2 clockwork optimal (heavy): income 1893 | workers 17 | army 0 | halls 2 | supply 19 | maws 0 | res2 0
+4:00 P1 crown optimal (rush): income 1900 | workers 11 | army 465 | halls 1 | supply 24 | maws 0 | res2 0
+4:00 P2 clockwork optimal (heavy): income 2751 | workers 21 | army 280 | halls 2 | supply 26 | maws 0 | res2 0
+5:00 P1 crown optimal (rush): income 2280 | workers 13 | army 350 | halls 2 | supply 22 | maws 0 | res2 29
+5:00 P2 clockwork optimal (heavy): income 3615 | workers 22 | army 280 | halls 2 | supply 27 | maws 0 | res2 0
+6:00 P1 crown optimal (rush): income 2660 | workers 13 | army 350 | halls 2 | supply 27 | maws 0 | res2 140
+6:00 P2 clockwork optimal (heavy): income 4479 | workers 22 | army 490 | halls 2 | supply 30 | maws 0 | res2 0
+7:00 P1 crown optimal (rush): income 3420 | workers 19 | army 470 | halls 2 | supply 35 | maws 0 | res2 186
+7:00 P2 clockwork optimal (heavy): income 5316 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+8:00 P1 crown optimal (balanced): income 4560 | workers 25 | army 360 | halls 2 | supply 40 | maws 0 | res2 219
+8:00 P2 clockwork optimal (heavy): income 6180 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+9:00 P1 crown optimal (balanced): income 5700 | workers 35 | army 780 | halls 2 | supply 57 | maws 0 | res2 252
+9:00 P2 clockwork optimal (heavy): income 7044 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+10:00 P1 crown optimal (balanced): income 7980 | workers 42 | army 1365 | halls 2 | supply 81 | maws 0 | res2 297
+10:00 P2 clockwork optimal (heavy): income 7908 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+11:00 P1 crown optimal (balanced): income 10260 | workers 49 | army 2130 | halls 2 | supply 97 | maws 0 | res2 460
+11:00 P2 clockwork optimal (heavy): income 8772 | workers 22 | army 350 | halls 2 | supply 28 | maws 0 | res2 0
+12:00 P1 crown optimal (balanced): income 11780 | workers 54 | army 1895 | halls 3 | supply 102 | maws 0 | res2 605
+12:00 P2 clockwork optimal (heavy): income 9000 | workers 19 | army 0 | halls 1 | supply 21 | maws 0 | res2 0
+13:00 P1 crown optimal (balanced): income 13300 | workers 67 | army 1835 | halls 4 | supply 113 | maws 0 | res2 775
+13:00 P2 clockwork optimal (heavy): income 9000 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 0
+13:12 P1 crown optimal (balanced): income 13680 | workers 69 | army 1835 | halls 4 | supply 118 | maws 0 | res2 811
+13:12 P2 clockwork optimal (heavy): income 9000 | workers 0 | army 0 | halls 0 | supply 0 | maws 0 | res2 0
+P1 read 1:17 GREEDY [no army and no production at its base]
+P1 read 4:53 UNKNOWN [the scout was killed]
+P1 read 6:39 NORMAL [a standard opening]
+P1 pick 1:17 opening GREEDY -> rush (punish the greed before its army is up)
+P1 first attack 3:49
+P2 read 1:22 UNKNOWN [the scout was blocked]
+P2 read 4:05 AGGRESSIVE [a big early army]
+P2 pick 2:07 opening UNKNOWN -> heavy (a siege to break its defences)
+end 13:12 winner P1

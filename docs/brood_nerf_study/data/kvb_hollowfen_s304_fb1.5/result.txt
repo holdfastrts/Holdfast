@@ -1,0 +1,44 @@
+map hollowfen seed 304: P1 brood optimal v P2 clockwork optimal
+food_bonus 1.5
+1:00 P1 brood optimal (balanced): income 189 | workers 7 | army 0 | halls 2 | supply 8 | maws 2 | res2 0
+1:00 P2 clockwork optimal (balanced): income 370 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 brood optimal (rush): income 546 | workers 11 | army 0 | halls 2 | supply 11 | maws 3 | res2 0
+2:00 P2 clockwork optimal (balanced): income 1013 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+3:00 P1 brood optimal (rush): income 1043 | workers 9 | army 400 | halls 2 | supply 25 | maws 3 | res2 0
+3:00 P2 clockwork optimal (cs_rush): income 1877 | workers 14 | army 0 | halls 1 | supply 16 | maws 0 | res2 0
+4:00 P1 brood optimal (rush): income 1540 | workers 16 | army 300 | halls 2 | supply 35 | maws 3 | res2 0
+4:00 P2 clockwork optimal (balanced): income 2709 | workers 16 | army 140 | halls 2 | supply 20 | maws 0 | res2 0
+5:00 P1 brood optimal (timing): income 2382 | workers 17 | army 475 | halls 2 | supply 43 | maws 4 | res2 30
+5:00 P2 clockwork optimal (balanced): income 3565 | workers 20 | army 630 | halls 2 | supply 32 | maws 0 | res2 0
+6:00 P1 brood optimal (timing): income 3603 | workers 32 | army 450 | halls 3 | supply 54 | maws 4 | res2 45
+6:00 P2 clockwork optimal (balanced): income 4761 | workers 26 | army 1190 | halls 2 | supply 43 | maws 0 | res2 0
+7:00 P1 brood optimal (timing): income 5131 | workers 44 | army 500 | halls 3 | supply 74 | maws 5 | res2 60
+7:00 P2 clockwork optimal (balanced): income 6105 | workers 27 | army 1400 | halls 2 | supply 50 | maws 0 | res2 0
+8:00 P1 brood optimal (timing): income 6970 | workers 43 | army 1340 | halls 3 | supply 106 | maws 7 | res2 60
+8:00 P2 clockwork optimal (balanced): income 7695 | workers 28 | army 2025 | halls 2 | supply 70 | maws 0 | res2 0
+9:00 P1 brood optimal (timing): income 8909 | workers 44 | army 1015 | halls 3 | supply 103 | maws 7 | res2 135
+9:00 P2 clockwork optimal (balanced): income 9231 | workers 32 | army 1660 | halls 3 | supply 73 | maws 0 | res2 0
+10:00 P1 brood optimal (timing): income 11269 | workers 43 | army 650 | halls 3 | supply 84 | maws 6 | res2 210
+10:00 P2 clockwork optimal (balanced): income 10402 | workers 31 | army 2685 | halls 4 | supply 87 | maws 0 | res2 0
+11:00 P1 brood optimal (timing): income 13460 | workers 44 | army 975 | halls 3 | supply 103 | maws 5 | res2 285
+11:00 P2 clockwork optimal (balanced): income 11838 | workers 32 | army 3255 | halls 4 | supply 97 | maws 0 | res2 0
+12:00 P1 brood optimal (timing): income 15407 | workers 44 | army 750 | halls 3 | supply 94 | maws 5 | res2 315
+12:00 P2 clockwork optimal (balanced): income 13534 | workers 32 | army 3485 | halls 4 | supply 108 | maws 0 | res2 0
+13:00 P1 brood optimal (timing): income 16317 | workers 44 | army 1100 | halls 2 | supply 87 | maws 3 | res2 315
+13:00 P2 clockwork optimal (balanced): income 15346 | workers 32 | army 3785 | halls 4 | supply 110 | maws 0 | res2 0
+14:00 P1 brood optimal (timing): income 16601 | workers 43 | army 350 | halls 2 | supply 47 | maws 4 | res2 315
+14:00 P2 clockwork optimal (balanced): income 17195 | workers 32 | army 4735 | halls 4 | supply 124 | maws 0 | res2 0
+14:45 P1 brood optimal (timing): income 16816 | workers 1 | army 75 | halls 1 | supply 1 | maws 1 | res2 407
+14:45 P2 clockwork optimal (balanced): income 18557 | workers 32 | army 5925 | halls 5 | supply 137 | maws 0 | res2 0
+P1 read 1:50 GREEDY [no army and no production at its base]
+P1 read 3:27 NORMAL [a standard opening]
+P1 read 4:43 GREEDY [a second base and little army]
+P1 read 6:35 NORMAL [a standard opening]
+P1 pick 1:50 opening GREEDY -> rush (punish the greed before its army is up)
+P1 pick 4:43 middle GREEDY -> timing (a timing attack before its economy pays off)
+P1 first attack 2:56
+P2 read 2:06 GREEDY [a second base and little army]
+P2 read 3:27 AGGRESSIVE [fast rush units early]
+P2 pick 2:07 opening GREEDY -> cs_rush (punish the greed before its army is up)
+P2 pick 3:27 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+end 14:45 winner P2

@@ -1,0 +1,44 @@
+map hollowfen seed 321: P1 clockwork optimal v P2 brood optimal
+food_bonus 1.2
+1:00 P1 clockwork optimal (balanced): income 361 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 brood optimal (balanced): income 230 | workers 7 | army 0 | halls 2 | supply 9 | maws 2 | res2 0
+2:00 P1 clockwork optimal (cs_rush): income 1073 | workers 13 | army 0 | halls 1 | supply 13 | maws 0 | res2 0
+2:00 P2 brood optimal (rush): income 645 | workers 12 | army 0 | halls 2 | supply 12 | maws 3 | res2 0
+3:00 P1 clockwork optimal (cs_rush): income 1937 | workers 13 | army 280 | halls 1 | supply 19 | maws 0 | res2 0
+3:00 P2 brood optimal (rush): income 1110 | workers 10 | army 350 | halls 2 | supply 26 | maws 3 | res2 0
+4:00 P1 clockwork optimal (balanced): income 2697 | workers 15 | army 560 | halls 1 | supply 24 | maws 0 | res2 0
+4:00 P2 brood optimal (balanced): income 1644 | workers 13 | army 500 | halls 2 | supply 33 | maws 3 | res2 0
+5:00 P1 clockwork optimal (balanced): income 3550 | workers 21 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+5:00 P2 brood optimal (balanced): income 2173 | workers 13 | army 600 | halls 2 | supply 45 | maws 4 | res2 0
+6:00 P1 clockwork optimal (balanced): income 4521 | workers 26 | army 910 | halls 2 | supply 39 | maws 0 | res2 0
+6:00 P2 brood optimal (balanced): income 2713 | workers 15 | army 850 | halls 2 | supply 53 | maws 4 | res2 0
+7:00 P1 clockwork optimal (balanced): income 5796 | workers 25 | army 885 | halls 2 | supply 47 | maws 0 | res2 0
+7:00 P2 brood optimal (balanced): income 3334 | workers 19 | army 600 | halls 3 | supply 50 | maws 5 | res2 30
+8:00 P1 clockwork optimal (balanced): income 7166 | workers 27 | army 1480 | halls 2 | supply 59 | maws 0 | res2 0
+8:00 P2 brood optimal (balanced): income 4133 | workers 19 | army 750 | halls 3 | supply 60 | maws 6 | res2 30
+9:00 P1 clockwork optimal (balanced): income 8669 | workers 28 | army 2255 | halls 2 | supply 75 | maws 0 | res2 0
+9:00 P2 brood optimal (balanced): income 5212 | workers 30 | army 375 | halls 3 | supply 46 | maws 6 | res2 30
+10:00 P1 clockwork optimal (balanced): income 10040 | workers 30 | army 3215 | halls 3 | supply 86 | maws 0 | res2 0
+10:00 P2 brood optimal (balanced): income 6927 | workers 40 | army 705 | halls 3 | supply 77 | maws 6 | res2 60
+11:00 P1 clockwork optimal (balanced): income 11399 | workers 32 | army 3825 | halls 4 | supply 104 | maws 0 | res2 0
+11:00 P2 brood optimal (balanced): income 9135 | workers 44 | army 745 | halls 3 | supply 76 | maws 7 | res2 60
+12:00 P1 clockwork optimal (balanced): income 12603 | workers 32 | army 4735 | halls 4 | supply 120 | maws 0 | res2 0
+12:00 P2 brood optimal (balanced): income 10829 | workers 44 | army 1010 | halls 3 | supply 91 | maws 6 | res2 165
+13:00 P1 clockwork optimal (balanced): income 14015 | workers 30 | army 5330 | halls 4 | supply 129 | maws 0 | res2 0
+13:00 P2 brood optimal (balanced): income 11761 | workers 41 | army 940 | halls 2 | supply 57 | maws 3 | res2 227
+14:00 P1 clockwork optimal (balanced): income 15413 | workers 32 | army 5925 | halls 4 | supply 140 | maws 0 | res2 0
+14:00 P2 brood optimal (balanced): income 12200 | workers 38 | army 300 | halls 2 | supply 42 | maws 3 | res2 235
+14:20 P1 clockwork optimal (balanced): income 15897 | workers 32 | army 6345 | halls 4 | supply 142 | maws 0 | res2 0
+14:20 P2 brood optimal (balanced): income 12230 | workers 10 | army 0 | halls 1 | supply 10 | maws 0 | res2 269
+P1 read 1:43 GREEDY [a second base and little army]
+P1 read 3:21 AGGRESSIVE [fast rush units early]
+P1 pick 1:43 opening GREEDY -> cs_rush (punish the greed before its army is up)
+P1 pick 3:21 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+P2 read 1:48 GREEDY [no army and no production at its base]
+P2 read 3:04 NORMAL [a standard opening]
+P2 read 3:22 AGGRESSIVE [its army on the move early]
+P2 read 6:22 NORMAL [a standard opening]
+P2 pick 1:49 opening GREEDY -> rush (punish the greed before its army is up)
+P2 pick 3:22 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+P2 first attack 2:49
+end 14:20 winner P1

@@ -1,0 +1,48 @@
+map kestrel_rise seed 305: P1 crown optimal v P2 clockwork optimal
+food_bonus 1.5
+1:00 P1 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 clockwork optimal (balanced): income 372 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 crown optimal (rush): income 760 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P2 clockwork optimal (balanced): income 1040 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+3:00 P1 crown optimal (rush): income 1140 | workers 9 | army 230 | halls 1 | supply 17 | maws 0 | res2 0
+3:00 P2 clockwork optimal (heavy): income 1895 | workers 16 | army 0 | halls 2 | supply 19 | maws 0 | res2 0
+4:00 P1 crown optimal (balanced): income 1900 | workers 10 | army 520 | halls 1 | supply 27 | maws 0 | res2 0
+4:00 P2 clockwork optimal (heavy): income 2759 | workers 22 | army 280 | halls 2 | supply 27 | maws 0 | res2 0
+5:00 P1 crown optimal (balanced): income 2280 | workers 12 | army 580 | halls 1 | supply 27 | maws 0 | res2 13
+5:00 P2 clockwork optimal (heavy): income 3618 | workers 22 | army 420 | halls 2 | supply 29 | maws 0 | res2 0
+6:00 P1 crown optimal (balanced): income 2660 | workers 14 | army 465 | halls 2 | supply 26 | maws 0 | res2 79
+6:00 P2 clockwork optimal (heavy): income 4308 | workers 21 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+7:00 P1 crown optimal (balanced): income 3040 | workers 17 | army 465 | halls 2 | supply 29 | maws 0 | res2 182
+7:00 P2 clockwork optimal (heavy): income 5172 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+8:00 P1 crown optimal (balanced): income 3800 | workers 21 | army 465 | halls 2 | supply 38 | maws 0 | res2 208
+8:00 P2 clockwork optimal (heavy): income 6036 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+9:00 P1 crown optimal (balanced): income 4560 | workers 30 | army 585 | halls 2 | supply 44 | maws 0 | res2 238
+9:00 P2 clockwork optimal (heavy): income 6900 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+10:00 P1 crown optimal (balanced): income 7220 | workers 36 | army 885 | halls 2 | supply 68 | maws 0 | res2 270
+10:00 P2 clockwork optimal (heavy): income 7764 | workers 22 | army 560 | halls 2 | supply 30 | maws 0 | res2 0
+11:00 P1 crown optimal (balanced): income 8740 | workers 45 | army 1560 | halls 2 | supply 88 | maws 0 | res2 385
+11:00 P2 clockwork optimal (heavy): income 8615 | workers 22 | army 70 | halls 2 | supply 24 | maws 0 | res2 0
+12:00 P1 crown optimal (balanced): income 11020 | workers 49 | army 1880 | halls 3 | supply 103 | maws 0 | res2 584
+12:00 P2 clockwork optimal (heavy): income 9000 | workers 15 | army 140 | halls 1 | supply 19 | maws 0 | res2 0
+13:00 P1 crown optimal (balanced): income 13300 | workers 63 | army 1345 | halls 4 | supply 101 | maws 0 | res2 765
+13:00 P2 clockwork optimal (heavy): income 9000 | workers 19 | army 140 | halls 1 | supply 23 | maws 0 | res2 0
+14:00 P1 crown optimal (balanced): income 15460 | workers 65 | army 2025 | halls 4 | supply 126 | maws 0 | res2 892
+14:00 P2 clockwork optimal (heavy): income 9000 | workers 22 | army 490 | halls 1 | supply 30 | maws 0 | res2 0
+15:00 P1 crown optimal (balanced): income 18120 | workers 73 | army 2415 | halls 4 | supply 150 | maws 0 | res2 1228
+15:00 P2 clockwork optimal (heavy): income 9000 | workers 22 | army 420 | halls 1 | supply 29 | maws 0 | res2 0
+15:00 P1 crown optimal (balanced): income 18120 | workers 73 | army 2415 | halls 4 | supply 150 | maws 0 | res2 1228
+15:00 P2 clockwork optimal (heavy): income 9000 | workers 22 | army 420 | halls 1 | supply 29 | maws 0 | res2 0
+P1 read 1:17 GREEDY [no army and no production at its base]
+P1 read 3:56 AGGRESSIVE [a big early army]
+P1 read 5:14 NORMAL [a standard opening]
+P1 read 7:44 GREEDY [a second base and little army]
+P1 read 9:17 NORMAL [a standard opening]
+P1 pick 1:17 opening GREEDY -> rush (punish the greed before its army is up)
+P1 pick 3:56 opening AGGRESSIVE -> balanced (defend against the rush before it counter-attacks)
+P1 first attack 3:34
+P2 read 1:22 UNKNOWN [the scout was blocked]
+P2 read 3:57 AGGRESSIVE [fast rush units early]
+P2 read 9:08 UNKNOWN [too little of its base]
+P2 read 9:50 AGGRESSIVE [fast rush units early]
+P2 pick 2:07 opening UNKNOWN -> heavy (a siege to break its defences)
+end 15:00 winner none

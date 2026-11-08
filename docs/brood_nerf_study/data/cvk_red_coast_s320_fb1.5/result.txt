@@ -1,0 +1,49 @@
+map red_coast seed 320: P1 clockwork optimal v P2 crown optimal
+food_bonus 1.5
+1:00 P1 clockwork optimal (balanced): income 361 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+1:00 P2 crown optimal (optimal): income 380 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+2:00 P1 clockwork optimal (balanced): income 1066 | workers 13 | army 0 | halls 1 | supply 14 | maws 0 | res2 0
+2:00 P2 crown optimal (rush): income 760 | workers 8 | army 0 | halls 1 | supply 9 | maws 0 | res2 0
+3:00 P1 clockwork optimal (springer): income 1930 | workers 17 | army 70 | halls 2 | supply 18 | maws 0 | res2 0
+3:00 P2 crown optimal (rush): income 1140 | workers 9 | army 230 | halls 1 | supply 16 | maws 0 | res2 0
+4:00 P1 clockwork optimal (springer): income 2794 | workers 18 | army 70 | halls 2 | supply 19 | maws 0 | res2 0
+4:00 P2 crown optimal (rush): income 1900 | workers 11 | army 345 | halls 1 | supply 26 | maws 0 | res2 0
+5:00 P1 clockwork optimal (springer): income 3510 | workers 18 | army 420 | halls 2 | supply 26 | maws 0 | res2 0
+5:00 P2 crown optimal (rush): income 2280 | workers 14 | army 345 | halls 1 | supply 24 | maws 0 | res2 16
+5:37 P2 FIRSTWAVE enemy 490 at (74, 52): muskets 0 by its palisade, 0 on the main's high ground, 0 elsewhere; gate post false
+6:00 P1 clockwork optimal (springer): income 4369 | workers 21 | army 1105 | halls 2 | supply 40 | maws 0 | res2 0
+6:00 P2 crown optimal (rush): income 2660 | workers 13 | army 345 | halls 2 | supply 23 | maws 0 | res2 119
+7:00 P1 clockwork optimal (springer): income 5229 | workers 21 | army 1580 | halls 2 | supply 51 | maws 0 | res2 0
+7:00 P2 crown optimal (rush): income 3420 | workers 13 | army 345 | halls 2 | supply 34 | maws 0 | res2 196
+8:00 P1 clockwork optimal (springer): income 6362 | workers 24 | army 1225 | halls 2 | supply 49 | maws 0 | res2 0
+8:00 P2 crown optimal (rush): income 3800 | workers 19 | army 530 | halls 2 | supply 30 | maws 0 | res2 213
+9:00 P1 clockwork optimal (springer): income 7588 | workers 24 | army 1665 | halls 2 | supply 60 | maws 0 | res2 0
+9:00 P2 crown optimal (rush): income 4560 | workers 21 | army 760 | halls 2 | supply 41 | maws 0 | res2 230
+10:00 P1 clockwork optimal (springer): income 9087 | workers 26 | army 1115 | halls 3 | supply 54 | maws 0 | res2 0
+10:00 P2 crown optimal (rush): income 5700 | workers 23 | army 1160 | halls 2 | supply 49 | maws 0 | res2 247
+11:00 P1 clockwork optimal (springer): income 10034 | workers 30 | army 1005 | halls 3 | supply 52 | maws 0 | res2 0
+11:00 P2 crown optimal (rush): income 6840 | workers 24 | army 820 | halls 3 | supply 51 | maws 0 | res2 336
+12:00 P1 clockwork optimal (springer): income 11186 | workers 24 | army 825 | halls 4 | supply 43 | maws 0 | res2 0
+12:00 P2 crown optimal (rush): income 7600 | workers 24 | army 935 | halls 3 | supply 52 | maws 0 | res2 426
+13:00 P1 clockwork optimal (springer): income 12439 | workers 24 | army 1275 | halls 4 | supply 51 | maws 0 | res2 0
+13:00 P2 crown optimal (rush): income 8360 | workers 30 | army 665 | halls 3 | supply 45 | maws 0 | res2 490
+14:00 P1 clockwork optimal (springer): income 13683 | workers 31 | army 1555 | halls 4 | supply 63 | maws 0 | res2 0
+14:00 P2 crown optimal (rush): income 10260 | workers 35 | army 1090 | halls 3 | supply 64 | maws 0 | res2 522
+15:00 P1 clockwork optimal (springer): income 15327 | workers 32 | army 2515 | halls 4 | supply 83 | maws 0 | res2 0
+15:00 P2 crown optimal (rush): income 12160 | workers 41 | army 1560 | halls 4 | supply 83 | maws 0 | res2 596
+15:00 P1 clockwork optimal (springer): income 15327 | workers 32 | army 2515 | halls 4 | supply 83 | maws 0 | res2 0
+15:00 P2 crown optimal (rush): income 12160 | workers 41 | army 1560 | halls 4 | supply 83 | maws 0 | res2 596
+P1 read 2:09 UNKNOWN [the scout was killed]
+P1 read 4:05 AGGRESSIVE [fast rush units early]
+P1 read 8:52 UNKNOWN [the scout was driven off]
+P1 read 10:13 AGGRESSIVE [fast rush units early]
+P1 pick 2:54 opening UNKNOWN -> springer (a timing attack)
+P2 read 1:16 GREEDY [no army and no production at its base]
+P2 read 4:05 NORMAL [a standard opening]
+P2 read 8:06 UNKNOWN [the scout was killed]
+P2 read 9:21 NORMAL [a standard opening]
+P2 read 11:24 UNKNOWN [the scout was killed]
+P2 read 13:20 NORMAL [a standard opening]
+P2 pick 1:16 opening GREEDY -> rush (punish the greed before its army is up)
+P2 first attack 3:39
+end 15:00 winner none
