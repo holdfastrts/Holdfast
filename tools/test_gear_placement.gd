@@ -80,6 +80,8 @@ func _run() -> void:
 	check("the build list has the Cog Press and no Ore Drill/Rail Yard/Relay", Defs.build_list("clockwork").has(Defs.GEAR_PRESS) and not Defs.build_list("clockwork").has("ore_drill") and not Defs.build_list("clockwork").has("rail_yard") and not Defs.build_list("clockwork").has("pressure_relay") and not Defs.build_list("clockwork").has("ore_crusher"))
 	check("rail vehicles are hidden from the train lists", not Defs.train_keys(["windup_soldier", "work_car", "heavy_loco"], false).has("work_car"))
 	check("the Clockwork starts with 300 cogs", int(Defs.FACTIONS["clockwork"]["start_gold"]) == 300 and String(Defs.FACTIONS["clockwork"]["res"][0]) == "Cogs")
-	check("the Winder is like the Labourer (74 speed, 50 cost, 46 hp, 12 s)", Defs.UNITS["winder"]["speed"] == 74 and Defs.UNITS["winder"]["cost"] == 50 and Defs.UNITS["winder"]["hp"] == 46 and Defs.UNITS["winder"]["time"] == 12.0)
+	# (60 cogs since the Clockwork economy study, docs/cw_economy_study.md decision 3: a worker pays back in the same time on
+	# both sides; was 50 like the Labourer)
+	check("the Winder is like the Labourer (74 speed, 46 hp, 12 s) at 60 cogs", Defs.UNITS["winder"]["speed"] == 74 and Defs.UNITS["winder"]["cost"] == 60 and Defs.UNITS["winder"]["hp"] == 46 and Defs.UNITS["winder"]["time"] == 12.0)
 	print("RESULT: %d failures" % fails)
 	quit(1 if fails > 0 else 0)
