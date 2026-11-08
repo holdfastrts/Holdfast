@@ -105,7 +105,8 @@ func _run() -> void:
 	for i in 5:
 		if st.tell(1, "%s sends a %s to scout.", ["Winder %d" % i], 1, "scout"):
 			kept += 1
-	check("story: a burst of 5 details keeps 1", kept == 1, "%d kept, %d dropped" % [kept, st.dropped - d0])
+	# (at most 1: the computer may have told a detail of its own a moment before, and then the whole burst is rate-limited)
+	check("story: a burst of 5 details keeps 1 at most", kept <= 1 and st.dropped - d0 >= 5, "%d kept, %d dropped" % [kept, st.dropped - d0])
 	var m0 := st.merged
 	var size0 := st.entries.size()
 	st.tell(1, "%s walls off its ramp: %s pieces.", ["6"], 2, "wall")

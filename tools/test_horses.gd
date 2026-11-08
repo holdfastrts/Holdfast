@@ -255,7 +255,8 @@ func _training() -> void:
 	g.players[0]["tech"] = {}
 	var bar: Building = g._add_building("barracks", 0, origin + Vector2i(12, 2), true)
 	var fdy: Building = g._add_building("foundry", 0, origin + Vector2i(18, 2), true)
-	check(g.can_train(bar, "musketeer").contains("Powder Mill"), "Musketeers need a Powder Mill ('%s')" % g.can_train(bar, "musketeer"))
+	# (CROWN AMMUNITION, NO POWDER LOCK, the owner 2026-11-05: Barracks units need no building; powder buys the shots)
+	check(not g.can_train(bar, "musketeer").contains("Powder Mill"), "Musketeers need no Powder Mill any more ('%s')" % g.can_train(bar, "musketeer"))
 	check(String(Defs.UNITS["cuirassier"]["requires"]) == "horse_breeder", "Horsemen need a Horse Breeder")
 	check(g.free_horse_at(bar) == null, "no horse at the Barracks yet")
 	var lab := unit("labourer", at(250, 220))

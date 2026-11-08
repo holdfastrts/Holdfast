@@ -104,6 +104,11 @@ func _run() -> void:
 	await physics_frame
 	g.gear_net.solve()
 	check("the computer's Escapement works", esc != null and g.gear_net.speed_mult(esc) > 0.0)
+	# (since the coached builds, 0.29.x, a computer's opening runs as a build order (AIClockwork.bo_on) and the shared rules
+	# under test take over only once it is over: a base planted by a test never finishes the plan's steps, so it is ended)
+	for a0 in g.ais:
+		if a0.team == 0 and a0.bo_on:
+			a0._end_build("the test's base is planted")
 	g.clock = maxf(g.clock, 330.0)
 	var ai = g.ais.filter(func(a) -> bool: return a.team == 0)[0]
 	check("it wants a Ballista once its Escapement works", ai._ballista_want() >= 1, "%d" % ai._ballista_want())
@@ -118,6 +123,11 @@ func _run() -> void:
 	await _wait(func() -> bool: return false, 60.0)
 	check("a couple of Ballistas, not a whole army of them", _units(K).size() <= 3, "%d" % _units(K).size())
 	# its own pick: an armoured Cannon before a Musketeer; a gate before a lone Musketeer
+	if _units(K).is_empty():
+		check("a Ballista of its own for the target checks", false)
+		print("FAIL (%d)" % fails)
+		quit(1)          # (indexing an empty list stopped the test and it waited for ever)
+		return
 	var b: Unit = _units(K)[0]
 	b.cmd_hold()
 	var p: Vector2 = b.position

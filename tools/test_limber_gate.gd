@@ -50,18 +50,20 @@ func _setup() -> Dictionary:
 	var hall: Building = g.halls_of(0)[0]
 	var hc: Vector2i = g.cell_of(hall.center())
 	var best := _open_square(hc, 10, [])
-	assert(best.x >= 0)
-	var second := _open_square(hc, 10, [best])
-	assert(second.x >= 0)
+	var second := _open_square(hc, 10, [best]) if best.x >= 0 else Vector2i(-1, -1)
+	if best.x < 0 or second.x < 0:
+		print("FAIL  (set-up) two open squares of ground for the walls (%s, %s)" % [str(best), str(second)])
+		quit(1)          # (an assert stopped only this function and the test then waited for ever)
+		return {}
 	return {"main": main, "c": best, "c2": second}
 
 
 ## The centre of a free (2 half + 1)-cell square of open ground round `hc` (8 to 60 cells out), away
 ## from the squares in `avoid`; (-1, -1) if there is none.
 func _open_square(hc: Vector2i, half: int, avoid: Array) -> Vector2i:
-	for r in range(8, 60):
-		for k in 24:
-			var c: Vector2i = hc + Vector2i((Vector2.RIGHT.rotated(k * TAU / 24.0) * r).round())
+	for r in range(8, 90):          # (was 8-60 and 24 angles: Greenhold's open ground near the main ran out, qa-tests 2026-11-08)
+		for k in 48:
+			var c: Vector2i = hc + Vector2i((Vector2.RIGHT.rotated(k * TAU / 48.0) * r).round())
 			if avoid.any(func(o: Vector2i) -> bool: return absi(o.x - c.x) <= half * 2 + 6 and absi(o.y - c.y) <= half * 2 + 6):
 				continue
 			var ok := true

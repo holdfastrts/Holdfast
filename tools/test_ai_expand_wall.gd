@@ -153,8 +153,11 @@ func _case(map: String) -> void:
 func _leak(ai, hall: Building) -> int:
 	var hc: Vector2 = hall.center() / Defs.TILE
 	var n := 0
-	for c in ai.xw._foe_reach():
-		if (Vector2(c) + Vector2(0.5, 0.5)).distance_to(hc) < CORE:
+	# (_foe_reach returns {"d": distance per cell (-1 = not reached), "order", "walk"} since crown-owner-eco; it was a set of cells)
+	var d: PackedInt32Array = ai.xw._foe_reach()["d"]
+	var W: int = ai.game.W
+	for i in d.size():
+		if d[i] >= 0 and (Vector2(i % W, i / W) + Vector2(0.5, 0.5)).distance_to(hc) < CORE:
 			n += 1
 	return n
 

@@ -103,7 +103,18 @@ func _run() -> void:
 	g.gear_net.solve()
 	check("the computer's Escapement works (meshed with its Mainspring)", esc != null and g.gear_net.speed_mult(esc) > 0.0)
 	# (its tech clock past the tier-2 point)
+	# (since the coached builds, 0.29.x, a computer's opening runs as a build order (AIClockwork.bo_on) and the shared rules
+	# under test take over only once it is over: a base planted by a test never finishes the plan's steps, so it is ended)
+	for a0 in g.ais:
+		if a0.team == 0 and a0.bo_on:
+			a0._end_build("the test's base is planted")
 	g.clock = maxf(g.clock, 330.0)
+	# (with its build over the computer attacks: the passive Crown's buildings cannot fall, so the match runs on, as in
+	# test_ballista_ai; the game ended at 79 s and the test waited for ever)
+	for b in g.buildings:
+		if b.team == 1:
+			b.max_hp = 1.0e7
+			b.hp = 1.0e7
 	# a Crown balloon over its base, in sight
 	var bal: Unit = g._add_unit("balloon", 1, hall.center() + Vector2(160, -60))
 	bal.cmd_hold()
@@ -118,8 +129,8 @@ func _run() -> void:
 		check("the Aviary is linked to its gear field", g.gear_net.is_linked(av_list[0]))
 	waited = await _wait(func() -> bool: return _units(Defs.CUCKOO).size() >= 1, 90.0)
 	check("it trains Swifts against the flyer", _units(Defs.CUCKOO).size() >= 1, "%d after %.0f s" % [_units(Defs.CUCKOO).size(), waited])
-	waited = await _wait(func() -> bool: return bal.dead, 90.0)
-	check("its Swifts bring the balloon down", bal.dead, "%.0f s" % waited)
+	waited = await _wait(func() -> bool: return not is_instance_valid(bal) or bal.dead, 90.0)
+	check("its Swifts bring the balloon down", not is_instance_valid(bal) or bal.dead, "%.0f s" % waited)
 	# later, the sky clear: TICKING OWL and a morph (its tech clock past the research point, more than 90 s since a flyer)
 	g.clock = maxf(g.clock + 120.0, 1000.0)
 	waited = await _wait(func() -> bool: return g.has_tech(0, "owl_morph"), 120.0)

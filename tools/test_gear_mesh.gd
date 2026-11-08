@@ -106,8 +106,9 @@ func _run() -> void:
 	await process_frame
 	var net: GearNet = g.gear_net
 	var tower := U.hall(g, 0)
+	# (one Mainspring per Clocktower since 0.24.0 (docs/exhaust_economy.md): a Mainspring and two Cog Presses, not three Mainsprings)
 	for i in 3:
-		U.put(g, 0, "mainspring", tower.cell + Vector2i([-12, 12, 0][i], [6, 6, 12][i]))
+		U.put(g, 0, ["mainspring", Defs.GEAR_PRESS, Defs.GEAR_PRESS][i], tower.cell + Vector2i([-12, 12, 0][i], [6, 6, 12][i]))
 	U.step(g, 2.0)
 	var n_links := 0
 	var n_idlers := 0

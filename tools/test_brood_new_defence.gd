@@ -63,7 +63,7 @@ func _process(_delta: float) -> bool:
 
 func wait(sec: float) -> void:
 	var end: float = g.clock + sec
-	while g.clock < end:
+	while g.clock < end and not g.over:      # (the Mother dead = the game over: its clock stops, and this waited for good)
 		await physics_frame
 
 

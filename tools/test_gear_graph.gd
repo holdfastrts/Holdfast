@@ -57,13 +57,24 @@ func _run() -> void:
 	# its gears are placed from the parent: counter-rotation and a small gear spins faster
 	U.step(g, 1.0)
 	var p: Building = net.parent_of.get(a)
-	var a0: float = net.ang.get(a, 0.0)
+	# (turned frame by frame and unwrapped: a ring placed from its parent (or through an idler) is set by the mesh rule
+	# modulo a whole turn, so its stored angle jumps by whole teeth now and then, unseen; over one 0.5 s step that read as
+	# "-1.699" turns: qa-tests 2026-11-08)
 	U.step(g, 0.5)
-	var a1: float = net.ang.get(a, 0.0)
-	var t0: float = net.ang.get(tower, 0.0)
-	U.step(g, 0.5)
-	var t1: float = net.ang.get(tower, 0.0)
-	var a2: float = net.ang.get(a, 0.0)
+	var a1 := 0.0
+	var t0 := 0.0
+	var a2 := 0.0
+	var t1 := 0.0
+	var pa_: float = net.ang.get(a, 0.0)
+	var pt_: float = net.ang.get(tower, 0.0)
+	for k in 15:
+		U.step(g, 1.0 / 30.0)
+		var na_: float = net.ang.get(a, 0.0)
+		var nt_: float = net.ang.get(tower, 0.0)
+		a2 += _unwrap(na_ - pa_, TAU / float(GearNet.b_n(a)))
+		t1 += _unwrap(nt_ - pt_, TAU / float(GearNet.b_n(tower)))
+		pa_ = na_
+		pt_ = nt_
 	check("the gears turn", absf(a2 - a1) > 0.001 and absf(t1 - t0) > 0.001, "%.3f %.3f" % [a2 - a1, t1 - t0])
 	var idl: Dictionary = net.idler_of.get(a, {})
 	if idl.is_empty():
@@ -109,3 +120,8 @@ func _run() -> void:
 	check("with the Clocktower gone nothing is connected", not any)
 	print("RESULT: %d failures" % fails)
 	quit(1 if fails > 0 else 0)
+
+
+## The smallest turn equal to d modulo `period` (a ring's stored angle may jump by whole teeth).
+func _unwrap(d: float, period: float) -> float:
+	return d - round(d / period) * period

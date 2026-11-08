@@ -106,6 +106,15 @@ func _run() -> void:
 	var press := U.put(g, 0, "cog_press", g.cell_of(hall.center()))
 	check("a Cog Press stands", press != null)
 	if press:
+		# (a press makes nothing by itself since 0.24.0 (no trickle, docs/exhaust_economy.md): Winders work it)
+		for i in 2:
+			var wd: Unit = g._add_unit("winder", 0, press.center() + Vector2(-30 + i * 22, 70))
+			wd.auto_work = false
+			wd.cmd_gather(press)
+		var guard := 0
+		while press.working_crew() < 1 and guard < 40:
+			U.step(g, 0.5)
+			guard += 1
 		var floats := func() -> Array: return g._floats.filter(func(f: Array) -> bool: return String(f[1]).begins_with("+") and (f[0] as Vector2).distance_to(press.center()) < 60.0)
 		g._floats.clear()
 		var got0: int = int(g.players[0]["gold"])

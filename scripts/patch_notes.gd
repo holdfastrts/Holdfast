@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.11", "items": [
+		"CARD LINES FIT THEIR CARD AGAIN: the Great Winder's short line (in every language) and the Portuguese lines of the Marching Band and the Mainspring were longer than a card holds and ran off it; they are shorter now.",
+		"WATCHING COMPUTERS: the story line \"its scout was stopped before it saw anything\" now shows (it was lost to an error).",
+	]},
 	{"v": "0.33.10", "items": [
 		"QA OF THE INTERFACE (docs/qa_2026_11_08_ui.md): every menu page, Settings tab and button, the skirmish setup with every map, the HUD of each faction, the end screen, the tutorial, the campaign, the map editor, saves, replays, online play and the web version were checked at two computer sizes and two phone sizes in English, Portuguese and Spanish. Every setting saves, and a saved match comes back identical.",
 		"Fixed: the CONTINUE button's factions and clock were cut off, and HOW TO PLAY shrank to a tiny font (a label may now take two lines); a long map name lost its arrow in the skirmish setup; a random pool with one fitting map said \"One of 1 maps\"; the Town Hall's card said Soil and Saltpetre in English in Portuguese and Spanish; watching computers on a phone, VIEW said \"Free · all vision\" in English, the panels said P1 where the lines above said J1, a build-order step (\"Farm 2\") was left English and a scout line showed \"?\" for the player; the layout page, the animation viewer and the relay address row are translated; a new map in the editor is named in your language; three card lines that ran over the card's length are shorter.",

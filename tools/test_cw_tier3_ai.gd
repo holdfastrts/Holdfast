@@ -108,6 +108,11 @@ func _run() -> void:
 		if b.team == 1:
 			b.max_hp = 1.0e7
 			b.hp = 1.0e7
+	# (since the coached builds, 0.29.x, a computer's opening runs as a build order (AIClockwork.bo_on) and the shared rules
+	# under test take over only once it is over: a base planted by a test never finishes the plan's steps, so it is ended)
+	for a0 in g.ais:
+		if a0.team == 0 and a0.bo_on:
+			a0._end_build("the test's base is planted")
 	g.clock = maxf(g.clock, 330.0)
 	# (on a crowded plateau it first builds a Mainspring with room for the Heavy Works' big ring beside it: AI._tier3)
 	var waited := await _wait(func() -> bool: return not _mine(Defs.CW_HEAVY).is_empty(), 150.0)
