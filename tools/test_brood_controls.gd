@@ -401,6 +401,7 @@ func _extras(q: Unit, maw: Unit, p: Dictionary) -> void:
 	# 13. the Mist Toad's start energy; 14. MIASMA
 	var toad: Unit = g._add_unit("mist_toad", 0, q.position + Vector2(-40, 200))
 	check(int(toad.charge) == 75, "13. a new Mist Toad has 75 energy (of %d)" % int(Defs.TOAD["max"]))
+	g.players[0]["tech"]["nb_miasma"] = true     # (MIASMA is researched at the Venom Sire since 0.33.0, the owner's 2026-11-05; tools/test_toad_research.gd)
 	g.set_selection([toad])
 	check(card_labels().has("MIASMA"), "14. MIASMA on the Mist Toad's card: %s" % str(card_labels()))
 	var hurt: Unit = g._add_unit("raptor", 0, toad.position + Vector2(30, 0))
