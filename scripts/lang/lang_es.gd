@@ -2466,7 +2466,7 @@ const T := {
 	"Slow and tough: its blades cut every ground enemy in its arc.": "Lento y duro: sus cuchillas cortan a todo enemigo en tierra en su arco.",
 	"Nets one enemy for 4 s: it can't move or use abilities.": "Atrapa a un enemigo en la red 4 s: no puede moverse ni usar habilidades.",
 	"Bolt thrower: its screw goes through the target into those behind.": "Lanzavirotes: su tornillo atraviesa el objetivo y alcanza a los de detrás.",
-	"Winds and mends the army near it; sweeps wrecks into cogs; SCATTER COGS slows enemies.": "Da cuerda y repara al ejército cercano; barre restos y los vuelve engranajes; ESPARCIR ENGRANAJES frena a los enemigos.",
+	"Winds and mends the army; sweeps wrecks into cogs; SCATTER COGS slows enemies.": "Da cuerda y repara tropas; recicla restos; ESPARCIR ENGRANAJES frena enemigos.",
 	"Trains Labourers and haulers. Allows 2 Farms and 1 Powder Mill.": "Entrena Peones y porteadores. Permite 2 Granjas y 1 Molino de Pólvora.",
 	"Houses 8 more supply. The first unlocks the Barracks and palisade.": "Aloja 8 más de suministro. La primera desbloquea el Cuartel y la empalizada.",
 	"Wooden palisade: blocks the way. Lay it in a line.": "Empalizada de madera: bloquea el paso. Colócala en línea.",

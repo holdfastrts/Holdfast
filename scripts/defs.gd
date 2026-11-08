@@ -2388,7 +2388,7 @@ const SHORT := {
 	"pendulum": "Slow and tough: its blades cut every ground enemy in its arc.",
 	"netter": "Nets one enemy for 4 s: it can't move or use abilities.",
 	"ballista": "Bolt thrower: its screw goes through the target into those behind.",
-	"great_winder": "Winds and mends the army near it; sweeps wrecks into cogs; SCATTER COGS slows enemies.",
+	"great_winder": "Winds and mends the army; sweeps wrecks into cogs; SCATTER COGS slows enemies.",
 	# Crown buildings
 	"town_hall": "Trains Labourers and haulers. Allows 2 Farms and 1 Powder Mill.",
 	"cottage": "Houses 8 more supply. The first unlocks the Barracks and palisade.",

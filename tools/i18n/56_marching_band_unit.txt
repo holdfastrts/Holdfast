@@ -9,7 +9,7 @@ pt Banda Marcial: um Tambor (velocidade), e o Pifeiro (recarga) e o Gaiteiro (da
 es Banda Militar: un Tambor (velocidad), y el Pifanero (recarga) y el Gaitero (daño cuerpo a cuerpo) una vez investigados en la Armería. Cada instrumento da +5% a 5 casillas; su SOLO, +30% durante 8 s, un solo cada vez. Desarmada y frágil.
 
 > Plays buffs to your soldiers within 5 tiles; SOLOS for big ones. Unarmed.
-pt Toca bônus para os seus soldados a até 5 casas; SOLOS para bônus grandes. Desarmada.
+pt Toca bônus aos seus soldados a até 5 casas; SOLOS dão bônus grandes. Desarmada.
 es Toca mejoras para tus soldados a 5 casillas; SOLOS para las grandes. Desarmada.
 
 > All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills, the Cavalry Charge and the band's Fifer and Piper. Trains the Marching Band. Refits soldiers. Needs a Barracks.
