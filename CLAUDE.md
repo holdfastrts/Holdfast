@@ -37,7 +37,10 @@
   areas), qa-content (tools/test_content_all.gd: every unit/building/ability/research of every faction), qa-matches (Hard v
   Hard, all 9 matchups incl. mirrors, every map, 15:00), qa-ui (every screen, 3 languages, desktop + phone sizes, tutorial,
   campaign, editor, save/load, replays, online loopback, web), qa-perf (tick/draw/memory on every map, big battles).
-  Reports docs/qa_2026_11_08_<area>.md. Also DONE before it: brood-nerf-study (docs/brood_nerf_study.md, not merged yet).
+  Reports docs/qa_2026_11_08_<area>.md. ALL MERGED 2026-11-08: qa-content 0.33.8, qa-perf 0.33.9, qa-ui 0.33.10,
+  qa-tests 0.33.11, qa-matches and brood-nerf-study (data/tools). OWNER DECISIONS WAITING: the cannon/mortar double
+  building bonus on a right-click (qa_content item 3); ATTACK on unarmed cards; the Clockwork's harass and Great Winder
+  sweep under ONE ARMY; draws (dead sides should lose, winners hunt); the P1 start-spot edge (44-25).
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
