@@ -1,0 +1,2 @@
+201 error lines
+  201  SCRIPT ERROR: Left operand of 'is' is a previously freed instance.  at: AICrownSiege._siege_set (res://scripts/ai_crown_siege.gd:501)

@@ -1,0 +1,57 @@
+[00:00] P1 Brood takes new ground: a Mound Turtle roots 23 tiles out.
+[00:00] P2 Brood takes new ground: a Mound Turtle roots 23 tiles out.
+[02:08] P2 Brood sends a grub to grow a Tyrant Lure.
+[02:20] P1 Brood sends a grub to grow a Tyrant Lure.
+[02:47] P2 Brood takes new ground: a Mound Turtle roots 36 tiles out.
+[02:51] P2 Brood reads the enemy as NORMAL (a standard opening).
+[02:51] P2 Brood reads the enemy as NORMAL (a standard opening) and picks Timing attack: a timing attack.
+[03:00] P1 Brood reads the enemy as UNKNOWN (no read yet) and keeps Balanced: a normal game.
+[03:18] P1 Brood saw a Horseman at 3:18: riders are coming. Raptors now, its grubs kept beside them.
+[03:18] P1 Brood reads the enemy as AGGRESSIVE (a Horse Breeder or riders early).
+[03:18] P1 Brood reads the enemy as AGGRESSIVE (a Horse Breeder or riders early) and keeps Balanced: defend against the rush before it counter-attacks.
+[03:53] P2 Brood researches Bigger Clutch.
+[04:13] P1 Brood has 2 riders in its land: the grubs run to the warriors, who guard them and do not chase.
+[04:36] P2 Brood sends a grub to grow a Venom Lure.
+[04:38] P1 Brood researches Pack Hunt.
+[04:49] P1 Brood sends a grub to grow a Venom Lure.
+[04:57] P2 Brood grows its Mother to stage 2.
+[05:30] P2 Brood researches Pack Hunt.
+[05:30] P1 Brood reads the enemy as NORMAL (a standard opening).
+[05:30] P1 Brood reads the enemy as NORMAL (a standard opening) and keeps Balanced: what it plays already answers it.
+[05:41] P1 Brood grows its Mother to stage 2.
+[05:45] P1 Brood takes new ground: a Mound Turtle roots 36 tiles out.
+[05:58] P1 Brood researches Bigger Clutch.
+[06:10] P2 Brood researches Slither.
+[06:27] P2 Brood attacks with 22 supply.
+[06:30] P1 Brood attacks with 32 supply.
+[06:33] P1 Brood: the riders are gone. Its grubs go back to work and it goes back to its plan.
+[06:36] P2 Brood finds 19 riders in its land at 6:36: Raptors now, its grubs kept beside them.
+[06:36] P2 Brood has 19 riders in its land: the grubs run to the warriors, who guard them and do not chase.
+[07:00] P2 Brood pulls its wave back: only 225 of 890 is left.
+[07:12] P2 Brood guards its grubs by the Mother with 38 warriors against 2 riders, no chase.
+[07:35] P1 Brood grows its Mother to stage 3.
+[07:38] P2 Brood guards its grubs by the Mother with 57 warriors against 5 riders, no chase.
+[08:00] P2 Brood attacks with 65 supply.
+[08:03] P2 Brood guards its grubs by the Mother with 3 warriors against 4 riders, no chase.
+[08:05] P1 Brood pulls its wave back: only 200 of 880 is left.
+[08:10] P1 Brood has 14 riders in its land: the grubs run to the warriors, who guard them and do not chase.
+[08:24] P1 Brood guards its grubs where the riders are with 18 warriors against 2 riders, no chase.
+[08:44] P1 Brood guards its grubs by the Mother with 0 warriors against 50 riders, no chase.
+[08:45] P1 Brood sends a grub to grow a Storm Lure.
+[08:49] P1 Brood sounds the alarm: an enemy army of 400 is on the move. Warriors gather, grubs pull back.
+[09:04] P1 Brood guards its grubs by the Mother with 7 warriors against 38 riders, no chase.
+[09:25] P1 Brood guards its grubs by the Mother with 5 warriors against 33 riders, no chase.
+[09:36] P1 Brood defends its Mother with 3 against 1260.
+[09:45] P1 Brood guards its grubs by the Mother with 0 warriors against 17 riders, no chase.
+[09:47] P1 Brood defends its Mother with 3 against 920.
+[09:54] P1 Brood defends its Mother with 3 against 630.
+[10:04] P2 Brood: the riders are gone. Its grubs go back to work and it goes back to its plan.
+[10:13] P1 Brood gets a Mound Turtle up to root in front of its natural.
+[10:14] P1 Brood guards its grubs by the Mother with 0 warriors against 3 riders, no chase.
+[10:34] P1 Brood guards its grubs by the Mother with 0 warriors against 12 riders, no chase.
+[10:43] P2 Brood has 3 riders in its land: the grubs run to the warriors, who guard them and do not chase.
+[10:47] P1 Brood roots a Mound Turtle in front of its natural.
+[10:55] P1 Brood guards its grubs by the Mother with 0 warriors against 27 riders, no chase.
+[11:15] P1 Brood guards its grubs by the Mother with 0 warriors against 16 riders, no chase.
+[11:25] P2 Brood: the riders are gone. Its grubs go back to work and it goes back to its plan.
+[11:35] P1 Brood guards its grubs by the Mother with 0 warriors against 23 riders, no chase.

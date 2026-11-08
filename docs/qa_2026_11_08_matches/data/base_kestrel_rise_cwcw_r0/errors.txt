@@ -1,0 +1,2 @@
+4 error lines
+    4  SCRIPT ERROR: Invalid call. Nonexistent function 'has_tag' in base 'Nil'.  at: _worth (res://scripts/ballista.gd:400)
