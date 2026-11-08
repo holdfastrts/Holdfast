@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.8", "items": [
+		"CARD LINES FIT THEIR CARD AGAIN: the Great Winder's short line (in every language) and the Portuguese lines of the Marching Band and the Mainspring were longer than a card holds and ran off it; they are shorter now.",
+		"WATCHING COMPUTERS: the story line \"its scout was stopped before it saw anything\" now shows (it was lost to an error).",
+	]},
 	{"v": "0.33.7", "items": [
 		"THE MUSKETEER MARCHES ON NEW LEGS: a hand-drawn six-step walk in every direction, his musket carried the same way it is held when he aims (before, his legs were the labourer's pasted under him and each direction had its own number of steps, so turning jumped).",
 	]},
