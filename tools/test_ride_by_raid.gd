@@ -103,6 +103,8 @@ func _clear() -> void:
 func _run() -> void:
 	origin = _open_area(32, 22)
 	if origin.x < 0:
+		origin = _open_area(28, 20)     # (Hollowfen's open ground shrank: no 32 x 22 flat field 700 px from the halls any more)
+	if origin.x < 0:
 		print("FAIL: no open ground for the test")
 		quit(1)
 		return
