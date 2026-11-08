@@ -4,6 +4,14 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.9", "items": [
+		"FEWER FREEZES FROM THE AUTOSAVE: the save every 15 seconds and the match log are now written to the phone's storage in the background. When the storage was busy, that writing froze the game for a tenth to a quarter of a second in the middle of play. Its first step on screen is also lighter (the save's text is made a frame later).",
+		"LESS MEMORY ON PHONES: the Brood Mother's pictures of a stage she has grown out of are let go (about 70 MB each, kept for the whole match before), and every unit and building picture of a match is let go when you go back to the menu (before, a session kept every picture it had ever shown: 100 to 260 MB per matchup).",
+		"Units hidden behind a building or a big creature (their silhouettes) are found with a third less work: up to 16 ms in one frame in a big musket battle with cannons. The same silhouettes as before.",
+		"THE WEB VERSION: the campaign's paintings and voices moved from the code download (downloaded again after every update) to the art download (kept by the browser): an update that only changes the game now downloads 4.4 MB instead of 13.7 MB.",
+		"The game plays out exactly the same as before: checked unit by unit in 12 big battles and 3 whole computer matches.",
+		"Pictures of units about to appear (an egg's hatchling, a unit in training, a Horseman getting off his horse, the Mother's first egg) are loaded ahead in the background: their first appearance froze the game for a tenth of a second or more.",
+	]},
 	{"v": "0.33.8", "items": [
 		"RELEASE LETS THE HORSES GO FOR GOOD: a Labourer or soldier sent to LEAD fetches up to three horses one after another; pressing RELEASE while he was still fetching let go of the ones in hand, then he went on and took the rest. Now RELEASE also calls off the fetches still to come, and online it reaches the host (it was only done on your screen).",
 		"TOOLTIPS: the TEAM button of the Field Cannon, Mortar and Powder Wagon and the gate's LOCK / UNLOCK now say what they do.",

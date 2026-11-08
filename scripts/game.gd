@@ -9474,9 +9474,15 @@ func _tick_game(delta: float) -> void:
 		for t in n_players():
 			income_rates(t)            # (keeps each side's income log going)
 	update_view_rect()
+	var pz := Time.get_ticks_usec()
 	_economy(delta)
+	Prof.add("game/econ", pz)
+	pz = Time.get_ticks_usec()
 	line_net.tick(delta)
+	Prof.add("game/line net", pz)
+	pz = Time.get_ticks_usec()
 	gear_net.tick(delta)
+	Prof.add("game/gears", pz)
 	_horse_res_tick(delta)
 	for fl in _floats:
 		fl[3] -= delta
@@ -9485,7 +9491,9 @@ func _tick_game(delta: float) -> void:
 	_sample_t += delta
 	if _sample_t >= 5.0:
 		_sample_t = 0.0
+		var ps := Time.get_ticks_usec()
 		_sample_stats()
+		Prof.add("game/stats", ps)
 	var pt := Time.get_ticks_usec()
 	_rebuild_hash()
 	Prof.add("game/unit grid", pt)
@@ -9507,8 +9515,12 @@ func _tick_game(delta: float) -> void:
 	if not _pq_cache.is_empty():
 		_pq_cache.clear()
 	Prof.add("game/paths", pt)
+	pt = Time.get_ticks_usec()
 	_tick_zones(delta)
+	Prof.add("game/zones", pt)
+	pt = Time.get_ticks_usec()
 	_tick_swamp(delta)
+	Prof.add("game/swamp", pt)
 	_vis_t -= delta
 	if _vis_t <= 0.0:
 		_vis_t = 0.25
@@ -9531,8 +9543,10 @@ func _tick_game(delta: float) -> void:
 	_end_t -= delta
 	if _end_t <= 0.0:
 		_end_t = 1.0
+		pt = Time.get_ticks_usec()
 		_check_end()
 		sweep_ghosts()
+		Prof.add("game/end+ghosts", pt)
 		_ghost_t = 0.2
 	_ghost_t -= delta
 	if _ghost_t <= 0.0:

@@ -2573,8 +2573,10 @@ func _autosave(steps := false) -> void:
 	print("[save] %d:%02d  %d units, %d buildings  mem %d MB" % [int(game.clock) / 60, int(game.clock) % 60, game.units.size(), game.buildings.size(), int(OS.get_static_memory_usage() / 1048576)])
 	if steps:
 		_save_job = SaveGame.begin(game, cfg)
+		Prof.add("autosave/begin", pt)
 		Prof.add("autosave", pt)
 		if _save_job != null:
+			_save_job.defer_write = true     # (written off the main thread: _save_step)
 			return
 	else:
 		SaveGame.save(game, cfg)
@@ -2585,15 +2587,29 @@ func _autosave(steps := false) -> void:
 func _save_step() -> void:
 	var pt := Time.get_ticks_usec()
 	if _save_job.step():
+		var text: String = _save_job.text
 		_save_job = null
-		_save_done(pt)
+		Prof.add("autosave/final", pt)
+		# (the save and the log are written on a worker thread: a busy phone's storage can stall a write for a tenth
+		# of a second; the log's text is taken now, on this thread)
+		var pl := Time.get_ticks_usec()
+		var log_text: String = game.mlog.text() if game and game.mlog else ""
+		SaveGame.write_async(text, func() -> void:
+			if log_text != "":
+				_write_log("user://logs/unfinished.txt", log_text))
+		Prof.add("autosave/log", pl)
+		Prof.add("autosave", pt)
+		print("[save] done")
 	else:
+		Prof.add("autosave/step", pt)
 		Prof.add("autosave", pt)
 
 
 func _save_done(pt: int) -> void:
 	if game and game.mlog:
+		var pl := Time.get_ticks_usec()
 		_write_log("user://logs/unfinished.txt", game.mlog.text())
+		Prof.add("autosave/log", pl)
 	Prof.add("autosave", pt)
 	print("[save] done")
 
@@ -2941,6 +2957,10 @@ func _to_menu() -> void:
 	if net_lobby:
 		net_lobby.dispose()
 		net_lobby = null
+	# (qa-perf, 0.33.8: the match's unit and building pictures are let go at the menu: Game.tex kept every strip ever shown
+	# for the whole session, 100 to 260 MB of graphics memory per matchup, all of them after a few different matches;
+	# the next match loads its own again while it starts (ArtWarm))
+	Game._tex_cache.clear()
 	show_menu()
 
 
@@ -3056,11 +3076,14 @@ func _resolve_colours(cfg: Dictionary) -> void:
 func _save_log(t: String) -> void:
 	var name := "user://logs/match_%s.txt" % Time.get_datetime_string_from_system(false, true).replace(":", "-").replace(" ", "_")
 	_write_log(name, t)
+	SaveGame.wait()
 	if FileAccess.file_exists("user://logs/unfinished.txt"):
 		DirAccess.remove_absolute("user://logs/unfinished.txt")
 
 
 func _write_log(path: String, t: String) -> void:
+	if OS.get_thread_caller_id() == OS.get_main_thread_id():
+		SaveGame.wait()           # (an autosave's log still being written on its thread: SaveGame.write_async)
 	DirAccess.make_dir_recursive_absolute("user://logs")
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f:

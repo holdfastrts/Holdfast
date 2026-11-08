@@ -15,6 +15,9 @@ extends SceneTree
 ##   grubs    n Grubs + n/2 Raptors a side, the same melee in view
 ##   muskets  n/2 Musketeers a side (Crown) trading fire in view, the powder smoke as set (THICK by default)
 ##   mixed    n/2 Musketeers (Crown) against n/2 Raptors (Brood) in view: volleys, smoke and a melee (docs/perf_smoke.md)
+##   pair     a:<faction> b:<faction> (qa-perf, 0.33.8): n units a side of each faction's army, meeting in view:
+##            crown = Musketeers + a tenth Field Cannons (at most 20), brood = 3/4 Raptors + 1/4 Spitters,
+##            clockwork = 3/4 Clock Soldiers + 3/20 Springers + a tenth Winders; any pairing, mirrors too
 ##   clockbrood n/2 Clockwork (4/5 Clock Soldiers, 1/5 Springers) against n/2 Brood (3/4 Raptors, 1/4 Spitters) in view
 ##            (docs/perf_units.md; n:160 is 80 a side)
 ## smoke:<0..3> sets the powder smoke (off, light, full, thick) instead of the setting.
@@ -70,10 +73,13 @@ var _in_fight := false
 var linger := 0.0                # (seconds to keep running after the report: tools/gd_script_profiler.py gets its totals late)
 var _done := false
 var _zmax := {}                  # the most each part took in one frame
+var fac_a := "crown"            # (pair: the two sides' factions)
+var fac_b := "brood"
+var savecost := false           # ("savecost": at the end, the autosave's parts timed one by one, qa-perf)
 var spikes := false              # ("spikes": every frame over 50 ms printed, with what it spent its time on)
 
 const ZONES := ["units", "buildings", "game", "game/unit grid", "game/paths", "game/pathfinder", "game/path smoothing", "game/fog",
-	"effects", "projectiles", "unit draw", "building draw", "overlay draw", "hud", "hud draw", "hud/minimap", "hud/selection", "ai", "smoke"]
+	"effects", "projectiles", "unit draw", "building draw", "overlay draw", "hud", "hud draw", "hud/minimap", "hud/selection", "ai", "smoke", "silhouettes", "silhouettes/scan", "autosave", "replay/record"]
 
 
 class SilentSfx extends Sfx:
@@ -84,8 +90,12 @@ class SilentSfx extends Sfx:
 func _initialize() -> void:
 	Settings.load_all()
 	for a in OS.get_cmdline_user_args():
-		if a in ["idle", "walk", "melee", "offmelee", "grubs", "muskets", "mixed", "clockbrood"]:
+		if a in ["idle", "walk", "melee", "offmelee", "grubs", "muskets", "mixed", "clockbrood", "pair"]:
 			scen = a
+		elif a.begins_with("a:"):
+			fac_a = a.substr(2)
+		elif a.begins_with("b:"):
+			fac_b = a.substr(2)
 		elif a.begins_with("smoke:"):
 			PowderSmoke.force = int(a.substr(6))
 		elif a.begins_with("n:"):
@@ -100,6 +110,8 @@ func _initialize() -> void:
 			sound = true
 		elif a == "spikes":
 			spikes = true
+		elif a == "savecost":
+			savecost = true
 		elif a.begins_with("trace:"):
 			_trace = FileAccess.open(a.substr(6), FileAccess.WRITE)
 		elif a.begins_with("out:"):
@@ -166,8 +178,8 @@ func _process(delta: float) -> bool:
 	if not begun:
 		if t > 0.2:
 			begun = true
-			var fac := "crown" if scen in ["muskets", "mixed"] else "clockwork" if scen == "clockbrood" else "brood"
-			var fac1 := "brood" if scen in ["mixed", "clockbrood"] else fac
+			var fac := "crown" if scen in ["muskets", "mixed"] else "clockwork" if scen == "clockbrood" else fac_a if scen == "pair" else "brood"
+			var fac1 := "brood" if scen in ["mixed", "clockbrood"] else fac_b if scen == "pair" else fac
 			if not sound:
 				root.add_child(SilentSfx.new())
 			seed(4242)
@@ -220,6 +232,8 @@ func _process(delta: float) -> bool:
 		return false
 	if _game_t >= secs + 0.5:
 		_report()
+		if savecost:
+			_save_cost()
 		if _trace != null:
 			_trace.close()
 		if shot_path != "":
@@ -335,12 +349,16 @@ func _setup() -> void:
 		p0 = _open_near(h0.center() + dir * 320.0)
 		p1 = _open_near(h1.center() - dir * 320.0)
 	else:
-		var gap := 420.0 if scen in ["muskets", "mixed"] else 360.0
+		var gap := 420.0 if scen in ["muskets", "mixed"] or (scen == "pair" and "crown" in [fac_a, fac_b]) else 360.0
 		var m := _open_near(mid)
 		p0 = _open_near(m - dir * gap)
 		p1 = _open_near(m + dir * gap)
-	sides[0] = _army(0, p0, set)
-	sides[1] = _army(1, p1, [["raptor", n / 2]] if scen == "mixed" else [["raptor", n / 2 - n / 8], ["spitter", n / 8]] if scen == "clockbrood" else set)
+	if scen == "pair":
+		sides[0] = _army(0, p0, _pair_set(fac_a))
+		sides[1] = _army(1, p1, _pair_set(fac_b))
+	else:
+		sides[0] = _army(0, p0, set)
+		sides[1] = _army(1, p1, [["raptor", n / 2]] if scen == "mixed" else [["raptor", n / 2 - n / 8], ["spitter", n / 8]] if scen == "clockbrood" else set)
 	_vp_rid = root.get_viewport().get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(_vp_rid, true)
 	match scen:
@@ -350,7 +368,7 @@ func _setup() -> void:
 			g.group_move(sides[0], p1, false)
 			g.group_move(sides[1], p0, false)
 			_fight_cam = true
-		"melee", "grubs", "muskets", "mixed", "clockbrood":
+		"melee", "grubs", "muskets", "mixed", "clockbrood", "pair":
 			g.group_move(sides[0], p1, true)
 			g.group_move(sides[1], p0, true)
 			_cam_at = (p0 + p1) * 0.5
@@ -365,6 +383,19 @@ func _setup() -> void:
 	print("SWARM setup %s: %d + %d units at %s / %s, map %s (%dx%d), %s, v%s" % [scen, sides[0].size(), sides[1].size(), p0, p1, map, Game.W, Game.H,
 		"rendered %s" % RenderingServer.get_video_adapter_name() if DisplayServer.get_name() != "headless" else "headless",
 		ProjectSettings.get_setting("application/config/version", "dev")])
+
+
+## A faction's army of n for the "pair" scenario.
+func _pair_set(f: String) -> Array:
+	match f:
+		"crown":
+			var c := mini(20, n / 10)
+			return [["musketeer", n - c], ["cannon", c]]
+		"clockwork":
+			var w := n / 10
+			var sp := n * 3 / 20
+			return [["clock_soldier", n - w - sp], ["springer", sp], ["winder", w]]
+	return [["raptor", n - n / 4], ["spitter", n / 4]]
 
 
 ## The camera on the middle of side 0's army that is still standing (or where it fights).
@@ -483,6 +514,40 @@ func _stats(fr: PackedFloat32Array) -> Array:
 	for i in k:
 		slow += a[a.size() - 1 - i]
 	return [tot / a.size(), slow / k, a[a.size() - 1], a.size()]
+
+
+## The autosave's parts, each timed (ms), three times over: capture (the state as a Dictionary), the head's JSON,
+## the units' JSON, the final text, the file; the log's text and file.
+func _save_cost() -> void:
+	for rep in 3:
+		var t0 := Time.get_ticks_usec()
+		var d := SaveGame.capture(g, {})
+		var t1 := Time.get_ticks_usec()
+		var job := SaveGame.SaveJob.new(d)
+		var t2 := Time.get_ticks_usec()
+		var steps := 0
+		var worst := 0
+		var fin := 0
+		while true:
+			var s0 := Time.get_ticks_usec()
+			var done := job.step()
+			var dt := Time.get_ticks_usec() - s0
+			if done:
+				fin = dt
+				break
+			steps += 1
+			worst = maxi(worst, dt)
+		var t3 := Time.get_ticks_usec()
+		var lt := g.mlog.text() if g.mlog else ""
+		var t4 := Time.get_ticks_usec()
+		var f := FileAccess.open("user://logs/unfinished_cost.txt", FileAccess.WRITE)
+		f.store_string(lt)
+		f.close()
+		var t5 := Time.get_ticks_usec()
+		var sz := FileAccess.get_file_as_bytes(SaveGame.PATH).size()
+		print("SWARM save: capture %.1f ms, head+copy %.1f ms, %d steps (worst %.1f ms), final %.1f ms, log text %.1f ms (%d lines), log file %.1f ms | save %d kB, units %d" % [
+			(t1 - t0) / 1000.0, (t2 - t1) / 1000.0, steps, worst / 1000.0, fin / 1000.0, (t4 - t3) / 1000.0, g.mlog.lines.size() if g.mlog else 0,
+			(t5 - t4) / 1000.0, sz / 1024, (d["units"] as Array).size() if d["units"] is Array else job.units.size()])
 
 
 func _report() -> void:

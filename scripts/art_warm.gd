@@ -23,6 +23,18 @@ var _queue: Array = []          # paths still to load
 var _loading := {}              # path -> true (requested, not taken yet)
 var _look_t := 0.0
 var _snd_queue: Array = []      # the sounds (assets/audio), after the pictures; with threads only
+## OUTGROWN PICTURES LET GO (qa-perf, 0.33.8): the Brood Mother grows into new art (stages 2 and 3, `art` instead of
+## her kind) and her old stage's strips stayed loaded: about 70 MB of pictures a stage (they sit in the graphics memory,
+## which a phone shares with everything else). A stage no Mother on the field has shown for RELEASE_AFTER seconds, while a
+## Mother is on the field, is dropped from Game's picture cache (only big sets: RELEASE_MB). Pictures only; if it is shown
+## again (it isn't: a Mother never grows back) it is loaded again when first shown.
+const RELEASE_EVERY := 5.0
+const RELEASE_AFTER := 30.0
+const RELEASE_MB := 8.0
+var _release_t := RELEASE_EVERY
+var _unshown := {}              # art -> seconds no unit has shown it (while its kind is on the field showing another)
+var released: Array = []        # arts let go, or small enough to keep (not looked at again)
+var _art_kind := {}             # art -> the kind that showed it (a kind's own art, and the stages it grew through)
 static var _keep: Array = []    # (the sounds loaded ahead stay loaded: Sfx's load() then finds them at once)
 ## Paths asked for by Game.tex while loading in the background (Game.tex then waits for that one).
 static var pending := {}
@@ -73,6 +85,10 @@ func _process(delta: float) -> void:
 	if _look_t <= 0.0:
 		_look_t = LOOK_EVERY
 		_look()
+	_release_t -= delta
+	if _release_t <= 0.0:
+		_release_t = RELEASE_EVERY
+		_release()
 	for p in _loading.keys():
 		var st := ResourceLoader.load_threaded_get_status(p)
 		if st == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
@@ -116,15 +132,80 @@ func _process(delta: float) -> void:
 			_loading[p] = true
 
 
+## Lets go of a kind's own strips once it has grown out of them (see RELEASE_AFTER).
+func _release() -> void:
+	var shown := {}
+	var kinds := {}
+	for u in game.units:
+		if is_instance_valid(u):
+			shown[u.art] = true
+			kinds[u.kind] = true
+			if u.art != u.kind and not _art_kind.has(u.art):
+				_art_kind[u.art] = u.kind
+	# (an art is outgrown when no unit shows it while a unit of its kind is on the field: that kind's own art, or a stage
+	# it showed before)
+	for a in _art_kind:
+		var k: String = _art_kind[a]
+		if k != BroodNew.QUEEN:
+			continue                 # (only the Mother grows through stages; other art changes (armour) flip back and forth)
+		if shown.has(a) or not kinds.has(k) or released.has(a) or not ArtData.UNITS.has(a):
+			_unshown.erase(a)
+			continue
+		_unshown[a] = float(_unshown.get(a, 0.0)) + RELEASE_EVERY
+		if float(_unshown[a]) < RELEASE_AFTER:
+			continue
+		var paths: Array = []
+		var mb := 0.0
+		for key in ArtData.UNITS[a]["frames"]:
+			var p := "res://assets/units/%s/%s.png" % [a, key]
+			var tx = Game._tex_cache.get(p)
+			if tx is Texture2D:
+				paths.append(p)
+				mb += (tx as Texture2D).get_width() * (tx as Texture2D).get_height() * 4.0 / 1048576.0
+		_unshown.erase(a)
+		if mb < RELEASE_MB:
+			released.append(a)        # (small: kept, and not looked at again)
+			continue
+		for p in paths:
+			Game._tex_cache.erase(p)
+		released.append(a)
+
+
 ## Every kind on the field whose strips aren't queued yet: all its strips into the queue.
 func _look() -> void:
 	for u in game.units:
 		if not is_instance_valid(u) or u.dead:
 			continue
+		if not _art_kind.has(u.kind):
+			_art_kind[u.kind] = u.kind
 		for a in [u.art, u.kind]:
 			if a != "" and not _seen.has(a):
 				_seen[a] = true
 				_add_art(a)
+		# (qa-perf, 0.33.8: kinds about to appear, so their first picture isn't loaded on the frame they appear: 100 to
+		# 400 ms in the matrix's games for a Spitter, an egg, a Tyrannosaur, a dismounted Horseman, a Ballista)
+		if u.kind == BroodNew.QUEEN:
+			_coming(BroodNew.EGG)                       # (her first egg)
+		elif u.kind == BroodNew.EGG and u.nb.has("k"):
+			_coming(String(u.nb["k"]))                  # (what the egg hatches)
+		elif u.kind == "cuirassier":
+			_coming("dismounted")                       # (a Horseman thrown or getting off)
+	for b in game.buildings:
+		if not is_instance_valid(b) or b.dead:
+			continue
+		for q in b.queue:
+			if q is String and not (q as String).begins_with("@"):
+				_coming(q)                               # (in training)
+
+
+## A kind that will be on the field soon: its art (as it comes out) and its kind's strips queued like a kind on the field.
+func _coming(k: String) -> void:
+	if not Defs.UNITS.has(k):
+		return
+	for a in [Defs.art_for(k, false), k]:
+		if a != "" and not _seen.has(a):
+			_seen[a] = true
+			_add_art(a)
 
 
 func _add_art(a: String) -> void:
