@@ -62,6 +62,9 @@ var min_wind := 1.0
 
 
 func _initialize() -> void:
+	if OS.get_cmdline_user_args().is_empty():
+		check = true      # (qa-tests, 2026-11-08: a bare run is the test, so the suite gets a verdict)
+		until = 600.0
 	for a in OS.get_cmdline_user_args():
 		var kv := a.split(":", true, 1)
 		if kv.size() < 2:
