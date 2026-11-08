@@ -185,8 +185,8 @@ def main():
     # ---------------------------------------------------------------- matchups
     P("## Base games: win rates per matchup (OPTIMAL v OPTIMAL)")
     P("")
-    P("W-D-L is the first-named faction's (in a mirror: P1's, the north-west start spot on the classic maps). Draws led: "
-      "who was ahead at 15:00 (income + 2 x army, 10%% margin) as first / even / second. Round 0 and round 1 are the two "
+    P("W-D-L is the first-named faction's (in a mirror: the P1 start spot's). Draws led: "
+      "who was ahead at 15:00 (income + 2 x army, 10% margin) as first / even / second. Round 0 and round 1 are the two "
       "seeds of each map, with the sides swapped between them.")
     P("")
     P("| matchup | games | W-D-L | won or led | draws led (1st/even/2nd) | round 0 W-D-L | round 1 W-D-L | same result both rounds | mean length (decided) |")
@@ -271,6 +271,23 @@ def main():
             return "%.1f" % statistics.mean(v) if v else "-"
         P("| %s | %d | %s | %s | %s | %s | %s | %s | %s | %s | %s |" % (FN[f], len(pl), m_("income", 5), m_("income", 8), m_("income", 10),
           m_("income", 15), m_("workers", 8), m_("army", 8), m_("army", 10), m1("halls", 8), m1("halls", 15)))
+    P("")
+    # ---------------------------------------------------------------- the brood nerf study's maps
+    NERF = ["dune_sea", "greenhold", "red_coast", "hollowfen", "kestrel_rise"]
+    P("## On the brood-nerf-study's five maps (to compare with docs/brood_nerf_study.md, 0.33.6, FOOD_BONUS 1.2)")
+    P("")
+    P("| matchup (subject first) | games | W-D-L | won or led | income ratio 8:00 | army ratio 8:00 |")
+    P("|---|---|---|---|---|---|")
+    for k, subj in ((("crown", "brood"), "brood"), (("brood", "clockwork"), "brood"), (("crown", "clockwork"), "crown")):
+        gs = [g for g in by.get(k, []) if g["map"] in NERF]
+        if not gs:
+            continue
+        a_of = lambda g, f=subj: g["fac"].index(f)
+        w, d, l, led = wdl(gs, a_of)
+        ri, _ = ratio(gs, a_of, "income", 8)
+        ra, _ = ratio(gs, a_of, "army", 8)
+        other = k[1] if subj == k[0] else k[0]
+        P("| %s v %s | %d | %d-%d-%d | %d | %s | %s |" % (FN[subj], FN[other], len(gs), w, d, l, w + led[0], fmt(ri), fmt(ra)))
     P("")
     # ---------------------------------------------------------------- lengths
     P("## Game length (base games)")
@@ -377,6 +394,30 @@ def main():
         ts = sorted(e["t"] for e in at)
         P("| %s | %d | %s | %s | %d of %d | %d | %d |" % (FN[f], len(at), mmss(statistics.median(ts)) if ts else "-", mmss(ts[0]) if ts else "-", paid, len(fin), thrown, none))
     P("")
+    # ---------------------------------------------------------------- first arrivals
+    P("First ENEMY ARRIVAL in each base (300+ enemy army value within 500 px of the side's buildings or rooted creatures; "
+      "it counts the Clockwork's pushes too, which never mark themselves attacking). 90 s later: units lost by each, the "
+      "defender's buildings lost. 'Attacker paid' = the defender lost buildings or more units than the attacker.")
+    P("")
+    P("| attacker | arrivals | median time | earliest | attacker paid | defender held (attacker lost 2x more, no building) | games with no arrival by 15:00 |")
+    P("|---|---|---|---|---|---|---|")
+    for f in ORDER:
+        arr = []
+        none = 0
+        for g in base:
+            for p in range(2):
+                if g["fac"][p] != f:
+                    continue
+                e = [x for x in g["events"] if x["ev"] == "first_arrival" and x["p"] == 1 - p]
+                if e:
+                    arr.append(e[0])
+                elif g["end"] >= 600 and any(x["ev"] == "first_arrival" for x in g["events"]) is not None:
+                    none += 1
+        ts = sorted(e["t"] for e in arr)
+        paid = sum(1 for e in arr if e["own_bld"] > 0 or e["own_lost"] > e["foe_lost"])
+        held = sum(1 for e in arr if e["own_bld"] == 0 and e["foe_lost"] > 2 * max(1, e["own_lost"]))
+        P("| %s | %d | %s | %s | %d | %d | %d |" % (FN[f], len(arr), mmss(statistics.median(ts)) if ts else "-", mmss(ts[0]) if ts else "-", paid, held, none))
+    P("")
     # ---------------------------------------------------------------- halls lost
     P("## Halls lost (base games)")
     P("")
@@ -402,6 +443,12 @@ def main():
                 spots = collections.Counter(e["at"] for e in hl)
                 rep += sum(1 for s, c in spots.items() if c >= 2)
         P("| %s | %d | %d | %d | %d | %d (%s) | %d |" % (FN[f], ng, tot, unb, g3, mx, mxg, rep))
+    P("")
+    bl = [(g, e) for g in base for e in g["events"] if e["ev"] == "brood_ground_lost"]
+    P("The Brood has no halls: its 'ground' (the Queen plus its rooted expansions) shrank %d times in %d of %d Brood sides "
+      "(lost or uprooted; the tool cannot tell which); Brood Queens killed (Brood side out of the game): %d." % (
+      len(bl), len(set((g["tag"], e["p"]) for g, e in bl)), sum(1 for g in base for p in range(2) if g["fac"][p] == "brood"),
+      sum(1 for g in base for p in range(2) if g["fac"][p] == "brood" and g["final"][p]["out"])))
     P("")
     # ---------------------------------------------------------------- plans
     plans = [g for g in games if g["kind"] == "plan"]
