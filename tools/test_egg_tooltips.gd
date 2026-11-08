@@ -224,6 +224,7 @@ func _chips_match(e: Entity, title: String, what: String) -> void:
 	var L: Dictionary = WorkerLabels.layout(g, lab_e)
 	var want: Dictionary = WorkerLabels.tip(g, lab_e)
 	var ok: bool = not ch.is_empty() and _same(UnitStats.tip(ch), want)
-	if ok and ch.has("pic"):
-		ok = String(ch["text"]) == String(L.get("count", ""))
+	if ok and ch.has("crew_of"):
+		ok = String(ch["text"]) == String(L.get("count", ""))     # (a worker chip shows the label's count; a resource chip, with its
+		                                                           # own picture since the chips got pictures, shows the resource)
 	check(ok, "%s: chip \"%s\" (label \"%s\"), tooltip \"%s\"" % [what, ch.get("text", "none"), L.get("count", ""), want.get("title", "")])

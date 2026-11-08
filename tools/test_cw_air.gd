@@ -283,7 +283,7 @@ func _run() -> void:
 		if jk.anim == "attack_up":
 			saw_up = true
 		if jk.shots > before and jk.last_shot != null:
-			tip_ok = jk.last_tip.distance_to(Springer.tip(jk, true)) < 0.5 and jk.last_shot.from.distance_to(jk.last_tip) < 0.5
+			tip_ok = _near_tip(jk, true) and jk.last_shot.from.distance_to(jk.last_tip) < 0.5
 	check("a Springer shooting at a flyer plays the raised-arm strip (attack_up)", saw_up)
 	check("its screw leaves the raised drill tip", tip_ok and jk.shots > shots0, "tip %s" % str(jk.last_tip - jk.position))
 	_remove_unit(g, bal)
@@ -302,10 +302,10 @@ func _run() -> void:
 		t += 1.0 / 30.0
 		if jk.anim == "attack" or jk.anim == "attack_r" or jk.anim == "attack_l":
 			saw_ground = true          # (its two launchers in turn: attack_r / attack_l)
-		if jk.anim == "attack_up":
-			saw_up2 = true
+		if jk.anim == "attack_up" and jk.shots > shots0:
+			saw_up2 = true          # (once it has fired at the ground unit: the raised strip of the flyer just before may still be finishing)
 		if jk.shots > before2:
-			ground_tip = jk.last_tip.distance_to(Springer.tip(jk, false)) < 0.5
+			ground_tip = _near_tip(jk, false)
 	check("at a ground unit it keeps the ground attack strips (an arm's)", saw_ground and not saw_up2)
 	check("and the old (lowered) tip", ground_tip, "tip %s" % str(jk.last_tip - jk.position))
 	# ---- the sandbox's CLOCK tab and the Lab
@@ -327,7 +327,9 @@ func _run() -> void:
 	check("the Lab has three Swifts", lab_sw.size() == 3, "%d" % lab_sw.size())
 	check("the Lab has a Ticking Owl", lab_owl.size() == 1, "%d" % lab_owl.size())
 	check("in the Lab TICKING OWL is researched", g2.has_tech(g2.human, "owl_morph"))
-	check("the Lab has Tension to spare", g2.tension(g2.human) >= 300.0, "%.0f" % g2.tension(g2.human))
+	# (one Mainspring per Clocktower since 0.24.0, docs/exhaust_economy.md: the Lab's one small spring stores 200; it starts
+	# wound full. It used to ask 300, from the days of two Mainsprings)
+	check("the Lab has Tension to spare (its Mainspring wound full)", g2.tension(g2.human) >= maxf(150.0, GearEcon.tension_cap(g2, g2.human)), "%.0f" % g2.tension(g2.human))
 	g2._recount_supply(g2.human)
 	check("in the Lab a Swift can be morphed at once", not lab_sw.is_empty() and CwAir.morph_problem(lab_sw[0]) == "", CwAir.morph_problem(lab_sw[0]) if not lab_sw.is_empty() else "")
 	check("in the Lab a Swift can be trained at once", lab_av != null and g2.can_train(lab_av, Defs.CUCKOO) == "", g2.can_train(lab_av, Defs.CUCKOO) if lab_av else "")
@@ -428,3 +430,16 @@ func _free_cell(g: Game, c: Vector2i, size: Vector2i) -> Vector2i:
 func _end() -> void:
 	print("ALL PASS" if fails == 0 else "FAIL (%d)" % fails)
 	quit(1 if fails > 0 else 0)
+
+
+## The last screw left from one of its launchers' tips (it fires its two in turn since 0.14.59: by the time the test looks,
+## Unit.arm has moved on to the other one).
+func _near_tip(jk: Unit, up: bool) -> bool:
+	var a0 := jk.arm
+	var ok := false
+	for a in maxi(1, Springer.ARMS.size()):
+		jk.arm = a
+		if jk.last_tip.distance_to(Springer.tip(jk, up)) < 3.0:      # (it may have slid a pixel or two since it fired)
+			ok = true
+	jk.arm = a0
+	return ok

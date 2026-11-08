@@ -233,7 +233,9 @@ func _run() -> void:
 			and g2.gear_net.spring_for(lab_esc) != null and g2.gear_net.speed_mult(lab_esc) > 0.0)
 	var lab_springers := g2.units.filter(func(u: Unit) -> bool: return u.team == g2.human and u.kind == Defs.SPRINGER and not u.dead)
 	check("the Lab has three Springers", lab_springers.size() == 3, "%d" % lab_springers.size())
-	check("the Lab has Tension to spare", g2.tension(g2.human) >= 300.0, "%.0f" % g2.tension(g2.human))
+	# (one Mainspring per Clocktower since 0.24.0, docs/exhaust_economy.md: the Lab's one small spring stores 200; it starts
+	# wound full. It used to ask 300, from the days of two Mainsprings)
+	check("the Lab has Tension to spare (its Mainspring wound full)", g2.tension(g2.human) >= maxf(150.0, GearEcon.tension_cap(g2, g2.human)), "%.0f" % g2.tension(g2.human))
 	g2._recount_supply(g2.human)
 	var lab_works: Building = null
 	for b in g2.buildings:

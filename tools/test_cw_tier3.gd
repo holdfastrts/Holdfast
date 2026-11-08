@@ -144,9 +144,10 @@ func _run() -> void:
 	g.camera.position = at
 	var dmg := float(Defs.UNITS[P]["damage"])
 	var polar := func(deg: float, dist: float) -> Vector2: return at + Vector2.from_angle(deg_to_rad(deg)) * dist
-	var front: Unit = _foe(g, "labourer", polar.call(0.0, 42.0))
-	var front2: Unit = _foe(g, "labourer", polar.call(-35.0, 44.0))
-	var front3: Unit = _foe(g, "labourer", polar.call(35.0, 44.0))
+	var front: Unit = _foe(g, "labourer", polar.call(0.0, 46.0))
+	var front2: Unit = _foe(g, "labourer", polar.call(-40.0, 50.0))      # (spread out a little more: at 44 px and 35 degrees
+	# the unit spacing pushed them apart before the blow, front2 out of the arc: qa-tests 2026-11-08)
+	var front3: Unit = _foe(g, "labourer", polar.call(40.0, 50.0))
 	var behind: Unit = _foe(g, "labourer", polar.call(180.0, 42.0))
 	var beside: Unit = _foe(g, "labourer", polar.call(95.0, 44.0))         # (out of the arc: 60 degrees either side)
 	var friend: Unit = g._add_unit("clock_soldier", 0, polar.call(52.0, 62.0))      # (in the arc, of its own side)
