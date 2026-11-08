@@ -1,0 +1,77 @@
+[00:00] P2 Brood takes new ground: a Mound Turtle roots 21 tiles out.
+[00:23] P1 Crown walls off its ramp: 1 pieces.
+[01:23] P1 Crown reads the enemy as NORMAL (a standard opening).
+[01:23] P1 Crown follows its own Siege push build order: 9 steps, then its milestones.
+[01:23] P1 Crown reads the enemy as NORMAL (a standard opening) and picks Siege push: a siege to break its defences.
+[02:07] P2 Brood sends a grub to grow a Tyrant Lure.
+[02:39] P1 Crown reads the enemy as GREEDY (a second base and little army).
+[02:39] P1 Crown reads the enemy as GREEDY (a second base and little army) but keeps Siege push: it has switched once this stage already, Rush waits.
+[03:00] P2 Brood reads the enemy as UNKNOWN (no read yet) and picks Brute siege: a siege to break its defences.
+[03:47] P2 Brood grows its Mother to stage 2.
+[03:51] P1 Crown expands to fresh land: its best base has only 79% left, so it goes 21 tiles out.
+[03:51] P1 Crown plans a walled expansion.
+[04:03] P2 Brood takes new ground: a Mound Turtle roots 36 tiles out.
+[04:10] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[04:17] P2 Brood reads the enemy as GREEDY (a new base by its natural).
+[04:17] P2 Brood reads the enemy as GREEDY (a new base by its natural) but keeps Brute siege: it has switched once this stage already, Spitter timing waits.
+[04:36] P1 Crown's Horseman goes after the enemy workers.
+[04:36] P2 Brood guards its grubs where the riders are with 9 warriors against 1 riders, no chase.
+[04:37] P1 Crown's opening is over: its milestones and its doctrine take over.
+[04:38] P2 Brood sends a grub to grow a Venom Lure.
+[04:57] P2 Brood guards its grubs by the Mother with 9 warriors against 1 riders, no chase.
+[05:02] P2 Brood researches Bigger Clutch.
+[05:17] P2 Brood guards its grubs where the riders are with 7 warriors against 1 riders, no chase.
+[05:19] P2 Brood grows its Mother to stage 3.
+[05:37] P2 Brood guards its grubs by the Mother with 3 warriors against 1 riders, no chase.
+[06:03] P1 Crown puts up its next milestone: Barracks 2.
+[06:28] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[06:44] P2 Brood reads the enemy as NORMAL (a standard opening).
+[06:44] P2 Brood reads the enemy as NORMAL (a standard opening) and keeps Brute siege: what it plays already answers it.
+[07:29] P1 Crown puts up its next milestone: Foundry 2.
+[07:55] P2 Brood researches Battering Horns.
+[08:02] P2 Brood takes new ground: a Mound Turtle roots 32 tiles out.
+[08:34] P1 Crown puts up its next milestone: Armoury 1.
+[08:37] P1 Crown's Horseman goes after the enemy workers.
+[08:37] P2 Brood guards its grubs where the riders are with 49 warriors against 1 riders, no chase.
+[08:44] P1 Crown reads the enemy as NORMAL (a standard opening).
+[08:44] P1 Crown reads the enemy as NORMAL (a standard opening) and keeps Siege push: what it plays already answers it.
+[08:47] P2 Brood takes new ground: a Mound Turtle roots 14 tiles out.
+[08:57] P1 Crown posts its army down at its natural's gate: room for 13 Musketeers behind the palisade and 2 guns behind them.
+[08:57] P2 Brood guards its grubs by the Mother with 60 warriors against 1 riders, no chase.
+[09:10] P1 Crown's siege push goes out: 30 supply, 3 guns behind a line of Musketeers.
+[09:18] P2 Brood guards its grubs by the Mother with 63 warriors against 1 riders, no chase.
+[09:20] P2 Brood takes new ground: a Mound Turtle roots 14 tiles out.
+[09:34] P2 Brood attacks with 85 supply.
+[09:34] P2 Brood's Brute siege goes out: 85 supply, 4 Brutes in front to break the way in.
+[09:35] P2 Brood researches Pack Hunt.
+[09:41] P2 Brood takes new ground: a Mound Turtle roots 15 tiles out.
+[10:02] P1 Crown puts up its next milestone: Church 1.
+[10:02] P1 Crown holds the gate of its walled natural: the force outside (492) is too strong to go out and meet with its army (155).
+[10:04] P1 Crown's line stands and its guns unlimber behind it, against the enemy's Rootmaw.
+[10:05] P2 Brood defends its home with 2 against 60.
+[10:10] P2 Brood defends its home with 2 against 60.
+[10:11] P2 Brood takes new ground: a Mound Turtle roots 15 tiles out.
+[10:11] P2 Brood defends its home with 3 against 120.
+[10:12] P2 Brood's Brutes batter the enemy's Palisade while its Spitters cover them.
+[10:13] P2 Brood takes new ground: a Mound Turtle roots 15 tiles out.
+[10:14] P1 Crown's line stands and its guns unlimber behind it, against the enemy's Mound Turtle.
+[10:17] P2 Brood defends its home with 3 against 120.
+[10:17] P2 Brood pulls its defenders back to the Mother.
+[10:23] P2 Brood defends its home with 8 against 360.
+[10:27] P2 Brood takes new ground: a Mound Turtle roots 15 tiles out.
+[10:32] P1 Crown holds the gate of its walled natural: the force outside (2612) is too strong to go out and meet with its army (214).
+[10:33] P2 Brood researches Bigger Clutch.
+[10:39] P2 Brood's Brutes break through: the swarm pours in through the gap.
+[10:41] P1 Crown's siege push falls back: the guns limber and go home first.
+[10:51] P1 Crown's economy is full on 1 bases: it needs a new one to grow.
+[10:54] P1 Crown moves its musket line to the cliff edge above its Powder Mill.
+[10:56] P1 Crown moves its musket line to the cliff edge above its Foundry.
+[11:00] P1 Crown moves its musket line to the cliff edge above its Cottage.
+[11:02] P1 Crown holds the top of its ramp: the force below (2973) is more than its army (135) can beat.
+[11:03] P1 Crown moves its musket line to the cliff edge above its Cottage.
+[11:17] P2 Brood researches Slither.
+[11:32] P1 Crown holds the top of its ramp: the force below (3386) is more than its army (135) can beat.
+[11:37] P2 Brood's wave moves on to the next target.
+[12:23] P2 Brood's wave moves on to the next target.
+[12:50] P2 Brood's wave moves on to the next target.
+[13:01] P2 Brood's wave moves on to the next target.
