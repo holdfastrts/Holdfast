@@ -121,7 +121,7 @@ func _run() -> void:
 	var it := _card_item("ATTACK GROUND")
 	check(not it.is_empty(), "the Cannon's card has an ATTACK GROUND button (was BOMBARD)")
 	if not it.is_empty():
-		check(String(it[6]) == "^A", "its hotkey hint is Ctrl+A (^A), got '%s'" % String(it[6]))
+		check(String(it[6]) == "Ctrl+A", "its hotkey hint is Ctrl+A (written out: the owner's word, \"^A\" read as nothing; hud.CTRL_KEYS), got '%s'" % String(it[6]))
 		check(String(it[0]) == "ab_bombard" and g.hud._icon("ab_bombard") != null, "with its own icon (ab_bombard)")
 		it[2].call()
 		check(g.controls.mode == "bombard", "the button sets the mode")

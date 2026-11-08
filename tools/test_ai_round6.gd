@@ -3,7 +3,7 @@ extends SceneTree
 ##  - the Crown opens with the Powder Mill (Musketeers) against the Clockwork, never the Horse Breeder rush,
 ##  - each side's hall spots by land (AI._enemy_side): the enemy's main and natural are on its side, our natural on ours,
 ##    and no base site counts as both sides' own (the Clockwork's Clocktower under the Crown's cliff, 0.14.100),
-##  - the first hall spot of each side is its natural (a cell beside it when the drawn site touches a ramp),
+##  - the first hall spot of each side is on its side and near (its faction's own spot since 2026-11-03; was: its natural),
 ##  - the Crown keeps a spot for its Armoury (or has laid it) on its main's plateau, at the main hall's height.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_ai_round6.gd -- [maps:greenhold,frostmere] [at:<s>]
 var fails := 0
@@ -69,7 +69,11 @@ func _run() -> void:
 		for a in g.ais:
 			var sp: Vector2i = a._safe_hall_spot()
 			var nat: Vector2i = g.expansions[a.team]
-			check(sp.x >= 0 and Vector2(sp).distance_to(Vector2(nat)) <= float(a.SITE_NUDGE), "%s %s: the first hall spot %s is at our natural %s" % [m, g.faction_of(a.team), str(sp), str(nat)])
+			# (since the owner's EXPANSION SPOTS PER FACTION, 2026-11-03, and crown-spots-v2, 0.29.5, the first hall goes to the
+			# faction's own best spot (the Crown's pulled in to the ramp's foot and the map's border, the rated sites for the
+			# Clockwork), no longer always the map's drawn natural: the rule is now "on our side, a near site")
+			var walk: float = a._own_walk(sp) if sp.x >= 0 else INF
+			check(sp.x >= 0 and not a._enemy_side(sp) and walk <= float(a.SITE_REACH), "%s %s: the first hall spot %s is on our side and near (%.0f steps by land; the drawn natural %s is %.1f tiles off)" % [m, g.faction_of(a.team), str(sp), walk, str(nat), Vector2(sp).distance_to(Vector2(nat))])
 		var both: Array = own.keys().filter(func(c) -> bool: return int(own[c]) > 1)
 		check(both.is_empty(), "%s: no base site is both sides' own %s" % [m, str(both)])
 		while g.clock < at and not g.over:
