@@ -263,7 +263,8 @@ func _report() -> void:
 func _ground() -> void:
 	var tl := float(Defs.TILE)
 	var full := float(Defs.PIT_GROUND)
-	check("overlap: 1 on the spot, 0 apart, ~0.39 a radius off", absf(BroodNew.overlap(0.0) - 1.0) < 0.001 and BroodNew.overlap(20.0 * tl) == 0.0 and absf(BroodNew.overlap(10.0 * tl) - 0.391) < 0.01)
+	var rc := float(Defs.PIT_CLAIM)     # (the circle's radius in tiles: 8 now, was 10 when this was written; the checks follow it)
+	check("overlap: 1 on the spot, 0 apart, ~0.39 a radius off", absf(BroodNew.overlap(0.0) - 1.0) < 0.001 and BroodNew.overlap(2.0 * rc * tl) == 0.0 and absf(BroodNew.overlap(rc * tl) - 0.391) < 0.01)
 	var q := BroodNew.queen(g, 1)
 	var p: Vector2 = q.position + Vector2(0, -900)
 	g.nb_spot_next += 1
@@ -274,13 +275,13 @@ func _ground() -> void:
 		NetSnapshot.apply(gs, NetCodec.unpack(NetCodec.pack(NetSnapshot.build(hs))))
 	check("ground: on a spent spot the host and the guest's ghost read 0", BroodNew.ground_at(g, p) < 1.0 and BroodNew.ground_at(pg, p) < 1.0,
 		"host %.0f guest %.0f" % [BroodNew.ground_at(g, p), BroodNew.ground_at(pg, p)])
-	var mid := p + Vector2(10.0 * tl, 0)
+	var mid := p + Vector2(rc * tl, 0)
 	check("ground: the guest's ghost reads the host's value beside it", absf(BroodNew.ground_at(g, mid) - BroodNew.ground_at(pg, mid)) < 2.0,
 		"host %.0f guest %.0f" % [BroodNew.ground_at(g, mid), BroodNew.ground_at(pg, mid)])
-	var edge := p + Vector2(19.0 * tl, 0)
+	var edge := p + Vector2((2.0 * rc - 1.0) * tl, 0)
 	check("ground: a fresh circle a tile into a spent one keeps nearly all", BroodNew.ground_at(g, edge) > full * 0.97, "%.0f" % BroodNew.ground_at(g, edge))
 	check("ground: half on a spent one: about 60%", absf(BroodNew.ground_at(g, mid) - full * 0.609) < 30.0, "%.0f" % BroodNew.ground_at(g, mid))
-	check("ground: two tiles off a spent spot: little", BroodNew.ground_at(g, p + Vector2(2.0 * tl, 0)) < full * 0.15, "%.0f" % BroodNew.ground_at(g, p + Vector2(2.0 * tl, 0)))
+	check("ground: a fifth of a radius off a spent spot (two tiles of the old 10): little", BroodNew.ground_at(g, p + Vector2(0.2 * rc * tl, 0)) < full * 0.15, "%.0f" % BroodNew.ground_at(g, p + Vector2(0.2 * rc * tl, 0)))
 	var m: Unit = g._add_unit(BroodNew.MAW, 1, edge)
 	BroodNew._claim(g, m)
 	check("ground: a Rootmaw rooted there gets it, the spent spot stays", BroodNew.ground_left(g, m) > full * 0.97 and g.nb_spots.has(sid),
