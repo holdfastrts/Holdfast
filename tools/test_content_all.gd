@@ -287,7 +287,7 @@ func _static_all() -> void:
 		else:
 			rec(e, "art", "INFO", "no own sprites yet (%s): wears the %s's (stand-in, waiting for the owner's art)" % [a, ro["kind"]])
 		var miss := _tr_missing(String(ro.get("about", "")))
-		ok_rec(e, "text", miss.is_empty(), "about: missing %s" % ",".join(miss) if not miss.is_empty() else "about translated", "WARN")
+		ok_rec(e, "text", miss.is_empty(), ("about: no pt/es (the role's 'about' is not shown anywhere in the game yet)") if not miss.is_empty() else "about translated", "INFO")
 
 
 func _static_unit(k: String) -> void:
@@ -636,12 +636,16 @@ func _buildings(fac: String) -> void:
 			var longest := 0.0
 			for k in sites:
 				longest = maxf(longest, float(sites[k].build_time()))
+			var fin := {}
 			var done: bool = await wait_for(func() -> bool:
+				var all_done := true
 				for k in sites:
 					var sb = sites[k]
 					if is_instance_valid(sb) and not sb.dead and not sb.built:
-						return false
-				return true, longest * 2.5 + 40.0)
+						all_done = false
+					elif not fin.has(k):
+						fin[k] = g.clock
+				return all_done, longest * 2.5 + 40.0)
 			await wait(1.0)        # (the gear network solves on the next tick: a fresh building is linked then)
 			for k in sites:
 				var sb = sites[k]
@@ -650,8 +654,8 @@ func _buildings(fac: String) -> void:
 					rec(e, "build", "FAIL", "the site vanished before it was built (swept / destroyed)")
 				elif sb.built:
 					built_of[k] = sb
-					var took := g.clock - float(started[k])
-					rec(e, "build", "PASS", "built by one worker in %.0f s (time %s s, walk and crate included)" % [took, Defs.BUILDINGS[k]["time"]])
+					var took := float(fin.get(k, g.clock)) - float(started[k])
+					rec(e, "build", "PASS", "built by one worker in %.0f s (its time %s s; the walk, the Clockwork's crate and a big gear's extra time included)" % [took, Defs.BUILDINGS[k]["time"]])
 					if fac == "clockwork" and GearNet.has_gear(sb):
 						var cand: Dictionary = g.gear_net.candidate(0, k, sb.cell, sb.gear_big)
 						ok_rec(e, "build", g.gear_net.is_linked(sb) and g.gear_net.speed_mult(sb) > 0.0,
@@ -712,6 +716,27 @@ func _production(fac: String) -> void:
 		var keys: Array = Defs.train_keys(b.d.get("trains", []), true)
 		for key in keys:
 			await _train_one(b, String(key))
+		# THE QUEUE: five at most; CANCEL takes them all back out, paid back
+		if not keys.is_empty():
+			rich()
+			b.queue.clear()
+			b.kits.clear()
+			var key0 := String(keys[0])
+			var m0 := money()
+			var took := 0
+			for i in 5:
+				if g.train(b, key0) == "":
+					took += 1
+			var sixth := g.train(b, key0)
+			if Defs.UNITS[Defs.train_kind(key0)].has("per"):
+				ok_rec("bld:" + k, "queue", took <= 1 and sixth.begins_with("Only one"), "%d %s queued, the next refused: '%s' (one per building)" % [took, key0, sixth])
+			else:
+				ok_rec("bld:" + k, "queue", took == 5 and sixth != "", "%d %s queued, the 6th refused: '%s'" % [took, key0, sixth])
+			for i in took:
+				g.cancel_train(b)
+			var left := spent(m0)
+			ok_rec("bld:" + k, "queue", b.queue.is_empty() and left[0] <= (int(Defs.UNITS["horse"]["cost"]) * took if Defs.UNITS[Defs.train_kind(key0)].get("needs_horse", false) else 0),
+				"CANCEL x%d: the queue empty, %d gold not back%s" % [took, left[0], " (horses ordered for them stay)" if left[0] > 0 else ""])
 
 
 func _train_one(b: Building, key: String) -> void:
@@ -796,6 +821,8 @@ func _train_one(b: Building, key: String) -> void:
 	if sup1 - sup0 != want_sup and kind != "horse":
 		rec(e, "make", "WARN", "supply went up %d, Defs says %d" % [sup1 - sup0, want_sup])
 	var moved := out.position.distance_to(b.rally) < out.position.distance_to(b.center()) or out.order != "idle"
+	if not moved and out.kind == "missionary":
+		moved = true          # (a Missionary walks off to tend the hurt: the probes and dummies about)
 	ok_rec(e, "rally", moved or out.is_worker(), "walks to the rally point (order %s, %.0f px off)" % [out.order, out.position.distance_to(b.rally)], "WARN")
 	if Defs.AMMO.has(out.kind):
 		ok_rec(e, "make", out.ammo_shots() == Defs.ammo_full(out.kind), "armed from the bank: %d of %d shots" % [out.ammo_shots(), Defs.ammo_full(out.kind)])
@@ -1031,6 +1058,27 @@ func _brood_make() -> void:
 	# mature every young
 	for young in Defs.NB["mature"]:
 		await _mature(String(young))
+	# ROOTING: rooted takes less; UPROOT and ROOT again
+	for tk in [BroodNew.TURTLE, BroodNew.FATHER]:
+		var tl := mine(tk)
+		if tl.is_empty():
+			continue
+		var tu: Unit = tl[0]
+		ok_rec("unit:" + tk, "ability", BroodNew.incoming(tu, 20.0) < 20.0, "rooted: a 20 blow does %.1f" % BroodNew.incoming(tu, 20.0))
+		tu.cmd_uproot(false)
+		var up: bool = await wait_for(func() -> bool: return tu.tesla_mode == "packed", 8.0)
+		tu.cmd_deploy()
+		var down: bool = await wait_for(func() -> bool: return tu.tesla_mode == "deployed", 8.0)
+		ok_rec("unit:" + tk, "ability", up and down, "UPROOT (%s) and ROOT again (%s)" % [up, down])
+	# SPOILS: a grub harvests a body and carries it to the Mother
+	var gs := _spawn_ready("grub", q.position + Vector2(-120, 160))
+	var body: Unit = g._add_unit("musketeer", 1, gs.position + Vector2(40, 0))
+	body.take_damage(body.hp + 1000.0, null)
+	await wait(0.3)
+	var r0 := float(g.players[0]["res2"])
+	gs.cmd_harvest()
+	var got: bool = await wait_for(func() -> bool: return float(g.players[0]["res2"]) > r0 + 0.5, 40.0)
+	ok_rec("unit:grub", "ability", got, "HARVEST: a body wrapped and carried to the Mother: spoils %.1f -> %.1f" % [r0, float(g.players[0]["res2"])])
 	# research at the creatures
 	await _brood_research()
 
@@ -1184,7 +1232,7 @@ func _brood_research() -> void:
 # ---- the card: every button of every unit and building (icon, tooltip, texts, pressed: something happens)
 
 const TARGET_ENEMY := ["attack", "overload", "tongue"]
-const SKIP_PRESS := ["SURRENDER", "QUIT", "MENU"]
+const SKIP_PRESS := ["SURRENDER", "QUIT", "MENU", "LEAD", "MOUNT", "HARNESS", "RELEASE HORSE", "RELEASE"]      # (the horse commands: one at a time in the Crown rules)
 
 
 func _cards(fac: String) -> void:
@@ -1319,7 +1367,7 @@ func _press(k: String, at: Vector2, lab: String, e: String) -> Array:
 	if g.faction_of(0) == "crown" and lab in ["LEAD", "MOUNT", "HARNESS"]:
 		var hz: Unit = g._add_unit("horse", 0, at + Vector2(-36, 10))      # (a free horse beside it)
 		hz.graze_at = hz.position
-		await physics_frame
+		await wait(0.4)        # (the unit grid takes it in on its next rebuild)
 	if k == BroodNew.QUEEN:
 		u.nb["eggs"] = 10
 	g.hud.page = ""
@@ -1539,7 +1587,7 @@ func _non_fighters(fac: String) -> Array:
 func _fight_batch(kinds: Array, vs: String, fac: String) -> void:
 	var lanes := _fight_lanes(kinds.size(), 470.0)
 	if lanes.size() < kinds.size():
-		rec("match:" + fac, "fights", "WARN", "room for %d of %d fights against a %s at once: in turns" % [lanes.size(), kinds.size(), vs])
+		rec("match:" + fac, "fights", "INFO", "room for %d of %d fights against a %s at once: in turns" % [lanes.size(), kinds.size(), vs])
 	var todo := kinds.duplicate()
 	while not todo.is_empty():
 		var batch: Array = todo.slice(0, maxi(1, lanes.size()))
@@ -1613,7 +1661,16 @@ func _fight_batch(kinds: Array, vs: String, fac: String) -> void:
 			if vs == "unit" or vs == "air":
 				ok_rec(e, "fight", ratio > 0.4 and ratio < 2.5, note, "WARN")
 			else:
-				rec(e, "fight", "PASS" if ratio > 0.25 else "WARN", note)
+				var st3 := "PASS" if ratio > 0.25 else "WARN"
+				if float(d.get("cooldown", 1.0)) >= 2.0 and not d.get("venom", false) and k != "spitter":
+					# (a slow, heavy weapon: what ONE shot does to a building, against its data)
+					var per := total / float(hits.size())
+					var want := float(d["damage"]) * float(d.get("building_bonus", 1.0))
+					note += "; one shot does %.0f to a building (damage %s x building bonus %s = %.0f)" % [per, d["damage"], d.get("building_bonus", 1.0), want]
+					if per > want * 1.3:
+						st3 = "WARN"
+						note += " TOO MUCH: the bonus is applied twice?"
+				rec(e, "fight", st3, note)
 		# clear the lanes
 		for f in fights:
 			var t: Entity = f["t"]
@@ -1785,14 +1842,75 @@ func _crown_rules() -> void:
 		g.players[0]["res2"] = 6.0
 		m = await _quick_train(b, "musketeer")
 		ok_rec("unit:musketeer", "ammo", m != null and m.ammo_shots() == 6 and float(g.players[0]["res2"]) < 0.01, "6 powder in the bank: %s shots, bank %.1f %s" % [str(m.ammo_shots()) if m else "?", float(g.players[0]["res2"]), last_why])
+		# a dry Musketeer by the Barracks refills from the bank, a powder a shot (a reloading point)
+		var dm := _spawn_ready("musketeer", b.center() + Vector2(0, b.size.y * 16 + 30))
+		dm.set_ammo(0)
+		g.players[0]["res2"] = 50.0
+		var refilled: bool = await wait_for(func() -> bool: return dm.ammo_shots() >= 5, 20.0)
+		ok_rec("unit:musketeer", "ammo", refilled, "dry beside the Barracks: refills to %d shots, the bank %.0f -> %.0f" % [dm.ammo_shots(), 50.0, float(g.players[0]["res2"])])
 		rich()
 	# MOUNT: a Labourer and a horse -> a Messenger; DISMOUNT back
 	var at: Vector2 = _arenas(1, 3)[0]
 	var lab: Unit = _spawn_ready("labourer", at)
 	var h: Unit = g._add_unit("horse", 0, at + Vector2(20, 0))
+	await wait(0.4)
 	g.mount_order([lab])
 	var rode: bool = await wait_for(func() -> bool: return is_instance_valid(lab) and lab.kind == "messenger", 20.0)
 	ok_rec("unit:messenger", "ability", rode, "a Labourer MOUNTs a horse: a Messenger (labourer %s, order %s, work %s)" % [lab.kind if is_instance_valid(lab) else "gone", lab.order if is_instance_valid(lab) else "", lab.get("work") if is_instance_valid(lab) else ""], "WARN")
+	# THE HORSE COMMANDS (pressed here one at a time, apart: the card presses run many at once)
+	for pair in [["labourer", "messenger"], ["musketeer", "dragoon"], ["dismounted", "cuirassier"], ["missionary", "mounted_missionary"]]:
+		var pa: Vector2 = _arenas(1, 3)[0] + Vector2(-80, 120)
+		var man := _spawn_ready(String(pair[0]), pa)
+		var hh: Unit = g._add_unit("horse", 0, pa + Vector2(50, 0))
+		await wait(0.6)
+		var nm := g.mount_order([man])
+		var ok_m: bool = await wait_for(func() -> bool: return is_instance_valid(man) and man.kind == String(pair[1]), 15.0)
+		ok_rec("unit:" + String(pair[1]), "ability", ok_m, "MOUNT: a %s gets on a horse and is a %s (%d sent; now %s)" % [pair[0], pair[1], nm, man.kind if is_instance_valid(man) else "gone"])
+		if ok_m:
+			man.cmd_dismount()
+			var ok_d: bool = await wait_for(func() -> bool: return is_instance_valid(man) and man.kind == String(pair[0]), 8.0)
+			ok_rec("unit:" + String(pair[1]), "ability", ok_d, "DISMOUNT: back to a %s" % pair[0])
+		for x in [man, hh]:
+			if is_instance_valid(x) and not x.dead:
+				x.die()
+	for lk in ["labourer", "musketeer"]:
+		var la: Vector2 = _arenas(1, 3)[0] + Vector2(-80, 120)
+		var ld := _spawn_ready(lk, la)
+		var h2: Unit = g._add_unit("horse", 0, la + Vector2(60, 0))
+		await wait(0.6)
+		var n_lead := g.lead_order([ld])
+		var led_ok: bool = await wait_for(func() -> bool: return ld.led.size() > 0, 12.0)
+		ok_rec("unit:" + lk, "ability", led_ok, "LEAD: %d horse fetched, %d held by the reins" % [n_lead, ld.led.size()])
+		g.set_selection([ld])
+		g.hud.page = ""
+		await physics_frame
+		var rel: Array = (g.hud._build_card() as Array).filter(func(x: Array) -> bool: return String(x[1]) == "RELEASE")
+		if rel.is_empty():
+			rec("unit:" + lk, "ability", "FAIL", "no RELEASE on the card while he holds a horse")
+		else:
+			(rel[0][2] as Callable).call()
+			await wait(4.0)
+			ok_rec("unit:" + lk, "ability", ld.led.is_empty(), "RELEASE (pressed while he still fetches more): he holds %d horses 4 s later (order %s)" % [ld.led.size(), ld.order])
+		g.set_selection([])
+		for x in [ld, h2]:
+			if is_instance_valid(x) and not x.dead:
+				x.die()
+	for gk in Defs.HARNESSED:
+		var ga: Vector2 = _arenas(1, 3)[0] + Vector2(-80, 120)
+		var wg := _spawn_ready(String(gk), ga)
+		await wait(0.3)
+		var hc0: int = wg.horse_count()
+		var h3: Unit = g._add_unit("horse", 0, ga + Vector2(70, 0))
+		await wait(0.6)
+		var n_h := g.harness_order([wg])
+		var hitched: bool = await wait_for(func() -> bool: return wg.horse_count() > hc0, 15.0)
+		ok_rec("unit:" + String(gk), "ability", hitched, "HARNESS: %d sent, horses %d -> %d" % [n_h, hc0, wg.horse_count()])
+		wg.release_horse()
+		await wait(1.0)
+		ok_rec("unit:" + String(gk), "ability", wg.horse_count() < hc0 + (1 if hitched else 0) or wg.horse_count() == 0, "RELEASE HORSE: horses now %d" % wg.horse_count())
+		for x in [wg, h3]:
+			if is_instance_valid(x) and not x.dead:
+				x.die()
 	# guns: unlimber / deploy
 	for k in ["cannon", "mortar"]:
 		var gu := _spawn_ready(k, _arenas(1, 3)[0] + Vector2(60, 60))
@@ -1803,6 +1921,28 @@ func _crown_rules() -> void:
 		gu.cmd_pack()
 		var pk: bool = await wait_for(func() -> bool: return gu.tesla_mode == "packed", 8.0)
 		ok_rec("unit:" + k, "ability", pk, "PACK / LIMBER again")
+	# THE MARCHING BAND: a soldier in its ring gets its buffs; a solo raises them
+	var bat: Vector2 = _arenas(1, 3)[0] + Vector2(0, 90)
+	var band := _spawn_ready(MarchingBand.KIND, bat)
+	var sol := _spawn_ready("musketeer", bat + Vector2(40, 0))
+	await wait(1.5)
+	var m1: Vector3 = sol.band_mul if sol.band_until > g.clock else Vector3.ONE
+	ok_rec("unit:band", "ability", m1.x > 1.0 or m1.z > 1.0, "a Musketeer beside the band: speed x%.2f, melee x%.2f, reload x%.2f" % [m1.x, m1.y, m1.z])
+	var why := MarchingBand.solo(band, "fife") if g.has_tech(0, "band_fife") else "no Fifer researched"
+	await wait(1.0)
+	var m2: Vector3 = sol.band_mul if sol.band_until > g.clock else Vector3.ONE
+	ok_rec("unit:band", "ability", why == "" and m2.z > m1.z + 0.1, "FIFE SOLO: reload x%.2f -> x%.2f %s" % [m1.z, m2.z, why])
+	# THE MISSIONARY raises a fallen Crown soldier
+	var mis := _spawn_ready("missionary", bat + Vector2(0, 80))
+	var fallen := _spawn_ready("musketeer", bat + Vector2(50, 80))
+	fallen.take_damage(fallen.hp + 1000.0, null)
+	await wait(0.5)
+	if g.can_revive(fallen, mis):
+		mis.cmd_revive(fallen)
+		var up: bool = await wait_for(func() -> bool: return is_instance_valid(fallen) and not fallen.dead, float(Defs.REVIVE["time"]) + 8.0)
+		ok_rec("unit:missionary", "ability", up, "REVIVE: a fallen Musketeer stands again (%s)" % ("hp %.0f" % fallen.hp if up else "still down"))
+	else:
+		rec("unit:missionary", "ability", "WARN", "can_revive refused a fresh Crown body beside him")
 	errs_to("match:crown", "crown rules")
 
 
@@ -1839,14 +1979,14 @@ func _clock_rules() -> void:
 		ok_rec("unit:winder", "ability", wound, "a Winder winds a run-down Clock Soldier: wind 0.20 -> %.2f" % cs.wind)
 	# a building with no gear link stops (placement refuses an unlinked spot)
 	var far := Vector2i(g.W - 8, 8)
-	var why := g.placement_problem(0, "spring_tower", far)
-	ok_rec("bld:spring_tower", "place", why != "", "far from the gear network: refused ('%s')" % why)
+	var why := g.placement_problem(0, "regulator", far)
+	ok_rec("bld:regulator", "place", why != "", "far from the gear network: refused ('%s')" % why)
 	errs_to("match:clockwork", "clock rules")
 
 
 # ------------------------------------------------------------------ the summary
 
-const COLS := ["numbers", "data", "text", "icon", "art", "sound", "place", "cost", "refuse", "build", "repair", "make", "rally", "research", "effect", "grow",
+const COLS := ["numbers", "queue", "data", "text", "icon", "art", "sound", "place", "cost", "refuse", "build", "repair", "make", "rally", "research", "effect", "grow",
 	"buttons", "ability", "fight", "targets", "body", "ammo", "demolish"]
 
 

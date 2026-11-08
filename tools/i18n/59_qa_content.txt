@@ -1,0 +1,13 @@
+# qa-content (docs/qa_2026_11_08_content.md): the tooltips the content test found missing on the card
+
+> How many horses this gun or wagon keeps (each press one more, up to 4, then none again): the Town Hall's haulers bring the spares. More horses pull it faster.
+pt Quantos cavalos este canhão ou carroça mantém (cada toque mais um, até 4, depois nenhum outra vez): os carregadores da Prefeitura trazem os de reserva. Mais cavalos puxam mais rápido.
+es Cuántos caballos guarda este cañón o carro (cada pulsación uno más, hasta 4, luego ninguno otra vez): los porteadores del Ayuntamiento traen los de repuesto. Más caballos tiran más rápido.
+
+> Lock the gate: nobody can pass, your own units included, until you unlock it.
+pt Trancar o portão: ninguém passa, nem as suas unidades, até você destrancá-lo.
+es Bloquear la puerta: nadie pasa, ni tus propias unidades, hasta que la desbloquees.
+
+> Unlock the gate: your units pass again.
+pt Destrancar o portão: as suas unidades passam de novo.
+es Desbloquear la puerta: tus unidades vuelven a pasar.

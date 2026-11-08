@@ -4403,7 +4403,7 @@ func _horse_buttons(list: Array, units: Array) -> void:
 		if held > 0:
 			list.append(["horse_release", "RELEASE", func() -> void:
 				for u in game.selected_units():
-					u.release_horses()
+					u.cmd_release()
 				toast("Released: the horses graze where they stand."), true, "", str(held)])
 	var riders := units.filter(func(u: Unit) -> bool: return u.can_mount())
 	if not riders.is_empty():
@@ -4980,6 +4980,9 @@ const CMD_TIPS := {
 	"UNLOAD CREW": "Its crew step off where they stand (its own built-in Winder stays).",
 	"BOARD": "These Winders crew your nearest Spring Ballista with room: they push it and crank it (each +10% reload and move speed), and can be shot.",
 	"RESTOCK": "Fly to the nearest powder (Wagon, Mill, Barracks or Hall) and haul kegs up until the 40-shot store is full.",
+	"TEAM": "How many horses this gun or wagon keeps (each press one more, up to 4, then none again): the Town Hall's haulers bring the spares. More horses pull it faster.",
+	"LOCK": "Lock the gate: nobody can pass, your own units included, until you unlock it.",
+	"UNLOCK": "Unlock the gate: your units pass again.",
 	"ATTACK GROUND": "Then click a spot on the ground (in the fog too), or hold and drag a line to share it out among them: they keep attacking it until you give another order. Bodies have health and rot, faster the longer they lie; hitting them speeds that up, and a body brought to 0 is torn up: the Brood can't harvest it, a Missionary can't raise it (yours too). Guns, mortars and Spore Mothers blast them; shooters shoot along the line; melee units and workers walk up and strike them (workers slowly).",
 }
 

@@ -1,0 +1,1934 @@
+
+content test: Holdfast v0.33.8
+
+==== STATIC: data, texts, icons, art, sounds ====
+PASS  unit:labourer              data               hp 46 cost 50/0 supply 1
+PASS  unit:labourer              data               trained at the town_hall
+PASS  unit:labourer              text               name 'Labourer'
+PASS  unit:labourer              text               about translated
+PASS  unit:labourer              icon               button picture
+PASS  unit:labourer              art                labourer: 65 strips all present, sized and drawn
+PASS  unit:labourer              sound              voice: select,move,attack
+INFO  unit:labourer              sound              death: the faction's (no combat/labourer_death)
+INFO  unit:labourer              sound              attack: a shared sound (no combat/labourer_attack)
+PASS  unit:musketeer             data               hp 70 cost 60/0 supply 1
+PASS  unit:musketeer             data               trained at the barracks
+PASS  unit:musketeer             text               name 'Musketeer'
+PASS  unit:musketeer             text               about translated
+PASS  unit:musketeer             icon               button picture
+PASS  unit:musketeer             art                musketeer: 45 strips all present, sized and drawn
+PASS  unit:musketeer             art                armoured musketeer_armoured ok
+PASS  unit:musketeer             sound              voice: select,move,attack
+INFO  unit:musketeer             sound              death: the faction's (no combat/musketeer_death)
+PASS  unit:musketeer             sound              attack: own
+PASS  unit:cannon                data               hp 140 cost 170/0 supply 4
+PASS  unit:cannon                data               trained at the foundry
+PASS  unit:cannon                text               name 'Field Cannon'
+PASS  unit:cannon                text               about translated
+PASS  unit:cannon                icon               button picture
+PASS  unit:cannon                art                cannon: 30 strips all present, sized and drawn
+PASS  unit:cannon                sound              voice: select,move,attack
+INFO  unit:cannon                sound              death: the faction's (no combat/cannon_death)
+PASS  unit:cannon                sound              attack: own
+PASS  unit:mortar                data               hp 120 cost 145/20 supply 3
+PASS  unit:mortar                data               trained at the foundry
+PASS  unit:mortar                text               name 'Mortar'
+PASS  unit:mortar                text               about translated
+PASS  unit:mortar                icon               button picture
+PASS  unit:mortar                art                mortar: 35 strips all present, sized and drawn
+WARN  unit:mortar                sound              no voice lines (voice/mortar/select|move|attack)
+INFO  unit:mortar                sound              death: the faction's (no combat/mortar_death)
+PASS  unit:mortar                sound              attack: own
+PASS  unit:powder_wagon          data               hp 220 cost 70/30 supply 2
+PASS  unit:powder_wagon          data               trained at the foundry
+PASS  unit:powder_wagon          text               name 'Powder Wagon'
+PASS  unit:powder_wagon          text               about translated
+PASS  unit:powder_wagon          icon               button picture
+PASS  unit:powder_wagon          art                powder_wagon: 20 strips all present, sized and drawn
+WARN  unit:powder_wagon          sound              no voice lines (voice/powder_wagon/select|move|attack)
+INFO  unit:powder_wagon          sound              death: the faction's (no combat/powder_wagon_death)
+PASS  unit:cuirassier            data               hp 140 cost 115/0 supply 3
+PASS  unit:cuirassier            data               trained at the barracks
+PASS  unit:cuirassier            data               requires horse_breeder
+PASS  unit:cuirassier            text               name 'Horseman'
+PASS  unit:cuirassier            text               about translated
+PASS  unit:cuirassier            icon               button picture
+PASS  unit:cuirassier            art                horseman: 29 strips all present, sized and drawn
+PASS  unit:cuirassier            art                armoured cuirassier ok
+PASS  unit:cuirassier            sound              voice: select,move,attack
+PASS  unit:cuirassier            sound              own death sound
+PASS  unit:cuirassier            sound              attack: own
+PASS  unit:horse                 data               hp 60 cost 40/0 supply 0
+PASS  unit:horse                 data               trained at the horse_breeder
+PASS  unit:horse                 text               name 'Horse'
+PASS  unit:horse                 text               about translated
+PASS  unit:horse                 icon               button picture
+PASS  unit:horse                 art                horse: 20 strips all present, sized and drawn
+INFO  unit:horse                 sound              no voice of its own: only [[["horse/neigh", 0.8]]]
+INFO  unit:horse                 sound              death: the faction's (no combat/horse_death)
+PASS  unit:messenger             data               hp 60 cost 50/0 supply 1
+PASS  unit:messenger             data               made by MOUNT
+PASS  unit:messenger             text               name 'Messenger'
+PASS  unit:messenger             text               about translated
+PASS  unit:messenger             icon               button picture
+PASS  unit:messenger             art                messenger: 19 strips all present, sized and drawn
+WARN  unit:messenger             sound              no voice lines (voice/messenger/select|move|attack)
+INFO  unit:messenger             sound              death: the faction's (no combat/messenger_death)
+PASS  unit:dragoon               data               hp 90 cost 60/0 supply 1
+PASS  unit:dragoon               data               trained at the barracks
+PASS  unit:dragoon               data               requires horse_breeder
+PASS  unit:dragoon               text               name 'Dragoon'
+PASS  unit:dragoon               text               about translated
+PASS  unit:dragoon               icon               button picture
+PASS  unit:dragoon               art                dragoon: 19 strips all present, sized and drawn
+PASS  unit:dragoon               art                armoured dragoon_armoured ok
+INFO  unit:dragoon               sound              no voice of its own: only [[["horse/neigh", 0.7]], [["horse/neigh", 0.25]]]
+INFO  unit:dragoon               sound              death: the faction's (no combat/dragoon_death)
+PASS  unit:dismounted            data               hp 80 cost 75/0 supply 3
+PASS  unit:dismounted            data               trained at the barracks
+PASS  unit:dismounted            text               name 'Officer'
+PASS  unit:dismounted            text               about translated
+PASS  unit:dismounted            icon               button picture
+PASS  unit:dismounted            art                dismounted: 30 strips all present, sized and drawn
+PASS  unit:dismounted            art                armoured dismounted_armoured ok
+WARN  unit:dismounted            sound              no voice lines (voice/dismounted/select|move|attack)
+INFO  unit:dismounted            sound              death: the faction's (no combat/dismounted_death)
+INFO  unit:dismounted            sound              attack: a shared sound (no combat/dismounted_attack)
+PASS  unit:pikeman               data               hp 85 cost 50/0 supply 1
+PASS  unit:pikeman               data               campaign only (no building trains it)
+PASS  unit:pikeman               text               name 'Pikeman'
+PASS  unit:pikeman               text               about translated
+PASS  unit:pikeman               icon               button picture
+PASS  unit:pikeman               art                pikeman: 25 strips all present, sized and drawn
+PASS  unit:pikeman               sound              voice: select,move,attack
+INFO  unit:pikeman               sound              death: the faction's (no combat/pikeman_death)
+PASS  unit:pikeman               sound              attack: own
+PASS  unit:balloon               data               hp 180 cost 125/20 supply 2
+PASS  unit:balloon               data               trained at the foundry
+PASS  unit:balloon               text               name 'Observation Balloon'
+PASS  unit:balloon               text               about translated
+PASS  unit:balloon               icon               button picture
+PASS  unit:balloon               art                balloon: 15 strips all present, sized and drawn
+WARN  unit:balloon               art                no walk strip at all (falls back to idle)
+WARN  unit:balloon               sound              no voice lines (voice/balloon/select|move|attack)
+INFO  unit:balloon               sound              death: the faction's (no combat/balloon_death)
+PASS  unit:grub                  data               hp 46 cost 50/0 supply 1
+PASS  unit:grub                  data               made: laid by the Mother
+PASS  unit:grub                  text               name 'Grub'
+PASS  unit:grub                  text               about translated
+PASS  unit:grub                  icon               button picture
+PASS  unit:grub                  art                grub: 38 strips all present, sized and drawn
+INFO  unit:grub                  art                death: views s,se,ne,n borrow the nearest one
+PASS  unit:grub                  sound              voice: select,move,attack
+PASS  unit:grub                  sound              own death sound
+PASS  unit:grub                  sound              attack: own
+PASS  unit:raptor                data               hp 36 cost 50/0 supply 1
+PASS  unit:raptor                data               made: laid by the Mother
+PASS  unit:raptor                text               name 'Raptors'
+PASS  unit:raptor                text               about translated
+PASS  unit:raptor                icon               button picture
+PASS  unit:raptor                art                raptor: 12 strips all present, sized and drawn
+INFO  unit:raptor                art                idle: views ne borrow the nearest one
+INFO  unit:raptor                art                death: views s,se,ne,n borrow the nearest one
+PASS  unit:raptor                sound              voice: select,move,attack
+PASS  unit:raptor                sound              own death sound
+PASS  unit:raptor                sound              attack: own
+PASS  unit:spitter               data               hp 70 cost 90/5 supply 1
+PASS  unit:spitter               data               made: laid by the Mother
+PASS  unit:spitter               text               name 'Spitters'
+PASS  unit:spitter               text               about translated
+PASS  unit:spitter               icon               button picture
+PASS  unit:spitter               art                spitter: 20 strips all present, sized and drawn
+PASS  unit:spitter               sound              voice: select,move,attack
+PASS  unit:spitter               sound              own death sound
+PASS  unit:spitter               sound              attack: own
+PASS  unit:brute                 data               hp 240 cost 150/20 supply 3
+PASS  unit:brute                 data               made: laid by the Mother
+PASS  unit:brute                 text               name 'Brute'
+PASS  unit:brute                 text               about translated
+PASS  unit:brute                 icon               button picture
+PASS  unit:brute                 art                brute: 8 strips all present, sized and drawn
+INFO  unit:brute                 art                idle: views ne borrow the nearest one
+INFO  unit:brute                 art                death: views s,se,ne,n borrow the nearest one
+INFO  unit:brute                 art                walk: views s,se,ne,n borrow the nearest one
+PASS  unit:brute                 sound              voice: select,move,attack
+PASS  unit:brute                 sound              own death sound
+PASS  unit:brute                 sound              attack: own
+PASS  unit:winder                data               hp 46 cost 60/0 supply 1
+PASS  unit:winder                data               trained at the clocktower
+PASS  unit:winder                text               name 'Winder'
+PASS  unit:winder                text               about translated
+PASS  unit:winder                icon               button picture
+PASS  unit:winder                art                winder: 60 strips all present, sized and drawn
+PASS  unit:winder                sound              voice: select,move,attack
+PASS  unit:winder                sound              own death sound
+PASS  unit:winder                sound              attack: own
+PASS  unit:clock_soldier         data               hp 75 cost 70/0 supply 1
+PASS  unit:clock_soldier         data               trained at the movement_works
+PASS  unit:clock_soldier         text               name 'Clock Soldier'
+PASS  unit:clock_soldier         text               about translated
+PASS  unit:clock_soldier         icon               button picture
+PASS  unit:clock_soldier         art                clock_soldier: 48 strips all present, sized and drawn
+PASS  unit:clock_soldier         sound              voice: select,move,attack
+PASS  unit:clock_soldier         sound              own death sound
+PASS  unit:clock_soldier         sound              attack: own
+PASS  unit:springer              data               hp 90 cost 100/0 supply 2
+PASS  unit:springer              data               trained at the movement_works
+PASS  unit:springer              data               requires escapement
+PASS  unit:springer              text               name 'Springer'
+PASS  unit:springer              text               about translated
+PASS  unit:springer              icon               button picture
+PASS  unit:springer              art                springer: 35 strips all present, sized and drawn
+PASS  unit:springer              sound              voice: select,move,attack
+PASS  unit:springer              sound              own death sound
+PASS  unit:springer              sound              attack: own
+PASS  unit:cuckoo                data               hp 90 cost 75/0 supply 2
+PASS  unit:cuckoo                data               trained at the cuckoo_house
+PASS  unit:cuckoo                text               name 'Swift'
+PASS  unit:cuckoo                text               about translated
+PASS  unit:cuckoo                icon               button picture
+PASS  unit:cuckoo                art                cuckoo: 20 strips all present, sized and drawn
+PASS  unit:cuckoo                sound              voice: select,move,attack
+PASS  unit:cuckoo                sound              own death sound
+PASS  unit:cuckoo                sound              attack: own
+PASS  unit:ticking_owl           data               hp 220 cost 175/0 supply 4
+PASS  unit:ticking_owl           data               made by morph
+PASS  unit:ticking_owl           text               name 'Ticking Owl'
+PASS  unit:ticking_owl           text               about translated
+PASS  unit:ticking_owl           icon               button picture
+PASS  unit:ticking_owl           art                ticking_owl: 25 strips all present, sized and drawn
+PASS  unit:ticking_owl           sound              voice: select,move,attack
+PASS  unit:ticking_owl           sound              own death sound
+PASS  unit:ticking_owl           sound              attack: own
+PASS  unit:pendulum              data               hp 340 cost 200/0 supply 4
+PASS  unit:pendulum              data               trained at the heavy_works
+PASS  unit:pendulum              data               requires escapement
+PASS  unit:pendulum              text               name 'Pendulum'
+PASS  unit:pendulum              text               about translated
+PASS  unit:pendulum              icon               button picture
+PASS  unit:pendulum              art                pendulum: 25 strips all present, sized and drawn
+PASS  unit:pendulum              sound              voice: select,move,attack
+PASS  unit:pendulum              sound              own death sound
+PASS  unit:pendulum              sound              attack: own
+PASS  unit:netter                data               hp 120 cost 125/0 supply 2
+PASS  unit:netter                data               trained at the movement_works
+PASS  unit:netter                data               requires escapement
+PASS  unit:netter                text               name 'Netter'
+PASS  unit:netter                text               about translated
+PASS  unit:netter                icon               button picture
+PASS  unit:netter                art                netter: 20 strips all present, sized and drawn
+PASS  unit:netter                sound              voice: select,move,attack
+PASS  unit:netter                sound              own death sound
+PASS  unit:netter                sound              attack: own
+PASS  unit:ballista              data               hp 210 cost 150/0 supply 3
+PASS  unit:ballista              data               trained at the heavy_works
+PASS  unit:ballista              data               requires escapement
+PASS  unit:ballista              text               name 'Spring Ballista'
+PASS  unit:ballista              text               about translated
+PASS  unit:ballista              icon               button picture
+PASS  unit:ballista              art                ballista: 20 strips all present, sized and drawn
+PASS  unit:ballista              sound              voice: select,move,attack
+PASS  unit:ballista              sound              own death sound
+PASS  unit:ballista              sound              attack: own
+PASS  unit:great_winder          data               hp 420 cost 175/0 supply 4
+PASS  unit:great_winder          data               trained at the heavy_works
+PASS  unit:great_winder          data               requires escapement
+PASS  unit:great_winder          text               name 'Great Winder'
+PASS  unit:great_winder          text               about translated
+PASS  unit:great_winder          icon               button picture
+PASS  unit:great_winder          art                great_winder: 25 strips all present, sized and drawn
+PASS  unit:great_winder          sound              voice: select,move,attack
+PASS  unit:great_winder          sound              own death sound
+SKIP  unit:windup_soldier        data               retired / not in a normal game (kept for old saves)
+SKIP  unit:thresher              data               retired / not in a normal game (kept for old saves)
+SKIP  unit:bulwark               data               retired / not in a normal game (kept for old saves)
+SKIP  unit:arc_thrower           data               retired / not in a normal game (kept for old saves)
+SKIP  unit:steam_walker          data               retired / not in a normal game (kept for old saves)
+SKIP  unit:stormcaller           data               retired / not in a normal game (kept for old saves)
+PASS  unit:band                  data               hp 60 cost 50/0 supply 1
+PASS  unit:band                  data               trained at the armoury
+PASS  unit:band                  text               name 'Marching Band'
+PASS  unit:band                  text               about translated
+PASS  unit:band                  icon               button picture
+PASS  unit:band                  art                band: 3 strips all present, sized and drawn
+INFO  unit:band                  art                idle: views s,e,ne,n borrow the nearest one
+INFO  unit:band                  art                death: views s,e,ne,n borrow the nearest one
+INFO  unit:band                  art                walk: views s,e,ne,n borrow the nearest one
+WARN  unit:band                  sound              no voice lines (voice/band/select|move|attack)
+INFO  unit:band                  sound              death: the faction's (no combat/band_death)
+PASS  unit:missionary            data               hp 60 cost 125/0 supply 1
+PASS  unit:missionary            data               trained at the church
+PASS  unit:missionary            text               name 'Missionary'
+PASS  unit:missionary            text               about translated
+PASS  unit:missionary            icon               button picture
+PASS  unit:missionary            art                missionary: 18 strips all present, sized and drawn
+INFO  unit:missionary            art                death: views n borrow the nearest one
+PASS  unit:missionary            sound              voice: select,move
+INFO  unit:missionary            sound              death: the faction's (no combat/missionary_death)
+PASS  unit:mounted_missionary    data               hp 60 cost 125/0 supply 1
+PASS  unit:mounted_missionary    data               made by MOUNT
+PASS  unit:mounted_missionary    text               name 'Mounted Missionary'
+PASS  unit:mounted_missionary    text               about translated
+PASS  unit:mounted_missionary    icon               button picture
+PASS  unit:mounted_missionary    art                missionary_mounted: 19 strips all present, sized and drawn
+WARN  unit:mounted_missionary    sound              no voice lines (voice/mounted_missionary/select|move|attack)
+INFO  unit:mounted_missionary    sound              death: the faction's (no combat/mounted_missionary_death)
+SKIP  unit:skywing               data               retired / not in a normal game (kept for old saves)
+PASS  unit:brood_mother          data               hp 2400 cost 0/0 supply 0
+PASS  unit:brood_mother          data               made: the start
+PASS  unit:brood_mother          text               name 'Brood Mother'
+PASS  unit:brood_mother          text               about translated
+PASS  unit:brood_mother          icon               button picture
+PASS  unit:brood_mother          art                brood_mother: 22 strips all present, sized and drawn
+INFO  unit:brood_mother          art                death: views s,e,ne,n borrow the nearest one
+PASS  unit:brood_mother          sound              voice: select,move,attack
+PASS  unit:brood_mother          sound              own death sound
+PASS  unit:brood_mother          sound              attack: own
+PASS  unit:rootmaw               data               hp 450 cost 75/0 supply 0
+PASS  unit:rootmaw               data               made: a grub turns into it
+PASS  unit:rootmaw               text               name 'Rootmaw'
+PASS  unit:rootmaw               text               about translated
+PASS  unit:rootmaw               icon               button picture
+PASS  unit:rootmaw               art                rootmaw: 36 strips all present, sized and drawn
+INFO  unit:rootmaw               art                death: views s,e,ne,n borrow the nearest one
+PASS  unit:rootmaw               sound              voice: select,move,attack
+PASS  unit:rootmaw               sound              own death sound
+PASS  unit:rootmaw               sound              attack: own
+PASS  unit:tyrannosaur           data               hp 1000 cost 150/0 supply 4
+PASS  unit:tyrannosaur           data               made: a grub turns into it
+PASS  unit:tyrannosaur           text               name 'Tyrant Sire'
+PASS  unit:tyrannosaur           text               about translated
+PASS  unit:tyrannosaur           icon               button picture
+PASS  unit:tyrannosaur           art                tyrannosaur: 21 strips all present, sized and drawn
+INFO  unit:tyrannosaur           art                death: views s,e,ne,n borrow the nearest one
+PASS  unit:tyrannosaur           sound              voice: select,move,attack
+PASS  unit:tyrannosaur           sound              own death sound
+PASS  unit:tyrannosaur           sound              attack: own
+PASS  unit:dilophosaurus         data               hp 650 cost 200/25 supply 4
+PASS  unit:dilophosaurus         data               made: a grub turns into it
+PASS  unit:dilophosaurus         text               name 'Venom Sire'
+PASS  unit:dilophosaurus         text               about translated
+PASS  unit:dilophosaurus         icon               button picture
+PASS  unit:dilophosaurus         art                dilophosaurus: 20 strips all present, sized and drawn
+INFO  unit:dilophosaurus         art                death: views s,e,ne,n borrow the nearest one
+PASS  unit:dilophosaurus         sound              voice: select,move,attack
+PASS  unit:dilophosaurus         sound              own death sound
+PASS  unit:dilophosaurus         sound              attack: own
+PASS  unit:pterodactyl           data               hp 700 cost 200/50 supply 4
+PASS  unit:pterodactyl           data               made: a grub turns into it
+PASS  unit:pterodactyl           text               name 'Storm Sire'
+PASS  unit:pterodactyl           text               about translated
+PASS  unit:pterodactyl           icon               button picture
+PASS  unit:pterodactyl           art                pterodactyl: 20 strips all present, sized and drawn
+INFO  unit:pterodactyl           art                death: views s,e,ne,n borrow the nearest one
+PASS  unit:pterodactyl           sound              voice: select,move,attack
+PASS  unit:pterodactyl           sound              own death sound
+PASS  unit:pterodactyl           sound              attack: own
+PASS  unit:tyrant_challenger     data               hp 130 cost 100/10 supply 2
+PASS  unit:tyrant_challenger     data               made: MATURE from raptor
+PASS  unit:tyrant_challenger     text               name 'Tyrant Challenger'
+PASS  unit:tyrant_challenger     text               about translated
+PASS  unit:tyrant_challenger     icon               button picture
+PASS  unit:tyrant_challenger     art                tyrant_challenger: 20 strips all present, sized and drawn
+PASS  unit:tyrant_challenger     sound              voice: select,move,attack
+PASS  unit:tyrant_challenger     sound              own death sound
+PASS  unit:tyrant_challenger     sound              attack: own
+PASS  unit:venom_challenger      data               hp 220 cost 150/20 supply 2
+PASS  unit:venom_challenger      data               made: MATURE from spitter
+PASS  unit:venom_challenger      text               name 'Venom Challenger'
+PASS  unit:venom_challenger      text               about translated
+PASS  unit:venom_challenger      icon               button picture
+PASS  unit:venom_challenger      art                venom_challenger: 20 strips all present, sized and drawn
+PASS  unit:venom_challenger      sound              voice: select,move,attack
+PASS  unit:venom_challenger      sound              own death sound
+PASS  unit:venom_challenger      sound              attack: own
+PASS  unit:hatchlings            data               hp 38 cost 80/10 supply 1
+PASS  unit:hatchlings            data               made: laid by the Mother
+PASS  unit:hatchlings            text               name 'Hatchlings'
+PASS  unit:hatchlings            text               about translated
+PASS  unit:hatchlings            icon               button picture
+PASS  unit:hatchlings            art                hatchlings: 20 strips all present, sized and drawn
+PASS  unit:hatchlings            sound              voice: select,move,attack (as skywing)
+PASS  unit:hatchlings            sound              own death sound
+PASS  unit:hatchlings            sound              attack: own
+PASS  unit:storm_challenger      data               hp 150 cost 150/30 supply 2
+PASS  unit:storm_challenger      data               made: MATURE from hatchlings
+PASS  unit:storm_challenger      text               name 'Storm Challenger'
+PASS  unit:storm_challenger      text               about translated
+PASS  unit:storm_challenger      icon               button picture
+PASS  unit:storm_challenger      art                storm_challenger: 20 strips all present, sized and drawn
+PASS  unit:storm_challenger      sound              voice: select,move,attack (as skywing)
+PASS  unit:storm_challenger      sound              own death sound
+PASS  unit:storm_challenger      sound              attack: own
+PASS  unit:brood_egg             data               hp 80 cost 0/0 supply 0
+PASS  unit:brood_egg             data               made: a part of the Brood
+PASS  unit:brood_egg             text               name 'Egg'
+PASS  unit:brood_egg             text               about translated
+PASS  unit:brood_egg             art                brood_egg: 3 strips all present, sized and drawn
+INFO  unit:brood_egg             art                idle: views se,e,ne,n borrow the nearest one
+INFO  unit:brood_egg             art                death: views se,e,ne,n borrow the nearest one
+PASS  unit:brood_egg             sound              own death sound
+PASS  unit:mound_turtle          data               hp 600 cost 100/0 supply 0
+PASS  unit:mound_turtle          data               made: a grub turns into it
+PASS  unit:mound_turtle          text               name 'Mound Turtle'
+PASS  unit:mound_turtle          text               about translated
+PASS  unit:mound_turtle          icon               button picture
+PASS  unit:mound_turtle          art                mound_turtle: 14 strips all present, sized and drawn
+INFO  unit:mound_turtle          art                death: views s,e,ne,n borrow the nearest one
+PASS  unit:mound_turtle          sound              voice: select,move,attack
+PASS  unit:mound_turtle          sound              own death sound
+PASS  unit:mound_turtle          sound              attack: own
+PASS  unit:food_pile             data               hp 100 cost 0/0 supply 0
+PASS  unit:food_pile             data               made: a part of the Brood
+PASS  unit:food_pile             text               name 'Food Pile'
+PASS  unit:food_pile             text               about translated
+PASS  unit:food_pile             art                food_pile: 2 strips all present, sized and drawn
+INFO  unit:food_pile             art                idle: views se,e,ne,n borrow the nearest one
+INFO  unit:food_pile             art                death: views se,e,ne,n borrow the nearest one
+INFO  unit:food_pile             sound              death: the faction's (no combat/food_pile_death)
+PASS  unit:mist_toad             data               hp 90 cost 100/25 supply 3
+PASS  unit:mist_toad             data               made: laid by the Mother
+PASS  unit:mist_toad             text               name 'Mist Toad'
+PASS  unit:mist_toad             text               about translated
+PASS  unit:mist_toad             icon               button picture
+PASS  unit:mist_toad             art                mist_toad: 12 strips all present, sized and drawn
+INFO  unit:mist_toad             art                idle: views ne borrow the nearest one
+INFO  unit:mist_toad             art                death: views s,se,ne,n borrow the nearest one
+PASS  unit:mist_toad             sound              voice: select,move,attack
+PASS  unit:mist_toad             sound              own death sound
+PASS  unit:mist_toad             sound              attack: own
+SKIP  unit:ornithopter           data               retired / not in a normal game (kept for old saves)
+SKIP  unit:tesla_cart            data               retired / not in a normal game (kept for old saves)
+SKIP  unit:tin_militia           data               retired / not in a normal game (kept for old saves)
+SKIP  unit:scrapper              data               retired / not in a normal game (kept for old saves)
+SKIP  unit:rail_rifleman         data               retired / not in a normal game (kept for old saves)
+SKIP  unit:work_car              data               retired / not in a normal game (kept for old saves)
+SKIP  unit:plate_wagon           data               retired / not in a normal game (kept for old saves)
+SKIP  unit:heavy_loco            data               retired / not in a normal game (kept for old saves)
+SKIP  unit:carrier_car           data               retired / not in a normal game (kept for old saves)
+SKIP  unit:tesla_loco            data               retired / not in a normal game (kept for old saves)
+SKIP  unit:storm_engine          data               retired / not in a normal game (kept for old saves)
+PASS  bld:town_hall              data               hp 1600 cost 400/0 size (5, 4) time 60.0
+PASS  bld:town_hall              text               name 'Town Hall'
+PASS  bld:town_hall              text               about translated
+PASS  bld:town_hall              icon               button picture
+PASS  bld:town_hall              art                standing picture assets/buildings/town_hall_built.png
+PASS  bld:town_hall              art                under construction: its own picture
+PASS  bld:town_hall              sound              own select sound
+PASS  bld:cottage                data               hp 400 cost 100/0 size (2, 2) time 20.0
+PASS  bld:cottage                text               name 'Cottage'
+PASS  bld:cottage                text               about translated
+PASS  bld:cottage                icon               button picture
+PASS  bld:cottage                art                standing picture assets/buildings/cottage_built.png
+PASS  bld:cottage                art                under construction: its own picture
+PASS  bld:cottage                sound              own select sound
+PASS  bld:wall                   data               hp 200 cost 15/0 size (1, 1) time 8.0
+PASS  bld:wall                   text               name 'Palisade'
+PASS  bld:wall                   text               about translated
+PASS  bld:wall                   icon               button picture
+PASS  bld:wall                   art                drawn from its own pieces
+PASS  bld:wall                   sound              own select sound
+PASS  bld:gate                   data               hp 300 cost 50/0 size (1, 1) time 12.0
+PASS  bld:gate                   text               name 'Gate'
+PASS  bld:gate                   text               about translated
+PASS  bld:gate                   icon               button picture
+PASS  bld:gate                   art                drawn from its own pieces
+PASS  bld:gate                   sound              own select sound
+PASS  bld:barracks               data               hp 1000 cost 150/0 size (4, 3) time 40.0
+PASS  bld:barracks               text               name 'Barracks'
+PASS  bld:barracks               text               about translated
+PASS  bld:barracks               icon               button picture
+PASS  bld:barracks               art                standing picture assets/buildings/barracks_built.png
+PASS  bld:barracks               art                under construction: its own picture
+PASS  bld:barracks               sound              own select sound
+PASS  bld:armoury                data               hp 1000 cost 150/0 size (4, 3) time 40.0
+PASS  bld:armoury                text               name 'Armoury'
+PASS  bld:armoury                text               about translated
+PASS  bld:armoury                icon               button picture
+PASS  bld:armoury                art                standing picture assets/buildings/armoury_built.png
+PASS  bld:armoury                art                under construction: its own picture
+INFO  bld:armoury                sound              select: the faction's (no select/armoury)
+PASS  bld:foundry                data               hp 900 cost 200/0 size (4, 3) time 45.0
+PASS  bld:foundry                text               name 'Foundry'
+PASS  bld:foundry                text               about translated
+PASS  bld:foundry                icon               button picture
+PASS  bld:foundry                art                standing picture assets/buildings/foundry_built.png
+PASS  bld:foundry                art                under construction: its own picture
+PASS  bld:foundry                sound              own select sound
+PASS  bld:clocktower             data               hp 2000 cost 400/0 size (5, 4) time 60.0
+PASS  bld:clocktower             text               name 'Clocktower'
+PASS  bld:clocktower             text               about translated
+PASS  bld:clocktower             icon               button picture
+PASS  bld:clocktower             art                standing picture assets/buildings/clocktower_built.png
+PASS  bld:clocktower             art                under construction: its own picture
+PASS  bld:clocktower             sound              own select sound
+SKIP  bld:spring_tower           data               not on any build list (old economy / retired): retired
+PASS  bld:movement_works         data               hp 1000 cost 150/0 size (4, 3) time 40.0
+PASS  bld:movement_works         text               name 'Light Works'
+PASS  bld:movement_works         text               about translated
+PASS  bld:movement_works         icon               button picture
+PASS  bld:movement_works         art                standing picture assets/buildings/movement_works_built.png
+PASS  bld:movement_works         art                under construction: its own picture
+PASS  bld:movement_works         sound              own select sound
+PASS  bld:heavy_works            data               hp 1100 cost 175/0 size (3, 3) time 45.0
+PASS  bld:heavy_works            text               name 'Heavy Works'
+PASS  bld:heavy_works            text               about translated
+PASS  bld:heavy_works            icon               button picture
+PASS  bld:heavy_works            art                standing picture assets/buildings/heavy_works_built.png
+PASS  bld:heavy_works            art                under construction: its own picture
+PASS  bld:heavy_works            sound              own select sound
+PASS  bld:escapement             data               hp 1000 cost 150/0 size (3, 3) time 40.0
+PASS  bld:escapement             text               name 'Escapement'
+PASS  bld:escapement             text               about translated
+PASS  bld:escapement             icon               button picture
+PASS  bld:escapement             art                standing picture assets/buildings/escapement_built.png
+PASS  bld:escapement             art                under construction: its own picture
+PASS  bld:escapement             sound              own select sound
+PASS  bld:cuckoo_house           data               hp 900 cost 150/0 size (2, 2) time 45.0
+PASS  bld:cuckoo_house           text               name 'Clock Aviary'
+PASS  bld:cuckoo_house           text               about translated
+PASS  bld:cuckoo_house           icon               button picture
+PASS  bld:cuckoo_house           art                standing picture assets/buildings/cuckoo_house_built.png
+PASS  bld:cuckoo_house           art                under construction: its own picture
+PASS  bld:cuckoo_house           sound              own select sound
+PASS  bld:regulator              data               hp 500 cost 100/0 size (2, 2) time 20.0
+PASS  bld:regulator              text               name 'Regulator'
+PASS  bld:regulator              text               about translated
+PASS  bld:regulator              icon               button picture
+PASS  bld:regulator              art                standing picture assets/buildings/regulator_built.png
+PASS  bld:regulator              art                under construction: its own picture
+PASS  bld:regulator              sound              own select sound
+PASS  bld:ratchet_turret         data               hp 450 cost 125/0 size (2, 2) time 30.0
+PASS  bld:ratchet_turret         text               name 'Ratchet Turret'
+PASS  bld:ratchet_turret         text               about translated
+PASS  bld:ratchet_turret         icon               button picture
+PASS  bld:ratchet_turret         art                standing picture assets/buildings/ratchet_turret_built.png
+PASS  bld:ratchet_turret         art                under construction: its own picture
+PASS  bld:ratchet_turret         sound              own select sound
+SKIP  bld:assembly_works         data               not on any build list (old economy / retired): retired
+SKIP  bld:engine_hall            data               not on any build list (old economy / retired): retired
+PASS  bld:farm                   data               hp 500 cost 100/0 size (6, 6) time 25.0
+PASS  bld:farm                   text               name 'Farm'
+PASS  bld:farm                   text               about translated
+PASS  bld:farm                   icon               button picture
+PASS  bld:farm                   art                drawn from its own pieces
+PASS  bld:farm                   sound              own select sound
+PASS  bld:powder_mill            data               hp 600 cost 100/0 size (3, 3) time 30.0
+PASS  bld:powder_mill            text               name 'Powder Mill'
+PASS  bld:powder_mill            text               about translated
+PASS  bld:powder_mill            icon               button picture
+PASS  bld:powder_mill            art                standing picture assets/buildings/powder_mill_built.png
+PASS  bld:powder_mill            art                under construction: its own picture
+PASS  bld:powder_mill            sound              own select sound
+PASS  bld:horse_breeder          data               hp 500 cost 100/0 size (4, 3) time 25.0
+PASS  bld:horse_breeder          text               name 'Horse Breeder'
+PASS  bld:horse_breeder          text               about translated
+PASS  bld:horse_breeder          icon               button picture
+PASS  bld:horse_breeder          art                standing picture assets/buildings/horse_breeder_built.png
+PASS  bld:horse_breeder          art                under construction: its own picture
+PASS  bld:horse_breeder          sound              own select sound
+PASS  bld:church                 data               hp 900 cost 150/0 size (3, 3) time 35.0
+PASS  bld:church                 text               name 'Church'
+PASS  bld:church                 text               about translated
+PASS  bld:church                 icon               button picture
+PASS  bld:church                 art                standing picture assets/buildings/church_built.png
+PASS  bld:church                 art                under construction: its own picture
+PASS  bld:church                 sound              own select sound
+SKIP  bld:boiler                 data               not on any build list (old economy / retired): retired
+SKIP  bld:ore_crusher            data               not on any build list (old economy / retired): retired
+SKIP  bld:ore_drill              data               not on any build list (old economy / retired): retired
+PASS  bld:cog_press              data               hp 900 cost 140/0 size (3, 3) time 35.0
+PASS  bld:cog_press              text               name 'Cog Press'
+PASS  bld:cog_press              text               about translated
+PASS  bld:cog_press              icon               button picture
+PASS  bld:cog_press              art                standing picture assets/buildings/cog_press_built.png
+PASS  bld:cog_press              art                under construction: its own picture
+PASS  bld:cog_press              sound              own select sound
+PASS  bld:mainspring             data               hp 800 cost 140/0 size (3, 3) time 35.0
+PASS  bld:mainspring             text               name 'Mainspring'
+PASS  bld:mainspring             text               about translated
+PASS  bld:mainspring             icon               button picture
+PASS  bld:mainspring             art                standing picture assets/buildings/mainspring_built.png
+PASS  bld:mainspring             art                under construction: its own picture
+PASS  bld:mainspring             sound              own select sound
+SKIP  bld:capacitor_works        data               not on any build list (old economy / retired): retired
+SKIP  bld:pressure_relay         data               not on any build list (old economy / retired): retired
+SKIP  bld:rail_yard              data               not on any build list (old economy / retired): retired
+SKIP  bld:charging_pylon         data               not on any build list (old economy / retired): retired
+PASS  res:armour                 data               at armoury, 125/50, 45.0 s
+PASS  res:armour                 text               name 'Armour'
+PASS  res:armour                 text               about translated
+PASS  res:armour                 text               button 'ARMOUR'
+PASS  res:armour                 icon               icon research_armour
+PASS  res:matchlock              data               at armoury, 50/10, 30.0 s
+PASS  res:matchlock              text               name 'Matchlock'
+PASS  res:matchlock              text               about translated
+PASS  res:matchlock              text               button 'MATCHLOCK'
+PASS  res:matchlock              icon               icon research_matchlock
+PASS  res:flintlock              data               at armoury, 75/25, 40.0 s
+PASS  res:flintlock              text               name 'Flintlock'
+PASS  res:flintlock              text               about translated
+PASS  res:flintlock              text               button 'FLINTLOCK'
+PASS  res:flintlock              icon               icon research_flintlock
+PASS  res:caplock                data               at armoury, 100/40, 50.0 s
+PASS  res:caplock                text               name 'Caplock'
+PASS  res:caplock                text               about translated
+PASS  res:caplock                text               button 'CAPLOCK'
+PASS  res:caplock                icon               icon research_caplock
+PASS  res:bayonet                data               at armoury, 40/0, 20.0 s
+PASS  res:bayonet                text               name 'Socket Bayonet'
+PASS  res:bayonet                text               about translated
+PASS  res:bayonet                text               button 'BAYONET'
+PASS  res:bayonet                icon               icon research_bayonet
+PASS  res:pouch                  data               at armoury, 60/20, 25.0 s
+PASS  res:pouch                  text               name 'Shot Pouch'
+PASS  res:pouch                  text               about translated
+PASS  res:pouch                  text               button 'POUCH'
+PASS  res:pouch                  icon               icon research_pouch
+PASS  res:charges                data               at armoury, 100/40, 40.0 s
+PASS  res:charges                text               name 'Prepared Charges'
+PASS  res:charges                text               about translated
+PASS  res:charges                text               button 'CHARGES'
+PASS  res:charges                icon               icon research_charges
+PASS  res:quadrant               data               at armoury, 125/30, 45.0 s
+PASS  res:quadrant               text               name 'Gunner's Quadrant'
+PASS  res:quadrant               text               about translated
+PASS  res:quadrant               text               button 'QUADRANT'
+PASS  res:quadrant               icon               icon research_quadrant
+PASS  res:charge                 data               at armoury, 60/0, 25.0 s
+PASS  res:charge                 text               name 'Cavalry Charge'
+PASS  res:charge                 text               about translated
+PASS  res:charge                 text               button 'CHARGE'
+PASS  res:charge                 icon               icon research_charge
+PASS  res:band_fife              data               at armoury, 60/10, 25.0 s
+PASS  res:band_fife              text               name 'Fifer'
+PASS  res:band_fife              text               about translated
+PASS  res:band_fife              text               button 'FIFER'
+PASS  res:band_fife              icon               icon ab_band_fife
+PASS  res:band_pipes             data               at armoury, 75/0, 25.0 s
+PASS  res:band_pipes             text               name 'Piper'
+PASS  res:band_pipes             text               about translated
+PASS  res:band_pipes             text               button 'PIPER'
+PASS  res:band_pipes             icon               icon ab_band_pipes
+PASS  res:high_leap              data               at escapement, 150/0 +100 Tension, 60.0 s
+PASS  res:high_leap              text               name 'High Leap'
+PASS  res:high_leap              text               about translated
+PASS  res:high_leap              text               button 'HIGH LEAP'
+PASS  res:high_leap              icon               icon research_high_leap
+PASS  res:shield_wall            data               at movement_works, 100/0 +50 Tension, 45.0 s
+PASS  res:shield_wall            text               name 'Shield Wall'
+PASS  res:shield_wall            text               about translated
+PASS  res:shield_wall            text               button 'SHIELD WALL'
+PASS  res:shield_wall            icon               icon research_shield
+PASS  res:owl_morph              data               at cuckoo_house, 150/0 +150 Tension, 60.0 s
+PASS  res:owl_morph              text               name 'Ticking Owl'
+PASS  res:owl_morph              text               about translated
+PASS  res:owl_morph              text               button 'TICKING OWL'
+PASS  res:owl_morph              icon               icon research_ticking_owl
+PASS  res:nb_clutch_raptor       data               at tyrannosaur, 100/15, 40.0 s
+PASS  res:nb_clutch_raptor       text               name 'Bigger Clutch'
+PASS  res:nb_clutch_raptor       text               about translated
+PASS  res:nb_clutch_raptor       text               button 'BIGGER CLUTCH'
+PASS  res:nb_clutch_raptor       icon               icon nbr_clutch_raptor
+PASS  res:nb_pack_hunt           data               at tyrannosaur, 75/15, 35.0 s
+PASS  res:nb_pack_hunt           text               name 'Pack Hunt'
+PASS  res:nb_pack_hunt           text               about translated
+PASS  res:nb_pack_hunt           text               button 'PACK HUNT'
+PASS  res:nb_pack_hunt           icon               icon nbr_pack_hunt
+PASS  res:nb_battering_horns     data               at tyrannosaur, 125/40, 50.0 s
+PASS  res:nb_battering_horns     text               name 'Battering Horns'
+PASS  res:nb_battering_horns     text               about translated
+PASS  res:nb_battering_horns     text               button 'BATTERING HORNS'
+PASS  res:nb_battering_horns     icon               icon nbr_battering_horns
+PASS  res:nb_clutch_spitter      data               at dilophosaurus, 100/15, 40.0 s
+PASS  res:nb_clutch_spitter      text               name 'Bigger Clutch'
+PASS  res:nb_clutch_spitter      text               about translated
+PASS  res:nb_clutch_spitter      text               button 'BIGGER CLUTCH'
+PASS  res:nb_clutch_spitter      icon               icon nbr_clutch_spitter
+PASS  res:nb_slither             data               at dilophosaurus, 75/15, 35.0 s
+PASS  res:nb_slither             text               name 'Slither'
+PASS  res:nb_slither             text               about translated
+PASS  res:nb_slither             text               button 'SLITHER'
+PASS  res:nb_slither             icon               icon nbr_slither
+PASS  res:nb_long_spit           data               at dilophosaurus, 100/25, 45.0 s
+PASS  res:nb_long_spit           text               name 'Long Spit'
+PASS  res:nb_long_spit           text               about translated
+PASS  res:nb_long_spit           text               button 'LONG SPIT'
+PASS  res:nb_long_spit           icon               icon nbr_long_spit
+PASS  res:nb_fog                 data               at dilophosaurus, 50/10, 20.0 s
+PASS  res:nb_fog                 text               name 'Fog Bank'
+PASS  res:nb_fog                 text               about translated
+PASS  res:nb_fog                 text               button 'FOG'
+PASS  res:nb_fog                 icon               icon ab_fog
+PASS  res:nb_miasma              data               at dilophosaurus, 60/15, 25.0 s
+PASS  res:nb_miasma              text               name 'Miasma Cloud'
+PASS  res:nb_miasma              text               about translated
+PASS  res:nb_miasma              text               button 'MIASMA CLOUD'
+PASS  res:nb_miasma              icon               icon ab_miasma
+PASS  res:nb_clutch_hatchlings   data               at pterodactyl, 100/15, 40.0 s
+PASS  res:nb_clutch_hatchlings   text               name 'Bigger Clutch'
+PASS  res:nb_clutch_hatchlings   text               about translated
+PASS  res:nb_clutch_hatchlings   text               button 'BIGGER CLUTCH'
+PASS  res:nb_clutch_hatchlings   icon               icon nbr_clutch_hatchlings
+PASS  res:nb_updraft             data               at pterodactyl, 75/15, 35.0 s
+PASS  res:nb_updraft             text               name 'Updraft'
+PASS  res:nb_updraft             text               about translated
+PASS  res:nb_updraft             text               button 'UPDRAFT'
+PASS  res:nb_updraft             icon               icon nbr_updraft
+PASS  res:nb_quick_roots         data               at brood_mother, 100/30, 45.0 s
+PASS  res:nb_quick_roots         text               name 'Quick Roots'
+PASS  res:nb_quick_roots         text               about translated
+PASS  res:nb_quick_roots         text               button 'QUICK ROOTS'
+PASS  res:nb_quick_roots         icon               icon nbr_quick_roots
+PASS  res:nb_swamp_mending       data               at brood_mother, 100/30, 45.0 s
+PASS  res:nb_swamp_mending       text               name 'Swamp Mending'
+PASS  res:nb_swamp_mending       text               about translated
+PASS  res:nb_swamp_mending       text               button 'SWAMP MENDING'
+PASS  res:nb_swamp_mending       icon               icon nbr_swamp_mending
+PASS  rebel:militia              data               plays as musketeer
+INFO  rebel:militia              art                no own sprites yet (rebel_militia): wears the musketeer's (stand-in, waiting for the owner's art)
+INFO  rebel:militia              text               about: no pt/es (the role's 'about' is not shown anywhere in the game yet)
+PASS  rebel:torch                data               plays as labourer
+INFO  rebel:torch                art                no own sprites yet (rebel_torch): wears the labourer's (stand-in, waiting for the owner's art)
+INFO  rebel:torch                text               about: no pt/es (the role's 'about' is not shown anywhere in the game yet)
+PASS  rebel:pikeman              data               plays as pikeman
+INFO  rebel:pikeman              art                no own sprites yet (rebel_pikeman): wears the pikeman's (stand-in, waiting for the owner's art)
+INFO  rebel:pikeman              text               about: no pt/es (the role's 'about' is not shown anywhere in the game yet)
+PASS  rebel:varenne              data               plays as dismounted
+INFO  rebel:varenne              art                no own sprites yet (rebel_varenne): wears the dismounted's (stand-in, waiting for the owner's art)
+INFO  rebel:varenne              text               about: no pt/es (the role's 'about' is not shown anywhere in the game yet)
+[session] v0.33.8 menu
+
+==== LIVE: CROWN ====
+[session] v0.33.8 match on greenhold: crown vs brood (seed 11)
+[match] map ready
+-- buildings
+PASS  bld:town_hall              place              refused on the hall: 'Blocked.'
+PASS  bld:cottage                place              refused on the hall: 'Blocked.'
+PASS  bld:farm                   place              refused on the hall: 'Blocked.'
+PASS  bld:horse_breeder          place              refused on the hall: 'Blocked.'
+PASS  bld:powder_mill            place              refused on the hall: 'Blocked.'
+PASS  bld:wall                   place              refused on the hall: 'Blocked.'
+PASS  bld:wall                   place              refused before its requirement: 'Needs a Cottage first.'
+PASS  bld:gate                   place              refused on the hall: 'Blocked.'
+PASS  bld:gate                   place              refused before its requirement: 'Needs a Cottage first.'
+PASS  bld:barracks               place              refused on the hall: 'Blocked.'
+PASS  bld:barracks               place              refused before its requirement: 'Needs a Cottage first.'
+PASS  bld:armoury                place              refused on the hall: 'Blocked.'
+PASS  bld:armoury                place              refused before its requirement: 'Needs a Barracks first.'
+PASS  bld:foundry                place              refused on the hall: 'Blocked.'
+PASS  bld:foundry                place              refused before its requirement: 'Needs a Barracks first.'
+PASS  bld:church                 place              refused on the hall: 'Blocked.'
+PASS  bld:church                 place              refused before its requirement: 'Needs a Barracks first.'
+PASS  bld:town_hall              place              allowed at find_spot's (28, 8) 
+PASS  bld:town_hall              cost               charged 400 gold (price 400)
+PASS  bld:town_hall              cost               ABANDON: 400 gold back of 400 (gone)
+PASS  bld:cottage                place              allowed at find_spot's (11, 13) 
+PASS  bld:cottage                cost               charged 100 gold (price 100)
+PASS  bld:cottage                cost               ABANDON: 100 gold back of 100 (gone)
+PASS  bld:farm                   place              allowed at find_spot's (3, 7) 
+PASS  bld:farm                   cost               charged 100 gold (price 100)
+PASS  bld:farm                   cost               ABANDON: 100 gold back of 100 (gone)
+PASS  bld:horse_breeder          place              allowed at find_spot's (13, 13) 
+PASS  bld:horse_breeder          cost               charged 100 gold (price 100)
+PASS  bld:horse_breeder          cost               ABANDON: 100 gold back of 100 (gone)
+PASS  bld:powder_mill            place              allowed at find_spot's (16, 8) 
+PASS  bld:powder_mill            cost               charged 100 gold (price 100)
+PASS  bld:powder_mill            cost               ABANDON: 100 gold back of 100 (gone)
+PASS  bld:town_hall              build              built by one worker in 76 s (its time 60.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:cottage                build              built by one worker in 22 s (its time 20.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:farm                   build              built by one worker in 27 s (its time 25.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:horse_breeder          build              built by one worker in 25 s (its time 25.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:powder_mill            build              built by one worker in 29 s (its time 30.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:wall                   place              allowed at find_spot's (16, 6) 
+PASS  bld:wall                   cost               charged 15 gold (price 15)
+PASS  bld:wall                   cost               ABANDON: 15 gold back of 15 (gone)
+PASS  bld:gate                   place              allowed at find_spot's (16, 6) 
+PASS  bld:barracks               place              allowed at find_spot's (6, 14) 
+PASS  bld:barracks               cost               charged 150 gold (price 150)
+PASS  bld:barracks               cost               ABANDON: 150 gold back of 150 (gone)
+PASS  bld:wall                   build              built by one worker in 11 s (its time 8.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:barracks               build              built by one worker in 41 s (its time 40.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:armoury                place              allowed at find_spot's (18, 12) 
+PASS  bld:armoury                cost               charged 150 gold (price 150)
+PASS  bld:armoury                cost               ABANDON: 150 gold back of 150 (gone)
+PASS  bld:foundry                place              allowed at find_spot's (16, 2) 
+PASS  bld:foundry                cost               charged 200 gold (price 200)
+PASS  bld:foundry                cost               ABANDON: 200 gold back of 200 (gone)
+PASS  bld:church                 place              allowed at find_spot's (5, 3) 
+PASS  bld:church                 cost               charged 150 gold (price 150)
+PASS  bld:church                 cost               ABANDON: 150 gold back of 150 (gone)
+PASS  bld:gate                   place              allowed at find_spot's (11, 16) 
+PASS  bld:gate                   place              allowed on a finished wall piece 
+PASS  bld:gate                   cost               charged 50 gold (price 50)
+PASS  bld:gate                   cost               ABANDON: 50 gold back of 50 (gone)
+PASS  bld:armoury                build              built by one worker in 43 s (its time 40.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:foundry                build              built by one worker in 33 s (its time 45.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:church                 build              built by one worker in 39 s (its time 35.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:gate                   build              built by one worker in 15 s (its time 12.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:town_hall              repair             a worker mended 960 -> 1228 of 1600
+PASS  bld:cottage                repair             a worker mended 240 -> 400 of 400
+PASS  bld:horse_breeder          repair             a worker mended 300 -> 500 of 500
+PASS  bld:powder_mill            repair             a worker mended 360 -> 561 of 600
+PASS  bld:barracks               repair             a worker mended 600 -> 877 of 1000
+PASS  bld:armoury                repair             a worker mended 600 -> 851 of 1000
+PASS  bld:foundry                repair             a worker mended 540 -> 829 of 900
+PASS  bld:church                 repair             a worker mended 540 -> 798 of 900
+PASS  bld:gate                   repair             a worker mended 180 -> 300 of 300
+INFO  match:crown                repair             10 s of repair on 9 buildings cost 96 gold
+-- production
+PASS  unit:labourer              cost               charged 50 gold + 0.0 res2 (price 50 + 0.0)
+PASS  unit:labourer              cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:labourer              make               came out of the town_hall as a labourer after 0.3 s (+1 supply, 1 expected)
+PASS  unit:labourer              rally              walks to the rally point (order idle, 12 px off)
+PASS  bld:town_hall              queue              5 labourer queued, the 6th refused: 'Queue is full.'
+PASS  bld:town_hall              queue              CANCEL x5: the queue empty, 0 gold not back
+PASS  unit:horse                 cost               charged 40 gold + 0.0 res2 (price 40 + 0.0)
+PASS  unit:horse                 cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:horse                 make               came out of the horse_breeder as a horse after 0.3 s (+0 supply, 0 expected)
+PASS  unit:horse                 rally              walks to the rally point (order idle, 1 px off)
+PASS  bld:horse_breeder          queue              5 horse queued, the 6th refused: 'Queue is full.'
+PASS  bld:horse_breeder          queue              CANCEL x5: the queue empty, 0 gold not back
+PASS  unit:musketeer             cost               charged 60 gold + 0.0 res2 (price 60 + 0.0)
+PASS  unit:musketeer             cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:musketeer             make               came out of the barracks as a musketeer after 0.3 s (+1 supply, 1 expected)
+PASS  unit:musketeer             rally              walks to the rally point (order idle, 24 px off)
+PASS  unit:musketeer             make               armed from the bank: 10 of 10 shots
+PASS  unit:musketeer (guardsman) refuse             before Armour: 'Research Armour at the Armoury first.'
+PASS  unit:dragoon               refuse             without a horse_breeder: 'Needs a Horse Breeder first.'
+PASS  unit:dragoon               cost               charged 60 gold + 0.0 res2 (price 60 + 0.0)
+PASS  unit:dragoon               cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:dragoon               make               came out of the barracks as a musketeer after 0.3 s (+1 supply, 1 expected)
+PASS  unit:dragoon               rally              walks to the rally point (order mount, 105 px off)
+PASS  unit:dragoon               make               armed from the bank: 10 of 10 shots
+PASS  unit:dragoon (armoured_dragoon) refuse             without a horse_breeder: 'Research Armour at the Armoury first.'
+PASS  unit:dragoon (armoured_dragoon) refuse             before Armour: 'Research Armour at the Armoury first.'
+PASS  unit:cuirassier (horseman) refuse             without a horse_breeder: 'Needs a Horse Breeder first.'
+PASS  unit:cuirassier (horseman) cost               charged 155 gold + 0.0 res2 (price 115 + 0.0 + 40 for its horse)
+PASS  unit:cuirassier (horseman) cost               CANCEL pays back (left out: 40 gold = the horse, kept for the next)
+PASS  unit:cuirassier (horseman) make               came out of the barracks as a dismounted after 0.3 s (+3 supply, 3 expected)
+PASS  unit:cuirassier (horseman) rally              walks to the rally point (order move, 123 px off)
+PASS  unit:cuirassier (horseman) make               armed from the bank: 5 of 5 shots
+PASS  unit:cuirassier            refuse             without a horse_breeder: 'Research Armour at the Armoury first.'
+PASS  unit:cuirassier            refuse             before Armour: 'Research Armour at the Armoury first.'
+PASS  unit:dismounted            cost               charged 75 gold + 0.0 res2 (price 75 + 0.0)
+PASS  unit:dismounted            cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:dismounted            make               came out of the barracks as a dismounted after 0.3 s (+3 supply, 3 expected)
+PASS  unit:dismounted            rally              walks to the rally point (order amove, 26 px off)
+PASS  unit:dismounted            make               armed from the bank: 5 of 5 shots
+PASS  unit:dismounted (dismounted_cuirassier) refuse             before Armour: 'Research Armour at the Armoury first.'
+PASS  bld:barracks               queue              5 musketeer queued, the 6th refused: 'Queue is full.'
+PASS  bld:barracks               queue              CANCEL x5: the queue empty, 0 gold not back
+PASS  unit:band                  cost               charged 50 gold + 0.0 res2 (price 50 + 0.0)
+PASS  unit:band                  cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:band                  make               came out of the armoury as a band after 0.3 s (+1 supply, 1 expected)
+PASS  unit:band                  rally              walks to the rally point (order amove, 76 px off)
+PASS  bld:armoury                queue              5 band queued, the 6th refused: 'Queue is full.'
+PASS  bld:armoury                queue              CANCEL x5: the queue empty, 0 gold not back
+PASS  unit:cannon                cost               charged 170 gold + 0.0 res2 (price 170 + 0.0)
+PASS  unit:cannon                cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:cannon                make               came out of the foundry as a cannon after 5.3 s (+4 supply, 4 expected)
+PASS  unit:cannon                rally              walks to the rally point (order amove, 48 px off)
+PASS  unit:mortar                cost               charged 185 gold + 20.0 res2 (price 145 + 20.0 + 40 for its horse)
+PASS  unit:mortar                cost               CANCEL pays back (left out: 40 gold = the horse, kept for the next)
+PASS  unit:mortar                make               came out of the foundry as a mortar after 5.5 s (+3 supply, 3 expected)
+PASS  unit:mortar                rally              walks to the rally point (order amove, 82 px off)
+PASS  unit:balloon               cost               charged 125 gold + 20.0 res2 (price 125 + 20.0)
+PASS  unit:balloon               cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:balloon               make               came out of the foundry as a balloon after 0.3 s (+2 supply, 2 expected)
+PASS  unit:balloon               rally              walks to the rally point (order amove, 34 px off)
+PASS  unit:powder_wagon          cost               charged 70 gold + 30.0 res2 (price 70 + 30.0)
+PASS  unit:powder_wagon          cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:powder_wagon          make               came out of the foundry as a powder_wagon after 5.2 s (+2 supply, 2 expected)
+PASS  unit:powder_wagon          rally              walks to the rally point (order amove, 71 px off)
+PASS  bld:foundry                queue              5 cannon queued, the 6th refused: 'Queue is full.'
+PASS  bld:foundry                queue              CANCEL x5: the queue empty, 200 gold not back (horses ordered for them stay)
+PASS  unit:missionary            cost               charged 125 gold + 0.0 res2 (price 125 + 0.0)
+PASS  unit:missionary            cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:missionary            make               came out of the church as a missionary after 0.3 s (+1 supply, 1 expected)
+PASS  unit:missionary            rally              walks to the rally point (order amove, 70 px off)
+PASS  bld:church                 queue              0 missionary queued, the next refused: 'Only one Missionary per Church.' (one per building)
+PASS  bld:church                 queue              CANCEL x0: the queue empty, 0 gold not back
+-- research
+PASS  res:armour                 refuse             without a foundry: 'Needs a Foundry first.'
+PASS  res:flintlock              refuse             before matchlock: 'Research Matchlock first.'
+PASS  res:flintlock              refuse             without a foundry: 'Research Matchlock first.'
+PASS  res:caplock                refuse             before flintlock: 'Research Flintlock first.'
+PASS  res:charges                refuse             without a foundry: 'Needs a Foundry first.'
+PASS  res:quadrant               refuse             before charges: 'Research Prepared Charges first.'
+PASS  res:armour                 cost               charged 125 gold + 50 + 0 Tension (price 125 / 50 / 0)
+PASS  res:armour                 cost               CANCEL pays it all back
+PASS  res:armour                 research           done
+PASS  res:armour                 effect             the refit is offered to a Musketeer in the field (["armour"])
+INFO  res:armour                 effect             a new Musketeer comes out with { "armour": false, "lock": "", "bayonet": false }
+PASS  res:matchlock              cost               charged 50 gold + 10 + 0 Tension (price 50 / 10 / 0)
+PASS  res:matchlock              cost               CANCEL pays it all back
+PASS  res:matchlock              research           done
+PASS  res:matchlock              effect             the refit is offered to a Musketeer in the field (["armour", "matchlock"])
+INFO  res:matchlock              effect             a new Musketeer comes out with { "armour": false, "lock": "matchlock", "bayonet": false }
+PASS  res:flintlock              cost               charged 75 gold + 25 + 0 Tension (price 75 / 25 / 0)
+PASS  res:flintlock              cost               CANCEL pays it all back
+PASS  res:flintlock              research           done
+PASS  res:flintlock              effect             the refit is offered to a Musketeer in the field (["armour", "flintlock"])
+INFO  res:flintlock              effect             a new Musketeer comes out with { "armour": false, "lock": "flintlock", "bayonet": false }
+PASS  res:caplock                cost               charged 100 gold + 40 + 0 Tension (price 100 / 40 / 0)
+PASS  res:caplock                cost               CANCEL pays it all back
+PASS  res:caplock                research           done
+PASS  res:caplock                effect             the refit is offered to a Musketeer in the field (["armour", "caplock"])
+INFO  res:caplock                effect             a new Musketeer comes out with { "armour": false, "lock": "caplock", "bayonet": false }
+PASS  res:bayonet                cost               charged 40 gold + 0 + 0 Tension (price 40 / 0 / 0)
+PASS  res:bayonet                cost               CANCEL pays it all back
+PASS  res:bayonet                research           done
+PASS  res:bayonet                effect             the refit is offered to a Musketeer in the field (["armour", "caplock", "bayonet"])
+INFO  res:bayonet                effect             a new Musketeer comes out with { "armour": false, "lock": "caplock", "bayonet": true }
+PASS  res:pouch                  cost               charged 60 gold + 20 + 0 Tension (price 60 / 20 / 0)
+PASS  res:pouch                  cost               CANCEL pays it all back
+PASS  res:pouch                  research           done
+PASS  res:pouch                  effect             the refit is offered to a Musketeer in the field (["armour", "pouch", "caplock", "bayonet"])
+INFO  res:pouch                  effect             a new Musketeer comes out with { "armour": false, "lock": "caplock", "bayonet": true }
+PASS  res:charges                cost               charged 100 gold + 40 + 0 Tension (price 100 / 40 / 0)
+PASS  res:charges                cost               CANCEL pays it all back
+PASS  res:charges                research           done
+PASS  res:charges                effect             cannon: reload 4.50 -> old 3.60, new 3.60 s
+PASS  res:charges                effect             mortar: reload 5.00 -> old 4.00, new 4.00 s
+PASS  res:quadrant               cost               charged 125 gold + 30 + 0 Tension (price 125 / 30 / 0)
+PASS  res:quadrant               cost               CANCEL pays it all back
+PASS  res:quadrant               research           done
+PASS  res:quadrant               effect             cannon: range 430 -> old 462, new 462
+PASS  res:quadrant               effect             mortar: range 352 -> old 384, new 384
+PASS  res:charge                 cost               charged 60 gold + 0 + 0 Tension (price 60 / 0 / 0)
+PASS  res:charge                 cost               CANCEL pays it all back
+PASS  res:charge                 research           done
+PASS  res:charge                 effect             cuirassier: has_tech (no number to measure for cuirassier)
+PASS  res:band_fife              cost               charged 60 gold + 10 + 0 Tension (price 60 / 10 / 0)
+PASS  res:band_fife              cost               CANCEL pays it all back
+PASS  res:band_fife              research           done
+PASS  res:band_fife              effect             the fife joins the bands (MarchingBand)
+PASS  res:band_pipes             cost               charged 75 gold + 0 + 0 Tension (price 75 / 0 / 0)
+PASS  res:band_pipes             cost               CANCEL pays it all back
+PASS  res:band_pipes             research           done
+PASS  res:band_pipes             effect             the pipes joins the bands (MarchingBand)
+-- cards and abilities
+PASS  unit:labourer              buttons            9 buttons: MOVE, ATTACK, STOP, ATTACK GROUND, BUILD, REPAIR, LEAD, MOUNT, WORK
+PASS  unit:musketeer             buttons            13 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD FIRE, HOLD, ARMOUR, CAPLOCK, BAYONET, POUCH, LEAD, MOUNT
+PASS  unit:cannon                buttons            12 buttons: MOVE, ATTACK, STOP, UNLIMBER, PATROL, ATTACK GROUND, HOLD FIRE, TEAM, CANISTER, HOLD, RELEASE HORSE, HARNESS
+PASS  unit:mortar                buttons            11 buttons: MOVE, ATTACK, STOP, DEPLOY, PATROL, ATTACK GROUND, HOLD FIRE, TEAM, HOLD, RELEASE HORSE, HARNESS
+PASS  unit:powder_wagon          buttons            10 buttons: MOVE, ATTACK, STOP, PATROL, SUPPLY, TEAM, HOLD, AUTO REFIT, RELEASE HORSE, HARNESS
+PASS  unit:cuirassier            buttons            9 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD FIRE, HOLD, ARMOUR, DISMOUNT
+PASS  unit:horse                 buttons            0 buttons: 
+PASS  unit:messenger             buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, HOLD, LEAD, DISMOUNT
+PASS  unit:dragoon               buttons            11 buttons: MOVE, ATTACK, STOP, PATROL, HOLD FIRE, HOLD, ARMOUR, CAPLOCK, BAYONET, POUCH, DISMOUNT
+PASS  unit:dismounted            buttons            10 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD FIRE, HOLD, ARMOUR, LEAD, MOUNT
+PASS  unit:balloon               buttons            9 buttons: MOVE, ATTACK, STOP, PATROL, LOAD, UNLOAD, RESTOCK, HOLD FIRE, HOLD
+PASS  unit:band                  buttons            8 buttons: MOVE, ATTACK, STOP, PATROL, DRUMS SOLO, PIPES SOLO, FIFE SOLO, HOLD
+PASS  unit:missionary            buttons            6 buttons: MOVE, ATTACK, STOP, PATROL, HOLD, MOUNT
+PASS  unit:mounted_missionary    buttons            6 buttons: MOVE, ATTACK, STOP, PATROL, HOLD, DISMOUNT
+INFO  match:crown                buttons            107 button presses, 33 at a time
+PASS  unit:labourer              ability            MOVE (target: the ground (move)): pos (246, 26) -> (246, 40)
+PASS  unit:labourer              ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (290, 26) -> (299, 24)
+PASS  unit:labourer              ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:labourer              ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (290, 70) -> (290, 82)
+PASS  unit:labourer              ability            BUILD: card page -> build
+PASS  unit:labourer              ability            REPAIR (target: the damaged hall (repair)): order idle -> repair, pos (202, 114) -> (157, 108)
+PASS  unit:labourer              ability            WORK: order idle -> gather, pos (246, 114) -> (201, 109), auto false -> true
+PASS  unit:musketeer             ability            MOVE (target: the ground (move)): pos (290, 114) -> (290, 128)
+PASS  unit:musketeer             ability            ATTACK (target: the enemy (attack)): order idle -> attack
+PASS  unit:musketeer             ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:musketeer             ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (70, 158) -> (70, 160)
+PASS  unit:musketeer             ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:musketeer             ability            HOLD FIRE: hold false -> true
+PASS  unit:musketeer             ability            HOLD: order idle -> hold
+PASS  unit:musketeer             ability            ARMOUR: paid [12, 4.0, 0.0, 0], order idle -> refit, pos (70, 202) -> (66, 166)
+PASS  unit:musketeer             ability            CAPLOCK: paid [16, 0.0, 0.0, 0], order idle -> refit, pos (114, 202) -> (98, 170)
+PASS  unit:musketeer             ability            BAYONET: paid [3, 0.0, 0.0, 0], order idle -> refit, pos (158, 202) -> (134, 176)
+PASS  unit:musketeer             ability            POUCH: paid [5, 0.0, 0.0, 0], order idle -> refit, pos (202, 202) -> (175, 179)
+PASS  unit:cannon                ability            MOVE (target: the ground (move)): tesla packed -> deploying, pos (246, 202) -> (246, 216)
+PASS  unit:cannon                ability            ATTACK (target: the enemy (attack)): order idle -> attack, tesla packed -> deployed, pos (290, 202) -> (289, 202)
+PASS  unit:cannon                ability            STOP: tesla packed -> deployed, pos (334, 202) -> (333, 202)
+PASS  unit:cannon                ability            UNLIMBER: tesla packed -> deployed
+PASS  unit:cannon                ability            PATROL (target: the ground (patrol)): order idle -> amove, tesla packed -> deployed, pos (114, 246) -> (113, 247)
+PASS  unit:cannon                ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, tesla packed -> deployed
+PASS  unit:cannon                ability            HOLD FIRE: hold false -> true
+PASS  unit:cannon                ability            TEAM: tesla packed -> deployed, pos (290, 246) -> (289, 246), team_want 0 -> 1
+PASS  unit:cannon                ability            CANISTER: mode  -> canister, tesla packed -> deployed
+PASS  unit:cannon                ability            HOLD: order idle -> hold
+PASS  unit:mortar                ability            MOVE (target: the ground (move)): tesla packed -> deploying, pos (114, 290) -> (111, 307)
+PASS  unit:mortar                ability            ATTACK (target: the enemy (attack)): order idle -> attack, tesla packed -> deploying, pos (158, 290) -> (148, 291)
+PASS  unit:mortar                ability            STOP: pos (202, 290) -> (194, 292)
+PASS  unit:mortar                ability            DEPLOY: tesla packed -> deployed
+PASS  unit:mortar                ability            PATROL (target: the ground (patrol)): order idle -> amove, tesla packed -> deploying, pos (289, 290) -> (280, 293)
+PASS  unit:mortar                ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, tesla packed -> deployed, pos (246, 26) -> (246, 18)
+PASS  unit:mortar                ability            HOLD FIRE: hold false -> true
+PASS  unit:mortar                ability            TEAM: pos (334, 26) -> (325, 28), team_want 0 -> 1
+PASS  unit:mortar                ability            HOLD: order idle -> hold
+PASS  unit:powder_wagon          ability            MOVE (target: the ground (move)): pos (334, 70) -> (334, 84)
+WARN  unit:powder_wagon          ability            ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+PASS  unit:powder_wagon          ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:powder_wagon          ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (290, 114) -> (290, 120)
+PASS  unit:powder_wagon          ability            SUPPLY: supplying true -> false
+PASS  unit:powder_wagon          ability            TEAM: team_want 0 -> 1
+PASS  unit:powder_wagon          ability            HOLD: order idle -> hold
+PASS  unit:powder_wagon          ability            AUTO REFIT: auto_refit false -> true
+PASS  unit:cuirassier            ability            MOVE (target: the ground (move)): mode pistol -> , pos (158, 158) -> (167, 161)
+PASS  unit:cuirassier            ability            ATTACK (target: the enemy (attack)): order idle -> attack, mode pistol -> , pos (290, 158) -> (302, 169)
+PASS  unit:cuirassier            ability            STOP: mode pistol -> , pos (70, 202) -> (78, 201)
+PASS  unit:cuirassier            ability            PATROL (target: the ground (patrol)): order idle -> amove, mode pistol -> , pos (114, 202) -> (126, 209)
+PASS  unit:cuirassier            ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:cuirassier            ability            HOLD FIRE: mode pistol -> , pos (202, 202) -> (210, 201), hold false -> true
+PASS  unit:cuirassier            ability            HOLD: order idle -> hold, mode pistol -> 
+PASS  unit:cuirassier            ability            ARMOUR: paid [30, 0.0, 0.0, 0], order idle -> refit, pos (290, 202) -> (293, 140)
+PASS  unit:cuirassier            ability            DISMOUNT: kind cuirassier -> dismounted, mode pistol -> bayonet, hp 140.0 -> 80.0, pos (334, 202) -> (342, 200), art horseman -> dismounted
+PASS  unit:messenger             ability            MOVE (target: the ground (move)): pos (26, 246) -> (26, 260)
+WARN  unit:messenger             ability            ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+PASS  unit:messenger             ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:messenger             ability            PATROL (target: the ground (patrol)): order idle -> amove
+PASS  unit:messenger             ability            HOLD: order idle -> hold
+PASS  unit:messenger             ability            DISMOUNT: kind messenger -> labourer, hp 60.0 -> 46.0, pos (26, 290) -> (24, 289), art messenger -> labourer
+PASS  unit:dragoon               ability            MOVE (target: the ground (move)): pos (70, 290) -> (70, 304)
+PASS  unit:dragoon               ability            ATTACK (target: the enemy (attack)): kind dragoon -> musketeer, order idle -> attack, hp 90.0 -> 70.0, pos (114, 290) -> (112, 289), art dragoon -> musketeer
+PASS  unit:dragoon               ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:dragoon               ability            PATROL (target: the ground (patrol)): kind dragoon -> musketeer, order idle -> amove, hp 90.0 -> 70.0, pos (202, 290) -> (200, 294), art dragoon -> musketeer
+PASS  unit:dragoon               ability            HOLD FIRE: hold false -> true
+PASS  unit:dragoon               ability            HOLD: kind dragoon -> musketeer, order idle -> hold, hp 90.0 -> 70.0, pos (290, 290) -> (288, 289), art dragoon -> musketeer
+INFO  unit:balloon               ability            UNLOAD: greyed out on a fresh unit ('Nobody aboard.')
+INFO  unit:balloon               ability            RESTOCK: greyed out on a fresh unit ('The powder store is full.')
+PASS  unit:dragoon               ability            ARMOUR: paid [12, 4.0, 0.0, 0], order idle -> refit, pos (246, 26) -> (180, 51)
+PASS  unit:dragoon               ability            CAPLOCK: paid [16, 0.0, 0.0, 0], order idle -> refit, pos (290, 26) -> (221, 39)
+PASS  unit:dragoon               ability            BAYONET: paid [3, 0.0, 0.0, 0], order idle -> refit, pos (334, 26) -> (273, 60)
+PASS  unit:dragoon               ability            POUCH: paid [5, 0.0, 0.0, 0], order idle -> refit, pos (290, 70) -> (224, 85)
+PASS  unit:dragoon               ability            DISMOUNT: kind dragoon -> musketeer, hp 90.0 -> 70.0, pos (334, 70) -> (332, 69), art dragoon -> musketeer
+PASS  unit:dismounted            ability            MOVE (target: the ground (move)): mode pistol -> bayonet, pos (202, 114) -> (211, 117)
+PASS  unit:dismounted            ability            ATTACK (target: the enemy (attack)): order idle -> attack, mode pistol -> bayonet, pos (246, 114) -> (254, 111)
+PASS  unit:dismounted            ability            STOP: mode pistol -> bayonet, pos (290, 114) -> (298, 113)
+PASS  unit:dismounted            ability            PATROL (target: the ground (patrol)): order idle -> amove, mode pistol -> bayonet, pos (334, 114) -> (342, 114)
+PASS  unit:dismounted            ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:dismounted            ability            HOLD FIRE: mode pistol -> bayonet, pos (70, 158) -> (78, 157), hold false -> true
+PASS  unit:dismounted            ability            HOLD: order idle -> hold, mode pistol -> bayonet
+PASS  unit:dismounted            ability            ARMOUR: paid [30, 0.0, 0.0, 0], order idle -> refit, pos (158, 158) -> (127, 137)
+PASS  unit:balloon               ability            MOVE (target: the ground (move)): pos (290, 158) -> (290, 172)
+WARN  unit:balloon               ability            ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+PASS  unit:balloon               ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:balloon               ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (158, 202) -> (158, 205)
+PASS  unit:balloon               ability            LOAD (target: a rider beside it (load)): room 4 -> 3
+PASS  unit:balloon               ability            HOLD FIRE: hold false -> true
+PASS  unit:balloon               ability            HOLD: order idle -> hold
+PASS  unit:band                  ability            MOVE (target: the ground (move)): pos (114, 246) -> (114, 260)
+WARN  unit:band                  ability            ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+PASS  unit:band                  ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:band                  ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (290, 246) -> (290, 249)
+PASS  unit:band                  ability            DRUMS SOLO: pos (25, 290) -> (23, 289), band { "m": ["drums", "fife", -> { "m": ["drums", "fife",
+PASS  unit:band                  ability            PIPES SOLO: band { "m": ["drums", "fife", -> { "m": ["drums", "fife",
+PASS  unit:band                  ability            FIFE SOLO: pos (114, 290) -> (113, 289), band { "m": ["drums", "fife", -> { "m": ["drums", "fife",
+PASS  unit:band                  ability            HOLD: order idle -> hold
+PASS  unit:missionary            ability            MOVE (target: the ground (move)): pos (202, 290) -> (200, 297)
+WARN  unit:missionary            ability            ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+PASS  unit:missionary            ability            STOP: an idle unit, nothing to stop (as it should)
+INFO  unit:mounted_missionary    ability            DISMOUNT: not on a fresh unit's card (it depends on the moment)
+PASS  unit:missionary            ability            PATROL (target: the ground (patrol)): order revive -> amove, pos (246, 26) -> (246, 29)
+PASS  unit:missionary            ability            HOLD: order revive -> hold
+PASS  unit:mounted_missionary    ability            MOVE (target: the ground (move)): kind mounted_missionary -> missionary, order idle -> revive, pos (334, 26) -> (332, 55), art missionary_mounted -> missionary
+PASS  unit:mounted_missionary    ability            ATTACK (target: the enemy (attack)): kind mounted_missionary -> missionary, order dismount -> revive, pos (290, 70) -> (276, 62), art missionary_mounted -> missionary
+PASS  unit:mounted_missionary    ability            STOP: order dismount -> idle, pos (334, 70) -> (333, 70)
+PASS  unit:mounted_missionary    ability            PATROL (target: the ground (patrol)): kind mounted_missionary -> missionary, order dismount -> amove, pos (202, 114) -> (200, 120), art missionary_mounted -> missionary
+PASS  unit:mounted_missionary    ability            HOLD: order dismount -> hold
+PASS  bld:town_hall              buttons            4 buttons: LABOURER, RALLY, + WORKER, - WORKER
+PASS  bld:farm                   buttons            3 buttons: DEMOLISH, + WORKER, - WORKER
+PASS  bld:cottage                buttons            1 buttons: DEMOLISH
+PASS  bld:horse_breeder          buttons            4 buttons: DEMOLISH, HORSE, RALLY, CANCEL
+PASS  bld:powder_mill            buttons            3 buttons: DEMOLISH, + WORKER, - WORKER
+PASS  bld:barracks               buttons            12 buttons: DEMOLISH, MUSKETEER, GUARDSMAN, DRAGOON, ARMOURED DRAGOON, HORSEMAN, CUIRASSIER, OFFICER, ARMOURED OFFICER, RALLY, ARM WITH POWDER, AUTO REFIT
+PASS  bld:armoury                buttons            4 buttons: DEMOLISH, MARCHING BAND, RALLY, AUTO REFIT
+PASS  bld:foundry                buttons            6 buttons: DEMOLISH, FIELD CANNON, MORTAR, OBSERVATION BALLOON, POWDER WAGON, RALLY
+PASS  bld:church                 buttons            3 buttons: DEMOLISH, MISSIONARY, RALLY
+PASS  bld:gate                   buttons            2 buttons: LOCK, DEMOLISH
+-- fights
+PASS  unit:labourer              fight              vs a unit at 54 px: 4.2 dmg/s measured, card says 4.4 (x0.96), first hit after 0.6 s, 15 hits
+PASS  unit:musketeer             fight              vs a unit at 114 px: 5.1 dmg/s measured, card says 5.6 (x0.90), first hit after 4.3 s, 6 hits
+PASS  unit:cannon                fight              vs a unit at 216 px: 8.0 dmg/s measured, card says 5.9 (x1.36), first hit after 3.7 s, 5 hits
+PASS  unit:mortar                fight              vs a unit at 211 px: 4.2 dmg/s measured, card says 5.0 (x0.84), first hit after 4.8 s, 4 hits
+PASS  unit:cuirassier            fight              vs a unit at 54 px: 12.6 dmg/s measured, card says 11.2 (x1.12), first hit after 0.2 s, 17 hits
+PASS  unit:dismounted            fight              vs a unit at 54 px: 10.0 dmg/s measured, card says 10.9 (x0.92), first hit after 0.6 s, 14 hits
+PASS  unit:pikeman               fight              vs a unit at 54 px: 6.1 dmg/s measured, card says 6.2 (x0.98), first hit after 0.5 s, 12 hits
+PASS  unit:labourer              fight              vs a building at 54 px: 4.0 dmg/s measured, card says 4.4 x1.0 on buildings (x0.91), first hit after 1.1 s, 14 hits
+PASS  unit:musketeer             fight              vs a building at 114 px: 5.0 dmg/s measured, card says 5.6 x1.0 on buildings (x0.89), first hit after 4.1 s, 6 hits; one shot does 20 to a building (damage 20 x building bonus 1.0 = 20)
+WARN  unit:cannon                fight              vs a building at 216 px: 53.0 dmg/s measured, card says 14.7 x2.5 on buildings (x3.61), first hit after 3.6 s, 5 hits; one shot does 270 to a building (damage 32 x building bonus 2.5 = 80) TOO MUCH: the bonus is applied twice?
+WARN  unit:mortar                fight              vs a building at 211 px: 10.5 dmg/s measured, card says 7.6 x1.5 on buildings (x1.39), first hit after 4.8 s, 4 hits; one shot does 68 to a building (damage 30 x building bonus 1.5 = 45) TOO MUCH: the bonus is applied twice?
+PASS  unit:cuirassier            fight              vs a building at 54 px: 8.5 dmg/s measured, card says 11.2 x1.0 on buildings (x0.75), first hit after 0.6 s, 12 hits
+PASS  unit:dismounted            fight              vs a building at 54 px: 10.2 dmg/s measured, card says 10.9 x1.0 on buildings (x0.93), first hit after 1.0 s, 14 hits
+PASS  unit:pikeman               fight              vs a building at 54 px: 2.2 dmg/s measured, card says 2.5 x0.4 on buildings (x0.90), first hit after 0.7 s, 11 hits
+PASS  unit:musketeer             fight              vs a air at 114 px: 4.2 dmg/s measured, card says 5.6 (x0.75), first hit after 0.5 s, 6 hits
+PASS  unit:labourer              targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:musketeer             targets            hits air true (Defs true), ground true (Defs true)
+PASS  unit:cannon                targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:mortar                targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:cuirassier            targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:dismounted            targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:pikeman               targets            hits air false (Defs false), ground true (Defs true)
+PASS  match:crown                deaths             supply given back: 111 -> 86 (25 expected back)
+PASS  unit:labourer              body               a body (the Church may raise it)
+PASS  unit:musketeer             body               a body (the Church may raise it)
+PASS  unit:cannon                body               a body (the Church may raise it)
+PASS  unit:mortar                body               a body (the Church may raise it)
+PASS  unit:cuirassier            body               a body (the Church may raise it)
+PASS  unit:dismounted            body               a body (the Church may raise it)
+PASS  unit:pikeman               body               a body (the Church may raise it)
+PASS  unit:powder_wagon          body               a body (the Church may raise it)
+PASS  unit:horse                 body               a body (the Church may raise it)
+PASS  unit:messenger             body               a body (the Church may raise it)
+PASS  unit:dragoon               body               a body (the Church may raise it)
+PASS  unit:balloon               body               a body (the Church may raise it)
+PASS  unit:band                  body               a body (the Church may raise it)
+PASS  unit:missionary            body               a body (the Church may raise it)
+PASS  unit:mounted_missionary    body               a body (the Church may raise it)
+-- the Free Assembly and the Pikeman
+PASS  rebel:militia              make               a musketeer plays the militia (art musketeer)
+PASS  rebel:torch                make               a labourer plays the torch (art labourer)
+PASS  rebel:torch                ability            the torch burns a building he stands at: 400 -> 384
+PASS  rebel:pikeman              make               a pikeman plays the pikeman (art pikeman)
+PASS  rebel:varenne              make               a dismounted plays the varenne (art dismounted)
+-- Crown rules: ammunition, mount, guns, band
+PASS  unit:musketeer             ammo               ARM WITH POWDER off: comes out with 0 shots
+PASS  unit:musketeer             ammo               6 powder in the bank: 6 shots, bank 0.0 
+PASS  unit:musketeer             ammo               dry beside the Barracks: refills to 5 shots, the bank 50 -> 41
+PASS  unit:messenger             ability            a Labourer MOUNTs a horse: a Messenger (labourer messenger, order idle, work )
+PASS  unit:messenger             ability            MOUNT: a labourer gets on a horse and is a messenger (1 sent; now messenger)
+PASS  unit:messenger             ability            DISMOUNT: back to a labourer
+PASS  unit:dragoon               ability            MOUNT: a musketeer gets on a horse and is a dragoon (1 sent; now dragoon)
+PASS  unit:dragoon               ability            DISMOUNT: back to a musketeer
+PASS  unit:cuirassier            ability            MOUNT: a dismounted gets on a horse and is a cuirassier (1 sent; now cuirassier)
+PASS  unit:cuirassier            ability            DISMOUNT: back to a dismounted
+PASS  unit:mounted_missionary    ability            MOUNT: a missionary gets on a horse and is a mounted_missionary (1 sent; now mounted_missionary)
+PASS  unit:mounted_missionary    ability            DISMOUNT: back to a missionary
+PASS  unit:labourer              ability            LEAD: 2 horse fetched, 1 held by the reins
+PASS  unit:labourer              ability            RELEASE (pressed while he still fetches more): he holds 0 horses 4 s later (order idle)
+PASS  unit:musketeer             ability            LEAD: 2 horse fetched, 1 held by the reins
+PASS  unit:musketeer             ability            RELEASE (pressed while he still fetches more): he holds 0 horses 4 s later (order idle)
+PASS  unit:cannon                ability            HARNESS: 1 sent, horses 1 -> 2
+PASS  unit:cannon                ability            RELEASE HORSE: horses now 1
+PASS  unit:mortar                ability            HARNESS: 1 sent, horses 1 -> 2
+PASS  unit:mortar                ability            RELEASE HORSE: horses now 1
+PASS  unit:powder_wagon          ability            HARNESS: 1 sent, horses 1 -> 2
+PASS  unit:powder_wagon          ability            RELEASE HORSE: horses now 1
+PASS  unit:cannon                ability            DEPLOY / UNLIMBER: packed -> deployed in 2.5 s
+PASS  unit:cannon                ability            PACK / LIMBER again
+PASS  unit:mortar                ability            DEPLOY / UNLIMBER: packed -> deployed in 3.0 s
+PASS  unit:mortar                ability            PACK / LIMBER again
+PASS  unit:band                  ability            a Musketeer beside the band: speed x1.05, melee x1.05, reload x1.05
+PASS  unit:band                  ability            FIFE SOLO: reload x1.05 -> x1.30 
+PASS  unit:missionary            ability            REVIVE: a fallen Musketeer stands again (hp 35)
+PASS  bld:farm                   demolish           DEMOLISH pulls it down
+PASS  bld:cottage                demolish           DEMOLISH pulls it down (supply cap 28 -> 20)
+PASS  bld:horse_breeder          demolish           DEMOLISH pulls it down
+PASS  bld:powder_mill            demolish           DEMOLISH pulls it down
+PASS  bld:barracks               demolish           DEMOLISH pulls it down
+PASS  bld:armoury                demolish           DEMOLISH pulls it down
+PASS  bld:foundry                demolish           DEMOLISH pulls it down
+PASS  bld:church                 demolish           DEMOLISH pulls it down
+PASS  bld:gate                   demolish           DEMOLISH pulls it down
+
+==== LIVE: CLOCKWORK ====
+[session] v0.33.8 match on greenhold: clockwork vs crown (seed 11)
+[match] map ready
+-- buildings
+PASS  bld:clocktower             place              refused on the hall: 'Blocked.'
+PASS  bld:regulator              place              refused on the hall: 'Blocked.'
+PASS  bld:cog_press              place              refused on the hall: 'Blocked.'
+PASS  bld:mainspring             place              refused on the hall: 'Blocked.'
+PASS  bld:movement_works         place              refused on the hall: 'Blocked.'
+PASS  bld:ratchet_turret         place              refused on the hall: 'Blocked.'
+PASS  bld:ratchet_turret         place              refused before its requirement: 'Needs a Light Works first.'
+PASS  bld:escapement             place              refused on the hall: 'Blocked.'
+PASS  bld:escapement             place              refused before its requirement: 'Needs a Light Works first.'
+PASS  bld:heavy_works            place              refused on the hall: 'Blocked.'
+PASS  bld:heavy_works            place              refused before its requirement: 'Needs an Escapement first.'
+PASS  bld:cuckoo_house           place              refused on the hall: 'Blocked.'
+PASS  bld:cuckoo_house           place              refused before its requirement: 'Needs an Escapement first.'
+PASS  bld:clocktower             place              allowed at find_spot's (28, 8) 
+PASS  bld:clocktower             cost               charged 400 gold (price 400)
+PASS  bld:clocktower             cost               ABANDON: 400 gold back of 400 (gone)
+PASS  bld:regulator              place              allowed at find_spot's (11, 15) 
+PASS  bld:regulator              cost               charged 100 gold (price 100)
+PASS  bld:regulator              cost               ABANDON: 100 gold back of 100 (gone)
+PASS  bld:cog_press              place              allowed at find_spot's (6, 4) 
+PASS  bld:cog_press              cost               charged 140 gold (price 140)
+PASS  bld:cog_press              cost               ABANDON: 140 gold back of 140 (gone)
+PASS  bld:mainspring             place              allowed at find_spot's (16, 4) 
+PASS  bld:mainspring             cost               charged 140 gold (price 140)
+PASS  bld:mainspring             cost               ABANDON: 140 gold back of 140 (gone)
+PASS  bld:movement_works         place              allowed at find_spot's (5, 13) 
+PASS  bld:movement_works         cost               charged 150 gold (price 150)
+PASS  bld:movement_works         cost               ABANDON: 150 gold back of 150 (gone)
+PASS  bld:clocktower             build              built by one worker in 74 s (its time 60.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:clocktower             build              in the gear network: linked true, works at x1.00 (placement check now: tower)
+PASS  bld:regulator              build              built by one worker in 23 s (its time 20.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:regulator              build              in the gear network: linked true, works at x1.00 (placement check now: clash)
+PASS  bld:cog_press              build              built by one worker in 41 s (its time 35.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:cog_press              build              in the gear network: linked true, works at x1.00 (placement check now: clash)
+PASS  bld:mainspring             build              built by one worker in 41 s (its time 35.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:mainspring             build              in the gear network: linked true, works at x1.00 (placement check now: clash)
+PASS  bld:movement_works         build              built by one worker in 43 s (its time 40.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:movement_works         build              in the gear network: linked true, works at x1.15 (placement check now: clash)
+PASS  bld:ratchet_turret         place              allowed at find_spot's (15, 14) 
+PASS  bld:ratchet_turret         cost               charged 125 gold (price 125)
+PASS  bld:ratchet_turret         cost               ABANDON: 125 gold back of 125 (gone)
+PASS  bld:escapement             place              allowed at find_spot's (18, 10) 
+PASS  bld:escapement             cost               charged 150 gold (price 150)
+PASS  bld:escapement             cost               ABANDON: 150 gold back of 150 (gone)
+PASS  bld:ratchet_turret         build              built by one worker in 33 s (its time 30.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:ratchet_turret         build              in the gear network: linked true, works at x1.00 (placement check now: clash)
+PASS  bld:escapement             build              built by one worker in 44 s (its time 40.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:escapement             build              in the gear network: linked true, works at x1.10, Mainspring true (placement check now: clash)
+PASS  bld:heavy_works            place              allowed at find_spot's (2, 8) 
+PASS  bld:heavy_works            cost               charged 175 gold (price 175)
+PASS  bld:heavy_works            cost               ABANDON: 175 gold back of 175 (gone)
+PASS  bld:cuckoo_house           place              allowed at find_spot's (9, 18) 
+PASS  bld:cuckoo_house           cost               charged 150 gold + 50 Tension (price 150 + 50 Tension)
+PASS  bld:cuckoo_house           cost               ABANDON: 150 gold back of 150 (gone)
+PASS  bld:heavy_works            build              built by one worker in 50 s (its time 45.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:heavy_works            build              in the gear network: linked true, works at x1.00, Mainspring true (placement check now: clash)
+PASS  bld:cuckoo_house           build              built by one worker in 49 s (its time 45.0 s; the walk, the Clockwork's crate and a big gear's extra time included)
+PASS  bld:cuckoo_house           build              in the gear network: linked true, works at x0.99, Mainspring true (placement check now: clash)
+PASS  bld:clocktower             repair             a worker mended 1200 -> 1838 of 2000
+PASS  bld:cog_press              repair             a worker mended 540 -> 900 of 900
+PASS  bld:regulator              repair             a worker mended 300 -> 500 of 500
+PASS  bld:mainspring             repair             a worker mended 480 -> 800 of 800
+PASS  bld:movement_works         repair             a worker mended 600 -> 1000 of 1000
+PASS  bld:ratchet_turret         repair             a worker mended 270 -> 450 of 450
+PASS  bld:escapement             repair             a worker mended 600 -> 877 of 1000
+PASS  bld:heavy_works            repair             a worker mended 660 -> 905 of 1100
+PASS  bld:cuckoo_house           repair             a worker mended 540 -> 900 of 900
+INFO  match:clockwork            repair             10 s of repair on 9 buildings cost 128 gold
+-- production
+PASS  unit:winder                cost               charged 60 gold + 0.0 batteries (price 60 + 0.0)
+PASS  unit:winder                cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:winder                make               came out of the clocktower as a winder after 0.3 s (+1 supply, 1 expected)
+PASS  unit:winder                rally              walks to the rally point (order gather, 4 px off)
+PASS  bld:clocktower             queue              5 winder queued, the 6th refused: 'Queue is full.'
+PASS  bld:clocktower             queue              CANCEL x5: the queue empty, 0 gold not back
+PASS  unit:clock_soldier         cost               charged 70 gold + 0.0 batteries (price 70 + 0.0)
+PASS  unit:clock_soldier         cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:clock_soldier         make               came out of the movement_works as a clock_soldier after 0.3 s (+1 supply, 1 expected)
+PASS  unit:clock_soldier         rally              walks to the rally point (order amove, 13 px off)
+PASS  unit:springer              refuse             without a escapement: 'Needs an Escapement first.'
+PASS  unit:springer              cost               charged 100 gold + 25.0 Tension (price 100 + 25.0)
+PASS  unit:springer              cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:springer              make               came out of the movement_works as a springer after 0.3 s (+2 supply, 2 expected)
+PASS  unit:springer              rally              walks to the rally point (order amove, 14 px off)
+PASS  unit:netter                refuse             without a escapement: 'Needs an Escapement first.'
+PASS  unit:netter                cost               charged 125 gold + 50.0 Tension (price 125 + 50.0)
+PASS  unit:netter                cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:netter                make               came out of the movement_works as a netter after 0.3 s (+2 supply, 2 expected)
+PASS  unit:netter                rally              walks to the rally point (order amove, 22 px off)
+PASS  bld:movement_works         queue              5 clock_soldier queued, the 6th refused: 'Queue is full.'
+PASS  bld:movement_works         queue              CANCEL x5: the queue empty, 0 gold not back
+PASS  unit:pendulum              refuse             without a escapement: 'Needs an Escapement first.'
+PASS  unit:pendulum              cost               charged 200 gold + 75.0 Tension (price 200 + 75.0)
+PASS  unit:pendulum              cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:pendulum              make               came out of the heavy_works as a pendulum after 0.3 s (+4 supply, 4 expected)
+PASS  unit:pendulum              rally              walks to the rally point (order amove, 38 px off)
+PASS  unit:ballista              refuse             without a escapement: 'Needs an Escapement first.'
+PASS  unit:ballista              cost               charged 150 gold + 50.0 Tension (price 150 + 50.0)
+PASS  unit:ballista              cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:ballista              make               came out of the heavy_works as a ballista after 0.3 s (+3 supply, 3 expected)
+PASS  unit:ballista              rally              walks to the rally point (order amove, 56 px off)
+PASS  unit:great_winder          refuse             without a escapement: 'Needs an Escapement first.'
+PASS  unit:great_winder          cost               charged 175 gold + 75.0 Tension (price 175 + 75.0)
+PASS  unit:great_winder          cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:great_winder          make               came out of the heavy_works as a great_winder after 0.3 s (+4 supply, 4 expected)
+PASS  unit:great_winder          rally              walks to the rally point (order amove, 84 px off)
+PASS  bld:heavy_works            queue              5 pendulum queued, the 6th refused: 'Queue is full.'
+PASS  bld:heavy_works            queue              CANCEL x5: the queue empty, 0 gold not back
+PASS  unit:cuckoo                cost               charged 75 gold + 15.0 Tension (price 75 + 15.0)
+PASS  unit:cuckoo                cost               CANCEL pays back (left out: 0 gold)
+PASS  unit:cuckoo                make               came out of the cuckoo_house as a cuckoo after 0.3 s (+2 supply, 2 expected)
+PASS  unit:cuckoo                rally              walks to the rally point (order idle, 12 px off)
+PASS  bld:cuckoo_house           queue              5 cuckoo queued, the 6th refused: 'Queue is full.'
+PASS  bld:cuckoo_house           queue              CANCEL x5: the queue empty, 0 gold not back
+-- research
+PASS  res:high_leap              cost               charged 150 gold + 0 + 100 Tension (price 150 / 0 / 100)
+PASS  res:high_leap              cost               CANCEL pays it all back
+PASS  res:high_leap              research           done
+INFO  res:high_leap              effect             researched (its effect is a rule the fights or the ability tests use: A stiffer spring: every Springer can JUMP UP onto high ground too (only where you can see))
+PASS  res:shield_wall            cost               charged 100 gold + 0 + 50 Tension (price 100 / 0 / 50)
+PASS  res:shield_wall            cost               CANCEL pays it all back
+PASS  res:shield_wall            research           done
+PASS  res:shield_wall            effect             clock_soldier: health 75 -> old 85, new 85
+PASS  res:owl_morph              cost               charged 150 gold + 0 + 150 Tension (price 150 / 0 / 150)
+PASS  res:owl_morph              cost               CANCEL pays it all back
+PASS  res:owl_morph              research           done
+PASS  res:owl_morph              effect             MORPH TO OWL now offered
+-- cards and abilities
+PASS  unit:winder                buttons            9 buttons: MOVE, ATTACK, STOP, ATTACK GROUND, BUILD, BOARD, REPAIR, LEAD, WORK
+PASS  unit:clock_soldier         buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, SHIELD FORWARD, HOLD
+PASS  unit:springer              buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, JUMP, HOLD
+PASS  unit:cuckoo                buttons            6 buttons: MOVE, ATTACK, STOP, PATROL, MORPH TO OWL, HOLD
+PASS  unit:ticking_owl           buttons            6 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD
+PASS  unit:pendulum              buttons            6 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD
+PASS  unit:netter                buttons            5 buttons: MOVE, ATTACK, STOP, PATROL, HOLD
+PASS  unit:ballista              buttons            8 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, LOAD CREW, UNLOAD CREW, HOLD
+PASS  unit:great_winder          buttons            8 buttons: MOVE, ATTACK, STOP, PATROL, MEND, SWEEP, SCATTER COGS, HOLD
+INFO  match:clockwork            buttons            61 button presses, 33 at a time
+PASS  unit:winder                ability            MOVE (target: the ground (move)): pos (246, 26) -> (246, 40)
+PASS  unit:winder                ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (290, 26) -> (299, 24)
+PASS  unit:winder                ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:winder                ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (290, 70) -> (290, 81)
+PASS  unit:winder                ability            BUILD: card page -> build
+PASS  unit:winder                ability            BOARD: order idle -> board, pos (202, 114) -> (157, 108)
+PASS  unit:winder                ability            REPAIR (target: the damaged hall (repair)): pos (246, 114) -> (233, 112)
+PASS  unit:winder                ability            WORK: order idle -> gather, pos (290, 114) -> (245, 109), auto false -> true
+PASS  unit:clock_soldier         ability            MOVE (target: the ground (move)): pos (334, 113) -> (343, 117)
+PASS  unit:clock_soldier         ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (26, 157) -> (35, 156)
+PASS  unit:clock_soldier         ability            STOP: pos (70, 157) -> (79, 156)
+PASS  unit:clock_soldier         ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (114, 158) -> (123, 154)
+PASS  unit:clock_soldier         ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (158, 157) -> (158, 170)
+PASS  unit:clock_soldier         ability            SHIELD FORWARD: pos (290, 158) -> (298, 158), shield_up false -> true
+PASS  unit:clock_soldier         ability            HOLD: order idle -> hold
+PASS  unit:springer              ability            MOVE (target: the ground (move)): pos (114, 202) -> (114, 216)
+PASS  unit:springer              ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (158, 202) -> (158, 201)
+PASS  unit:springer              ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:springer              ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (246, 202) -> (246, 204)
+PASS  unit:springer              ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:springer              ability            JUMP (target: the ground (cast)): pos (334, 202) -> (334, 217)
+PASS  unit:springer              ability            HOLD: order idle -> hold
+PASS  unit:cuckoo                ability            MOVE (target: the ground (move)): pos (114, 245) -> (121, 250)
+PASS  unit:cuckoo                ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (158, 245) -> (164, 244)
+PASS  unit:cuckoo                ability            STOP: pos (246, 245) -> (252, 244)
+PASS  unit:cuckoo                ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (290, 245) -> (296, 246)
+PASS  unit:cuckoo                ability            MORPH TO OWL: paid [100, 0.0, 50.0, 0], owl_t -1.0 -> 4.25
+PASS  unit:cuckoo                ability            HOLD: order idle -> hold
+PASS  unit:ticking_owl           ability            MOVE (target: the ground (move)): pos (114, 289) -> (122, 294)
+PASS  unit:ticking_owl           ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (158, 289) -> (165, 289)
+PASS  unit:ticking_owl           ability            STOP: pos (202, 289) -> (209, 289)
+PASS  unit:ticking_owl           ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (246, 289) -> (253, 290)
+PASS  unit:ticking_owl           ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (290, 289) -> (290, 300)
+INFO  unit:ballista              ability            UNLOAD CREW: greyed out on a fresh unit ('No crew aboard (only its own man).')
+PASS  unit:ticking_owl           ability            HOLD: order idle -> hold
+PASS  unit:pendulum              ability            MOVE (target: the ground (move)): pos (290, 25) -> (298, 31)
+PASS  unit:pendulum              ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (334, 25) -> (340, 25)
+PASS  unit:pendulum              ability            STOP: pos (290, 69) -> (296, 69)
+PASS  unit:pendulum              ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (334, 70) -> (340, 71)
+PASS  unit:pendulum              ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (202, 113) -> (202, 124)
+PASS  unit:pendulum              ability            HOLD: order idle -> hold
+PASS  unit:netter                ability            MOVE (target: the ground (move)): pos (290, 114) -> (293, 134)
+PASS  unit:netter                ability            ATTACK (target: the enemy (attack)): order idle -> attack
+PASS  unit:netter                ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:netter                ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (70, 158) -> (71, 178)
+PASS  unit:netter                ability            HOLD: order idle -> hold
+PASS  unit:ballista              ability            MOVE (target: the ground (move)): pos (158, 158) -> (158, 172)
+PASS  unit:ballista              ability            ATTACK (target: the enemy (attack)): order idle -> attack
+PASS  unit:ballista              ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:ballista              ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (114, 202) -> (114, 203)
+PASS  unit:ballista              ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:ballista              ability            LOAD CREW (target: a rider beside it (load)): room 4 -> 3
+PASS  unit:ballista              ability            HOLD: order idle -> hold
+PASS  unit:great_winder          ability            MOVE (target: the ground (move)): order idle -> move, pos (334, 202) -> (334, 216)
+WARN  unit:great_winder          ability            ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+PASS  unit:great_winder          ability            STOP: order idle -> sweep, pos (114, 246) -> (117, 247)
+PASS  unit:great_winder          ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (158, 246) -> (158, 259)
+PASS  unit:great_winder          ability            MEND: pos (246, 246) -> (248, 245), auto_repair true -> false
+PASS  unit:great_winder          ability            SWEEP: auto_sweep true -> false
+PASS  unit:great_winder          ability            SCATTER COGS (target: the ground (cast)): scatter_ready 0.0 -> 230.75
+PASS  unit:great_winder          ability            HOLD: order idle -> hold
+PASS  bld:clocktower             buttons            3 buttons: GEAR VIEW, WINDER, RALLY
+PASS  bld:cog_press              buttons            4 buttons: GEAR VIEW, DEMOLISH, + WORKER, - WORKER
+PASS  bld:regulator              buttons            2 buttons: GEAR VIEW, DEMOLISH
+PASS  bld:mainspring             buttons            4 buttons: GEAR VIEW, DEMOLISH, + WORKER, - WORKER
+PASS  bld:movement_works         buttons            6 buttons: GEAR VIEW, DEMOLISH, CLOCK SOLDIER, SPRINGER, NETTER, RALLY
+PASS  bld:ratchet_turret         buttons            2 buttons: GEAR VIEW, DEMOLISH
+PASS  bld:escapement             buttons            2 buttons: GEAR VIEW, DEMOLISH
+PASS  bld:heavy_works            buttons            6 buttons: GEAR VIEW, DEMOLISH, PENDULUM, SPRING BALLISTA, GREAT WINDER, RALLY
+PASS  bld:cuckoo_house           buttons            4 buttons: GEAR VIEW, DEMOLISH, SWIFT, RALLY
+-- fights
+PASS  unit:winder                fight              vs a unit at 54 px: 4.2 dmg/s measured, card says 4.4 (x0.95), first hit after 0.5 s, 15 hits
+PASS  unit:clock_soldier         fight              vs a unit at 54 px: 5.1 dmg/s measured, card says 5.3 (x0.96), first hit after 0.6 s, 13 hits
+PASS  unit:springer              fight              vs a unit at 102 px: 6.7 dmg/s measured, card says 7.1 (x0.95), first hit after 0.2 s, 17 hits
+PASS  unit:cuckoo                fight              vs a unit at 54 px: 7.2 dmg/s measured, card says 7.9 (x0.91), first hit after 0.4 s, 18 hits
+PASS  unit:ticking_owl           fight              vs a unit at 54 px: 9.3 dmg/s measured, card says 10.0 (x0.93), first hit after 0.4 s, 12 hits
+PASS  unit:pendulum              fight              vs a unit at 54 px: 12.2 dmg/s measured, card says 8.6 (x1.42), first hit after 0.4 s, 17 hits
+PASS  unit:netter                fight              vs a unit at 108 px: 0.2 dmg/s measured, card says 0.3 (x0.62), first hit after 0.4 s, 2 hits
+PASS  unit:ballista              fight              vs a unit at 180 px: 5.7 dmg/s measured, card says 5.9 (x0.97), first hit after 0.4 s, 4 hits
+PASS  unit:winder                fight              vs a building at 54 px: 4.0 dmg/s measured, card says 4.4 x1.0 on buildings (x0.90), first hit after 1.0 s, 14 hits
+PASS  unit:clock_soldier         fight              vs a building at 54 px: 5.2 dmg/s measured, card says 5.3 x1.0 on buildings (x0.99), first hit after 1.1 s, 13 hits
+PASS  unit:springer              fight              vs a building at 102 px: 6.7 dmg/s measured, card says 7.1 x1.0 on buildings (x0.95), first hit after 0.2 s, 17 hits
+PASS  unit:ticking_owl           fight              vs a building at 54 px: 14.1 dmg/s measured, card says 10.0 x1.0 on buildings (x1.41), first hit after 1.7 s, 8 hits
+PASS  unit:pendulum              fight              vs a building at 54 px: 10.5 dmg/s measured, card says 10.7 x1.2 on buildings (x0.98), first hit after 1.1 s, 17 hits
+INFO  unit:netter                fight              vs a building 108 px off: NO damage in 24 s (order idle, mode , target false)
+PASS  unit:ballista              fight              vs a building at 180 px: 11.4 dmg/s measured, card says 11.8 x2.0 on buildings (x0.97), first hit after 0.4 s, 4 hits; one shot does 90 to a building (damage 45 x building bonus 2.0 = 90)
+PASS  unit:springer              fight              vs a air at 102 px: 6.7 dmg/s measured, card says 7.1 (x0.95), first hit after 0.2 s, 17 hits
+PASS  unit:netter                fight              vs a air at 108 px: 0.2 dmg/s measured, card says 0.3 (x0.62), first hit after 0.4 s, 2 hits
+PASS  unit:winder                targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:clock_soldier         targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:springer              targets            hits air true (Defs true), ground true (Defs true)
+PASS  unit:cuckoo                targets            hits air true (Defs true), ground false (Defs false)
+PASS  unit:ticking_owl           targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:pendulum              targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:netter                targets            hits air true (Defs true), ground true (Defs true)
+PASS  unit:ballista              targets            hits air false (Defs false), ground true (Defs true)
+PASS  match:clockwork            deaths             supply given back: 75 -> 52 (23 expected back)
+PASS  unit:winder                body               a wreck (the Great Winder sweeps 18 cogs)
+PASS  unit:clock_soldier         body               a wreck (the Great Winder sweeps 21 cogs)
+PASS  unit:springer              body               a wreck (the Great Winder sweeps 30 cogs)
+PASS  unit:cuckoo                body               a wreck (the Great Winder sweeps 22 cogs)
+PASS  unit:ticking_owl           body               a wreck (the Great Winder sweeps 52 cogs)
+PASS  unit:pendulum              body               a wreck (the Great Winder sweeps 60 cogs)
+PASS  unit:netter                body               a wreck (the Great Winder sweeps 37 cogs)
+PASS  unit:ballista              body               a wreck (the Great Winder sweeps 45 cogs)
+PASS  unit:great_winder          body               a wreck (the Great Winder sweeps 52 cogs)
+-- Clockwork rules: winding, gears
+PASS  unit:winder                ability            a Winder winds a run-down Clock Soldier: wind 0.20 -> 0.50
+PASS  bld:regulator              place              far from the gear network: refused ('Its gear ring must touch your gear field: mesh it with a linked building's ring.')
+PASS  bld:cog_press              demolish           DEMOLISH pulls it down
+PASS  bld:regulator              demolish           DEMOLISH pulls it down (supply cap 30 -> 20)
+PASS  bld:mainspring             demolish           DEMOLISH pulls it down
+PASS  bld:movement_works         demolish           DEMOLISH pulls it down
+PASS  bld:ratchet_turret         demolish           DEMOLISH pulls it down
+PASS  bld:escapement             demolish           DEMOLISH pulls it down
+PASS  bld:heavy_works            demolish           DEMOLISH pulls it down
+PASS  bld:cuckoo_house           demolish           DEMOLISH pulls it down
+
+==== LIVE: BROOD ====
+[session] v0.33.8 match on greenhold: brood vs clockwork (seed 11)
+[match] map ready
+-- the Brood: morphs, laying, growing, maturing, research
+PASS  unit:brood_mother          make               starts rooted (the hall of the Brood)
+PASS  unit:mound_turtle          cost               the grub's morph: charged 100 + 0.0 (price 100 + 0)
+PASS  unit:mound_turtle          make               a grub turned into it and it rooted (25.0 s)
+PASS  unit:tyrannosaur           cost               the grub's morph: charged 150 + 0.0 (price 150 + 0)
+PASS  unit:tyrannosaur           make               a grub turned into it and it rooted (30.0 s)
+PASS  unit:dilophosaurus         cost               the grub's morph: charged 200 + 25.0 (price 200 + 25)
+PASS  unit:dilophosaurus         make               a grub turned into it and it rooted (35.0 s)
+PASS  unit:pterodactyl           refuse             before the Mother's stage 2: 'Needs the Brood Mother at stage 2.'
+PASS  unit:rootmaw               cost               the grub's morph: charged 75 + 0.0 (price 75 + 0)
+PASS  unit:rootmaw               make               a grub turned into it and it rooted (18.0 s)
+PASS  unit:brood_mother          grow               GROW to stage 2: charged 300 + 0 (price 300 + 0) 
+PASS  unit:brood_mother          grow               STOP GROWING pays it back
+PASS  unit:brood_mother          grow               stage 2 reached (eggs held 15)
+PASS  unit:brood_mother          grow               GROW to stage 3: charged 500 + 75 (price 500 + 75) 
+PASS  unit:brood_mother          grow               STOP GROWING pays it back
+PASS  unit:brood_mother          grow               stage 3 reached (eggs held 20)
+PASS  unit:brood_mother          grow               fully grown: 'She is fully grown.'
+PASS  unit:pterodactyl           cost               the grub's morph: charged 200 + 50.0 (price 200 + 50)
+PASS  unit:pterodactyl           make               a grub turned into it and it rooted (40.0 s)
+PASS  unit:grub                  cost               an egg: charged 50 + 0.0 (price 50 + 0)
+PASS  unit:grub                  make               the egg hatched 1 of 1 young (no father needed)
+PASS  unit:grub                  make               supply +1 (expected 1)
+PASS  unit:raptor                cost               an egg: charged 50 + 0.0 (price 50 + 0)
+PASS  unit:raptor                make               the egg hatched 2 of 2 young (fertilised in a nest)
+PASS  unit:raptor                make               supply +2 (expected 2)
+PASS  unit:brute                 cost               an egg: charged 150 + 20.0 (price 150 + 20)
+PASS  unit:brute                 make               the egg hatched 1 of 1 young (fertilised in a nest)
+PASS  unit:brute                 make               supply +3 (expected 3)
+PASS  unit:spitter               cost               an egg: charged 90 + 5.0 (price 90 + 5)
+PASS  unit:spitter               make               the egg hatched 2 of 2 young (fertilised in a nest)
+PASS  unit:spitter               make               supply +2 (expected 2)
+PASS  unit:mist_toad             cost               an egg: charged 100 + 25.0 (price 100 + 25)
+PASS  unit:mist_toad             make               the egg hatched 1 of 1 young (fertilised in a nest)
+PASS  unit:mist_toad             make               supply +3 (expected 3)
+PASS  unit:hatchlings            cost               an egg: charged 80 + 10.0 (price 80 + 10)
+PASS  unit:hatchlings            make               the egg hatched 2 of 2 young (fertilised in a nest)
+PASS  unit:hatchlings            make               supply +2 (expected 2)
+PASS  unit:tyrant_challenger     cost               MATURE: charged 75 + 10.0 (price 75 + 10)
+PASS  unit:tyrant_challenger     make               the raptor moulted into a tyrant_challenger
+PASS  unit:venom_challenger      cost               MATURE: charged 105 + 17.0 (price 105 + 17)
+PASS  unit:venom_challenger      make               the spitter moulted into a venom_challenger
+PASS  unit:storm_challenger      cost               MATURE: charged 110 + 25.0 (price 110 + 25)
+PASS  unit:storm_challenger      make               the hatchlings moulted into a storm_challenger
+PASS  unit:mound_turtle          ability            rooted: a 20 blow does 12.8
+PASS  unit:mound_turtle          ability            UPROOT (true) and ROOT again (true)
+PASS  unit:tyrannosaur           ability            rooted: a 20 blow does 12.8
+PASS  unit:tyrannosaur           ability            UPROOT (true) and ROOT again (true)
+PASS  unit:grub                  ability            HARVEST: a body wrapped and carried to the Mother: spoils 99975.0 -> 99979.0
+PASS  res:nb_clutch_raptor       cost               charged 100 + 15 (price 100 + 15)
+PASS  res:nb_clutch_raptor       cost               CANCEL pays it back
+PASS  res:nb_pack_hunt           cost               charged 75 + 15 (price 75 + 15)
+PASS  res:nb_pack_hunt           cost               CANCEL pays it back
+PASS  res:nb_battering_horns     cost               charged 125 + 40 (price 125 + 40)
+PASS  res:nb_battering_horns     cost               CANCEL pays it back
+PASS  res:nb_clutch_spitter      cost               charged 100 + 15 (price 100 + 15)
+PASS  res:nb_clutch_spitter      cost               CANCEL pays it back
+PASS  res:nb_slither             cost               charged 75 + 15 (price 75 + 15)
+PASS  res:nb_slither             cost               CANCEL pays it back
+PASS  res:nb_long_spit           cost               charged 100 + 25 (price 100 + 25)
+PASS  res:nb_long_spit           cost               CANCEL pays it back
+PASS  res:nb_fog                 cost               charged 50 + 10 (price 50 + 10)
+PASS  res:nb_fog                 cost               CANCEL pays it back
+PASS  res:nb_miasma              cost               charged 60 + 15 (price 60 + 15)
+PASS  res:nb_miasma              cost               CANCEL pays it back
+PASS  res:nb_clutch_hatchlings   cost               charged 100 + 15 (price 100 + 15)
+PASS  res:nb_clutch_hatchlings   cost               CANCEL pays it back
+PASS  res:nb_updraft             cost               charged 75 + 15 (price 75 + 15)
+PASS  res:nb_updraft             cost               CANCEL pays it back
+PASS  res:nb_quick_roots         cost               charged 100 + 30 (price 100 + 30)
+PASS  res:nb_quick_roots         cost               CANCEL pays it back
+PASS  res:nb_swamp_mending       cost               charged 100 + 30 (price 100 + 30)
+PASS  res:nb_swamp_mending       cost               CANCEL pays it back
+PASS  res:nb_clutch_raptor       research           done at the tyrannosaur
+PASS  res:nb_clutch_raptor       effect             raptor: 3 young an egg
+PASS  res:nb_pack_hunt           research           done at the tyrannosaur
+PASS  res:nb_pack_hunt           effect             raptor: speed 96 -> new 114, old 114
+PASS  res:nb_pack_hunt           effect             tyrant_challenger: speed 84 -> new 98, old 98
+PASS  res:nb_pack_hunt           effect             tyrannosaur: speed 64 -> new 75, old 75
+PASS  res:nb_battering_horns     research           done at the tyrannosaur
+PASS  res:nb_battering_horns     effect             brute: has_tech (no number to measure for brute)
+PASS  res:nb_clutch_spitter      research           done at the dilophosaurus
+PASS  res:nb_clutch_spitter      effect             spitter: 3 young an egg
+PASS  res:nb_slither             research           done at the dilophosaurus
+PASS  res:nb_slither             effect             spitter: speed 68 -> new 78, old 78
+PASS  res:nb_slither             effect             venom_challenger: speed 58 -> new 67, old 67
+PASS  res:nb_long_spit           research           done at the dilophosaurus
+PASS  res:nb_long_spit           effect             spitter: range 165 -> new 190, old 190
+PASS  res:nb_long_spit           effect             venom_challenger: range 165 -> new 190, old 190
+PASS  res:nb_fog                 research           done at the dilophosaurus
+PASS  res:nb_fog                 effect             the Mist Toad may cast fog now ('')
+PASS  res:nb_miasma              research           done at the dilophosaurus
+PASS  res:nb_miasma              effect             the Mist Toad may cast miasma now ('')
+PASS  res:nb_clutch_hatchlings   research           done at the pterodactyl
+PASS  res:nb_clutch_hatchlings   effect             hatchlings: 3 young an egg
+PASS  res:nb_updraft             research           done at the pterodactyl
+PASS  res:nb_updraft             effect             hatchlings: speed 132 -> new 152, old 152 (air: only while flying)
+PASS  res:nb_updraft             effect             storm_challenger: speed 120 -> new 138, old 138 (air: only while flying)
+PASS  res:nb_updraft             effect             pterodactyl: speed 110 -> new 127, old 127 (air: only while flying)
+PASS  res:nb_quick_roots         research           done at the brood_mother
+PASS  res:nb_quick_roots         effect             root time x0.50
+PASS  res:nb_swamp_mending       research           done at the brood_mother
+INFO  res:nb_swamp_mending       effect             researched (its effect is a rule the fights or the ability tests use: On your swamp, a creature not hit for 4 s mends faster: 1.2% of its health a second more ()
+-- cards and abilities
+PASS  unit:grub                  buttons            9 buttons: MOVE, ATTACK, STOP, ATTACK GROUND, BUILD, HOLD, WORK, HARVEST, SACRIFICE
+PASS  unit:raptor                buttons            8 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD, SACRIFICE, MATURE
+PASS  unit:spitter               buttons            8 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD, SACRIFICE, MATURE
+PASS  unit:brute                 buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD, SACRIFICE
+PASS  unit:brood_mother          buttons            15 buttons: MOVE, ATTACK, STOP, ROOT, PATROL, ATTACK GROUND, HOLD, GRUB, RAPTORS, BRUTE, SPITTERS, MIST TOAD, HATCHLINGS, GROW, LAYING +15%
+PASS  unit:rootmaw               buttons            7 buttons: MOVE, ATTACK, STOP, ROOT, PATROL, ATTACK GROUND, HOLD
+PASS  unit:tyrannosaur           buttons            7 buttons: MOVE, ATTACK, STOP, ROOT, PATROL, ATTACK GROUND, HOLD
+PASS  unit:dilophosaurus         buttons            7 buttons: MOVE, ATTACK, STOP, ROOT, PATROL, ATTACK GROUND, HOLD
+PASS  unit:pterodactyl           buttons            7 buttons: MOVE, ATTACK, STOP, ROOT, PATROL, ATTACK GROUND, HOLD
+PASS  unit:tyrant_challenger     buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD, SACRIFICE
+PASS  unit:venom_challenger      buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD, SACRIFICE
+PASS  unit:hatchlings            buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, HOLD, SACRIFICE, MATURE
+PASS  unit:storm_challenger      buttons            7 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, HOLD, SACRIFICE
+PASS  unit:mound_turtle          buttons            7 buttons: MOVE, ATTACK, STOP, ROOT, PATROL, ATTACK GROUND, HOLD
+PASS  unit:mist_toad             buttons            10 buttons: MOVE, ATTACK, STOP, PATROL, ATTACK GROUND, FOG, TONGUE, MIASMA, HOLD, SACRIFICE
+INFO  match:brood                buttons            120 button presses, 38 at a time
+INFO  unit:raptor                ability            MATURE: greyed out on a fresh unit ('Need more supply: root more Mound Turtles.')
+INFO  unit:spitter               ability            MATURE: greyed out on a fresh unit ('Need more supply: root more Mound Turtles.')
+PASS  unit:grub                  ability            MOVE (target: the ground (move)): pos (158, 26) -> (158, 40)
+PASS  unit:grub                  ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (202, 26) -> (211, 24)
+PASS  unit:grub                  ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:grub                  ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (290, 26) -> (290, 38)
+PASS  unit:grub                  ability            BUILD: card page -> build
+PASS  unit:grub                  ability            HOLD: order idle -> hold
+PASS  unit:grub                  ability            WORK: order idle -> gather, pos (290, 70) -> (249, 73), auto false -> true
+PASS  unit:grub                  ability            HARVEST: order idle -> harvest
+PASS  unit:grub                  ability            SACRIFICE: order idle -> sacrifice, pos (114, 114) -> (74, 100)
+PASS  unit:raptor                ability            MOVE (target: the ground (move)): pos (158, 113) -> (169, 117)
+PASS  unit:raptor                ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (202, 114) -> (211, 115)
+PASS  unit:raptor                ability            STOP: pos (246, 114) -> (256, 110)
+PASS  unit:raptor                ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (290, 113) -> (299, 113)
+PASS  unit:raptor                ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (334, 113) -> (334, 126)
+PASS  unit:raptor                ability            HOLD: order idle -> hold
+PASS  unit:raptor                ability            SACRIFICE: order idle -> sacrifice, pos (70, 158) -> (59, 92)
+PASS  unit:spitter               ability            MOVE (target: the ground (move)): pos (158, 158) -> (158, 172)
+PASS  unit:spitter               ability            ATTACK (target: the enemy (attack)): order idle -> attack
+PASS  unit:spitter               ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:spitter               ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (114, 202) -> (114, 205)
+PASS  unit:spitter               ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:spitter               ability            HOLD: order idle -> hold
+PASS  unit:spitter               ability            SACRIFICE: order idle -> sacrifice, pos (246, 202) -> (207, 181)
+PASS  unit:brute                 ability            MOVE (target: the ground (move)): pos (334, 202) -> (344, 203)
+PASS  unit:brute                 ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (26, 245) -> (39, 243)
+PASS  unit:brute                 ability            STOP: pos (114, 246) -> (126, 244)
+PASS  unit:brute                 ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (158, 246) -> (165, 250)
+PASS  unit:brute                 ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (246, 246) -> (246, 256)
+PASS  unit:brute                 ability            HOLD: order idle -> hold
+PASS  unit:brute                 ability            SACRIFICE: order idle -> sacrifice, pos (26, 289) -> (31, 261)
+PASS  unit:brood_mother          ability            MOVE (target: the ground (move)): order idle -> move, pos (70, 290) -> (70, 302)
+PASS  unit:brood_mother          ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (114, 290) -> (115, 289)
+PASS  unit:brood_mother          ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:brood_mother          ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (246, 290) -> (247, 290)
+PASS  unit:brood_mother          ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (290, 290) -> (290, 297)
+INFO  unit:brood_mother          ability            GRUB: greyed out on a fresh unit ('Need more supply: root more Mound Turtles.')
+INFO  unit:brood_mother          ability            RAPTORS: greyed out on a fresh unit ('Need more supply: root more Mound Turtles.')
+INFO  unit:brood_mother          ability            BRUTE: greyed out on a fresh unit ('Needs the Brood Mother at stage 3.')
+INFO  unit:brood_mother          ability            SPITTERS: greyed out on a fresh unit ('Need more supply: root more Mound Turtles.')
+INFO  unit:brood_mother          ability            MIST TOAD: greyed out on a fresh unit ('Needs the Brood Mother at stage 3.')
+INFO  unit:brood_mother          ability            HATCHLINGS: greyed out on a fresh unit ('Needs the Brood Mother at stage 2.')
+INFO  unit:brood_mother          ability            GROW: greyed out on a fresh unit ('She must be rooted to grow.')
+INFO  unit:brood_mother          ability            LAYING +15%: greyed out on a fresh unit ('Laying +15%: 1 expansion')
+PASS  unit:brood_mother          ability            HOLD: order idle -> hold
+PASS  unit:rootmaw               ability            MOVE (target: the ground (move)): pos (158, 113) -> (166, 119)
+PASS  unit:rootmaw               ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (202, 113) -> (208, 113)
+PASS  unit:rootmaw               ability            STOP: pos (246, 114) -> (253, 110)
+PASS  unit:rootmaw               ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (334, 113) -> (340, 114)
+PASS  unit:rootmaw               ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (26, 157) -> (26, 168)
+PASS  unit:rootmaw               ability            HOLD: order idle -> hold
+PASS  unit:tyrannosaur           ability            MOVE (target: the ground (move)): pos (114, 158) -> (118, 161)
+PASS  unit:tyrannosaur           ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (158, 157) -> (162, 157)
+PASS  unit:tyrannosaur           ability            STOP: pos (290, 158) -> (294, 158)
+PASS  unit:tyrannosaur           ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (114, 201) -> (118, 203)
+PASS  unit:tyrannosaur           ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (158, 201) -> (158, 211)
+PASS  unit:tyrannosaur           ability            HOLD: order idle -> hold
+PASS  unit:dilophosaurus         ability            MOVE (target: the ground (move)): pos (246, 202) -> (246, 216)
+PASS  unit:dilophosaurus         ability            ATTACK (target: the enemy (attack)): order idle -> attack
+PASS  unit:dilophosaurus         ability            STOP: an idle unit, nothing to stop (as it should)
+PASS  unit:dilophosaurus         ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (114, 246) -> (114, 249)
+PASS  unit:dilophosaurus         ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:dilophosaurus         ability            HOLD: order idle -> hold
+PASS  unit:pterodactyl           ability            MOVE (target: the ground (move)): pos (290, 245) -> (298, 251)
+PASS  unit:pterodactyl           ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (26, 289) -> (32, 289)
+PASS  unit:pterodactyl           ability            STOP: pos (70, 289) -> (76, 289)
+PASS  unit:pterodactyl           ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (158, 289) -> (164, 292)
+PASS  unit:pterodactyl           ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (202, 289) -> (202, 300)
+PASS  unit:pterodactyl           ability            HOLD: order idle -> hold
+PASS  unit:tyrant_challenger     ability            MOVE (target: the ground (move)): pos (290, 289) -> (299, 293)
+PASS  unit:tyrant_challenger     ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (158, 25) -> (166, 25)
+PASS  unit:tyrant_challenger     ability            STOP: pos (202, 25) -> (210, 25)
+PASS  unit:tyrant_challenger     ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (245, 25) -> (254, 27)
+PASS  unit:tyrant_challenger     ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (289, 26) -> (288, 34)
+PASS  unit:tyrant_challenger     ability            HOLD: order idle -> hold, pos (334, 25) -> (339, 25)
+PASS  unit:tyrant_challenger     ability            SACRIFICE: order idle -> sacrifice, pos (157, 70) -> (98, 90)
+PASS  unit:venom_challenger      ability            MOVE (target: the ground (move)): pos (290, 70) -> (289, 84)
+PASS  unit:venom_challenger      ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (334, 70) -> (337, 73)
+PASS  unit:venom_challenger      ability            STOP: pos (114, 114) -> (114, 118)
+PASS  unit:venom_challenger      ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (158, 114) -> (158, 116)
+PASS  unit:venom_challenger      ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard
+PASS  unit:venom_challenger      ability            HOLD: order idle -> hold
+PASS  unit:venom_challenger      ability            SACRIFICE: order idle -> sacrifice, pos (290, 114) -> (250, 109)
+PASS  unit:hatchlings            ability            MOVE (target: the ground (move)): pos (334, 113) -> (342, 116)
+PASS  unit:hatchlings            ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (26, 157) -> (34, 155)
+PASS  unit:hatchlings            ability            STOP: pos (70, 157) -> (78, 155)
+PASS  unit:hatchlings            ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (114, 157) -> (122, 158)
+PASS  unit:hatchlings            ability            HOLD: order idle -> hold
+PASS  unit:hatchlings            ability            SACRIFICE: order idle -> sacrifice, pos (290, 157) -> (214, 116)
+PASS  unit:hatchlings            ability            MATURE: paid [110, 25.0, 0.0, 0], moult_t -1.0 -> 4.6
+PASS  unit:storm_challenger      ability            MOVE (target: the ground (move)): pos (114, 201) -> (123, 205)
+PASS  unit:storm_challenger      ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (158, 201) -> (166, 201)
+PASS  unit:storm_challenger      ability            STOP: pos (202, 201) -> (210, 201)
+PASS  unit:storm_challenger      ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (246, 201) -> (254, 203)
+PASS  unit:storm_challenger      ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (290, 201) -> (290, 213)
+PASS  unit:storm_challenger      ability            HOLD: order idle -> hold
+PASS  unit:storm_challenger      ability            SACRIFICE: order idle -> sacrifice, pos (26, 245) -> (27, 171)
+PASS  unit:mound_turtle          ability            MOVE (target: the ground (move)): order idle -> move, pos (114, 245) -> (114, 259)
+PASS  unit:mound_turtle          ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (158, 246) -> (164, 246)
+PASS  unit:mound_turtle          ability            STOP: pos (246, 245) -> (252, 245)
+PASS  unit:mound_turtle          ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (26, 289) -> (32, 289)
+PASS  unit:mound_turtle          ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (70, 289) -> (70, 293)
+PASS  unit:mound_turtle          ability            HOLD: order idle -> hold
+PASS  unit:mist_toad             ability            MOVE (target: the ground (move)): pos (158, 289) -> (162, 299)
+PASS  unit:mist_toad             ability            ATTACK (target: the enemy (attack)): order idle -> attack, pos (202, 289) -> (210, 288)
+PASS  unit:mist_toad             ability            STOP: pos (246, 289) -> (254, 289)
+PASS  unit:mist_toad             ability            PATROL (target: the ground (patrol)): order idle -> amove, pos (290, 289) -> (298, 289)
+PASS  unit:mist_toad             ability            ATTACK GROUND (target: the ground (bombard)): order idle -> bombard, pos (158, 25) -> (158, 35)
+PASS  unit:mist_toad             ability            FOG (target: the ground (cast)): pos (202, 25) -> (210, 25), charge 150.0 -> 105.0
+PASS  unit:mist_toad             ability            TONGUE (target: the enemy (cast)): pos (246, 25) -> (245, 26), charge 150.0 -> 81.0
+PASS  unit:mist_toad             ability            MIASMA (target: the ground (cast)): pos (289, 26) -> (298, 26), charge 150.0 -> 95.0
+PASS  unit:mist_toad             ability            HOLD: order idle -> hold, pos (334, 25) -> (337, 25)
+PASS  unit:mist_toad             ability            SACRIFICE: order idle -> sacrifice, pos (158, 69) -> (138, 78)
+-- fights
+INFO  match:brood                fights             room for 7 of 15 fights against a unit at once: in turns
+PASS  unit:grub                  fight              vs a unit at 54 px: 3.6 dmg/s measured, card says 3.8 (x0.96), first hit after 0.7 s, 15 hits
+PASS  unit:raptor                fight              vs a unit at 54 px: 4.1 dmg/s measured, card says 4.4 (x0.91), first hit after 0.3 s, 17 hits
+PASS  unit:spitter               fight              vs a unit at 99 px: 2.7 dmg/s measured, card says 3.0 (x0.92), first hit after 0.6 s, 9 hits
+PASS  unit:brute                 fight              vs a unit at 54 px: 15.2 dmg/s measured, card says 10.8 (x1.40), first hit after 0.3 s, 13 hits
+PASS  unit:brood_mother          fight              vs a unit at 54 px: 11.9 dmg/s measured, card says 12.3 (x0.97), first hit after 0.6 s, 8 hits
+PASS  unit:rootmaw               fight              vs a unit at 54 px: 9.6 dmg/s measured, card says 7.2 (x1.33), first hit after 0.4 s, 21 hits
+PASS  unit:tyrannosaur           fight              vs a unit at 54 px: 14.2 dmg/s measured, card says 16.2 (x0.88), first hit after 0.4 s, 9 hits
+PASS  unit:dilophosaurus         fight              vs a unit at 84 px: 7.7 dmg/s measured, card says 8.5 (x0.91), first hit after 0.7 s, 10 hits
+PASS  unit:pterodactyl           fight              vs a unit at 54 px: 11.4 dmg/s measured, card says 12.8 (x0.89), first hit after 0.4 s, 10 hits
+PASS  unit:tyrant_challenger     fight              vs a unit at 54 px: 7.6 dmg/s measured, card says 8.1 (x0.94), first hit after 0.4 s, 13 hits
+PASS  unit:venom_challenger      fight              vs a unit at 99 px: 6.1 dmg/s measured, card says 6.5 (x0.93), first hit after 0.5 s, 9 hits
+PASS  unit:hatchlings            fight              vs a unit at 54 px: 4.3 dmg/s measured, card says 4.7 (x0.92), first hit after 0.4 s, 18 hits
+PASS  unit:storm_challenger      fight              vs a unit at 54 px: 11.2 dmg/s measured, card says 8.5 (x1.32), first hit after 0.4 s, 22 hits
+PASS  unit:mound_turtle          fight              vs a unit at 54 px: 2.3 dmg/s measured, card says 2.6 (x0.90), first hit after 0.5 s, 10 hits
+PASS  unit:mist_toad             fight              vs a unit at 54 px: 1.7 dmg/s measured, card says 1.8 (x0.96), first hit after 0.6 s, 11 hits
+INFO  match:brood                fights             room for 7 of 14 fights against a building at once: in turns
+PASS  unit:grub                  fight              vs a building at 54 px: 3.4 dmg/s measured, card says 3.8 x1.0 on buildings (x0.91), first hit after 1.2 s, 14 hits
+PASS  unit:raptor                fight              vs a building at 54 px: 4.1 dmg/s measured, card says 4.4 x1.0 on buildings (x0.93), first hit after 0.7 s, 17 hits
+PASS  unit:spitter               fight              vs a building at 99 px: 5.2 dmg/s measured, card says 3.0 x1.0 on buildings (x1.76), first hit after 0.6 s, 705 hits
+PASS  unit:brute                 fight              vs a building at 54 px: 35.0 dmg/s measured, card says 27.1 x2.5 on buildings (x1.29), first hit after 0.7 s, 10 hits
+PASS  unit:brood_mother          fight              vs a building at 54 px: 14.4 dmg/s measured, card says 14.8 x1.2 on buildings (x0.98), first hit after 0.7 s, 8 hits; one shot does 48 to a building (damage 40 x building bonus 1.2 = 48)
+PASS  unit:rootmaw               fight              vs a building at 54 px: 6.6 dmg/s measured, card says 7.2 x1.0 on buildings (x0.92), first hit after 0.7 s, 12 hits
+PASS  unit:tyrannosaur           fight              vs a building at 54 px: 20.1 dmg/s measured, card says 22.6 x1.4 on buildings (x0.89), first hit after 0.6 s, 9 hits
+PASS  unit:dilophosaurus         fight              vs a building at 84 px: 11.7 dmg/s measured, card says 10.2 x1.2 on buildings (x1.15), first hit after 0.6 s, 704 hits
+PASS  unit:pterodactyl           fight              vs a building at 54 px: 11.5 dmg/s measured, card says 12.8 x1.0 on buildings (x0.90), first hit after 0.6 s, 10 hits
+PASS  unit:tyrant_challenger     fight              vs a building at 54 px: 10.0 dmg/s measured, card says 10.5 x1.3 on buildings (x0.95), first hit after 0.7 s, 13 hits
+PASS  unit:venom_challenger      fight              vs a building at 99 px: 8.6 dmg/s measured, card says 6.5 x1.0 on buildings (x1.32), first hit after 0.5 s, 708 hits
+PASS  unit:storm_challenger      fight              vs a building at 54 px: 8.2 dmg/s measured, card says 8.5 x1.0 on buildings (x0.97), first hit after 0.7 s, 13 hits
+PASS  unit:mound_turtle          fight              vs a building at 54 px: 2.4 dmg/s measured, card says 2.6 x1.0 on buildings (x0.95), first hit after 1.7 s, 10 hits
+PASS  unit:mist_toad             fight              vs a building at 54 px: 1.6 dmg/s measured, card says 1.8 x1.0 on buildings (x0.90), first hit after 1.4 s, 10 hits
+PASS  unit:dilophosaurus         fight              vs a air at 84 px: 7.7 dmg/s measured, card says 8.5 (x0.90), first hit after 0.6 s, 10 hits
+PASS  unit:pterodactyl           fight              vs a air at 54 px: 11.4 dmg/s measured, card says 12.8 (x0.89), first hit after 0.4 s, 10 hits
+PASS  unit:venom_challenger      fight              vs a air at 99 px: 6.1 dmg/s measured, card says 6.5 (x0.94), first hit after 0.6 s, 9 hits
+PASS  unit:storm_challenger      fight              vs a air at 54 px: 8.1 dmg/s measured, card says 8.5 (x0.95), first hit after 0.4 s, 13 hits
+PASS  unit:grub                  targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:raptor                targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:spitter               targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:brute                 targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:brood_mother          targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:rootmaw               targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:tyrannosaur           targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:dilophosaurus         targets            hits air true (Defs true), ground true (Defs true)
+PASS  unit:pterodactyl           targets            hits air true (Defs true), ground true (Defs true)
+PASS  unit:tyrant_challenger     targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:venom_challenger      targets            hits air true (Defs true), ground true (Defs true)
+PASS  unit:hatchlings            targets            hits air true (Defs true), ground false (Defs false)
+PASS  unit:storm_challenger      targets            hits air true (Defs true), ground true (Defs true)
+PASS  unit:mound_turtle          targets            hits air false (Defs false), ground true (Defs true)
+PASS  unit:mist_toad             targets            hits air false (Defs false), ground true (Defs true)
+PASS  match:brood                deaths             supply given back: 97 -> 69 (28 expected back)
+PASS  unit:grub                  body               a body (4.0 spoils if harvested)
+PASS  unit:raptor                body               a body (4.0 spoils if harvested)
+PASS  unit:spitter               body               a body (4.0 spoils if harvested)
+PASS  unit:brute                 body               a body (12.0 spoils if harvested)
+PASS  unit:brood_mother          body               a body (0.0 spoils if harvested)
+PASS  unit:rootmaw               body               a body (0.0 spoils if harvested)
+PASS  unit:tyrannosaur           body               a body (16.0 spoils if harvested)
+PASS  unit:dilophosaurus         body               a body (16.0 spoils if harvested)
+PASS  unit:pterodactyl           body               a body (16.0 spoils if harvested)
+PASS  unit:tyrant_challenger     body               a body (8.0 spoils if harvested)
+PASS  unit:venom_challenger      body               a body (8.0 spoils if harvested)
+PASS  unit:hatchlings            body               a body (4.0 spoils if harvested)
+PASS  unit:storm_challenger      body               a body (8.0 spoils if harvested)
+PASS  unit:mound_turtle          body               a body (0.0 spoils if harvested)
+PASS  unit:mist_toad             body               a body (12.0 spoils if harvested)
+
+==== ANIMATIONS ASKED FOR ====
+WARN  unit:dismounted            art                asked for 'reload' (dismounted) but there is no such strip: it shows idle (or the nearest fallback)
+INFO  unit:dragoon               art                'mount' (dragoon): views ne borrow the nearest
+INFO  unit:cuirassier            art                'mount' (horseman): views ne borrow the nearest
+INFO  unit:band                  art                'walk' (band): views s,e,ne,n borrow the nearest
+INFO  unit:band                  art                'idle' (band): views s,e,ne,n borrow the nearest
+INFO  unit:band                  art                'death' (band): views s,e,ne,n borrow the nearest
+INFO  unit:missionary            art                'bandage' (missionary): views ne borrow the nearest
+INFO  unit:missionary            art                'death' (missionary): views n borrow the nearest
+INFO  unit:messenger             art                'mount' (messenger): views ne borrow the nearest
+INFO  unit:mounted_missionary    art                'mount' (missionary_mounted): views ne borrow the nearest
+INFO  unit:missionary            art                'bandage' (missionary_bandage_h): views s,ne borrow the nearest
+INFO  unit:mound_turtle          art                'rooted' (mound_turtle): views s,e,ne,n borrow the nearest
+INFO  unit:mound_turtle          art                'uproot' (mound_turtle): views s,e,ne,n borrow the nearest
+INFO  unit:mound_turtle          art                'root' (mound_turtle): views s,e,ne,n borrow the nearest
+WARN  unit:mound_turtle          art                asked for 'attack' (mound_turtle) but there is no such strip: it shows idle (or the nearest fallback)
+INFO  unit:mound_turtle          art                'death' (mound_turtle): views s,e,ne,n borrow the nearest
+INFO  unit:tyrannosaur           art                'rooted' (tyrannosaur): views s,e,ne,n borrow the nearest
+INFO  unit:tyrannosaur           art                'uproot' (tyrannosaur): views s,e,ne,n borrow the nearest
+INFO  unit:tyrannosaur           art                'root' (tyrannosaur): views s,e,ne,n borrow the nearest
+INFO  unit:tyrannosaur           art                'death' (tyrannosaur): views s,e,ne,n borrow the nearest
+INFO  unit:dilophosaurus         art                'rooted' (dilophosaurus): views s,e,ne,n borrow the nearest
+INFO  unit:dilophosaurus         art                'death' (dilophosaurus): views s,e,ne,n borrow the nearest
+INFO  unit:rootmaw               art                'fill4' (rootmaw): views s,e,ne,n borrow the nearest
+INFO  unit:rootmaw               art                'fill3' (rootmaw): views s,e,ne,n borrow the nearest
+INFO  unit:rootmaw               art                'fill2' (rootmaw): views s,e,ne,n borrow the nearest
+INFO  unit:rootmaw               art                'fill1' (rootmaw): views s,e,ne,n borrow the nearest
+INFO  unit:rootmaw               art                'death' (rootmaw): views s,e,ne,n borrow the nearest
+INFO  unit:pterodactyl           art                'rooted' (pterodactyl): views s,e,ne,n borrow the nearest
+INFO  unit:pterodactyl           art                'death' (pterodactyl): views s,e,ne,n borrow the nearest
+INFO  unit:grub                  art                'attack' (grub): views s,se,ne,n borrow the nearest
+INFO  unit:grub                  art                'death' (grub): views s,se,ne,n borrow the nearest
+INFO  unit:raptor                art                'idle' (raptor): views ne borrow the nearest
+INFO  unit:raptor                art                'attack' (raptor): views s,se,ne,n borrow the nearest
+INFO  unit:raptor                art                'leap' (raptor): views s,se,ne,n borrow the nearest
+INFO  unit:raptor                art                'death' (raptor): views s,se,ne,n borrow the nearest
+INFO  unit:brute                 art                'walk' (brute): views s,se,ne,n borrow the nearest
+INFO  unit:brute                 art                'idle' (brute): views ne borrow the nearest
+INFO  unit:brute                 art                'charge' (brute): views s,se,ne,n borrow the nearest
+INFO  unit:brute                 art                'attack' (brute): views s,se,ne,n borrow the nearest
+INFO  unit:brute                 art                'death' (brute): views s,se,ne,n borrow the nearest
+INFO  unit:mist_toad             art                'idle' (mist_toad): views ne borrow the nearest
+INFO  unit:mist_toad             art                'tongue' (mist_toad): views s,se,ne,n borrow the nearest
+INFO  unit:mist_toad             art                'death' (mist_toad): views s,se,ne,n borrow the nearest
+INFO  unit:mist_toad             art                'fog' (mist_toad): views s,se,ne,n borrow the nearest
+INFO  unit:brood_mother          art                'death' (brood_mother): views s,e,ne,n borrow the nearest
+
+==== NUMBERS: cost per effect (information for the owner) ====
+unit                 faction    price    dps    hp  range  armr  sup  dps/100  hp/100 pow/100 pow/sup
+tyrannosaur          brood        150   16.2  1000    1.2     2    4    10.77   773.3   91.26    34.2
+rootmaw              brood         75    7.2   450    0.9     0    0     9.57   600.0   75.79   113.7
+raptor               brood         25    4.4    36    0.7     0    1    17.78   144.0   50.60    12.6
+pikeman              crown         50    6.2    85    1.4     1    1    12.38   183.6   47.68    23.8
+mound_turtle         brood        100    2.6   600    0.7     2    0     2.55   696.0   42.15    84.3
+dismounted           crown         75   10.9    80    0.8     1    3    14.55   115.2   40.93    10.2
+musketeer            crown         60    5.6    70    5.9     0    1     9.39   116.7   33.10    19.9
+pterodactyl          brood        300   12.8   700    0.9     1    4     4.26   252.0   32.75    24.6
+dilophosaurus        brood        250    8.5   650    4.4     1    4     3.40   280.8   30.92    19.3
+clock_soldier        clockwork     70    5.3    75    0.7     1    1     7.60   115.7   29.65    20.8
+cuckoo               clockwork     90    7.9    90    0.9     0    2     8.75   100.0   29.58    13.3
+brute                brood        190   10.8   240    0.9     2    3     5.70   146.5   28.90    18.3
+spitter              brood         50    3.0    70    5.2     0    1     5.93   140.0   28.80    14.4
+labourer             crown         50    4.4    46    0.6     0    1     8.75    92.0   28.37    14.2
+tyrant_challenger    brood        120    8.1   130    0.8     1    2     6.76   117.0   28.12    16.9
+hatchlings           brood         50    4.7    38    0.6     0    1     9.38    76.0   26.69    13.3
+cuirassier           crown        155   11.2   140    0.8     1    3     7.26    97.5   26.61    13.7
+grub                 brood         50    3.8    46    0.6     0    1     7.50    92.0   26.27    13.1
+winder               clockwork     60    4.4    46    0.6     1    1     7.29    82.8   24.57    14.7
+pendulum             clockwork    275    8.6   340    1.0     2    4     3.12   143.4   21.14    14.5
+springer             clockwork    125    7.1    90    5.3     1    2     5.67    77.8   21.00    13.1
+venom_challenger     brood        190    6.5   220    5.2     1    2     3.44   125.1   20.76    19.7
+ticking_owl          clockwork    240   10.0   220    0.9     1    4     4.17    99.0   20.31    12.2
+ballista             clockwork    200    5.9   210    9.4     1    3     2.94   113.4   18.26    12.2
+cannon               crown        170    5.9   140   13.4     1    4     3.45    88.9   17.53     7.4
+storm_challenger     brood        210    8.5   150    0.9     0    2     4.05    71.4   17.01    17.9
+mortar               crown        185    5.0   120   11.0     1    3     2.73    70.1   13.82     8.5
+mist_toad            brood        150    1.8    90    0.8     0    3     1.19    60.0    8.43     4.2
+netter               clockwork    175    0.3   120    5.6     1    2     0.16    74.1    3.40     3.0
+INFO  unit:tyrannosaur           numbers            power per 100 price 91.26 = x3.25 the median of all fighters, x3.16 its faction's (dps 16.2, health 1000, price 150)
+INFO  unit:rootmaw               numbers            power per 100 price 75.79 = x2.70 the median of all fighters, x2.62 its faction's (dps 7.2, health 450, price 75)
+INFO  unit:raptor                numbers            power per 100 price 50.60 = x1.80 the median of all fighters, x1.75 its faction's (dps 4.4, health 36, price 25)
+INFO  unit:pikeman               numbers            power per 100 price 47.68 = x1.70 the median of all fighters, x1.68 its faction's (dps 6.2, health 85, price 50)
+INFO  unit:storm_challenger      numbers            power per 100 price 17.01 = x0.61 the median of all fighters, x0.59 its faction's (dps 8.5, health 150, price 210)
+INFO  unit:mortar                numbers            power per 100 price 13.82 = x0.49 the median of all fighters, x0.49 its faction's (dps 5.0, health 120, price 185)
+INFO  unit:mist_toad             numbers            power per 100 price 8.43 = x0.30 the median of all fighters, x0.29 its faction's (dps 1.8, health 90, price 150)
+INFO  unit:netter                numbers            power per 100 price 3.40 = x0.12 the median of all fighters, x0.16 its faction's (dps 0.3, health 120, price 175)
+
+==== SUMMARY (worst result per check: P pass, F FAIL, W warn, i info, s skip, . not tested) ====
+entry                          numb queu data text icon art soun plac cost refu buil repa make rall rese effe grow butt abil figh targ body ammo demo  verdict
+unit:labourer                     .    .    P    P    P    P    P    .    P    .    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:musketeer                    .    .    P    P    P    P    P    .    P    .    .    .    P    P    .    .    .    P    P    P    P    P    P    .  PASS
+unit:cannon                       .    .    P    P    P    P    P    .    P    .    .    .    P    P    .    .    .    P    P    W    P    P    .    .  WARN
+unit:mortar                       i    .    P    P    P    P    W    .    P    .    .    .    P    P    .    .    .    P    P    W    P    P    .    .  WARN
+unit:powder_wagon                 .    .    P    P    P    P    W    .    P    .    .    .    P    P    .    .    .    P    W    .    .    P    .    .  WARN
+unit:cuirassier                   .    .    P    P    P    P    P    .    .    P    .    .    .    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:horse                        .    .    P    P    P    P    i    .    P    .    .    .    P    P    .    .    .    P    .    .    .    P    .    .  PASS
+unit:messenger                    .    .    P    P    P    P    W    .    .    .    .    .    .    .    .    .    .    P    W    .    .    P    .    .  WARN
+unit:dragoon                      .    .    P    P    P    P    i    .    P    P    .    .    P    P    .    .    .    P    P    .    .    P    .    .  PASS
+unit:dismounted                   .    .    P    P    P    W    W    .    P    .    .    .    P    P    .    .    .    P    P    P    P    P    .    .  WARN
+unit:pikeman                      i    .    P    P    P    P    P    .    .    .    .    .    .    .    .    .    .    .    .    P    P    P    .    .  PASS
+unit:balloon                      .    .    P    P    P    W    W    .    P    .    .    .    P    P    .    .    .    P    W    .    .    P    .    .  WARN
+unit:grub                         .    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:raptor                       i    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:spitter                      .    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:brute                        .    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:winder                       .    .    P    P    P    P    P    .    P    .    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:clock_soldier                .    .    P    P    P    P    P    .    P    .    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:springer                     .    .    P    P    P    P    P    .    P    P    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:cuckoo                       .    .    P    P    P    P    P    .    P    .    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:ticking_owl                  .    .    P    P    P    P    P    .    .    .    .    .    .    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:pendulum                     .    .    P    P    P    P    P    .    P    P    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:netter                       i    .    P    P    P    P    P    .    P    P    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:ballista                     .    .    P    P    P    P    P    .    P    P    .    .    P    P    .    .    .    P    P    P    P    P    .    .  PASS
+unit:great_winder                 .    .    P    P    P    P    P    .    P    P    .    .    P    P    .    .    .    P    W    .    .    P    .    .  WARN
+unit:windup_soldier               .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:thresher                     .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:bulwark                      .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:arc_thrower                  .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:steam_walker                 .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:stormcaller                  .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:band                         .    .    P    P    P    P    W    .    P    .    .    .    P    P    .    .    .    P    W    .    .    P    .    .  WARN
+unit:missionary                   .    .    P    P    P    P    P    .    P    .    .    .    P    P    .    .    .    P    W    .    .    P    .    .  WARN
+unit:mounted_missionary           .    .    P    P    P    P    W    .    .    .    .    .    .    .    .    .    .    P    P    .    .    P    .    .  WARN
+unit:skywing                      .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:brood_mother                 .    .    P    P    P    P    P    .    .    .    .    .    P    .    .    .    P    P    P    P    P    P    .    .  PASS
+unit:rootmaw                      i    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:tyrannosaur                  i    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:dilophosaurus                .    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:pterodactyl                  .    .    P    P    P    P    P    .    P    P    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:tyrant_challenger            .    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:venom_challenger             .    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:hatchlings                   .    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:storm_challenger             i    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:brood_egg                    .    .    P    P    .    P    P    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:mound_turtle                 .    .    P    P    P    W    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  WARN
+unit:food_pile                    .    .    P    P    .    P    i    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:mist_toad                    i    .    P    P    P    P    P    .    P    .    .    .    P    .    .    .    .    P    P    P    P    P    .    .  PASS
+unit:ornithopter                  .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:tesla_cart                   .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:tin_militia                  .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:scrapper                     .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:rail_rifleman                .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:work_car                     .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:plate_wagon                  .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:heavy_loco                   .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:carrier_car                  .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:tesla_loco                   .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:storm_engine                 .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:town_hall                     .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    .  PASS
+bld:cottage                       .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:wall                          .    .    P    P    P    P    P    P    P    .    P    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:gate                          .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:barracks                      .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:armoury                       .    P    P    P    P    P    i    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:foundry                       .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:clocktower                    .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    .  PASS
+bld:spring_tower                  .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:movement_works                .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:heavy_works                   .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:escapement                    .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:cuckoo_house                  .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:regulator                     .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:ratchet_turret                .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:assembly_works                .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:engine_hall                   .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:farm                          .    .    P    P    P    P    P    P    P    .    P    .    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:powder_mill                   .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:horse_breeder                 .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:church                        .    P    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:boiler                        .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:ore_crusher                   .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:ore_drill                     .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:cog_press                     .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:mainspring                    .    .    P    P    P    P    P    P    P    .    P    P    .    .    .    .    .    P    .    .    .    .    .    P  PASS
+bld:capacitor_works               .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:pressure_relay                .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:rail_yard                     .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+bld:charging_pylon                .    .    s    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+res:armour                        .    .    P    P    P    .    .    .    P    P    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:matchlock                     .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:flintlock                     .    .    P    P    P    .    .    .    P    P    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:caplock                       .    .    P    P    P    .    .    .    P    P    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:bayonet                       .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:pouch                         .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:charges                       .    .    P    P    P    .    .    .    P    P    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:quadrant                      .    .    P    P    P    .    .    .    P    P    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:charge                        .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:band_fife                     .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:band_pipes                    .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:high_leap                     .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    i    .    .    .    .    .    .    .    .  PASS
+res:shield_wall                   .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:owl_morph                     .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_clutch_raptor              .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_pack_hunt                  .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_battering_horns            .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_clutch_spitter             .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_slither                    .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_long_spit                  .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_fog                        .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_miasma                     .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_clutch_hatchlings          .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_updraft                    .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_quick_roots                .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    P    .    .    .    .    .    .    .    .  PASS
+res:nb_swamp_mending              .    .    P    P    P    .    .    .    P    .    .    .    .    .    P    i    .    .    .    .    .    .    .    .  PASS
+rebel:militia                     .    .    P    i    .    i    .    .    .    .    .    .    P    .    .    .    .    .    .    .    .    .    .    .  PASS
+rebel:torch                       .    .    P    i    .    i    .    .    .    .    .    .    P    .    .    .    .    .    P    .    .    .    .    .  PASS
+rebel:pikeman                     .    .    P    i    .    i    .    .    .    .    .    .    P    .    .    .    .    .    .    .    .    .    .    .  PASS
+rebel:varenne                     .    .    P    i    .    i    .    .    .    .    .    .    P    .    .    .    .    .    .    .    .    .    .    .  PASS
+match:crown                       .    .    .    .    .    .    .    .    .    .    .    i    .    .    .    .    .    i    .    .    .    .    .    .  PASS
+unit:musketeer (guardsman)        .    .    .    .    .    .    .    .    .    P    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:dragoon (armoured_dragoon    .    .    .    .    .    .    .    .    .    P    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+unit:cuirassier (horseman)        .    .    .    .    .    .    .    .    P    P    .    .    P    P    .    .    .    .    .    .    .    .    .    .  PASS
+unit:dismounted (dismounted_cu    .    .    .    .    .    .    .    .    .    P    .    .    .    .    .    .    .    .    .    .    .    .    .    .  PASS
+match:clockwork                   .    .    .    .    .    .    .    .    .    .    .    i    .    .    .    .    .    i    .    .    .    .    .    .  PASS
+match:brood                       .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    i    .    .    .    .    .    .  PASS
+
+entries: 126   verdicts: 115 PASS, 11 WARN, 0 FAIL   checks: { "PASS": 1535, "FAIL": 0, "WARN": 18, "INFO": 131, "SKIP": 28 }
+
+==== FAILS (0) ====
+
+==== WARNINGS (18) ====
+WARN  unit:cannon  fight: vs a building at 216 px: 53.0 dmg/s measured, card says 14.7 x2.5 on buildings (x3.61), first hit after 3.6 s, 5 hits; one shot does 270 to a building (damage 32 x building bonus 2.5 = 80) TOO MUCH: the bonus is applied twice?
+WARN  unit:mortar  sound: no voice lines (voice/mortar/select|move|attack)
+WARN  unit:mortar  fight: vs a building at 211 px: 10.5 dmg/s measured, card says 7.6 x1.5 on buildings (x1.39), first hit after 4.8 s, 4 hits; one shot does 68 to a building (damage 30 x building bonus 1.5 = 45) TOO MUCH: the bonus is applied twice?
+WARN  unit:powder_wagon  sound: no voice lines (voice/powder_wagon/select|move|attack)
+WARN  unit:powder_wagon  ability: ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+WARN  unit:messenger  sound: no voice lines (voice/messenger/select|move|attack)
+WARN  unit:messenger  ability: ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+WARN  unit:dismounted  sound: no voice lines (voice/dismounted/select|move|attack)
+WARN  unit:dismounted  art: asked for 'reload' (dismounted) but there is no such strip: it shows idle (or the nearest fallback)
+WARN  unit:balloon  art: no walk strip at all (falls back to idle)
+WARN  unit:balloon  sound: no voice lines (voice/balloon/select|move|attack)
+WARN  unit:balloon  ability: ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+WARN  unit:great_winder  ability: ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+WARN  unit:band  sound: no voice lines (voice/band/select|move|attack)
+WARN  unit:band  ability: ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+WARN  unit:missionary  ability: ATTACK on its card, but it is unarmed: told to attack an enemy, it does nothing
+WARN  unit:mounted_missionary  sound: no voice lines (voice/mounted_missionary/select|move|attack)
+WARN  unit:mound_turtle  art: asked for 'attack' (mound_turtle) but there is no such strip: it shows idle (or the nearest fallback)
+
+content: 0 FAIL checks, 18 WARN checks, 163 s

@@ -8321,6 +8321,16 @@ func release_horses() -> void:
 	led.clear()
 
 
+## RELEASE on the card: the horses he holds go, and so do the fetches still to come (LEAD sends him for up to three, one
+## after another: those went on after RELEASE and he held horses again, qa-content 2026-11-08). Online through the host.
+func cmd_release() -> void:
+	if game.net_forward(self, "cmd_release", []): return
+	release_horses()
+	queue = queue.filter(func(o) -> bool: return not (o is Dictionary and String(o.get("o", "")) == "lead"))
+	if order == "lead":
+		cmd_stop()
+
+
 func _prune_led() -> void:
 	led = led.filter(func(h) -> bool: return is_instance_valid(h) and not h.dead and h.leader == self and h.team == team)
 
