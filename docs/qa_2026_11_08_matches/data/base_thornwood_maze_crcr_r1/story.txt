@@ -1,0 +1,87 @@
+[00:24] P2 Crown walls off its ramp: 1 pieces.
+[00:25] P1 Crown walls off its ramp: 1 pieces.
+[01:15] P2 Crown's scout saw too little (the scout was blocked): that proves nothing, so it builds no army for it and looks again soon.
+[01:19] P1 Crown's scout saw too little (the scout was blocked): that proves nothing, so it builds no army for it and looks again soon.
+[02:01] P2 Crown follows its own Timing attack build order: 10 steps, then its milestones.
+[02:01] P2 Crown reads the enemy as UNKNOWN (no read yet) and picks Timing attack: a timing attack.
+[02:04] P1 Crown follows its own Dragoon raids build order: 8 steps, then its milestones.
+[02:04] P1 Crown reads the enemy as UNKNOWN (no read yet) and picks Dragoon raids: raids on its workers.
+[03:20] P1 Crown expands to fresh land: its best base has only 83% left, so it goes 19 tiles out.
+[03:20] P1 Crown's opening is over: its milestones and its doctrine take over.
+[03:21] P1 Crown plans a walled expansion.
+[03:41] P2 Crown reads the enemy as GREEDY (a second base and little army).
+[03:41] P2 Crown reads the enemy as GREEDY (a second base and little army) and keeps Timing attack: Horsemen are no answer to Musketeers: a timing attack.
+[06:37] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[06:42] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[07:01] P2 Crown sends out its first attack: 24 supply, 1 of them Horsemen.
+[07:01] P2 Crown's opening is over: its milestones and its doctrine take over.
+[07:37] P2 Crown expands to fresh land: its best base has only 45% left, so it goes 16 tiles out.
+[07:38] P2 Crown plans a walled expansion.
+[07:45] P2 Crown reads the enemy as NORMAL (a standard opening).
+[07:45] P2 Crown reads the enemy as NORMAL (a standard opening) and keeps Timing attack: what it plays already answers it.
+[07:49] P1 Crown holds the top of its ramp: the force below (600) is more than its army (595) can beat.
+[08:16] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[08:19] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[08:20] P2 Crown's raiders find the workers walled off and look elsewhere.
+[08:21] P1 Crown holds the top of its ramp: the force below (480) is more than its army (595) can beat.
+[08:23] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[08:36] P2 Crown's raiders find the workers walled off and look elsewhere.
+[08:46] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[08:48] P2 Crown pulls back from the enemy's gate: the fire there is too strong.
+[08:57] P2 Crown expands to fresh land: its best base has only 100% left, so it goes 15 tiles out.
+[08:58] P2 Crown plans a walled expansion.
+[09:01] P2 Crown's scout saw too little (too little of its base): that proves nothing, so it builds no army for it and looks again soon.
+[09:08] P1 Crown expands to fresh land: its best base has only 32% left, so it goes 21 tiles out.
+[09:09] P1 Crown plans a walled expansion.
+[09:21] P2 Crown puts up its next milestone: Barracks 3.
+[09:22] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[09:30] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[09:31] P2 Crown's raiders find the workers walled off and look elsewhere.
+[10:05] P2 Crown expands to fresh land: its best base has only 100% left, so it goes 33 tiles out.
+[10:06] P2 Crown plans a walled expansion.
+[10:16] P2 Crown's raiders break the gate in their way.
+[10:22] P1 Crown goes down its ramp with its army.
+[10:22] P1 Crown sends out its first attack: 18 supply, 1 of them Horsemen.
+[10:28] P1 Crown's raiders find the workers walled off and look elsewhere.
+[10:43] P1 Crown puts up its next milestone: Horse Breeder 2.
+[10:45] P1 Crown holds the top of its ramp: the force below (99) is more than its army (115) can beat.
+[10:45] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[10:46] P2 Crown's raiders find the workers walled off and look elsewhere.
+[10:46] P2 Crown goes down its ramp with its army.
+[10:46] P2 Crown attacks again: wave 2 goes out with 26 supply; the next one waits for 34.
+[10:49] P2 Crown puts up its next milestone: Armoury 1.
+[10:49] P2 Crown puts up its next milestone: Church 1.
+[10:53] P2 Crown puts up its next milestone: Foundry 2.
+[11:00] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[11:00] P1 Crown moves its musket line to the cliff edge above its Horse Breeder.
+[11:03] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[11:14] P1 Crown's raiders find the workers walled off and look elsewhere.
+[11:19] P1 Crown puts up its next milestone: Armoury 1.
+[11:34] P1 Crown holds the top of its ramp: the force below (411) is more than its army (475) can beat.
+[11:59] P1 Crown's raiders find the workers walled off and look elsewhere.
+[12:01] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[12:01] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[12:04] P2 Crown pulls back from the enemy's gate: the fire there is too strong.
+[12:07] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[12:08] P1 Crown's economy is full on 1 bases: it needs a new one to grow.
+[12:25] P2 Crown's raiders break the gate in their way.
+[12:44] P1 Crown's raiders find the workers walled off and look elsewhere.
+[12:55] P2 Crown's raiders find the workers walled off and look elsewhere.
+[12:55] P2 Crown attacks again: wave 3 goes out with 39 supply; the next one waits for 45.
+[12:56] P2 Crown breaks through at the enemy's gate.
+[12:59] P1 Crown expands to fresh land: its best base has only 0% left, so it goes 25 tiles out.
+[13:00] P1 Crown plans a walled expansion.
+[13:15] P2 Crown pulls back from the enemy's gate: the fire there is too strong.
+[13:27] P1 Crown expands to fresh land: its best base has only 0% left, so it goes 23 tiles out.
+[13:28] P1 Crown plans a walled expansion.
+[13:30] P1 Crown's raiders find the workers walled off and look elsewhere.
+[13:33] P1 Crown's Dragoons ride out to raid the enemy's workers.
+[13:41] P2 Crown's raiders find the workers walled off and look elsewhere.
+[13:55] P2 Crown attacks again: wave 4 goes out with 55 supply; the next one waits for 63.
+[13:56] P2 Crown breaks through at the enemy's gate.
+[14:15] P1 Crown's raiders find the workers walled off and look elsewhere.
+[14:29] P1 Crown expands to fresh land: its best base has only 0% left, so it goes 19 tiles out.
+[14:29] P1 Crown plans a walled expansion.
+[14:35] P1 Crown holds the top of its ramp: the force below (411) is more than its army (115) can beat.
+[14:52] P1 Crown expands to fresh land: its best base has only 0% left, so it goes 21 tiles out.
+[14:53] P1 Crown plans a walled expansion.
