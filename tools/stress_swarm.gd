@@ -75,10 +75,11 @@ var _done := false
 var _zmax := {}                  # the most each part took in one frame
 var fac_a := "crown"            # (pair: the two sides' factions)
 var fac_b := "brood"
+var savecost := false           # ("savecost": at the end, the autosave's parts timed one by one, qa-perf)
 var spikes := false              # ("spikes": every frame over 50 ms printed, with what it spent its time on)
 
 const ZONES := ["units", "buildings", "game", "game/unit grid", "game/paths", "game/pathfinder", "game/path smoothing", "game/fog",
-	"effects", "projectiles", "unit draw", "building draw", "overlay draw", "hud", "hud draw", "hud/minimap", "hud/selection", "ai", "smoke"]
+	"effects", "projectiles", "unit draw", "building draw", "overlay draw", "hud", "hud draw", "hud/minimap", "hud/selection", "ai", "smoke", "silhouettes", "silhouettes/scan", "autosave", "replay/record"]
 
 
 class SilentSfx extends Sfx:
@@ -109,6 +110,8 @@ func _initialize() -> void:
 			sound = true
 		elif a == "spikes":
 			spikes = true
+		elif a == "savecost":
+			savecost = true
 		elif a.begins_with("trace:"):
 			_trace = FileAccess.open(a.substr(6), FileAccess.WRITE)
 		elif a.begins_with("out:"):
@@ -229,6 +232,8 @@ func _process(delta: float) -> bool:
 		return false
 	if _game_t >= secs + 0.5:
 		_report()
+		if savecost:
+			_save_cost()
 		if _trace != null:
 			_trace.close()
 		if shot_path != "":
@@ -509,6 +514,40 @@ func _stats(fr: PackedFloat32Array) -> Array:
 	for i in k:
 		slow += a[a.size() - 1 - i]
 	return [tot / a.size(), slow / k, a[a.size() - 1], a.size()]
+
+
+## The autosave's parts, each timed (ms), three times over: capture (the state as a Dictionary), the head's JSON,
+## the units' JSON, the final text, the file; the log's text and file.
+func _save_cost() -> void:
+	for rep in 3:
+		var t0 := Time.get_ticks_usec()
+		var d := SaveGame.capture(g, {})
+		var t1 := Time.get_ticks_usec()
+		var job := SaveGame.SaveJob.new(d)
+		var t2 := Time.get_ticks_usec()
+		var steps := 0
+		var worst := 0
+		var fin := 0
+		while true:
+			var s0 := Time.get_ticks_usec()
+			var done := job.step()
+			var dt := Time.get_ticks_usec() - s0
+			if done:
+				fin = dt
+				break
+			steps += 1
+			worst = maxi(worst, dt)
+		var t3 := Time.get_ticks_usec()
+		var lt := g.mlog.text() if g.mlog else ""
+		var t4 := Time.get_ticks_usec()
+		var f := FileAccess.open("user://logs/unfinished_cost.txt", FileAccess.WRITE)
+		f.store_string(lt)
+		f.close()
+		var t5 := Time.get_ticks_usec()
+		var sz := FileAccess.get_file_as_bytes(SaveGame.PATH).size()
+		print("SWARM save: capture %.1f ms, head+copy %.1f ms, %d steps (worst %.1f ms), final %.1f ms, log text %.1f ms (%d lines), log file %.1f ms | save %d kB, units %d" % [
+			(t1 - t0) / 1000.0, (t2 - t1) / 1000.0, steps, worst / 1000.0, fin / 1000.0, (t4 - t3) / 1000.0, g.mlog.lines.size() if g.mlog else 0,
+			(t5 - t4) / 1000.0, sz / 1024, (d["units"] as Array).size() if d["units"] is Array else job.units.size()])
 
 
 func _report() -> void:

@@ -72,11 +72,14 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	var pt := Time.get_ticks_usec()
 	_t -= delta
 	if _t <= 0.0:
 		_t = SCAN
 		scan()
+		Prof.add("silhouettes/scan", pt)
 	_follow()
+	Prof.add("silhouettes", pt)
 
 
 ## What covers a unit: [its picture's rect, the y it is sorted at, the coverer, its Sprite2D or null] for each building and
@@ -119,13 +122,22 @@ func scan() -> void:
 	if cov.is_empty():
 		return
 	var best := {}               # Unit -> [share covered, coverer sprite]
+	# (qa-perf, 0.33.8: the selection as a set, each sprite's mask facts read once a scan, and the 48 samples looked
+	# up in one loop (_share): the same answers; in a 200-a-side musket battle with cannons the scan took up to 16 ms)
+	var sel := {}
+	for e in game.selection:
+		sel[e] = true
+	var preps := {}              # Sprite2D -> _prep (its rect, transform, frame, mask: they don't change during a scan)
 	for c in cov:
 		var cr: Rect2 = c[0]
 		var cs: Sprite2D = c[3]
+		var pc: Array = []
+		if cs != null:
+			pc = _prep(cs)
 		for u in game.units_near(cr.get_center(), cr.size.length() * 0.5 + 40.0):
 			if u == c[2] or u.dead or not u.visible or u.is_air() or u.sprite == null or not u.sprite.visible:
 				continue
-			if not (u.team == me or game.selection.has(u)):
+			if not (u.team == me or sel.has(u)):
 				continue
 			if u._k_nb and BroodRoot.has_fp(u):
 				continue          # (rooted itself: a structure)
@@ -140,7 +152,10 @@ func scan() -> void:
 				if share < 0.25:
 					continue      # (barely touched: still seen)
 			else:
-				share = covered_share(u.sprite, cs)
+				var us: Sprite2D = u.sprite
+				if not preps.has(us):
+					preps[us] = _prep(us)
+				share = _share(preps[us], ur, pc, cr)
 				if share < COVER:
 					continue      # (the coverer's picture doesn't really lie over it: its empty corners, its edges)
 			if not best.has(u) or share > float(best[u][0]):
@@ -170,6 +185,64 @@ static func covered_share(s: Sprite2D, c: Sprite2D) -> float:
 			mine += 1
 			if cr.has_point(p) and _opq(pc, p):
 				hit += 1
+	return float(hit) / float(mine) if mine > 0 else 0.0
+
+
+## covered_share with both sprites' parts read already (_prep) and their rects given: the same samples, the same
+## sums and the same answer, without a call per sample.
+static func _share(ps: Array, r: Rect2, pc: Array, cr: Rect2) -> float:
+	if ps.is_empty():
+		return 0.0
+	var dst: Rect2 = ps[0]
+	var inv: Transform2D = ps[1]
+	var fh: bool = ps[2]
+	var fv: bool = ps[3]
+	var bm: BitMap = ps[4]
+	var src: Rect2 = ps[5]
+	var bs: Vector2i = ps[6]
+	var c_ok := not pc.is_empty()
+	var cdst: Rect2 = pc[0] if c_ok else Rect2()
+	var cinv: Transform2D = pc[1] if c_ok else Transform2D()
+	var cfh: bool = pc[2] if c_ok else false
+	var cfv: bool = pc[3] if c_ok else false
+	var cbm: BitMap = pc[4] if c_ok else null
+	var csrc: Rect2 = pc[5] if c_ok else Rect2()
+	var cbs: Vector2i = pc[6] if c_ok else Vector2i.ZERO
+	var mine := 0
+	var hit := 0
+	for j in SAMPLES.y:
+		for i in SAMPLES.x:
+			var p := r.position + Vector2((float(i) + 0.5) / float(SAMPLES.x) * r.size.x, (float(j) + 0.5) / float(SAMPLES.y) * r.size.y)
+			# (_opq(ps, p))
+			var lp: Vector2 = inv * p
+			var u := (lp.x - dst.position.x) / dst.size.x
+			var v := (lp.y - dst.position.y) / dst.size.y
+			if u < 0.0 or v < 0.0 or u >= 1.0 or v >= 1.0:
+				continue
+			if bm != null:
+				if fh:
+					u = 1.0 - u
+				if fv:
+					v = 1.0 - v
+				if not bm.get_bit(clampi(int(src.position.x + u * src.size.x), 0, bs.x - 1), clampi(int(src.position.y + v * src.size.y), 0, bs.y - 1)):
+					continue
+			mine += 1
+			if not c_ok or not cr.has_point(p):
+				continue
+			# (_opq(pc, p))
+			var lq: Vector2 = cinv * p
+			var cu := (lq.x - cdst.position.x) / cdst.size.x
+			var cv := (lq.y - cdst.position.y) / cdst.size.y
+			if cu < 0.0 or cv < 0.0 or cu >= 1.0 or cv >= 1.0:
+				continue
+			if cbm != null:
+				if cfh:
+					cu = 1.0 - cu
+				if cfv:
+					cv = 1.0 - cv
+				if not cbm.get_bit(clampi(int(csrc.position.x + cu * csrc.size.x), 0, cbs.x - 1), clampi(int(csrc.position.y + cv * csrc.size.y), 0, cbs.y - 1)):
+					continue
+			hit += 1
 	return float(hit) / float(mine) if mine > 0 else 0.0
 
 

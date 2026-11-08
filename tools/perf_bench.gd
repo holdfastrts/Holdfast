@@ -70,6 +70,7 @@ var _cpu0 := 0.0                 # the processor time used when this minute bega
 var log_file := ""               # log:FILE writes the match log there at the end
 var spike_ms := 100.0            # spike:N prints every frame slower than N ms with its parts
 var sound := false               # sounds and music as in a real match (and the path queue's time limit)
+var save_state := ""             # savestate:FILE writes the match as a save (SaveGame.capture) at the end (qa-perf: render_bench.gd loads it)
 var spectate := false            # spectate: watch computers (no "you"; the spectator panels open)
 
 
@@ -83,8 +84,8 @@ const MED_ZONES := ["units", "buildings", "game", "game/fog", "ai", "hud", "hud 
 ## The parts (Prof keys) in the CSV; "a/b" is part of "a" (game/fog is inside game).
 const ZONES := ["units", "ai", "game", "game/fog", "game/fog/units", "game/fog/buildings", "game/fog/copy", "game/fog/picture", "game/fog/shown",
 	"game/paths", "game/pathfinder", "game/path smoothing", "game/unit grid", "game/refit",
-	"game/econ", "game/line net", "game/gears", "game/zones", "game/swamp", "game/end+ghosts", "game/stats", "replay/record", "replay/key", "replay/write", "powder smoke",
-	"buildings", "effects", "projectiles", "unit draw", "building draw", "hud", "hud draw", "overlay draw", "autosave",
+	"game/econ", "game/line net", "game/gears", "game/zones", "game/swamp", "game/end+ghosts", "game/stats", "silhouettes", "silhouettes/scan", "replay/record", "replay/key", "replay/write", "powder smoke",
+	"buildings", "effects", "projectiles", "unit draw", "building draw", "hud", "hud draw", "overlay draw", "autosave", "autosave/begin", "autosave/step", "autosave/final", "autosave/log",
 	"hud/top", "hud/minimap", "hud/map view", "hud/groups", "hud/selection", "hud/command card", "hud/card build", "hud/glow", "hud/rest", "hud/chat", "hud/tooltip", "hud/pause", "hud/look", "hud/hover", "hud/tip check",
 	"ai/workers", "ai/econ", "ai/build", "ai/produce", "ai/raid", "ai/army", "ai/horses", "ai/loose", "ai/abil", "ai/micro", "ai/gg", "ai/brood", "ai/brood/rootmaws", "ai/brood/morphs", "ai/brood/lay", "ai/brood/army", "ai/brood/research", "ai/brood/mature", "ai/brood/alarm", "ai/brood/essence", "ai/brood/maw_guard", "ai/brood/observe"]
 
@@ -163,6 +164,8 @@ func _start() -> void:
 			sound = true
 		elif a == "spectate":
 			spectate = true
+		elif a.begins_with("savestate:"):
+			save_state = a.substr(10)
 		elif a == "kinds":
 			Prof.by_kind = true       # (each minute: the units' and buildings' ticks by kind and order)
 		elif a.begins_with("log:"):
@@ -291,6 +294,13 @@ func _process(delta: float) -> bool:
 		_minute_row(g)
 		_minute = int(g.clock / 60.0)
 	if g.over or g.clock > stop_at:
+		if save_state != "":
+			var cfg: Dictionary = main.last_cfg.duplicate(true)
+			cfg.erase("resume")
+			var sf := FileAccess.open(save_state, FileAccess.WRITE)
+			sf.store_string(JSON.stringify(SaveGame.capture(g, cfg)))
+			sf.close()
+			print("PERF state saved to ", save_state)
 		_save()
 		if log_file != "" and g.mlog:
 			var lf := FileAccess.open(log_file, FileAccess.WRITE)

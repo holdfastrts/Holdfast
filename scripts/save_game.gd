@@ -6,9 +6,40 @@ class_name SaveGame
 ## (a PATROL and a BOMBARD spot are kept: they go on).
 
 const PATH := "user://autosave.json"
+## The periodic autosave's file writing on a worker thread (qa-perf, 0.33.8): writing the save and the match log took
+## 1 to 3 ms, but up to 150 ms when the storage was busy (a phone's flash memory stalls now and then), a freeze in the
+## middle of play. The text is made on the main thread as before; only the writing goes off it. -1: none pending.
+static var _task := -1
+
+
+## Threads to write on (not the web build: it has none).
+static func can_write_async() -> bool:
+	return not OS.has_feature("web")
+
+
+## Waits for a save still being written (anything that reads, writes or removes the file asks this first).
+static func wait() -> void:
+	if _task >= 0 and OS.get_thread_caller_id() == OS.get_main_thread_id():
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
+
+
+## Writes `text` as the save, then runs `after` (the log's writing), both on a worker thread when there are threads.
+static func write_async(text: String, after: Callable) -> void:
+	wait()
+	if not can_write_async():
+		write(text)
+		if after.is_valid():
+			after.call()
+		return
+	_task = WorkerThreadPool.add_task(func() -> void:
+		_write_file(text)
+		if after.is_valid():
+			after.call(), false, "autosave")
 
 
 static func exists() -> bool:
+	wait()
 	return FileAccess.file_exists(PATH)
 
 
@@ -98,6 +129,8 @@ class SaveJob:
 	var head := ""
 	var parts := PackedStringArray()
 	var i := 0
+	var text := ""                # (the save's whole text, once step() has finished it)
+	var defer_write := false      # (true: step() leaves the writing to the caller: SaveGame.write_async)
 
 	func _init(d: Dictionary) -> void:
 		units = (d["units"] as Array).duplicate(true)     # (its own copy: nothing in it changes meanwhile)
@@ -112,11 +145,18 @@ class SaveJob:
 		i = e
 		if i < units.size():
 			return false
-		SaveGame.write(head.replace("\"%s\"" % MARK, "[" + ",".join(parts) + "]"))
+		text = head.replace("\"%s\"" % MARK, "[" + ",".join(parts) + "]")
+		if not defer_write:
+			SaveGame.write(text)
 		return true
 
 
 static func write(text: String) -> void:
+	wait()
+	_write_file(text)
+
+
+static func _write_file(text: String) -> void:
 	var f := FileAccess.open(PATH, FileAccess.WRITE)
 	if f:
 		f.store_string(text)
