@@ -572,11 +572,15 @@ static func menu_geometry(vs: Vector2, pc: bool) -> Array:
 	return [bs, gap, (MENU_ORIGIN * vs).floor()]
 
 
-## The biggest font (up to the button's own) whose every line fits the button.
+## The biggest font (up to the button's own) whose every line fits the button. A label of several words may go on two
+## lines when that lets it stay bigger (QA 2026-11-08: HOW TO PLAY / COMO JOGAR shrank to half the size of the
+## buttons beside it at 1280x720).
 func _fit_button_font(b: Button, bs: Vector2, pc: bool) -> void:
-	var fs: int = b.get_meta("fs", 20 if pc else 22)
+	var fs0: int = b.get_meta("fs", 20 if pc else 22)
 	var f: Font = b.get_theme_font("font")
-	var lines := b.atr(b.text).split("\n")       # (as shown: the button's text is translated when drawn)
+	if not b.has_meta("shown"):
+		b.set_meta("shown", b.atr(b.text))      # (as shown: the button's text is translated when drawn)
+	var shown := String(b.get_meta("shown"))
 	# the room inside the button's frame (its style's margins: a longer word in another language must shrink, never
 	# widen the button over its neighbour; the owner, 2026-10-31: ESCARAMUÇA ran under ONLINE)
 	var st: StyleBox = b.get_theme_stylebox("normal")
@@ -586,14 +590,38 @@ func _fit_button_font(b: Button, bs: Vector2, pc: bool) -> void:
 		mx = maxf(mx, st.get_margin(SIDE_LEFT) + st.get_margin(SIDE_RIGHT) + 6.0)
 		my = maxf(my, st.get_margin(SIDE_TOP) + st.get_margin(SIDE_BOTTOM) + 2.0)
 	var oc: int = b.get_theme_constant("outline_size")
-	while fs > 9:
-		var w := 0.0
-		for ln in lines:
-			w = maxf(w, f.get_string_size(ln, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x)
-		if w + oc <= bs.x - mx and lines.size() * f.get_height(fs) <= bs.y - my:
+	# the biggest size at which the text fits, its lines broken at spaces where they are too wide (HOW TO / PLAY;
+	# CONTINUE's second line, the factions and the clock, was cut off at the floor size: "(Clockwork vs Brood,")
+	var room_w := bs.x - mx - oc
+	var room_h := bs.y - my
+	var best_fs := 9
+	var best := shown
+	var fs := fs0
+	while fs >= 9:
+		var out: PackedStringArray = []
+		var fits := true
+		for ln in shown.split("\n"):
+			var cur := ""
+			for w in ln.strip_edges().split(" ", false):
+				var tryl := w if cur == "" else cur + " " + w
+				if cur != "" and f.get_string_size(tryl, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room_w:
+					out.append(cur)
+					cur = w
+				else:
+					cur = tryl
+			out.append(cur)
+		for ln in out:
+			if f.get_string_size(ln, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room_w:
+				fits = false
+		if fits and out.size() * f.get_height(fs) <= room_h:
+			best_fs = fs
+			best = "\n".join(out)
 			break
 		fs -= 1
-	b.add_theme_font_size_override("font_size", fs)
+	if best != b.text:
+		b.text = best           # (translated already: the menu is built again when the language changes)
+		b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	b.add_theme_font_size_override("font_size", best_fs)
 	b.clip_text = true          # (whatever happens, the text never makes the button bigger than its slot)
 
 
@@ -1697,8 +1725,7 @@ func show_skirmish() -> void:
 	mv.add_child(prv)
 	var desc := ""
 	if MapGen.is_pool(mid):
-		var fit := MapGen.pool_maps(mid, slots.size())
-		desc = Loc.t("One of %d maps that hold %d players, picked when the match starts.") % [fit.size(), slots.size()]
+		desc = MapGen.pool_desc(mid, slots.size())
 	elif mid.begins_with("custom:"):
 		var cd := MapGen.load_custom(mid.substr(7))
 		var cs := MapGen.custom_size(cd)
@@ -1843,9 +1870,13 @@ func _dropdown(text: String, w: float, items: Array, pick: Callable, list_w := 2
 	# narrow column: the text shrinks (down to 12) until it fits the button
 	b.resized.connect(func() -> void:
 		var f: Font = b.get_theme_font("font")
-		var room := b.size.x - 24.0
+		# (the room inside the button's own frame, and the text as shown, translated: QA 2026-11-08, PINEWALL MARCHES
+		# and THE SUNDERED REALM lost their arrow)
+		var st: StyleBox = b.get_theme_stylebox("normal")
+		var room := b.size.x - (st.get_margin(SIDE_LEFT) + st.get_margin(SIDE_RIGHT) + 6.0 if st else 24.0)
+		var shown := b.atr(b.text)
 		var fs := 18
-		while fs > 12 and f.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		while fs > 10 and f.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
 			fs -= 1
 		if b.get_theme_font_size("font_size") != fs:
 			b.add_theme_font_size_override("font_size", fs))
@@ -1935,9 +1966,13 @@ func _cycle(text: String, w: float, step: Callable) -> Button:
 	# narrow column: the text shrinks (down to 12) until it fits the button
 	b.resized.connect(func() -> void:
 		var f: Font = b.get_theme_font("font")
-		var room := b.size.x - 24.0
+		# (the room inside the button's own frame, and the text as shown, translated: QA 2026-11-08, PINEWALL MARCHES
+		# and THE SUNDERED REALM lost their arrow)
+		var st: StyleBox = b.get_theme_stylebox("normal")
+		var room := b.size.x - (st.get_margin(SIDE_LEFT) + st.get_margin(SIDE_RIGHT) + 6.0 if st else 24.0)
+		var shown := b.atr(b.text)
 		var fs := 18
-		while fs > 12 and f.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		while fs > 10 and f.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
 			fs -= 1
 		if b.get_theme_font_size("font_size") != fs:
 			b.add_theme_font_size_override("font_size", fs))

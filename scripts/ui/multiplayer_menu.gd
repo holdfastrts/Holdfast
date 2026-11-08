@@ -308,8 +308,7 @@ func _nothing() -> void:
 ## The map's one-line story, as under the skirmish's map picker.
 func _map_desc(mid: String, n: int) -> String:
 	if MapGen.is_pool(mid):
-		var fit := MapGen.pool_maps(mid, n)
-		return Loc.t("One of %d maps that hold %d players, picked when the match starts.") % [fit.size(), n]
+		return MapGen.pool_desc(mid, n)
 	if MapData.NAMED.has(mid):
 		var sz := MapGen.size_of(mid)
 		return Loc.t("%s, %dx%d, up to %d players. %s  %s.") % [MapGen.mode_of(mid), sz.x, sz.y, MapGen.max_players(mid),

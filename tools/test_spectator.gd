@@ -101,6 +101,7 @@ func _run() -> void:
 	var d0 := st.dropped
 	check("story: the same sentence again is dropped", not st.tell(0, String(last["tpl"]), last["args"], 3, "rush"))
 	var kept := 0
+	st._minor_t.erase(1)       # (the computer's own minor line a moment before would drop the whole burst: QA 2026-11-08)
 	for i in 5:
 		if st.tell(1, "%s sends a %s to scout.", ["Winder %d" % i], 1, "scout"):
 			kept += 1

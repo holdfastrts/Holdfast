@@ -1,0 +1,100 @@
+# QA of the interface (docs/qa_2026_11_08_ui.md): texts that showed in English in pt / es
+
+> ONLINE RELAY ADDRESS
+pt ENDEREÇO DO RELÉ ONLINE
+es DIRECCIÓN DEL RELÉ EN LÍNEA
+
+# the animation viewer (Settings > OTHER)
+> < UNIT
+pt < UNIDADE
+es < UNIDAD
+
+> UNIT >
+pt UNIDADE >
+es UNIDAD >
+
+> < FRAME
+pt < QUADRO
+es < FOTOGRAMA
+
+> FRAME >
+pt QUADRO >
+es FOTOGRAMA >
+
+> CENTER
+pt CENTRALIZAR
+es CENTRAR
+
+> COPY NAME
+pt COPIAR NOME
+es COPIAR NOMBRE
+
+> POSE  (keys: Up / Down)
+pt POSE  (teclas: Cima / Baixo)
+es POSE  (teclas: Arriba / Abajo)
+
+> < POSE
+pt < POSE
+es < POSE
+
+> POSE >
+pt POSE >
+es POSE >
+
+> DIRECTION  (keys: Left / Right)
+pt DIREÇÃO  (teclas: Esquerda / Direita)
+es DIRECCIÓN  (teclas: Izquierda / Derecha)
+
+> < DIR
+pt < DIR
+es < DIR
+
+> DIR >
+pt DIR >
+es DIR >
+
+> FLAG FRAME
+pt MARCAR QUADRO
+es MARCAR FOTOGRAMA
+
+> CLEAR
+pt LIMPAR
+es BORRAR
+
+> ALL UNITS
+pt TODAS AS UNIDADES
+es TODAS LAS UNIDADES
+
+> NEEDS ART ONLY (!)
+pt SÓ AS QUE PRECISAM DE ARTE (!)
+es SOLO LAS QUE NECESITAN ARTE (!)
+
+> ZOOM %.1fx
+pt ZOOM %.1fx
+es ZOOM %.1fx
+
+> ONE VIEW
+pt UMA VISTA
+es UNA VISTA
+
+> ALL DIRECTIONS
+pt TODAS AS DIREÇÕES
+es TODAS LAS DIRECCIONES
+
+> No frames flagged yet.
+pt Nenhum quadro marcado ainda.
+es Aún no hay fotogramas marcados.
+
+> note for the flagged frame
+pt nota para o quadro marcado
+es nota para el fotograma marcado
+
+# the player's tag in the spectator's panels and the AI STORY (the top lines already said J1)
+> P%d
+pt J%d
+es J%d
+
+# the map editor's name for a new map
+> My map %d
+pt Meu mapa %d
+es Mi mapa %d

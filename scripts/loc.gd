@@ -90,7 +90,9 @@ static func _build_patterns() -> void:
 		rx += _esc(key.substr(at).replace("%%", "%")) + "$"
 		var re := RegEx.new()
 		re.compile(rx)
-		var entry := [re, key, kinds]
+		# a "bare" key ("%s: %s", "+ %s"): almost no words of its own (see _pattern)
+		var bare := RegEx.create_from_string("[A-Za-z]").search_all(ph.sub(key, "", true)).size() < 3
+		var entry := [re, key, kinds, bare]
 		if first_lit.length() >= 4:
 			var k := first_lit.substr(0, 4)
 			if not _pats.has(k):
@@ -150,12 +152,24 @@ static func _pattern(s: String) -> String:
 	var cands: Array = []
 	if s.length() >= 4 and _pats.has(s.substr(0, 4)):
 		cands = _pats[s.substr(0, 4)]
+	# a text of several pieces ("Haulers 0/0 · Soil: 96% (8620 gold) · ...") taken by a bare key such as "%s: %s" is cut at
+	# its first colon, which leaves half of it English; "VIEW: Free · all vision" is right that way. Both ways are tried
+	# and the one leaving fewer English words wins (QA 2026-11-08)
+	var pieces := s.contains(" · ") or s.contains("\n")
+	var bare_r := ""
 	for group in [cands, _pats_any]:
 		for e in group:
 			var m: RegExMatch = e[0].search(s)
 			if m == null:
 				continue
+			if pieces and e[3]:
+				if bare_r == "":
+					bare_r = _fill(_dict[e[1]], e[2], m)
+				continue
 			return _fill(_dict[e[1]], e[2], m)
+	if bare_r != "":
+		var split_r := _split_t(s)
+		return split_r if _english_left(s, split_r) < _english_left(s, bare_r) else bare_r
 	# the unit tags alone ("Armored Massive")
 	var tw: Array = Array(s.split(" "))
 	if tw.size() > 1 and tw.size() <= 3 and tw.all(func(w: String) -> bool: return w in ["Light", "Armored", "Massive"]):
@@ -171,7 +185,11 @@ static func _pattern(s: String) -> String:
 			var tagged := "[" + " ".join(ws) + "] " + rest
 			if tagged != s:
 				return tagged
-	# a text made of several pieces (lines, "a · b", "a.  b"): translate each piece by itself
+	return _split_t(s)
+
+
+## A text made of several pieces (lines, "a · b", "a.  b"): each piece translated by itself (s itself: nothing changed).
+static func _split_t(s: String) -> String:
 	for sep in ["\n", "  ·  ", " · ", "  ", ": ", " + "]:
 		if sep in s:
 			var parts := s.split(sep)
@@ -185,6 +203,19 @@ static func _pattern(s: String) -> String:
 			if changed:
 				return sep.join(out)
 	return s
+
+
+## How many of the English text's words (3 letters or more) are still in a translation of it.
+static func _english_left(en: String, tr: String) -> int:
+	var have := {}
+	for w in tr.split(" ", false):
+		have[w.strip_edges().trim_suffix(",").trim_suffix(".").trim_suffix(":")] = true
+	var n := 0
+	for w in en.split(" ", false):
+		var k := w.strip_edges().trim_suffix(",").trim_suffix(".").trim_suffix(":")
+		if k.length() >= 3 and have.has(k) and not k.is_valid_float() and RegEx.create_from_string("[A-Za-z]").search(k) != null:
+			n += 1
+	return n
 
 
 ## The translated template with the pieces captured from the English text put in order.

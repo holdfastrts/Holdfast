@@ -157,15 +157,17 @@ func _sweep(g: Game, f: String) -> void:
 				_card(g, fac, "building %s (training)" % k)
 			b.take_damage(999999.0, null)
 			await physics_frame
-		var site: Building = g._add_building(String(Defs.build_list(fac)[1]), 0, g.nearest_free(c + Vector2i(-8, 6), 14), false)
-		await physics_frame
-		g.set_selection([site])
-		_card(g, fac, "building site")
+		if Defs.build_list(fac).size() > 1:       # (the Brood has no buildings since 0.18.0: no site)
+			var site: Building = g._add_building(String(Defs.build_list(fac)[1]), 0, g.nearest_free(c + Vector2i(-8, 6), 14), false)
+			await physics_frame
+			g.set_selection([site])
+			_card(g, fac, "building site")
 	# placing a building (a gate for the Crown: ROTATE), and a balloon unloading
 	g.set_selection([w])
-	g.controls.begin_place("gate" if fac == "crown" else String(Defs.build_list(fac)[1]))
-	_card(g, fac, "placing a building")
-	g.controls.cancel_mode()
+	if fac == "crown" or Defs.build_list(fac).size() > 1:
+		g.controls.begin_place("gate" if fac == "crown" else String(Defs.build_list(fac)[1]))
+		_card(g, fac, "placing a building")
+		g.controls.cancel_mode()
 	g.controls.mode = "unload"
 	_card(g, fac, "a targeted order (unload / cast) waiting")
 	g.controls.cancel_mode()

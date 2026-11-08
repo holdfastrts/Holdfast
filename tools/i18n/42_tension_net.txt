@@ -90,7 +90,7 @@ pt VISTA DAS ENGRENAGENS (o Mecanismo): a tecla ` (à esquerda do 1) mostra toda
 es VISTA DE ENGRANAJES (el Mecanismo): la tecla ` (a la izquierda del 1) muestra toda la red de engranajes: los motores, cómo trabaja cada anillo, los Muelles Reales (discontinuos) y los círculos de las torretas. En el móvil, toca VISTA DE ENGRANAJES en la tarjeta de cualquier edificio del Mecanismo.
 
 > Winders crank it for TENSION; it feeds its whole gear network.
-pt Enroladores giram sua manivela por TENSÃO; ela alimenta toda a sua rede de engrenagens.
+pt Enroladores giram a manivela por TENSÃO; ela move toda a rede de engrenagens.
 es Los Dadores de cuerda la giran por TENSIÓN; alimenta toda su red de engranajes.
 
 > Fed by a Mainspring through the gear network

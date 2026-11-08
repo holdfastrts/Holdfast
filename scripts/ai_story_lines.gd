@@ -88,7 +88,7 @@ const RULES := [
 	["^saw an enemy (.+?) \\(fast\\): raiders to watch for", "%s spots an enemy %s: fast raiders to watch for.", 1, "scout"],
 	["^saw an enemy (.+?): a slow foot soldier", "%s spots an enemy %s: a normal opening, no rush yet.", 1, "scout"],
 	["^sends a (.+?) to scout(?: again)?", "%s sends a %s to scout.", 1, "scout"],
-	["^scout (?:was )?(\\w+).*: it saw nothing to go on", "%s's scout was stopped before it saw anything; it will look again soon.", 1, "scout"],
+	["^scout (?:was )?(?:\\w+).*: it saw nothing to go on", "%s's scout was stopped before it saw anything; it will look again soon.", 1, "scout"],
 	["^the sentry backs away", "", 1, "scout"],
 	["^posts a (.+?) at the foot of the walled ramp", "%s posts a %s at the foot of the enemy's ramp to keep watch.", 1, "scout"],
 	# ---- rushes

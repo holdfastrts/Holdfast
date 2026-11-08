@@ -475,6 +475,10 @@ es Rosa
 pt Um dos %d mapas que comportam %d jogadores, escolhido quando a partida começa.
 es Uno de los %d mapas que admiten %d jugadores, elegido al empezar la partida.
 
+> The only map that holds %d players: %s.
+pt O único mapa que comporta %d jogadores: %s.
+es El único mapa que admite %d jugadores: %s.
+
 > Your map: %s, %dx%d, %d start spots.  %s.  %s
 pt Seu mapa: %s, %dx%d, %d pontos de início.  %s.  %s
 es Tu mapa: %s, %dx%d, %d puntos de inicio.  %s.  %s
