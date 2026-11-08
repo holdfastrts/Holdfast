@@ -8,6 +8,10 @@ const NOTES := [
 		"RELEASE LETS THE HORSES GO FOR GOOD: a Labourer or soldier sent to LEAD fetches up to three horses one after another; pressing RELEASE while he was still fetching let go of the ones in hand, then he went on and took the rest. Now RELEASE also calls off the fetches still to come, and online it reaches the host (it was only done on your screen).",
 		"TOOLTIPS: the TEAM button of the Field Cannon, Mortar and Powder Wagon and the gate's LOCK / UNLOCK now say what they do.",
 	]},
+	{"v": "0.33.8", "items": [
+		"RELEASE LETS THE HORSES GO FOR GOOD: a Labourer or soldier sent to LEAD fetches up to three horses one after another; pressing RELEASE while he was still fetching let go of the ones in hand, then he went on and took the rest. Now RELEASE also calls off the fetches still to come, and online it reaches the host (it was only done on your screen).",
+		"TOOLTIPS: the TEAM button of the Field Cannon, Mortar and Powder Wagon and the gate's LOCK / UNLOCK now say what they do.",
+	]},
 	{"v": "0.33.7", "items": [
 		"THE MUSKETEER MARCHES ON NEW LEGS: a hand-drawn six-step walk in every direction, his musket carried the same way it is held when he aims (before, his legs were the labourer's pasted under him and each direction had its own number of steps, so turning jumped).",
 	]},
