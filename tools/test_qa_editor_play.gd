@@ -57,7 +57,9 @@ func _run() -> void:
 		await process_frame
 		n += 1
 	var earned := [int(g.stats[0]["gold"]), int(g.stats[1]["gold"])]
-	check("both computers play on it (earn, build)", earned[0] > 150 and earned[1] > 150 and g.buildings.filter(func(b) -> bool: return b.built and not b.dead).size() > 4, str(earned))
+	# (the Brood has no buildings since 0.18.0: "build" is the Clockwork's buildings here; it once counted 5 for both sides)
+	var cw_b: int = g.buildings.filter(func(b) -> bool: return b.team == 1 and b.built and not b.dead).size()
+	check("both computers play on it (earn, build)", earned[0] > 150 and earned[1] > 150 and cw_b >= 3, "%s, Clockwork buildings %d" % [str(earned), cw_b])
 	main._to_menu()
 	MapGen.delete_custom(NAME)
 	print("ALL OK" if fails == 0 else "SOME FAILED (%d)" % fails)

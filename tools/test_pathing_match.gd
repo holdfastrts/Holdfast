@@ -196,4 +196,14 @@ func _finish() -> void:
 		print("  %4.0fs at %s: %s" % [float(spots[keys[i]][0]), keys[i], spots[keys[i]][1]])
 	for r in long_runs.slice(0, 15):
 		print("  long: " + r)
-	quit(0)
+	# a verdict (qa-tests, 2026-11-08), loose limits from docs/pathfinding_audit.md's games after the fixes (1.1 to 5.5 stuck
+	# unit-seconds a minute, at most 9 at cliffs, no unit stuck 10 s): one game moves about, so these are well above them
+	var ok := stuck_s / mins <= STUCK_MIN_MAX and cliff_s <= CLIFF_MAX and long_runs.size() <= LONG_MAX
+	print("RESULT: %s (stuck %.1f a minute, at most %.0f; at a cliff %.0f, at most %.0f; runs of 10 s+ %d, at most %d)" % [
+		"PASS" if ok else "FAIL", stuck_s / mins, STUCK_MIN_MAX, cliff_s, CLIFF_MAX, long_runs.size(), LONG_MAX])
+	quit(0 if ok else 1)
+
+
+const STUCK_MIN_MAX := 8.0
+const CLIFF_MAX := 25.0
+const LONG_MAX := 1
