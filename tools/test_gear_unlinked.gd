@@ -43,8 +43,14 @@ func _run() -> void:
 	var paid0 := press_off.press_paid
 	U.step(g, 10.0)
 	check("an unlinked Cog Press pays nothing (even with Winders on it)", press_off.press_paid == paid0 and press_off.press_rate() == 0.0)
-	# Tension: a linked Mainspring winds (a little by itself), an unlinked one does not; and no batteries anywhere (no power)
-	U.step(g, 2.0)
+	# Tension: a linked Mainspring winds (with a crew: nothing by itself since 0.24.0, docs/exhaust_economy.md), an unlinked one
+	# does not; and no batteries anywhere (no power)
+	if spring_ok != null:
+		for i in 2:
+			var ws: Unit = g._add_unit("winder", 0, spring_ok.center() + Vector2(i * 20 - 10, 70))
+			ws.auto_work = false
+			ws.cmd_gather(spring_ok)
+	U.step(g, 8.0)
 	check("a linked Mainspring winds Tension", spring_ok != null and spring_ok.spring_rate() > 0.0, "%.2f" % (spring_ok.spring_rate() if spring_ok else -1.0))
 	check("an unlinked Mainspring winds none", spring_off != null and spring_off.spring_rate() == 0.0, "%.2f" % (spring_off.spring_rate() if spring_off else -1.0))
 	check("no batteries fill anywhere (no power in gear mode)", g.buildings.all(func(b: Building) -> bool: return b.batteries == 0))
