@@ -103,6 +103,11 @@ func _run() -> void:
 	g.gear_net.solve()
 	check("the computer's Escapement works (meshed with its Mainspring)", esc != null and g.gear_net.speed_mult(esc) > 0.0)
 	# (its tech clock past the tier-2 point)
+	# (since the coached builds, 0.29.x, a computer's opening runs as a build order (AIClockwork.bo_on) and the shared rules
+	# under test take over only once it is over: a base planted by a test never finishes the plan's steps, so it is ended)
+	for a0 in g.ais:
+		if a0.team == 0 and a0.bo_on:
+			a0._end_build("the test's base is planted")
 	g.clock = maxf(g.clock, 330.0)
 	# a Crown balloon over its base, in sight
 	var bal: Unit = g._add_unit("balloon", 1, hall.center() + Vector2(160, -60))

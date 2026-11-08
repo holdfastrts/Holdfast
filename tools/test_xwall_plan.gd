@@ -1,6 +1,7 @@
 extends SceneTree
 ## The Crown computer's walled-expansion plan (scripts/ai_expand_wall.gd plan_for) made faster in 0.28.1 (perf-stutter):
-## it must give EXACTLY the same plan as before (tools/xw_plan_ref.gd is the old code, kept for this test), every cell,
+## it gave EXACTLY the same plan as before (tools/xw_plan_ref.gd is the old code; since crown-hold, 0.33.1, the plans differ on
+## purpose and only the speed is judged; the first differences are printed), every cell,
 ## piece, slot and their order, and take far less time (it made a 130 to 270 ms frame each time the Crown laid a hall).
 ##   godot --headless --fixed-fps 60 --script res://tools/test_xwall_plan.gd [-- map:cinder_steps seed:3206849968 ratio:0.5]
 ## A computer Brood against a Hard Crown on RUSH (the owner's lag report); at a few times of the match, plans for the
@@ -59,7 +60,10 @@ func _process(delta: float) -> bool:
 		# doesn't fail it; the old code itself would come out at 1.0)
 		var ratio: float = float(med.call(new_ms, 0.5)) / maxf(0.001, float(med.call(old_ms, 0.5)))
 		print("XWALL median time new / old: %.2f (must be under %.2f)" % [ratio, max_ratio])
-		var ok: bool = fails == 0 and compared > 0 and ratio <= max_ratio
+		# (the plans themselves are no longer compared for the verdict: plan_for has changed ON PURPOSE since the old code was
+		# kept (crown-owner-eco's lattice, crown-hold's gate by the main's ramp, 0.33.1), so "exactly the same" is gone for good;
+		# the speed rule stays: qa-tests, 2026-11-08)
+		var ok: bool = compared > 0 and ratio <= max_ratio
 		print("XWALL PASS" if ok else "XWALL FAIL")
 		quit(0 if ok else 1)
 	return false
@@ -97,5 +101,6 @@ func _check() -> void:
 			b.erase("hall")
 			if var_to_str(a) != var_to_str(b):
 				fails += 1
-				print("XWALL DIFFERENT at %s (clock %.0f): new ok %s r %s, old ok %s r %s" % [e[0], g.clock, a.get("ok"), a.get("r"), b.get("ok"), b.get("r")])
+				if fails <= 5:
+					print("XWALL DIFFERENT at %s (clock %.0f): new ok %s r %s, old ok %s r %s" % [e[0], g.clock, a.get("ok"), a.get("r"), b.get("ok"), b.get("r")])
 		print("XWALL %d:%02d %d plans so far, slowest new %.1f ms, old %.1f ms" % [int(g.clock) / 60, int(g.clock) % 60, compared, worst_new, worst_old])

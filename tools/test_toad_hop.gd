@@ -47,8 +47,9 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	g.reveal = true
-	var hall := U.hall(g, 0)
-	var start := hall.center() + Vector2(-120, 140)
+	# (the Brood has no hall since 0.18.0: its Mother instead; U.hall gave null and the test stopped here and waited for ever)
+	var q := BroodNew.queen(g, 0)
+	var start := q.position + Vector2(-120, 200)
 	var toad: Unit = g._add_unit("mist_toad", 0, start)
 	toad.auto_work = false
 	g.camera.position = start + Vector2(120, 0)

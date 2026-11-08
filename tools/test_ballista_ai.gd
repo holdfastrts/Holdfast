@@ -3,7 +3,7 @@ extends SceneTree
 ## ai_crew; scripts/ballista.gd): a Hard Clockwork with two Light Works and a working Escapement (a Mainspring meshing with
 ## it), cogs and Tension to spare, against a passive Crown. It lays a Heavy Works (0.14.94), trains a couple of Ballistas (a few, not a whole army of
 ## them), its escort Winders crew them, and a Ballista of its own aims at an armoured Cannon before a Musketeer, and at a
-## gate before a lone Musketeer. (Its Heavy Works and Ballistas come from its plans since 0.29.x: test_clockwork_builds_b check:heavy.)
+## gate before a lone Musketeer.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_ballista_ai.gd
 var main: Node
 var g
@@ -104,19 +104,30 @@ func _run() -> void:
 	await physics_frame
 	g.gear_net.solve()
 	check("the computer's Escapement works", esc != null and g.gear_net.speed_mult(esc) > 0.0)
+	# (since the coached builds, 0.29.x, a computer's opening runs as a build order (AIClockwork.bo_on) and the shared rules
+	# under test take over only once it is over: a base planted by a test never finishes the plan's steps, so it is ended)
+	for a0 in g.ais:
+		if a0.team == 0 and a0.bo_on:
+			a0._end_build("the test's base is planted")
 	g.clock = maxf(g.clock, 330.0)
 	var ai = g.ais.filter(func(a) -> bool: return a.team == 0)[0]
 	check("it wants a Ballista once its Escapement works", ai._ballista_want() >= 1, "%d" % ai._ballista_want())
-	# (since the coached builds, 0.29.x, the Clockwork's Heavy Works and Ballistas come from its PLANS' build orders (the
-	# HEAVY WORKS PUSH, scripts/ai_cw_builds_b.gd), which a base planted mid-game by a test does not drive: that is checked
-	# by tools/test_clockwork_builds_b.gd -- check:heavy. Here the shared rule only (AI._ballista_want), and a Ballista of the
-	# computer's own for its target picks)
-	var waited := await _wait(func() -> bool: return not _units(K).is_empty(), 60.0)
-	print("INFO  the computer's own Ballistas after %.0f s: %d (its Heavy Works: %d)" % [waited, _units(K).size(), _mine(Defs.CW_HEAVY).size()])
-	if _units(K).is_empty():
-		var hw: Building = _mine(Defs.CW_HEAVY)[0] if not _mine(Defs.CW_HEAVY).is_empty() else hall
-		g._add_unit(K, 0, g.cell_center(g.nearest_free(g.cell_of(hw.center() + Vector2(0, 140)), 6)))
+	var waited := await _wait(func() -> bool: return not _mine(Defs.CW_HEAVY).is_empty(), 150.0)
+	check("it lays a Heavy Works for it (0.14.94)", not _mine(Defs.CW_HEAVY).is_empty(), "%.0f s" % waited)
+	waited = await _wait(func() -> bool: return not _units(K).is_empty(), 300.0)
+	check("it trains a Spring Ballista", not _units(K).is_empty(), "%d after %.0f s" % [_units(K).size(), waited])
+	waited = await _wait(func() -> bool: return _units(K).any(func(b: Unit) -> bool: return Ballista.crew_of(b).size() >= 1), 150.0)
+	var crewed: Array = _units(K).filter(func(b: Unit) -> bool: return Ballista.crew_of(b).size() >= 1)
+	check("its escort Winders crew it", not crewed.is_empty(), "%.0f s, crews %s" % [waited, str(_units(K).map(func(b: Unit) -> int: return Ballista.crew_of(b).size()))])
 	check("not more crew than AI.BALLISTA_CREW", _units(K).all(func(b: Unit) -> bool: return Ballista.crew_of(b).size() <= AI.BALLISTA_CREW))
+	await _wait(func() -> bool: return false, 60.0)
+	check("a couple of Ballistas, not a whole army of them", _units(K).size() <= 3, "%d" % _units(K).size())
+	# its own pick: an armoured Cannon before a Musketeer; a gate before a lone Musketeer
+	if _units(K).is_empty():
+		check("a Ballista of its own for the target checks", false)
+		print("FAIL (%d)" % fails)
+		quit(1)          # (indexing an empty list stopped the test and it waited for ever)
+		return
 	var b: Unit = _units(K)[0]
 	b.cmd_hold()
 	var p: Vector2 = b.position
