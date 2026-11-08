@@ -182,6 +182,30 @@ func _look() -> void:
 			if a != "" and not _seen.has(a):
 				_seen[a] = true
 				_add_art(a)
+		# (qa-perf, 0.33.8: kinds about to appear, so their first picture isn't loaded on the frame they appear: 100 to
+		# 400 ms in the matrix's games for a Spitter, an egg, a Tyrannosaur, a dismounted Horseman, a Ballista)
+		if u.kind == BroodNew.QUEEN:
+			_coming(BroodNew.EGG)                       # (her first egg)
+		elif u.kind == BroodNew.EGG and u.nb.has("k"):
+			_coming(String(u.nb["k"]))                  # (what the egg hatches)
+		elif u.kind == "cuirassier":
+			_coming("dismounted")                       # (a Horseman thrown or getting off)
+	for b in game.buildings:
+		if not is_instance_valid(b) or b.dead:
+			continue
+		for q in b.queue:
+			if q is String and not (q as String).begins_with("@"):
+				_coming(q)                               # (in training)
+
+
+## A kind that will be on the field soon: its art (as it comes out) and its kind's strips queued like a kind on the field.
+func _coming(k: String) -> void:
+	if not Defs.UNITS.has(k):
+		return
+	for a in [Defs.art_for(k, false), k]:
+		if a != "" and not _seen.has(a):
+			_seen[a] = true
+			_add_art(a)
 
 
 func _add_art(a: String) -> void:
