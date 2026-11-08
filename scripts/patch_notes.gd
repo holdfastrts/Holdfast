@@ -10,6 +10,7 @@ const NOTES := [
 		"Units hidden behind a building or a big creature (their silhouettes) are found with a third less work: up to 16 ms in one frame in a big musket battle with cannons. The same silhouettes as before.",
 		"THE WEB VERSION: the campaign's paintings and voices moved from the code download (downloaded again after every update) to the art download (kept by the browser): an update that only changes the game now downloads 4.4 MB instead of 13.7 MB.",
 		"The game plays out exactly the same as before: checked unit by unit in 12 big battles and 3 whole computer matches.",
+		"Pictures of units about to appear (an egg's hatchling, a unit in training, a Horseman getting off his horse, the Mother's first egg) are loaded ahead in the background: their first appearance froze the game for a tenth of a second or more.",
 	]},
 	{"v": "0.33.7", "items": [
 		"THE MUSKETEER MARCHES ON NEW LEGS: a hand-drawn six-step walk in every direction, his musket carried the same way it is held when he aims (before, his legs were the labourer's pasted under him and each direction had its own number of steps, so turning jumped).",
