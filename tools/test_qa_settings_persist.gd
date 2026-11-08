@@ -28,6 +28,10 @@ func _initialize() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	_run.call_deferred()
+	# a script error stops _run where it is: never hang the test run
+	create_timer(300.0, true, false, true).timeout.connect(func() -> void:
+		print("WATCHDOG: gave up after 300 s")
+		quit(2))
 
 
 func snap() -> Dictionary:

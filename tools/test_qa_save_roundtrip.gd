@@ -9,8 +9,10 @@ extends SceneTree
 var main: Node
 var fails := 0
 var secs := 200.0
-## keys whose value is about the moment of writing, not the match
-const SKIP := ["time", "saved_at", "date", "mem", "ms"]
+## keys whose value is about the moment of writing, not the match; "log" (the match log gains its "continued" line),
+## a fertilising egg's "redden" and a Brood unit's "m" (worked out again from the save on the next tick / a copy of
+## its mode)
+const SKIP := ["time", "saved_at", "date", "mem", "ms", "log", "redden", "m"]
 
 
 func check(name: String, ok: bool, detail := "") -> void:
@@ -26,6 +28,10 @@ func _initialize() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	_run.call_deferred()
+	# a script error stops _run where it is: never hang the test run
+	create_timer(1500.0, true, false, true).timeout.connect(func() -> void:
+		print("WATCHDOG: gave up after 1500 s")
+		quit(2))
 
 
 func _wait(secs_: float) -> void:
@@ -68,8 +74,20 @@ func _diff(a: Variant, b: Variant, path: String, out: Array) -> void:
 
 
 func _norm(d: Dictionary) -> Dictionary:
-	# through JSON, as the file is: the same types on both sides
-	return JSON.parse_string(JSON.stringify(d))
+	# through JSON, as the file is: the same types on both sides; units and buildings in a fixed order (a reload may
+	# list them in another order)
+	var n: Dictionary = JSON.parse_string(JSON.stringify(d))
+	for key in ["units", "buildings"]:
+		if n.get(key) is Array:
+			var arr: Array = n[key]
+			arr.sort_custom(func(a, b) -> bool: return _sort_key(a) < _sort_key(b))
+	return n
+
+
+func _sort_key(e: Variant) -> String:
+	if not e is Dictionary:
+		return str(e)
+	return "%s|%s|%s|%s" % [str(e.get("t", e.get("team", ""))), str(e.get("k", e.get("kind", ""))), str(e.get("c", "")), str(e.get("p", e.get("pos", "")))]
 
 
 func _run() -> void:
@@ -81,7 +99,7 @@ func _run() -> void:
 			{"who": "hard", "faction": "clockwork", "colour": 1, "side": 1, "strategy": "balanced"}]],
 		["clockwork", [{"who": "you", "faction": "clockwork", "colour": 0, "side": 0},
 			{"who": "hard", "faction": "crown", "colour": 1, "side": 1, "strategy": "balanced"}]],
-		["three", [{"who": "hard", "faction": "crown", "colour": 0, "side": 0, "strategy": "optimal"},
+		["three", [{"who": "you", "faction": "crown", "colour": 0, "side": 0},
 			{"who": "hard", "faction": "clockwork", "colour": 1, "side": 1, "strategy": "optimal"},
 			{"who": "hard", "faction": "brood", "colour": 2, "side": 2, "strategy": "optimal"}]],
 	]

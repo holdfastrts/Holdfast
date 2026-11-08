@@ -590,11 +590,16 @@ func _fit_button_font(b: Button, bs: Vector2, pc: bool) -> void:
 		mx = maxf(mx, st.get_margin(SIDE_LEFT) + st.get_margin(SIDE_RIGHT) + 6.0)
 		my = maxf(my, st.get_margin(SIDE_TOP) + st.get_margin(SIDE_BOTTOM) + 2.0)
 	var oc: int = b.get_theme_constant("outline_size")
+	# the text as it is, and with one of its lines broken in two at a space (CONTINUE's second line: the factions
+	# and the clock were cut off at the floor size, "(Clockwork vs Brood,")
 	var cands: Array = [shown]
-	if not "\n" in shown and " " in shown.strip_edges():
-		var words := shown.strip_edges().split(" ", false)
+	var lines0 := shown.split("\n")
+	for li in lines0.size():
+		var words := lines0[li].strip_edges().split(" ", false)
 		for i in range(1, words.size()):
-			cands.append(" ".join(words.slice(0, i)) + "\n" + " ".join(words.slice(i)))
+			var ls := lines0.duplicate()
+			ls[li] = " ".join(words.slice(0, i)) + "\n" + " ".join(words.slice(i))
+			cands.append("\n".join(ls))
 	var best_fs := -1
 	var best := shown
 	for cand: String in cands:
@@ -1862,9 +1867,13 @@ func _dropdown(text: String, w: float, items: Array, pick: Callable, list_w := 2
 	# narrow column: the text shrinks (down to 12) until it fits the button
 	b.resized.connect(func() -> void:
 		var f: Font = b.get_theme_font("font")
-		var room := b.size.x - 24.0
+		# (the room inside the button's own frame, and the text as shown, translated: QA 2026-11-08, PINEWALL MARCHES
+		# and THE SUNDERED REALM lost their arrow)
+		var st: StyleBox = b.get_theme_stylebox("normal")
+		var room := b.size.x - (st.get_margin(SIDE_LEFT) + st.get_margin(SIDE_RIGHT) + 6.0 if st else 24.0)
+		var shown := b.atr(b.text)
 		var fs := 18
-		while fs > 12 and f.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		while fs > 10 and f.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
 			fs -= 1
 		if b.get_theme_font_size("font_size") != fs:
 			b.add_theme_font_size_override("font_size", fs))
@@ -1954,9 +1963,13 @@ func _cycle(text: String, w: float, step: Callable) -> Button:
 	# narrow column: the text shrinks (down to 12) until it fits the button
 	b.resized.connect(func() -> void:
 		var f: Font = b.get_theme_font("font")
-		var room := b.size.x - 24.0
+		# (the room inside the button's own frame, and the text as shown, translated: QA 2026-11-08, PINEWALL MARCHES
+		# and THE SUNDERED REALM lost their arrow)
+		var st: StyleBox = b.get_theme_stylebox("normal")
+		var room := b.size.x - (st.get_margin(SIDE_LEFT) + st.get_margin(SIDE_RIGHT) + 6.0 if st else 24.0)
+		var shown := b.atr(b.text)
 		var fs := 18
-		while fs > 12 and f.get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		while fs > 10 and f.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
 			fs -= 1
 		if b.get_theme_font_size("font_size") != fs:
 			b.add_theme_font_size_override("font_size", fs))

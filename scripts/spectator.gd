@@ -40,7 +40,7 @@ func _ready() -> void:
 func label_for(m: String, t: int) -> String:
 	if m == "all":
 		return "Free · all vision"
-	var who := "P%d %s" % [t + 1, game.faction_of(t).capitalize()]
+	var who := (Loc.t("P%d") + " %s") % [t + 1, Loc.t(game.faction_of(t).capitalize())]     # (J2 Coroa in pt; QA 2026-11-08)
 	return ("Follow · " + who) if m == "follow" else ("Free · %s vision" % who)
 
 

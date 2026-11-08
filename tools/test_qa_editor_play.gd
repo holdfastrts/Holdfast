@@ -52,12 +52,17 @@ func _run() -> void:
 	var g = main.game
 	paused = false
 	check("the match is on the saved map", Game.W == 96 and Game.H == 72 and g.n_players() == 2)
+	# (since 0.18.0 the Brood has no buildings: it grows creatures; the Clockwork builds)
+	var b0: int = g.buildings.filter(func(b) -> bool: return b.team == 1 and not b.dead).size()
+	var u0: int = g.units.filter(func(u) -> bool: return u.team == 0 and not u.dead).size()
 	var n := 0
 	while g.clock < 120.0 and n < 6000:
 		await process_frame
 		n += 1
 	var earned := [int(g.stats[0]["gold"]), int(g.stats[1]["gold"])]
-	check("both computers play on it (earn, build)", earned[0] > 150 and earned[1] > 150 and g.buildings.filter(func(b) -> bool: return b.built and not b.dead).size() > 4, str(earned))
+	var b1: int = g.buildings.filter(func(b) -> bool: return b.team == 1 and not b.dead).size()
+	var u1: int = g.units.filter(func(u) -> bool: return u.team == 0 and not u.dead).size()
+	check("both computers play on it (earn; the Clockwork builds, the Brood grows)", earned[0] > 150 and earned[1] > 150 and b1 > b0 and u1 > u0, "earned %s, Clockwork buildings %d -> %d, Brood creatures %d -> %d" % [str(earned), b0, b1, u0, u1])
 	main._to_menu()
 	MapGen.delete_custom(NAME)
 	print("ALL OK" if fails == 0 else "SOME FAILED (%d)" % fails)

@@ -289,10 +289,12 @@ func _run() -> void:
 			_begin("report")
 			await _snap("report", 1.8)
 		else:
-			main.game.queue_free()
-			main.game = null
-			main.show_menu()
+			main._autosave()
+			main._to_menu()
 			await process_frame
+			if fac == "crown":
+				_begin("menu_continue")
+				await _snap("menu_continue")
 	# ---- a spectated match: the AI STORY and the panels
 	main.show_menu()
 	await process_frame

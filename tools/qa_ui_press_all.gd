@@ -46,6 +46,10 @@ func _initialize() -> void:
 		"map_editor": func() -> void: main.show_map_editor(),
 	}
 	_run.call_deferred()
+	# a script error stops _run where it is: never hang the test run
+	create_timer(900.0, true, false, true).timeout.connect(func() -> void:
+		print("WATCHDOG: gave up after 900 s")
+		quit(2))
 
 
 func _buttons(n: Node, out: Array) -> void:
