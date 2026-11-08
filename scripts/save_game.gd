@@ -132,13 +132,21 @@ class SaveJob:
 	var text := ""                # (the save's whole text, once step() has finished it)
 	var defer_write := false      # (true: step() leaves the writing to the caller: SaveGame.write_async)
 
+	var _head_d = null           # (the rest, copied: its text is made on the first step, not on the frame it is taken)
+
 	func _init(d: Dictionary) -> void:
 		units = (d["units"] as Array).duplicate(true)     # (its own copy: nothing in it changes meanwhile)
 		d["units"] = MARK
-		head = JSON.stringify(d)          # (the rest at once: it holds the players' live numbers)
+		# (the rest holds the players' live numbers, building queues...: a deep copy now, the same text later; qa-perf
+		# 0.33.8: its JSON, with the match log, was up to 12 ms of the save's first frame)
+		_head_d = d.duplicate(true)
 
 	## Writes up to n units' text; true once the save is written.
 	func step(n := 100) -> bool:
+		if _head_d != null:
+			head = JSON.stringify(_head_d)
+			_head_d = null
+			return false
 		var e := mini(i + n, units.size())
 		for k in range(i, e):
 			parts.append(JSON.stringify(units[k]))

@@ -93,7 +93,9 @@ def write(path, pack):
 
 def is_asset(p):
     p = p[6:] if p.startswith('res://') else p
-    return p.startswith('assets/') or p.startswith('.godot/imported/')
+    # (the campaign's oil-painting stills and voices are art too: in the art pack, not the code pack that every update
+    # downloads again; qa-perf 0.33.8. Their .import remaps come with them.)
+    return p.startswith('assets/') or p.startswith('.godot/imported/') or p.startswith('campaign/stills/') or p.startswith('campaign/voice/')
 
 
 def cmd_assets(src, dst):
