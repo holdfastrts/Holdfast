@@ -242,3 +242,4 @@ test_west_views,pass,pass,pass,7,0,,
 test_winder_walk,pass,pass,pass,9,0,,
 test_worker_labels,pass,pass,pass,13,0,,
 test_xwall_plan,fail,pass,fail / pass,233,0,XWALL FAIL,
+test_online (tools/test_online.sh),not run on 0.33.7 alone,"pass (Crown guest, Clockwork guest) / fail (Brood guest: stale, no hall)",crown: pass / clockwork guest of a Brood host: pass / brood guest: fail,110-125,"1 (guest, test_online.gd:1364)",,guest_has_own_hall FAIL | guest_train_command FAIL | host_guest_trained_unit FAIL
