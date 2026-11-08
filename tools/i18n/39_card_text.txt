@@ -161,9 +161,9 @@ es Atrapa a un enemigo en la red 4 s: no puede moverse ni usar habilidades.
 pt Lança-virotes: seu parafuso atravessa o alvo e acerta os de trás.
 es Lanzavirotes: su tornillo atraviesa el objetivo y alcanza a los de detrás.
 
-> Winds and mends the army near it; sweeps wrecks into cogs; SCATTER COGS slows enemies.
-pt Enrola e conserta o exército por perto; varre destroços em engrenagens; ESPALHAR ENGRENAGENS atrasa os inimigos.
-es Da cuerda y repara al ejército cercano; barre restos y los vuelve engranajes; ESPARCIR ENGRANAJES frena a los enemigos.
+> Winds and mends troops near it; turns wrecks into cogs; SCATTER COGS slows foes.
+pt Enrola e conserta tropas perto; destroços viram engrenagens; ESPALHAR atrasa.
+es Da cuerda y repara tropas cercanas; restos a engranajes; ESPARCIR frena.
 
 > Trains Labourers and haulers. Allows 2 Farms and 1 Powder Mill.
 pt Treina Operários e carregadores. Permite 2 Fazendas e 1 Moinho de Pólvora.

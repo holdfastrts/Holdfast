@@ -12,7 +12,7 @@ var secs := 200.0
 ## keys whose value is about the moment of writing, not the match; "log" (the match log gains its "continued" line),
 ## a fertilising egg's "redden" and a Brood unit's "m" (worked out again from the save on the next tick / a copy of
 ## its mode)
-const SKIP := ["time", "saved_at", "date", "mem", "ms", "log", "redden", "m"]
+const SKIP := ["time", "saved_at", "date", "mem", "ms", "log", "redden", "m", "mref"]
 
 
 func check(name: String, ok: bool, detail := "") -> void:
@@ -28,10 +28,6 @@ func _initialize() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	_run.call_deferred()
-	# a script error stops _run where it is: never hang the test run
-	create_timer(1500.0, true, false, true).timeout.connect(func() -> void:
-		print("WATCHDOG: gave up after 1500 s")
-		quit(2))
 
 
 func _wait(secs_: float) -> void:
@@ -128,6 +124,15 @@ func _run() -> void:
 		var cfg2: Dictionary = main.last_cfg.duplicate(true)
 		cfg2.erase("resume")
 		var b := _norm(SaveGame.capture(g, cfg2))
+		# a grub on its way to a paid morph is paid back on load (SaveGame: its order isn't kept): expected
+		var refunds := {}
+		for u in a.get("units", []):
+			if u is Dictionary and u.get("mref") is Array:
+				refunds[int(u["t"])] = int(refunds.get(int(u["t"]), 0)) + int(u["mref"][0])
+		for t in refunds:
+			a["players"][t]["gold"] = float(a["players"][t]["gold"]) + refunds[t]
+		if not refunds.is_empty():
+			print("    (paid morphs refunded on load: %s)" % str(refunds))
 		var out: Array = []
 		_diff(a, b, "save", out)
 		check("%s: the reloaded match captures the same as the saved one" % name, out.is_empty(), "\n    " + "\n    ".join(out))
@@ -141,3 +146,14 @@ func _run() -> void:
 		await process_frame
 	print("save_roundtrip: %d failures" % fails)
 	quit(1 if fails else 0)
+
+
+## A script error stops _run where it is: never hang the test run (wall-clock time: --fixed-fps runs the game faster).
+var _deadline := Time.get_ticks_msec() + 1500000
+
+
+func _process(_delta: float) -> bool:
+	if Time.get_ticks_msec() > _deadline:
+		print("WATCHDOG: gave up after 1500 s")
+		quit(2)
+	return false

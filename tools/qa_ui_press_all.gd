@@ -8,7 +8,12 @@ var pages := {}
 var dead: Array = []
 
 
+var saved_cfg := ""
+
+
 func _initialize() -> void:
+	if FileAccess.file_exists(Settings.PATH):
+		saved_cfg = FileAccess.get_file_as_string(Settings.PATH)       # (put back at the end: the flags get pressed)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://running.txt"))
 	Settings.load_all()
 	var a := OS.get_cmdline_user_args()
@@ -46,10 +51,6 @@ func _initialize() -> void:
 		"map_editor": func() -> void: main.show_map_editor(),
 	}
 	_run.call_deferred()
-	# a script error stops _run where it is: never hang the test run
-	create_timer(900.0, true, false, true).timeout.connect(func() -> void:
-		print("WATCHDOG: gave up after 900 s")
-		quit(2))
 
 
 func _buttons(n: Node, out: Array) -> void:
@@ -99,7 +100,7 @@ func _run() -> void:
 					hooked = true
 			if not hooked and not (b is OptionButton or b is MenuButton or b is CheckBox or b is CheckButton) and b.get_script() == null:
 				print("   NO HANDLER %s %d '%s'" % [page, i, lbl])
-			var before: Node = main.menu
+			var before_id: int = main.menu.get_instance_id() if is_instance_valid(main.menu) else 0
 			print("== PRESS %s %d '%s'" % [page, i, lbl])
 			if b is OptionButton or b is MenuButton:
 				b.pressed.emit()
@@ -112,7 +113,7 @@ func _run() -> void:
 			var what := "same page"
 			if main.game != null:
 				what = "a match started"
-			elif main.menu != before:
+			elif not is_instance_valid(main.menu) or main.menu.get_instance_id() != before_id:
 				what = "new page"
 			print("   -> %s" % what)
 			# a popup opened by the press: closed again
@@ -120,4 +121,19 @@ func _run() -> void:
 				if w is Window and w.visible and w != root:
 					w.hide()
 	print("PRESS-ALL DONE")
+	if saved_cfg != "":
+		var f := FileAccess.open(Settings.PATH, FileAccess.WRITE)
+		f.store_string(saved_cfg)
+		f.close()
 	quit()
+
+
+## A script error stops _run where it is: never hang the test run (wall-clock time: --fixed-fps runs the game faster).
+var _deadline := Time.get_ticks_msec() + 900000
+
+
+func _process(_delta: float) -> bool:
+	if Time.get_ticks_msec() > _deadline:
+		print("WATCHDOG: gave up after 900 s")
+		quit(2)
+	return false

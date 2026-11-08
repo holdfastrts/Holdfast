@@ -28,10 +28,6 @@ func _initialize() -> void:
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	_run.call_deferred()
-	# a script error stops _run where it is: never hang the test run
-	create_timer(300.0, true, false, true).timeout.connect(func() -> void:
-		print("WATCHDOG: gave up after 300 s")
-		quit(2))
 
 
 func snap() -> Dictionary:
@@ -115,7 +111,7 @@ func _run() -> void:
 					sl.value = nv
 					what = "slider"
 				elif le != null:
-					le.text = "wss://example.invalid/qa"
+					le.text = "wss://example.invalid/qa-" + device
 					le.text_changed.emit(le.text)
 					what = "typed"
 				else:
@@ -129,7 +125,10 @@ func _run() -> void:
 				var s1 := snap()
 				var v1 := vols()
 				if id in OPENS:
-					check("%s %s/%s: %s opens its page" % [device, tab, id, what], main.menu != page0 and is_instance_valid(main.menu))
+					var opened: bool = main.menu != page0 and is_instance_valid(main.menu)
+					if id == "layout":       # (the layout editor goes straight on the UI layer)
+						opened = main.ui_layer.get_children().any(func(n: Node) -> bool: return n is LayoutEditor)
+					check("%s %s/%s: %s opens its page" % [device, tab, id, what], opened)
 					continue
 				var ch := diff(s0, s1)
 				var vch := diff(v0, v1)
@@ -201,3 +200,14 @@ func _run() -> void:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.PATH))
 	print("settings_persist: %d failures" % fails)
 	quit(1 if fails else 0)
+
+
+## A script error stops _run where it is: never hang the test run (wall-clock time: --fixed-fps runs the game faster).
+var _deadline := Time.get_ticks_msec() + 300000
+
+
+func _process(_delta: float) -> bool:
+	if Time.get_ticks_msec() > _deadline:
+		print("WATCHDOG: gave up after 300 s")
+		quit(2)
+	return false

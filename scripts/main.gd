@@ -590,31 +590,34 @@ func _fit_button_font(b: Button, bs: Vector2, pc: bool) -> void:
 		mx = maxf(mx, st.get_margin(SIDE_LEFT) + st.get_margin(SIDE_RIGHT) + 6.0)
 		my = maxf(my, st.get_margin(SIDE_TOP) + st.get_margin(SIDE_BOTTOM) + 2.0)
 	var oc: int = b.get_theme_constant("outline_size")
-	# the text as it is, and with one of its lines broken in two at a space (CONTINUE's second line: the factions
-	# and the clock were cut off at the floor size, "(Clockwork vs Brood,")
-	var cands: Array = [shown]
-	var lines0 := shown.split("\n")
-	for li in lines0.size():
-		var words := lines0[li].strip_edges().split(" ", false)
-		for i in range(1, words.size()):
-			var ls := lines0.duplicate()
-			ls[li] = " ".join(words.slice(0, i)) + "\n" + " ".join(words.slice(i))
-			cands.append("\n".join(ls))
-	var best_fs := -1
+	# the biggest size at which the text fits, its lines broken at spaces where they are too wide (HOW TO / PLAY;
+	# CONTINUE's second line, the factions and the clock, was cut off at the floor size: "(Clockwork vs Brood,")
+	var room_w := bs.x - mx - oc
+	var room_h := bs.y - my
+	var best_fs := 9
 	var best := shown
-	for cand: String in cands:
-		var lines := cand.split("\n")
-		var fs := fs0
-		while fs > 9:
-			var w := 0.0
-			for ln in lines:
-				w = maxf(w, f.get_string_size(ln, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x)
-			if w + oc <= bs.x - mx and lines.size() * f.get_height(fs) <= bs.y - my:
-				break
-			fs -= 1
-		if fs > best_fs + 1:       # (two lines only when clearly bigger than one)
+	var fs := fs0
+	while fs >= 9:
+		var out: PackedStringArray = []
+		var fits := true
+		for ln in shown.split("\n"):
+			var cur := ""
+			for w in ln.strip_edges().split(" ", false):
+				var tryl := w if cur == "" else cur + " " + w
+				if cur != "" and f.get_string_size(tryl, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room_w:
+					out.append(cur)
+					cur = w
+				else:
+					cur = tryl
+			out.append(cur)
+		for ln in out:
+			if f.get_string_size(ln, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room_w:
+				fits = false
+		if fits and out.size() * f.get_height(fs) <= room_h:
 			best_fs = fs
-			best = cand
+			best = "\n".join(out)
+			break
+		fs -= 1
 	if best != b.text:
 		b.text = best           # (translated already: the menu is built again when the language changes)
 		b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
