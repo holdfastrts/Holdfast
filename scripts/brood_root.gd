@@ -70,6 +70,17 @@ static func feet_at(k: String, c: Vector2i, sc := 1.0) -> Vector2:
 	return (Vector2(c) + Vector2(f[0] as Vector2i) * 0.5) * T - (f[1] as Vector2)
 
 
+## A creature's middle that mirrors with its side's start: its footprint's middle when it has one, else its feet.
+static func mid_of(u: Unit) -> Vector2:
+	return rect_of(u).get_center() if has_fp(u) else u.position
+
+
+## The feet of a `k` whose footprint's middle is (about) at m, snapped to the grid in side t's first-start frame and
+## mirrored back (Game.start_flip), so mirrored sides root mirrored footprints (start-spots-fix).
+static func sym_snap(g: Game, t: int, k: String, m: Vector2, sc := 1.0) -> Vector2:
+	return feet_at(k, g.sym_rect(t, cell_centred(k, g.sym_pt(t, m), sc), fp(k, sc)[0]), sc)
+
+
 ## p snapped to the grid: where a `k` roots when told to root at p.
 static func snap(k: String, p: Vector2, sc := 1.0) -> Vector2:
 	return feet_at(k, cell_for(k, p, sc), sc)

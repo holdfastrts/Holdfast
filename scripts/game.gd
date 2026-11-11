@@ -3286,6 +3286,7 @@ func net_set(e: Object, prop: String, v) -> void:
 
 
 var _serial := 0                 # Entity.serial of the last unit or building made
+var _tserial := {}                # team -> Unit.tserial of its last unit made
 ## A Tesla Cart or Tesla Locomotive has been made this match (or morphed into): until then
 ## in_field and in_overcharge, asked by every Clockwork unit, needn't look through the units.
 var tesla_made := false
@@ -3297,6 +3298,8 @@ func _add_unit(k: String, t: int, pos: Vector2) -> Unit:
 		tesla_made = true
 	_serial += 1
 	u.serial = _serial
+	_tserial[t] = int(_tserial.get(t, 0)) + 1
+	u.tserial = int(_tserial[t])        # (start-spots-fix: counted per side, so two mirrored sides' units match one for one)
 	u.setup(self, k, t, pos)
 	apply_drills(u)
 	world.add_child(u)

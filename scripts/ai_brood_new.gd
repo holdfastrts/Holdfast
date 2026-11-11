@@ -1640,9 +1640,10 @@ func _nb_turtle_spot(q: Unit, me: Unit):
 
 func _nb_turtle_spot_go(q: Unit, me: Unit):
 	var home := BroodRoot.home_region(game, q.position)
+	var qm := BroodRoot.mid_of(q)          # (start-spots-fix: from her nest's middle, the ring turned with her start)
 	for ring in [7.0, 9.0, 11.0, 13.0]:
 		for i in 12:
-			var p: Vector2 = BroodRoot.snap(BroodNew.TURTLE, q.position + Vector2.from_angle(TAU * i / 12.0 + ring) * ring * Defs.TILE)
+			var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.TURTLE, qm + game.sym_dir(team, Vector2.from_angle(TAU * i / 12.0 + ring)) * ring * Defs.TILE)
 			var c := game.cell_of(p)
 			if not _nb_on_map(p) or not game._walkable(c) or game.region_of(c) != home:
 				continue
@@ -1672,17 +1673,17 @@ func _nb_supply_turtle_spot(q: Unit, me: Unit):
 
 
 func _nb_supply_turtle_spot_go(q: Unit, me: Unit):
-	var centres: Array = [q.position]
+	var centres: Array = [BroodRoot.mid_of(q)]        # (start-spots-fix: footprints' middles)
 	for t in _nb_mine(BroodNew.TURTLE):
 		if t != me and BroodNew.rooted(t):
-			centres.append(t.position)
+			centres.append(BroodRoot.mid_of(t))
 	var qreg := game.region_of(game.cell_of(q.position))
 	var best = null
 	var bs := INF
 	for cpos in centres:
 		for ring in [5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0]:
 			for i in 16:
-				var p: Vector2 = BroodRoot.snap(BroodNew.TURTLE, (cpos as Vector2) + Vector2.from_angle(TAU * i / 16.0 + ring * 0.37) * ring * Defs.TILE)
+				var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.TURTLE, (cpos as Vector2) + game.sym_dir(team, Vector2.from_angle(TAU * i / 16.0 + ring * 0.37)) * ring * Defs.TILE)
 				var c := game.cell_of(p)
 				if not _nb_on_map(p) or not game._walkable(c) or _spot_bad(p):
 					continue
@@ -1715,7 +1716,7 @@ func _nb_father_spot(q: Unit, me: Unit, k: String = BroodNew.FATHER):
 	for frac in [0.75, 0.6, 0.9, 0.5, 1.0]:
 		var best = null
 		for i in 24:
-			var p: Vector2 = BroodRoot.snap(k, q.position + Vector2.from_angle(TAU * i / 24.0) * reach * frac)
+			var p: Vector2 = BroodRoot.sym_snap(game, team, k, BroodRoot.mid_of(q) + game.sym_dir(team, Vector2.from_angle(TAU * i / 24.0)) * reach * frac)
 			var c := game.cell_of(p)
 			if not _nb_on_map(p) or not game._walkable(c) or game.region_of(c) != home:
 				continue
@@ -1912,11 +1913,11 @@ func _nb_find_spot(q: Unit, m: Unit):
 
 
 func _nb_find_spot_go(q: Unit, m: Unit):
-	var centres: Array = [[q.position, [8.0, 11.0, 14.0, 17.0, 20.0]]]
+	var centres: Array = [[BroodRoot.mid_of(q), [8.0, 11.0, 14.0, 17.0, 20.0]]]       # (start-spots-fix: footprints' middles)
 	var far := float(Defs.NB["expansion_tiles"]) * Defs.TILE * 0.9
 	for t in _nb_mine(BroodNew.TURTLE):
 		if BroodNew.rooted(t) and t.position.distance_to(q.position) >= far:
-			centres.append([t.position, [4.5, 6.0, 7.5, 8.5]])
+			centres.append([BroodRoot.mid_of(t), [4.5, 6.0, 7.5, 8.5]])
 	var from: Vector2 = m.position if m != null else q.position
 	var best = null
 	var bs := INF
@@ -1926,7 +1927,7 @@ func _nb_find_spot_go(q: Unit, m: Unit):
 		var home := BroodRoot.home_region(game, cpos)
 		for ring in centres[ci][1]:
 			for i in 16:
-				var p: Vector2 = BroodRoot.snap(BroodNew.MAW, cpos + Vector2.from_angle(TAU * i / 16.0 + ring * 0.13) * ring * Defs.TILE)
+				var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.MAW, cpos + game.sym_dir(team, Vector2.from_angle(TAU * i / 16.0 + ring * 0.13)) * ring * Defs.TILE)
 				var c := game.cell_of(p)
 				if not _nb_on_map(p) or not game._walkable(c) or game.region_of(c) != home:
 					continue

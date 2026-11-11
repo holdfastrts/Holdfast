@@ -621,6 +621,11 @@ static func lay(g: Game, q: Unit, k: String) -> String:
 		# rooted, curled round her nest facing south-east: the eggs roll out in front of the nest's rim, south-west of her
 		# middle, where they can be seen (behind her they lay under her great body)
 		p = q.position + Vector2(-34.0 + float((n % 5) - 2) * 15.0, drawn_r(q) + 16.0 + float(n % 2) * 8.0)
+		if BroodRoot.has_fp(q):
+			# (start-spots-fix: worked out from her nest's middle in her side's first-start frame and mirrored back, so a
+			# mirrored Mother's eggs land on the mirrored side of her nest; Game.start_flip)
+			var qm := BroodRoot.rect_of(q).get_center()
+			p = g.sym_pt(q.team, g.sym_pt(q.team, qm) + (p - qm))
 	var fk := father_of(k)
 	var fa: Unit = father(g, q.team, fk) if fk != "" else null
 	var on_top := false
@@ -700,14 +705,14 @@ static func egg_spot(g: Game, q: Unit, pref: Vector2) -> Array:
 	var c := r.get_center()
 	var want := (pref - c).normalized() if pref.distance_to(c) > 1.0 else Vector2.DOWN
 	if rooted_q:
-		want = Vector2(0.0, 1.0)          # (her front: the nest's south side)
+		want = g.sym_dir(q.team, Vector2(0.0, 1.0))          # (her front: the nest's south side; mirrored with her start)
 	var best := Vector2.INF
 	var bs := INF
 	var steps := int((EGG_REACH - 0.4) * 2.0)         # (from 0.4 to just under EGG_REACH tiles past her rim, half a tile at a time)
 	for di in range(0, steps + 1):
 		var dd := (0.4 + di * 0.5) * Defs.TILE
 		for ai in 32:
-			var dir := Vector2.from_angle(TAU * ai / 32.0)
+			var dir := g.sym_dir(q.team, Vector2.from_angle(TAU * ai / 32.0))
 			var pt := _rim(r, dir) + dir * dd
 			var front := dir.dot(want)          # 1 front, 0 the sides, -1 behind
 			var sc := dd / Defs.TILE + (1.0 - front) * 0.7 + (1.5 if front < -0.5 else 0.0)
@@ -1616,7 +1621,7 @@ static func stack(u: Unit, top: float) -> Dictionary:
 ## trips differed by a third). Sideways is the middle of the two old trips; the side is picked in the first start's frame
 ## (Game.sym_dir), so mirrored Rootmaws pick mirrored flanks.
 static func flank_point(g: Game, src: Unit, gr: Unit) -> Vector2:
-	var i := (gr.serial % 7) - 3
+	var i := (gr.tserial % 7) - 3
 	var base := src.position + Vector2(-src.radius - 6.0, -2.0) if src.kind == MAW else src.position
 	var spread := Vector2(float(i) * 2.0, float(i) * 5.0)
 	if src.kind == MAW and BroodRoot.has_fp(src):

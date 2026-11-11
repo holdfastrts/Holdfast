@@ -15,6 +15,7 @@ const TOAD_MOUTH_OPEN := 2
 const COIL_TOP := {"s": Vector2(0, -53), "se": Vector2(1, -54), "e": Vector2(3, -57),
 		"ne": Vector2(1, -57), "n": Vector2(-1, -57)}
 
+var tserial := 0                # this unit's number among its side's units (Game._add_unit): mirrored sides' units match one for one
 var d: Dictionary:
 	set(v):
 		d = v
@@ -1928,7 +1929,7 @@ func setup(g: Game, k: String, t: int, pos: Vector2) -> void:
 
 
 func _ready() -> void:
-	_sep_n = serial % 3
+	_sep_n = tserial % 3       # (by the side's own count: mirrored sides shove on the same ticks, start-spots-fix)
 	_anim_dt = 0.033 if serial % 2 == 1 else 0.0       # (half the units step their pictures on the other tick: a crowd's frames don't all change on one)
 	sprite = Sprite2D.new()
 	sprite.centered = false
