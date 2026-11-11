@@ -65,12 +65,17 @@ static func tick(run: MissionRun, dt: float) -> void:
 				bd = dd
 				best = b
 		if best == null:
+			if u.has_meta("torch_burning"):
+				u.remove_meta("torch_burning")
 			continue
 		if bd <= TORCH_REACH:
+			u.set_meta("torch_burning", true)       # (Unit._anim_name: he plays his setting-fire strip)
 			best.take_damage(TORCH_DPS * dt + maxf(float(best.armor), 0.0), u)      # (armour ignored: Entity.take_damage takes it off)
 			if randf() < dt * 0.8:
 				g.spawn_effect("fire", best.center() + Vector2(randf_range(-30, 30), randf_range(-20, 20)), 0.8)
 			continue
+		if u.has_meta("torch_burning"):
+			u.remove_meta("torch_burning")
 		if run.player_teams.has(u.team):
 			continue
 		var t := float(u.get_meta("torch_t", 0.0)) - dt

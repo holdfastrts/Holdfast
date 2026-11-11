@@ -6920,6 +6920,8 @@ func _anim_name() -> String:
 			if _dispense_t > 0.0 and not moving:
 				return "unload"
 		"labourer":
+			if not moving and has_meta("torch_burning"):
+				return "mine"            # (a rebel torch-bearer setting a building alight: scripts/campaign/rebels.gd)
 			if keg:
 				return "carry_keg" if moving else "idle_keg"
 			if work == "loading":
@@ -8028,7 +8030,7 @@ func _draw_mission_marks(top: float) -> void:
 		var f := UiStyle.bold_font()
 		draw_string_outline(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, 3, Color(0, 0, 0, 0.85))
 		draw_string(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, Color(0.75, 1.0, 0.7))
-	if has_meta("torch"):
+	if has_meta("torch") and art != "rebel_torch":       # (the owner's drawn torch-bearer holds his own: docs/rebel_art.md)
 		var t := Time.get_ticks_msec() / 1000.0 + float(serial) * 0.37
 		var p := Vector2(9, -30) * Vector2(-1.0 if anim_flip else 1.0, 1.0)
 		draw_line(p + Vector2(0, 14), p, Color(0.35, 0.22, 0.1), 2.0)

@@ -590,10 +590,16 @@ The campaign's art is not decided yet (owner, 2026-11-03): until it is, these ar
 ## Campaign mission 1, the Free Assembly (code, 0.31.0, campaign-m1; docs/campaign_m1_build.md)
 
 - The torch-bearer's TORCH: a stick and a flickering flame drawn in code over a green Labourer (Unit._draw_mission_marks).
-  To go when the owner's rebel torch-bearer (torch in hand) is drawn.
+  GONE in 0.33.13 (rebel-art): the owner's torch-bearer holds his own; the code torch stays only for a torch-bearer
+  without the rebel_torch strips.
 - Names over units (Lord Fairleigh, Tomasz, Etienne Varenne): plain text in the bold UI font over the health bar.
 - The rebel stand-ins (militia, torch-bearer, Varenne) are Crown sprites in the green team colour; the pikeman is the
-  retired Pikeman's old strips (with the audit's faults: docs/animation_audit_units.md). The owner is drawing the rebels.
+  retired Pikeman's old strips (with the audit's faults: docs/animation_audit_units.md). REPLACED in 0.33.13
+  (rebel-art, docs/rebel_art.md) by the owner's ChatGPT rebels, cut by tools/import_rebels.py. Nothing of them is drawn
+  in code; frames MOVED in code (not redrawn): the rebel pikeman's thrust is one drawn man shifted back and forward
+  (the sheet's pikes run over the next man), the militiaman's bayonet thrust is his aim frame pushed forward, the
+  torch-bearer's walk north is one frame with a 1 px bob. The sheet faults (side views in the s group, front views in
+  Varenne's n group, the torch coming and going in the n group) are listed with redraw prompts in docs/rebel_art.md.
 - The opening / ending band under the stills (StillShow) and the CHOICE panel: UI drawn in code in the game's panel style.
 
 ## The Crown's ammunition (code and composite, 0.32.0, crown-ammo; docs/crown_ammo.md)

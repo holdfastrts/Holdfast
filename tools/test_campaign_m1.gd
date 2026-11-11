@@ -133,7 +133,18 @@ func _run() -> void:
 	for u in r.tagged("mass"):
 		if u.kind == "pikeman":
 			pike = u
-	check("a rebel pikeman wears the Pikeman's strips", pike != null and pike.art == "pikeman" and pike.sprite.texture != null)
+	check("a rebel pikeman wears the owner's rebel pikeman (rebel-art)", pike != null and pike.art == "rebel_pikeman" and pike.sprite.texture != null)
+	# (the owner's four ChatGPT rebels, docs/rebel_art.md: every animation the stand-in plays is drawn for each role)
+	var needs := {"militia": ["idle", "walk", "aim", "fire", "aimup", "fireup", "reload", "melee", "death"],
+		"pikeman": ["idle", "walk", "attack", "death"], "torch": ["idle", "walk", "mine", "build", "death"],
+		"varenne": ["idle", "walk", "aim", "fire", "melee", "death"]}
+	for role in needs:
+		var art := String(Rebels.ROLES[role]["art"])
+		var ok := ArtData.UNITS.has(art)
+		for an in needs[role]:
+			for d in ["s", "se", "e", "ne", "n"]:
+				ok = ok and ArtData.UNITS[art]["frames"].has("%s_%s" % [an, d]) and ResourceLoader.exists("res://assets/units/%s/%s_%s.png" % [art, an, d])
+		check("the %s's own sprites: every animation, every direction" % role, ok)
 	check("rebels in green", pike != null and int(g.colours[pike.team]) == 2)
 	check("night", r.light_node != null and r.light_name == "night" and r.light_node.color.b > r.light_node.color.r)
 	check("objectives: rising, manor, barns, dawn", r.objectives_for("crown").map(func(o): return o["id"]) == ["rising", "manor", "barns", "dawn"])

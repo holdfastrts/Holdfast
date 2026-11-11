@@ -65,6 +65,7 @@ rebel is a Crown unit given a ROLE (`"as": "<role>"` on a unit or spawn; Rebels.
 | pikeman | Pikeman (below) | the old Pikeman strips in green | `assets/units/rebel_pikeman/` |
 | varenne | Officer, named "Etienne Varenne" over his bar | the Officer in green | `assets/units/rebel_varenne/` |
 
+DONE in 0.33.13 (rebel-art, docs/rebel_art.md): all four roles wear the owner's ChatGPT rebels (tools/import_rebels.py).
 TO SWAP IN THE OWNER'S SPRITES: cut the strips like any unit's (`<anim>_<dir>.png`, dirs s, se, e, ne, n; the west is
 mirrored) into the folder in the last column, with the animation names the stand-in's unit uses (a militiaman: the
 Musketeer's idle, walk, aim, fire, reload, melee, death; the torch-bearer: the Labourer's idle, walk, mine, death; the
