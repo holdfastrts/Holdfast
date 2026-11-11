@@ -47,6 +47,9 @@
   0.33.13 (docs/rebel_art.md, redraw prompts inside), crown-ai-v2 0.33.14, clockwork-ai-v2 0.33.15, start-spots (study:
   docs/start_spots_study.md; its fixes WAIT for the owner: mirror the start units exactly, one base anchor (hall centre)
   for the computers, then study again). Then the KING'S STUDY hub 0.33.16 (docs/campaign_hub_art.md).
+  OWNER 2026-11-11 22:28: YES to the start-spot fixes (job start-spots-fix: mirror the start units, hall-centre anchor,
+  rerun the study) and a COACHED, FILMED Crown v Brood job (crown-v-brood-coach: "crown can beat brood, it's crown AI
+  that is bad"; Crown AI play only, no Brood balance change). Merge each on "DONE: <job>:".
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
