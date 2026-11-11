@@ -710,7 +710,7 @@ func _fight(foes: Array) -> void:
 			_order(h, anchor - dir * BACK_BAL, false, 60.0)
 	for h in heavies:
 		if h.kind == Defs.GREAT_WINDER_KIND:
-			if h.order == "cast" or h.order == "mend" or h.order == "sweep":
+			if h.order == "cast" or h.order == "mend" or h.order == "sweep" or _gw_busy(h):
 				continue
 			var gw_spot := anchor - dir * BACK_GW
 			if h.position.distance_to(fcen) < 200.0:
@@ -804,7 +804,7 @@ func _siege_tick() -> bool:
 		elif b.target != piece and b.position.distance_to(pc) < float(b.d["range"]) + 40.0:
 			b.cmd_attack(piece)
 	for h in units.filter(func(u: Unit) -> bool: return u.kind == Defs.GREAT_WINDER_KIND):
-		if h.order != "cast" and h.order != "mend" and h.order != "sweep":
+		if h.order != "cast" and h.order != "mend" and h.order != "sweep" and not _gw_busy(h):
 			_order(h, pc + from * (SIEGE_BAL + 70.0), false, 60.0)
 	# no Ballista left: the front breaks it itself (the shared siege rules are for waves); committed: the front helps
 	if bals.is_empty() or (committed and out_foes.is_empty()):
@@ -997,3 +997,9 @@ func _commit_goal() -> bool:
 	goal_e = best
 	goal = best.center()
 	return true
+
+
+## (clockwork-ai-v2) The Great Winder has a job by the push (AIClockwork.gw_tend: mending, or a wreck to sweep, no enemy
+## soldier near it): in a fight and at a siege too, not only on the march.
+func _gw_busy(h: Unit) -> bool:
+	return ai.get("gw_sweep_on") == true and ai.gw_tend(h, _front_centre(), -_dir())
