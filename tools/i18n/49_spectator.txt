@@ -543,6 +543,10 @@ es %s defiende su casa con %s contra %s.
 pt %s recua os defensores até a Mãe.
 es %s retira a sus defensores junto a la Madre.
 
+> %s turns its wave to meet an enemy army of %s heading for its Mother.
+pt %s vira a sua onda para enfrentar um exército inimigo de %s que vai rumo à sua Mãe.
+es %s gira su oleada para enfrentar a un ejército enemigo de %s que va hacia su Madre.
+
 > %s grows its Mother to stage %s.
 pt %s faz a sua Mãe crescer ao estágio %s.
 es %s hace crecer a su Madre a la fase %s.

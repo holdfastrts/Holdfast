@@ -2708,6 +2708,7 @@ const T := {
 	"%s defends its Mother with %s against %s.": "%s defiende a su Madre con %s contra %s.",
 	"%s defends its home with %s against %s.": "%s defiende su casa con %s contra %s.",
 	"%s pulls its defenders back to the Mother.": "%s retira a sus defensores junto a la Madre.",
+	"%s turns its wave to meet an enemy army of %s heading for its Mother.": "%s gira su oleada para enfrentar a un ejército enemigo de %s que va hacia su Madre.",
 	"%s grows its Mother to stage %s.": "%s hace crecer a su Madre a la fase %s.",
 	"%s researches %s.": "%s investiga %s.",
 	"%s takes new ground: a Mound Turtle roots %s tiles out.": "%s toma terreno nuevo: una Tortuga Montículo enraíza a %s casillas.",
