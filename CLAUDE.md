@@ -130,6 +130,12 @@
   consequences (start forces, allies, units, heroes alive/dead; a lost battle returns as a reclaim mission), hub remembers,
   branches split and rejoin (diamond), real splits only at the endings; a canon timeline kept for the writers. The two
   storylines (Brood: explorer v scientists; Clockwork: clockmaker v priest) CROSS 3 TIMES: beginning, middle, end.
+  - CAMPAIGN STRUCTURE PLAN (owner, DECIDED 2026-11-11 05:49; docs/campaign_structure.md): acts in time order AND
+  braided storylines AND a global war map (three-way in Act 3); listeners come and go; the finale is in the present and
+  the heir puts the King's lessons into practice; crossings = Church council in Rome, Brazil between Brood and Clockwork,
+  the global war (Clockwork and Brood also fight each other); solo/co-op/co-op versus all supported; 2 endings + minor
+  variations; 3 hubs (one per faction); no naval in the engine; medium to large; Act 1's choice = spare or execute
+  Varenne. Open: hub art approach.
   - CAMPAIGN FRAME (owner, idea 2026-11-04 09:50): the story is FLASHBACKS. Present: total global war; the Crown (a
   world empire, capital ROME, colonies round the globe, once unchecked) barely holds its key colonies and capitals. The
   campaign follows the fall from hegemony: heretical, rebellious uprisings (themed on the French Revolution) crushed by
