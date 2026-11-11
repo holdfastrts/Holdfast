@@ -108,4 +108,49 @@ Fixes for round 3:
   still on the road (more than 18 tiles from its goal), an enemy army worth 40% of the wave or more, seen nearer its
   Mother than the wave is (and not beside the wave), becomes the wave's target: it turns and meets it.
 
-(Rounds 3 onward below.)
+## Round 3: fixes 1 (final), 2 and 3 (Greenhold, Highmoor, Hollowfen, Kestrel Rise; seed 1)
+
+| map | result | income at 8:00 (P1 / P2) | waves P1 | waves P2 | meetings |
+|---|---|---|---|---|---|
+| Greenhold | P1 wins 13:39 | 9,825 / 9,683 | 6:30 23, 9:19 119 | 6:30 23, 7:38 44, 9:15 71 | 9:42 (P2) |
+| Highmoor | P1 wins 12:57 | 9,772 / 9,461 | 6:30 25, 9:54 134, 11:40 124 | 6:30 25, 9:47 119 | 6:48 (both), 10:06 (P1) |
+| Hollowfen | P1 wins 13:44 | 9,033 / 9,144 | 6:44 23, 11:46 109 | 8:47 84 | - |
+| Kestrel Rise | draw (P2 far ahead) | 9,598 / 9,743 | 6:30 30, 8:10 38 | 6:30 30, 8:22 72, 12:59 46 | 6:53 (P1), 7:01 (P2), 8:40 (P1) |
+
+No GREEDY read in any game now (all NORMAL: both play Balanced), no rider line. Three of four games decided. The
+meeting fires: on Highmoor at 6:48 both waves turned onto each other and fought in the middle; on Kestrel Rise at 6:53
+and 7:01.
+
+### Coach's notes, round 3
+
+- **THE QUEEN NOT FINISHED** (Greenhold): P1's 119-supply wave (109 Raptors) broke P2 at 9:54 (P2 called its own wave
+  home, "an attack at the Mother (2,300)"). P2's Mother then stood UP at 534 (11:00), 333 (12:00), 463 (13:00) of 2,400
+  health with 60 to 120 of P1's Raptors in her base, and lived until 13:39. The pictures show why: the Raptors on
+  attack-move bite whatever is nearest, her fresh eggs and hatchlings (her clutch was full, 20 of 20, she laid all the
+  time), her grubs and her Sires, while she heals. Five Raptors on her would take 100 health a second. A human player
+  kills the Mother: it is the game.
+- **THE SIRES ALL GET UP AND NOTHING IS LAID** (Highmoor, P2, also Greenhold and Kestrel Rise): from 11:00 P2's three
+  Sires stood up to defend her ("defends with 3 (1 tyrannosaur, 1 dilophosaurus, 1 pterodactyl)"). A warrior egg needs
+  its Sire rooted beside her, so no egg was laid for two minutes while the food went from 722 to 1,597 and her clutch sat
+  full (15 of 15). The Sires died one by one and grubs were turned into new lures (12:24 "a grub goes to grow the Tyrant
+  Lure"). The Mother fell at 12:57 with 1,597 food in the bank. Thirty Raptors from that bank, hatched in 11 seconds,
+  would have done more than three Sires' bites.
+- On Kestrel Rise P1 lost its army in the 8:10 and 8:22 waves and never rebuilt it: from 11:00 to 15:00 its army was its
+  three Sires, its income grew by 400 a minute (its Rootmaws razed one by one) and P2, far ahead (23,100 earned against
+  14,900), did not finish it (the same Queen problem: P2's waves bit eggs and Sires and went home at 25%).
+
+![Greenhold 11:36: P2's Mother at a fifth of her health, P1's Raptors on her eggs, clutch 20 of 20](shots/brood-v-brood-coach/r3_greenhold_1136_mother_not_focused.jpg)
+![Greenhold 12:11: still alive, the Raptors bite the Storm Sire and the hatchlings](shots/brood-v-brood-coach/r3_greenhold_1211_eggs_and_sires_absorb.jpg)
+![Highmoor 12:11: P2's Sires up, clutch full (15 of 15), nothing laid with 1,200 food banked](shots/brood-v-brood-coach/r3_highmoor_1211_sires_up_clutch_full.jpg)
+
+Fixes for round 4:
+- Fix 4, the Queen hunt (AIBroodNew._nb_queen_hunt, called from _nb_wave_tick): against another Brood, a wave within 14
+  tiles of the enemy Mother that it sees, with the upper hand there (the enemy warriors within 8 tiles of her worth under
+  70% of the wave, or her health under half), sends every creature that is not biting an enemy warrior beside it at her
+  (every 2 s).
+- Fix 5, the laying Sire stays (AIBroodNew._nb_sire_stays, used by _nb_one_father and _nb_defend): against another Brood,
+  while her clutch holds 3 eggs or more and the food for 3 of his warriors is there, the Sire of the quickest line (the
+  Tyrant Sire, else the Venom Sire) keeps his nest when an attack comes to her; the other Sires may still get up. And no
+  food is kept back for her next stage while an enemy army is at her (_nb_growth_keep, mirror only).
+
+(Round 4 onward below.)

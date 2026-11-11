@@ -547,6 +547,10 @@ es %s retira a sus defensores junto a la Madre.
 pt %s vira a sua onda para enfrentar um exército inimigo de %s que vai rumo à sua Mãe.
 es %s gira su oleada para enfrentar a un ejército enemigo de %s que va hacia su Madre.
 
+> %s's wave goes for the enemy Mother with %s creatures.
+pt A onda de %s vai atrás da Mãe inimiga com %s criaturas.
+es La oleada de %s va a por la Madre enemiga con %s criaturas.
+
 > %s grows its Mother to stage %s.
 pt %s faz a sua Mãe crescer ao estágio %s.
 es %s hace crecer a su Madre a la fase %s.

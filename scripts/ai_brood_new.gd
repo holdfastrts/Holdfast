@@ -2020,11 +2020,14 @@ func _nb_one_father(q: Unit, f: Unit) -> void:
 	var d := f.position.distance_to(q.position)
 	var reach := float(Defs.NB["father_r"]) * Defs.TILE
 	var threat := _nb_threat(q) != Vector2.INF
+	var stays := _nb_sire_stays(q, f)          # (brood-v-brood-coach: the laying Sire keeps his nest while eggs and food last)
 	if f.tesla_mode == "deployed":
-		if d > reach or (threat and _nb_sires_needed(q)):
+		if d > reach or (threat and _nb_sires_needed(q) and not stays):
 			f.cmd_uproot(false)       # (no rooted creature attacks: to fight off a real attack at the Mother he gets up)
 		return
-	if threat and _nb_sires_needed(q):
+	if stays and threat and _nb_sires_needed(q) and d <= reach and f.target == null:
+		pass                      # (up already: he roots again below, beside her)
+	elif threat and _nb_sires_needed(q):
 		return          # (uprooted, he fights with the others: _nb_army; a scout or a few raiders near her do not keep him off his nest)
 	if f.tesla_mode == "packed" and d > 14.0 * Defs.TILE and f.order != "move" and f.order != "nb_root":
 		# (on a leash: an enemy he chased off from her could lead him across the map, and while he is away her
@@ -2102,6 +2105,8 @@ func _nb_growth_keep(q: Unit) -> int:
 		return 0
 	if game.clock < _grow_at(st) or BroodNew.count_of(game, team, BroodNew.FATHER) == 0 or not _nb_grow_time(q):
 		return 0
+	if _foe_is("brood") and _nb_threat_big(q):
+		return 0          # (brood-v-brood-coach: no saving for her growth while an enemy army is at her: warriors first)
 	var need2 := float(Defs.NB["stages"][st + 1].get("cost2", 0))
 	if need2 > 0.0 and _spoils() < need2 * 0.6:
 		return 0          # (her spoils are far off: saving food for her meanwhile only starves the army, round 2's trap)
@@ -2940,6 +2945,8 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		_nb_join_fresh(army)
 		_nb_hold_rest(army)
 		return
+	# THE QUEEN HUNT (brood-v-brood-coach): at the enemy Mother with the upper hand, the wave goes for her, not her eggs
+	_nb_queen_hunt(mid, left)
 	# THE WRITTEN BUILD'S PUSH (scripts/ai_brood_builds.gd): the timing's march at the Spitters' pace, the Brutes' siege
 	if bb != null:
 		var steer: int = bb.tick(q, _wave, mid)
@@ -3038,6 +3045,48 @@ func _nb_meet_army(q: Unit, mid: Vector2, left: float) -> bool:
 			if u.target == null or u.order != "attack":
 				u.cmd_move(at, true)
 	return true
+
+
+## THE QUEEN HUNT (brood-v-brood-coach, docs/brood-v-brood-coach.md, round 3: on Greenhold P1's wave of 119 supply broke
+## P2's army at 9:54 and P2's Mother stood UP at 333-534 of 2,400 from 10:50 to 13:39 with 60-120 enemy Raptors round
+## her: they bit her fresh eggs, hatchlings and grubs (her clutch was full, 20 of 20, she laid all the time) and her Sires
+## while she healed; kill her and the game is won). Against another Brood only: a wave within QH_R tiles of the enemy
+## Mother that it sees, with the upper hand there (the enemy warriors round her worth under QH_SHARE of the wave, or her
+## health under half), sends every creature that is not biting an enemy warrior at her.
+const QH_R := 14.0
+const QH_NEAR := 8.0
+const QH_SHARE := 0.7
+var _qh_t := -99.0
+
+
+func _nb_queen_hunt(mid: Vector2, left: float) -> void:
+	if not _foe_is("brood") or _wave.is_empty() or game.clock - _qh_t < 2.0:
+		return
+	var fq := BroodNew.queen(game, _foe())
+	if fq == null or fq.dead or mid.distance_to(fq.position) > QH_R * Defs.TILE or not game.is_visible_to(team, fq.position):
+		return
+	var guard := 0.0
+	for u in game.units_near(fq.position, QH_NEAR * Defs.TILE):
+		if u.team == fq.team and not u.dead and u != fq and u.has_attack() and not u.is_worker() and not u._k_nb:
+			guard += float(Game.unit_value(u))
+	if guard >= left * QH_SHARE and fq.hp >= fq.max_hp * 0.5:
+		return
+	_qh_t = game.clock
+	var n := 0
+	for u in _wave:
+		var cu := u as Unit
+		if cu.target == fq or BroodNew.is_father(cu.kind):
+			continue
+		var tg = cu.target
+		if is_instance_valid(tg) and tg is Unit and not tg.dead and (tg as Unit).has_attack() and not (tg as Unit).is_worker() \
+				and not (tg as Unit)._k_nb and (tg as Unit).position.distance_to(cu.position) < 3.0 * Defs.TILE:
+			continue          # (biting a warrior beside it: it finishes that fight)
+		cu.cmd_attack(fq)
+		n += 1
+	if n > 0 and game.clock - float(_qh_said) > 30.0:
+		_qh_said = game.clock
+		say("goes for the enemy Mother with %d (she has %d of %d health)" % [n, int(fq.hp), int(fq.max_hp)])
+var _qh_said := -99.0
 
 
 ## Reinforcements: a group gathered at home (6 supply or more) joins the wave out.
@@ -3308,14 +3357,15 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 		var all_riders := group.all(func(o) -> bool: return is_rider(o))
 		if not _fight_wins(squad, group) and at.distance_to(q.position) < 22.0 * Defs.TILE and not all_riders:
 			var f := BroodNew.father(game, team, BroodNew.FATHER)
-			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f) and game.clock - float(_sire_home_t.get(f, -999.0)) > 40.0:
+			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f) and game.clock - float(_sire_home_t.get(f, -999.0)) > 40.0 \
+					and not _nb_sire_stays(q, f):
 				squad.append(f)       # (the Tyrant Sire: 1,000 health, a terrible bite; he roots again after)
 	elif at_mother or _fight_wins(avail, group, 0.8):
 		squad = avail
 		if at_mother and _nb_sires_needed(q) and not group.all(func(o) -> bool: return is_rider(o)):
 			for fk in BroodNew.FATHERS:
 				var f2 := BroodNew.father(game, team, fk)
-				if f2 and not BroodRoot.in_cocoon(f2) and not _wave.has(f2):
+				if f2 and not BroodRoot.in_cocoon(f2) and not _wave.has(f2) and not _nb_sire_stays(q, f2):
 					squad.append(f2)
 	if squad.is_empty() or (not at_mother and not _fight_wins(squad, group, 1.0)):
 		# too strong to meet away from her: the army gathers on her side and waits (no trickle)
@@ -3331,6 +3381,26 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 			cu.cmd_move(at, true)
 	say("defends with %d (%s, %d) against %d (%s) at %s" % [_def.size(), _kinds_of(_def), int(_value_of(_def)), int(e), _kinds_of(group), "the Mother" if at_mother else "home"])
 	return true
+
+
+## THE LAYING SIRE STAYS ON HIS NEST (brood-v-brood-coach, docs/brood-v-brood-coach.md, round 3: on Highmoor P2's three
+## Sires all got up to defend her from 11:00 and nothing could be laid (a warrior egg needs its Sire rooted beside her):
+## its food went from 722 to 1,597, its clutch full, no egg laid in two minutes, and the Mother fell at 12:57; on Kestrel
+## Rise and Greenhold the same, the Sires fought and died one by one and were lured again). Against another Brood, while
+## her clutch holds SIRE_EGGS eggs or more and the food for SIRE_EGGS of his warriors is there, the Sire whose line is
+## the quickest to hatch (the Tyrant Sire, Raptors; else the Venom Sire) keeps his nest: thirty Raptors from the bank in
+## a few seconds do more than his bite. The other Sires may still get up.
+const SIRE_EGGS := 3
+
+
+func _nb_sire_stays(q: Unit, f: Unit) -> bool:
+	if q == null or f == null or not _foe_is("brood"):
+		return false
+	var layer := BroodNew.FATHER if BroodNew.father(game, team, BroodNew.FATHER) != null else BroodNew.DILO
+	if f.kind != layer or int(q.nb.get("eggs", 0)) < SIRE_EGGS:
+		return false
+	var k := "raptor" if layer == BroodNew.FATHER else "spitter"
+	return _food() >= int(game.unit_price(team, k)[0]) * SIRE_EGGS
 
 
 const SIRE_LEASH := 16.0
