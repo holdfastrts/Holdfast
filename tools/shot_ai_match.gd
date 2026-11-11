@@ -23,6 +23,12 @@ var noretreat := false       # noretreat:1 a computer's siege is never called of
 var noopen := false          # noopen:1 the Clockwork's waves go for the main hall only (no open targets: AI.open_targets_on)
 var da := "hard"             # da:/db: the computers' difficulty (easy, normal, hard, brutal) for a: and b:
 var db := "hard"
+var sa := "balanced"          # (clockwork-v-clockwork-coach) sa:/sb: the computers' plans (optimal, economy, ...) for a: and b:
+var sb := "balanced"
+var every := 0.0             # every:N a picture of each side's army (where most of its soldiers are) every N s, and its main
+var _next_every := 0.0
+var status_lines: Array = []  # status.txt: a line per side every 15 s (bank, income, workers, army, halls, push phase)
+var _next_status := 15.0
 var minwave := 0             # minwave:N only a siege by a wave of at least N units is watched (the flags start with it)
 var siege_end := false       # siege_end:1 stop once the first siege has played out, writing siege.txt
 var _siege_t0 := -1.0
@@ -71,6 +77,9 @@ func _initialize() -> void:
 			"noopen": noopen = kv[1] == "1"
 			"da": da = kv[1]
 			"db": db = kv[1]
+			"sa": sa = kv[1]
+			"sb": sb = kv[1]
+			"every": every = float(kv[1])
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -88,9 +97,10 @@ func _process(delta: float) -> bool:
 		seed(seed_)
 		var facs := [fb, fa] if swap else [fa, fb]
 		var whos := [db, da] if swap else [da, db]
+		var strs := [sb, sa] if swap else [sa, sb]
 		var slots: Array = []
 		for i in 2:
-			slots.append({"who": whos[i], "faction": facs[i], "colour": i, "side": i, "strategy": "balanced"})
+			slots.append({"who": whos[i], "faction": facs[i], "colour": i, "side": i, "strategy": strs[i]})
 		main.start({"map": map, "seed": seed_, "slots": slots})
 		return false
 	if main.game == null:
@@ -139,6 +149,12 @@ func _process(delta: float) -> bool:
 		next_check = c + 2.0
 		_look_for_fight(c)
 	_event_shots(c)
+	_every_shots(c)
+	if c >= _next_status:
+		_next_status = c + 15.0
+		_status(c)
+		if int(c) % 60 < 15:
+			_dump()          # (the files so far, every minute: a film that dies on the way keeps what it saw)
 	if c >= next_wind:
 		next_wind = c + 30.0
 		_wind_line(c)
@@ -231,6 +247,24 @@ func _ai_line(c: float, tm: int) -> void:
 	if ai:
 		# (why a wave does not go out: the supply it waits for, the army's supply, a threat at home, detachments out)
 		ai_lines[-1] += " | attack_at %d army sup %d threat %s det %d" % [ai._attack_at, ai._army_supply(g.army(tm)), str(ai._threat()), ai._det.size()]
+		var pu = ai.get("push")
+		if pu != null:
+			# (clockwork-v-clockwork-coach) the push: phase, size, where its anchor and goal are, how much of its front is at
+			# the anchor, committed / hunting, the army's wind
+			var fr: Array = pu.units.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and pu._front_kind(u))
+			var near := fr.filter(func(u) -> bool: return pu.anchor != Vector2.INF and u.position.distance_to(pu.anchor) < pu._front_at(fr.size())).size()
+			var wsum := 0.0
+			for u in fr:
+				wsum += u.wind
+			ai_lines[-1] += " | push %s n %d (front %d, %d at anchor) value %d anchor %s goal %s %s dist %d committed %s hunt %s wind %.2f joining %d" % [pu.phase, pu.units.size(), fr.size(), near, int(pu._value(pu.units)),
+				g.cell_of(pu.anchor) if pu.anchor != Vector2.INF else "-", g.cell_of(pu.goal) if pu.goal != Vector2.INF else "-",
+				String(pu.goal_e.d["name"]) if pu.goal_e != null and is_instance_valid(pu.goal_e) and not pu.goal_e.dead else "-",
+				int(pu.anchor.distance_to(pu.goal)) if pu.anchor != Vector2.INF and pu.goal != Vector2.INF else -1, str(pu.committed), str(pu.get("hunt_on")), wsum / maxf(1, fr.size()), pu.joining.size()]
+			for h in pu.units:
+				if is_instance_valid(h) and not h.dead and (pu._heavy(h) or h.kind == Defs.GREAT_WINDER_KIND):
+					var back: float = (pu.BACK_GW_V2 if ai.get("gw_sweep_on") == true else pu.BACK_GW) if h.kind == Defs.GREAT_WINDER_KIND else pu.BACK_BAL
+					var spot: Vector2 = pu.anchor - pu._dir() * back if pu.anchor != Vector2.INF else h.position
+					ai_lines[-1] += " [%s %s off %d order %s]" % [h.kind, g.cell_of(h.position), int(h.position.distance_to(spot)), h.order]
 
 
 ## What each soldier in a fight shot is doing (written to <out>/why.txt): its order, what it is after, whether it can
@@ -431,7 +465,92 @@ func _shoot() -> void:
 	shooting = false
 
 
+## (clockwork-v-clockwork-coach) every N s: each side's army (the middle of its biggest group of soldiers) and its main.
+func _every_shots(c: float) -> void:
+	if every <= 0.0 or c < _next_every:
+		return
+	_next_every = c + every
+	for tm in 2:
+		var at := _army_spot(tm)
+		if at != Vector2.INF:
+			pending.append(["army_%d_%s.png" % [tm, _mmss(c)], at, 0.8])
+		var h: Building = g._own_hall(tm)
+		if h:
+			pending.append(["main_%d_%s.png" % [tm, _mmss(c)], h.global_position + Vector2(0, -40), 0.6])
+
+
+func _army_spot(tm: int) -> Vector2:
+	var list: Array = g.army(tm).filter(func(u) -> bool: return not u.is_air() or true)
+	var best := 0
+	var at := Vector2.INF
+	for u in list:
+		var k := 0
+		for o in list:
+			if o.position.distance_to(u.position) < 300.0:
+				k += 1
+		if k > best:
+			best = k
+			at = u.position
+	return at
+
+
+func _status(c: float) -> void:
+	for tm in 2:
+		var st: Dictionary = g.stats[tm]
+		var v := 0
+		var n := 0
+		var down := 0
+		for u in g.army(tm):
+			v += Game.unit_value(u)
+			n += 1
+			if u.powered_down():
+				down += 1
+		var ph := "-"
+		for a in g.ais:
+			if a.team == tm and ("push" in a) and a.push != null:
+				ph = String(a.push.phase) if String(a.push.phase) != "" else "home"
+		var plan := "?"
+		for a in g.ais:
+			if a.team == tm:
+				plan = a.strategy
+		var tens := ""
+		if g.factions[tm] == "clockwork":
+			tens = " tension %d" % int(float(g.players[tm].get("res2", 0.0)))
+		status_lines.append("%s P%d %s bank %d earned %d spent %d workers %d idle %d army %d (%d units, %d run down) halls %d supply %d/%d lost %d bld_lost %d push %s%s" % [_mmss(c), tm + 1, plan,
+			int(g.players[tm]["gold"]), int(st["gold"]), int(st["spent"]), g.workers(tm).size(),
+			g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size(), v, n, down, g.halls_of(tm).size(),
+			g.supply_used(tm), int(g.players[tm]["cap"]), int(st["lost"]), int(st["bld_lost"]), ph, tens])
+
+
 func _finish() -> void:
+	_dump()
+	var r := FileAccess.open(out.path_join("result.txt"), FileAccess.WRITE)
+	r.store_line("over %s winner %s clock %.0f" % [str(g.over), str(g.get("winner")), g.clock])
+	r.close()
+
+
+func _dump() -> void:
+	var sf := FileAccess.open(out.path_join("status.txt"), FileAccess.WRITE)
+	for l in status_lines:
+		sf.store_line(l)
+	sf.close()
+	var story := FileAccess.open(out.path_join("story.txt"), FileAccess.WRITE)
+	if g.mlog:
+		for l in g.mlog.lines:
+			var line := str(l)
+			for tm in 2:
+				var who: String = g.mlog.who(tm)
+				var i := line.find(who)
+				if i < 0 or i > 12:
+					continue
+				var rest := line.substr(i + who.length())
+				rest = rest.strip_edges(true, false) if not rest.begins_with("'s ") else rest
+				var m := AIStoryLines.match_line(rest)
+				if not m.is_empty() and String(m["template"]) != "" and int(m["prio"]) >= 2:
+					var args: Array = ["P%d %s" % [tm + 1, g.faction_of(tm).capitalize()]] + (m["args"] as Array)
+					var tpl := String(m["template"])
+					story.store_line("%s %s" % [line.substr(0, 7), tpl % args if tpl.count("%s") == args.size() else tpl])
+	story.close()
 	var f := FileAccess.open(out.path_join("log.txt"), FileAccess.WRITE)
 	if g.mlog:
 		for l in g.mlog.lines:
@@ -449,6 +568,3 @@ func _finish() -> void:
 	for l in ai_lines:
 		af.store_line(l)
 	af.close()
-	var r := FileAccess.open(out.path_join("result.txt"), FileAccess.WRITE)
-	r.store_line("over %s winner %s clock %.0f" % [str(g.over), str(g.get("winner")), g.clock])
-	r.close()

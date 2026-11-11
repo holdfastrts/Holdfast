@@ -403,7 +403,9 @@ func _dry_hand_over() -> bool:
 func _army() -> void:
 	if hunt == null:
 		hunt = AIHunt.new(self)
-	if hunt.tick(game.army(team)):
+	if army_g != null and cw_hunt_on:
+		_cw_hunt()          # (clockwork-v-clockwork-coach: the hunt is the push's, which keeps the army wound)
+	elif hunt.tick(game.army(team)):
 		return              # (rules-fixes 3: the enemy has no army left: the whole army goes for its last buildings, ai_hunt.gd)
 	if army_g != null:
 		if push == null:
@@ -437,6 +439,58 @@ func _army() -> void:
 ## (clockwork-army) The shared computer's army rules split the Clockwork's army over the scout, the harass, the round-5
 ## guard, the detachments and the rally; ONE ARMY instead (scripts/ai_cw_army.gd): what is not on a plan's errand (nor in
 ## the push) gathers, defends and goes out together.
+## (clockwork-v-clockwork-coach) THE CLOCKWORK'S HUNT. The shared hunt (scripts/ai_hunt.gd) took the whole army off the push
+## and the ONE ARMY rules: no escort Winders went along, no rewinding, and the army walked to the enemy's buildings as a
+## stream. A Clockwork army off its gears runs down in ~80 s: 50 of 78 soldiers stood run down in the enemy's main at 14:02
+## (Hollowfen mirror, a draw with the enemy at 0 army from 12:00). Now the push hunts (CwPush.hunt_on): out with whatever is
+## at home, committed, the enemy's nearest building of any kind, its escort Winders and the rewind as on any push. And it
+## ends only for an army worth HUNT_END_K of ours (the shared hunt ended for one new soldier and began again 5 s later,
+## eight times in a game). `-- cwhunt:off` plays it as 0.33.16.
+var cw_hunt_on := not OS.get_cmdline_user_args().has("cwhunt:off")
+const HUNT_END_K := 0.25
+const HUNT_END_MIN := 300.0
+var _cw_hunt_next := 0.0
+
+
+func _cw_hunt() -> void:
+	if push == null or game.clock < _cw_hunt_next:
+		return
+	_cw_hunt_next = game.clock + AIHunt.EVERY
+	var foe := _foe()
+	if foe < 0 or peaceful:
+		_cw_hunt_set(false, "")
+		return
+	var fv := 0.0
+	for u in game.units:
+		if AIHunt.fighter(u, foe):
+			fv += float(_unit_value(u))
+	if fv > 0.0:
+		hunt._had_army[foe] = true
+	var mine := 0.0
+	for u in game.army(team):
+		if AIHunt.fighter(u, team):
+			mine += float(_unit_value(u))
+	if push.hunt_on and fv >= maxf(HUNT_END_MIN, mine * HUNT_END_K):
+		_cw_hunt_set(false, "the enemy has an army again")
+		return
+	if fv > 0.0 and not push.hunt_on:
+		return
+	if not hunt._had_army.has(foe) and game.clock < AIHunt.HUNT_AFTER:
+		return
+	_cw_hunt_set(true, "")
+
+
+func _cw_hunt_set(on: bool, why: String) -> void:
+	if push.hunt_on == on:
+		return
+	push.hunt_on = on
+	if game.mlog:
+		if on:
+			game.mlog.add("%s hunts: the enemy has no army left (%d units go for its last buildings)" % [game.mlog.who(team), game.army(team).size()])
+		elif why != "":
+			game.mlog.add("%s ends the hunt: %s" % [game.mlog.who(team), why])
+
+
 func _army_one() -> void:
 	if _sw():
 		swm().tick()            # (clock-ai-swarm: the enemy army in sight, the swarm in it: the Pendulums it wants)
