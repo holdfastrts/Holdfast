@@ -1335,19 +1335,18 @@ func _lost_halls_crown() -> void:
 		if bool(_hall_ids[id][1]) or _site_was_hit(c):
 			note_lost_site(c)
 			lost_halls += 1
+			_last_lost_t = game.clock
 			if game.mlog:
 				game.mlog.add("%s lost a Town Hall%s at %s: that ground waits %d s and then only with no enemy there" % [
 					game.mlog.who(team), "" if bool(_hall_ids[id][1]) else " (unfinished)", str(c), int(LOST_HALL_WAIT)])
 	_hall_ids = now
 
 
-## An unfinished hall that vanished: razed by the enemy (an enemy soldier near it), or cancelled by us (no one there).
+## An unfinished hall that vanished: razed by the enemy, or given up because raiders chased its builders off (both say
+## the enemy holds that ground: Frostmere, a site given up at 9:50 was laid again and lost at 13:35); only a site dropped
+## because the ground stayed blocked (AI.site_failed "blocked") is no loss.
 func _site_was_hit(c: Vector2i) -> bool:
-	var cc := (Vector2(c) + Vector2(MapGen.HALL) * 0.5) * float(Defs.TILE)
-	for u in game.units_near(cc, 12.0 * Defs.TILE):
-		if game.hostile(u.team, team) and not u.dead and not u.is_worker():
-			return true
-	return game.clock - float(_abandoned.get(String(_f()["hall"]), -99.0)) > 5.0
+	return not (_bad_sites.has(c) and float((_bad_sites[c] as Array)[1]) > game.clock)
 
 
 ## A hall spot by ground we lost lately: no until the wait is over (LOST_HALL_WAIT), then only with no enemy soldier seen
@@ -1370,6 +1369,19 @@ func _foe_at_site(c: Vector2i) -> bool:
 		if game.hostile(u.team, team) and not u.dead and not u.is_worker() and u.has_attack() and game.is_visible_to(team, u.position):
 			return true
 	return false
+
+
+## THE ARMY BEFORE THE NEXT HALL AFTER A LOSS: a hall lost lately (LOST_HALL_WAIT) while the army is far behind the
+## enemy's it reckons (under LAG_SHARE of foe_reckon, the Brood's foe_estimate): no new hall, the gold goes to the army (Frostmere v the Clockwork: after
+## its natural fell at 8:50 the Crown laid four more sites on four spots in five minutes and lost every one).
+var _last_lost_t := -999.0
+
+
+func _beaten_back() -> bool:
+	if game.clock - _last_lost_t > LOST_HALL_WAIT or game.halls_of(team, false).is_empty():
+		return false
+	var est: float = foe_estimate() if _foe_is("brood") else foe_reckon()
+	return est > 0.0 and float(game.army_value(team)) < est * LAG_SHARE
 
 
 ## REBUILD ONCE: one hall left and a fight at it: no new expansion while it lasts.
@@ -1590,7 +1602,7 @@ func _construct(kind: String, at := Vector2i(-1, -1)) -> void:
 		foundry_swaps += 1
 		super("foundry")
 		return
-	if on and lost_wait_on and kind == String(_f()["hall"]) and at.x >= 0 and (lost_ground(at) or rebuild_keep() or _foe_at_site(at)):
+	if on and lost_wait_on and kind == String(_f()["hall"]) and at.x >= 0 and (lost_ground(at) or rebuild_keep() or _foe_at_site(at) or _beaten_back()):
 		# (crown-ai-v2: every hall path comes here, the shared ones too (_more_halls' ground round a hall, the natural's
 		# spot): not on ground where a hall was just lost, nor while the last hall is in a fight. The Border March game
 		# laid its hall site twice more on the spot it lost at 13:25, through _more_halls' find_spot)
