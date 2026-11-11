@@ -2135,6 +2135,12 @@ func sym_dir(t: int, d: Vector2) -> Vector2:
 	return Vector2(-d.x if f.x == 1 else d.x, -d.y if f.y == 1 else d.y)
 
 
+## A cell offset carried the same way (a step round a cell).
+func sym_off(t: int, d: Vector2i) -> Vector2i:
+	var f := _flip_of(t)
+	return Vector2i(-d.x if f.x == 1 else d.x, -d.y if f.y == 1 else d.y)
+
+
 ## A footprint's top-left cell (size `size`) carried the same way.
 func sym_rect(t: int, c: Vector2i, size: Vector2i) -> Vector2i:
 	var f := _flip_of(t)
@@ -3622,7 +3628,9 @@ func remove_ghost(b: Building) -> void:
 
 ## The nearest free cell, preferring one on the open map (not a sealed pocket between
 ## buildings, where a unit put there could never walk out); a pocket only if there's nothing else.
-func nearest_free(c: Vector2i, max_r := 10) -> Vector2i:
+## `team`: look round in that side's first-start reading order (start-spots-fix: Game.start_flip), so equal distances
+## fall the mirrored way for a mirrored side; -1 the plain order.
+func nearest_free(c: Vector2i, max_r := 10, team := -1) -> Vector2i:
 	if is_free(c) and in_open_map(c):
 		return c
 	var pocket := Vector2i(-1, -1)
@@ -3633,7 +3641,7 @@ func nearest_free(c: Vector2i, max_r := 10) -> Vector2i:
 			for x in range(-r, r + 1):
 				if absi(x) != r and absi(y) != r:
 					continue
-				var cc := c + Vector2i(x, y)
+				var cc := c + sym_off(team, Vector2i(x, y))
 				if is_free(cc):
 					if not in_open_map(cc):
 						if pocket.x < 0:
@@ -3654,9 +3662,9 @@ func nearest_free(c: Vector2i, max_r := 10) -> Vector2i:
 ## by (a click on the rim of a plateau, which is a cliff cell, or on a tree on the high ground
 ## means the high ground; the nearest free cell by distance alone was as often the low ground
 ## below the cliff, and the units went all the way round to stand under it). Else nearest_free.
-func nearest_free_level(c: Vector2i, max_r := 8) -> Vector2i:
+func nearest_free_level(c: Vector2i, max_r := 8, team := -1) -> Vector2i:
 	if not in_map(c) or (is_free(c) and in_open_map(c)):
-		return nearest_free(c, max_r)
+		return nearest_free(c, max_r, team)
 	var lv := int(height[idx(c)])
 	for r in range(1, max_r + 1):
 		var best := Vector2i(-1, -1)
@@ -3665,7 +3673,7 @@ func nearest_free_level(c: Vector2i, max_r := 8) -> Vector2i:
 			for x in range(-r, r + 1):
 				if absi(x) != r and absi(y) != r:
 					continue
-				var cc := c + Vector2i(x, y)
+				var cc := c + sym_off(team, Vector2i(x, y))
 				if is_free(cc) and int(height[idx(cc)]) == lv and ramp[idx(cc)] == 0 and in_open_map(cc):
 					var dd := Vector2(x, y).length()
 					if dd < bd:
@@ -3673,7 +3681,7 @@ func nearest_free_level(c: Vector2i, max_r := 8) -> Vector2i:
 						best = cc
 		if best.x >= 0:
 			return best
-	return nearest_free(c, max_r)
+	return nearest_free(c, max_r, team)
 
 
 ## Walkable for everyone: open ground or a Farm's crop rows (not gates).
@@ -5867,8 +5875,8 @@ func queue_path(u: Unit) -> void:
 ## unit's own half-width: a big Brute or a gun keeps further from corners than a man).
 func find_path(from: Vector2, to: Vector2, siege := false, margin := 7.0, team := -1) -> PackedVector2Array:
 	# (a Farm's crop rows are walkable: a unit on them starts, or ends, right there)
-	var a := cell_of(from) if open_cell(cell_of(from)) else nearest_free(cell_of(from), 6)
-	var b := cell_of(to) if open_cell(cell_of(to)) else nearest_free_level(cell_of(to), 8)
+	var a := cell_of(from) if open_cell(cell_of(from)) else nearest_free(cell_of(from), 6, team)
+	var b := cell_of(to) if open_cell(cell_of(to)) else nearest_free_level(cell_of(to), 8, team)
 	var pt := Time.get_ticks_usec()
 	# (beside a ramp's rail: the pathfinder starts or ends at the nearest cell open to it, and
 	# the last step is walked from there; docs/ramp_funnel.md)

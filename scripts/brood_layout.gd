@@ -375,7 +375,7 @@ static func feeds_maws(g: Game, src: Unit) -> Array:
 	if src == null or src.dead or not BroodNew.rooted(src):
 		return out
 	var srcs := BroodNew.swamp_sources(g, src.team)
-	var mine := [src.position / T, minf(BroodNew.swamp_full(src), float(src.nb.get("swr", 0.0)))]
+	var mine := [BroodRoot.anchor(g, src) / T, minf(BroodNew.swamp_full(src), float(src.nb.get("swr", 0.0)))]       # (start-spots-fix: as swamp_sources)
 	for m in g.units:
 		if m.dead or m.team != src.team or m.kind != BroodNew.MAW or m.tesla_mode == "packed":
 			continue

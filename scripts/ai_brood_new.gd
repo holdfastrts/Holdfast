@@ -1640,18 +1640,22 @@ func _nb_turtle_spot(q: Unit, me: Unit):
 
 func _nb_turtle_spot_go(q: Unit, me: Unit):
 	var home := BroodRoot.home_region(game, q.position)
-	var qm := BroodRoot.mid_of(q)          # (start-spots-fix: from her nest's middle, the ring turned with her start)
+	# (start-spots-fix: the ring is laid in this side's first-start frame, as the first start always laid it, and each spot
+	# mirrored back: BroodRoot.feet_k / sym_snap)
+	var qk := BroodRoot.feet_k(game, team, q)
 	for ring in [7.0, 9.0, 11.0, 13.0]:
 		for i in 12:
-			var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.TURTLE, qm + game.sym_dir(team, Vector2.from_angle(TAU * i / 12.0 + ring)) * ring * Defs.TILE)
-			var c := game.cell_of(p)
-			if not _nb_on_map(p) or not game._walkable(c) or game.region_of(c) != home:
+			var pr: Vector2 = qk + Vector2.from_angle(TAU * i / 12.0 + ring) * ring * Defs.TILE
+			var p_k: Vector2 = BroodRoot.snap(BroodNew.TURTLE, pr)
+			var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.TURTLE, pr)
+			var c: Vector2i = game.sym_rect(team, game.cell_of(p_k), Vector2i.ONE)
+			if not _nb_on_map(p_k) or not game._walkable(c) or game.region_of(c) != home:
 				continue
 			if BroodRoot.place_problem(game, team, BroodNew.TURTLE, p, me, true) != "" or _spot_bad(p):
 				continue
 			var ok := true
 			for o in BroodRoot._bt_mine:
-				if o != me and o.team == team and (o.kind == BroodNew.TURTLE or o.kind == BroodNew.MAW) and not o.dead and o.position.distance_to(p) < 5.0 * Defs.TILE:
+				if o != me and o.team == team and (o.kind == BroodNew.TURTLE or o.kind == BroodNew.MAW) and not o.dead and BroodRoot.feet_k(game, team, o).distance_to(p_k) < 5.0 * Defs.TILE:
 					ok = false
 					break
 			if ok:
@@ -1673,21 +1677,24 @@ func _nb_supply_turtle_spot(q: Unit, me: Unit):
 
 
 func _nb_supply_turtle_spot_go(q: Unit, me: Unit):
-	var centres: Array = [BroodRoot.mid_of(q)]        # (start-spots-fix: footprints' middles)
+	var centres: Array = [BroodRoot.feet_k(game, team, q)]        # (start-spots-fix: in this side's first-start frame)
 	for t in _nb_mine(BroodNew.TURTLE):
 		if t != me and BroodNew.rooted(t):
-			centres.append(BroodRoot.mid_of(t))
+			centres.append(BroodRoot.feet_k(game, team, t))
 	var qreg := game.region_of(game.cell_of(q.position))
+	var qk := BroodRoot.feet_k(game, team, q)
 	var best = null
 	var bs := INF
 	for cpos in centres:
 		for ring in [5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0]:
 			for i in 16:
-				var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.TURTLE, (cpos as Vector2) + game.sym_dir(team, Vector2.from_angle(TAU * i / 16.0 + ring * 0.37)) * ring * Defs.TILE)
-				var c := game.cell_of(p)
-				if not _nb_on_map(p) or not game._walkable(c) or _spot_bad(p):
+				var pr: Vector2 = (cpos as Vector2) + Vector2.from_angle(TAU * i / 16.0 + ring * 0.37) * ring * Defs.TILE
+				var p_k: Vector2 = BroodRoot.snap(BroodNew.TURTLE, pr)
+				var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.TURTLE, pr)
+				var c: Vector2i = game.sym_rect(team, game.cell_of(p_k), Vector2i.ONE)
+				if not _nb_on_map(p_k) or not game._walkable(c) or _spot_bad(p):
 					continue
-				var s := p.distance_to(q.position) + (0.0 if game.region_of(c) == qreg else 300.0)
+				var s := p_k.distance_to(qk) + (0.0 if game.region_of(c) == qreg else 300.0)
 				if s >= bs:
 					continue
 				if _foe_near(p, 10.0 * Defs.TILE):
@@ -1712,18 +1719,23 @@ func _nb_supply_turtle_spot_go(q: Unit, me: Unit):
 func _nb_father_spot(q: Unit, me: Unit, k: String = BroodNew.FATHER):
 	var home := BroodRoot.home_region(game, q.position)
 	var reach := float(Defs.NB["father_r"]) * Defs.TILE
-	var from: Vector2 = me.position if me != null else q.position + Vector2(0, reach)
+	var qk := BroodRoot.feet_k(game, team, q)        # (start-spots-fix: in this side's first-start frame, mirrored back)
+	var from: Vector2 = BroodRoot.feet_k(game, team, me) if me != null else qk + Vector2(0, reach)
 	for frac in [0.75, 0.6, 0.9, 0.5, 1.0]:
 		var best = null
+		var best_k := Vector2.INF
 		for i in 24:
-			var p: Vector2 = BroodRoot.sym_snap(game, team, k, BroodRoot.mid_of(q) + game.sym_dir(team, Vector2.from_angle(TAU * i / 24.0)) * reach * frac)
-			var c := game.cell_of(p)
-			if not _nb_on_map(p) or not game._walkable(c) or game.region_of(c) != home:
+			var pr: Vector2 = qk + Vector2.from_angle(TAU * i / 24.0) * reach * frac
+			var p_k: Vector2 = BroodRoot.snap(k, pr)
+			var p: Vector2 = BroodRoot.sym_snap(game, team, k, pr)
+			var c: Vector2i = game.sym_rect(team, game.cell_of(p_k), Vector2i.ONE)
+			if not _nb_on_map(p_k) or not game._walkable(c) or game.region_of(c) != home:
 				continue
 			if BroodRoot.place_problem(game, team, k, p, me, true) != "" or BroodRoot.rect_for(k, p).intersects(_nb_mother_ground(q)) or _spot_bad(p):
 				continue
-			if best == null or p.distance_to(from) < (best as Vector2).distance_to(from):
+			if best == null or p_k.distance_to(from) < best_k.distance_to(from):
 				best = p
+				best_k = p_k
 		if best != null:
 			return best
 	return null
@@ -1913,12 +1925,15 @@ func _nb_find_spot(q: Unit, m: Unit):
 
 
 func _nb_find_spot_go(q: Unit, m: Unit):
-	var centres: Array = [[BroodRoot.mid_of(q), [8.0, 11.0, 14.0, 17.0, 20.0]]]       # (start-spots-fix: footprints' middles)
+	# (start-spots-fix: the rings are laid in this side's first-start frame, as the first start always laid them, and each
+	# spot mirrored back: BroodRoot.feet_k / sym_snap)
+	var centres: Array = [[q.position, [8.0, 11.0, 14.0, 17.0, 20.0], BroodRoot.feet_k(game, team, q)]]
 	var far := float(Defs.NB["expansion_tiles"]) * Defs.TILE * 0.9
 	for t in _nb_mine(BroodNew.TURTLE):
 		if BroodNew.rooted(t) and t.position.distance_to(q.position) >= far:
-			centres.append([BroodRoot.mid_of(t), [4.5, 6.0, 7.5, 8.5]])
-	var from: Vector2 = m.position if m != null else q.position
+			centres.append([t.position, [4.5, 6.0, 7.5, 8.5], BroodRoot.feet_k(game, team, t)])
+	var qk := BroodRoot.feet_k(game, team, q)
+	var from: Vector2 = BroodRoot.feet_k(game, team, m) if m != null else qk
 	var best = null
 	var bs := INF
 	for ci in centres.size():
@@ -1927,9 +1942,11 @@ func _nb_find_spot_go(q: Unit, m: Unit):
 		var home := BroodRoot.home_region(game, cpos)
 		for ring in centres[ci][1]:
 			for i in 16:
-				var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.MAW, cpos + game.sym_dir(team, Vector2.from_angle(TAU * i / 16.0 + ring * 0.13)) * ring * Defs.TILE)
-				var c := game.cell_of(p)
-				if not _nb_on_map(p) or not game._walkable(c) or game.region_of(c) != home:
+				var pr: Vector2 = (centres[ci][2] as Vector2) + Vector2.from_angle(TAU * i / 16.0 + ring * 0.13) * ring * Defs.TILE
+				var p_k: Vector2 = BroodRoot.snap(BroodNew.MAW, pr)
+				var p: Vector2 = BroodRoot.sym_snap(game, team, BroodNew.MAW, pr)
+				var c: Vector2i = game.sym_rect(team, game.cell_of(p_k), Vector2i.ONE)
+				if not _nb_on_map(p_k) or not game._walkable(c) or game.region_of(c) != home:
 					continue
 				# (the ROOT checks: its footprint, on its side's swamp, its circle clear of the others' and of their plans)
 				# (or where the swamp is spreading to, 1 tile a second: it will be there when the grub is)
@@ -1942,11 +1959,11 @@ func _nb_find_spot_go(q: Unit, m: Unit):
 					continue
 				if not _nb_spot_ok(p) or BroodRoot.place_problem(game, team, BroodNew.MAW, p, m, true, 1.0, not soon) != "" or _spot_bad(p):
 					continue
-				var s := p.distance_to(q.position) * (1.0 if ci == 0 else 0.6) + (60.0 if int(game.height[game.idx(c)]) != h else 0.0) + p.distance_to(from) * 0.3
+				var s := p_k.distance_to(qk) * (1.0 if ci == 0 else 0.6) + (60.0 if int(game.height[game.idx(c)]) != h else 0.0) + p_k.distance_to(from) * 0.3
 				if _eco():
 					# (the owner's build: a Rootmaw at the FAR edge of the ground it roots on, the expansions first: a load
 					# from farther pays more and the Rootmaw takes more grubs; its draw is the same, so fewer eggs make it pay)
-					s = -p.distance_to(q.position) * 0.5 + (0.0 if ci > 0 else 400.0) + (60.0 if int(game.height[game.idx(c)]) != h else 0.0) + p.distance_to(from) * 0.1
+					s = -p_k.distance_to(qk) * 0.5 + (0.0 if ci > 0 else 400.0) + (60.0 if int(game.height[game.idx(c)]) != h else 0.0) + p_k.distance_to(from) * 0.1
 				var foe := _nb_nearest_foe_pos(p)
 				if foe != Vector2.INF:
 					s -= foe.distance_to(p) * 0.15         # (a little away from the enemy)

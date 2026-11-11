@@ -70,15 +70,28 @@ static func feet_at(k: String, c: Vector2i, sc := 1.0) -> Vector2:
 	return (Vector2(c) + Vector2(f[0] as Vector2i) * 0.5) * T - (f[1] as Vector2)
 
 
-## A creature's middle that mirrors with its side's start: its footprint's middle when it has one, else its feet.
-static func mid_of(u: Unit) -> Vector2:
-	return rect_of(u).get_center() if has_fp(u) else u.position
+## (start-spots-fix) A creature's feet as side t's first start would have it: its footprint mirrored into that frame
+## (Game.start_flip), and the feet of that; a creature with no footprint, its feet carried over. Searches for spots round
+## a creature work from here in that frame and snap back with sym_snap.
+static func feet_k(g: Game, t: int, u: Unit) -> Vector2:
+	if not has_fp(u):
+		return g.sym_pt(t, u.position)
+	var sc := scale_of(u)
+	var sz: Vector2i = fp(u.kind, sc)[0]
+	return feet_at(u.kind, g.sym_rect(t, Vector2i(int(u.nb["fpx"]), int(u.nb["fpy"])), sz), sc)
 
 
-## The feet of a `k` whose footprint's middle is (about) at m, snapped to the grid in side t's first-start frame and
-## mirrored back (Game.start_flip), so mirrored sides root mirrored footprints (start-spots-fix).
-static func sym_snap(g: Game, t: int, k: String, m: Vector2, sc := 1.0) -> Vector2:
-	return feet_at(k, g.sym_rect(t, cell_centred(k, g.sym_pt(t, m), sc), fp(k, sc)[0]), sc)
+## (start-spots-fix) Where a rooted creature's reach is measured from (its swamp's middle): its feet as the first start of
+## its side's mirror set would have them, carried back (for that first start, its own feet). A footprint's feet hang
+## below its middle ON SCREEN, so the plain feet would put a mirrored side's swamp on the other side of its nest.
+static func anchor(g: Game, u: Unit) -> Vector2:
+	return g.sym_pt(u.team, feet_k(g, u.team, u))
+
+
+## The feet where a `k` told to root at p_k (feet, in side t's first-start frame) roots, carried back to side t's own
+## frame: its footprint is the mirror of the one the first start would get (start-spots-fix).
+static func sym_snap(g: Game, t: int, k: String, p_k: Vector2, sc := 1.0) -> Vector2:
+	return feet_at(k, g.sym_rect(t, cell_for(k, p_k, sc), fp(k, sc)[0]), sc)
 
 
 ## p snapped to the grid: where a `k` roots when told to root at p.

@@ -2041,7 +2041,9 @@ func _flee_spot(w: Unit, centre: Vector2, army: Array, halls: Array, help: int) 
 	for p in cands:
 		if not game.passable(Vector2i(p / float(Game.T)), team):
 			continue
-		var score: float = minf(p.distance_to(centre), 500.0) - 0.35 * p.distance_to(w.position)
+		var score: float = minf(p.distance_to(centre), 500.0) - 0.35 * p.distance_to(w.position) + 0.001 * p.distance_to(centre)
+		# (the last term only breaks the ties of the 500 px cap: the farthest from the raid; it used to fall to whichever
+		# point a pixel's rounding put first, start-spots-fix)
 		if up != Vector2.INF and p == up:
 			score += 0.35 * p.distance_to(w.position) + 300.0       # (the walk up is not held against it)
 		for d in _danger_pts:
@@ -3865,9 +3867,10 @@ func _ramp_bands() -> Array:
 		return out
 	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
 	var left := {}
-	for y in range(int(home.y) - 22, int(home.y) + 23):
-		for x in range(int(home.x) - 22, int(home.x) + 23):
-			var c := Vector2i(x, y)
+	var hk: Vector2 = game.sym_pt(team, home * Defs.TILE) / Defs.TILE       # (in this side's first-start frame: start-spots-fix)
+	for y in range(int(hk.y) - 22, int(hk.y) + 23):
+		for x in range(int(hk.x) - 22, int(hk.x) + 23):
+			var c: Vector2i = game.sym_rect(team, Vector2i(x, y), Vector2i.ONE)
 			if game.in_map(c) and game.ramp[game.idx(c)] == 1:
 				left[c] = true
 	while not left.is_empty():
@@ -3879,7 +3882,7 @@ func _ramp_bands() -> Array:
 			var c: Vector2i = todo.pop_back()
 			ramp_cells.append(c)
 			for dd2 in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-				var n: Vector2i = c + dd2
+				var n: Vector2i = c + _sv(dd2)
 				if left.has(n):
 					left.erase(n)
 					todo.append(n)
@@ -3887,7 +3890,7 @@ func _ramp_bands() -> Array:
 		for rc in ramp_cells:
 			for dy in range(-1, 2):
 				for dx in range(-1, 2):
-					var c: Vector2i = rc + Vector2i(dx, dy)
+					var c: Vector2i = rc + _sv(Vector2i(dx, dy))
 					if game.in_map(c) and game.height[game.idx(c)] == 1 and game.ramp[game.idx(c)] == 0 and game.is_free(c):
 						band[c] = true
 		if band.size() < 2:
@@ -3896,20 +3899,16 @@ func _ramp_bands() -> Array:
 		for rc in ramp_cells:
 			mid += Vector2(rc)
 		mid /= ramp_cells.size()
-		out.append({"ramp": _canon_sort(ramp_cells), "band": _canon_sort(band.keys()), "mid": mid})
+		out.append({"ramp": ramp_cells, "band": band.keys(), "mid": mid})
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return (a["mid"] as Vector2).distance_to(home) < (b["mid"] as Vector2).distance_to(home))
 	return out
 
 
-## Cells in this side's reading order: top to bottom, left to right as seen from its start's mirror twin (Game.start_flip),
-## so two mirrored sides list mirrored cells in the same order and break ties alike (start-spots-fix).
-func _canon_sort(cells: Array) -> Array:
-	var out := cells.duplicate()
-	out.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
-		var ka: Vector2i = game.sym_rect(team, a, Vector2i.ONE)
-		var kb: Vector2i = game.sym_rect(team, b, Vector2i.ONE)
-		return ka.y < kb.y or (ka.y == kb.y and ka.x < kb.x))
-	return out
+## (start-spots-fix) A cell offset or step as this side reads it: mirrored with its start (Game.start_flip), so the
+## first start's side looks at cells in the very order it always did and a mirrored side in the mirrored order.
+func _sv(d: Vector2i) -> Vector2i:
+	var f: Vector2i = game._flip_of(team)
+	return Vector2i(-d.x if f.x == 1 else d.x, -d.y if f.y == 1 else d.y)
 
 
 ## Flood fill over the walkable cells (8 ways, no corner cutting, a gate counts as open when `gates_open`) from
@@ -3960,6 +3959,10 @@ func plan_cottage_wall() -> Dictionary:
 	for c in band:
 		band_set[c] = true
 	var mid: Vector2 = b0["mid"]
+	var mid_k := Vector2.ZERO           # (the ramp's middle in this side's first-start frame, as the first start reads it)
+	for rc in b0["ramp"]:
+		mid_k += Vector2(game.sym_rect(team, rc, Vector2i.ONE))
+	mid_k /= maxf(1.0, float((b0["ramp"] as Array).size()))
 	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
 	var csize: Vector2i = Defs.BUILDINGS["cottage"]["size"]
 	var minc: Vector2i = band[0]
@@ -4027,8 +4030,8 @@ func plan_cottage_wall() -> Dictionary:
 			# (only pieces that close a gap: a band cell nothing can reach, such as one that only
 			# touches the ramp's corner past the cliff and the Cottage, gets no palisade)
 			walls = cw_prune(b0["ramp"], fp, gates, walls)
-			var kt: Vector2i = game.sym_rect(team, tl, csize)        # (the tie-break in this side's reading order: start-spots-fix)
-			var score := float(gates.size() + walls.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(tl) + Vector2(csize) * 0.5).distance_to(mid + Vector2(0.5, 0.5)) + float(kt.x + kt.y * 1000) * 0.00001
+			var kt: Vector2i = game.sym_rect(team, tl, csize)        # (in this side's first-start frame: start-spots-fix)
+			var score := float(gates.size() + walls.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(kt) + Vector2(csize) * 0.5).distance_to(mid_k) + float(kt.x + kt.y * 1000) * 0.00001
 			if score < best_score:
 				best_score = score
 				var pieces: Array = []
@@ -4210,9 +4213,10 @@ func _wall_off() -> bool:
 		return false
 	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
 	var left := {}
-	for y in range(int(home.y) - 22, int(home.y) + 23):
-		for x in range(int(home.x) - 22, int(home.x) + 23):
-			var c := Vector2i(x, y)
+	var hk: Vector2 = game.sym_pt(team, home * Defs.TILE) / Defs.TILE       # (in this side's first-start frame: start-spots-fix)
+	for y in range(int(hk.y) - 22, int(hk.y) + 23):
+		for x in range(int(hk.x) - 22, int(hk.x) + 23):
+			var c: Vector2i = game.sym_rect(team, Vector2i(x, y), Vector2i.ONE)
 			if game.in_map(c) and game.ramp[game.idx(c)] == 1:
 				left[c] = true
 	var plan: Array = []         # [kind, cell]
@@ -4227,7 +4231,7 @@ func _wall_off() -> bool:
 			var c: Vector2i = todo.pop_back()
 			ramp_cells.append(c)
 			for dd2 in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-				var n: Vector2i = c + dd2
+				var n: Vector2i = c + _sv(dd2)
 				if left.has(n):
 					left.erase(n)
 					todo.append(n)
@@ -4235,7 +4239,7 @@ func _wall_off() -> bool:
 		for rc in ramp_cells:
 			for dy in range(-1, 2):
 				for dx in range(-1, 2):
-					var c: Vector2i = rc + Vector2i(dx, dy)
+					var c: Vector2i = rc + _sv(Vector2i(dx, dy))
 					if game.in_map(c) and game.height[game.idx(c)] == 1 and game.ramp[game.idx(c)] == 0 and game.is_free(c):
 						band[c] = true
 		if band.size() < 2:
@@ -4245,7 +4249,7 @@ func _wall_off() -> bool:
 			mid += Vector2(rc)
 		mid /= ramp_cells.size()
 		mids.append(mid)
-		var cells: Array = _canon_sort(band.keys())
+		var cells: Array = band.keys()
 		cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return Vector2(a).distance_to(mid) < Vector2(b).distance_to(mid))
 		# (a two-wide gate: the army files out to meet a raid without jamming; test_ai_army_response
 		# fails with a one-tile gate)
