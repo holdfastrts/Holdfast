@@ -54,6 +54,13 @@ const RULES := [
 	["^'s Clockwork: army: the whole army defends the base", "%s's whole army defends its base.", 3, "defend"],
 	["^'s Clockwork: army: a small raid worth (\\d+)", "%s meets a small raid (%s) with a group; the rest of its army stays on its gears.", 2, "defend"],
 	["^'s Clockwork: army: the base is calm again", "%s's base is calm again: the army walks back to rest on its gears.", 1, "defend"],
+	# ---- (clockwork-ai-v2, docs/clockwork_ai_v2.md: dry land, the Great Winder's sweep, the push that commits, the air, the sentry)
+	["^'s Clockwork: the opening build is over \\(its land is dry", "%s's land is dry: it ends its opening and saves for a new Clocktower and its press before more units.", 3, "expand"],
+	["^'s Clockwork: army: its Great Winder sweeps the wrecks", "%s's Great Winder sweeps the wrecks by its army into cogs.", 1, "army"],
+	["^'s Clockwork: push: is clearly ahead \\(worth (\\d+), the enemy army seen lately (\\d+)", "%s's push is clearly ahead (%s against %s): it presses on to the enemy's halls to finish the game.", 3, "attack"],
+	["^'s Clockwork: push: is no longer clearly ahead", "%s's push is no longer clearly ahead: it marches on with care.", 2, "attack"],
+	["^'s Clockwork: air: enemy flyers seen", "%s sees enemy flyers: it lays a Clock Aviary at once, for Swifts.", 2, "defence"],
+	["^the sentry peeks up the walled ramp", "%s's sentry peeks up the enemy's walled ramp now and then to see behind the wall.", 1, "scout"],
 	# ---- the Crown: the army first (ai-followups, scripts/ai_crown.gd army_lags)
 	["^'s plan: the army first: (\\d+) of army against the (\\d+)", "%s puts its army first (%s against the %s it reckons the enemy has): the labourers and the tech wait.", 2, "army"],
 	["^'s plan: milestone (.+?) waits: the army is far behind", "%s's %s waits: its army comes first.", 1, "tech"],

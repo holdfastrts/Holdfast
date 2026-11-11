@@ -481,8 +481,17 @@ func _computer() -> void:
 	for u in army:
 		c += u.position
 	c /= maxi(1, army.size())
-	check("it is sent to the army (just behind it)", gw.order == "move" and gw.order_point.distance_to(c) < 140.0 or gw.position.distance_to(c) < 170.0 or gw.order == "mend" or gw.order == "sweep",
-		"order %s, %.0f px from the army" % [gw.order, gw.position.distance_to(c)])
+	# (clockwork-ai-v2: with the push out the Great Winder is the push's (AICwPush._place_heavies): "the army" is the push then,
+	# not the middle of every construct, at home and out)
+	var pushed: Array = ai.push.units.filter(func(u: Unit) -> bool: return u.kind != K) if ai.push != null and ai.push.phase != "" and ai.push.phase != "back" and ai.push.has(gw) else []
+	if not pushed.is_empty():
+		c = Vector2.ZERO
+		for u in pushed:
+			c += u.position
+		c /= pushed.size()
+		print("  (the push is out with %d units: the army is the push)" % pushed.size())
+	check("it is sent to the army (just behind it)", gw.order == "move" and gw.order_point.distance_to(c) < (170.0 if not pushed.is_empty() else 140.0) or gw.position.distance_to(c) < 170.0 or gw.order == "mend" or gw.order == "sweep",
+		"order %s, %.0f px from the army, its goal %.0f px from it" % [gw.order, gw.position.distance_to(c), gw.order_point.distance_to(c)])
 	for u in army:
 		u.cmd_move(far)
 	await _wait(g, func() -> bool: return false, 6.0)
@@ -491,6 +500,12 @@ func _computer() -> void:
 		c += u.position
 	c /= maxi(1, army.size())
 	ai._follow_with_escort(army)
+	pushed = ai.push.units.filter(func(u: Unit) -> bool: return u.kind != K) if ai.push != null and ai.push.phase != "" and ai.push.phase != "back" and ai.push.has(gw) else []
+	if not pushed.is_empty():
+		c = Vector2.ZERO
+		for u in pushed:
+			c += u.position
+		c /= pushed.size()      # (clockwork-ai-v2: the push's, as above)
 	# (AI._great_winder_follow aims 60 px behind the army and leaves an order within 90 px of that, or a Winder already
 	# within 110 px of it, alone: so up to ~170 px from the army's middle is "following", as in the check above)
 	check("and follows it when it moves", gw.order == "move" and gw.order_point.distance_to(c) < 170.0 or gw.position.distance_to(c) < 170.0,
@@ -510,6 +525,12 @@ func _computer() -> void:
 	if victim != null and victim.position.distance_to(gw.position) < float(G["sweep_look"]):
 		var cogs0 := int(gw.get_meta("gw_cogs", 0))
 		var swept0: int = g.bodies_swept
+		var foe_d := INF
+		for o in g.units:
+			if not o.dead and o.team != 0 and not o.is_worker() and o.has_attack():
+				foe_d = minf(foe_d, o.position.distance_to(victim.position))
+		print("  the victim (%s) falls %.0f px from the Great Winder (%s); the push %s; the nearest enemy soldier %.0f px from it" % [victim.kind,
+			victim.position.distance_to(gw.position), gw.order, ai.push.phase if ai.push != null else "-", foe_d])
 		_wreck(g, victim)
 		var most := 0.0
 		var t0: float = g.clock

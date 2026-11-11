@@ -912,7 +912,7 @@ func _follow_with_escort(army: Array) -> void:
 ## controllers at once while the push was out (the push's spot 190 px behind its anchor, the shared follow 60 px behind the
 ## middle): it stood 230-330 px from the army and swept nothing (test_great_winder). Now ONE controller at a time (the push
 ## while it is out, else the follow), it stands GW_BACK px behind the army's middle, and between fights (no enemy soldier
-## within GW_CALM of the army) the computer itself sends it to the nearest wreck within GW_SWEEP of the army's middle
+## within GW_CALM of it) the computer itself sends it to the nearest wreck within GW_SWEEP of it or of the army's middle
 ## (GreatWinder.sweep_pick: its own side's and an enemy Clockwork's wrecks, never into danger); it rolls back after.
 const GW_BACK := 100.0
 const GW_SWEEP := 300.0
@@ -928,9 +928,13 @@ func gw_tend(gw: Unit, c: Vector2, back: Vector2) -> bool:
 		return true             # (throwing its SCATTER COGS: CogScatter.ai_tick)
 	if (gw.order == "mend" or gw.order == "sweep") and gw.position.distance_to(c) < GW_CALM:
 		return true             # (mending or sweeping by the army)
-	if not gw_sweep_on or not gw.auto_sweep or _enemy_near(c, GW_CALM) or _enemy_near(gw.position, 300.0):
+	if not gw_sweep_on or not gw.auto_sweep or _enemy_near(gw.position, GW_CALM):
 		return false
-	var w := GreatWinder.sweep_pick(gw, GW_SWEEP, c)
+	# (the nearest wreck to it, else to the army's middle; never one far from the army; GreatWinder.sweep_pick skips a wreck
+	# with an enemy soldier near it)
+	var w := GreatWinder.sweep_pick(gw, GW_SWEEP, gw.position)
+	if w == null or w.position.distance_to(c) > GW_SWEEP + 150.0:
+		w = GreatWinder.sweep_pick(gw, GW_SWEEP, c)
 	if w == null:
 		return false
 	GreatWinder.cmd_sweep(gw, w)

@@ -281,6 +281,9 @@ func _join() -> void:
 	if ai._threat() != Vector2.INF:
 		return          # (the base is attacked: they stay for it)
 	for u in home:
+		if u.kind == Defs.GREAT_WINDER_KIND and ai.get("gw_sweep_on") == true:
+			units.append(u)     # (clockwork-ai-v2: unarmed, it is the push's at once: _place_heavies walks it to its spot
+			continue            # behind the front with a plain move, not an attack-move across the map with the joiners)
 		joining.append(u)
 		_order(u, anchor, true, 60.0)
 	say("%d fresh units walk out to join it (%d supply)" % [home.size(), ai._army_supply(home)])

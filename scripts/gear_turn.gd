@@ -48,6 +48,7 @@ static func carriable(u: Unit) -> bool:
 
 
 const GRIP := 1.5             # s a walker stuck by the ride stands firm (see tick)
+const MOVE_RIDE := 6.0        # s a computer unit on a move order rides in one go at most (see tick)
 const FREE_ORDERS := ["idle", "hold", "move", "amove", "attack", "follow"]
 
 
@@ -86,6 +87,7 @@ static func tick(u: Unit, want: Vector2, delta: float) -> Vector2:
 	var net := game.gear_net
 	var i := net.band_at(u.position)
 	if i < 0 or not net.band_turning(i):
+		u.ride_t = 0.0
 		if u.gt_on < 0.0 and carriable(u):
 			u.gt_on = minf(0.0, u.gt_on + delta)      # (a give-up's rest runs out off the band too)
 		else:
@@ -131,6 +133,11 @@ static func tick(u: Unit, want: Vector2, delta: float) -> Vector2:
 	if want.length() > 5.0:
 		v *= float(k["walk"])
 	if v == Vector2.ZERO:
+		return want
+	# (clockwork-ai-v2, the qa study: a computer Winder rode a band for 39 s on a MOVE order, its goal just past the band and
+	# the ride taking it back round) The COMPUTER's own unit on a plain move order that has ridden MOVE_RIDE s in one go
+	# crosses the rest of the band without drifting, like a worker on its way to work (its AI's choice; the player's ride).
+	if u.ride_t >= MOVE_RIDE and u.order == "move" and computer_side(game, u.team):
 		return want
 	u.gt_carry = v
 	u.ride_t += delta
