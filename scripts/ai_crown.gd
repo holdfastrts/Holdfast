@@ -1357,6 +1357,15 @@ func lost_ground(c: Vector2i) -> bool:
 	return false
 
 
+## An armed enemy soldier in sight within 14 tiles of a hall spot (the Crown's own pick checks this too).
+func _foe_at_site(c: Vector2i) -> bool:
+	var cc := (Vector2(c) + Vector2(MapGen.HALL) * 0.5) * float(Defs.TILE)
+	for u in game.units_near(cc, 14.0 * Defs.TILE):
+		if game.hostile(u.team, team) and not u.dead and not u.is_worker() and u.has_attack() and game.is_visible_to(team, u.position):
+			return true
+	return false
+
+
 ## REBUILD ONCE: one hall left and a fight at it: no new expansion while it lasts.
 func rebuild_keep() -> bool:
 	if not lost_wait_on or lost_halls == 0:
@@ -1364,7 +1373,7 @@ func rebuild_keep() -> bool:
 	var hs := game.halls_of(team, false)
 	if hs.size() != 1:
 		return false
-	return _unsafe((hs[0] as Building).center())
+	return _foe_at_site((hs[0] as Building).cell)
 
 
 func _safe_hall_spot() -> Vector2i:
@@ -1575,7 +1584,16 @@ func _construct(kind: String, at := Vector2i(-1, -1)) -> void:
 		foundry_swaps += 1
 		super("foundry")
 		return
+	if on and lost_wait_on and kind == String(_f()["hall"]) and at.x >= 0 and (lost_ground(at) or rebuild_keep() or _foe_at_site(at)):
+		# (crown-ai-v2: every hall path comes here, the shared ones too (_more_halls' ground round a hall, the natural's
+		# spot): not on ground where a hall was just lost, nor while the last hall is in a fight. The Border March game
+		# laid its hall site twice more on the spot it lost at 13:25, through _more_halls' find_spot)
+		lost_refused += 1
+		return
 	super(kind, at)
+
+
+var lost_refused := 0           # (tests, the study) hall sites refused on lost ground
 
 
 ## A PRODUCTION OR ECONOMY SITE NOBODY IS COMING TO (Game.sweep_ghosts asks): its builder was pulled off (the owner's Red

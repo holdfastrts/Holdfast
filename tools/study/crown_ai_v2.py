@@ -30,12 +30,16 @@ def measure():
     return out
 
 
-def plans(maps=None):
+def plans(maps=None, which=None):
+    """which: {opponent: [plans]} (default: every Crown plan against both)"""
     out = []
     k = 0
     for m in (maps or PLAN_MAPS):
         for o in ("brood", "clockwork"):
             for p in CROWN_PLANS:
+                if which is not None and p not in which.get(o, []):
+                    k += 1
+                    continue
                 seed = 8100 + k
                 me, foe = ("crown", p), (o, "optimal")
                 s1, s2 = (foe, me) if k % 2 else (me, foe)
@@ -52,6 +56,10 @@ def queue(only):
         return plans()
     if only.startswith("plans:"):
         return plans(only[6:].split("+"))
+    if only.startswith("pick:"):          # pick:map1+map2:brood=economy+rush,clockwork=economy+balloon
+        _, ms, w = only.split(":", 2)
+        which = {kv.split("=")[0]: kv.split("=")[1].split("+") for kv in w.split(",")}
+        return plans(ms.split("+"), which)
     if only.startswith("one:"):          # one:map:seed:f/p/s,f/p/s
         _, m, seed, spec = only.split(":", 3)
         slots = [tuple(x.split("/")[:2]) + (int(x.split("/")[2]),) for x in spec.split(",")]
