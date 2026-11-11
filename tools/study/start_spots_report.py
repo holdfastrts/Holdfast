@@ -33,7 +33,7 @@ def at_min(res, p, key, mm):
     return None
 
 
-def load(data, qa=False):
+def load(data, qa=False, qa_cross=False):
     games = []
     for dd in sorted(glob.glob(os.path.join(data, "*"))):
         rf = os.path.join(dd, "result.json")
@@ -46,7 +46,9 @@ def load(data, qa=False):
                 continue
             fac = res["slots"][0][0]
             if res["slots"][1][0] != fac:
-                continue
+                if not qa_cross:
+                    continue
+                fac = res["slots"][0][0] + "-" + res["slots"][1][0]
             meta = {"map": res["map"], "fac": fac, "swap": False, "spotA_index": 0}
         else:
             meta = json.load(open(os.path.join(dd, "meta.json")))
@@ -235,6 +237,35 @@ if __name__ == "__main__":
                 cells.append("%.3f" % math.exp(sum(rs) / len(rs)) if rs else "-")
             print("| %s | %s | %d | %s |" % (f, gname, len(gs), " | ".join(cells)))
     print()
+    print("Timings by spot (mean seconds; n = games where both sides have it): the first scout READ, the first attack, the first arrival in the enemy base (300+ army value)\n")
+    print("| faction | group | first read A / B | first attack A / B | first arrival A / B | halls lost A / B |")
+    print("|---|---|---|---|---|---|")
+    for f in ("crown", "brood", "clockwork"):
+        for gname, cond in (("not swapped", lambda g: not g["swap"]), ("swapped", lambda g: g["swap"]), ("all", lambda g: True)):
+            gs = [g for g in games if g["fac"] == f and cond(g)]
+            if not gs:
+                continue
+            cells = []
+            for kind in ("read", "first_attack", "first_arrival"):
+                pa, pb = [], []
+                for g in gs:
+                    a = g["a"]
+                    if kind == "read":
+                        ts = [[x["t"] for x in g["res"]["reads"] if x["p"] == p and "read" in x] for p in (a, 1 - a)]
+                    else:
+                        ts = [[e["t"] for e in g["res"]["events"] if e["ev"] == kind and e["p"] == p] for p in (a, 1 - a)]
+                    if ts[0] and ts[1]:
+                        pa.append(min(ts[0]))
+                        pb.append(min(ts[1]))
+                cells.append("%d / %d (n %d)" % (sum(pa) / len(pa), sum(pb) / len(pb), len(pa)) if pa else "-")
+            hl = [0, 0]
+            for g in gs:
+                for e in g["res"]["events"]:
+                    if e["ev"] == "hall_lost":
+                        hl[0 if e["p"] == g["a"] else 1] += 1
+            cells.append("%d / %d" % tuple(hl))
+            print("| %s | %s | %s |" % (f, gname, " | ".join(cells)))
+    print()
     print("Base layouts (main only, buildings within 30 tiles of the hall): spot A / spot B means\n")
     print("| map | minute | buildings | frontness (tiles toward the enemy) | buildings > 4 tiles in front | sideways (+ left) | army centre frontness |")
     print("|---|---|---|---|---|---|---|")
@@ -272,3 +303,11 @@ if __name__ == "__main__":
         for m in sorted(set(g["map"] for g in q)):
             print("| %s | %s |" % (m, fmt([g["spotA"] for g in q if g["map"] == m])))
         print("| ALL | %s |" % fmt([g["spotA"] for g in q]))
+        qc = load(QA, qa=True, qa_cross=True)
+        print("\nQA match study, ALL base games (cross games too; index 0 = spot A): %d games\n" % len(qc))
+        print("| group | games | spot A: W-L / won-or-led-trailed-even / p |")
+        print("|---|---|---|")
+        for name, gs in (("classic maps", [g for g in qc if g["map"] not in NAMED]), ("named maps", [g for g in qc if g["map"] in NAMED]),
+                         ("classic mirrors", [g for g in q if g["map"] not in NAMED]), ("named mirrors", [g for g in q if g["map"] in NAMED]),
+                         ("all", qc)):
+            print("| %s | %d | %s |" % (name, len(gs), fmt([g["spotA"] for g in gs])))
