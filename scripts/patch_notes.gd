@@ -4,6 +4,14 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.12", "items": [
+		"CANNON AND MORTAR SHOTS ON BUILDINGS AGREE: a Field Cannon or Mortar told to attack a building (a right-click, an attack-move, a target it picked itself) hit it with its building bonus twice, while ATTACK GROUND on the same spot hit it once (a cannon ball did 270 or 108, a shell 68 or 45). Now every way of firing applies the bonus once, and the bonus was raised so a shot does what a right-click did: a cannon ball 270 to a building (bonus x6.25, with the splash), a mortar shell 68 (bonus x2.25). Bombarding a building is now as strong as attacking it. The card's \"Bonus vs buildings\" line says what a hit does to a building and how much a second.",
+		"NO ATTACK BUTTON FOR THE UNARMED: the Powder Wagon, Messenger, Observation Balloon, Great Winder, Marching Band and the Missionaries no longer show ATTACK (and A does nothing for them). In a mixed selection the armed units attack and the unarmed ones walk along.",
+		"A SIDE WITH NOTHING LEFT LOSES: no workers, no fighting units and no way to make more (nothing in training, no building that can train a unit you can pay for) for a whole minute is a defeat, as when the last building falls; you are warned when the minute starts. A side with a worker, a soldier, a unit in training, or a hall and the price of a worker is never beaten this way. The Brood still lives while its Mother does.",
+		"COMPUTERS FINISH THE GAME: once the enemy has no army left, the computer sends its army after the enemy's last buildings (and the Brood's Mother) instead of waiting at home.",
+		"Fixed two errors in computer games: the Crown's siege could stick on a palisade piece the enemy had turned into a gate, and the Spring Ballista stopped picking targets near a crate or powder keg on the ground.",
+		"The dismounted Officer between pistol shots and the uprooted Mound Turtle fighting now use their idle and walk pictures on purpose (their own strips are still to be drawn).",
+	]},
 	{"v": "0.33.11", "items": [
 		"CARD LINES FIT THEIR CARD AGAIN: the Great Winder's short line (in every language) and the Portuguese lines of the Marching Band and the Mainspring were longer than a card holds and ran off it; they are shorter now.",
 		"WATCHING COMPUTERS: the story line \"its scout was stopped before it saw anything\" now shows (it was lost to an error).",

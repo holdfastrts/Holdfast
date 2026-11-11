@@ -664,7 +664,7 @@ func _key(e: InputEventKey) -> void:
 			else:
 				game.set_selection([])
 		KEY_A:
-			if units.any(func(u: Unit) -> bool: return not BroodRoot.fixed(u)):
+			if units.any(func(u: Unit) -> bool: return not BroodRoot.fixed(u) and u.armed()):     # (no ATTACK for the unarmed)
 				mode = "attack"      # (a rooted Brood creature is a building: no move, attack, stop or hold)
 		KEY_M:
 			if units.any(func(u: Unit) -> bool: return not BroodRoot.fixed(u)):
@@ -817,9 +817,16 @@ func _tap(screen: Vector2, is_mouse: bool, shift := false, world := Vector2.INF)
 			if mode == "attack":
 				var e := game.entity_at(p, false)
 				if e and game.prey(game.human, e):
+					var walkers: Array = []
 					for u in units:
-						if u.kind != "horse":
+						if u.kind == "horse":
+							continue
+						if u.armed():
 							u.give({"o": "attack", "e": e}, queued)
+						else:
+							walkers.append(u)          # (an unarmed one in the selection walks along: rules-fixes 2)
+					if not walkers.is_empty():
+						game.group_move(walkers, p, true, queued)
 				else:
 					game.group_move(units, p, true, queued)
 			else:

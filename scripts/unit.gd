@@ -2436,6 +2436,13 @@ func can_bombard() -> bool:
 	return (Defs.BOMBARD["kinds"] as Array).has(kind) and not dead and aboard == null
 
 
+## Has it a weapon at all (its card shows ATTACK and A works for it)? Not the Powder Wagon, Messenger, Observation
+## Balloon, Great Winder, Marching Band, Missionaries, nor anything else with no damage (UnitStats.attack_type "none";
+## rules-fixes 2). An unarmed unit told to attack-move just walks.
+func armed() -> bool:
+	return UnitStats.attack_type(kind, d) != "none"
+
+
 ## Can it ATTACK GROUND (Defs.GROUND)? Anything that can attack: area weapons, shooters, melee units and the workers that
 ## can hurt (Labourers, grubs, Winders). Not medics, wagons, horses, balloons, the trains on their rails, flyers that
 ## only hit flyers, nor the Netter (its net is for the living).
@@ -5053,6 +5060,13 @@ func _attack_cycle(e: Entity, delta: float) -> void:
 		cooldown = _cooldown()
 
 
+## The Field Cannon's round shot and the Mortar's shell give a building their building_bonus where they LAND
+## (Game.round_shot_land / mortar_land / explode), whatever they were aimed at (a right-click, an attack-move, ATTACK
+## GROUND, a target of their own): the bonus is applied once there, never also at the strike (rules-fixes 1).
+func _bonus_on_landing() -> bool:
+	return kind == "mortar" or (kind == "cannon" and mode != "canister")
+
+
 func _strike(e: Entity) -> void:
 	if not _valid_target(e):
 		return
@@ -5071,7 +5085,7 @@ func _strike(e: Entity) -> void:
 		dmg *= float(Defs.OVERCHARGE["damage"])
 	if kind == "thresher":
 		dmg *= lerpf(float(Defs.THRESHER["low"]), float(Defs.THRESHER["high"]), spin)
-	if e.is_building():
+	if e.is_building() and not _bonus_on_landing():
 		dmg *= float(d.get("building_bonus", 1.0))
 	if mode == "bayonet":
 		var vet := 1.0 + minf(kills * float(Defs.VET["per_kill"]), float(Defs.VET["max"]))
@@ -6880,7 +6894,7 @@ func _anim_name() -> String:
 			if phase == "strike":
 				return "fireup" if up else "fire"
 			if cooldown > 0.0 and not moving and target:
-				return "reload"
+				return _anim_or("reload", "idle")     # (the dismounted Officer has no reload strip yet: idle; rules-fixes 5)
 		"mortar":
 			if tesla_mode == "deploying" or tesla_mode == "packing":
 				return "deploy"

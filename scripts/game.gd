@@ -6983,7 +6983,8 @@ func round_shot_land(from: Vector2, p: Vector2, dmg: float, t: int, shooter: Ent
 	for i in 3:
 		var fx := spawn_effect("dust", p + dir * (25.0 + i * 28.0), 1.4)
 		fx.scale = Vector2(0.45, 0.45)
-	explode(p, dmg * float(Defs.ROUND_SHOT["splash_dmg"]), float(Defs.ROUND_SHOT["splash"]), t, shooter)
+	explode(p, dmg * float(Defs.ROUND_SHOT["splash_dmg"]), float(Defs.ROUND_SHOT["splash"]), t, shooter,
+		float(Defs.UNITS["cannon"].get("building_bonus", 1.0)))
 
 
 ## Area attacks hurt friends too. Before a unit fires one on its own (not on an explicit
@@ -8137,7 +8138,11 @@ func line_move(list: Array, pts: PackedVector2Array, attack: bool, queued := fal
 	_ping(pts[pts.size() - 1], Color(1, 0.4, 0.3) if attack else Color(0.4, 1, 0.4))
 
 
-func explode(p: Vector2, dmg: float, splash: float, t: int, shooter: Entity) -> void:
+## A blast: units in it are hurt (less at the edge), enemy buildings close by take dmg x `bb`, the building_bonus of
+## whatever fired it (bb < 0: the shooter's own, 1 when it is gone; was a fixed 2.5 before rules-fixes).
+func explode(p: Vector2, dmg: float, splash: float, t: int, shooter: Entity, bb := -1.0) -> void:
+	if bb < 0.0:
+		bb = float(shooter.d.get("building_bonus", 1.0)) if shooter is Unit and is_instance_valid(shooter) else 1.0
 	area_mark("ring", t, p, Vector2.ZERO, splash, 0.0, "brass" if t >= 0 and t < factions.size() and factions[t] == "clockwork" else "powder")
 	match randi() % 3:
 		0:
@@ -8157,7 +8162,7 @@ func explode(p: Vector2, dmg: float, splash: float, t: int, shooter: Entity) -> 
 			u.take_damage(dmg * f, shooter)
 	for b in buildings.duplicate():
 		if not allied(b.team, t) and not b.dead and b.edge_distance(p) < splash * 0.6:
-			b.take_damage(dmg * 2.5, shooter)
+			b.take_damage(dmg * bb, shooter)
 
 
 ## Black powder going up (a keg, a Powder Wagon; later keg mines): a blast that hurts every
@@ -9565,6 +9570,58 @@ func _tick_game(delta: float) -> void:
 		Prof.add("game/refit", pt)
 
 
+## HELPLESS (rules-fixes 3, owner 2026-11-11): a side with no workers, no army and no way to make more (no building that
+## can train something it can pay for, nothing in training) for HELPLESS_TIME seconds is BEATEN, as if its last building
+## fell (the usual defeat and end screen). A side that can still rebuild is not: a worker alive, a fighting unit alive, a
+## unit in training, or a hall / production building standing with the price of one of its units in the bank. The Brood
+## keeps its own rule (it lives while its Mother does). Called once a second by _check_end; `alive` is zeroed for the
+## beaten ones and their teams are returned.
+const HELPLESS_TIME := 60.0
+var helpless_t: Array = []          # seconds each side has been helpless (0: it is not)
+
+
+func _helpless_check(alive: Array) -> Array:
+	var out: Array = []
+	while helpless_t.size() < n_players():
+		helpless_t.append(0.0)
+	for t in n_players():
+		if eliminated[t] or alive[t] == 0 or BroodNew.on(self, t):
+			helpless_t[t] = 0.0
+			continue
+		if not helpless(t):
+			helpless_t[t] = 0.0
+			continue
+		if float(helpless_t[t]) == 0.0 and t == human and not demo:
+			notify("Nothing left to fight with: train a worker or a soldier within a minute, or the battle is lost.")
+		helpless_t[t] = float(helpless_t[t]) + 1.0       # (_check_end runs once a second)
+		if float(helpless_t[t]) >= HELPLESS_TIME:
+			alive[t] = 0
+			out.append(t)
+			for b in buildings.duplicate():
+				if b.team == t and not b.dead and not b.ghost:
+					b.die()                   # (its empty buildings go with it)
+	return out
+
+
+## Has team t nothing left: no worker, no armed unit (Unit.armed; horses and unarmed carts don't count), nothing in
+## training, and no building that could train a unit it can pay for now?
+func helpless(t: int) -> bool:
+	for u in units:
+		if u.team == t and not u.dead and u.kind != "horse" and (u.is_worker() or u.armed() or u.kind == "messenger"):    # (a Messenger dismounts to a Labourer)
+			return false
+	var gold := int(players[t].get("gold", 0)) if t < players.size() else 0
+	for b in buildings:
+		if b.team != t or b.dead or b.ghost or not b.built:
+			continue
+		for q in b.queue:
+			if not String(q).begins_with("@"):
+				return false          # (a unit on its way)
+		for k in b.d.get("trains", []):
+			if Defs.UNITS.has(k) and int(Defs.UNITS[k].get("cost", 0)) <= gold:
+				return false
+	return true
+
+
 ## A player with no buildings left is out; the match ends when one side is left
 ## (or, when you're playing, when you're out).
 func _check_end() -> void:
@@ -9581,6 +9638,7 @@ func _check_end() -> void:
 	for t in n_players():
 		if BroodNew.on(self, t):
 			alive[t] = 1 if BroodNew.queen(self, t) != null else 0     # (the Brood: it lives while its Mother does)
+	var beaten := _helpless_check(alive)
 	for t in n_players():
 		if alive[t] == 0 and not eliminated[t]:
 			eliminated[t] = true
@@ -9594,7 +9652,7 @@ func _check_end() -> void:
 			if t != human and not demo and n_players() > 2:
 				notify("%s is defeated!" % team_name(t).capitalize(), true)
 			if mlog:
-				mlog.add("%s is out" % mlog.who(t))
+				mlog.add(("%s is beaten: nothing left to fight with" if beaten.has(t) else "%s is out") % mlog.who(t))
 	var sides_left := {}
 	for t in n_players():
 		if not eliminated[t]:

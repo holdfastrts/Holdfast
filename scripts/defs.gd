@@ -921,14 +921,14 @@ const UNITS := {
 		"tags": ["armored"],
 		"name": "Field Cannon", "hp": 140, "armor": 1, "speed": 38, "cost": 170, "time": 32.0, "supply": 4,
 		"sight": 8, "range": 430, "min_range": 80, "damage": 32, "splash": 46, "cooldown": 4.5, "aim": 0.6,
-		"radius": 22, "from": "foundry", "building_bonus": 2.5, "faction": "crown", "needs_horse": true,
+		"radius": 22, "from": "foundry", "building_bonus": 6.25, "faction": "crown", "needs_horse": true,
 		"about": "Artillery. Limbered, the horse tows it; unlimber (2.5 s) to fire. Round shot reaches further than it can see: other units must spot for it. Canister also hits flyers. Carries 8 shots; refills near a Mill, Barracks, Town Hall or Powder Wagon.",
 	},
 	"mortar": {
 		"tags": ["armored"],
 		"name": "Mortar", "hp": 120, "armor": 1, "speed": 38, "cost": 145, "cost2": 20, "time": 30.0, "supply": 3,
 		"sight": 8, "range": 352, "min_range": 160, "damage": 30, "splash": 48, "cooldown": 5.0, "aim": 0.6,
-		"radius": 18, "from": "foundry", "building_bonus": 1.5, "ground_only": true, "faction": "crown", "needs_horse": true,
+		"radius": 18, "from": "foundry", "building_bonus": 2.25, "ground_only": true, "faction": "crown", "needs_horse": true,
 		"about": "Siege mortar. Packed it rolls; DEPLOY it (3 s) to fire. It lobs a shell high over men and walls (5 to 11 tiles away) that bursts where it lands: 30 damage over a wide area, friends too. Can't hit flyers. Carries 6 shells; refills near a Mill, Barracks, Town Hall or Powder Wagon.",
 	},
 	"powder_wagon": {

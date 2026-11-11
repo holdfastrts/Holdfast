@@ -1685,6 +1685,14 @@ static func grub_tick(g: Game, gr: Unit, delta: float) -> Vector2:
 
 # ------------------------------------------------------------------ pictures
 
+## Has a unit's art (its "frames") a strip `a` in any view?
+static func has_strip(fr: Dictionary, a: String) -> bool:
+	for dr in ["s", "se", "e", "ne", "n"]:
+		if fr.has(a + "_" + dr):
+			return true
+	return false
+
+
 static func anim(u: Unit, moving: bool) -> String:
 	match u.kind:
 		EGG:
@@ -1713,7 +1721,9 @@ static func anim(u: Unit, moving: bool) -> String:
 					return lv if fr.has(lv + "_se") else "fill"
 				return "rooted"
 			if u.phase != "":
-				return "attack"
+				# (the Mound Turtle, uprooted, has no attack strip yet: it fights on its walk/idle frames, no request for a
+				# strip that isn't there; docs/art_redraw_queue.md; rules-fixes 5)
+				return "attack" if has_strip(fr, "attack") else ("walk" if moving else "idle")
 			if u.kind == MAW and float(u.nb.get("food", 0.0)) > 0.5:
 				return ("haul" if ArtData.UNITS[MAW]["frames"].has("haul_se") else "walk") if moving else ("haul" if ArtData.UNITS[MAW]["frames"].has("haul_se") else "idle")
 			return "walk" if moving else "idle"

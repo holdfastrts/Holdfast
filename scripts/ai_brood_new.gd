@@ -2789,6 +2789,10 @@ func _nb_army(q: Unit) -> void:
 		if not _attacking:
 			_nb_hold_rest(army)
 			return
+	if hunt == null:
+		hunt = AIHunt.new(self)
+	if not _attacking and hunt.tick(army):
+		return                  # (rules-fixes 3: the enemy has no army left, ours goes for its last buildings: ai_hunt.gd)
 	var sup := 0
 	for u in army:
 		if u.kind != "hatchlings" or seen_air > 0:

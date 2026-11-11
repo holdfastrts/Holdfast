@@ -339,6 +339,10 @@ func _build_up() -> void:
 
 
 func _army() -> void:
+	if hunt == null:
+		hunt = AIHunt.new(self)
+	if hunt.tick(game.army(team)):
+		return              # (rules-fixes 3: the enemy has no army left: the whole army goes for its last buildings, ai_hunt.gd)
 	if army_g != null:
 		if push == null:
 			var pc := ARMY_PUSH.duplicate(true)

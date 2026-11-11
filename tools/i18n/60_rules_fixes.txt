@@ -1,0 +1,9 @@
+# rules-fixes (docs/rules_fixes.md): the card's building damage, a helpless side's warning
+
+> A hit on a building: %s damage (%.1f a second).
+pt Um golpe numa construção: %s de dano (%.1f por segundo).
+es Un golpe a un edificio: %s de daño (%.1f por segundo).
+
+> Nothing left to fight with: train a worker or a soldier within a minute, or the battle is lost.
+pt Nada mais com que lutar: treine um trabalhador ou um soldado em um minuto, ou a batalha está perdida.
+es Nada con lo que luchar: entrena un trabajador o un soldado en un minuto, o la batalla está perdida.

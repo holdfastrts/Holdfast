@@ -604,3 +604,10 @@ The campaign's art is not decided yet (owner, 2026-11-03): until it is, these ar
 | The unit card's musket, cannon ball and mortar shell | scripts/ui/hud.gd `_draw_weapon` | drawn in code (lines and circles, about 24 x 12) beside the painted pistol icons | ChatGPT: a musket, a round shot and a fused shell in the pistol icons' style (64 x 64, loaded and empty versions like pistol_loaded / pistol_empty) |
 | NO AMMO sign over the card's weapon icon | scripts/ui/hud.gd `_draw_ammo` | a red ring with a slash, drawn in code | fine as a UI mark; a painted one only if the owner wants it |
 | The small no-ammo mark over men on the field | scripts/unit.gd `_draw_no_ammo` | a red ring with a slash beside the health bar, about 9 px | fine as a UI mark |
+
+## Missing strips the game asks for (0.33.12, rules-fixes; docs/rules_fixes.md item 5)
+
+| what | where | how | notes |
+| --- | --- | --- | --- |
+| The dismounted Officer's reload | scripts/unit.gd `_anim_name` (`_anim_or("reload", "idle")`) | no strip: he stands on his idle frames between pistol shots | draw dismounted/reload_* (art_redraw_queue.md item 63) |
+| The uprooted Mound Turtle's attack | scripts/brood_new.gd `anim` (`has_strip(fr, "attack")`) | no strip: it fights on its walk/idle frames | draw mound_turtle/attack_se (art_redraw_queue.md item 64) |
