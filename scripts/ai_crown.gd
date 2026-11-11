@@ -155,6 +155,24 @@ const PLANS := {
 			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 17}},
 			{"do": "attack", "n": 22, "at": {"army": 22}},
 		],
+		# (crown-v-clockwork-coach: against the Clockwork, whose economy opening has its second Clocktower up by ~3:00, the
+		# timing on one hall went out at 7:10-7:35 with 18-19 labourers into 30 Winders on three halls (the Crown earned
+		# 0.6-0.7 of its income at 8:00 in every game). The same timing, from TWO halls: the walled natural behind the Mill
+		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to LABS_CLOCK)
+		"bo_clock": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "army", "k": "musketeer", "cap": 0},
+			{"do": "hall", "n": 2, "at": {"labs": 12}},
+			{"do": "build", "k": "foundry", "at": {"labs": 14}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 17}},
+			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 19}},
+			{"do": "attack", "n": 22, "at": {"army": 22}},
+		],
+		"labs_clock": 26,
 		"mid": [["foundry", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {}], ["armoury", 1, {"labs": 20}],
 			["church", 1, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 28}], ["foundry", 2, {"labs": 40, "halls": 3}]],
 		"s": {"wave": 22, "step": 8, "timing": 0.0, "expand": 0.6}},
@@ -335,8 +353,9 @@ func _ready() -> void:
 		scout.next_trip = OWNER_SCOUT_AT
 		scout.min_workers = 4
 	var bo_key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"      # (a plan may open otherwise against the Brood)
+	bo_key = _cc_bo_key(bo_key)
 	_bo_plan = (plan[bo_key] as Array).duplicate(true) if difficulty >= 1 else []
-	bo_lab_cap = int(plan.get("labs", 99))
+	bo_lab_cap = _cc_lab_cap(bo_key)
 	if _bo_plan.is_empty():
 		bo_done = true                         # (Easy: no build order, the shared rules from the start)
 	_attack_at = int(_s("wave"))
@@ -371,8 +390,9 @@ func opt_switch(k: String) -> bool:
 		var key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"
 		if plan.has("bo_opt") and opt != null and _opened_from == "optimal":
 			key = "bo_opt"         # (the build's own version for a pick from the common opening: the Rush's punish)
+		key = _cc_bo_key(key)
 		_bo_plan = _bo_plan.slice(0, bo_i) + (plan[key] as Array).duplicate(true)
-		bo_lab_cap = int(plan.get("labs", 99))
+		bo_lab_cap = _cc_lab_cap(key)
 		if not _def_on:
 			bo_army = false
 			bo_army_cap = 0
@@ -2749,3 +2769,32 @@ func _owner_tick() -> void:
 	if bo_done:
 		_hall_farm()
 		_spread_wagons()
+
+
+# ------------------------------------------------------------------ crown-v-clockwork-coach (docs/crown-v-clockwork-coach.md)
+
+## Every enemy is the Clockwork (a 1v1 against it, or a team of Clockworks): the coached rules of this matchup only.
+func cc_vs_clock() -> bool:
+	var es: Array = game.enemies_of(team)
+	if es.is_empty():
+		return false
+	for t in es:
+		if game.faction_of(t) != "clockwork":
+			return false
+	return true
+
+
+var cc_on := not OS.get_cmdline_user_args().has("crcw:off")      # (`-- crcw:off` plays this matchup as before the job)
+
+
+## A plan's own opening against the Clockwork ("bo_clock": the Timing attack from two halls), else the key given.
+func _cc_bo_key(key: String) -> String:
+	if cc_on and key == "bo" and plan.has("bo_clock") and cc_vs_clock():
+		return "bo_clock"
+	return key
+
+
+func _cc_lab_cap(key: String) -> int:
+	if key == "bo_clock" and plan.has("labs_clock"):
+		return int(plan["labs_clock"])
+	return int(plan.get("labs", 99))

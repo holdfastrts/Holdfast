@@ -23,6 +23,10 @@ var noretreat := false       # noretreat:1 a computer's siege is never called of
 var noopen := false          # noopen:1 the Clockwork's waves go for the main hall only (no open targets: AI.open_targets_on)
 var da := "hard"             # da:/db: the computers' difficulty (easy, normal, hard, brutal) for a: and b:
 var db := "hard"
+var pa := "balanced"         # pa:/pb: the computers' plans (crown-v-clockwork-coach: pa:optimal pb:optimal)
+var pb := "balanced"
+var every := 0.0             # every:N each side's main and its army filmed every N s (base_<team>_MMSS, army_<team>_MMSS)
+var _next_every := 0.0
 var minwave := 0             # minwave:N only a siege by a wave of at least N units is watched (the flags start with it)
 var siege_end := false       # siege_end:1 stop once the first siege has played out, writing siege.txt
 var _siege_t0 := -1.0
@@ -71,6 +75,9 @@ func _initialize() -> void:
 			"noopen": noopen = kv[1] == "1"
 			"da": da = kv[1]
 			"db": db = kv[1]
+			"pa": pa = kv[1]
+			"pb": pb = kv[1]
+			"every": every = float(kv[1])
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -88,9 +95,10 @@ func _process(delta: float) -> bool:
 		seed(seed_)
 		var facs := [fb, fa] if swap else [fa, fb]
 		var whos := [db, da] if swap else [da, db]
+		var plans := [pb, pa] if swap else [pa, pb]
 		var slots: Array = []
 		for i in 2:
-			slots.append({"who": whos[i], "faction": facs[i], "colour": i, "side": i, "strategy": "balanced"})
+			slots.append({"who": whos[i], "faction": facs[i], "colour": i, "side": i, "strategy": plans[i]})
 		main.start({"map": map, "seed": seed_, "slots": slots})
 		return false
 	if main.game == null:
@@ -135,6 +143,9 @@ func _process(delta: float) -> bool:
 			if h:
 				pending.append(["base_%d_%s.png" % [tm, _mmss(c)], h.global_position + Vector2(0, -40), 0.8])
 		base_i += 1
+	if every > 0.0 and c >= _next_every:
+		_next_every = c + every
+		_every_shots(c)
 	if c >= next_check:
 		next_check = c + 2.0
 		_look_for_fight(c)
@@ -338,6 +349,37 @@ func _siege_report() -> void:
 	for l in _siege_lines:
 		f.store_line(l)
 	f.close()
+
+
+## (crown-v-clockwork-coach) every:N: each side's main hall and the middle of its army (its largest group of soldiers)
+func _every_shots(c: float) -> void:
+	for tm in 2:
+		var h: Building = g._own_hall(tm)
+		if h and c > 1.0:
+			pending.append(["base_%d_%s.png" % [tm, _mmss(c)], h.global_position + Vector2(0, -40), 0.8])
+		var army: Array = []
+		for u in g.units:
+			if is_instance_valid(u) and not u.dead and u.team == tm and not u.is_worker():
+				army.append(u)
+		if army.size() < 3:
+			continue
+		var best: Unit = null
+		var bn := 0
+		for u in army:
+			var k := 0
+			for o in army:
+				if o.position.distance_to(u.position) < 300.0:
+					k += 1
+			if k > bn:
+				bn = k
+				best = u
+		var mid := Vector2.ZERO
+		var m := 0
+		for o in army:
+			if o.position.distance_to(best.position) < 300.0:
+				mid += o.position
+				m += 1
+		pending.append(["army_%d_%s.png" % [tm, _mmss(c)], mid / maxf(1, m), 0.9])
 
 
 func _mmss(c: float) -> String:
