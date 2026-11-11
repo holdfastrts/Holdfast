@@ -56,6 +56,10 @@ compiled from the choices made (who is alive, which places stand, who stands wit
 THREE hubs, one per faction (needed for co-op versus). Today's hub is a placeholder drawn in code; options for real art
 are in the chat of 2026-11-11 (painted scene + hotspots, layered painting with code-driven animation, walkable room,
 the war map as the shared table).
+DECIDED (owner, 2026-11-11 06:03): option 2 (a layered painting, motion in code: smoke, candles, breathing, gears) for
+the three rooms, plus option 4, the global war map as each hub's table, but DIFFERENT for each faction (Claude's
+proposal: the Crown a parchment map with pins and wax seals on the King's desk; the Clockwork a brass mechanical map
+with turning rings; the Brood the scientists' specimen chart, later a map scratched into the nest floor).
 
 ## Missions
 
@@ -65,3 +69,9 @@ versus and co-op missions. NO NAVAL in the engine: sea travel and sea battles on
 ## Size
 
 Medium to large: as many missions as a complete, good story takes. Built act by act.
+
+## Voices
+
+ElevenLabs is out (owner, 2026-11-11). Free options were given in chat on 2026-11-11 (Chatterbox Multilingual,
+Kokoro, his own recordings with voice conversion, volunteer actors); undecided. Any tool works: the game takes
+.ogg files at campaign/voice/<mission>/<line>.ogg.

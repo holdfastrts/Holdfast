@@ -135,7 +135,8 @@
   the heir puts the King's lessons into practice; crossings = Church council in Rome, Brazil between Brood and Clockwork,
   the global war (Clockwork and Brood also fight each other); solo/co-op/co-op versus all supported; 2 endings + minor
   variations; 3 hubs (one per faction); no naval in the engine; medium to large; Act 1's choice = spare or execute
-  Varenne. Open: hub art approach.
+  Varenne. HUBS (06:03): layered painting rooms (motion in code) + the war map as each hub's table, different per
+  faction. VOICES: ElevenLabs is out; free options offered, undecided.
   - CAMPAIGN FRAME (owner, idea 2026-11-04 09:50): the story is FLASHBACKS. Present: total global war; the Crown (a
   world empire, capital ROME, colonies round the globe, once unchecked) barely holds its key colonies and capitals. The
   campaign follows the fall from hegemony: heretical, rebellious uprisings (themed on the French Revolution) crushed by
