@@ -544,6 +544,13 @@ func _think_stage(i: int) -> void:
 	# THE PLAN OWNS THE GOLD: the next step's price is out of reach of everything else this stage
 	var held: int = clampi(bo_reserve, 0, int(game.players[team]["gold"]))
 	game.players[team]["gold"] -= held
+	# (crown-ai-v2, THE NATURAL'S WALL ON TIME: the gold for its next pieces is out of reach of the steps, the soldiers and
+	# the research too, as AI._hide_kept does after the opening; laid in stage 0 by xw.tick. Its Gate (50) never came out of
+	# the 20-30 gold the other stages left, Cinder Steps)
+	var wall_hold := 0
+	if i != 0 and wall_first():
+		wall_hold = clampi(xw.keep(), 0, int(game.players[team]["gold"]))
+		game.players[team]["gold"] -= wall_hold
 	match i:
 		0:
 			xw.tick()
@@ -588,7 +595,7 @@ func _think_stage(i: int) -> void:
 				_micro()
 			_gg_tick()
 			_lap("ai/micro", pt)
-	game.players[team]["gold"] += held
+	game.players[team]["gold"] += held + wall_hold
 
 
 var _research_off := false

@@ -123,7 +123,11 @@ func _run(p: Dictionary) -> void:
 	var hall: Building = p["hall"]
 	if hall.built and float(p["built_t"]) < 0.0:
 		p["built_t"] = game.clock
-	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > (BROOD_SLOT_WAIT if brood_walls() else SLOT_WAIT)
+	# (crown-ai-v2: while the wall comes first (AICrown.wall_first) its palisade closes the rest of the ring fast, so the empty
+	# slots wait SLOT_WAIT for the Cottage or the production building that is due: at 25 s every slot was palisade before
+	# the next Cottage came, and no building stood in the wall, test_ai_expand_wall)
+	var wait: float = SLOT_WAIT if not brood_walls() or (ai.has_method("wall_first") and ai.wall_first()) else BROOD_SLOT_WAIT
+	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > wait
 	for s in p["slots"]:
 		if s["closed"]:
 			continue
@@ -164,6 +168,10 @@ func _slot_kind(s: Dictionary) -> String:
 
 func _fill_slot(p: Dictionary, s: Dictionary) -> void:
 	var kind := _slot_kind(s)
+	if kind != "cottage" and ai.has_method("wall_first") and ai.wall_first():
+		return          # (crown-ai-v2: while the wall comes first a slot takes the Cottage the supply needs, or the production
+		                # building its own milestone lays there (AI._find_spot asks slot_for); a Church bought for a slot at 4:30
+		                # took the palisade's gold, test_ai_expand_wall Ashford Crossing)
 	if ai._busy_building(kind) or not game.requirement_met(ai.team, kind):
 		return
 	var spare: int = ai._gold() - int(Defs.BUILDINGS[kind]["cost"]) - (ai._hall_keep() if ai._keeping() else 0)
@@ -236,6 +244,12 @@ func _lay_pieces(p: Dictionary) -> void:
 			for h in game.halls_of(ai.team, true):
 				if h.built and (h.queue as Array).is_empty():
 					keep += 50
+	if ai.has_method("wall_first") and ai.wall_first():
+		# (crown-ai-v2, THE NATURAL'S WALL ON TIME, AICrown.wall_first: nothing more urgent stands, so the wall is laid from
+		# any gold over the opening's step (already out of reach in this think) and the hall's first Farm; the labourers
+		# wait for it. With a Musketeer's gold, the milestone's and the labourers' kept it got 10-33% shut 180 s after the hall
+		# stood, test_ai_expand_wall)
+		keep = ai._first_econ_cost() if _farm_first() else 0
 	var foe: Vector2 = p["foe"]
 	todo.sort_custom(func(a, b) -> bool: return Vector2(a[1]).distance_to(foe) < Vector2(b[1]).distance_to(foe))
 	# gates first (the way out), then the cells nearest the enemy

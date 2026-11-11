@@ -2660,6 +2660,8 @@ const T := {
 	"%s's %s goes after the enemy workers.": "%s: el %s va a por los trabajadores enemigos.",
 	"%s's %s comes home.": "%s: el %s vuelve a casa.",
 	"%s's %s keeps away from a %s.": "%s: el %s se mantiene lejos de un %s.",
+	"%s holds the top of its ramp: against the force below (%s) its army (%s) goes down only at %s.": "%s mantiene lo alto de su rampa: contra la fuerza de abajo (%s) su ejército (%s) solo baja con %s.",
+	"%s holds the gate of its walled natural: against the force outside (%s) its army (%s) goes out only at %s.": "%s mantiene la puerta de su natural amurallada: contra la fuerza de fuera (%s) su ejército (%s) solo sale con %s.",
 	"%s holds the top of its ramp: the force below (%s) is more than its army (%s) can beat.": "%s defiende lo alto de su rampa: la fuerza de abajo (%s) es más de lo que su ejército (%s) puede vencer.",
 	"%s holds the gate of its walled natural: the force outside (%s) is too strong to go out and meet with its army (%s).": "%s defiende la puerta de su base natural amurallada: la fuerza de fuera (%s) es demasiado fuerte para salir a su encuentro con su ejército (%s).",
 	"%s posts its army down at its natural's gate: room for %s Musketeers behind the palisade and %s guns behind them.": "%s sitúa su ejército abajo, en la puerta de su base natural: sitio para %s Mosqueteros tras la empalizada y %s cañones detrás de ellos.",
