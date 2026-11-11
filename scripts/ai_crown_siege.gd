@@ -493,15 +493,15 @@ func _spot(p: Vector2) -> Vector2:
 
 
 func _siege_set(line: Array, guns: Array, mid: Vector2) -> void:
-	# the anchor gone: the next within reach, else march on
+	# the anchor gone: the next within reach, else march on. (A wall piece the enemy turns into a gate, or a site it drops,
+	# is freed at once by Game._remove_quietly without dying: forget it, or every `is` below fails on a freed instance;
+	# qa-matches saw 201 errors in one game and the siege stuck. rules-fixes 4)
+	if anchor != null and not is_instance_valid(anchor):
+		anchor = null
 	var alive: bool = _alive(anchor) and (not (anchor is Building) or not anchor.ghost)
 	if alive and anchor is Unit and not _static_target(anchor):
 		alive = game.is_visible_to(ai.team, anchor.position) and anchor.position.distance_to(mid) < ARMY_STOP_D + 150.0
 	if not alive:
-		if anchor is Building or (anchor is Unit and not _alive(anchor)):
-			var k: String = String(anchor.kind) if anchor != null and is_instance_valid(anchor) else "?"
-			if k == "?":
-				pass
 		var nx = _army_on(mid)          # (the enemy army still on the line first: the fight goes on where it is)
 		if nx == null:
 			nx = _next_anchor(mid, STOP_D + 60.0)

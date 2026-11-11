@@ -234,7 +234,7 @@ static func build(st: Dictionary) -> Dictionary:
 			chips.append({"icon": "range", "text": "%.1f" % rng, "title": "Range",
 				"stats": Loc.t("%.1f tiles (%d px)") % [rng, int(reach)], "body": rbody, "col": _col(reach, breach)})
 			# bonuses
-			for bn in _bonuses(kind, d):
+			for bn in _bonuses(kind, d, dmg, cycle):
 				chips.append(bn)
 			if "air" in hits:
 				chips.append({"icon": "hits_air", "text": "", "title": "Hits flyers",
@@ -332,8 +332,17 @@ static func _hits(kind: String, d: Dictionary) -> Array:
 	return out
 
 
+## What one hit does to a building (no armour): damage x building_bonus, applied once on every path (rules-fixes 1);
+## the Field Cannon's round shot adds its splash (Defs.ROUND_SHOT "splash_dmg"), which lands on the same building.
+static func building_hit(kind: String, d: Dictionary, dmg: float) -> float:
+	var per := dmg * float(d.get("building_bonus", 1.0))
+	if kind == "cannon":
+		per *= 1.0 + float(Defs.ROUND_SHOT["splash_dmg"])
+	return per
+
+
 ## Bonus chips: against armour, against buildings, against flyers, against light units or named kinds.
-static func _bonuses(kind: String, d: Dictionary) -> Array:
+static func _bonuses(kind: String, d: Dictionary, dmg := 0.0, cycle := 0.0) -> Array:
 	var out: Array = []
 	var armd := 0.0
 	if kind == "cannon":
@@ -345,8 +354,12 @@ static func _bonuses(kind: String, d: Dictionary) -> Array:
 			"stats": Loc.t("x%s damage against armoured units") % _num(armd), "body": ""})
 	var bb := float(d.get("building_bonus", 1.0))
 	if bb > 1.0:
+		var bbody := ""
+		if dmg > 0.0 and cycle > 0.0:
+			var per := building_hit(kind, d, dmg)
+			bbody = Loc.t("A hit on a building: %s damage (%.1f a second).") % [_num(per), per / cycle]
 		out.append({"icon": "vs_buildings", "text": "x%s" % _num(bb), "title": "Bonus vs buildings",
-			"stats": Loc.t("x%s damage against buildings") % _num(bb), "body": ""})
+			"stats": Loc.t("x%s damage against buildings") % _num(bb), "body": bbody})
 	var light := 0.0
 	if kind == Defs.PENDULUM:
 		light = float(Defs.PENDULUM_SWING["vs_light"])

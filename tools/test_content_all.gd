@@ -1665,8 +1665,12 @@ func _fight_batch(kinds: Array, vs: String, fac: String) -> void:
 				if float(d.get("cooldown", 1.0)) >= 2.0 and not d.get("venom", false) and k != "spitter":
 					# (a slow, heavy weapon: what ONE shot does to a building, against its data)
 					var per := total / float(hits.size())
-					var want := float(d["damage"]) * float(d.get("building_bonus", 1.0))
-					note += "; one shot does %.0f to a building (damage %s x building bonus %s = %.0f)" % [per, d["damage"], d.get("building_bonus", 1.0), want]
+					var want := UnitStats.building_hit(k, d, float(d["damage"]))
+					note += "; one shot does %.0f to a building (damage %s x building bonus %s%s = %.0f)" % [per, d["damage"], d.get("building_bonus", 1.0),
+						" + the round shot's splash" if k == "cannon" else "", want]
+					if per < want * 0.7 and k in ["cannon", "mortar"]:
+						st3 = "FAIL"
+						note += " TOO LITTLE: the bonus is not applied where it lands?"
 					if per > want * 1.3:
 						st3 = "WARN"
 						note += " TOO MUCH: the bonus is applied twice?"

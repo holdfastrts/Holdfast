@@ -5193,6 +5193,9 @@ func _tend_wagon() -> void:
 					u.cmd_move(w.position + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
 
 
+var hunt: AIHunt = null          # (rules-fixes 3: the winner hunts, scripts/ai_hunt.gd)
+
+
 func _army() -> void:
 	var army: Array = game.army(team).filter(func(u: Unit) -> bool: return not _raiders.has(u) and not _on_errand(u) and u.kind != "powder_wagon" and u.kind != Defs.GREAT_WINDER_KIND and u.order != "sacrifice")      # (a Great Winder walks behind it: _great_winder_follow)
 	# (the harass, scripts/ai_harass.gd: a soldier out alone far from home hunts the workers, never stands at a turtle)
@@ -5243,6 +5246,10 @@ func _army() -> void:
 						best = f
 				u.cmd_move(best.center() + Vector2(randf_range(-40, 40), randf_range(-40, 40)))
 		army = army.filter(func(u: Unit) -> bool: return u.wind >= 0.2 or u._in_field or u.runs_on_spring())   # (wind-ups fight on; the escort cranks them)
+	if hunt == null:
+		hunt = AIHunt.new(self)
+	if hunt.tick(army):
+		return                  # (rules-fixes 3: the enemy has no army left, ours goes for its last buildings: ai_hunt.gd)
 	var sup := _army_supply(army)
 	# timing attack: nothing goes out before the timing; then everything does, wave after wave
 	if strategy == "timing" and game.clock >= float(_s("timing")) * (1.0 if difficulty >= 2 else 1.25) and _attack_at >= 999:

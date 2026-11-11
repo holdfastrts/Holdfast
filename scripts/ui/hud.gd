@@ -1097,7 +1097,8 @@ func _build_card() -> Array:
 		if units.all(func(u: Unit) -> bool: return u.kind == "horse"):
 			return list          # (a horse takes no orders: a leash or a rider moves it)
 		list.append(["move", "MOVE", func() -> void: controls.mode = "move", true, "", ""])
-		list.append(["attack", "ATTACK", func() -> void: controls.mode = "attack", true, "", ""])
+		if units.any(func(u: Unit) -> bool: return u.armed()):
+			list.append(["attack", "ATTACK", func() -> void: controls.mode = "attack", true, "", ""])    # (not on unarmed cards: rules-fixes 2)
 		list.append(["stop", "STOP", func() -> void: game.command_all(game.selected_units(), "stop"), true, "", ""])
 		if not units.all(func(u: Unit) -> bool: return u.is_worker() or u.kind == "horse"):
 			list.append(["patrol", "PATROL", func() -> void: controls.mode = "patrol", true, "", ""])

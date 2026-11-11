@@ -396,6 +396,8 @@ static func _worth(u: Unit, e: Entity) -> float:
 	if e is Building:
 		var gate := e.kind == "gate" or e.kind == "wall"
 		return 1.5 if gate else 0.9      # (a gate before a lone light man, after armour; other buildings last)
+	if not (e is Unit):
+		return 0.5      # (a Clockwork crate or a powder keg on the ground, which find_target also gives: last of all; rules-fixes 4)
 	var o := e as Unit
 	var v := (2.0 if o.has_tag("armored") else 1.0) + (0.3 if o.has_attack() else 0.0)
 	if o.is_worker():

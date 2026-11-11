@@ -2945,6 +2945,8 @@ const T := {
 	"note for the flagged frame": "nota para el fotograma marcado",
 	"P%d": "J%d",
 	"My map %d": "Mi mapa %d",
+	"A hit on a building: %s damage (%.1f a second).": "Un golpe a un edificio: %s de daño (%.1f por segundo).",
+	"Nothing left to fight with: train a worker or a soldier within a minute, or the battle is lost.": "Nada con lo que luchar: entrena un trabajador o un soldado en un minuto, o la batalla está perdida.",
 	"THE CAMPAIGN": "LA CAMPAÑA",
 	"Prologue: The Revolt": "Prólogo: La Revuelta",
 	"The year 2500. The world has fallen back to muskets and sail. A revolt flares against the Crown.": "El año 2500. El mundo ha vuelto a los mosquetes y las velas. Una revuelta estalla contra la Corona.",
