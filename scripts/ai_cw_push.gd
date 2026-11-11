@@ -93,6 +93,7 @@ var fight_from := Vector2.INF   # (ai-followups) the anchor where the fight bega
 var _rider_said := -99.0
 const AHEAD_K := 2.0
 const AHEAD_MIN := 1200.0
+const AHEAD_KEEP := 1.6
 const AHEAD_FROM := 480.0       # (s) not before this: early on most of the enemy army is unseen and its main walled
 var committed := false
 var commit_on := not OS.get_cmdline_user_args().has("cwcommit:off")      # (`-- cwcommit:off` as 0.33.11)
@@ -959,7 +960,8 @@ func _commit_check() -> void:
 	var rk: float = ai.army_g.reckon() if ai.get("army_g") != null and ai.army_g != null else 0.0
 	var mem := foe_mem()
 	var near := _value(_foes_near(_front_centre(), LOOK + 120.0))
-	var ahead := game.clock >= AHEAD_FROM and v >= AHEAD_MIN and v >= maxf(maxf(mem, near), rk) * AHEAD_K
+	# (once committed it stays so down to AHEAD_KEEP times: a fight's numbers going up and down made it flip every few seconds)
+	var ahead := game.clock >= AHEAD_FROM and v >= AHEAD_MIN and v >= maxf(maxf(mem, near), rk) * (AHEAD_KEEP if committed else AHEAD_K)
 	if ahead == committed:
 		return
 	committed = ahead

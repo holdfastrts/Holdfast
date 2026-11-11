@@ -50,9 +50,13 @@ const MASS_SINCE := 0.0         # (the opening's steady production: AIClockwork.
 ## The enemy army a Hard computer of that faction has at that age (value; [clock s, value]), from the coached games
 ## (docs/clockwork_army.md): the Brood's is the Crown's crown-v-brood table, raised before 7:00 (its Rootmaws and Mound
 ## Turtles fight where the push goes: 10 Clock Soldiers went at 5:23 on the old table and lost 490 for 250); the Crown's and the Clockwork's from the
-## "before" games here (the lowest seen, so a weak enemy is not over-feared).
+## "before" games here (the lowest seen, so a weak enemy is not over-feared). (clockwork-ai-v2: the Brood's from 7:00 cut to
+## the Hard Brood's army in the qa study's 152 Brood sides (0.33.7, the strongest quarter: 900 at 7:00, 1,150 at 8:00, 1,880
+## at 10:00, 2,730 at 12:00); it was about twice that (5,000 at 12:00), 1.8 to 3.5 times the Brood's real army in the
+## before games, and the Clockwork's army waited at home against the Brood until it was out-grown. Its rooted creatures
+## seen still count on top, _rooted_seen.)
 const TABLES := {
-	"brood": [[0.0, 0.0], [180.0, 150.0], [300.0, 700.0], [360.0, 1000.0], [420.0, 1400.0], [480.0, 2200.0], [540.0, 3000.0], [600.0, 3800.0], [720.0, 5000.0]],
+	"brood": [[0.0, 0.0], [180.0, 150.0], [300.0, 700.0], [360.0, 1000.0], [420.0, 1100.0], [480.0, 1300.0], [540.0, 1600.0], [600.0, 1900.0], [720.0, 2700.0], [840.0, 3100.0]],
 	"crown": [[0.0, 0.0], [180.0, 50.0], [300.0, 150.0], [360.0, 250.0], [420.0, 400.0], [480.0, 600.0], [600.0, 900.0], [720.0, 1400.0]],
 	"clockwork": [[0.0, 0.0], [240.0, 70.0], [300.0, 400.0], [360.0, 800.0], [480.0, 1500.0], [600.0, 2500.0], [720.0, 3500.0]],
 }
