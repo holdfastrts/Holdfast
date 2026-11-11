@@ -4,6 +4,14 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.12", "items": [
+		"THE CLOCKWORK COMPUTER FINISHES WHAT IT STARTS: when its push is clearly ahead (from 8:00, worth twice the enemy army it has seen and reckons) it goes for the enemy's halls (against the Brood: the Brood Mother), no longer stops short of a main it can take, and its soldiers break buildings together with the Ballistas. A big push marches in rows and no longer stands still because its front could not all fit on one line. Its push now counts as an attack for the match tools.",
+		"ITS GREAT WINDER SWEEPS: it walks just behind the army and, between fights, sweeps the Clockwork wrecks near the army into cogs (it stood far behind and swept nothing).",
+		"DRY LAND: with its brass spent, the Clockwork computer stops its opening build and saves for a new Clocktower and its Cog Press before more units (it trained soldiers until it was broke, then stood still); Cog Presses left by a lost Clocktower that no longer turn are pulled down so the new Clocktower gets its own.",
+		"A Clock Soldier or two left far from home harass the enemy's workers again (past rooted creatures) instead of attack-moving home into a rooted Mound Turtle; units far out walk home with a plain move.",
+		"ENEMY FLYERS: the Clockwork computer lays its Clock Aviary as soon as it sees one (anywhere on its gear field) and trains Swifts at once (it took a minute or more).",
+		"Its sentry at a walled ramp peeks up the ramp now and then to see behind the wall; a computer unit on a move order no longer rides round a turning gear band for long.",
+	]},
 	{"v": "0.33.11", "items": [
 		"CARD LINES FIT THEIR CARD AGAIN: the Great Winder's short line (in every language) and the Portuguese lines of the Marching Band and the Mainspring were longer than a card holds and ran off it; they are shorter now.",
 		"WATCHING COMPUTERS: the story line \"its scout was stopped before it saw anything\" now shows (it was lost to an error).",
