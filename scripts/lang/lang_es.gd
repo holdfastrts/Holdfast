@@ -2679,6 +2679,8 @@ const T := {
 	"%s's ramp wall is up.": "%s: la muralla de la rampa está en pie.",
 	"%s plans a walled expansion.": "%s planea una expansión amurallada.",
 	"%s walls in its new hall: %s pieces.": "%s amuralla su nueva base: %s piezas.",
+	"%s expands while its base is still rich: more %s, %s tiles out.": "%s se expande mientras su base aún es rica: más %s, a %s casillas.",
+	"%s lost a base: it keeps off that ground until it is clear of enemies.": "%s perdió una base: se mantiene lejos de ese terreno hasta que esté libre de enemigos.",
 	"%s expands to fresh %s: its best base has only %s%% left, so it goes %s tiles out.": "%s se expande a una nueva zona de %s: su mejor base solo tiene un %s%% restante, así que va a %s casillas.",
 	"%s's economy is full on %s bases: it needs a new one to grow.": "%s: la economía está llena en %s bases: necesita una nueva para crecer.",
 	"%s puts its expansion off: it must answer the swarm first.": "%s aplaza su expansión: primero debe responder al enjambre.",

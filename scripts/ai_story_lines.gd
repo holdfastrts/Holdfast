@@ -143,6 +143,9 @@ const RULES := [
 	["^lays (\\d+) wall pieces at its new hall", "%s walls in its new hall: %s pieces.", 1, "wall"],
 	["^(?:closes an empty wall slot|plans palisade for an empty wall slot|found no wall plan|has no Cottage wall plan|sends a Labourer back)", "", 1, "wall"],
 	# ---- the economy and expansions
+	# (crown-ai-v2: "its best base has ONLY 92-100% left" was no reason, 482 lines in the QA study: a rich base expands early)
+	["^is expanding to fresh (\\w+) \\(left at its best hall: (?:[6-9]\\d|1\\d\\d)%\\), (\\d+) tiles", "%s expands while its base is still rich: more %s, %s tiles out.", 3, "expand"],
+	["^lost a Town Hall", "%s lost a base: it keeps off that ground until it is clear of enemies.", 2, "expand"],
 	["^is expanding to fresh (\\w+) \\(left at its best hall: (\\d+)%\\), (\\d+) tiles", "%s expands to fresh %s: its best base has only %s%% left, so it goes %s tiles out.", 3, "expand"],
 	["^'s economy is saturated on (\\d+) halls?", "%s's economy is full on %s bases: it needs a new one to grow.", 2, "expand"],
 	["^holds its expansion: (?:a|the) swarm", "%s puts its expansion off: it must answer the swarm first.", 2, "expand"],

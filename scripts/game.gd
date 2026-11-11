@@ -4869,6 +4869,8 @@ func placement_problem(t: int, k: String, c: Vector2i, ai := false, limits_check
 			# the computer keeps its ramps clear (for its own wall and its army)
 			if ai and not Defs.BUILDINGS[k].get("line", false) and _near_ramp(cc):
 				return "Keep the ramp clear."
+	if ai and not Defs.BUILDINGS[k].get("line", false) and faction_of(t) == "crown" and _blocks_own_gate(t, c, size):
+		return "Keep the gate clear."
 	if Defs.gear_mode and Defs.BUILDINGS[k]["faction"] == "clockwork" and not _gear_relax:
 		var gp := gear_net.placement_problem(t, k, c, gear_big_for(t, k))      # (its ring, at the size picked, must touch the connected field: scripts/gear.gd)
 		if gp != "":
@@ -4942,6 +4944,33 @@ func set_gear_pick(t: int, k: String, big: bool) -> void:
 ## The first-resource price team t pays to place kind k now: its cost, and a BIG gear's extra (GEAR PICK).
 func build_price(t: int, k: String) -> int:
 	return int(Defs.BUILDINGS[k]["cost"]) + GearNet.big_extra_cost(k, gear_big_for(t, k))
+
+
+## THE GATE'S WAY THROUGH KEPT CLEAR (crown-ai-v2, docs/crown_ai_v2.md; the QA study's item 4: 82 Crown units stuck in their
+## own main, e.g. Hollowfen seed 1189: the second Barracks of the production row went down right inside the ramp's gate,
+## the cell in front of the gate left only a corner squeeze between it and the ramp Cottage, so no path led out and the
+## army stood at the cliff edge nearest its goal for minutes). The computer's buildings (not palisade or gates) never cover
+## the two cells straight in front of a gate of its own on either side (where the gate opens onto open ground).
+const GATE_WAY := 2
+
+
+func _blocks_own_gate(t: int, c: Vector2i, size: Vector2i) -> bool:
+	for y in range(c.y - GATE_WAY, c.y + size.y + GATE_WAY):
+		for x in range(c.x - GATE_WAY, c.x + size.x + GATE_WAY):
+			var g := Vector2i(x, y)
+			if not in_map(g) or solid[idx(g)] != 3:
+				continue
+			if int(gate_team.get(idx(g), -1)) != t and _own_gate_at(t, g) == null:
+				continue
+			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var n: Vector2i = g + d
+				if not in_map(n) or not (solid[idx(n)] == 0 or solid[idx(n)] == 5):
+					continue        # (along the wall line, or a cliff: not a way through)
+				for k in range(1, GATE_WAY + 1):
+					var q: Vector2i = g + d * k
+					if q.x >= c.x and q.y >= c.y and q.x < c.x + size.x and q.y < c.y + size.y:
+						return true
+	return false
 
 
 func _near_ramp(c: Vector2i) -> bool:

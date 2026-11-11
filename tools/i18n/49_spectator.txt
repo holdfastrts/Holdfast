@@ -423,6 +423,14 @@ es %s amuralla su nueva base: %s piezas.
 
 # ---- the economy and expansions
 
+> %s expands while its base is still rich: more %s, %s tiles out.
+pt %s expande enquanto a sua base ainda é rica: mais %s, a %s casas de distância.
+es %s se expande mientras su base aún es rica: más %s, a %s casillas.
+
+> %s lost a base: it keeps off that ground until it is clear of enemies.
+pt %s perdeu uma base: fica longe daquele terreno até ele estar livre de inimigos.
+es %s perdió una base: se mantiene lejos de ese terreno hasta que esté libre de enemigos.
+
 > %s expands to fresh %s: its best base has only %s%% left, so it goes %s tiles out.
 pt %s expande para uma nova área de %s: a sua melhor base só tem %s%% sobrando, então vai a %s casas de distância.
 es %s se expande a una nueva zona de %s: su mejor base solo tiene un %s%% restante, así que va a %s casillas.

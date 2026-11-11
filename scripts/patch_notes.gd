@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.12", "items": [
+		"THE CROWN COMPUTER (work in progress, crown-ai-v2): it keeps off ground where it just lost a Town Hall until the enemy has gone, instead of laying the new hall into the enemy that took the last one; its buildings keep the way through its own gates clear (an army was shut in its main by its own Barracks); the natural's palisade gets its gold before more labourers.",
+	]},
 	{"v": "0.33.11", "items": [
 		"CARD LINES FIT THEIR CARD AGAIN: the Great Winder's short line (in every language) and the Portuguese lines of the Marching Band and the Mainspring were longer than a card holds and ran off it; they are shorter now.",
 		"WATCHING COMPUTERS: the story line \"its scout was stopped before it saw anything\" now shows (it was lost to an error).",
