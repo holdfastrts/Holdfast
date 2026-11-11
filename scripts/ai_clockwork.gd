@@ -364,6 +364,12 @@ func _air_answer() -> void:
 				_air_said = true
 				note("air: enemy flyers seen (%d): a Clock Aviary at once, for Swifts" % fa)
 			_air(game.clock)
+			if _mine(Defs.CW_AIR).is_empty():
+				# (no room by a Mainspring: anywhere on its gear field, the network feeds it (as the Escapement since 0.25.0);
+				# the shared rule built a spare Mainspring first and the Aviary only once that stood)
+				var c := _any_gear_spot(Defs.CW_AIR)
+				if c.x >= 0:
+					_construct(Defs.CW_AIR, c)
 		return
 	for b in av:
 		if not b.built or (b.queue as Array).size() >= 2:

@@ -431,7 +431,8 @@ func _march() -> void:
 	_repath()
 	var front: Array = units.filter(func(u: Unit) -> bool: return _front_kind(u))
 	var heavies: Array = units.filter(func(u: Unit) -> bool: return _heavy(u) or u.kind == Defs.GREAT_WINDER_KIND)
-	var near_n := front.filter(func(u: Unit) -> bool: return u.position.distance_to(anchor) < FRONT_AT).size()
+	var at_r := _front_at(front.size())
+	var near_n := front.filter(func(u: Unit) -> bool: return u.position.distance_to(anchor) < at_r).size()
 	var at := front.is_empty() or float(near_n) >= float(front.size()) * 0.6
 	var dir := _dir()
 	var lag := false
@@ -575,6 +576,21 @@ func _advance() -> void:
 func _place_front(front: Array, p: Vector2, dir: Vector2, amove: bool) -> void:
 	var side := Vector2(-dir.y, dir.x)
 	var n := front.size()
+	if rows_on and n > ROW_N:
+		# (clockwork-ai-v2) A BIG FRONT IN ROWS: ROW_N a row across the way, the next rows ROW_GAP behind (a push of 55 Clock
+		# Soldiers on one line 260 px wide crowded out past FRONT_AT, never counted as "at" the anchor, and the march stood
+		# still for three minutes, Greenhold mirror 12:01-15:00)
+		for i in n:
+			var u: Unit = front[i]
+			if _guards.has(u):
+				continue
+			var r := i / ROW_N
+			var k := i % ROW_N
+			var in_row := mini(ROW_N, n - r * ROW_N)
+			var off := (float(k) - float(in_row - 1) * 0.5) * 22.0
+			var row := -18.0 if u.kind == Defs.SPRINGER or u.kind == Defs.NETTER else (12.0 if u.kind == Defs.PENDULUM else 0.0)
+			_order(u, p + side * off + dir * (row - ROW_GAP * float(r)), amove, 50.0)
+		return
 	for i in n:
 		var u: Unit = front[i]
 		if _guards.has(u):
@@ -582,6 +598,18 @@ func _place_front(front: Array, p: Vector2, dir: Vector2, amove: bool) -> void:
 		var off := (float(i) - float(n - 1) * 0.5) * 22.0
 		var row := -18.0 if u.kind == Defs.SPRINGER or u.kind == Defs.NETTER else (12.0 if u.kind == Defs.PENDULUM else 0.0)
 		_order(u, p + side * clampf(off, -130.0, 130.0) + dir * row, amove, 50.0)
+
+
+## (clockwork-ai-v2) The front is "at" the anchor within this: FRONT_AT, more for a big front in rows.
+const ROW_N := 12
+const ROW_GAP := 26.0
+var rows_on := not OS.get_cmdline_user_args().has("cwrows:off")
+
+
+func _front_at(n: int) -> float:
+	if not rows_on or n <= ROW_N:
+		return FRONT_AT
+	return FRONT_AT + ROW_GAP * float((n - 1) / ROW_N) + 20.0
 
 
 func _place_heavies(heavies: Array, p: Vector2, dir: Vector2) -> void:

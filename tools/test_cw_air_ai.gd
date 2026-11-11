@@ -120,6 +120,10 @@ func _run() -> void:
 	bal.cmd_hold()
 	var waited := await _wait(func() -> bool: return not _mine(Defs.CW_AIR).is_empty(), 60.0)
 	check("seeing a flyer, it places a Clock Aviary", not _mine(Defs.CW_AIR).is_empty(), "%.0f s" % waited)
+	if OS.get_environment("AIR_LOG") != "" and g.mlog:
+		for l in g.mlog.lines:
+			if String(l).contains("P1") and (String(l).contains("air") or String(l).contains("Aviary") or String(l).contains("Mainspring") or String(l).contains("Turret")):
+				print("    | " + String(l))
 	waited = await _wait(func() -> bool: return _mine(Defs.CW_AIR).any(func(b: Building) -> bool: return b.built), 150.0)
 	check("the Aviary is built", _mine(Defs.CW_AIR).any(func(b: Building) -> bool: return b.built), "%.0f s" % waited)
 	var av_list := _mine(Defs.CW_AIR)

@@ -97,6 +97,14 @@ func _run() -> void:
 		total_t += dt
 		win_t += dt
 		if win_t >= 10.0:
+			if OS.get_environment("SENTRY_TRACE") != "":
+				var se = ai.scout.sentry
+				var md := INF
+				for u in musk:
+					if is_instance_valid(u) and not u.dead and se != null and is_instance_valid(se):
+						md = minf(md, u.position.distance_to(se.position))
+				print("   t %d seen %s sentry %s order %s hp %s musk %.0f px (out %s) peek %s" % [int(g.clock), win_seen, str(se.position.round()) if se != null and is_instance_valid(se) else "-",
+					se.order if se != null and is_instance_valid(se) else "-", str(int(se.hp)) if se != null and is_instance_valid(se) else "-", md, outside, ai.scout.get("_peek_on")])
 			windows += 1
 			if win_seen:
 				windows_seen += 1

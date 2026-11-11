@@ -1284,6 +1284,8 @@ func _sentry_tick() -> void:
 		_sentry_fleeing = false
 		_sentry_pt = _sentry_spot(sentry, [])
 		sentry.cmd_move(_sentry_pt)
+		_peek_t = game.clock + 20.0         # (clockwork-ai-v2: its first peek once it has stood at its post a while)
+		_peek_on = false
 		_say("posts a %s at the foot of the walled ramp to keep watch" % String(Defs.UNITS[u.kind]["name"]))
 		_sentry_log("posted")
 		return
@@ -1341,8 +1343,11 @@ func _sentry_peek() -> bool:
 		return false
 	if _peek_on:
 		var seen := _sentry_sees_armed()
-		if seen or game.clock - _peek_t > SENTRY_PEEK_T or sentry.hp < _peek_hp - 0.1 or sentry.hp < sentry.max_hp * 0.5:
+		var hit := sentry.hp < _peek_hp - 0.1 or sentry.hp < sentry.max_hp * 0.5
+		if seen or game.clock - _peek_t > SENTRY_PEEK_T or hit:
 			_peek_on = false
+			if hit:
+				_peek_t = game.clock + SENTRY_PEEK      # (shot at: the next peek waits twice as long)
 			if seen:
 				sentry_peek_seen += 1
 				_sentry_log("peek: saw")
@@ -1351,7 +1356,7 @@ func _sentry_peek() -> bool:
 			return true
 		return true
 	if _sentry_fleeing or game.clock - _peek_t < SENTRY_PEEK or sentry.hp < sentry.max_hp * 0.5 \
-			or sentry.position.distance_to(_sentry_pt) > 90.0 or not _sentry_threats().is_empty():
+			or sentry.position.distance_to(_sentry_pt) > 60.0 or sentry.order == "move" or not _sentry_threats().is_empty():
 		return false
 	_peek_on = true
 	_peek_t = game.clock
