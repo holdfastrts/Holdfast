@@ -59,7 +59,7 @@ func tick() -> void:
 	if not active() or game.starts.size() <= ai.team:
 		return
 	var halls: Array = game.halls_of(ai.team, false)
-	var home := Vector2(game.starts[ai.team]) * Defs.TILE
+	var home: Vector2 = game.start_mid(ai.team)
 	var main: Building = null
 	for h in halls:
 		if main == null or h.center().distance_to(home) < main.center().distance_to(home):

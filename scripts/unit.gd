@@ -2790,7 +2790,7 @@ func cmd_gather(site: Entity) -> void:
 			var alt := BroodNew.free_source(game, team, src.position)
 			if alt == null:
 				game.tell(team, "That Rootmaw must be rooted to be fed from." if src.kind == BroodNew.MAW and not BroodNew.rooted(src) else "No room there.")
-				cmd_move(src.position)
+				cmd_move(game.approach_point(src, position) if BroodRoot.has_fp(src) else src.position)      # (rooting: to its footprint's near side, not its feet: start-spots-fix)
 				return
 			src = alt
 		_reset_work()
@@ -4222,7 +4222,7 @@ func compute_path() -> void:
 	# to break it), never into a gate it can't open
 	var shut := _shut_gates()
 	game._pq_shut = shut          # (the gates this walk shut: part of what a shared path must match, Game.find_path)
-	path = game.find_path(position, path_goal, not is_worker(), _path_margin())
+	path = game.find_path(position, path_goal, not is_worker(), _path_margin(), team)
 	path_i = 0
 	stuck_t = 0.0
 	squeeze_t = 0.0
@@ -4232,12 +4232,12 @@ func compute_path() -> void:
 		# among its own side's rooted creatures: out through them first (the owner, 21:32), then on its way
 		var nex := BroodRoot.exit_point(game, position, team)
 		if nex != Vector2.INF:
-			path = PackedVector2Array([nex]) + game.find_path(nex, path_goal, not is_worker(), _path_margin())
+			path = PackedVector2Array([nex]) + game.find_path(nex, path_goal, not is_worker(), _path_margin(), team)
 	elif game.sealed_in(position) and game.region_of(game.cell_of(path_goal)) != game.region_of(game.cell_of(position)):
 		var out := game.escape_point(position)
 		if out != Vector2.INF:
 			squeeze_t = 3.0
-			path = PackedVector2Array([out]) + game.find_path(out, path_goal, not is_worker(), _path_margin())
+			path = PackedVector2Array([out]) + game.find_path(out, path_goal, not is_worker(), _path_margin(), team)
 	if _towed():
 		path = _tow_gate_approach(path)
 	_open_gates(shut)
@@ -4350,14 +4350,14 @@ func _shut_gates() -> Array:
 	for i in game.gate_team:
 		if game.solid[i] == 3 and game.hostile(int(game.gate_team[i]), team):
 			var c := Vector2i(int(i) % Game.W, int(i) / Game.W)
-			game.astar.set_point_solid(c, true)
+			game.astar_set(c, true)
 			out.append(c)
 	return out
 
 
 func _open_gates(cells: Array) -> void:
 	for c in cells:
-		game.astar.set_point_solid(c, game.rail_side.has(game.idx(c)))
+		game.astar_set(c, game.rail_side.has(game.idx(c)))
 
 
 ## Can it walk up to `e` (its enemies' gates shut)?

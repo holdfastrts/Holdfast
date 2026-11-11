@@ -389,12 +389,12 @@ func _pick_goal() -> void:
 			goal_e = best
 			goal = (best as Unit).position
 		else:
-			goal = Vector2(game.starts[foe]) * Defs.TILE
+			goal = game.start_mid(foe)
 	else:
 		goal = ai._enemy_base()
 		if _done_goals.any(func(q: Vector2) -> bool: return q.distance_to(goal) < 200.0):
 			# (nothing seen there any more: the enemy's start, then its other halls the side knows)
-			goal = Vector2(game.starts[foe]) * Defs.TILE
+			goal = game.start_mid(foe)
 			for b in game.buildings:
 				if b.team == foe and not b.dead and not b.ghost and game.side_sees(team, b.center()) \
 						and not _done_goals.any(func(q: Vector2) -> bool: return q.distance_to(b.center()) < 200.0):
@@ -412,7 +412,7 @@ func _repath() -> void:
 	if game.clock - path_t < REPATH and not path.is_empty():
 		return
 	path_t = game.clock
-	path = game.find_path(anchor, goal, true)
+	path = game.find_path(anchor, goal, true, 7.0, team)
 	path_i = 0
 	if path.is_empty():
 		path = PackedVector2Array([anchor, goal])
@@ -897,7 +897,7 @@ func _retreat(why: String) -> void:
 
 
 func _go_back() -> void:
-	var home: Vector2 = ai._home_spot(ai._front()) if not ai._halls().is_empty() else Vector2(game.starts[team]) * Defs.TILE
+	var home: Vector2 = ai._home_spot(ai._front()) if not ai._halls().is_empty() else game.start_mid(team)
 	units.append_array(joining.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead))
 	joining.clear()
 	var all_home := true
@@ -950,7 +950,7 @@ func _note_once(key: String, s: String, gap: float) -> void:
 
 ## The goal is the enemy's main: its start (a Crown or Clockwork main hall, the Brood Mother's nest).
 func _main_goal() -> bool:
-	return foe >= 0 and goal.distance_to(Vector2(game.starts[foe]) * Defs.TILE) < 700.0
+	return foe >= 0 and goal.distance_to(game.start_mid(foe)) < 700.0
 
 
 ## (clockwork-ai-v2) Is the push clearly ahead (see AHEAD_K)? Said when it changes.

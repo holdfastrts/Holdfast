@@ -729,7 +729,7 @@ func _turret_target(where: String) -> Vector2:
 		return Vector2.INF
 	var main: Building = halls[0]
 	if game.starts.size() > team:
-		var home := Vector2(game.starts[team]) * T
+		var home: Vector2 = game.start_mid(team)
 		for h in halls:
 			if (h as Building).center().distance_to(home) < main.center().distance_to(home):
 				main = h
@@ -763,7 +763,7 @@ func _main_hall() -> Building:
 		return null
 	var main: Building = halls[0]
 	if game.starts.size() > team:
-		var home := Vector2(game.starts[team]) * Defs.TILE
+		var home: Vector2 = game.start_mid(team)
 		for h in halls:
 			if (h as Building).center().distance_to(home) < main.center().distance_to(home):
 				main = h

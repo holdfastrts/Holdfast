@@ -309,7 +309,7 @@ func _follow() -> void:
 			_say("scout pulled away: order %s target %s at %s" % [unit.order, str(unit.order_target), str(unit.position)])
 		_finish("pulled away")        # (another part of the computer used it)
 		return
-	var limit: float = 70.0 + 1.8 * game.center_of_team(ai.team).distance_to(Vector2(game.starts[_foe]) * Defs.TILE) / maxf(20.0, float(unit.d["speed"]))
+	var limit: float = 70.0 + 1.8 * game.center_of_team(ai.team).distance_to(game.start_mid(_foe)) / maxf(20.0, float(unit.d["speed"]))
 	if game.clock - sent_at > limit:
 		_finish("timeout")
 		return
@@ -511,7 +511,7 @@ func _observe() -> void:
 	var value := 0.0
 	var sup := 0
 	var workers := 0
-	var st := Vector2(game.starts[_foe]) * Defs.TILE
+	var st: Vector2 = game.start_mid(_foe)
 	var rush_now := {}
 	for u in game.units:
 		if u.team != _foe or u.dead or u.off_field or u.aboard != null:
@@ -864,7 +864,7 @@ func _avoid() -> bool:
 
 
 func _nearest_start_hall(b: Building) -> Building:
-	return b if b.center().distance_to(Vector2(game.starts[_foe]) * Defs.TILE + Vector2(80, 64)) < 8.0 * Defs.TILE else null
+	return b if b.center().distance_to(game.start_mid(_foe)) < 8.0 * Defs.TILE else null
 
 
 func _coverage() -> float:

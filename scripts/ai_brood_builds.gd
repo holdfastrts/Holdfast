@@ -294,7 +294,7 @@ func _find_barrier(q: Unit, from: Vector2) -> void:
 	barrier_p = Vector2.INF
 	if goal == Vector2.INF:
 		return
-	var path := game.find_path(from, goal)
+	var path := game.find_path(from, goal, false, 7.0, ai.team)
 	var end: Vector2 = path[path.size() - 1] if path.size() > 0 else from
 	# a wall piece or gate it knows ON the way (a gate is no wall to the pathfinder, but it is shut to the enemy): the first
 	# one along the way, a gate before the stakes beside it

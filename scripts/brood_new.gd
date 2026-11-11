@@ -152,11 +152,17 @@ const START_SIZE := Vector2i(5, 4)
 
 
 static func start(g: Game, t: int, cell: Vector2i) -> void:
-	var c := BroodRoot.snap(QUEEN, (Vector2(cell) + Vector2(START_SIZE) * 0.5) * Defs.TILE)
+	# (start-spots-fix: her nest's footprint stands where a hall would, worked out in the first start's frame and
+	# mirrored back, so the two starts of a mirrored map are mirror images; Game.start_flip)
+	var mid := (Vector2(cell) + Vector2(START_SIZE) * 0.5) * Defs.TILE
+	var qsz: Vector2i = BroodRoot.fp(QUEEN)[0]
+	var qc := g.sym_rect(t, BroodRoot.cell_centred(QUEEN, g.sym_pt(t, mid)), qsz)
+	var c := BroodRoot.feet_at(QUEEN, qc)
+	var qmid := (Vector2(qc) + Vector2(qsz) * 0.5) * Defs.TILE
 	var q := g._add_unit(QUEEN, t, c)
 	q.facing = SE
 	q.nb["eggs"] = int(Defs.NB["start_eggs"])
-	var spot := BroodRoot.snap(MAW, _maw_start_spot(g, c))      # (before her footprint is taken: her cell's region is looked at)
+	var spot := _maw_start_spot(g, t, qmid)      # (before her footprint is taken: her cell's region is looked at)
 	_start_rooting(g, q)
 	q.nb["swr"] = swamp_full(q)        # (her swamp is there in full once she has rooted at the start: her Rootmaw is on it)
 	var m := g._add_unit(MAW, t, spot)
@@ -164,11 +170,13 @@ static func start(g: Game, t: int, cell: Vector2i) -> void:
 	m.nb["food"] = float(Defs.NB["start_food"])       # (the first loads are ready: the grubs start at once)
 	_claim(g, m)
 	_start_rooting(g, m)
-	# the grubs just outside her nest's ground, on the side away from the map's edge
+	# the grubs just outside her nest's ground, on the side away from the map's edge (in the first start's frame, mirrored back)
 	var qr := BroodRoot.rect_of(q)
-	var gy := qr.end.y + 22.0 if c.y < Game.H * Defs.TILE * 0.5 else qr.position.y - 22.0
+	var m0 := g.sym_pt(t, qmid)
+	var dy := qr.size.y * 0.5 + 22.0
+	var gy := m0.y + dy if m0.y < Game.H * Defs.TILE * 0.5 else m0.y - dy
 	for i in int(Defs.FACTIONS["brood"]["start_workers"]):
-		var gp := Vector2(c.x - 60.0 + i * 30.0, gy)
+		var gp := g.sym_pt(t, Vector2(m0.x - 60.0 + i * 30.0, gy))
 		if not g._clear_at(gp, 8.0, t):
 			gp = g.cell_center(g.nearest_free(g.cell_of(gp), 6))
 		var gr := g._add_unit("grub", t, gp)
@@ -187,18 +195,21 @@ static func _start_rooting(g: Game, u: Unit) -> void:
 
 ## Fresh ground beside the Mother (clear of her great body: about 8 to 10 tiles out), walkable round it, on her level,
 ## a little away from the map's middle (behind her, as the old starting pits were) but not off the edge of her ground.
-static func _maw_start_spot(g: Game, c: Vector2) -> Vector2:
+## `c`: the middle of her nest. Every candidate is a footprint MIDDLE, snapped and looked at in the first start's frame
+## and mirrored back (Game.sym_*), so mirrored starts pick mirrored spots. Returns the Rootmaw's feet.
+static func _maw_start_spot(g: Game, t: int, c: Vector2) -> Vector2:
 	var mid := Vector2(Game.W, Game.H) * Defs.TILE * 0.5
-	var away := (c - mid).normalized() if c.distance_to(mid) > 1.0 else Vector2.DOWN
-	var h := int(g.height[g.idx(g.cell_of(c))])
-	var home := g.region_of(g.cell_of(c))
-	var best := c + away * 10.0 * Defs.TILE      # (none found: out past her nest)
+	var away := (c - mid).normalized() if c.distance_to(mid) > 1.0 else g.sym_dir(t, Vector2.DOWN)
+	var h := int(g.height[g.idx(g.sym_cell(t, c))])
+	var home := g.region_of(g.sym_cell(t, c))
+	var msz: Vector2i = BroodRoot.fp(MAW)[0]
+	var best := _maw_feet(g, t, c + away * 10.0 * Defs.TILE, msz)      # (none found: out past her nest)
 	var bs := -INF
 	for r in [8.5, 9.5, 7.5, 10.5, 6.5]:
 		for i in 24:
-			var dir := Vector2.from_angle(TAU * i / 24.0)
-			var p: Vector2 = c + dir * r * Defs.TILE
-			var cc := g.cell_of(p)
+			var dir := g.sym_dir(t, Vector2.from_angle(TAU * i / 24.0))
+			var p: Vector2 = _maw_feet(g, t, c + dir * r * Defs.TILE, msz)
+			var cc := g.sym_cell(t, c + dir * r * Defs.TILE)
 			if not g._walkable(cc) or int(g.height[g.idx(cc)]) != h or g.ramp[g.idx(cc)] != 0 or g.region_of(cc) != home:
 				continue
 			# room round it: the cells within 2 tiles walkable and on its level
@@ -209,7 +220,7 @@ static func _maw_start_spot(g: Game, c: Vector2) -> Vector2:
 					if g.in_map(c2) and g._walkable(c2) and int(g.height[g.idx(c2)]) == h:
 						room += 1
 			if room < 22 or BroodRoot.place_problem(g, -1, MAW, p, null, false, 1.0, false) != "" \
-					or BroodRoot.rect_for(QUEEN, c).grow(Defs.TILE).intersects(BroodRoot.rect_for(MAW, p)):
+					or Rect2(c - Vector2(BroodRoot.fp(QUEEN)[0]) * Defs.TILE * 0.5, Vector2(BroodRoot.fp(QUEEN)[0]) * Defs.TILE).grow(Defs.TILE).intersects(BroodRoot.rect_for(MAW, p)):
 				continue          # (its whole footprint must fit)
 			var s: float = dir.dot(away) * 0.5 + room * 0.05 - absf(r - 8.5) * 0.3
 			if s > bs:
@@ -218,6 +229,11 @@ static func _maw_start_spot(g: Game, c: Vector2) -> Vector2:
 		if bs > -INF:
 			break
 	return best
+
+
+## The feet of a Rootmaw whose footprint's middle is (about) at m, snapped in the first start's frame.
+static func _maw_feet(g: Game, t: int, m: Vector2, msz: Vector2i) -> Vector2:
+	return BroodRoot.feet_at(MAW, g.sym_rect(t, BroodRoot.cell_centred(MAW, g.sym_pt(t, m)), msz))
 
 
 # ------------------------------------------------------------------ supply, swamp, the end
@@ -1594,14 +1610,29 @@ static func stack(u: Unit, top: float) -> Dictionary:
 	return s
 
 
-## Where a grub stands to take food: by the Rootmaw's flank (its left side as it faces south-east), spread out.
+## Where a grub stands to take food: by the Rootmaw's flank, spread out. Rooted: just outside its footprint on the
+## flank SIDEWAYS to the way to the Mother (start-spots-fix, docs/start_spots_fix.md: it used to be the footprint's
+## screen-left side, which faced the Mother on one start and turned its back on her on the mirrored one: the two Broods'
+## trips differed by a third). Sideways is the middle of the two old trips; the side is picked in the first start's frame
+## (Game.sym_dir), so mirrored Rootmaws pick mirrored flanks.
 static func flank_point(g: Game, src: Unit, gr: Unit) -> Vector2:
 	var i := (gr.serial % 7) - 3
 	var base := src.position + Vector2(-src.radius - 6.0, -2.0) if src.kind == MAW else src.position
+	var spread := Vector2(float(i) * 2.0, float(i) * 5.0)
 	if src.kind == MAW and BroodRoot.has_fp(src):
 		var r := BroodRoot.rect_of(src)
-		base = Vector2(r.position.x - 7.0, r.get_center().y + 6.0)       # (rooted: just outside its footprint, at its flank)
-	return base + Vector2(float(i) * 2.0, float(i) * 5.0)
+		var c := r.get_center()
+		var q := queen(g, src.team)
+		var qc := Vector2.INF
+		if q != null:
+			qc = BroodRoot.rect_of(q).get_center() if BroodRoot.has_fp(q) else q.position
+		var to_q := (qc - c) if qc != Vector2.INF and qc.distance_to(c) > 1.0 else g.sym_dir(src.team, Vector2.RIGHT)
+		var side := g.sym_dir(src.team, g.sym_dir(src.team, to_q.normalized()).orthogonal())
+		var hx := r.size.x * 0.5 / maxf(absf(side.x), 0.001)
+		var hy := r.size.y * 0.5 / maxf(absf(side.y), 0.001)
+		base = c + side * (minf(hx, hy) + 7.0)
+		spread = side.orthogonal() * float(i) * 5.0
+	return base + spread
 
 
 ## Where a grub carrying food walks to: the NEAREST point of the Mother (the owner, 2026-10-30: her back or any side,

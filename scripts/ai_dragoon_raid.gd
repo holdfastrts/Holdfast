@@ -134,8 +134,8 @@ func _look() -> void:
 		var key := "u%d" % o.get_instance_id()
 		sites[key] = {"p": o.position, "kind": o.kind, "seen": game.clock, "workers": int(sites.get(key, {}).get("workers", 0)), "guess": false, "e": o}
 	# the guesses: its natural and the base sites on its side of the map (struck off once seen empty)
-	var their: Vector2 = Vector2(game.starts[foe]) * Defs.TILE if game.starts.size() > foe else Vector2.INF
-	var mine: Vector2 = Vector2(game.starts[t]) * Defs.TILE if game.starts.size() > t else Vector2.INF
+	var their: Vector2 = game.start_mid(foe) if game.starts.size() > foe else Vector2.INF
+	var mine: Vector2 = game.start_mid(t) if game.starts.size() > t else Vector2.INF
 	if their != Vector2.INF:
 		var cells: Array = []
 		if game.expansions.size() > foe:
@@ -209,7 +209,7 @@ func pick_site(from: Vector2, g: Dictionary) -> String:
 	var foe: int = ai._foe()
 	if foe < 0:
 		return ""
-	var their: Vector2 = Vector2(game.starts[foe]) * Defs.TILE if game.starts.size() > foe else from
+	var their: Vector2 = game.start_mid(foe) if game.starts.size() > foe else from
 	var taken := {}
 	for o in groups:
 		if o != g and String(o["site"]) != "":
@@ -404,7 +404,7 @@ func _waypoint(from: Vector2, to: Vector2) -> Vector2:
 		return Vector2.INF
 	var bad: Array = []
 	if game.starts.size() > foe:
-		bad.append(Vector2(game.starts[foe]) * Defs.TILE)
+		bad.append(game.start_mid(foe))
 	for a in armies:
 		bad.append(a[1])
 	var mid := (from + to) * 0.5

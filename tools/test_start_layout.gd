@@ -10,6 +10,10 @@ extends SceneTree
 ##  - are mirror-fair: every player of one faction has the same distance to his hall (and the
 ##    same edge gap) within a small tolerance,
 ##  - are not farther from the hall than the old "behind the hall" spot by more than a few tiles.
+## MIRRORED STARTS (start-spots-fix, docs/start_spots_fix.md): on every map, every faction (the Brood too), with 2
+## players and with as many as the map holds, every start is the exact mirror of the map's first start under the map's
+## symmetry (Game.start_flip; with several mirror sets, each set's own first start, Game.start_canon): its hall, starting buildings and workers / grubs (rooted Brood creatures by their
+## footprint) within half a tile of the mirrored first start's.
 ## The Brood (since 0.18.0 the Brood of creatures) has no buildings: its sides are skipped, except that every other start
 ## must still reach the ground round its Brood Mother (her rooted footprint covers its start cell).
 ##   godot --headless --script res://tools/test_start_layout.gd [-- ids...]     (prints the per-map table)
@@ -185,6 +189,24 @@ func _run(ids: Array) -> void:
 					print("    ", m)
 				if not bad.is_empty():
 					failed += 1
+		# mirrored starts, every faction
+		var mcounts: Array = [2]
+		if MapGen.max_players(id) > 2:
+			mcounts.append(MapGen.max_players(id))
+		for n in mcounts:
+			for fac in ["crown", "clockwork", "brood"]:
+				var facs: Array = []
+				for i in n:
+					facs.append(fac)
+				var g := _make(id, facs)
+				var bad := _mirror_check(g)          # (at the first instant: the layout, before anyone walks)
+				print("%-18s %d players %-9s mirrored start: %s" % [id, n, fac, "ok" if bad.is_empty() else "FAIL"])
+				for m in bad.slice(0, 6):
+					print("    ", m)
+				if not bad.is_empty():
+					failed += 1
+				g.queue_free()
+				await process_frame
 		# mixed factions on the two-player start
 		for pair in [["crown", "brood"], ["brood", "clockwork"], ["clockwork", "crown"]]:
 			var g := _make(id, pair)
@@ -200,6 +222,68 @@ func _run(ids: Array) -> void:
 			await process_frame
 	print("start layout: %s (farthest vs old spot: %+.1f tiles)" % ["PASS" if failed == 0 else "FAIL (%d)" % failed, worst])
 	quit(1 if failed > 0 else 0)
+
+
+## What a team starts with: [kind, Rect2 in px] per unit (a point rect at its feet; a rooted Brood creature: its
+## footprint) and per building.
+func _start_things(g: Game, t: int) -> Array:
+	var out: Array = []
+	for u in g.units:
+		if u.team == t and not u.dead:
+			if BroodRoot.has_fp(u):
+				out.append([u.kind, BroodRoot.rect_of(u)])
+			else:
+				out.append([u.kind, Rect2(u.position, Vector2.ZERO)])
+	for b in g.buildings:
+		if b.team == t and not b.dead:
+			out.append([b.kind, b.rect()])
+	return out
+
+
+func _mir_rect(g: Game, t: int, r: Rect2) -> Rect2:
+	var a := g.sym_pt(t, r.position)
+	var b := g.sym_pt(t, r.end)
+	return Rect2(Vector2(minf(a.x, b.x), minf(a.y, b.y)), (a - b).abs())
+
+
+## Every team's start against the mirror of the first start's.
+func _mirror_check(g: Game) -> Array:
+	var bad: Array = []
+	for t in g.n_players():
+		if g.start_flip.size() <= t or g.start_flip[t] == Vector2i.ZERO:
+			# (a first start of its mirror set: someone else must mirror it, unless it is alone)
+			var has_twin := false
+			for o in g.n_players():
+				if o != t and g.start_canon.size() > o and int(g.start_canon[o]) == t:
+					has_twin = true
+			if not has_twin:
+				bad.append("team %d at %s: no other start is its mirror" % [t, g.starts[t]])
+			continue
+		var first: int = g.start_canon[t]
+		var ref := _start_things(g, first)
+		var mine := _start_things(g, t)
+		if mine.size() != ref.size():
+			bad.append("team %d: %d things at the start, its first start %d" % [t, mine.size(), ref.size()])
+		var used := {}
+		for it in ref:
+			var want := _mir_rect(g, t, it[1])
+			var best := -1
+			var bd := INF
+			for j in mine.size():
+				if used.has(j) or mine[j][0] != it[0]:
+					continue
+				var r: Rect2 = mine[j][1]
+				var d := maxf(r.position.distance_to(want.position), r.end.distance_to(want.end))
+				if d < bd:
+					bd = d
+					best = j
+			if best < 0:
+				bad.append("team %d: no %s to mirror its first start's" % [t, it[0]])
+				continue
+			used[best] = true
+			if bd > Game.T * 0.5:
+				bad.append("team %d %s: %.0f px off the mirror of its first start's (%s, want %s)" % [t, it[0], bd, mine[best][1].position.snapped(Vector2.ONE), want.position.snapped(Vector2.ONE)])
+	return bad
 
 
 func _fmt(v: Array) -> String:

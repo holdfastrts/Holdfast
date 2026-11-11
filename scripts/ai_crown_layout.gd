@@ -119,11 +119,14 @@ func _plan(h: Building) -> Dictionary:
 	var ramp_top := path_b
 	var blocks: Array = []          # [key, cell]
 	var valid := {}
+	# (start-spots-fix: the lattice is laid in this side's first-start frame and mirrored back (Game.start_flip), so two
+	# mirrored mains get mirrored blocks)
+	var hc0: Vector2i = game.sym_rect(ai.team, hc, hsz)
 	for oy in BLOCK.y:
 		for ox in BLOCK.x:
 			var bl: Array = []
 			var vd := {}
-			_lattice(hc + Vector2i(ox, oy), h, r, area, kept, path_a, path_b, bl, vd)
+			_lattice(hc0 + Vector2i(ox, oy), h, r, area, kept, path_a, path_b, bl, vd)
 			if bl.size() > blocks.size():
 				blocks = bl
 				valid = vd
@@ -159,8 +162,11 @@ func _plan(h: Building) -> Dictionary:
 		prod.append(e)
 	prod.sort_custom(func(a: Array, b: Array) -> bool: return float(a[2]) < float(b[2]))
 	for e in prod:
-		p["prod"].append(e[1])
-		p["blocks"].append([e[1], "prod"])
+		# (a production building takes the block's front three rows as the first start reads it: the mirror of them on a
+		# mirrored side)
+		var pc: Vector2i = game.sym_rect(ai.team, game.sym_rect(ai.team, e[1], Vector2i(4, 4)), Vector2i(4, 3))
+		p["prod"].append(pc)
+		p["blocks"].append([pc, "prod"])
 	if game.mlog:
 		game.mlog.add("%s's base layout at its %s: %d Cottage spots in %d blocks at the back, %d production rows' spots, %d Farm and %d Mill spots by the hall" % [
 			game.mlog.who(ai.team), "main" if is_main else "new hall", (p["cot"] as Array).size(), cot_blocks.size(), (p["prod"] as Array).size(),
@@ -168,13 +174,14 @@ func _plan(h: Building) -> Dictionary:
 	return p
 
 
-## The whole blocks of the lattice anchored at `anchor` (cell): [key, cell] into `out`, key -> cell into `valid`.
+## The whole blocks of the lattice anchored at `anchor` (a cell in this side's first-start frame: Game.sym_rect):
+## [key, cell] into `out`, key -> cell into `valid`.
 func _lattice(anchor: Vector2i, h: Building, r: int, area: Dictionary, kept: Array, path_a: Vector2, path_b: Vector2, out: Array, valid: Dictionary) -> void:
 	var T := float(Defs.TILE)
 	var n := r / BLOCK.y + 3
 	for by in range(-n, n + 1):
 		for bx in range(-n, n + 1):
-			var o := anchor + Vector2i(bx * BLOCK.x, by * BLOCK.y)
+			var o: Vector2i = game.sym_rect(ai.team, anchor + Vector2i(bx * BLOCK.x, by * BLOCK.y), Vector2i(4, 4))
 			var foot := Rect2i(o, Vector2i(4, 4))      # (a Cottage block's 4 x 4; a production building uses the top 4 x 3)
 			if (Vector2(o) + Vector2(2, 2)).distance_to(h.center() / T) > float(r):
 				continue
@@ -282,9 +289,10 @@ func _econ_cell(kind: String, h: Building, area: Dictionary, kept: Array) -> Vec
 	var best := Vector2i(-1, -1)
 	var bs := INF
 	var rng := Defs.ECON_RANGE - 2
-	for y in range(int(hcen.y) - rng - 6, int(hcen.y) + rng + 1):
-		for x in range(int(hcen.x) - rng - 6, int(hcen.x) + rng + 1):
-			var c := Vector2i(x, y)
+	var k0: Vector2 = game.sym_pt(ai.team, h.center()) / float(Defs.TILE)       # (looked at in this side's first-start frame: start-spots-fix)
+	for y in range(int(k0.y) - rng - 6, int(k0.y) + rng + 1):
+		for x in range(int(k0.x) - rng - 6, int(k0.x) + rng + 1):
+			var c: Vector2i = game.sym_rect(ai.team, Vector2i(x, y), size)
 			var cc := Vector2(c) + Vector2(size) * 0.5
 			var dd := cc.distance_to(hcen)
 			if dd > float(rng) or dd < 4.0:
