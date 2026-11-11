@@ -26,7 +26,10 @@ const UNKNOWN_WAIT := 45.0       # ... or this long after a first UNKNOWN with n
 const PUNISH_BY := {"crown": 150.0, "clockwork": 150.0, "brood": 150.0}    # a rush to punish greed only before this
 const TOO_LATE := 330.0          # a timing attack to punish greed only before this; later, out-expand it
 const BREEDER_BY := 165.0        # the Crown's Horse Breeder answers a greedy Brood read before this (crown-optimal-opening)
-const RIDERS_V_BROOD := 0.5      # (crown-ai-v2) the share of greedy Brood reads the Crown answers with the riders (else out-expand)
+const RIDERS_V_BROOD := 1.0      # (crown-ai-v2) the share of greedy Brood reads the Crown answers with the riders (else out-expand).
+                                 # Measured at 0.5 (32 games, docs/crown_ai_v2.md): the Economy race won or led 0 of 9 against the
+                                 # Brood, the riders 0 of 7, as the riders alone did before (0 of 16): no gain over the owner's rule,
+                                 # so his rule plays every time again; the knob stays for a study
 const RIDERS_V_CLOCK := 0.15     # (crown-ai-v2) ... and of greedy Clockwork reads, early (was 0.35; the riders' plan won or led 0 of 2)
 ## (crown-ai-v2) a greedy Clockwork otherwise: the Timing attack won or led 3 of 4 plan games against Hard Clockwork OPTIMAL,
 ## the Economy race and Balanced 1 of 4, the balloons 1 of 2 (docs/crown_ai_v2.md)
@@ -96,10 +99,10 @@ func say(s: String) -> void:
 ## The plan a NORMAL read leads to, by the matchup (weights), with a little chance in it.
 ## (crown-ai-v2, docs/crown_ai_v2.md: the Crown's cross picks MEASURED. The QA study (0.33.7): OPTIMAL's Crown played Balanced
 ## at 5:00 in 67 of 76 cross games and those won or led 2; every Crown plan against Hard Brood and Clockwork OPTIMAL on
-## four maps: against the Brood only the Economy plan kept its income even (1.03 of the Brood's at 5:00, 0.91 at 8:00) and
-## the fixed Horseman rush held to 15:00 3 times of 4; Balanced, Timing, the Siege push, the raids lost every time. Against
-## the Clockwork the Timing attack won or led 3 of 4, the others 0-1. So the Brood gets the Economy race, the Clockwork
-## the Timing attack first)
+## four maps: against the Brood nothing won or led; only the Economy plan kept its income even (1.03 of the Brood's at 5:00,
+## 0.91 at 8:00) and the fixed Horseman rush held to 15:00 3 times of 4; Balanced, Timing, the Siege push, the raids lost
+## every time (a NORMAL read of the Brood, rare, leans to the Economy race). Against the Clockwork the Timing attack won or
+## led 3 of 4, the others 0-1, and 4 of 11 in the OPTIMAL games after: the Clockwork gets the Timing attack first)
 const NORMAL := {
 	"crown": {"brood": {"economy": 3.0, "balanced": 1.0},
 		"clockwork": {"timing": 3.0, "economy": 1.0, "balloon": 1.0},
@@ -191,8 +194,8 @@ func _punish(f: String, t: float) -> Array:
 					return [GREEDY_BROOD_TRY, _normal_why(GREEDY_BROOD_TRY)]     # (study switch)
 				# (crown-ai-v2: the Brood roots a Mound Turtle on new ground at 0:00 in every plan, so "a second base and little
 				# army" is the read of 35 of 38 Brood games, its standard opening as much as its greed; the riders answered every
-				# one and the Crown won or led none (QA study). The riders stay a choice, RIDERS_V_BROOD of those reads (the
-				# owner's rule: the Horseman rush is good against the Brood); the rest out-expand it with the Economy plan)
+				# one and the Crown won or led none (QA study). The Economy race was tried on half of them (RIDERS_V_BROOD 0.5)
+				# and did no better: the owner's rule, the Horse Breeder, again; the knob is kept)
 				if t < BREEDER_BY and _rng.randf() < riders_v_brood:
 					return ["rush", "punish the greed: the Horse Breeder at once, the riders before its army"]
 				if t < BREEDER_BY:

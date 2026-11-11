@@ -5,7 +5,7 @@ extends RefCounted
 
 const NOTES := [
 	{"v": "0.33.12", "items": [
-		"THE CROWN COMPUTER PLAYS WHAT WORKS IN EACH MATCHUP (its OPTIMAL plan): every Crown plan was measured against the Hard Brood and Clockwork computers on four maps. Against the Clockwork it now picks the Timing attack first (it won or led 3 of 4), sometimes the economic race or the balloons; against the Brood the Horseman rush or the Economy plan, half and half (the Brood's early second ground is its usual opening, not greed). It used to play Balanced almost every time and won or led 2 games of 67.",
+		"THE CROWN COMPUTER PLAYS WHAT WORKS IN EACH MATCHUP (its OPTIMAL plan): every Crown plan was measured against the Hard Brood and Clockwork computers on four maps. Against the Clockwork it now picks the Timing attack first (it won or led 3 of 4), sometimes the economic race or the balloons, where it used to play Balanced (won or led 2 games of 33); against the Brood it keeps the Horseman rush (the Economy plan, tried, did no better).",
 		"NO NEW BASE INTO THE ENEMY THAT JUST TOOK ONE: the Crown computer remembers where it lost a Town Hall and keeps off that ground until the enemy has gone (it used to lay the new hall in the same spot and lose it again), and with its last hall under attack it keeps its gold to rebuild.",
 		"ITS ARMY IS NO LONGER SHUT IN ITS MAIN: the computer's buildings keep the two cells in front of its own gates clear (its second Barracks could block the way to the ramp's gate, and the army stood at the cliff edge for minutes).",
 		"THE NATURAL'S PALISADE GOES UP ON TIME: once a hall's worth of labourers works, the Crown computer lays its natural's wall before more labourers (sealed about 3 to 4 minutes after the hall stands; before, mostly open long after).",

@@ -203,9 +203,10 @@ func _run() -> void:
 		var c3: Array = ai.opt._punish("brood", AIOptimal.BREEDER_BY + 5.0 + float(i % 10) * 20.0)
 		if not c3.is_empty() and String(c3[0]) == "economy":
 			late_ok += 1
-	# (crown-ai-v2: the riders stay a choice against a greedy Brood read in time, AIOptimal.RIDERS_V_BROOD of them (the
-	# owner's rule, 2026-11-06); the rest out-expand it (measured: the Economy plan, docs/crown_ai_v2.md); never anything else)
-	check(vs_brood > 100 and vs_brood < 200 and vs_brood + vs_brood_eco == 300, "against a greedy Brood read by 2:30: the Horse Breeder and the riders %d of 300, the Economy race the rest (%d)" % [vs_brood, vs_brood_eco])
+	# (crown-ai-v2: AIOptimal.RIDERS_V_BROOD of them are the riders, 1.0 = every one: the owner's rule, 2026-11-06; the rest
+	# would out-expand it with the Economy plan (measured no better, docs/crown_ai_v2.md); never anything else)
+	var want := int(round(300.0 * AIOptimal.RIDERS_V_BROOD))
+	check(absi(vs_brood - want) <= 45 and vs_brood + vs_brood_eco == 300, "against a greedy Brood read by 2:30: the Horse Breeder and the riders %d of 300 (about %d), the Economy race the rest (%d)" % [vs_brood, want, vs_brood_eco])
 	check(late_ok == 300, "read too late for the riders, it out-expands, never the slow Siege push (%d of 300)" % late_ok)
 	var leans_b := 0
 	for i in 200:
