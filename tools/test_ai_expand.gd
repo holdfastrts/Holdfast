@@ -105,7 +105,10 @@ func _case(fac: String) -> void:
 		print("    workers by order: ", orders)
 		for b in g.buildings:
 			if b.team == 0 and not b.dead and b.crew_max() > 0:
-				print("    %s crew %d/%d soil %.2f lode %.2f built %s" % [b.kind, b.working_crew(), b.crew_max(), b.soil_left(), b.lode_left(), b.built])
+				print("    %s crew %d/%d soil %.2f lode %.2f built %s at %s%s" % [b.kind, b.working_crew(), b.crew_max(), b.soil_left(), b.lode_left(), b.built, str(b.cell),
+					" linked %s speed %.2f" % [g.gear_net.is_linked(b), g.gear_net.speed_mult(b)] if Defs.gear_mode and g.gear_net else ""])
+		for h in g.halls_of(0, false):
+			print("    hall %s at %s built %s lode %.2f" % [h.kind, str(h.cell), h.built, h.lode_left()])
 	var late := int(g.stats[0]["gold"]) - earned0
 	check(laid >= 0.0 and laid <= WITHIN, "[%s] a new hall laid within %.0f s (at %.0f s)" % [fac, WITHIN, laid])
 	check(late > 60, "[%s] still earning in the last 60 s (%d)" % [fac, late])

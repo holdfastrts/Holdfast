@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """QA MATCHES (qa-matches, docs/qa_2026_11_08_matches.md): Hard computer v Hard computer up to 15:00 with
 tools/qa_match.gd, measured. A measuring tool: it changes no rule.
-    python3 tools/study/qa_matches.py run OUT --data DATA [--jobs 2] [--end 900] [--only base|plans|multi]
+    python3 tools/study/qa_matches.py run OUT --data DATA [--jobs 2] [--end 900] [--only base|plans|multi|cw] [--root DIR] [--cwlog] [--reverse]
     python3 tools/study/qa_matches.py list            (the queue, in order)
 The queue, in order (a cut run still has balanced data):
   base round 0 and 1: every 2-player map x the six pairings (Crown v Brood, Crown v Clockwork, Brood v Clockwork and the
@@ -15,6 +15,8 @@ import os, sys, subprocess, shutil, re
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RUN_ROOT = ROOT
+KEEP_CW = False
 CLASSIC = ["greenhold", "highmoor", "dune_sea", "frostfang", "twin_fords", "ashfall", "mirewood", "border_march", "red_coast"]
 NAMED_1V1 = ["ashford_crossing", "kestrel_rise", "thornwood_maze", "redrock_canyon", "saltmarsh_isles", "glimmerdeep",
              "frostmere", "cinder_steps", "hollowfen", "amberfall_vale"]
@@ -73,7 +75,18 @@ def multi():
     ]
 
 
+# (clockwork-ai-v2) the Clockwork's three pairings on 8 maps (its best and worst of the qa study and a few between), the
+# same tags and seeds as the base rounds: `--only cw`
+CW_MAPS = ["cinder_steps", "red_coast", "ashfall", "greenhold", "frostfang", "dune_sea", "redrock_canyon", "twin_fords"]
+
+
+def cw():
+    return [g for g in base(0) + base(1) if g[1] in CW_MAPS and "cw" in g[0].split("_")[-2]]
+
+
 def queue(only=""):
+    if only == "cw":
+        return cw()
     q = []
     if only in ("", "base"):
         q += base(0) + base(1)
@@ -99,7 +112,7 @@ def run_one(g, out, end, data):
     d = os.path.join(out, tag)
     os.makedirs(d, exist_ok=True)
     spec = ",".join("%s/%s/%d" % s for s in slots)
-    cmd = ["timeout", "3000", "godot", "--headless", "--fixed-fps", "30", "--path", ROOT, "--script",
+    cmd = ["timeout", "3000", "godot", "--headless", "--fixed-fps", "30", "--path", RUN_ROOT, "--script",
            "res://tools/qa_match.gd", "--", "map:" + m, "seed:%d" % seed, "end:%d" % end, "out:" + d, "slots:" + spec]
     with open(os.path.join(d, "run.out"), "wb") as f:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -113,6 +126,12 @@ def run_one(g, out, end, data):
     for fn in ("result.json", "story.txt"):
         if os.path.exists(os.path.join(d, fn)):
             shutil.copy(os.path.join(d, fn), dd)
+    if KEEP_CW and os.path.exists(os.path.join(d, "log.txt")):
+        # (clockwork-ai-v2: the Clockwork computer's own lines of the match log: its push, its army, its build)
+        with open(os.path.join(d, "log.txt"), errors="replace") as f, open(os.path.join(dd, "cwlog.txt"), "w") as o:
+            for l in f:
+                if "Clockwork" in l:
+                    o.write(l)
     errs = []
     with open(os.path.join(d, "run.out"), errors="replace") as f:
         lines = f.read().splitlines()
@@ -146,10 +165,14 @@ if __name__ == "__main__":
             print(g[0], g[1], g[2], g[3])
         sys.exit(0)
     out = os.path.abspath(sys.argv[2])
+    RUN_ROOT = os.path.abspath(arg("--root", ROOT))     # (another checkout to run: a "before" worktree)
+    KEEP_CW = "--cwlog" in sys.argv
     data = os.path.abspath(arg("--data", os.path.join(ROOT, "docs/qa_2026_11_08_matches/data")))
     jobs = int(arg("--jobs", "2"))
     end = int(arg("--end", "900"))
     gl = queue(arg("--only", ""))
+    if "--reverse" in sys.argv:
+        gl = gl[::-1]       # (a second runner on the same data, from the other end: the two meet in the middle)
     print("%d games" % len(gl), flush=True)
     with ThreadPoolExecutor(jobs) as ex:
         for t in ex.map(lambda g: run_one(g, out, end, data), gl):

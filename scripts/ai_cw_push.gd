@@ -23,6 +23,7 @@ const STEP := 200.0             # px the anchor walks at a time
 const FRONT_AT := 140.0         # the front is "at" the anchor within this
 const BACK_BAL := 120.0         # px the Ballistas stand behind the anchor
 const BACK_GW := 190.0          # px the Great Winder stands behind it
+const BACK_GW_V2 := 90.0        # (clockwork-ai-v2) ... nearer: by the army's middle, where its wreck look reaches the front
 const HEAVY_LAG := 320.0        # the anchor waits for the Ballistas and the Great Winder within this of their spot
 const LOOK := 380.0             # px round the front: armed enemies here start a fight
 const CALM := 3.0               # s with no armed enemy near the front before the march goes on
@@ -51,7 +52,15 @@ const RIDER_FAST := 1.2         # not chase (this many times the front's speed o
                                 # what comes into its reach
 const MARCH_LEASH := 300.0      # px: on the march, a front unit this far from the anchor (after a rider) walks back to it
 const KEY_LOW := 0.35           # a hall or Mainspring under this share of its health with enemies at it calls the push home
-const CHASE_MAX := 360.0        # px: in a fight the anchor walks toward the enemies at most this far from where it began
+const CHASE_MAX := 360.0
+## (clockwork-ai-v2, the qa study: the Clockwork had the biggest army at every minute and won 5 of 76 cross games, 0 of 38
+## mirrors; it held short of the enemy's main with 1,980 against 0 seen, laid siege to every Cottage and Palisade with its
+## Ballistas alone, and its games ended as draws with the enemy beaten in all but name) THE PUSH COMMITS when it is clearly
+## ahead: from AHEAD_FROM, worth AHEAD_K times the enemy army seen near it lately and times the reckoning of the whole enemy
+## army (ai_cw_army.reckon), and at least AHEAD_MIN. Committed, it goes for the enemy's HALLS (the Brood: its Mother, the
+## losing condition), it does not hold short of the main for the enemy army it has seen (a walled Crown main still wants the
+## plan's "main_min"), and the front breaks buildings with the Ballistas instead of only screening them. It still pulls back
+## by the usual rules.        # px: in a fight the anchor walks toward the enemies at most this far from where it began
 
 var ai = null
 var game: Game = null
@@ -79,9 +88,17 @@ var _orders := {}               # Unit -> [point, clock] the last move given (no
 var _brood_seen := {}           # id -> {"u", "p", "kind", "t"}: rooted Brood creatures and grubs seen
 var _guards := {}               # front Unit -> the enemy it was sent to meet at a Ballista
 var log_t := {}
-var stats := {"pushes": 0, "sieges": 0, "pieces": 0, "retreats": 0, "goals": 0, "max_out": 0.0, "riders": 0, "leashed": 0}
+var stats := {"pushes": 0, "sieges": 0, "pieces": 0, "retreats": 0, "goals": 0, "max_out": 0.0, "riders": 0, "leashed": 0, "commits": 0}
 var fight_from := Vector2.INF   # (ai-followups) the anchor where the fight began: CHASE_MAX from it at most
 var _rider_said := -99.0
+const AHEAD_K := 2.0
+const AHEAD_MIN := 1200.0
+const AHEAD_KEEP := 1.6
+const COMMIT_MAIN := 0.75       # committed, the plan's "main_min" for the enemy's main is this share of it (Greenhold: 1,875
+                                # held short of a Crown main for four minutes against 187 seen and 381 reckoned)
+const AHEAD_FROM := 480.0       # (s) not before this: early on most of the enemy army is unseen and its main walled
+var committed := false
+var commit_on := not OS.get_cmdline_user_args().has("cwcommit:off")      # (`-- cwcommit:off` as 0.33.11)
 ## (clockwork-army, scripts/ai_cw_army.gd: the army's own word before a push goes out: stronger than the enemy army it
 ## reckons, with a fresh report; an empty Callable = the plan's needs alone, as before)
 var gate := Callable()
@@ -189,6 +206,7 @@ func tick() -> void:
 		if ready_now(home) and not ai.peaceful and game.clock >= float(cfg.get("not_before", 0.0)) and (not gate.is_valid() or gate.call(home)):
 			_launch(home)
 		return
+	_commit_check()
 	if _should_retreat():
 		return
 	_join()
@@ -267,6 +285,9 @@ func _join() -> void:
 	if ai._threat() != Vector2.INF:
 		return          # (the base is attacked: they stay for it)
 	for u in home:
+		if u.kind == Defs.GREAT_WINDER_KIND and ai.get("gw_sweep_on") == true:
+			units.append(u)     # (clockwork-ai-v2: unarmed, it is the push's at once: _place_heavies walks it to its spot
+			continue            # behind the front with a plain move, not an attack-move across the map with the joiners)
 		joining.append(u)
 		_order(u, anchor, true, 60.0)
 	say("%d fresh units walk out to join it (%d supply)" % [home.size(), ai._army_supply(home)])
@@ -321,11 +342,13 @@ func _remember_brood() -> void:
 ## three or more were seen together), then the Mother; against the others the shared computer's target (an open
 ## expansion or economy building first, else the main: AI._enemy_base).
 func _pick_goal() -> void:
-	if goal_e != null and is_instance_valid(goal_e) and not goal_e.dead and game.clock - path_t < REPATH:
+	if goal_e != null and is_instance_valid(goal_e) and not goal_e.dead and (game.clock - path_t < REPATH or (committed and _commit_goal_kept())):
 		return
 	var old := goal
 	goal_e = null
-	if _vs_brood():
+	if committed and _commit_goal():
+		pass
+	elif _vs_brood():
 		var best = null
 		var bd := INF
 		var mother = null
@@ -412,17 +435,18 @@ func _march() -> void:
 	_repath()
 	var front: Array = units.filter(func(u: Unit) -> bool: return _front_kind(u))
 	var heavies: Array = units.filter(func(u: Unit) -> bool: return _heavy(u) or u.kind == Defs.GREAT_WINDER_KIND)
-	var near_n := front.filter(func(u: Unit) -> bool: return u.position.distance_to(anchor) < FRONT_AT).size()
+	var at_r := _front_at(front.size())
+	var near_n := front.filter(func(u: Unit) -> bool: return u.position.distance_to(anchor) < at_r).size()
 	var at := front.is_empty() or float(near_n) >= float(front.size()) * 0.6
 	var dir := _dir()
 	var lag := false
 	for h in heavies:
-		var back := BACK_GW if h.kind == Defs.GREAT_WINDER_KIND else BACK_BAL
+		var back := (BACK_GW_V2 if ai.get("gw_sweep_on") == true else BACK_GW) if h.kind == Defs.GREAT_WINDER_KIND else BACK_BAL
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
 	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
 	_leash(front)
-	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and (_value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K)) or _value(units) < float(cfg.get("main_min", 0.0))):
+	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and ((not committed and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K))) or _value(units) < float(cfg.get("main_min", 0.0)) * (COMMIT_MAIN if committed else 1.0)):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
 		# it took, and the reinforcements join it (Greenhold 11: the push razed the Crown's expansion, walked on up to its
 		# main and met its whole army, 25 Musketeers, at the ramp: 3,100 value lost in a minute). The plan's "main_min": the
@@ -507,6 +531,16 @@ func _assault(front: Array) -> void:
 			_place_front(front, goal, _dir(), true)
 		return
 	_arrive_t = game.clock
+	if committed and tgt is Building:
+		# (committed: the hall (or what is at the goal) is broken by everyone together, the Ballistas and the front)
+		for u in units:
+			if _guards.has(u) or u.kind == Defs.GREAT_WINDER_KIND or not u.can_hit(tgt):
+				continue
+			if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.target is Unit and u.position.distance_to(u.target.position) < 120.0:
+				continue
+			if u.target != tgt:
+				u.cmd_attack(tgt)
+		return
 	if tgt is Building and units.any(func(u: Unit) -> bool: return _heavy(u)):
 		# (a building with Ballistas along: they break it from out of musket reach, the front screens them, as at a wall;
 		# the front alone at a Crown main walked up its ramp away from its Ballistas and died there, Greenhold 11 7:30)
@@ -546,6 +580,21 @@ func _advance() -> void:
 func _place_front(front: Array, p: Vector2, dir: Vector2, amove: bool) -> void:
 	var side := Vector2(-dir.y, dir.x)
 	var n := front.size()
+	if rows_on and n > ROW_N:
+		# (clockwork-ai-v2) A BIG FRONT IN ROWS: ROW_N a row across the way, the next rows ROW_GAP behind (a push of 55 Clock
+		# Soldiers on one line 260 px wide crowded out past FRONT_AT, never counted as "at" the anchor, and the march stood
+		# still for three minutes, Greenhold mirror 12:01-15:00)
+		for i in n:
+			var u: Unit = front[i]
+			if _guards.has(u):
+				continue
+			var r := i / ROW_N
+			var k := i % ROW_N
+			var in_row := mini(ROW_N, n - r * ROW_N)
+			var off := (float(k) - float(in_row - 1) * 0.5) * 22.0
+			var row := -18.0 if u.kind == Defs.SPRINGER or u.kind == Defs.NETTER else (12.0 if u.kind == Defs.PENDULUM else 0.0)
+			_order(u, p + side * off + dir * (row - ROW_GAP * float(r)), amove, 50.0)
+		return
 	for i in n:
 		var u: Unit = front[i]
 		if _guards.has(u):
@@ -555,11 +604,29 @@ func _place_front(front: Array, p: Vector2, dir: Vector2, amove: bool) -> void:
 		_order(u, p + side * clampf(off, -130.0, 130.0) + dir * row, amove, 50.0)
 
 
+## (clockwork-ai-v2) The front is "at" the anchor within this: FRONT_AT, more for a big front in rows.
+const ROW_N := 12
+const ROW_GAP := 26.0
+var rows_on := not OS.get_cmdline_user_args().has("cwrows:off")
+
+
+func _front_at(n: int) -> float:
+	if not rows_on or n <= ROW_N:
+		return FRONT_AT
+	return FRONT_AT + ROW_GAP * float((n - 1) / ROW_N) + 20.0
+
+
 func _place_heavies(heavies: Array, p: Vector2, dir: Vector2) -> void:
 	var side := Vector2(-dir.y, dir.x)
 	var bi := 0
 	for h in heavies:
 		if h.kind == Defs.GREAT_WINDER_KIND:
+			if ai.has_method("gw_tend") and ai.gw_sweep_on:
+				# (clockwork-ai-v2: just behind the front, and between fights it sweeps the wrecks by the push into cogs)
+				if ai.gw_tend(h, _front_centre(), -dir):
+					continue
+				_order(h, p - dir * BACK_GW_V2, false, 50.0)
+				continue
 			if h.order == "cast" or ((h.order == "mend" or h.order == "sweep") and h.position.distance_to(p) < 420.0):
 				continue      # (its autocasts: SCATTER COGS, MEND, SWEEP near the push)
 			_order(h, p - dir * BACK_GW, false, 70.0)
@@ -646,7 +713,7 @@ func _fight(foes: Array) -> void:
 			_order(h, anchor - dir * BACK_BAL, false, 60.0)
 	for h in heavies:
 		if h.kind == Defs.GREAT_WINDER_KIND:
-			if h.order == "cast" or h.order == "mend" or h.order == "sweep":
+			if h.order == "cast" or h.order == "mend" or h.order == "sweep" or _gw_busy(h):
 				continue
 			var gw_spot := anchor - dir * BACK_GW
 			if h.position.distance_to(fcen) < 200.0:
@@ -740,10 +807,10 @@ func _siege_tick() -> bool:
 		elif b.target != piece and b.position.distance_to(pc) < float(b.d["range"]) + 40.0:
 			b.cmd_attack(piece)
 	for h in units.filter(func(u: Unit) -> bool: return u.kind == Defs.GREAT_WINDER_KIND):
-		if h.order != "cast" and h.order != "mend" and h.order != "sweep":
+		if h.order != "cast" and h.order != "mend" and h.order != "sweep" and not _gw_busy(h):
 			_order(h, pc + from * (SIEGE_BAL + 70.0), false, 60.0)
-	# no Ballista left: the front breaks it itself (the shared siege rules are for waves)
-	if bals.is_empty():
+	# no Ballista left: the front breaks it itself (the shared siege rules are for waves); committed: the front helps
+	if bals.is_empty() or (committed and out_foes.is_empty()):
 		for u in front:
 			if u.target != piece and u.can_hit(piece):
 				u.cmd_attack(piece)
@@ -884,3 +951,68 @@ func _note_once(key: String, s: String, gap: float) -> void:
 ## The goal is the enemy's main: its start (a Crown or Clockwork main hall, the Brood Mother's nest).
 func _main_goal() -> bool:
 	return foe >= 0 and goal.distance_to(Vector2(game.starts[foe]) * Defs.TILE) < 700.0
+
+
+## (clockwork-ai-v2) Is the push clearly ahead (see AHEAD_K)? Said when it changes.
+func _commit_check() -> void:
+	if not commit_on or phase == "back":
+		committed = false
+		return
+	var v := _value(units)
+	var rk: float = ai.army_g.reckon() if ai.get("army_g") != null and ai.army_g != null else 0.0
+	var mem := foe_mem()
+	var near := _value(_foes_near(_front_centre(), LOOK + 120.0))
+	# (once committed it stays so down to AHEAD_KEEP times: a fight's numbers going up and down made it flip every few seconds)
+	var ahead := game.clock >= AHEAD_FROM and v >= AHEAD_MIN and v >= maxf(maxf(mem, near), rk) * (AHEAD_KEEP if committed else AHEAD_K)
+	if ahead == committed:
+		return
+	committed = ahead
+	if ahead:
+		stats["commits"] = int(stats["commits"]) + 1
+		path_t = -99.0
+		goal_e = null
+		_note_once("commit", "is clearly ahead (worth %d, the enemy army seen lately %d, reckoned %d): it presses on to the enemy's halls to finish" % [int(v), int(maxf(mem, near)), int(rk)], 30.0)
+	else:
+		_note_once("uncommit", "is no longer clearly ahead (worth %d against %d): it marches on with care" % [int(v), int(maxf(mem, near))], 30.0)
+
+
+## (clockwork-ai-v2) Committed, a hall (or the Mother) aimed at stays the goal until it falls: picked again every REPATH s as
+## the nearest to the anchor, the goal swapped between two halls as the anchor moved and the push walked to and fro
+## (Cinder Steps mirror, 9:35-13:01).
+func _commit_goal_kept() -> bool:
+	if goal_e is Building:
+		return (goal_e as Building).kind == game.faction_hall(foe)
+	return goal_e is Unit and (goal_e as Unit).kind == "brood_mother"
+
+
+## (clockwork-ai-v2) Committed: the goal is the enemy's nearest hall (the Brood: its Mother, kill her and the game is won).
+## False when there is none (the usual goals then).
+func _commit_goal() -> bool:
+	if _vs_brood():
+		var q = BroodNew.queen(game, foe)
+		if q != null and is_instance_valid(q) and not q.dead:
+			goal_e = q
+			goal = (q as Unit).position
+			return true
+		return false
+	var best: Building = null
+	var bd := INF
+	var hall_kind: String = game.faction_hall(foe)
+	for b in game.buildings:
+		if b.team != foe or b.dead or b.ghost or b.kind != hall_kind:
+			continue
+		var dd: float = b.center().distance_to(anchor)
+		if dd < bd:
+			bd = dd
+			best = b
+	if best == null:
+		return false
+	goal_e = best
+	goal = best.center()
+	return true
+
+
+## (clockwork-ai-v2) The Great Winder has a job by the push (AIClockwork.gw_tend: mending, or a wreck to sweep, no enemy
+## soldier near it): in a fight and at a siege too, not only on the march.
+func _gw_busy(h: Unit) -> bool:
+	return ai.get("gw_sweep_on") == true and ai.gw_tend(h, _front_centre(), -_dir())

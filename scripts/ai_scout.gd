@@ -1284,6 +1284,8 @@ func _sentry_tick() -> void:
 		_sentry_fleeing = false
 		_sentry_pt = _sentry_spot(sentry, [])
 		sentry.cmd_move(_sentry_pt)
+		_peek_t = game.clock + 20.0         # (clockwork-ai-v2: its first peek once it has stood at its post a while)
+		_peek_on = false
 		_say("posts a %s at the foot of the walled ramp to keep watch" % String(Defs.UNITS[u.kind]["name"]))
 		_sentry_log("posted")
 		return
@@ -1294,6 +1296,8 @@ func _sentry_tick() -> void:
 	if _busy_with_foe():
 		sentry = null            # (the enemy is at home: back to work)
 		_sentry_next = game.clock + 30.0
+		return
+	if _sentry_peek():
 		return
 	var thr := _sentry_threats()
 	if not thr.is_empty():
@@ -1316,6 +1320,65 @@ func _sentry_tick() -> void:
 			sentry.cmd_move(_sentry_pt)
 	elif sentry.order != "hold" and (sentry.order == "idle" or sentry.position.distance_to(_sentry_pt) < 50.0):
 		sentry.cmd_hold()
+
+
+## (clockwork-ai-v2, the qa study: the Clockwork's sentry saw the guard behind the wall in 1 of 29 ten-second windows) THE
+## PEEK. Its post is outside every gun it knows of with a margin, and a Winder's sight (7 tiles, 224 px) is just about a
+## Musketeer's reach with that margin (222 px): from there it sees nothing, and from the low ground the high ground behind
+## the wall is hidden anyway. So the Clockwork's sentry (accepting some risk) walks in up the ramp every SENTRY_PEEK s; the
+## moment it sees an armed enemy (or after SENTRY_PEEK_T s, or hurt) it backs off to its post. Its sight is a little longer
+## than a Musketeer's real reach (190 px + the two radii: 222 against 224), so a careful peek mostly sees before it is shot.
+const SENTRY_PEEK := 22.0
+const SENTRY_PEEK_T := 7.0
+const SENTRY_PEEK_IN := 4.0     # tiles from the ramp's foot toward the enemy's main: where it walks to
+var sentry_peeks := 0
+var sentry_peek_seen := 0
+var _peek_t := -99.0            # when the last peek began
+var _peek_on := false
+var _peek_hp := 0.0
+
+
+func _sentry_peek() -> bool:
+	if not ai._clock() or _ramp_pt == Vector2.INF or OS.get_cmdline_user_args().has("cwpeek:off"):
+		return false
+	if _peek_on:
+		var seen := _sentry_sees_armed()
+		var hit := sentry.hp < _peek_hp - 0.1 or sentry.hp < sentry.max_hp * 0.5
+		if seen or game.clock - _peek_t > SENTRY_PEEK_T or hit:
+			_peek_on = false
+			if hit:
+				_peek_t = game.clock + SENTRY_PEEK      # (shot at: the next peek waits twice as long)
+			if seen:
+				sentry_peek_seen += 1
+				_sentry_log("peek: saw")
+			_sentry_pt = _sentry_spot(sentry, _sentry_threats())
+			sentry.cmd_move(_sentry_pt)
+			return true
+		return true
+	if _sentry_fleeing or game.clock - _peek_t < SENTRY_PEEK or sentry.hp < sentry.max_hp * 0.5 \
+			or sentry.position.distance_to(_sentry_pt) > 60.0 or sentry.order == "move" or not _sentry_threats().is_empty():
+		return false
+	_peek_on = true
+	_peek_t = game.clock
+	_peek_hp = sentry.hp
+	sentry_peeks += 1
+	var st := (Vector2(game.starts[_foe]) + Vector2(2.5, 2.0)) * Defs.TILE
+	var c := _free_near(Vector2i((_ramp_pt + (st - _ramp_pt).normalized() * SENTRY_PEEK_IN * Defs.TILE) / Defs.TILE))
+	sentry.cmd_move((Vector2(c) + Vector2(0.5, 0.5)) * Defs.TILE if c.x >= 0 else _ramp_pt)
+	if sentry_peeks == 1:
+		_say("the sentry peeks up the walled ramp now and then (it backs off at once when it sees the guard)")
+	_sentry_log("peek")
+	return true
+
+
+## An armed enemy soldier the side sees within the sentry's sight.
+func _sentry_sees_armed() -> bool:
+	var r := float(sentry.d["sight"]) * Defs.TILE
+	for e in game.units_near(sentry.position, r):
+		if e is Unit and not e.dead and not e.off_field and game.hostile(e.team, ai.team) and e.has_attack() and not e.is_worker() \
+				and game.is_visible_to(ai.team, e.position):
+			return true
+	return false
 
 
 func _sentry_log(what: String) -> void:

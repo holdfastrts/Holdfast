@@ -35,6 +35,8 @@ var _unit_last: Dictionary = {} # unit id -> [pos, order_point, since]
 var _stuck_seen: Dictionary = {} # unit id -> true (reported)
 var _enemy_in_since: Array = []
 var _arr: Array = []            # per victim: the first enemy arrival in its base (300+ army value within 500 px)
+var _gw_cogs: Array = []        # (clockwork-ai-v2) per player: Great Winder id -> cogs it swept (a dead one's kept)
+var _idle_w: Array = []         # (clockwork-ai-v2) per player: [sum of idle workers over the 5 s looks, looks]
 
 
 func _initialize() -> void:
@@ -64,6 +66,8 @@ func _initialize() -> void:
 		_army_snaps.append([])
 		_enemy_in_since.append(-1.0)
 		_arr.append({})
+		_gw_cogs.append({})
+		_idle_w.append([0, 0])
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -161,7 +165,26 @@ func _side(tm: int) -> Dictionary:
 		"spent": int(st["spent"]), "bank": int(g.players[tm]["gold"]), "workers": g.workers(tm).size(),
 		"army": _army_value(tm), "halls": _halls(tm), "supply": g.supply_used(tm), "cap": int(g.players[tm]["cap"]),
 		"lost": int(st["lost"]), "bld_lost": int(st["bld_lost"]), "trained": int(st["trained"]), "maws": maws,
-		"res2": int(st.get("res2_in", 0.0)), "out": not _alive(tm)}
+		"res2": int(st.get("res2_in", 0.0)), "out": not _alive(tm), "gw_cogs": _gw_sum(tm),
+		"idle_w": g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size(),
+		"idle_w_avg": snappedf(float(_idle_w[tm][0]) / maxf(1.0, float(_idle_w[tm][1])), 0.1),
+		"push": _push_phase(tm)}
+
+
+## (clockwork-ai-v2) cogs the side's Great Winders have swept so far
+func _gw_sum(tm: int) -> int:
+	var s := 0
+	for v in (_gw_cogs[tm] as Dictionary).values():
+		s += int(v)
+	return s
+
+
+## (clockwork-ai-v2) the Clockwork computer's push phase ("" at home)
+func _push_phase(tm: int) -> String:
+	var a := _ai(tm)
+	if a == null or not ("push" in a) or a.push == null:
+		return ""
+	return String(a.push.phase)
 
 
 ## base points: its buildings, and for the Brood its Queen and rooted creatures
@@ -201,9 +224,15 @@ func _stall(tm: int, key: String, on: bool, note: String, min_len: float) -> voi
 
 
 func _every5() -> void:
+	for u in g.units:
+		if u.kind == Defs.GREAT_WINDER_KIND and u.team >= 0 and u.team < n:
+			_gw_cogs[u.team][u.get_instance_id()] = int(u.get_meta("gw_cogs", 0))
 	for tm in n:
 		if not _alive(tm):
 			continue
+		if g.clock > 240.0:
+			_idle_w[tm][0] += g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size()
+			_idle_w[tm][1] += 1
 		# halls lost (Crown / Clockwork halls; the Brood: its Queen and expansion count)
 		var seen: Dictionary = _halls_seen[tm]
 		var now := {}

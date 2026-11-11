@@ -4,16 +4,20 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.15", "items": [
+		"THE CLOCKWORK COMPUTER FINISHES WHAT IT STARTS: when its push is clearly ahead (from 8:00, worth twice the enemy army it has seen and reckons) it goes for the enemy's halls (against the Brood: the Brood Mother), no longer stops short of a main it can take, and its soldiers break buildings together with the Ballistas. A big push marches in rows and no longer stands still because its front could not all fit on one line. Its push now counts as an attack for the match tools.",
+		"ITS GREAT WINDER SWEEPS: it walks just behind the army and, between fights, sweeps the Clockwork wrecks near the army into cogs (it stood far behind and swept nothing).",
+		"DRY LAND: with its brass spent, the Clockwork computer stops its opening build and saves for a new Clocktower and its Cog Press before more units (it trained soldiers until it was broke, then stood still); Cog Presses left by a lost Clocktower that no longer turn are pulled down so the new Clocktower gets its own.",
+		"A Clock Soldier or two left far from home harass the enemy's workers again (past rooted creatures) instead of attack-moving home into a rooted Mound Turtle; units far out walk home with a plain move.",
+		"ENEMY FLYERS: the Clockwork computer lays its Clock Aviary as soon as it sees one (anywhere on its gear field) and trains Swifts at once (it took a minute or more).",
+		"Its sentry at a walled ramp peeks up the ramp now and then to see behind the wall; a computer unit on a move order no longer rides round a turning gear band for long.",
+	]},
 	{"v": "0.33.14", "items": [
 		"THE CROWN COMPUTER PLAYS WHAT WORKS IN EACH MATCHUP (its OPTIMAL plan): every Crown plan was measured against the Hard Brood and Clockwork computers on four maps. Against the Clockwork it now picks the Timing attack first (it won or led 3 of 4), sometimes the economic race or the balloons, where it used to play Balanced (won or led 2 games of 33); against the Brood it keeps the Horseman rush (the Economy plan, tried, did no better).",
 		"NO NEW BASE INTO THE ENEMY THAT JUST TOOK ONE: the Crown computer remembers where it lost a Town Hall and keeps off that ground until the enemy has gone (it used to lay the new hall in the same spot and lose it again), and with its last hall under attack it keeps its gold to rebuild.",
 		"ITS ARMY IS NO LONGER SHUT IN ITS MAIN: the computer's buildings keep the two cells in front of its own gates clear (its second Barracks could block the way to the ramp's gate, and the army stood at the cliff edge for minutes).",
 		"THE NATURAL'S PALISADE GOES UP ON TIME: once a hall's worth of labourers works, the Crown computer lays its natural's wall before more labourers (sealed about 3 to 4 minutes after the hall stands; before, mostly open long after).",
 		"WATCHING COMPUTERS: the AI STORY says why the Crown holds the top of its ramp or its natural's gate (its army goes down only with a margin over the enemy), that it lost a base and keeps off that ground, and no longer says \"its best base has only 100% left\".",
-	]},
-	{"v": "0.33.13", "items": [
-		"THE FREE ASSEMBLY IN ITS OWN COLOURS (campaign mission 1): the rebels no longer borrow the Crown's soldiers painted green. The militiaman, the pikeman, the torch-bearer and Etienne Varenne wear new drawings of their own, green and black whatever the side's colour: the militia load, aim, fire and fall; the pikemen level their pikes and lunge; the torch-bearers carry a burning torch and raise and thrust it into a barn while they set it alight; Varenne raises his fist, fires his pistol and fights with his sabre.",
-		"The torch-bearer's torch is no longer drawn over his head by the game: he holds his own.",
 	]},
 	{"v": "0.33.13", "items": [
 		"THE FREE ASSEMBLY IN ITS OWN COLOURS (campaign mission 1): the rebels no longer borrow the Crown's soldiers painted green. The militiaman, the pikeman, the torch-bearer and Etienne Varenne wear new drawings of their own, green and black whatever the side's colour: the militia load, aim, fire and fall; the pikemen level their pikes and lunge; the torch-bearers carry a burning torch and raise and thrust it into a barn while they set it alight; Varenne raises his fist, fires his pistol and fights with his sabre.",

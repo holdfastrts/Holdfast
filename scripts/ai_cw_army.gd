@@ -50,9 +50,13 @@ const MASS_SINCE := 0.0         # (the opening's steady production: AIClockwork.
 ## The enemy army a Hard computer of that faction has at that age (value; [clock s, value]), from the coached games
 ## (docs/clockwork_army.md): the Brood's is the Crown's crown-v-brood table, raised before 7:00 (its Rootmaws and Mound
 ## Turtles fight where the push goes: 10 Clock Soldiers went at 5:23 on the old table and lost 490 for 250); the Crown's and the Clockwork's from the
-## "before" games here (the lowest seen, so a weak enemy is not over-feared).
+## "before" games here (the lowest seen, so a weak enemy is not over-feared). (clockwork-ai-v2: the Brood's from 7:00 cut to
+## the Hard Brood's army in the qa study's 152 Brood sides (0.33.7, the strongest quarter: 900 at 7:00, 1,150 at 8:00, 1,880
+## at 10:00, 2,730 at 12:00); it was about twice that (5,000 at 12:00), 1.8 to 3.5 times the Brood's real army in the
+## before games, and the Clockwork's army waited at home against the Brood until it was out-grown. Its rooted creatures
+## seen still count on top, _rooted_seen.)
 const TABLES := {
-	"brood": [[0.0, 0.0], [180.0, 150.0], [300.0, 700.0], [360.0, 1000.0], [420.0, 1400.0], [480.0, 2200.0], [540.0, 3000.0], [600.0, 3800.0], [720.0, 5000.0]],
+	"brood": [[0.0, 0.0], [180.0, 150.0], [300.0, 700.0], [360.0, 1000.0], [420.0, 1100.0], [480.0, 1300.0], [540.0, 1600.0], [600.0, 1900.0], [720.0, 2700.0], [840.0, 3100.0]],
 	"crown": [[0.0, 0.0], [180.0, 50.0], [300.0, 150.0], [360.0, 250.0], [420.0, 400.0], [480.0, 600.0], [600.0, 900.0], [720.0, 1400.0]],
 	"clockwork": [[0.0, 0.0], [240.0, 70.0], [300.0, 400.0], [360.0, 800.0], [480.0, 1500.0], [600.0, 2500.0], [720.0, 3500.0]],
 }
@@ -506,7 +510,7 @@ func _rest(home: Array, g: Vector2, waiting: Dictionary) -> void:
 		var s := _spot_for(u)
 		if s.is_empty():
 			if u.position.distance_to(g) > GATHER_R or u.order == "idle" and u.position.distance_to(g) > GATHER_R * 0.6:
-				_order(u, ai._home_spot(g), true, 90.0)
+				_order(u, ai._home_spot(g), _amove_home(u), 90.0)
 			continue
 		var sp: Vector2 = s["p"]
 		var dist: float = u.position.distance_to(sp)
@@ -518,7 +522,7 @@ func _rest(home: Array, g: Vector2, waiting: Dictionary) -> void:
 				_order(u, s["fp"], false, 12.0)      # (walked off the band before it was full: once more)
 			continue
 		if dist > SPOT_TOL:
-			_order(u, sp, dist > GATHER_R, 16.0)
+			_order(u, sp, dist > GATHER_R and _amove_home(u), 16.0)
 			continue
 		if u.deploys() and u.order == "idle" and u.tesla_mode == "packed":
 			u.cmd_deploy()
@@ -534,6 +538,16 @@ func _rest(home: Array, g: Vector2, waiting: Dictionary) -> void:
 		_order(u, _spots[int(_spot_of[u])]["fp"], false, 12.0)
 	if not want.is_empty():
 		say("the army rests on its gears: %d run-down units step onto the gears to wind" % mini(want.size(), cap), "tops", 60.0)
+
+
+## (clockwork-ai-v2) A unit out far from our buildings walks home with a PLAIN move: an attack-move from out there stops
+## at the first enemy on the way, a ROOTED Mound Turtle included (test_ai_harass [clock]: 40 s at one). Nearer home the
+## walk back is an attack-move, as before (raiders by the base are met on the way).
+const FAR_PLAIN := 640.0
+
+
+func _amove_home(u: Unit) -> bool:
+	return ai._home_dist(u.position) < FAR_PLAIN
 
 
 func _where(p: Vector2) -> String:
@@ -603,7 +617,7 @@ func tick(army: Array) -> void:
 		if u.order == "attack" and u.target != null and is_instance_valid(u.target) and not u.target.dead and u.position.distance_to(g) < GATHER_R * 1.5:
 			continue          # (fighting something at the gathering point itself)
 		if u.position.distance_to(g) > GATHER_R or u.order == "idle" and u.position.distance_to(g) > GATHER_R * 0.6:
-			_order(u, ai._home_spot(g), true, 90.0)
+			_order(u, ai._home_spot(g), _amove_home(u), 90.0)
 		elif u.deploys() and u.order == "idle" and u.tesla_mode == "packed":
 			u.cmd_deploy()
 	if ai.push == null or ai.push.phase == "" or ai.push.phase == "back":

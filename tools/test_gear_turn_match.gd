@@ -69,6 +69,8 @@ func _process(delta: float) -> bool:
 	for u in g.units:
 		if not is_instance_valid(u) or u.dead:
 			continue
+		if u.kind == "horse" and u.order == "idle":
+			continue        # (clockwork-ai-v2: a horse standing loose takes no orders (Game.smart_command): not a computer unit's ride)
 		if u.gt_carry != Vector2.ZERO:
 			riders[u] = true
 			ride[u] = float(ride.get(u, 0.0)) + delta
@@ -86,7 +88,8 @@ func _process(delta: float) -> bool:
 				print("  cells round ", cc, " ", rows, " blds ", g.buildings.filter(func(b): return b.rect().grow(40).has_point(u.position)).map(func(b): return [b.kind, b.rect()]))
 				print("DEBUG %s t%d order %s pos %s wp %s path %d/%d stuck %.1f vel %s carry %s" % [u.kind, u.team, u.order, u.position, u.path[u.path_i] if u.path_i < u.path.size() else Vector2.INF, u.path_i, u.path.size(), u.stuck_t, u.velocity, u.gt_carry])
 			if float(ride[u]) > float(worst.get(o, [0.0])[0]):
-				worst[o] = [float(ride[u]), u.kind, u.team]
+				worst[o] = [float(ride[u]), u.kind, u.team, "goal %s %.0f px off, on a band %s, path %d/%d" % [str(u.order_point.round()), u.position.distance_to(u.order_point),
+					g.gear_net.band_at(u.order_point) >= 0, u.path_i, u.path.size()]]
 		elif ride.has(u):
 			ride.erase(u)
 	if g.clock >= next_at:
@@ -109,7 +112,7 @@ func _process(delta: float) -> bool:
 		print("NOTE  step-offs by the computer: %d (pinned and gave up: %d) among the units alive; walkers that had to grip the floor: %d" % [steps, failed, grips])
 		var bad := []
 		for o in worst:
-			print("NOTE  longest ride in one go, order %-16s %.1f s (%s, team %d)" % [o, worst[o][0], worst[o][1], worst[o][2]])
+			print("NOTE  longest ride in one go, order %-16s %.1f s (%s, team %d; %s)" % [o, worst[o][0], worst[o][1], worst[o][2], worst[o][3]])
 			if not String(o).contains("+fighting") and float(worst[o][0]) > MAX_RIDE:
 				bad.append(o)
 		check("no computer unit riding round over %.0f s unless fighting" % MAX_RIDE, bad.is_empty(), str(bad))

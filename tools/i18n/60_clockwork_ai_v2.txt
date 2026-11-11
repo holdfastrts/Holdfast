@@ -1,0 +1,27 @@
+# clockwork-ai-v2 (docs/clockwork_ai_v2.md): the AI STORY's sentences for the Clockwork computer's dry land, its Great
+# Winder's sweep, the push that commits, its air answer and its sentry's peek (scripts/ai_story_lines.gd). The
+# placeholders keep their English order: the first %s is the player.
+
+> %s's land is dry: it ends its opening and saves for a new Clocktower and its press before more units.
+pt A terra de %s secou: encerra a sua abertura e junta para um nova Torre do Relógio e a sua prensa antes de mais unidades.
+es La tierra de %s se ha secado: termina su apertura y ahorra para una nueva Torre del Reloj y su prensa antes de más unidades.
+
+> %s's Great Winder sweeps the wrecks by its army into cogs.
+pt O Grande Enrolador de %s varre os destroços junto ao exército e transforma-os em engrenagens.
+es El Gran Dador de Cuerda de %s barre los restos junto a su ejército y los convierte en engranajes.
+
+> %s's push is clearly ahead (%s against %s): it presses on to the enemy's halls to finish the game.
+pt O avanço de %s está claramente à frente (%s contra %s): segue para os centros inimigos para acabar o jogo.
+es El avance de %s va claramente por delante (%s contra %s): sigue hacia los centros enemigos para acabar la partida.
+
+> %s's push is no longer clearly ahead: it marches on with care.
+pt O avanço de %s já não está claramente à frente: continua a marcha com cuidado.
+es El avance de %s ya no va claramente por delante: sigue la marcha con cuidado.
+
+> %s sees enemy flyers: it lays a Clock Aviary at once, for Swifts.
+pt %s vê voadores inimigos: ergue de imediato uma Casa do Cuco, para Cucos.
+es %s ve voladores enemigos: levanta enseguida una Casa del Cuco, para Cucos.
+
+> %s's sentry peeks up the enemy's walled ramp now and then to see behind the wall.
+pt A sentinela de %s espreita de vez em quando a rampa amuralhada do inimigo para ver por trás da muralha.
+es El centinela de %s se asoma de vez en cuando a la rampa amurallada del enemigo para ver tras la muralla.
