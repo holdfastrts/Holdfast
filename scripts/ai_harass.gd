@@ -259,7 +259,7 @@ func work_line(from: Vector2) -> Vector2:
 		var bd := INF
 		var seen_worker := false
 		for o in game.units:
-			if o.team == foe and not o.dead and o.is_worker() and game.is_visible_to(ai.team, o.position):
+			if o.team == foe and not o.dead and o.is_worker() and game.is_visible_to(ai.team, o.position) and not ai.raid_spot_bad(o.position):
 				seen_worker = true
 				break
 		if not seen_worker:
@@ -269,6 +269,10 @@ func work_line(from: Vector2) -> Vector2:
 				if not game.is_visible_to(ai.team, o.position) and not (ai.scout != null and ai.scout._nb_seen.has(o)):
 					continue
 				var dd: float = o.position.distance_to(from)
+				if ai.raid_spot_bad(o.position):
+					dd += 100000.0      # (crown-v-brood-coach: chased off there lately: another Rootmaw first)
+				elif o.kind == BroodNew.QUEEN:
+					dd += 1500.0        # (the Mother's ground is where the Raptors wait: an outlying Rootmaw first)
 				if dd < bd:
 					bd = dd
 					best = o.position
