@@ -50,6 +50,9 @@
   OWNER 2026-11-11 22:28: YES to the start-spot fixes (job start-spots-fix: mirror the start units, hall-centre anchor,
   rerun the study) and a COACHED, FILMED Crown v Brood job (crown-v-brood-coach: "crown can beat brood, it's crown AI
   that is bad"; Crown AI play only, no Brood balance change). Merge each on "DONE: <job>:".
+  OWNER 22:35: EVERY matchup coached and filmed with the same scrutiny: jobs crown-v-crown-coach, crown-v-clockwork-coach,
+  clockwork-v-brood-coach, clockwork-v-clockwork-coach, brood-v-brood-coach (docs/<job>.md each). Six AI jobs at once:
+  fixes kept small and gated by matchup; merge them one at a time and rerun the AI tests after each.
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
