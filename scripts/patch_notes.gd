@@ -5,7 +5,11 @@ extends RefCounted
 
 const NOTES := [
 	{"v": "0.33.12", "items": [
-		"THE CROWN COMPUTER (work in progress, crown-ai-v2): it keeps off ground where it just lost a Town Hall until the enemy has gone, instead of laying the new hall into the enemy that took the last one; its buildings keep the way through its own gates clear (an army was shut in its main by its own Barracks); the natural's palisade gets its gold before more labourers.",
+		"THE CROWN COMPUTER PLAYS WHAT WORKS IN EACH MATCHUP (its OPTIMAL plan): every Crown plan was measured against the Hard Brood and Clockwork computers on four maps. Against the Clockwork it now picks the Timing attack first (it won or led 3 of 4), sometimes the economic race or the balloons; against the Brood the Horseman rush or the Economy plan, half and half (the Brood's early second ground is its usual opening, not greed). It used to play Balanced almost every time and won or led 2 games of 67.",
+		"NO NEW BASE INTO THE ENEMY THAT JUST TOOK ONE: the Crown computer remembers where it lost a Town Hall and keeps off that ground until the enemy has gone (it used to lay the new hall in the same spot and lose it again), and with its last hall under attack it keeps its gold to rebuild.",
+		"ITS ARMY IS NO LONGER SHUT IN ITS MAIN: the computer's buildings keep the two cells in front of its own gates clear (its second Barracks could block the way to the ramp's gate, and the army stood at the cliff edge for minutes).",
+		"THE NATURAL'S PALISADE GOES UP ON TIME: once a hall's worth of labourers works, the Crown computer lays its natural's wall before more labourers (sealed about 3 to 4 minutes after the hall stands; before, mostly open long after).",
+		"WATCHING COMPUTERS: the AI STORY says why the Crown holds the top of its ramp or its natural's gate (its army goes down only with a margin over the enemy), that it lost a base and keeps off that ground, and no longer says \"its best base has only 100% left\".",
 	]},
 	{"v": "0.33.11", "items": [
 		"CARD LINES FIT THEIR CARD AGAIN: the Great Winder's short line (in every language) and the Portuguese lines of the Marching Band and the Mainspring were longer than a card holds and ran off it; they are shorter now.",
