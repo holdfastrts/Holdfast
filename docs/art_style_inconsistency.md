@@ -576,6 +576,15 @@ The campaign's art is not decided yet (owner, 2026-11-03): until it is, these ar
   the war table, the people and the doors); their places are fractions of the still, in campaign/campaign.json.
 - THE OBJECTIVES PANEL's tick and cross boxes are drawn lines.
 
+## The Rome study hub's life (code, 0.33.16; scripts/campaign/hub_scene.gd, docs/campaign_hub_art.md)
+
+The King's Study is the owner's ChatGPT painting in layers (room, the King, Tomasz, the desk drawn over the King); the
+motion is drawn in code over it: the candle halos and the room's warm flicker, the match flame, the pipe smoke (soft
+round puffs), Tomasz's floor shadow (a blurred ellipse) and the breathing (a slow vertical stretch of each person).
+The painted smoke wisp was erased from the King (it had come out pink over the magenta): a hole behind the pipe shows
+the chair, covered by the code smoke. A redraw is optional; if the owner wants it painted, ask ChatGPT for the King
+without smoke.
+
 ## The tutorial's pointer and ticks (code, 0.30.0; scripts/campaign/mission_ui.gd Pointer, tutorial_menu.gd Tick; docs/tutorial.md)
 
 - THE POINTER (MissionUi.Pointer): where a lesson's teacher points. On the map: a gold ellipse pulsing on the ground (an

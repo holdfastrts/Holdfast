@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.16", "items": [
+		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
+	]},
 	{"v": "0.33.15", "items": [
 		"THE CLOCKWORK COMPUTER FINISHES WHAT IT STARTS: when its push is clearly ahead (from 8:00, worth twice the enemy army it has seen and reckons) it goes for the enemy's halls (against the Brood: the Brood Mother), no longer stops short of a main it can take, and its soldiers break buildings together with the Ballistas. A big push marches in rows and no longer stands still because its front could not all fit on one line. Its push now counts as an attack for the match tools.",
 		"ITS GREAT WINDER SWEEPS: it walks just behind the army and, between fights, sweeps the Clockwork wrecks near the army into cogs (it stood far behind and swept nothing).",

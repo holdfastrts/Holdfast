@@ -9,10 +9,10 @@
 				"p01_leaf"
 			],
 			"hub": {
-				"title": "The Governor's House",
+				"title": "The King's Study",
 				"still": {
-					"image": "res://campaign/stills/p01_03.jpg",
-					"caption": "The plantation in Virginia: the drying barns, the manor on its rise, the oak where Tomasz reads."
+					"image": "res://campaign/stills/p01_01.jpg",
+					"caption": "The King's study in Rome, by candlelight: the war map on the desk, the dome of Saint Peter's in the window."
 				},
 				"colour": 4,
 				"hotspots": [
@@ -21,10 +21,23 @@
 						"kind": "war_table",
 						"label": "WAR TABLE",
 						"rect": [
-							0.7,
-							0.22,
-							0.24,
-							0.22
+							0.323,
+							0.664,
+							0.664,
+							0.282
+						]
+					},
+					{
+						"id": "king",
+						"kind": "talk",
+						"label": "THE KING",
+						"talk": "king",
+						"layer": "king",
+						"rect": [
+							0.646,
+							0.18,
+							0.335,
+							0.47
 						]
 					},
 					{
@@ -32,23 +45,24 @@
 						"kind": "talk",
 						"label": "TOMASZ",
 						"talk": "tomasz",
+						"layer": "tomasz",
 						"rect": [
-							0.8,
-							0.48,
-							0.18,
-							0.42
+							0.129,
+							0.25,
+							0.145,
+							0.715
 						]
 					},
 					{
 						"id": "fairleigh",
 						"kind": "talk",
-						"label": "LORD FAIRLEIGH",
+						"label": "FAIRLEIGH'S LETTER",
 						"talk": "fairleigh",
 						"rect": [
-							0.3,
-							0.38,
-							0.14,
-							0.4
+							0.434,
+							0.635,
+							0.096,
+							0.047
 						]
 					},
 					{
@@ -57,36 +71,59 @@
 						"label": "ARMOURY",
 						"room": "armoury",
 						"rect": [
-							0.02,
-							0.08,
-							0.18,
-							0.3
-						]
+							0,
+							0,
+							0.1,
+							0.1
+						],
+						"list_only": true
 					}
 				],
 				"talks": {
-					"tomasz": {
-						"name": "Tomasz",
+					"king": {
+						"name": "The King",
 						"colour": 4,
 						"entries": [
 							{
 								"after": "",
 								"lines": [
-									"My ship to Rome sails at the end of the month. Until then I read, and I help the chaplain.",
-									"The men in the fields talk of an Assembly. I do not understand what they want."
+									"Sit by me. The map on the table is the world as it was when I was young.",
+									"Everything I am going to tell you began on one plantation in Virginia."
+								]
+							},
+							{
+								"after": "p01_leaf",
+								"lines": [
+									"Fairleigh ended it in a single morning, and we called it over.",
+									"Look at the map again. The fire did not stay in Virginia."
+								]
+							}
+						],
+						"portrait": "res://campaign/hub/rome_king_face.png"
+					},
+					"tomasz": {
+						"name": "Cardinal Tomasz",
+						"colour": 4,
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"I was a seminarian then, waiting for my ship to Rome. I read Augustine under an oak.",
+									"The men in the fields talked of an Assembly. I did not understand what they wanted."
 								]
 							},
 							{
 								"after": "p01_leaf",
 								"lines": [
 									"I still smell the smoke when I close my eyes.",
-									"Two letters came for the Governor: one from an explorer of the deep earth, one from a clockmaker. He gave them to me to read."
+									"Two letters came for the Governor that week: one from an explorer in the Amazon, one from a clockmaker. He gave them to me to read."
 								]
 							}
-						]
+						],
+						"portrait": "res://campaign/hub/rome_tomasz_face.png"
 					},
 					"fairleigh": {
-						"name": "Lord Fairleigh",
+						"name": "Lord Fairleigh's letter",
 						"colour": 4,
 						"entries": [
 							{
@@ -105,7 +142,8 @@
 							}
 						]
 					}
-				}
+				},
+				"scene": "res://campaign/hub/rome.json"
 			}
 		},
 		{

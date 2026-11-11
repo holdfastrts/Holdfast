@@ -319,7 +319,7 @@ func _run() -> void:
 	# ---------------------------------------------------------------- the menu pages
 	main.show_campaign()
 	await process_frame
-	check("the hub: the Governor's House", main.menu.find_child("HotspotList_fairleigh", true, false) != null)
+	check("the hub: the King's Study", main.menu.find_child("HotspotList_fairleigh", true, false) != null)
 	CampaignMenu.briefing(main, MID)
 	await process_frame
 	check("the briefing has START", main.menu.find_child("Briefing_Start", true, false) != null)

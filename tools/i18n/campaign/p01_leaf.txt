@@ -445,3 +445,60 @@ es Piquero
 > A rebel with a long pike (the campaign only). Reaches past a bayonet, and horses fear him. No musket, and little use against walls.
 pt Um rebelde com uma pique longa (só na campanha). Alcança além de uma baioneta, e os cavalos o temem. Sem mosquete, e de pouco uso contra muros.
 es Un rebelde con una pica larga (solo en la campaña). Alcanza más que una bayoneta, y los caballos le temen. Sin mosquete, y de poca utilidad contra muros.
+
+# The King's Study (the Rome hub, 2026-11-11): placeholder lines, the owner rewrites them.
+> The King's Study
+pt O Gabinete do Rei
+es El Gabinete del Rey
+
+> The King's study in Rome, by candlelight: the war map on the desk, the dome of Saint Peter's in the window.
+pt O gabinete do Rei em Roma, à luz de velas: o mapa de guerra sobre a mesa, a cúpula de São Pedro na janela.
+es El gabinete del Rey en Roma, a la luz de las velas: el mapa de guerra sobre la mesa, la cúpula de San Pedro en la ventana.
+
+> THE KING
+pt O REI
+es EL REY
+
+> FAIRLEIGH'S LETTER
+pt CARTA DE FAIRLEIGH
+es CARTA DE FAIRLEIGH
+
+> The King
+pt O Rei
+es El Rey
+
+> Cardinal Tomasz
+pt Cardeal Tomasz
+es Cardenal Tomasz
+
+> Lord Fairleigh's letter
+pt Carta do Lorde Fairleigh
+es Carta de Lord Fairleigh
+
+> Sit by me. The map on the table is the world as it was when I was young.
+pt Sente-se aqui comigo. O mapa sobre a mesa é o mundo como era quando eu era jovem.
+es Siéntate a mi lado. El mapa sobre la mesa es el mundo tal como era cuando yo era joven.
+
+> Everything I am going to tell you began on one plantation in Virginia.
+pt Tudo o que vou lhe contar começou numa plantação na Virgínia.
+es Todo lo que voy a contarte empezó en una plantación de Virginia.
+
+> Fairleigh ended it in a single morning, and we called it over.
+pt Fairleigh acabou com aquilo numa só manhã, e nós achamos que estava terminado.
+es Fairleigh lo acabó en una sola mañana, y lo dimos por terminado.
+
+> Look at the map again. The fire did not stay in Virginia.
+pt Olhe o mapa de novo. O fogo não ficou na Virgínia.
+es Mira otra vez el mapa. El fuego no se quedó en Virginia.
+
+> I was a seminarian then, waiting for my ship to Rome. I read Augustine under an oak.
+pt Eu era seminarista na época, esperando meu navio para Roma. Lia Agostinho debaixo de um carvalho.
+es Entonces yo era seminarista y esperaba mi barco a Roma. Leía a Agustín bajo un roble.
+
+> The men in the fields talked of an Assembly. I did not understand what they wanted.
+pt Os homens nos campos falavam de uma Assembleia. Eu não entendia o que queriam.
+es Los hombres de los campos hablaban de una Asamblea. Yo no entendía lo que querían.
+
+> Two letters came for the Governor that week: one from an explorer in the Amazon, one from a clockmaker. He gave them to me to read.
+pt Naquela semana chegaram duas cartas para o Governador: uma de um explorador na Amazônia, outra de um relojoeiro. Ele me deu para ler.
+es Esa semana llegaron dos cartas para el Gobernador: una de un explorador en el Amazonas, otra de un relojero. Me las dio a leer.

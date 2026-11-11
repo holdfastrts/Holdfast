@@ -394,7 +394,11 @@ static func show(main: Node) -> void:
 	scene.size_flags_stretch_ratio = 3.0
 	body.add_child(scene)
 	var col := Defs.colour_of(int(hub.get("colour", 1)))
-	var sv := StillView.make(hub.get("still", {}), col)
+	# a layered painting (HubScene: campaign/hub/<hub>.json) when the hub has one, else its still
+	var hsc: HubScene = HubScene.make(String(hub["scene"])) if hub.has("scene") else null
+	if hsc and not hsc.ok():
+		hsc = null
+	var sv: Control = hsc if hsc else StillView.make(hub.get("still", {}), col)
 	sv.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	scene.add_child(sv)
 	var talk_box := PanelContainer.new()
@@ -407,37 +411,58 @@ static func show(main: Node) -> void:
 	var btns: Array = []
 	for hs in spots:
 		var act := func() -> void: _hotspot(main, sl, hs, talk_box, p)
-		var hb := Button.new()
-		hb.name = "Hotspot_" + String(hs["id"])
-		hb.text = Loc.t(String(hs.get("label", "")))
-		hb.focus_mode = Control.FOCUS_NONE
-		var st := UiStyle.box(Color(0.1, 0.08, 0.05, 0.25), Color(0.95, 0.8, 0.4, 0.75), 3, 10, 6.0)
-		var st_h := UiStyle.box(Color(0.95, 0.8, 0.4, 0.28), Color(1, 0.9, 0.55, 1.0), 3, 10, 6.0)
-		hb.add_theme_stylebox_override("normal", st)
-		hb.add_theme_stylebox_override("hover", st_h)
-		hb.add_theme_stylebox_override("pressed", st_h)
-		hb.add_theme_font_size_override("font_size", 18 if Settings.pc() else 22)
-		hb.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-		hb.add_theme_constant_override("outline_size", 5)
-		hb.pressed.connect(func() -> void:
-			Sfx.play_any(["ui/click", "click"])
-			act.call())
-		scene.add_child(hb)
-		btns.append([hb, hs])
+		var list_only := bool(hs.get("list_only", false))
 		var lb: Button = main._button(String(hs.get("label", "")), act)
 		lb.name = "HotspotList_" + String(hs["id"])
 		lb.custom_minimum_size = Vector2(0, 52 if Settings.pc() else 62)
 		if String(hs.get("kind", "")) == "war_table":
 			UiStyle.primary(lb)
 		list.add_child(lb)
+		if list_only:
+			continue
+		var hb := Button.new()
+		hb.name = "Hotspot_" + String(hs["id"])
+		hb.text = Loc.t(String(hs.get("label", "")))
+		hb.focus_mode = Control.FOCUS_NONE
+		var st := UiStyle.box(Color(0.1, 0.08, 0.05, 0.25), Color(0.95, 0.8, 0.4, 0.75), 3, 10, 6.0)
+		var st_h := UiStyle.box(Color(0.95, 0.8, 0.4, 0.28), Color(1, 0.9, 0.55, 1.0), 3, 10, 6.0)
+		if hsc:
+			# over the painting the hotspot is the thing itself: no box, its name low on it; pointed at, the person
+			# (or the map, the letter) lights up
+			st = UiStyle.box(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 6, 0.0)
+			st_h = st
+			hb.add_theme_color_override("font_color", Color(1, 0.95, 0.8, 0.0))      # its name shows when pointed at
+			hb.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.0))
+			hb.add_theme_color_override("font_hover_color", Color(1, 0.95, 0.8, 1.0))
+			hb.add_theme_color_override("font_pressed_color", Color(1, 0.95, 0.8, 1.0))
+			var lay := String(hs.get("layer", ""))
+			hb.mouse_entered.connect(func() -> void:
+				hsc.highlight = lay
+				hsc.highlight_rect = Rect2() if lay != "" else Rect2(hb.position, hb.size))
+			hb.mouse_exited.connect(func() -> void:
+				hsc.highlight = ""
+				hsc.highlight_rect = Rect2())
+		hb.add_theme_stylebox_override("normal", st)
+		hb.add_theme_stylebox_override("hover", st_h)
+		hb.add_theme_stylebox_override("pressed", st_h)
+		hb.add_theme_font_size_override("font_size", 18 if Settings.pc() else 22)
+		if not hsc:
+			hb.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+			hb.add_theme_constant_override("outline_size", 5)
+		hb.pressed.connect(func() -> void:
+			Sfx.play_any(["ui/click", "click"])
+			act.call())
+		scene.add_child(hb)
+		btns.append([hb, hs])
 	scene.add_child(talk_box)
 	var place := func() -> void:
 		var s: Vector2 = scene.size
 		var big := Vector2(110, 60) if Settings.pc() else Vector2(150, 80)     # (a thumb's size at least on a phone)
 		for it in btns:
 			var r: Array = it[1].get("rect", [0, 0, 0.1, 0.1])
-			var sz := Vector2(maxf(float(r[2]) * s.x, big.x), maxf(float(r[3]) * s.y, big.y))
-			var pos := Vector2(float(r[0]) * s.x, float(r[1]) * s.y)
+			var fr := hsc.image_rect(r) if hsc else Rect2(float(r[0]) * s.x, float(r[1]) * s.y, float(r[2]) * s.x, float(r[3]) * s.y)
+			var sz := Vector2(maxf(fr.size.x, big.x), maxf(fr.size.y, big.y))
+			var pos := fr.position - (sz - fr.size) * 0.5
 			pos = pos.clamp(Vector2.ZERO, (s - sz).max(Vector2.ZERO))
 			(it[0] as Button).position = pos
 			(it[0] as Button).size = sz

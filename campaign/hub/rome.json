@@ -1,0 +1,86 @@
+{
+ "room": "res://campaign/hub/rome_room.jpg",
+ "size": [
+  1672,
+  941
+ ],
+ "layers": [
+  {
+   "id": "tomasz",
+   "image": "res://campaign/hub/rome_tomasz.png",
+   "pos": [
+    215,
+    236
+   ],
+   "size": [
+    243,
+    673
+   ]
+  },
+  {
+   "id": "tomasz_shadow",
+   "shadow": [
+    326,
+    903,
+    120,
+    15
+   ]
+  },
+  {
+   "id": "king",
+   "image": "res://campaign/hub/rome_king.png",
+   "pos": [
+    1061,
+    171
+   ],
+   "size": [
+    586,
+    482
+   ]
+  },
+  {
+   "id": "desk",
+   "image": "res://campaign/hub/rome_desk.png",
+   "pos": [
+    840,
+    601
+   ],
+   "size": [
+    832,
+    340
+   ]
+  }
+ ],
+ "fx": {
+  "smoke": [
+   1335,
+   343
+  ],
+  "match": [
+   1327,
+   331
+  ],
+  "candles": [
+   [
+    617,
+    315
+   ],
+   [
+    677,
+    272
+   ],
+   [
+    737,
+    325
+   ]
+  ],
+  "breathe": {
+   "king": 0.006,
+   "tomasz": 0.004
+  }
+ },
+ "focus": [
+  0.72,
+  0.5
+ ]
+}
