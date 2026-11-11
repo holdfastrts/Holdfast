@@ -36,6 +36,7 @@ var eco_on := BuildsEco.on()
 ## (clockwork-army: the army as ONE army, scripts/ai_cw_army.gd, docs/clockwork_army.md; `-- cwarmy:off` plays the old)
 const CwArmy := preload("res://scripts/ai_cw_army.gd")
 var army_g = null
+var harass_on := not OS.get_cmdline_user_args().has("cwharass:off")      # (clockwork-ai-v2: `-- cwharass:off` as 0.33.11)
 ## The push settings of the plans that have none of their own (Economy, Balanced, the Springer timing and the Clock Soldier
 ## rush after their openings...): the army goes out as the push's block once it has a few in front and the army's own word
 ## (CwArmy.may_launch: stronger than the enemy army it reckons, with a fresh report).
@@ -317,8 +318,9 @@ func _econ_build() -> void:
 
 func _produce() -> void:
 	if not bo_on:
-		_b_keep()           # (cw-builds-b: the plan's heavy machines first, after the opening)
-		super._produce()
+		if not _keeping():
+			_b_keep()       # (cw-builds-b: the plan's heavy machines first, after the opening; clockwork-ai-v2: not out of the
+		super._produce()    # new hall's cogs: AI._keeping)
 
 
 func _research() -> void:
@@ -332,10 +334,57 @@ func _supply() -> void:
 
 
 func _build_up() -> void:
+	_air_answer()
+	if bo_on and _dry_hand_over():
+		return
 	if bo_on:
 		_bo_tick()
 	else:
 		super._build_up()
+
+
+## (clockwork-ai-v2, the qa study's slow air answer: test_cw_air_ai) ENEMY FLYERS SEEN: the Clock Aviary is laid at once and
+## Swifts trained from it, every think and whatever else runs (the written build order included). The shared rule (AI._air)
+## only ran from the tech round (_tier2), which looks again every 20 s and not at all while the opening build runs: the
+## Aviary came 60-90+ s after a Crown balloon was seen, and no Swift before the base's other guns had shot it down.
+var air_on := not OS.get_cmdline_user_args().has("cwair:off")      # (`-- cwair:off` as 0.33.11)
+var _air_said := false
+
+
+func _air_answer() -> void:
+	if not air_on or not Defs.gear_mode or difficulty < 1 or peaceful:
+		return
+	var fa := _foe_air()
+	if fa <= 0:
+		return
+	var av := _mine(Defs.CW_AIR)
+	if av.is_empty():
+		if game.requirement_met(team, Defs.CW_AIR):
+			if not _air_said:
+				_air_said = true
+				note("air: enemy flyers seen (%d): a Clock Aviary at once, for Swifts" % fa)
+			_air(game.clock)
+		return
+	for b in av:
+		if not b.built or (b.queue as Array).size() >= 2:
+			continue
+		var swifts: int = game.army(team).filter(func(u: Unit) -> bool: return u.kind == Defs.CUCKOO).size() + (b.queue as Array).count(Defs.CUCKOO)
+		if swifts < mini(6, fa + 1) and game.can_train(b, Defs.CUCKOO) == "":
+			game.train(b, Defs.CUCKOO)
+
+
+## (clockwork-ai-v2, the qa study's stall on spent brass: test_ai_expand) With its land dry (every hall under AI.DRY_LAND
+## of its brass and spring life) the written build order hands over to the shared rules, whose hall-first rule (AI._hall_first)
+## saves the new Clocktower and its first press (540 cogs) before any more units. The build order knew nothing of dry land:
+## it kept training Clock Soldiers and Winders, the brass ran out with 440 cogs in the bank, and with nothing coming in the
+## 540 never came (21 of 24 Winders idle for minutes, Cinder Steps). Design principles 2: depletion forces expansion; a
+## barren computer is no opponent.
+func _dry_hand_over() -> bool:
+	if difficulty < 1 or not Defs.gear_mode or not _dry():
+		return false
+	_end_build("its land is dry: a new Clocktower and its press first, before more units")
+	super._build_up()
+	return true
 
 
 func _army() -> void:
@@ -356,6 +405,10 @@ func _army() -> void:
 	if push != null:
 		push.tick()
 		_b_rewind()
+		if army_g != null:
+			# (clockwork-ai-v2: the push out is the Clockwork's attack: the shared "attacking" flag says so, as the other
+			# computers' waves do; the qa study's tools saw no Clockwork attack at all)
+			_attacking = push.phase == "march" or push.phase == "fight" or push.phase == "siege"
 	if btc != null:
 		btc.tick()
 	if army_g != null:
@@ -380,6 +433,16 @@ func _army_one() -> void:
 			u.courier = true
 	var army: Array = game.army(team).filter(func(u: Unit) -> bool: return not _raiders.has(u) and not _on_errand(u) \
 		and u.kind != Defs.GREAT_WINDER_KIND and not (scout != null and (u == scout.unit or u == scout.sentry)))
+	# (clockwork-ai-v2, the owner 2026-11-11: an exception to ONE ARMY) A soldier or two found out far from home (900 px
+	# from any of our buildings: left behind by a push or a chase, not the army's defenders) HARASS again, as before the one
+	# army (scripts/ai_harass.gd: the worker line, past rooted creatures, home when hurt, run down or outmatched), at most
+	# AIHarass.MAX_UNITS at once; the rest walk home with a plain move (ai_cw_army.FAR_PLAIN). The qa study's test_ai_harass
+	# [clock]: a lone Clock Soldier was attack-moved home and stood hitting a ROOTED Mound Turtle for 40 s.
+	var harass_ := hz()
+	if harass_on:
+		harass_.adopt_strays(army.filter(func(u: Unit) -> bool: return not army_g.defenders.has(u) and army_g.phase != "defend"))
+	harass_.tick()
+	army = army.filter(func(u: Unit) -> bool: return not harass_.has(u))
 	army_g.tick(army)
 
 
@@ -842,6 +905,68 @@ func _follow_with_escort(army: Array) -> void:
 		super._follow_with_escort(push.units.filter(func(u: Unit) -> bool: return u.kind != Defs.GREAT_WINDER_KIND))
 		return
 	super._follow_with_escort(army)
+
+
+## (clockwork-ai-v2, the owner 2026-11-11: "the Clockwork regains cogs from bodies") THE GREAT WINDER SWEEPS BY THE ARMY.
+## Its SWEEP is an idle job (GreatWinder.idle_scan) and the push and the home rest spots kept giving it MOVE orders, two
+## controllers at once while the push was out (the push's spot 190 px behind its anchor, the shared follow 60 px behind the
+## middle): it stood 230-330 px from the army and swept nothing (test_great_winder). Now ONE controller at a time (the push
+## while it is out, else the follow), it stands GW_BACK px behind the army's middle, and between fights (no enemy soldier
+## within GW_CALM of the army) the computer itself sends it to the nearest wreck within GW_SWEEP of the army's middle
+## (GreatWinder.sweep_pick: its own side's and an enemy Clockwork's wrecks, never into danger); it rolls back after.
+const GW_BACK := 100.0
+const GW_SWEEP := 300.0
+const GW_CALM := 420.0
+var gw_sweep_on := not OS.get_cmdline_user_args().has("cwgw:off")      # (`-- cwgw:off` as 0.33.11)
+var gw_sends := 0               # wrecks it was sent to (tests, the study)
+
+
+## Keep the Great Winder busy by the army: true when it has a job there (or was just given one), so no move is given.
+## `c` the army's middle, `back` the way home from it (normalised).
+func gw_tend(gw: Unit, c: Vector2, back: Vector2) -> bool:
+	if gw.order == "cast":
+		return true             # (throwing its SCATTER COGS: CogScatter.ai_tick)
+	if (gw.order == "mend" or gw.order == "sweep") and gw.position.distance_to(c) < GW_CALM:
+		return true             # (mending or sweeping by the army)
+	if not gw_sweep_on or not gw.auto_sweep or _enemy_near(c, GW_CALM) or _enemy_near(gw.position, 300.0):
+		return false
+	var w := GreatWinder.sweep_pick(gw, GW_SWEEP, c)
+	if w == null:
+		return false
+	GreatWinder.cmd_sweep(gw, w)
+	gw.set_meta("gw_home", c + back * GW_BACK)     # (it rolls back here when the sweeping is done)
+	gw_sends += 1
+	if game.clock - float(_said_t.get("gw_sweep", -99.0)) > 60.0:
+		_said_t["gw_sweep"] = game.clock
+		note("army: its Great Winder sweeps the wrecks by the army into cogs between fights")
+	return true
+
+
+## (clockwork-ai-v2) The follow (at home, or with the shared army): GW_BACK px behind the army's middle, sweeping between
+## fights; a Great Winder out with the push is the push's (AICwPush._place_heavies), not given a second order here.
+func _great_winder_follow(c: Vector2) -> void:
+	if army_g == null:
+		super._great_winder_follow(c)
+		return
+	var gws := _great_winders()
+	if gws.is_empty():
+		return
+	var home := c
+	var hall: Array = _halls()
+	if not hall.is_empty():
+		home = (hall[0] as Building).center()
+	var back := (home - c).normalized() if home.distance_to(c) > 1.0 else Vector2.ZERO
+	var behind := c + back * GW_BACK
+	for u in gws:
+		if push != null and push.phase != "" and push.phase != "back" and push.has(u):
+			continue
+		if gw_tend(u, c, back):
+			continue
+		if u.position.distance_to(behind) > 80.0 and not (u.order == "move" and u.order_point.distance_to(behind) < 60.0):
+			u.cmd_move(behind)
+			if game.mlog and not game._first_of.has("%d:ai_gw_out" % team):
+				game._first_of["%d:ai_gw_out" % team] = true
+				game.mlog.add("%s sends its Great Winder with the army" % game.mlog.who(team))
 
 
 ## The Heavy Works' spot: the one kept for it by the Mainspring, else by any Mainspring's network (AI._heavy_spot).

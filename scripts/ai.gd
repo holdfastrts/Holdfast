@@ -1418,6 +1418,10 @@ func _drive_spot(kind: String) -> Vector2i:
 	if game.starts.size() > team:
 		var home := Vector2(game.starts[team]) * Defs.TILE
 		halls.sort_custom(func(a: Building, b: Building) -> bool: return a.center().distance_to(home) < b.center().distance_to(home))
+	if kind == Defs.GEAR_PRESS and halls.any(func(h: Building) -> bool: return h.lode_left() > 0.05):
+		# (clockwork-ai-v2: a Cog Press by a Clocktower with brass, never by a dry main: test_ai_expand [clock] laid the new
+		# hall's press by its spent main, for nothing)
+		halls = halls.filter(func(h: Building) -> bool: return h.lode_left() > 0.05)
 	for h in halls:
 		var c := GearEcon.room_spot(game, team, kind, [h], users, h.center(), true, 8)
 		if c.x >= 0:
@@ -3164,14 +3168,22 @@ func _recycle_spent() -> void:
 		if Defs.BUILDINGS[kind]["faction"] != game.faction_of(team) or not Defs.is_econ(kind) or game.econ_count(team, kind) < game.econ_limit(team, kind):
 			continue
 		var dep: String = Defs.LODE_NAME[Defs.LODE_FOR[kind]]
+		var gear: bool = kind == Defs.GEAR_PRESS and Defs.gear_mode and game.gear_net != null
 		var spent: Array = _mine(kind).filter(func(b: Building) -> bool: return b.built and b.lode_left() <= 0.0)
+		if gear:
+			# (clockwork-ai-v2: and a Cog Press whose gears stand still (left by a razed Clocktower, unlinked): it works
+			# nothing and holds a place under the limit; test_ai_expand [clock] kept two by its new hall for good)
+			spent += _mine(kind).filter(func(b: Building) -> bool: return b.built and b.lode_left() > 0.0 and game.gear_net.speed_mult(b) <= 0.0)
 		if spent.is_empty():
 			continue
 		for h in _halls():
 			if not h.built or h.lode_left() < 0.15:
 				continue
-			var worked := _mine(kind).any(func(b: Building) -> bool: return game.lode_hall(b) == h)
-			if not worked:
+			# (clockwork-ai-v2: a Cog Press counts only if its gears turn, and a fresh Clocktower wants its two)
+			var n_worked := _mine(kind).filter(func(b: Building) -> bool: return game.lode_hall(b) == h \
+				and not (gear and b.built and game.gear_net.speed_mult(b) <= 0.0)).size()
+			var want: int = Defs.econ_per_hall(game.faction_of(team), kind) if gear else 1
+			if n_worked < want:
 				game.demolish(spent[0])
 				if game.mlog:
 					game.mlog.add("%s pulled down a %s by spent %s (fresh %s by another hall)" % [game.mlog.who(team), Defs.BUILDINGS[kind]["name"], dep, dep])
