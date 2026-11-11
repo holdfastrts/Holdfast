@@ -61,6 +61,10 @@ const RULES := [
 	["^'s Clockwork: push: is no longer clearly ahead", "%s's push is no longer clearly ahead: it marches on with care.", 2, "attack"],
 	["^'s Clockwork: air: enemy flyers seen", "%s sees enemy flyers: it lays a Clock Aviary at once, for Swifts.", 2, "defence"],
 	["^the sentry peeks up the walled ramp", "%s's sentry peeks up the enemy's walled ramp now and then to see behind the wall.", 1, "scout"],
+	# ---- the Crown against the Brood (crown-v-brood-coach, docs/crown_v_brood_coach.md)
+	["^'s plan: its riders are chased off the grubs there", "%s's riders are chased off the grubs there: they pull back and come again at another Rootmaw.", 1, "raid"],
+	["^'s plan: the rush is over \\((?:\\w+)\\): the economy now", "%s's rush is over: it hands over to its Economy plan, labourers to two halls and a walled natural.", 3, "plan"],
+	["^turns from its natural's gate to the enemy inside its wall \\((\\d+) against (\\d+)\\)", "%s turns from its natural's gate to the enemy inside its wall (%s against %s).", 2, "defend"],
 	# ---- the Crown: the army first (ai-followups, scripts/ai_crown.gd army_lags)
 	["^'s plan: the army first: (\\d+) of army against the (\\d+)", "%s puts its army first (%s against the %s it reckons the enemy has): the labourers and the tech wait.", 2, "army"],
 	["^'s plan: milestone (.+?) waits: the army is far behind", "%s's %s waits: its army comes first.", 1, "tech"],

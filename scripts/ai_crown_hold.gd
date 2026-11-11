@@ -838,6 +838,14 @@ func hold_top(army: Array, spots: Array) -> bool:
 		# sizes it); against more it holds the gate, and the labourers run in behind the line)
 		if mine >= foe * _beat():
 			return false
+		if mine >= foe * INSIDE_BEAT and _inside_natural(spots):
+			# (crown-v-brood-coach: the force is already INSIDE the natural's wall, at its Mill and Farms: Hollowfen 1188, 8:39,
+			# 522 of army stood facing out of the gate while 325 of Raptors and Spitters razed the Powder Mill and two Farms
+			# behind it; it is met the usual way when the army is worth as much)
+			if game.clock - _inside_said > 30.0:
+				_inside_said = game.clock
+				_say("turns from its natural's gate to the enemy inside its wall (%d against %d)" % [int(mine), int(foe)])
+			return false
 		if game.clock - _hold_said > 30.0:
 			_hold_said = game.clock
 			holds += 1
@@ -1411,6 +1419,23 @@ var _gate_at := Vector2.INF     # (px) the gate's middle
 var _gate_back := Vector2.INF   # (px) inside, behind the line: the rally and the labourers' refuge
 var gate_posts := 0             # (tests, the study) times the post was set up at a natural's gate
 var gate_log: Array = []        # [clock, text]
+
+
+## (crown-v-brood-coach) an enemy inside the walled natural is met when the army at home is worth this times it
+const INSIDE_BEAT := 1.0
+var _inside_said := -99.0
+
+
+## A threat spot inside the walled natural the army stands at: nearer its hall than the gate is (and on its side).
+func _inside_natural(spots: Array) -> bool:
+	if _gate_hall == null or not is_instance_valid(_gate_hall) or _gate_at == Vector2.INF:
+		return false
+	var hc: Vector2 = _gate_hall.center()
+	var r: float = hc.distance_to(_gate_at) - float(Defs.TILE)
+	for sp in spots:
+		if (sp as Vector2).distance_to(hc) < r:
+			return true
+	return false
 
 
 func gate_live() -> bool:
