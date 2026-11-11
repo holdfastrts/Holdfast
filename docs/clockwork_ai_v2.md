@@ -25,10 +25,52 @@ The other computers are not touched.
    test_cw_air_ai: the Aviary placed 1 s after the balloon was seen (before 60-90+ s), built in 49 s, a Swift 20 s later.
 6. **Finishing games.** The push COMMITS when it is clearly ahead: it goes for the enemy's halls (the Brood Mother against
    the Brood), stops holding short of a main it can take, and its front breaks buildings with the Ballistas. A big push
-   marches in rows (a push of 55 soldiers stood still for three minutes because its front did not fit on one line). The
-   push now sets the shared "attacking" flag. The numbers are below.
+   marches in rows (a push of 55 soldiers stood still for three minutes because its front did not fit on one line). A push
+   in the field survives OPTIMAL's late switch. Against the Brood the army no longer waits at home for an enemy twice the
+   real one (the reckoning's table). The push now sets the shared "attacking" flag. The numbers are below.
 
-NUMBERS_HERE
+## The numbers
+
+Hard Clockwork OPTIMAL against Hard Crown OPTIMAL, Hard Brood OPTIMAL and itself, 8 maps (Cinder Steps, Red Coast, Ashfall,
+Greenhold, Frostfang, Dune Sea, Redrock Canyon, Twin Fords), 2 seeds a map with the sides swapped, to 15:00: the qa
+study's tags and seeds. "Before" twice: the qa study's own 48 games of these tags (0.33.7), and main at 0.33.11 (27 of the
+48 played here, the first four and a half maps, cut to save time once they agreed with the qa games). "After": this branch,
+all 48. Won or led: won, or led a draw (income earned + 2 x army value 10% ahead at the end). Mirrors are the P1 side's.
+
+| Clockwork's pairing | | W-D-L | won or led | games decided (mean length) | enemy halls lost | its own halls lost |
+|---|---|---|---|---|---|---|
+| v the Crown | before (qa, 0.33.7) | 1-14-1 | 13 of 16 | 2 (13:03) | 24 | 7 |
+| | before (0.33.11, 9 games) | 3-6-0 | 8 of 9 | 3 (12:24) | 12 | 1 |
+| | **after** | **6-10-0** | **14 of 16** | **6 (11:29)** | 25 | 8 |
+| v the Brood | before (qa) | 2-10-4 | 5 of 16 | 6 (13:18) | 11 | 15 |
+| | before (0.33.11, 9 games) | 0-6-3 | 3 of 9 | 3 (13:34) | 4 | 12 |
+| | **after** | **5-4-7** | **7 of 16** | **12 (12:11)** | 14 | 20 |
+| mirror | before (qa) | 0-16-0 | | 0 | 26 | 4 |
+| | before (0.33.11, 9 games) | 0-9-0 | | 0 | 17 | 2 |
+| | **after** | **4-12-0** | | **4 (13:04)** | 33 | 10 |
+
+- **It finishes more games.** Against the Crown 6 wins in 16 (before 1 in 16, 3 in 9), the decided games 1.5 to 2 minutes
+  sooner; the first Clockwork mirrors ever decided (4 of 16; before 0 of 38 in the qa study). It committed in 13 of the 16
+  Crown games and won 6 of those.
+- **Against the Brood it goes out now, and it is decided both ways.** 12 of 16 decided (before 6 of 16): 5 wins (before 2),
+  7 losses (before 4); won or led 7 of 16 (before 5 of 16, and 3 of 9). It committed in 6 games and won 5 of them. The
+  losses are the cost of leaving home against an army the reckoning no longer doubles: see the open questions.
+- **The economy is the same**: cogs earned by 8:00 7,590 / 7,066 / 9,450 (v the Crown / the Brood / mirror) against
+  7,487 / 7,197 / 9,570 in the qa games; army at 8:00 1,850 / 1,205 / 1,875 against 1,812 / 1,227 / 1,785.
+- **Its first attack is seen**: a median 6:20 against the Crown, 5:00 against the Brood, 5:20 in the mirror (before: never,
+  the push did not set the flag).
+- **The Great Winder**: a Great Winder comes only in some plans and games, and before it already swept now and then by its
+  own idle look. Sides that swept anything: 17 of 64 after, 10 of 36 before (about the same share); cogs per side that
+  swept: 148 against the Crown (before 44), 83 against the Brood (15), 120 in the mirror (163). The clear before/after is
+  the test (test_great_winder: swept 0 before, a wreck swept within 15 s by the army now).
+- **No stalls**: one "no unit made for 90 s" in 48 games (before: 3 in the qa games, 1 in the 27). Idle Winders after 4:00:
+  1.1 to 2.9 on average, as before (1.5 to 3.2).
+- **Script errors**: one game with ballista.gd:400 (a null target, the known error rules-fixes owns), as before.
+
+Raw data: docs/clockwork_ai_v2/data/before_0_33_11/ and docs/clockwork_ai_v2/data/after/ (result.json, story.txt and
+cwlog.txt, the Clockwork's own match log lines, per game); the qa study's in docs/qa_2026_11_08_matches/data/. The table:
+`python3 tools/study/cw_v2_report.py docs/clockwork_ai_v2/data/after` (and any other data folder).
+
 
 ## What was wrong, and what changed
 
@@ -146,6 +188,21 @@ What changed (scripts/ai_cw_push.gd):
   the AI STORY ("is clearly ahead ... it presses on to the enemy's halls to finish").
   A first try committed from any time and against the enemy seen only: at 6:27 on Greenhold it took 1,350 against 57 seen
   up to the Crown's walled main and lost the push. Hence 8:00 and the reckoning.
+  Once committed it stays so down to 1.6 times (a fight's numbers going up and down made it flip every few seconds).
+  Committed, a hall it aims at stays its goal until it falls (picked again every 8 s as the nearest to the anchor, the
+  goal swapped between two halls and the push walked to and fro), and a main wants 0.75 of the plan's main_min (1,500
+  against the Crown, 1,950 for the Heavy Works push: 1,875 held short of a Crown main for four minutes against 187 seen).
+- **A push out survives OPTIMAL's switch.** OPTIMAL may switch the build once a stage; the switch made a new push and
+  dropped the one in the field (its units walked home one by one; a committed push of 65 among them, Cinder Steps mirror
+  13:50). Now the push out goes on under the new build's push settings.
+- **The Brood's reckoning.** The army waits at home until it is worth 1.25 times the enemy army it reckons
+  (ai_cw_army.may_launch). Against the Brood the reckoning's table (what a Hard Brood has at that age) was about twice the
+  Hard Brood's real army from 7:00: in the before games the reckoning was 1.8 to 3.5 times the Brood's real army, and the
+  Clockwork's army "held at its gathering point" 7 to 12 times a game, often never going out until the Brood had out-grown
+  it. The table from 7:00 is now the strongest quarter of the Hard Brood's army in the qa study's 152 Brood sides: 1,100 at
+  7:00, 1,300 at 8:00, 1,900 at 10:00, 2,700 at 12:00, 3,100 at 14:00 (was 1,400, 2,200, 3,800, 5,000, 5,000). Its rooted
+  creatures seen still count on top (1.5 times). The Crown's and the Clockwork's tables were checked the same way and are
+  at or under their real armies' median: unchanged.
 - **Rows.** A front of more than 12 stands in rows of 12, 26 px apart, and "at the anchor" grows with the rows.
 - **"Attacking".** AIClockwork sets the shared flag while the push marches, fights or lays a siege.
 - The end-of-game hunt for the last buildings is rules-fixes' job (the shared AI); this job makes the Clockwork's own push
@@ -212,4 +269,16 @@ Tests changed:
 
 ## Open questions
 
-OPEN_HERE
+1. **Against the Brood the Clockwork now loses more as well as wins more** (7 losses in 16, before 4). With the old
+   reckoning it mostly waited at home and the games ran to 15:00; with the reckoning at the Brood's real army it goes out
+   with 1.25 times it. Its pushes against the Brood still meet the rooted Rootmaws and Mound Turtles and the Raptors that
+   come (clockwork-army's finding). Worth a look of its own: a higher margin against the Brood (1.5 instead of 1.25?), or
+   the Pendulums first (the Clockwork's anti-swarm machine) before a push against the Brood.
+2. **The commit's numbers** (8:00, twice, 1.6 to stay, 0.75 of main_min) were set from these games; a later study could
+   tune them. A committed push still loses to a walled Crown main now and then (the Crown's Musketeers on the high ground).
+3. **The end of the game** is still often a draw with one side beaten in all but name: the last buildings are rules-fixes'
+   hunt (the shared AI). With the hunt merged the decided games should rise again; worth measuring both together.
+4. **The sentry** costs about a Winder every 100 s on a walled ramp. A flyer would see over the wall without the risk (the
+   Clockwork has the Swift once its Aviary stands): a Swift sentry when there is one?
+5. **The AI STORY's expansion line** reads "its best base has only 100% left" when the Clockwork expands for its Winder
+   count, not its brass (AI._hall_first's need by workers). Not changed here (a shared line).
