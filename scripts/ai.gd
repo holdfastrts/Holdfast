@@ -5234,6 +5234,7 @@ func _army() -> void:
 	if threat != Vector2.INF:
 		# (sized response: only as many soldiers as the visible enemy needs, see _defend)
 		var tspots := _threats()
+		army = _cc_keep_wave(army, tspots)      # (crown-v-clockwork-coach: a small raid at home does not call the wave back)
 		if r5.hold_behind_wall(army, tspots):
 			return              # (round 5: a bigger wave at the gate: the army holds on the high ground behind the wall)
 		if ch.hold_top(army, tspots):
@@ -7134,6 +7135,12 @@ func _defend(army: Array, threat: Vector2, spots: Array) -> void:
 ## of our army.
 const MINOR_SHARE := 0.25
 const MINOR_BIG := 100          # army supply: from this much even armed raiders near home are left to the detachments
+
+
+## (crown-v-clockwork-coach) The army that answers a threat at home: all of it here; AICrown leaves its wave out against
+## the Clockwork when the raid is small (AICrown._cc_keep_wave).
+func _cc_keep_wave(army: Array, _spots: Array) -> Array:
+	return army
 
 
 func _threat_minor(army: Array, spots: Array) -> bool:

@@ -2856,3 +2856,45 @@ func _cc_rush_hold(k: String, army: int) -> bool:
 ## at 6:05 and took its Farm, its Mill and the hall by 9:58 (Greenhold, seed 1101). The owner's rule: the walled natural.
 func _cc_walls() -> bool:
 	return cc_on and _cc_bo == "bo_clock" and strategy == "timing" and cc_vs_clock() and _halls().filter(func(h: Building) -> bool: return h.built).size() >= 2
+
+
+## THE WAVE STAYS OUT FOR A SMALL RAID. Any armed enemy by any building of ours called the whole army home, the wave too
+## (AI._army: _defend, unless the army is 100 supply or more). Kestrel Rise (seed 1131): the first attack took the
+## Clockwork's new Clocktower at 8:11 with the Clockwork's army down to 350 against its 1,455, and walked home for one or
+## two Clock Soldiers harassing its labourers; the Clockwork rebuilt and won. Against the Clockwork a raid worth less than
+## CC_RAID_SHARE of the wave and less than CC_RAID_MAX is left to the soldiers at home (the wave's units are not called
+## back), unless a hall is about to fall (under CC_HALL_LOW of its health with enemies at it).
+const CC_RAID_SHARE := 0.4
+const CC_RAID_MAX := 500.0
+const CC_HALL_LOW := 0.5
+var _cc_wave_said := -99.0
+var cc_wave_kept := 0           # (tests) thinks a wave stayed out while raiders were at home
+
+
+func _cc_keep_wave(army: Array, spots: Array) -> Array:
+	if not cc_on or not cc_vs_clock() or not _attacking or _wave_set.is_empty() or difficulty < 1:
+		return army
+	var wave: Array = army.filter(func(u: Unit) -> bool: return _wave_set.has(u))
+	if wave.is_empty():
+		return army
+	var wv := 0.0
+	for u in wave:
+		wv += _unit_value(u)
+	var raid := 0.0
+	for sp in spots:
+		raid += float(_assess(sp)["value"])
+	if raid >= wv * CC_RAID_SHARE or raid >= CC_RAID_MAX:
+		return army
+	for h in _halls():
+		if h.built and float(h.hp) < float(h.max_hp) * CC_HALL_LOW and game.units_near(h.center(), 260.0).any(func(o: Unit) -> bool: return game.hostile(o.team, team) and not o.dead and not o.is_worker()):
+			return army
+	cc_wave_kept += 1
+	if game.clock - _cc_wave_said > 60.0:
+		_cc_wave_said = game.clock
+		say("its wave stays out: a raid worth %d at home is left to the soldiers there (the wave is worth %d)" % [int(raid), int(wv)])
+	# (the wave's own think does not run while the threat holds the army's think: an idle one walks on to the target)
+	_wave_target = _enemy_base()
+	for u in wave:
+		if u.order == "idle" and u.wall_flee_t <= 0.0 and u.siege_t <= 0.0:
+			u.cmd_move(_wave_target + Vector2(randf_range(-60, 60), randf_range(-60, 60)), true)
+	return army.filter(func(u: Unit) -> bool: return not _wave_set.has(u))
