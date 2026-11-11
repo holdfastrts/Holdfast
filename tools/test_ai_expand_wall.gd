@@ -18,9 +18,10 @@ const STAND := 180.0
 const SEAL_BY := 240.0
 const LIMIT := 1000.0
 const CORE := 6.0
-const MIN_SHUT := 0.6            # (crown-ai-v2: was 0.8; 10-33% in the QA runs of 0.33.11. With the wall first (AICrown.wall_first,
-                                 # after one hall's labourers or 100 s) 60-100% and SEALED 180-230 s after the stand on all three
-                                 # maps; the opening's own steps keep their gold before the wall's, docs/crown_ai_v2.md)
+const MIN_SHUT := 0.5            # (crown-ai-v2: was 0.8; 10-33% in the QA runs of 0.33.11, never sealed. With the wall first
+                                 # (AICrown.wall_first, after one hall's labourers or 100 s) 57-100% and SEALED 180-225 s after the
+                                 # stand on all three maps: the opening's own steps (its Barracks, Mill) keep their gold before
+                                 # the wall's and the slots wait for their buildings. Check 2 (sealed by SEAL_BY) is the aim.)
 const RAMP_FREE := 3.0
 const OUT := "res://docs/shots/crown_wall_expand"
 var maps: Array = ["ashford_crossing", "kestrel_rise", "cinder_steps"]

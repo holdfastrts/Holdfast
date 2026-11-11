@@ -453,7 +453,7 @@ func bo_owns() -> bool:
 func _base_trains_labs() -> bool:
 	if bo_owns():
 		return false
-	if wall_first() and _labs_queued() > 0 and _gold() < LAB_COST + WALL_LAB_KEEP:
+	if wall_throttle() and _labs_queued() > 0 and _gold() < LAB_COST + WALL_LAB_KEEP:
 		return false
 	return not _army_due()
 
@@ -489,9 +489,15 @@ func wall_first() -> bool:
 
 
 ## (crown-ai-v2) one hall's labourers: the owner's ring went down after his 26th labourer (3:49); a natural laid early (1:35
-## in test_crown_owner_eco) waits for them or for WALL_FIRST_WAIT s after it stood
+## in test_crown_owner_eco) waits for them or for WALL_FIRST_WAIT s after it stood. The labourers are slowed to one at a
+## time only past WALL_FIRST_LABS (wall_throttle): before that the wall's gold is only kept from the soldiers and the steps
+## (21 labourers at 4:00 instead of 22+ when they were slowed from the wait on, test_crown_owner_eco)
 const WALL_FIRST_LABS := 22
 const WALL_FIRST_WAIT := 100.0
+
+
+func wall_throttle() -> bool:
+	return game.workers(team).size() >= WALL_FIRST_LABS and wall_first()
 
 
 func _wall_hall_waited() -> bool:
@@ -645,7 +651,7 @@ func _bo_labs() -> void:
 	var free := _gold() - bo_reserve
 	if _soldiers_first():
 		return
-	var wall_keep := WALL_LAB_KEEP if wall_first() else 0
+	var wall_keep := WALL_LAB_KEEP if wall_throttle() else 0
 	var top := mini(bo_lab_cap, owner_lab_cap())      # (the owner's plans: never past the halls' saturation)
 	for h in _halls():
 		if not h.built or labs + queued >= top or free < LAB_COST + (wall_keep if queued > 0 else 0):
