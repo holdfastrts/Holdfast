@@ -181,7 +181,34 @@ Tests changed:
 
 ## Claude's choices for the owner
 
-CHOICES_HERE
+1. **Which strays harass.** The shared harass's own rule: a soldier found 900 px or more from any of the Clockwork's
+   buildings, on an attack-move, attacking or idle, not one of the army's defenders, not during a whole-army defence; at
+   most three at once. Under ONE ARMY such strays are the ones a push or a chase left behind. The plans' own raids are
+   unchanged. If you would rather the lone ones always walk home, `-- cwharass:off` is that (they then walk home with a
+   plain move from 640 px out).
+2. **The Great Winder's leash.** It stands 90-100 px behind the army and sweeps wrecks within 300 px of itself or of the
+   army's middle, between fights (no enemy soldier within 420 px of it, and the wreck itself safe by the Great Winder's
+   own danger rule). In the test it never was more than 136-156 px from the army's middle while it swept. Your "within
+   ~150 px" is its resting place; a sweep may take it a little further for a few seconds.
+3. **The gear band rule** is in scripts/gear_turn.gd, next to the rule that walks the computer's idle units off a band:
+   6 s of riding on a plain move order, then it crosses without drifting. Only the computer's units; the player's ride as
+   before.
+4. **The sentry's risk.** A peek every 22 s once it has stood 20 s at its post (44 s after it was shot at), up to 7 s,
+   back at once when it sees an armed enemy. In the test it lost a Winder about every 100 s (3 posts in 300 s, as before)
+   for 6 sightings in 29 windows. A Winder can only see behind a wall from the ramp itself (the high ground is hidden from
+   the low ground beyond the next cells), and a Winder's sight is a Musketeer's reach: there is no safe spot that sees.
+5. **The commit's numbers**: from 8:00, twice what it has seen near it lately and twice the reckoning, at least 1,200,
+   kept down to 1.6 times. A walled Crown main still wants 2,000 of push (the plan's own number, clockwork-army). Its
+   retreats are the usual ones.
+6. **The Brood's reckoning table** (an AI table, not a game number): from 7:00 it is now the strongest quarter of the Hard
+   Brood's army in the qa study (it was about twice that). Before 7:00 it is as it was (raised on purpose by
+   clockwork-army). Without this the Clockwork rarely went out against the Brood at all: in the before games its army
+   "held at its gathering point" 7-12 times a game against a reckoning 1.8 to 3.5 times the Brood's real army.
+7. **Dry land ends the opening build for good** (it does not come back to it once a new hall stands): the shared rules
+   then play the plan's numbers, as after any opening.
+8. **The air**: an Aviary anywhere on its gear field rather than waiting for a spare Mainspring with room by it.
+9. **"Attacking"**: the Clockwork's push now sets the shared flag (while it marches, fights or lays a siege). Nothing else
+   of the Clockwork reads it; the qa tools and the AI STORY's first-attack count do.
 
 ## Open questions
 

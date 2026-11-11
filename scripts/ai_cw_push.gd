@@ -94,6 +94,8 @@ var _rider_said := -99.0
 const AHEAD_K := 2.0
 const AHEAD_MIN := 1200.0
 const AHEAD_KEEP := 1.6
+const COMMIT_MAIN := 0.75       # committed, the plan's "main_min" for the enemy's main is this share of it (Greenhold: 1,875
+                                # held short of a Crown main for four minutes against 187 seen and 381 reckoned)
 const AHEAD_FROM := 480.0       # (s) not before this: early on most of the enemy army is unseen and its main walled
 var committed := false
 var commit_on := not OS.get_cmdline_user_args().has("cwcommit:off")      # (`-- cwcommit:off` as 0.33.11)
@@ -340,7 +342,7 @@ func _remember_brood() -> void:
 ## three or more were seen together), then the Mother; against the others the shared computer's target (an open
 ## expansion or economy building first, else the main: AI._enemy_base).
 func _pick_goal() -> void:
-	if goal_e != null and is_instance_valid(goal_e) and not goal_e.dead and game.clock - path_t < REPATH:
+	if goal_e != null and is_instance_valid(goal_e) and not goal_e.dead and (game.clock - path_t < REPATH or (committed and _commit_goal_kept())):
 		return
 	var old := goal
 	goal_e = null
@@ -444,7 +446,7 @@ func _march() -> void:
 			lag = true
 	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
 	_leash(front)
-	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and ((not committed and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K))) or _value(units) < float(cfg.get("main_min", 0.0))):
+	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and ((not committed and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K))) or _value(units) < float(cfg.get("main_min", 0.0)) * (COMMIT_MAIN if committed else 1.0)):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
 		# it took, and the reinforcements join it (Greenhold 11: the push razed the Crown's expansion, walked on up to its
 		# main and met its whole army, 25 Musketeers, at the ramp: 3,100 value lost in a minute). The plan's "main_min": the
@@ -972,6 +974,15 @@ func _commit_check() -> void:
 		_note_once("commit", "is clearly ahead (worth %d, the enemy army seen lately %d, reckoned %d): it presses on to the enemy's halls to finish" % [int(v), int(maxf(mem, near)), int(rk)], 30.0)
 	else:
 		_note_once("uncommit", "is no longer clearly ahead (worth %d against %d): it marches on with care" % [int(v), int(maxf(mem, near))], 30.0)
+
+
+## (clockwork-ai-v2) Committed, a hall (or the Mother) aimed at stays the goal until it falls: picked again every REPATH s as
+## the nearest to the anchor, the goal swapped between two halls as the anchor moved and the push walked to and fro
+## (Cinder Steps mirror, 9:35-13:01).
+func _commit_goal_kept() -> bool:
+	if goal_e is Building:
+		return (goal_e as Building).kind == game.faction_hall(foe)
+	return goal_e is Unit and (goal_e as Unit).kind == "brood_mother"
 
 
 ## (clockwork-ai-v2) Committed: the goal is the enemy's nearest hall (the Brood: its Mother, kill her and the game is won).

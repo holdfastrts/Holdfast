@@ -249,8 +249,15 @@ func opt_switch(k: String) -> bool:
 	_placed.clear()
 	_stood.clear()
 	_queued.clear()
+	var old_push = push
 	push = null
 	_b_ready()
+	if old_push != null and old_push.phase != "" and old_push.phase != "back":
+		# (clockwork-ai-v2) A PUSH OUT IN THE FIELD GOES ON under the new build (the new build's push settings): it was dropped,
+		# its units left to walk home one by one, a committed push of 65 among them (Cinder Steps mirror, 13:50)
+		if push != null:
+			old_push.cfg = push.cfg
+		push = old_push
 	_mark_existing()
 	bo_on = true
 	_bo_cap_t = -1.0 if was_on else game.clock + OPT_BO_CAP      # (a build begun after the opening owns the gold so long at most)
