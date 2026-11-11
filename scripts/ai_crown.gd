@@ -158,7 +158,7 @@ const PLANS := {
 		# (crown-v-clockwork-coach: against the Clockwork, whose economy opening has its second Clocktower up by ~3:00, the
 		# timing on one hall went out at 7:10-7:35 with 18-19 labourers into 30 Winders on three halls (the Crown earned
 		# 0.6-0.7 of its income at 8:00 in every game). The same timing, from TWO halls: the walled natural behind the Mill
-		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to LABS_CLOCK. The
+		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to "labs_clock". The
 		# natural's Farms and Mill come from the shared economy rules while it runs (_cc_econ: an opening lays no Farm by
 		# itself, and a first try left the natural's soil at 100% for the whole game))
 		"bo_clock": [
@@ -174,7 +174,7 @@ const PLANS := {
 			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 19}},
 			{"do": "attack", "n": 22, "at": {"army": 22}},
 		],
-		"labs_clock": 26,
+		"labs_clock": 34,      # (two halls: four Farms of 8 hands and the Mill; 26 left the natural's Farms unworked, its soil at 100%)
 		"mid": [["foundry", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {}], ["armoury", 1, {"labs": 20}],
 			["church", 1, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 28}], ["foundry", 2, {"labs": 40, "halls": 3}]],
 		"s": {"wave": 22, "step": 8, "timing": 0.0, "expand": 0.6}},
@@ -2460,6 +2460,8 @@ const OWNER_WALL_AFTER := 45.0
 
 
 func owner_walls() -> bool:
+	if _cc_walls():
+		return true             # (crown-v-clockwork-coach: the two-hall Timing walls its natural as the owner's plans do)
 	if not owner_on():
 		return false
 	for h in _halls():
@@ -2847,3 +2849,10 @@ func _cc_rush_hold(k: String, army: int) -> bool:
 		_cc_rush_said = game.clock
 		say("milestone %s waits: a rush is read and the army has %d supply (it wants %d first)" % [String(Defs.BUILDINGS[k]["name"]), army, CC_RUSH_ARMY])
 	return true
+
+
+## THE TWO-HALL TIMING WALLS ITS NATURAL. The natural of the first two-hall run was planned at 3:18 and never laid (only
+## the owner's plans wall at once: AIExpandWall.brood_walls asks owner_walls); the Clockwork's first push of 1,245 came
+## at 6:05 and took its Farm, its Mill and the hall by 9:58 (Greenhold, seed 1101). The owner's rule: the walled natural.
+func _cc_walls() -> bool:
+	return cc_on and _cc_bo == "bo_clock" and strategy == "timing" and cc_vs_clock() and _halls().filter(func(h: Building) -> bool: return h.built).size() >= 2
