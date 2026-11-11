@@ -1,0 +1,71 @@
+[00:24] P2 Crown walls off its ramp: 1 pieces.
+[00:25] P1 Crown walls off its ramp: 1 pieces.
+[01:15] P2 Crown's scout saw too little (the scout was blocked): that proves nothing, so it builds no army for it and looks again soon.
+[01:19] P1 Crown's scout saw too little (the scout was blocked): that proves nothing, so it builds no army for it and looks again soon.
+[02:01] P2 Crown follows its own Timing attack build order: 10 steps, then its milestones.
+[02:01] P2 Crown reads the enemy as UNKNOWN (no read yet) and picks Timing attack: a timing attack.
+[02:04] P1 Crown follows its own Timing attack build order: 10 steps, then its milestones.
+[02:04] P1 Crown reads the enemy as UNKNOWN (no read yet) and picks Timing attack: a timing attack.
+[06:26] P1 Crown's raiders find the workers walled off and look elsewhere.
+[06:26] P2 Crown's raiders break the gate in their way.
+[06:56] P2 Crown's raiders find the workers walled off and look elsewhere.
+[06:56] P2 Crown sends out its first attack: 25 supply, 2 of them Horsemen.
+[06:57] P2 Crown's opening is over: its milestones and its doctrine take over.
+[06:57] P2 Crown pulls back from the enemy's gate: the fire there is too strong.
+[07:11] P1 Crown sends out its first attack: 22 supply, 2 of them Horsemen.
+[07:12] P1 Crown's opening is over: its milestones and its doctrine take over.
+[07:12] P1 Crown's raiders find the workers walled off and look elsewhere.
+[07:12] P1 Crown expands to fresh land: its best base has only 49% left, so it goes 19 tiles out.
+[07:13] P1 Crown plans a walled expansion.
+[07:28] P2 Crown expands to fresh land: its best base has only 45% left, so it goes 16 tiles out.
+[07:28] P2 Crown plans a walled expansion.
+[07:42] P2 Crown's raiders find the workers walled off and look elsewhere.
+[07:57] P1 Crown's raiders find the workers walled off and look elsewhere.
+[08:04] P2 Crown attacks again: wave 2 goes out with 37 supply; the next one waits for 43.
+[08:34] P1 Crown puts up its next milestone: Armoury 1.
+[08:38] P2 Crown expands to fresh land: its best base has only 100% left, so it goes 15 tiles out.
+[08:38] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[08:39] P2 Crown plans a walled expansion.
+[08:41] P1 Crown holds the top of its ramp: the force below (115) is more than its army (120) can beat.
+[08:41] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[08:42] P1 Crown's raiders find the workers walled off and look elsewhere.
+[09:11] P1 Crown holds the top of its ramp: the force below (803) is more than its army (268) can beat.
+[09:25] P2 Crown pulls back from the enemy's gate: the fire there is too strong.
+[09:27] P1 Crown expands to fresh land: its best base has only 32% left, so it goes 19 tiles out.
+[09:28] P1 Crown plans a walled expansion.
+[09:28] P1 Crown's raiders find the workers walled off and look elsewhere.
+[10:06] P1 Crown holds the top of its ramp: the force below (120) is more than its army (120) can beat.
+[10:06] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[10:13] P1 Crown's raiders find the workers walled off and look elsewhere.
+[10:34] P2 Crown expands to fresh land: its best base has only 100% left, so it goes 33 tiles out.
+[10:35] P2 Crown plans a walled expansion.
+[10:35] P2 Crown puts up its next milestone: Armoury 1.
+[10:48] P2 Crown puts up its next milestone: Church 1.
+[10:53] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[10:55] P2 Crown puts up its next milestone: Foundry 2.
+[10:56] P2 Crown goes down its ramp with its army.
+[10:56] P2 Crown attacks again: wave 3 goes out with 34 supply; the next one waits for 42.
+[10:59] P1 Crown's raiders find the workers walled off and look elsewhere.
+[11:19] P1 Crown holds the top of its ramp: the force below (300) is more than its army (120) can beat.
+[11:23] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[11:28] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[11:34] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[11:44] P1 Crown's raiders find the workers walled off and look elsewhere.
+[11:49] P1 Crown holds the top of its ramp: the force below (829) is more than its army (120) can beat.
+[11:56] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[12:05] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[12:06] P2 Crown pulls back from the enemy's gate: the fire there is too strong.
+[12:11] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[12:30] P1 Crown's raiders find the workers walled off and look elsewhere.
+[12:47] P1 Crown's economy is full on 1 bases: it needs a new one to grow.
+[12:47] P2 Crown attacks again: wave 4 goes out with 50 supply; the next one waits for 56.
+[12:48] P2 Crown breaks through at the enemy's gate.
+[12:51] P1 Crown holds the top of its ramp: the force below (115) is more than its army (91) can beat.
+[12:51] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[12:58] P1 Crown moves its musket line to the cliff edge above its Barracks.
+[13:06] P1 Crown expands to fresh land: its best base has only 0% left, so it goes 27 tiles out.
+[13:06] P1 Crown plans a walled expansion.
+[13:15] P1 Crown's raiders find the workers walled off and look elsewhere.
+[13:51] P1 Crown holds the top of its ramp: the force below (471) is more than its army (230) can beat.
+[14:45] P2 Crown reads the enemy as NORMAL (a standard opening).
+[14:45] P2 Crown reads the enemy as NORMAL (a standard opening) and keeps Timing attack: what it plays already answers it.

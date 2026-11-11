@@ -1,0 +1,2 @@
+7 error lines
+    7  SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
