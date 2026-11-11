@@ -222,7 +222,8 @@ if __name__ == "__main__":
     print("| faction | group | games | 1:00 | 2:00 | 3:00 | 5:00 | 8:00 | 12:00 |")
     print("|---|---|---|---|---|---|---|---|---|")
     for f in ("crown", "brood", "clockwork"):
-        for gname, cond in (("not swapped", lambda g: not g["swap"]), ("swapped (index 0 on B)", lambda g: g["swap"])):
+        for gname, cond in (("classic maps", lambda g: g["map"] not in NAMED), ("named, not swapped", lambda g: g["map"] in NAMED and not g["swap"]),
+                            ("named, swapped (index 0 on B)", lambda g: g["swap"])):
             gs = [g for g in games if g["fac"] == f and cond(g)]
             if not gs:
                 continue
@@ -241,7 +242,8 @@ if __name__ == "__main__":
     print("| faction | group | first read A / B | first attack A / B | first arrival A / B | halls lost A / B |")
     print("|---|---|---|---|---|---|")
     for f in ("crown", "brood", "clockwork"):
-        for gname, cond in (("not swapped", lambda g: not g["swap"]), ("swapped", lambda g: g["swap"]), ("all", lambda g: True)):
+        for gname, cond in (("classic maps", lambda g: g["map"] not in NAMED), ("named, not swapped", lambda g: g["map"] in NAMED and not g["swap"]),
+                            ("named, swapped", lambda g: g["swap"])):
             gs = [g for g in games if g["fac"] == f and cond(g)]
             if not gs:
                 continue
