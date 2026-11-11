@@ -318,7 +318,47 @@ func _every10() -> void:
 		if g.clock - float(l[2]) >= 30.0 and not _stuck_seen.has(id):
 			_stuck_seen[id] = true
 			events.append({"t": int(l[2]), "p": u.team, "ev": "stuck", "kind": String(u.kind), "order": u.order,
-				"at": str(Vector2i(u.position / Defs.TILE)), "goal": str(Vector2i(u.order_point / Defs.TILE))})
+				"at": str(Vector2i(u.position / Defs.TILE)), "goal": str(Vector2i(u.order_point / Defs.TILE)), "dbg": _stuck_dbg(u)})
+
+
+## (crown-ai-v2) what a stuck unit stands in: its path and the ground round it, 11 x 11 cells (. free, # terrain,
+## B building, G gate (g: an enemy's), W wall, f field, u another unit of its side, * the unit; a gate or wall of its own
+## side in capitals), 21 x 21 cells.
+func _stuck_dbg(u: Unit) -> Dictionary:
+	var c := Vector2i(u.position / Defs.TILE)
+	var rows: Array = []
+	var mine := {}
+	for o in g.units_near(u.position, 11.0 * Defs.TILE):
+		if o.team == u.team and not o.dead:
+			mine[Vector2i(o.position / Defs.TILE)] = true
+	for dy in range(-10, 11):
+		var r := ""
+		for dx in range(-10, 11):
+			var q := c + Vector2i(dx, dy)
+			if not g.in_map(q):
+				r += " "
+				continue
+			if dx == 0 and dy == 0:
+				r += "*"
+				continue
+			var s: int = g.solid[g.idx(q)]
+			if s == 0 and mine.has(q):
+				r += "u"
+				continue
+			match s:
+				0: r += "."
+				1: r += "#"
+				2: r += "B"
+				3: r += "G" if g._own_gate_at(u.team, q) != null else "g"
+				4: r += "W" if g._own_wall_at(u.team, q) != null else "w"
+				5: r += "f"
+				_: r += "?"
+		rows.append(r)
+	var pend := ""
+	if u.path.size() > 0:
+		pend = str(Vector2i(u.path[u.path.size() - 1] / Defs.TILE))
+	return {"path": u.path.size(), "path_i": u.path_i, "pending": u.path_pending, "path_end": pend,
+		"passable": g.passable(c, u.team), "grid": rows}
 
 
 ## THE FIRST ARRIVAL of an enemy army in a player's base (whatever the attacker's computer calls it: the Clockwork's

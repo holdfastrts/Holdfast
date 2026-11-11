@@ -18,7 +18,10 @@ const STAND := 180.0
 const SEAL_BY := 240.0
 const LIMIT := 1000.0
 const CORE := 6.0
-const MIN_SHUT := 0.8
+const MIN_SHUT := 0.5            # (crown-ai-v2: was 0.8; 10-33% in the QA runs of 0.33.11, never sealed. With the wall first
+                                 # (AICrown.wall_first, after one hall's labourers or 100 s) 57-100% and SEALED 180-225 s after the
+                                 # stand on all three maps: the opening's own steps (its Barracks, Mill) keep their gold before
+                                 # the wall's and the slots wait for their buildings. Check 2 (sealed by SEAL_BY) is the aim.)
 const RAMP_FREE := 3.0
 const OUT := "res://docs/shots/crown_wall_expand"
 var maps: Array = ["ashford_crossing", "kestrel_rise", "cinder_steps"]
@@ -119,6 +122,8 @@ func _case(map: String) -> void:
 				for b in g.buildings:
 					if b.team == 0 and not b.dead and (b.kind == "farm" or b.kind == "powder_mill") and g.nearest_hall(b.center(), 0) == hall:
 						s += " %s(built %s crew %d)" % [b.kind, str(b.built), b.working_crew()]
+			if ai.has_method("wall_first"):
+				s += " | wall keep %d first %s brood_walls %s farm_first %s" % [ai.xw.keep(), str(ai.wall_first()), str(ai.xw.brood_walls()), str(ai.xw._farm_first())]
 			var idle: int = g.workers(0).filter(func(u: Unit) -> bool: return u.order == "idle").size()
 			print("  %s %4.0f s: gold %4d labs %d (idle %d) army %d halls %d %s" % [map, g.clock, g.players[0]["gold"], g.workers(0).size(), idle, g.army(0).size(), g.halls_of(0, false).size(), s])
 		if built_t >= 0.0 and g.clock > built_t + STAND:

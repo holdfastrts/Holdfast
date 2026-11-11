@@ -242,6 +242,7 @@ func _main_cells() -> Array:
 ## natural, or a building right under the cliff without a wall).
 const NATURAL_R := 16.0         # (tiles) round a walled hall
 var edge_skips := 0             # (tests) buildings left to the palisade's line
+var edge_why := ""              # (tests) what the last edge post was for
 
 
 func _in_walled_natural(b: Building) -> bool:
@@ -260,6 +261,13 @@ func _in_walled_natural(b: Building) -> bool:
 		if (h as Building).center().distance_to(b.center()) < NATURAL_R * T:
 			edge_skips += 1
 			return true
+		for sl in p["slots"]:
+			# (crown-ai-v2: a building standing IN the wall (a slot: the slots wait for their buildings now) is part of the
+			# palisade's line, held from inside it, though its far side may lie past NATURAL_R; test_crown_owner_eco's
+			# Raptors at the natural's palisade drew the line to the main's cliff edge above a slot Barracks)
+			if sl.get("b") == b:
+				edge_skips += 1
+				return true
 	return false
 
 
@@ -304,6 +312,7 @@ func _edge_plan(home: Array, spots: Array) -> void:
 	if best == null and skipped:
 		return                  # (ai-followups: the enemy is at the walled natural: the line there meets it, not the edge)
 	var aim: Vector2 = best.center() if best != null else below[0]
+	edge_why = ("%s at %s" % [best.kind, str(best.cell)]) if best != null else ("ground at %s" % str(game.cell_of(below[0])))
 	# (claws at the ramp too: the edge only when most of them are at the building, the gate holds the rest a while)
 	var at_ramp := _armed_value(_bc * T, EDGE_RAMP * T)
 	if at_ramp > 0.0 and at_ramp > 0.5 * _armed_value(aim, 330.0):
@@ -813,6 +822,12 @@ func hold_top(army: Array, spots: Array) -> bool:
 			ai._end_defence()
 		place(home)
 		return true
+	if _wall_mode:
+		# (crown-ai-v2: the wall post's spots end with it; left on they read as a cliff-edge post (edge_live) for EDGE_KEEP s
+		# after the army left the palisade, test_crown_owner_eco's "not the cliff edge of the main" half the runs)
+		_edge_spots.clear()
+		_edge_guns.clear()
+		_edge_until = -99.0
 	_wall_mode = false
 	var foe := force_at(spots)
 	var mine := 0.0
@@ -826,7 +841,7 @@ func hold_top(army: Array, spots: Array) -> bool:
 		if game.clock - _hold_said > 30.0:
 			_hold_said = game.clock
 			holds += 1
-			_say("holds its natural's gate: the force outside (%d) is too strong to go out to with its army at home (%d); the labourers run in behind the line" % [int(foe), int(mine)])
+			_say("holds its natural's gate: the force outside (%d) is too strong to go out to with its army at home (%d), out at %d; the labourers run in behind the line" % [int(foe), int(mine), int(ceil(foe * _beat()))])
 		if not ai._det.is_empty():
 			ai._end_defence()
 		var rest_g := place(home)
@@ -849,7 +864,7 @@ func hold_top(army: Array, spots: Array) -> bool:
 	if game.clock - _hold_said > 30.0:
 		_hold_said = game.clock
 		holds += 1
-		_say("holds the top of its ramp: the force below (%d) is more than its army at home (%d) can beat; the labourers there run up" % [int(foe), int(mine)])
+		_say("holds the top of its ramp: the force below (%d) is more than its army at home (%d) can beat, down at %d; the labourers there run up" % [int(foe), int(mine), int(ceil(foe * _beat()))])
 	if not ai._det.is_empty():
 		ai._end_defence()
 	_edge_plan(home, spots)

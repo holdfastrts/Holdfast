@@ -4,6 +4,13 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.14", "items": [
+		"THE CROWN COMPUTER PLAYS WHAT WORKS IN EACH MATCHUP (its OPTIMAL plan): every Crown plan was measured against the Hard Brood and Clockwork computers on four maps. Against the Clockwork it now picks the Timing attack first (it won or led 3 of 4), sometimes the economic race or the balloons, where it used to play Balanced (won or led 2 games of 33); against the Brood it keeps the Horseman rush (the Economy plan, tried, did no better).",
+		"NO NEW BASE INTO THE ENEMY THAT JUST TOOK ONE: the Crown computer remembers where it lost a Town Hall and keeps off that ground until the enemy has gone (it used to lay the new hall in the same spot and lose it again), and with its last hall under attack it keeps its gold to rebuild.",
+		"ITS ARMY IS NO LONGER SHUT IN ITS MAIN: the computer's buildings keep the two cells in front of its own gates clear (its second Barracks could block the way to the ramp's gate, and the army stood at the cliff edge for minutes).",
+		"THE NATURAL'S PALISADE GOES UP ON TIME: once a hall's worth of labourers works, the Crown computer lays its natural's wall before more labourers (sealed about 3 to 4 minutes after the hall stands; before, mostly open long after).",
+		"WATCHING COMPUTERS: the AI STORY says why the Crown holds the top of its ramp or its natural's gate (its army goes down only with a margin over the enemy), that it lost a base and keeps off that ground, and no longer says \"its best base has only 100% left\".",
+	]},
 	{"v": "0.33.13", "items": [
 		"THE FREE ASSEMBLY IN ITS OWN COLOURS (campaign mission 1): the rebels no longer borrow the Crown's soldiers painted green. The militiaman, the pikeman, the torch-bearer and Etienne Varenne wear new drawings of their own, green and black whatever the side's colour: the militia load, aim, fire and fall; the pikemen level their pikes and lunge; the torch-bearers carry a burning torch and raise and thrust it into a barn while they set it alight; Varenne raises his fist, fires his pistol and fights with his sabre.",
 		"The torch-bearer's torch is no longer drawn over his head by the game: he holds his own.",

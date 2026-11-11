@@ -121,6 +121,10 @@ const RULES := [
 	["^'s (.+?) (?:goes|comes) home", "%s's %s comes home.", 1, "raid"],
 	["^'s (.+?) (?:keeps away|pulls back) from (.+?)(?: \\(|$)", "%s's %s keeps away from a %s.", 1, "raid"],
 	# ---- defence
+	# (crown-ai-v2: the numbers said the opposite, "the force below (484) is more than its army (820) can beat", 205 lines in the
+	# QA study: the army goes down only with an edge over the force, AICrownHold._beat; the line says so)
+	["^holds the top of its ramp: the force below \\((\\d+)\\) is more than its army at home \\((\\d+)\\) can beat, down at (\\d+)", "%s holds the top of its ramp: against the force below (%s) its army (%s) goes down only at %s.", 2, "defend"],
+	["^holds its natural's gate: the force outside \\((\\d+)\\) is too strong to go out to with its army at home \\((\\d+)\\), out at (\\d+)", "%s holds the gate of its walled natural: against the force outside (%s) its army (%s) goes out only at %s.", 2, "defend"],
 	["^holds the top of its ramp: the force below \\((\\d+)\\) is more than its army at home \\((\\d+)\\)", "%s holds the top of its ramp: the force below (%s) is more than its army (%s) can beat.", 2, "defend"],
 	["^holds its natural's gate: the force outside \\((\\d+)\\) is too strong to go out to with its army at home \\((\\d+)\\)", "%s holds the gate of its walled natural: the force outside (%s) is too strong to go out and meet with its army (%s).", 2, "defend"],
 	["^posts its army at its natural's gate: (\\d+) musket spots behind the palisade, (\\d+) guns", "%s posts its army down at its natural's gate: room for %s Musketeers behind the palisade and %s guns behind them.", 2, "defend"],
@@ -143,6 +147,9 @@ const RULES := [
 	["^lays (\\d+) wall pieces at its new hall", "%s walls in its new hall: %s pieces.", 1, "wall"],
 	["^(?:closes an empty wall slot|plans palisade for an empty wall slot|found no wall plan|has no Cottage wall plan|sends a Labourer back)", "", 1, "wall"],
 	# ---- the economy and expansions
+	# (crown-ai-v2: "its best base has ONLY 92-100% left" was no reason, 482 lines in the QA study: a rich base expands early)
+	["^is expanding to fresh (\\w+) \\(left at its best hall: (?:[6-9]\\d|1\\d\\d)%\\), (\\d+) tiles", "%s expands while its base is still rich: more %s, %s tiles out.", 3, "expand"],
+	["^lost a Town Hall", "%s lost a base: it keeps off that ground until it is clear of enemies.", 2, "expand"],
 	["^is expanding to fresh (\\w+) \\(left at its best hall: (\\d+)%\\), (\\d+) tiles", "%s expands to fresh %s: its best base has only %s%% left, so it goes %s tiles out.", 3, "expand"],
 	["^'s economy is saturated on (\\d+) halls?", "%s's economy is full on %s bases: it needs a new one to grow.", 2, "expand"],
 	["^holds its expansion: (?:a|the) swarm", "%s puts its expansion off: it must answer the swarm first.", 2, "expand"],

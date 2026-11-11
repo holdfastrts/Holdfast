@@ -343,6 +343,14 @@ es %s: el %s se mantiene lejos de un %s.
 
 # ---- defence
 
+> %s holds the top of its ramp: against the force below (%s) its army (%s) goes down only at %s.
+pt %s segura o alto da sua rampa: contra a força lá embaixo (%s) o seu exército (%s) só desce com %s.
+es %s mantiene lo alto de su rampa: contra la fuerza de abajo (%s) su ejército (%s) solo baja con %s.
+
+> %s holds the gate of its walled natural: against the force outside (%s) its army (%s) goes out only at %s.
+pt %s segura o portão da sua natural murada: contra a força lá fora (%s) o seu exército (%s) só sai com %s.
+es %s mantiene la puerta de su natural amurallada: contra la fuerza de fuera (%s) su ejército (%s) solo sale con %s.
+
 > %s holds the top of its ramp: the force below (%s) is more than its army (%s) can beat.
 pt %s segura o alto da rampa: a força lá embaixo (%s) é mais do que o seu exército (%s) pode vencer.
 es %s defiende lo alto de su rampa: la fuerza de abajo (%s) es más de lo que su ejército (%s) puede vencer.
@@ -422,6 +430,14 @@ pt %s mura a sua nova base: %s peças.
 es %s amuralla su nueva base: %s piezas.
 
 # ---- the economy and expansions
+
+> %s expands while its base is still rich: more %s, %s tiles out.
+pt %s expande enquanto a sua base ainda é rica: mais %s, a %s casas de distância.
+es %s se expande mientras su base aún es rica: más %s, a %s casillas.
+
+> %s lost a base: it keeps off that ground until it is clear of enemies.
+pt %s perdeu uma base: fica longe daquele terreno até ele estar livre de inimigos.
+es %s perdió una base: se mantiene lejos de ese terreno hasta que esté libre de enemigos.
 
 > %s expands to fresh %s: its best base has only %s%% left, so it goes %s tiles out.
 pt %s expande para uma nova área de %s: a sua melhor base só tem %s%% sobrando, então vai a %s casas de distância.

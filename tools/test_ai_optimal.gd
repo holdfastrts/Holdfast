@@ -103,11 +103,12 @@ func _run() -> void:
 	var pk: Array = ai.opt.picks[0] if not (ai.opt.picks as Array).is_empty() else [0.0, "", "", "", ""]
 	print("   Crown OPTIMAL v a greedy Clockwork: %s" % str(pk))
 	check(String(pk[2]) == "GREEDY", "the Crown reads the greedy Clockwork as GREEDY (%s)" % pk[2])
-	check(String(pk[3]) in ["rush", "balanced"] and float(pk[0]) <= 150.0, "it punishes it in time: %s at %d s" % [pk[3], int(pk[0])])
+	check(String(pk[3]) in ["rush", "timing", "economy", "balloon"] and float(pk[0]) <= 150.0, "it answers it in time (the riders, the Timing attack, the Economy race or the balloons, crown-ai-v2): %s at %d s" % [pk[3], int(pk[0])])
 	check(ai.strategy == String(pk[3]), "the picked build plays (strategy %s)" % ai.strategy)
 	await _until(g.clock + 60.0)
-	var built := ai._mine("horse_breeder").size() if ai.strategy == "rush" else ai._mine("barracks").size()
-	check(built > 0, "its build is under way a minute later (%s: %d)" % ["Horse Breeder" if ai.strategy == "rush" else "Barracks", built])
+	var what: String = {"rush": "horse_breeder", "balloon": "foundry", "timing": "powder_mill"}.get(ai.strategy, "")
+	var built := ai._mine(what).size() if what != "" else g.halls_of(0, false).size() - 1
+	check(built > 0, "its build is under way a minute later (%s: %d)" % [what if what != "" else "second hall", built])
 	check(_log_has("reads GREEDY") and _log_has("picks"), "the read and the pick are in the match log")
 	await _stop()
 
@@ -191,15 +192,21 @@ func _run() -> void:
 	await _stop()
 	await _start("crown", "optimal", "clockwork")
 	var vs_brood := 0
+	var vs_brood_eco := 0
 	var late_ok := 0
 	for i in 300:
 		var c2: Array = ai.opt._punish("brood", 60.0 + float(i % 10) * 10.0)
 		if not c2.is_empty() and String(c2[0]) == "rush":
 			vs_brood += 1
+		elif not c2.is_empty() and String(c2[0]) == "economy":
+			vs_brood_eco += 1
 		var c3: Array = ai.opt._punish("brood", AIOptimal.BREEDER_BY + 5.0 + float(i % 10) * 20.0)
 		if not c3.is_empty() and String(c3[0]) == "economy":
 			late_ok += 1
-	check(vs_brood == 300, "against a greedy Brood read by 2:30 it is the Horse Breeder and the riders (%d of 300; the owner, 2026-11-06)" % vs_brood)
+	# (crown-ai-v2: AIOptimal.RIDERS_V_BROOD of them are the riders, 1.0 = every one: the owner's rule, 2026-11-06; the rest
+	# would out-expand it with the Economy plan (measured no better, docs/crown_ai_v2.md); never anything else)
+	var want := int(round(300.0 * AIOptimal.RIDERS_V_BROOD))
+	check(absi(vs_brood - want) <= 45 and vs_brood + vs_brood_eco == 300, "against a greedy Brood read by 2:30: the Horse Breeder and the riders %d of 300 (about %d), the Economy race the rest (%d)" % [vs_brood, want, vs_brood_eco])
 	check(late_ok == 300, "read too late for the riders, it out-expands, never the slow Siege push (%d of 300)" % late_ok)
 	var leans_b := 0
 	for i in 200:
@@ -213,6 +220,7 @@ func _run() -> void:
 	# the second Farm; no Powder Mill before the read; labourers never stop; a greedy Brood -> the Horse Breeder at once
 	await _start("crown", "optimal", "brood", "economy", true)     # (the Brood's own Economy computer: a real greed)
 	ai.opt._rng.seed = 7
+	ai.opt.riders_v_brood = 1.0        # (crown-ai-v2: the riders are one of its two answers now; this case plays them)
 	if ai.strategy != "optimal":
 		ai.strategy = "optimal"           # (no lean before the scout for this case: the read decides)
 		ai.opt.current = "optimal"

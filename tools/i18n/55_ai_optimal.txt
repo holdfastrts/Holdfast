@@ -289,3 +289,12 @@ es Los jinetes de %s ya salieron: levanta su segunda base justo detrás de la in
 > too late for the riders: out-expand it
 pt tarde demais para os cavaleiros: expandir mais que ele
 es demasiado tarde para los jinetes: expandirse más que él
+
+# crown-ai-v2 (docs/crown_ai_v2.md): the Crown's cross picks
+> out-expand it
+pt expandir mais que ele
+es expandirse más que él
+
+> out-expand it: its early ground is its usual opening
+pt expandir mais que ele: o seu terreno cedo é a sua abertura de costume
+es expandirse más que él: su terreno temprano es su apertura habitual

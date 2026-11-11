@@ -123,7 +123,11 @@ func _run(p: Dictionary) -> void:
 	var hall: Building = p["hall"]
 	if hall.built and float(p["built_t"]) < 0.0:
 		p["built_t"] = game.clock
-	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > (BROOD_SLOT_WAIT if brood_walls() else SLOT_WAIT)
+	# (crown-ai-v2: on the owner's plans the wall comes first (AICrown.wall_first) and its palisade closes the rest fast, so the empty
+	# slots wait SLOT_WAIT for the Cottage or the production building that is due: at 25 s every slot was palisade before
+	# the next Cottage came, and no building stood in the wall, test_ai_expand_wall)
+	var wait: float = SLOT_WAIT if not brood_walls() or (ai.has_method("wall_first") and ai.wall_first_on and ai.owner_on()) else BROOD_SLOT_WAIT
+	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > wait
 	for s in p["slots"]:
 		if s["closed"]:
 			continue
@@ -164,6 +168,10 @@ func _slot_kind(s: Dictionary) -> String:
 
 func _fill_slot(p: Dictionary, s: Dictionary) -> void:
 	var kind := _slot_kind(s)
+	if kind != "cottage" and ai.has_method("wall_first") and ai.wall_first():
+		return          # (crown-ai-v2: while the wall comes first a slot takes the Cottage the supply needs, or the production
+		                # building its own milestone lays there (AI._find_spot asks slot_for); a Church bought for a slot at 4:30
+		                # took the palisade's gold, test_ai_expand_wall Ashford Crossing)
 	if ai._busy_building(kind) or not game.requirement_met(ai.team, kind):
 		return
 	var spare: int = ai._gold() - int(Defs.BUILDINGS[kind]["cost"]) - (ai._hall_keep() if ai._keeping() else 0)
@@ -231,11 +239,22 @@ func _lay_pieces(p: Dictionary) -> void:
 			keep += int(ai.brood_wall_keep())
 		# (the labourers first: a hall that could train one and is not gets its gold before the wall; with the wall laid
 		# at once the Economy plan had 19-20 labourers at 6:00 instead of 27, test_crown_build_order)
-		if game.workers(ai.team).size() < ai._posts() and not (ai.has_method("owner_on") and ai.owner_on() and closed_share(p) < CLOSED_SHARE):
+		# (crown-ai-v2: on the owner's plans the ring goes before the labourers only once AICrown.wall_first says its time has
+		# come (one hall's labourers, or 100 s after the hall stood): before that the next labourer's gold is kept, as his own
+		# ring waited for his 26th labourer; test_crown_owner_eco's 22 labourers at 4:00)
+		if game.workers(ai.team).size() < ai._posts() and not (ai.has_method("owner_on") and ai.owner_on() and closed_share(p) < CLOSED_SHARE \
+				and (not ai.has_method("wall_first") or ai.wall_first())):
 			# (crown-owner-eco: the owner's ring before the next labourers: his palisade went down 3:49-5:42 in bursts)
 			for h in game.halls_of(ai.team, true):
 				if h.built and (h.queue as Array).is_empty():
 					keep += 50
+	var wall_first: bool = ai.has_method("wall_first") and ai.wall_first()
+	if wall_first:
+		# (crown-ai-v2, THE NATURAL'S WALL ON TIME, AICrown.wall_first: nothing more urgent stands, so the wall is laid from
+		# any gold over the opening's step (already out of reach in this think) and the hall's first Farm; the labourers
+		# wait for it. With a Musketeer's gold, the milestone's and the labourers' kept it got 10-33% shut 180 s after the hall
+		# stood, test_ai_expand_wall)
+		keep = ai._first_econ_cost() if _farm_first() else 0
 	var foe: Vector2 = p["foe"]
 	todo.sort_custom(func(a, b) -> bool: return Vector2(a[1]).distance_to(foe) < Vector2(b[1]).distance_to(foe))
 	# gates first (the way out), then the cells nearest the enemy
@@ -250,7 +269,10 @@ func _lay_pieces(p: Dictionary) -> void:
 		var nb: Building = game.place_building(ai.team, e[0], e[1], [])
 		if nb != null:
 			made.append(nb)
-	p["next_lay"] = game.clock + (BROOD_LAY if bw else (DOCTRINE_LAY if ai.doctrine() else 3.0))      # (DOCTRINE: slowly, a few pieces at a time)
+	var gap: float = BROOD_LAY if bw else (DOCTRINE_LAY if ai.doctrine() else 3.0)      # (DOCTRINE: slowly, a few pieces at a time)
+	if wall_first:
+		gap = WALL_FIRST_LAY     # (crown-ai-v2: a look every second, or the labourers trained between two looks took the gold)
+	p["next_lay"] = game.clock + gap
 	if made.is_empty():
 		return
 	var at: Vector2 = (made[0] as Building).center()
@@ -336,6 +358,7 @@ const BROOD_BATCH := 8
 const BROOD_SLOT_WAIT := 25.0   # (s) an empty slot is closed with palisade this soon after the hall stands (a slot left open was
                                 # the Raptors' way in, coached game a_rr_eco_eco 8:23)
 const BROOD_LAY := 4.0
+const WALL_FIRST_LAY := 1.0     # (crown-ai-v2) s between looks while the wall comes first (AICrown.wall_first)
 var brood_on := not OS.get_cmdline_user_args().has("xwbrood:off")
 
 

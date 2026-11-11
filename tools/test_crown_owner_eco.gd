@@ -195,6 +195,8 @@ func _wall_check() -> void:
 		if ch.wall_live():
 			wall_seen = true
 		elif ch.edge_live():
+			if not edge_seen:
+				print("   the cliff edge for: %s" % ch.edge_why)
 			edge_seen = true
 		var musk: Array = g.army(0).filter(func(u: Unit) -> bool: return u.kind in ["musketeer", "musketeer_armoured"] and not u.dead)
 		if musk.is_empty():

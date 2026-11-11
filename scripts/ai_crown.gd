@@ -453,7 +453,62 @@ func bo_owns() -> bool:
 func _base_trains_labs() -> bool:
 	if bo_owns():
 		return false
+	if wall_throttle() and _labs_queued() > 0 and _gold() < LAB_COST + WALL_LAB_KEEP:
+		return false
 	return not _army_due()
+
+
+func _labs_queued() -> int:
+	var n := 0
+	for h in _halls():
+		n += h.queue.count(_f()["worker"])
+	return n
+
+
+## THE NATURAL'S WALL ON TIME (crown-ai-v2, docs/crown_ai_v2.md; the QA tests' items 4 and 13: 10-28% of the natural's
+## ways in shut 180 s after its hall stood, the ring not closed by 6:30): the palisade was planned at once and then lost
+## every coin to the next labourer (gold 0-30 from 4:00 to 7:30 while the labourers went 14 -> 34). The owner's own game
+## slowed his labourers while he laid his ring (26 at 4:00, 30 at 5:00, 32 at 6:00, the ring 3:49-5:42). So while a
+## walled hall's plan has pieces to lay (AIExpandWall.keep: after the hall's first Farm, the owner's plans' wall time)
+## and nothing more urgent stands (a rush defended, the army far behind), ONE labourer at a time is trained (a second
+## only from gold over WALL_LAB_KEEP), and the wall's next pieces' gold is kept from the soldiers and the steps: the
+## wall's batches (AIExpandWall._lay_pieces, laid first in the think) get the rest. (Every labourer held for the wall
+## left 18 at 4:00 instead of 22+, test_crown_owner_eco.) Switch: `-- wallfirst:off`.
+const WALL_LAB_KEEP := 60
+var wall_first_on := not OS.get_cmdline_user_args().has("wallfirst:off")
+
+
+func wall_first() -> bool:
+	if not on or not wall_first_on or difficulty < 1 or xw == null or not xw.active() or not owner_on():
+		return false
+	if _defending() or army_lags():
+		return false
+	if game.workers(team).size() < WALL_FIRST_LABS and not _wall_hall_waited():
+		return false            # (the labourers' ramp first, as the owner's: 26 at 4:00, then his ring)
+	return xw.keep() > 0
+
+
+## (crown-ai-v2) one hall's labourers: the owner's ring went down after his 26th labourer (3:49); a natural laid early (1:35
+## in test_crown_owner_eco) waits for them or for WALL_FIRST_WAIT s after it stood. The labourers are slowed to one at a
+## time only past WALL_FIRST_LABS (wall_throttle): before that the wall's gold is only kept from the soldiers and the steps
+## (21 labourers at 4:00 instead of 22+ when they were slowed from the wait on, test_crown_owner_eco)
+const WALL_FIRST_LABS := 22
+const WALL_FIRST_WAIT := 100.0
+
+
+func wall_throttle() -> bool:
+	return game.workers(team).size() >= WALL_FIRST_LABS and wall_first()
+
+
+func _wall_hall_waited() -> bool:
+	for id in xw.plans:
+		var p: Dictionary = xw.plans[id]
+		if not p.get("ok", false):
+			continue
+		var bt := float(p.get("built_t", -1.0))
+		if bt >= 0.0 and game.clock - bt >= WALL_FIRST_WAIT:
+			return true
+	return false
 
 
 ## (the doctrine's economy-first keeps a labourer's gold from the soldiers; not while the soldiers are due)
@@ -506,6 +561,7 @@ func _think_stage(i: int) -> void:
 	if i == 1:
 		_owner_tick()           # (crown-owner-eco: the layout, the new hall's Farm, the wagons)
 		_finish_sites()
+		_lost_halls_crown()     # (crown-ai-v2: a hall lost is remembered, its ground waits)
 	if i == 1 and not cannon_first:
 		_cannon_check()         # (CANNONS AGAINST THE BROOD, below)
 	if not bo_owns():
@@ -522,6 +578,13 @@ func _think_stage(i: int) -> void:
 	# THE PLAN OWNS THE GOLD: the next step's price is out of reach of everything else this stage
 	var held: int = clampi(bo_reserve, 0, int(game.players[team]["gold"]))
 	game.players[team]["gold"] -= held
+	# (crown-ai-v2, THE NATURAL'S WALL ON TIME: the gold for its next pieces is out of reach of the steps, the soldiers and
+	# the research too, as AI._hide_kept does after the opening; laid in stage 0 by xw.tick. Its Gate (50) never came out of
+	# the 20-30 gold the other stages left, Cinder Steps)
+	var wall_hold := 0
+	if i != 0 and wall_first():
+		wall_hold = clampi(xw.keep(), 0, int(game.players[team]["gold"]))
+		game.players[team]["gold"] -= wall_hold
 	match i:
 		0:
 			xw.tick()
@@ -566,7 +629,7 @@ func _think_stage(i: int) -> void:
 				_micro()
 			_gg_tick()
 			_lap("ai/micro", pt)
-	game.players[team]["gold"] += held
+	game.players[team]["gold"] += held + wall_hold
 
 
 var _research_off := false
@@ -588,11 +651,12 @@ func _bo_labs() -> void:
 	var free := _gold() - bo_reserve
 	if _soldiers_first():
 		return
+	var wall_keep := WALL_LAB_KEEP if wall_throttle() else 0
 	var top := mini(bo_lab_cap, owner_lab_cap())      # (the owner's plans: never past the halls' saturation)
 	for h in _halls():
-		if not h.built or labs + queued >= top or free < LAB_COST:
-			continue
-		if h.queue.size() >= (2 if free >= 3 * LAB_COST else 1):
+		if not h.built or labs + queued >= top or free < LAB_COST + (wall_keep if queued > 0 else 0):
+			continue      # (crown-ai-v2: while the natural's palisade comes first, one labourer at a time, above)
+		if h.queue.size() >= (2 if free >= 3 * LAB_COST + wall_keep else 1):
 			continue
 		if game.train(h, _f()["worker"]) == "":
 			queued += 1
@@ -1242,9 +1306,99 @@ var _cs_steps: Array = []
 var site_picks := 0             # (tests, the coach) halls placed by the Crown's rule
 
 
+## NO HALL INTO THE ENEMY THAT JUST TOOK ONE (crown-ai-v2, docs/crown_ai_v2.md; the QA study's item 3: the beaten Crown
+## laid a new hall on the spot it had just lost while the enemy was still there, seven times, and lost the site too:
+## Amberfall Vale built hall lost 11:25, new sites lost 12:55 and 13:40; 60 hall sites lost in 152 games). Design rule 2
+## (anti-snowball: a lost base must not become a lost game): every hall of ours that disappears (built, or a site razed)
+## is noted (AI.note_lost_site: its spot waits LOST_HALL_WAIT s and the ground round it counts as the enemy's); the
+## Crown's own pick leaves anything within LOST_NEAR tiles of it while it waits, and after that only takes it with no
+## enemy soldier in sight there. And it keeps the gold to REBUILD ONCE: with one hall left and that hall in danger (a fight
+## at it), no new expansion is laid: the gold stays for the main if it falls. Switch: `-- lostwait:off`.
+var lost_wait_on := not OS.get_cmdline_user_args().has("lostwait:off")
+var _hall_ids := {}             # instance id -> [cell, built] of every hall of ours (built or a site) last think
+var lost_halls := 0             # (tests, the study) halls of ours lost (built or sites)
+
+
+func _lost_halls_crown() -> void:
+	if not on or not lost_wait_on:
+		return
+	var now := {}
+	for h in game.halls_of(team, false):
+		now[h.get_instance_id()] = [h.cell, h.built]
+	for id in _hall_ids:
+		if now.has(id):
+			continue
+		var b = instance_from_id(id)
+		if b != null and is_instance_valid(b) and not (b as Building).dead:
+			continue
+		var c: Vector2i = _hall_ids[id][0]
+		if bool(_hall_ids[id][1]) or _site_was_hit(c):
+			note_lost_site(c)
+			lost_halls += 1
+			_last_lost_t = game.clock
+			if game.mlog:
+				game.mlog.add("%s lost a Town Hall%s at %s: that ground waits %d s and then only with no enemy there" % [
+					game.mlog.who(team), "" if bool(_hall_ids[id][1]) else " (unfinished)", str(c), int(LOST_HALL_WAIT)])
+	_hall_ids = now
+
+
+## An unfinished hall that vanished: razed by the enemy, or given up because raiders chased its builders off (both say
+## the enemy holds that ground: Frostmere, a site given up at 9:50 was laid again and lost at 13:35); only a site dropped
+## because the ground stayed blocked (AI.site_failed "blocked") is no loss.
+func _site_was_hit(c: Vector2i) -> bool:
+	return not (_bad_sites.has(c) and float((_bad_sites[c] as Array)[1]) > game.clock)
+
+
+## A hall spot by ground we lost lately: no until the wait is over (LOST_HALL_WAIT), then only with no enemy soldier seen
+## near it (LOST_NEAR tiles).
+func lost_ground(c: Vector2i) -> bool:
+	if not lost_wait_on:
+		return false
+	var cc := Vector2(c) + Vector2(MapGen.HALL) * 0.5
+	for l in _lost_spots:
+		if cc.distance_to(Vector2(l) + Vector2(MapGen.HALL) * 0.5) < LOST_NEAR:
+			if float(_lost_spots[l]) > game.clock:
+				return true
+	return false
+
+
+## An armed enemy soldier in sight within 14 tiles of a hall spot (the Crown's own pick checks this too).
+func _foe_at_site(c: Vector2i) -> bool:
+	var cc := (Vector2(c) + Vector2(MapGen.HALL) * 0.5) * float(Defs.TILE)
+	for u in game.units_near(cc, 14.0 * Defs.TILE):
+		if game.hostile(u.team, team) and not u.dead and not u.is_worker() and u.has_attack() and game.is_visible_to(team, u.position):
+			return true
+	return false
+
+
+## THE ARMY BEFORE THE NEXT HALL AFTER A LOSS: a hall lost lately (LOST_HALL_WAIT) while the army is far behind the
+## enemy's it reckons (under LAG_SHARE of foe_reckon, the Brood's foe_estimate): no new hall, the gold goes to the army (Frostmere v the Clockwork: after
+## its natural fell at 8:50 the Crown laid four more sites on four spots in five minutes and lost every one).
+var _last_lost_t := -999.0
+
+
+func _beaten_back() -> bool:
+	if game.clock - _last_lost_t > LOST_HALL_WAIT or game.halls_of(team, false).is_empty():
+		return false
+	var est: float = foe_estimate() if _foe_is("brood") else foe_reckon()
+	return est > 0.0 and float(game.army_value(team)) < est * LAG_SHARE
+
+
+## REBUILD ONCE: one hall left and a fight at it: no new expansion while it lasts.
+func rebuild_keep() -> bool:
+	if not lost_wait_on or lost_halls == 0:
+		return false
+	var hs := game.halls_of(team, false)
+	if hs.size() != 1:
+		return false
+	return _foe_at_site((hs[0] as Building).cell)
+
+
 func _safe_hall_spot() -> Vector2i:
 	if not owner_hall_ok():
 		return Vector2i(-1, -1)     # (crown-owner-eco: the shared bank's hall waits too)
+	if on and rebuild_keep():
+		return Vector2i(-1, -1)     # (crown-ai-v2: the last hall is in a fight: its gold stays to rebuild once)
 	if not on or not sites_on or difficulty < 1 or not doctrine():
 		return super()
 	var mids: Array = []
@@ -1263,6 +1417,8 @@ func _safe_hall_spot() -> Vector2i:
 			return false
 		if r6_sites and _enemy_side(c):
 			return false
+		if lost_ground(c):
+			return false        # (crown-ai-v2: ground where a hall of ours was just lost)
 		var cc := (Vector2(c) + Vector2(MapGen.HALL) * 0.5) * float(Defs.TILE)
 		for u in game.units_near(cc, 14.0 * Defs.TILE):
 			if game.hostile(u.team, team) and not u.dead and not u.is_worker() and u.has_attack() and game.is_visible_to(team, u.position):
@@ -1446,7 +1602,16 @@ func _construct(kind: String, at := Vector2i(-1, -1)) -> void:
 		foundry_swaps += 1
 		super("foundry")
 		return
+	if on and lost_wait_on and kind == String(_f()["hall"]) and at.x >= 0 and (lost_ground(at) or rebuild_keep() or _foe_at_site(at) or _beaten_back()):
+		# (crown-ai-v2: every hall path comes here, the shared ones too (_more_halls' ground round a hall, the natural's
+		# spot): not on ground where a hall was just lost, nor while the last hall is in a fight. The Border March game
+		# laid its hall site twice more on the spot it lost at 13:25, through _more_halls' find_spot)
+		lost_refused += 1
+		return
 	super(kind, at)
+
+
+var lost_refused := 0           # (tests, the study) hall sites refused on lost ground
 
 
 ## A PRODUCTION OR ECONOMY SITE NOBODY IS COMING TO (Game.sweep_ghosts asks): its builder was pulled off (the owner's Red
@@ -2047,7 +2212,10 @@ func _threat_prod(labs: int, halls: int, army: int) -> bool:
 
 ## Gold the Brood walls (AIExpandWall.brood_walls) leave alone: the first Field Cannon's while it is awaited, the opening's.
 func brood_wall_keep() -> int:
-	var k := bo_reserve if bo_owns() else 0
+	# (crown-ai-v2: not the opening's step gold: the wall is laid in the opening's think stage 0, where that gold is out of
+	# reach already (_think_stage `held`); counted twice it kept 60 + twice a hall's 400 from every piece, so the natural's
+	# palisade waited for the opening to end: 10-28% shut 180 s after the hall stood, test_ai_expand_wall)
+	var k := 0
 	if cannon_first and _gun_waiting():
 		k += int(Defs.UNITS["cannon"]["cost"])
 	return k
