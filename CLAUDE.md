@@ -41,6 +41,10 @@
   qa-tests 0.33.11, qa-matches and brood-nerf-study (data/tools). OWNER DECISIONS WAITING: the cannon/mortar double
   building bonus on a right-click (qa_content item 3); ATTACK on unarmed cards; the Clockwork's harass and Great Winder
   sweep under ONE ARMY; draws (dead sides should lose, winners hunt); the P1 start-spot edge (44-25).
+  OWNER 2026-11-11 04:55 "ok do it" (Claude's picks, say so if wrong): the bonus applied ONCE but RAISED to keep today's
+  siege punch; ATTACK hidden on unarmed cards; a side with no workers/army/means for 60 s is BEATEN and the winner hunts;
+  ONE ARMY gets exceptions (harass groups, the Great Winder sweeps). JOBS: rules-fixes, crown-ai-v2, clockwork-ai-v2,
+  start-spots (study only).
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
