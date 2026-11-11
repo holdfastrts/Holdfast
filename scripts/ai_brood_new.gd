@@ -2885,6 +2885,7 @@ func _nb_army(q: Unit) -> void:
 			_wave.append(f)
 	for u in _wave:
 		u.cmd_move(goal, true)
+	_nb_close_start(first_rush)
 	say("attacks with %d supply (%s)" % [_wave_sup, _kinds_of(_wave)])
 	if bb != null:
 		bb.started(q, _wave, goal)          # (the written build's push: its march, its siege)
@@ -2925,6 +2926,10 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 			_nb_join_fresh(army)
 			_nb_hold_rest(army)
 			return
+	if _closing and _nb_close_ranks():
+		_nb_join_fresh(army)
+		_nb_hold_rest(army)
+		return
 	# THE HUNT (brood-ai-tune): packs sweep for a building it has not seen; once anything of the enemy is seen again the
 	# wave gathers on it
 	if _nb_hunting:
@@ -2978,6 +2983,71 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 	_nb_hold_rest(army)
 
 
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 1) THE PACK MARCHES TOGETHER (against the Clockwork,
+## the plans without a written build, not a rush's first wave): every unit went at the goal on its own attack-move, the
+## Raptors far ahead of the Spitters and of the ones from the far side of the base, and they reached the Clockwork's army a
+## few at a time in a long column (Greenhold 11 at 7:36 and 7:00 with the sides swapped: 1,025 and 1,000 of wave against
+## 1,235 and 1,120 at home, 775 and 775 lost). Now until CONTACT (an armed enemy or an enemy building in sight within
+## CLOSE_SEE tiles of the leaders, or the leaders within CLOSE_GOAL tiles of the goal, or CLOSE_MAX s) the ones more than
+## CLOSE_GAP tiles ahead of the pack's bulk (its 70th percentile on the way) wait on HOLD for it. At contact all go in
+## together. `-- nbpack:off` plays it as before.
+const CLOSE_SEE := 12.0
+const CLOSE_GOAL := 14.0
+const CLOSE_GAP := 5.0
+const CLOSE_MAX := 75.0
+var close_on := not OS.get_cmdline_user_args().has("nbpack:off")
+var _closing := false
+var closes := 0
+
+
+func _nb_close_start(first_rush: bool) -> void:
+	_closing = close_on and _foe_is("clockwork") and bb == null and not first_rush and _wave.size() >= 6
+
+
+func _nb_close_ranks() -> bool:
+	if _wave.size() < 2 or game.clock - _wave_t0 > CLOSE_MAX:
+		return _nb_close_release("")
+	var ds: Array = []
+	var lead: Unit = null
+	var ld := INF
+	for u in _wave:
+		var d := (u as Unit).position.distance_to(_wave_target)
+		ds.append(d)
+		if d < ld:
+			ld = d
+			lead = u
+	ds.sort()
+	if ld < CLOSE_GOAL * Defs.TILE:
+		return _nb_close_release("")
+	for o in game.units_near(lead.position, CLOSE_SEE * Defs.TILE):
+		if game.hostile(o.team, team) and not o.dead and not o.off_field and o.has_attack() and not o.is_worker() and game.is_visible_to(team, o.position):
+			return _nb_close_release("meets the enemy")
+	if _foe_bld_near(lead.position, CLOSE_SEE * Defs.TILE):
+		return _nb_close_release("reaches the enemy's buildings")
+	var bulk: float = ds[mini(ds.size() - 1, int(ds.size() * 0.7))]
+	for u in _wave:
+		var cu := u as Unit
+		var d := cu.position.distance_to(_wave_target)
+		if d < bulk - CLOSE_GAP * Defs.TILE:
+			if cu.order != "hold":
+				cu.cmd_hold()
+		elif cu.order == "hold" or (cu.order == "idle" and cu.target == null):
+			cu.cmd_move(_wave_target, true)
+	return true
+
+
+func _nb_close_release(why: String) -> bool:
+	_closing = false
+	closes += 1
+	for u in _wave:
+		var cu := u as Unit
+		if cu.order == "hold" or (cu.order == "idle" and cu.target == null):
+			cu.cmd_move(_wave_target, true)
+	if why != "":
+		say("its pack %s: all go in together (%d supply)" % [why, _wave_sup])
+	return false
+
+
 ## Reinforcements: a group gathered at home (6 supply or more) joins the wave out.
 func _nb_join_fresh(army: Array) -> void:
 	var home := _rally
@@ -2995,6 +3065,7 @@ func _nb_join_fresh(army: Array) -> void:
 ## The wave is over (pulled back or called home): back to the staging point; a lost wave makes the next bigger and
 ## gives it time to build (a failed rush becomes a Balanced game).
 func _wave_end_nb(q: Unit, failed: bool) -> void:
+	_closing = false
 	if bb != null:
 		bb.ended("failed" if failed else "home")
 	_attacking = false

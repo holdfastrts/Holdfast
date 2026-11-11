@@ -868,6 +868,8 @@ func _should_retreat() -> bool:
 	if now < value_in * (1.0 - LOST_SHARE) and now < fv * RETREAT_K:
 		_retreat("worth %d against %d near it, %d of %d lost" % [int(now), int(fv), int(value_in - now), int(value_in)])
 		return true
+	if _brood_raid_home():
+		return true
 	# a big attack on the base while it is far out: home to meet it
 	var th: Vector2 = ai._threat()
 	if th != Vector2.INF and ai._home_dist(_front_centre()) > 1200.0:
@@ -884,6 +886,38 @@ func _should_retreat() -> bool:
 				_retreat("its %s at %s is about to fall" % [String(b.d["name"]), _where(b.center())])
 				return true
 	return false
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 1) THE BASE TRADE: against the Brood, Raptors that go
+## round the push into the base kill the Winders by the dozen. The rule above compares the raid with AI._guard_value(),
+## which is the WHOLE army, the push included, so a raid had to be worth 1.5 times the push to call it home. (Dune Sea 23,
+## 9:07-10:41: raids of 549 and 805 at the base while the push of 2,030 walked on; the Clockwork went from 27 Winders to 6
+## and lost its main, then the game.) Here the guard is what stands at home (armed, not the push's), and a raid worth
+## RAID_HOME or more that the guard does not match, while the push is far out, calls it home. `-- cvbhome:off` as before.
+const RAID_HOME := 300.0
+var raid_home_on := not OS.get_cmdline_user_args().has("cvbhome:off")
+
+
+func _brood_raid_home() -> bool:
+	if not raid_home_on or not _vs_brood():
+		return false
+	var th: Vector2 = ai._threat()
+	if th == Vector2.INF or ai._home_dist(_front_centre()) < 1000.0:
+		return false
+	var at_home := _foes_near(th, 450.0)
+	var v := _value(at_home)
+	if v < RAID_HOME:
+		return false
+	var guard := 0.0
+	for u in game.army(team):
+		if u.dead or units.has(u) or joining.has(u) or not ai._armed(u) or u.powered_down():
+			continue
+		if u.position.distance_to(th) < 700.0:
+			guard += ai._unit_value(u)
+	if guard >= v:
+		return false
+	_retreat("Brood raiders in the base (%d value at %s, %d at home to meet them)" % [int(v), _where(th), int(guard)])
+	return true
 
 
 func _retreat(why: String) -> void:

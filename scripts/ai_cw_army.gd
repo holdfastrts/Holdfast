@@ -171,6 +171,8 @@ func may_launch(list: Array) -> bool:
 	var rk := reckon()
 	var edge := EDGE_PLAN if ai.plan.has("push") else EDGE
 	_note_retreat()
+	if _counter_ok(mine):
+		return true
 	if _fail_v > 0.0 and mine < _fail_v * AFTER_FAIL:
 		stats["waits"] = int(stats["waits"]) + 1
 		say("holds at its gathering point: its last push (%d) had to pull back; the next goes worth %d (it has %d)" % [int(_fail_v), int(_fail_v * AFTER_FAIL), int(mine)], "fail", 45.0)
@@ -184,6 +186,53 @@ func may_launch(list: Array) -> bool:
 		say("waits for a fresh scout report before it goes (worth %d, the enemy army it reckons %d)" % [int(mine), int(rk)], "fresh", 45.0)
 		return false
 	say("goes out: worth %d against the %d it reckons (a report %d s old)" % [int(mine), int(rk), int(game.clock - maxf(_seen_t, _base_t))])
+	return true
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 1) THE COUNTER-PUSH: against the Brood, a wave HELD at
+## home is the moment to go. When the whole army's defence of the base has killed COUNTER_KILL or more and the base is calm
+## again, for COUNTER_T s the push may go out worth COUNTER_K times the enemy army it has seen lately (alive), at least
+## COUNTER_MIN, whatever the last failed push or the reckoning's table say (the table does not know the wave just died).
+## (Greenhold 11, 12:45: the Brood's wave of 2,570 pulled back with 620 left; the Clockwork held at its gathering point
+## with 2,595 for two minutes, "its last push (2800) had to pull back; the next goes worth 3500", while the Brood rebuilt
+## to 3,785.) `-- cvbcounter:off` plays it as before.
+const COUNTER_KILL := 600.0
+const COUNTER_T := 75.0
+const COUNTER_K := 1.4
+const COUNTER_MIN := 900.0
+var counter_on := not OS.get_cmdline_user_args().has("cvbcounter:off")
+var _def_vk := -1.0             # value killed when the whole-army defence began
+var _held_t := -999.0           # when a defence that killed COUNTER_KILL or more ended
+var _held_v := 0.0
+var counters := 0
+
+
+func _held_note() -> void:
+	var vk := float(game.stats[team]["value_killed"])
+	if phase == "defend":
+		if _def_vk < 0.0:
+			_def_vk = vk
+		return
+	if _def_vk >= 0.0:
+		if vk - _def_vk >= COUNTER_KILL:
+			_held_t = game.clock
+			_held_v = vk - _def_vk
+		_def_vk = -1.0
+
+
+func _counter_ok(mine: float) -> bool:
+	if not counter_on or game.clock - _held_t > COUNTER_T:
+		return false
+	var foe := _foe()
+	if foe < 0 or game.faction_of(foe) != "brood":
+		return false
+	var seen: float = ai.push.foe_mem() if ai.push != null else 0.0
+	if mine < maxf(COUNTER_MIN, seen * COUNTER_K):
+		return false
+	_held_t = -999.0
+	_fail_v = 0.0
+	counters += 1
+	say("counter-attacks: its defence killed %d, it goes out worth %d against the %d it has seen alive lately" % [int(_held_v), int(mine), int(seen)])
 	return true
 
 
@@ -599,7 +648,9 @@ func tick(army: Array) -> void:
 	var low: Array = home.filter(func(u: Unit) -> bool: return u.wind < 0.2 and not u.runs_on_spring() and not u._in_field and not u.powered_down())
 	home = home.filter(func(u: Unit) -> bool: return not low.has(u) and not u.powered_down())
 	_to_field(low)
-	if _defend(home, g):
+	var defending := _defend(home, g)
+	_held_note()
+	if defending:
 		ai._follow_with_escort(home + low if ai.push == null or ai.push.phase == "" or ai.push.phase == "back" else ai.push.units)
 		return
 	phase = "out" if (ai.push != null and ai.push.phase != "" and ai.push.phase != "back") else "gather"

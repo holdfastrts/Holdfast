@@ -215,6 +215,8 @@ func _punish(f: String, t: float) -> Array:
 				return ["timing", "a timing attack before its economy pays off"]
 			return ["economy", "too late to punish: out-expand it"]
 		"clockwork":
+			if f == "brood" and cvb_read_on:
+				return _cw_v_brood_greedy()
 			if f == "clockwork":
 				# (coached games, 0.32.0: the Clock Soldier rush on a greedy Clockwork ended behind both times, 9,000-9,300
 				# earned against 11,800-12,500, where Balanced in the same seat was even or close: the mirror's Clock Soldiers
@@ -232,6 +234,20 @@ func _punish(f: String, t: float) -> Array:
 				return ["spitter" if f == "crown" else "timing", "a timing attack before its economy pays off"]
 			return ["economy", "too late to punish: out-expand it"]
 	return []
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 1) A GREEDY read of the Brood is not greed: the
+## Brood roots a Mound Turtle on new ground at 0:00 in every plan, so "a second base and little army" is its standard
+## opening (crown-ai-v2 found the same for the Crown). The Clock Soldier rush it picked at 1:43-1:57 in all six filmed
+## games was dropped at 3:12-3:23 for Balanced when the Brood's first Raptors came, and its second Clocktower came at
+## 4:49-5:19 instead of the economy opening's. The matchup's normal pick instead (NORMAL["clockwork"]["brood"]).
+## `-- cvbread:off` plays it as before.
+var cvb_read_on := not OS.get_cmdline_user_args().has("cvbread:off")
+
+
+func _cw_v_brood_greedy() -> Array:
+	var k := _weighted(NORMAL["clockwork"]["brood"])
+	return [k, _normal_why(k)]
 
 
 ## A read came in (AIScout._apply -> AI.on_read, or the Brood's own _nb_read).
