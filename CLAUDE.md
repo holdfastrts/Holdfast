@@ -43,8 +43,10 @@
   sweep under ONE ARMY; draws (dead sides should lose, winners hunt); the P1 start-spot edge (44-25).
   OWNER 2026-11-11 04:55 "ok do it" (Claude's picks, say so if wrong): the bonus applied ONCE but RAISED to keep today's
   siege punch; ATTACK hidden on unarmed cards; a side with no workers/army/means for 60 s is BEATEN and the winner hunts;
-  ONE ARMY gets exceptions (harass groups, the Great Winder sweeps). JOBS: rules-fixes, crown-ai-v2, clockwork-ai-v2,
-  start-spots (study only).
+  ONE ARMY gets exceptions (harass groups, the Great Winder sweeps). MERGED 2026-11-11: rules-fixes 0.33.12, rebel-art
+  0.33.13 (docs/rebel_art.md, redraw prompts inside), crown-ai-v2 0.33.14, clockwork-ai-v2 0.33.15, start-spots (study:
+  docs/start_spots_study.md; its fixes WAIT for the owner: mirror the start units exactly, one base anchor (hall centre)
+  for the computers, then study again). Then the KING'S STUDY hub 0.33.16 (docs/campaign_hub_art.md).
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
