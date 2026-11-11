@@ -38,6 +38,19 @@ var _bo_plan: Array = []         # the opening's steps (fixed at the start: a la
 var _plan_of := ""
 var _waits := {}                 # step index -> clock it first waited for want of room (logged once)
 var siege: AICrownSiege = null   # the siege plan's push (scripts/ai_crown_siege.gd); null on the other plans
+var cm: AICrownMirror = null     # (crown-v-crown-coach) the mirror's coached play (scripts/ai_crown_mirror.gd); null unless the foe is a Crown
+
+
+## (crown-v-crown-coach) the Crown computer against another Crown (the new computer): AICrownMirror plays
+## the mirror's coached decisions (Normal and up). `-- mirror:off` on the command line plays the mirror as before (comparison games).
+func mirror() -> AICrownMirror:
+	if cm == null and on and difficulty >= 1 and _foe_is("crown") and not OS.get_cmdline_user_args().has("mirror:off"):
+		cm = AICrownMirror.new(self)
+	return cm
+
+
+func _cohesion(wave: Array) -> bool:
+	return mirror() != null and cm.cohesion(wave, _wave_target)
 const BO_LIMIT := 600.0          # (game seconds) the opening hands over by then whatever is left
 ## THE BALLOON HARASS (scripts/ai_crown_balloon.gd): made on the Balloon harass plan only (Normal and up)
 const AICrownBalloon := preload("res://scripts/ai_crown_balloon.gd")
@@ -558,6 +571,8 @@ func _plan_tech() -> bool:
 # ------------------------------------------------------------------ the think
 
 func _think_stage(i: int) -> void:
+	if i == 2 and mirror() != null:
+		cm.raid_answer()        # (crown-v-crown-coach: a raider at the labourers with no soldier to meet it: Musketeers first)
 	if i == 1:
 		_owner_tick()           # (crown-owner-eco: the layout, the new hall's Farm, the wagons)
 		_finish_sites()
@@ -1216,8 +1231,8 @@ func _mill_feedback(mills: int) -> int:
 	if game.clock - _mill_t >= MILL_STEP_T:
 		_mill_t = game.clock
 		var want := POWDER_WANT + 15.0 * (_mine("barracks").size() + _mine("foundry").size())
-		if _res2() > want * 2.0:
-			_mill_n = maxi(mills, mini(_mill_n, crew) - 1)
+		if _res2() > want * 2.0 or (mirror() != null and cm.farms_starved(_res2())):
+			_mill_n = maxi(mills, mini(_mill_n, crew) - 1)      # (crown-v-crown-coach: farms_starved, the mirror only)
 		elif _res2() < want:
 			_mill_n = mini(6 * mills, maxi(_mill_n, crew) + 1)
 	return clampi(_mill_n, mills, 6 * mills)

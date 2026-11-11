@@ -21,12 +21,24 @@ var _pending: Array = []
 var _shooting := false
 var _coach: Array = []
 var _bg: Image = null
+var _army_every := 30.0
+var _focus0 := -1.0           # focus:MMSS-MMSS: in that window the armies every focus_every s (default 5)
+var _focus1 := -1.0
+var _focus_every := 5.0
 
 
 func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "shots:1":
 			_shots = true
+		elif a.begins_with("army_every:"):
+			_army_every = float(a.split(":")[1])
+		elif a.begins_with("focus_every:"):
+			_focus_every = float(a.split(":")[1])
+		elif a.begins_with("focus:"):
+			var w := a.split(":")[1].split("-")
+			_focus0 = int(w[0]) / 100 * 60 + int(w[0]) % 100
+			_focus1 = int(w[1]) / 100 * 60 + int(w[1]) % 100
 	super._initialize()
 	RenderingServer.render_loop_enabled = false
 
@@ -49,7 +61,7 @@ func _process(delta: float) -> bool:
 		_coach_line(c)
 	if _shots:
 		if c >= _next_army:
-			_next_army += 30.0
+			_next_army += _focus_every if c >= _focus0 - 1.0 and c < _focus1 else _army_every
 			for tm in n:
 				var p = _army_centre(tm)
 				if p != null:
@@ -178,7 +190,7 @@ func _map_png(c: float) -> void:
 		var cc: Vector2i = g.cell_of(u.position)
 		var col: Color = cols[u.team]
 		if u.is_worker():
-			img.fill_rect(Rect2i(cc.x * CELL + 1, cc.y * CELL + 1, 1, 1), col.lightened(0.5))
+			img.fill_rect(Rect2i(cc.x * CELL + 1, cc.y * CELL + 1, 2, 2), Color(0.9, 0.9, 1.0) if u.team == 0 else Color(1.0, 0.75, 0.75))
 		else:
 			img.fill_rect(Rect2i(cc.x * CELL, cc.y * CELL, CELL, CELL), col.lightened(0.55) if u.team == 0 else Color(1, 0.85, 0.2))
 	for tm in n:
@@ -212,9 +224,26 @@ func _coach_line(c: float) -> void:
 				dh = int(p.distance_to(home.center()) / Game.T)
 			if foe:
 				df = int(p.distance_to(foe.center()) / Game.T)
-		parts.append("P%d %s bank %d/%d lab %d army %d %s halls %d att %s at %s (home %d, foe %d)" % [tm + 1, a.strategy if a else "?",
-			int(g.players[tm]["gold"]), int(g.players[tm].get("powder", 0)), g.workers(tm).size(), _army_value(tm), str(kinds),
-			g.halls_of(tm).size(), str(a._attacking) if a else "-", cell, dh, df])
+		var jobs := {}
+		for w in g.workers(tm):
+			jobs[w.order] = int(jobs.get(w.order, 0)) + 1
+		var wv := ""
+		if a and a._attacking:
+			var ws: Array = a._wave_set.keys().filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
+			var wc := Vector2.ZERO
+			for u in ws:
+				wc += u.position
+			if not ws.is_empty():
+				wc /= ws.size()
+				var spread := 0.0
+				for u in ws:
+					spread += u.position.distance_to(wc)
+				var sg = a.get("_siege")
+				wv = " WAVE %d at %s spread %d siege %s" % [ws.size(), str(g.cell_of(wc)), int(spread / ws.size() / Game.T),
+					("%s %d%%" % [sg["piece"].kind, int(100 * sg["piece"].hp / sg["piece"].max_hp)]) if sg is Dictionary and not sg.is_empty() and is_instance_valid(sg.get("piece")) else "-"]
+		parts.append("P%d %s bank %d/%d lab %d army %d %s halls %d att %s at %s (home %d, foe %d) jobs %s" % [tm + 1,
+			a.strategy if a else "?", int(g.players[tm]["gold"]), int(g.players[tm].get("powder", 0)), g.workers(tm).size(),
+			_army_value(tm), str(kinds), g.halls_of(tm).size(), (str(a._attacking) + wv) if a else "-", cell, dh, df, str(jobs)])
 	_coach.append("%s | %s" % [_mmss(c), " | ".join(parts)])
 
 

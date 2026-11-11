@@ -209,6 +209,8 @@ func _punish(f: String, t: float) -> Array:
 				# games against Hard Clockwork OPTIMAL on four maps the Timing attack won or led 3 of 4: GREEDY_CLOCK)
 				var k := _weighted(GREEDY_CLOCK)
 				return [k, "out-expand it" if k == "economy" else _normal_why(k)]
+			if f == "crown" and _mirror_keep():
+				return []            # (crown-v-crown-coach: the Timing attack keeps its timing)
 			if t < TOO_LATE:
 				if f == "crown":
 					return ["timing", "Horsemen are no answer to Musketeers: a timing attack"]
@@ -232,6 +234,14 @@ func _punish(f: String, t: float) -> Array:
 				return ["spitter" if f == "crown" else "timing", "a timing attack before its economy pays off"]
 			return ["economy", "too late to punish: out-expand it"]
 	return []
+
+
+## (crown-v-crown-coach) THE TIMING KEEPS ITS TIMING in the Crown mirror: a greedy read after TOO_LATE turned the Timing
+## attack into the Economy race just as its army stood ready (greenhold 1103, 6:31: 1,305 of army against 610, picked
+## "too late to punish: out-expand it", and the army sat at home on one hall). A greedy enemy is what the timing is for:
+## it keeps its plan and goes.
+func _mirror_keep() -> bool:
+	return fac == "crown" and current == "timing" and not OS.get_cmdline_user_args().has("mirror:off")
 
 
 ## A read came in (AIScout._apply -> AI.on_read, or the Brood's own _nb_read).

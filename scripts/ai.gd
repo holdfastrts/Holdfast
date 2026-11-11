@@ -5354,7 +5354,8 @@ func _army() -> void:
 		var wagon := _wagon() if _crown() else null
 		var cav := _cavalry_wave(ready)
 		var prey := Vector2.INF
-		for u in wave:
+		var held := _cohesion(wave)      # (crown-v-crown-coach: a wave regrouping on the march is not sent on this think)
+		for u in (wave if not held else []):
 			if cav and u.kind == "cuirassier" and u.siege_t <= 0.0 and u.wall_flee_t <= 0.0:
 				if prey == Vector2.INF:
 					prey = _prey_spot(u.position)
@@ -5390,6 +5391,12 @@ func _army() -> void:
 				u.cmd_deploy()
 		if _clock() and Defs.gear_mode:
 			_follow_with_escort(army)       # (the Winders keep the waiting army wound: the rally may be off the gear ground)
+
+
+## (crown-v-crown-coach) A wave strung out on the march closes up before it goes on: the Crown against a Crown only
+## (AICrown._cohesion, scripts/ai_crown_mirror.gd). true = it is regrouping, its men are not sent on this think.
+func _cohesion(_wave: Array) -> bool:
+	return false
 
 
 ## Gear mode's Clockwork against a walled enemy: the first attack waits for its kit, the Springers that shoot the menders
