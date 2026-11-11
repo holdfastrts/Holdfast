@@ -158,7 +158,9 @@ const PLANS := {
 		# (crown-v-clockwork-coach: against the Clockwork, whose economy opening has its second Clocktower up by ~3:00, the
 		# timing on one hall went out at 7:10-7:35 with 18-19 labourers into 30 Winders on three halls (the Crown earned
 		# 0.6-0.7 of its income at 8:00 in every game). The same timing, from TWO halls: the walled natural behind the Mill
-		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to LABS_CLOCK)
+		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to LABS_CLOCK. The
+		# natural's Farms and Mill come from the shared economy rules while it runs (_cc_econ: an opening lays no Farm by
+		# itself, and a first try left the natural's soil at 100% for the whole game))
 		"bo_clock": [
 			{"do": "wall_cottage", "at": {"sup": 5}},
 			{"do": "wall_gate", "at": {"sup": 5}},
@@ -618,6 +620,7 @@ func _think_stage(i: int) -> void:
 			game.players[team]["gold"] += held
 			held = 0
 			_bo_tick()
+			_cc_econ()          # (crown-v-clockwork-coach: the natural's Farms in the two-hall Timing opening)
 			_tend_wall()        # (the ramp wall's crew kept at it, as the shared _build_up does)
 			_lap("ai/build", pt)
 		2:
@@ -1773,7 +1776,9 @@ func _mid_tick() -> void:
 		if (gun_hold or guns_short) and not (k == "barracks" or k == "foundry" or k == "horse_breeder"):
 			continue
 		if lags and not _mid_ok_lagging(k):
-			continue            # (ai-followups: the army far behind: no tech, and no more Barracks than the gold keeps busy)            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
+			continue            # (ai-followups: the army far behind: no tech, and no more Barracks than the gold keeps busy)
+		if _cc_rush_hold(k, army):
+			continue            # (crown-v-clockwork-coach: a Clockwork rush read: soldiers before the milestones)            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
 			# first AI.CANNONS_FIRST Field Cannons too)
 		var at: Dictionary = m[2]
 		if labs < int(at.get("labs", 0)) or halls < int(at.get("halls", 0)) or army < int(at.get("army", 0)):
@@ -2795,6 +2800,50 @@ func _cc_bo_key(key: String) -> String:
 
 
 func _cc_lab_cap(key: String) -> int:
+	_cc_bo = key
 	if key == "bo_clock" and plan.has("labs_clock"):
 		return int(plan["labs_clock"])
 	return int(plan.get("labs", 99))
+
+
+
+## The opening's own gold first (bo_reserve out of reach), then the shared economy rules (AI._econ_build: the Farms on the
+## freshest soil, the Mill), once a second hall stands: only for the Timing attack from two halls against the Clockwork.
+func _cc_econ() -> void:
+	if not cc_on or not _cc_two_halls() or _halls().filter(func(h: Building) -> bool: return h.built).size() < 2:
+		return
+	var held: int = clampi(bo_reserve, 0, int(game.players[team]["gold"]))
+	game.players[team]["gold"] -= held
+	var r0 := _reserve
+	_econ_build()
+	_reserve = r0
+	game.players[team]["gold"] += held
+
+
+var _cc_bo := ""        # the opening key in play ("bo_clock" for the Timing attack from two halls)
+
+
+func _cc_two_halls() -> bool:
+	return _cc_bo == "bo_clock" and not bo_done
+
+
+## SOLDIERS BEFORE THE MILESTONES WHEN A RUSH IS READ. Greenhold (seed 1138, the Crown on the Economy plan): the scout read
+## AGGRESSIVE at 4:46 (7 supply of Clock Soldiers out), the plan switched to Balanced, whose opening steps all stood already,
+## so the milestones took over at once and bought the Foundry, the second Barracks and the Horse Breeder at 4:52-5:16 with
+## an army of 0: the first Musketeer came at 5:31, the army was 60 at 6:00 against 965. Against the Clockwork, while a rush
+## is read (or defended) and the army is under CC_RUSH_ARMY supply, every milestone but the first Barracks waits.
+const CC_RUSH_ARMY := 8
+var _cc_rush_said := -99.0
+
+
+func _cc_rush_hold(k: String, army: int) -> bool:
+	if not cc_on or not cc_vs_clock() or army >= CC_RUSH_ARMY:
+		return false
+	if not (_def_on or _defending() or (scout != null and scout.verdict == "rush")):
+		return false
+	if k == "barracks" and _mine("barracks").is_empty():
+		return false
+	if game.clock - _cc_rush_said > 45.0:
+		_cc_rush_said = game.clock
+		say("milestone %s waits: a rush is read and the army has %d supply (it wants %d first)" % [String(Defs.BUILDINGS[k]["name"]), army, CC_RUSH_ARMY])
+	return true
