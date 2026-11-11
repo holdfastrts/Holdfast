@@ -56,10 +56,11 @@ const CHASE_MAX := 360.0
 ## (clockwork-ai-v2, the qa study: the Clockwork had the biggest army at every minute and won 5 of 76 cross games, 0 of 38
 ## mirrors; it held short of the enemy's main with 1,980 against 0 seen, laid siege to every Cottage and Palisade with its
 ## Ballistas alone, and its games ended as draws with the enemy beaten in all but name) THE PUSH COMMITS when it is clearly
-## ahead: worth AHEAD_K times the enemy army seen near it lately (and at least AHEAD_MIN, and EDGE times the reckoning of the
-## whole enemy army, ai_cw_army.reckon). Committed, it goes for the enemy's HALLS (the Brood: its Mother, the losing
-## condition), never holds short of the main, the front breaks buildings with the Ballistas instead of only screening them,
-## and it does not go home while it is still clearly ahead.        # px: in a fight the anchor walks toward the enemies at most this far from where it began
+## ahead: from AHEAD_FROM, worth AHEAD_K times the enemy army seen near it lately and times the reckoning of the whole enemy
+## army (ai_cw_army.reckon), and at least AHEAD_MIN. Committed, it goes for the enemy's HALLS (the Brood: its Mother, the
+## losing condition), it does not hold short of the main for the enemy army it has seen (a walled Crown main still wants the
+## plan's "main_min"), and the front breaks buildings with the Ballistas instead of only screening them. It still pulls back
+## by the usual rules.        # px: in a fight the anchor walks toward the enemies at most this far from where it began
 
 var ai = null
 var game: Game = null
@@ -92,7 +93,7 @@ var fight_from := Vector2.INF   # (ai-followups) the anchor where the fight bega
 var _rider_said := -99.0
 const AHEAD_K := 2.0
 const AHEAD_MIN := 1200.0
-const AHEAD_EDGE := 1.25
+const AHEAD_FROM := 480.0       # (s) not before this: early on most of the enemy army is unseen and its main walled
 var committed := false
 var commit_on := not OS.get_cmdline_user_args().has("cwcommit:off")      # (`-- cwcommit:off` as 0.33.11)
 ## (clockwork-army, scripts/ai_cw_army.gd: the army's own word before a push goes out: stronger than the enemy army it
@@ -442,7 +443,7 @@ func _march() -> void:
 			lag = true
 	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
 	_leash(front)
-	if at and not lag and not arrived and not committed and _main_goal() and anchor.distance_to(goal) < 1100.0 and (_value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K)) or _value(units) < float(cfg.get("main_min", 0.0))):
+	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and ((not committed and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K))) or _value(units) < float(cfg.get("main_min", 0.0))):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
 		# it took, and the reinforcements join it (Greenhold 11: the push razed the Crown's expansion, walked on up to its
 		# main and met its whole army, 25 Musketeers, at the ramp: 3,100 value lost in a minute). The plan's "main_min": the
@@ -855,7 +856,7 @@ func _should_retreat() -> bool:
 	var now := _value(units)
 	var foes := _foes_near(_front_centre(), LOOK + 120.0)
 	var fv := _value(foes)
-	if now < value_in * GRIND and not (committed and fv * OUTNUMBERED < now):
+	if now < value_in * GRIND:
 		_retreat("it has lost %d of the %d that went out and joined" % [int(value_in - now), int(value_in)])
 		return true
 	if fv > now * OUTNUMBERED and fv > 300.0:
@@ -958,7 +959,7 @@ func _commit_check() -> void:
 	var rk: float = ai.army_g.reckon() if ai.get("army_g") != null and ai.army_g != null else 0.0
 	var mem := foe_mem()
 	var near := _value(_foes_near(_front_centre(), LOOK + 120.0))
-	var ahead := v >= AHEAD_MIN and v >= maxf(mem, near) * AHEAD_K and v >= rk * AHEAD_EDGE
+	var ahead := game.clock >= AHEAD_FROM and v >= AHEAD_MIN and v >= maxf(maxf(mem, near), rk) * AHEAD_K
 	if ahead == committed:
 		return
 	committed = ahead
