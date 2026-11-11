@@ -1,0 +1,2 @@
+3 error lines
+    3  SCRIPT ERROR: Invalid call. Nonexistent function 'has_tag' in base 'Nil'.
