@@ -453,9 +453,16 @@ func bo_owns() -> bool:
 func _base_trains_labs() -> bool:
 	if bo_owns():
 		return false
-	if wall_first() and _gold() < LAB_COST + WALL_LAB_KEEP:
+	if wall_first() and _labs_queued() > 0 and _gold() < LAB_COST + WALL_LAB_KEEP:
 		return false
 	return not _army_due()
+
+
+func _labs_queued() -> int:
+	var n := 0
+	for h in _halls():
+		n += h.queue.count(_f()["worker"])
+	return n
 
 
 ## THE NATURAL'S WALL ON TIME (crown-ai-v2, docs/crown_ai_v2.md; the QA tests' items 4 and 13: 10-28% of the natural's
@@ -463,8 +470,10 @@ func _base_trains_labs() -> bool:
 ## every coin to the next labourer (gold 0-30 from 4:00 to 7:30 while the labourers went 14 -> 34). The owner's own game
 ## slowed his labourers while he laid his ring (26 at 4:00, 30 at 5:00, 32 at 6:00, the ring 3:49-5:42). So while a
 ## walled hall's plan has pieces to lay (AIExpandWall.keep: after the hall's first Farm, the owner's plans' wall time)
-## and nothing more urgent stands (a rush defended, the army far behind), a labourer is trained only from gold over
-## WALL_LAB_KEEP: the wall's batches (AIExpandWall._lay_pieces, laid first in the think) get the rest. Switch: `-- wallfirst:off`.
+## and nothing more urgent stands (a rush defended, the army far behind), ONE labourer at a time is trained (a second
+## only from gold over WALL_LAB_KEEP), and the wall's next pieces' gold is kept from the soldiers and the steps: the
+## wall's batches (AIExpandWall._lay_pieces, laid first in the think) get the rest. (Every labourer held for the wall
+## left 18 at 4:00 instead of 22+, test_crown_owner_eco.) Switch: `-- wallfirst:off`.
 const WALL_LAB_KEEP := 60
 var wall_first_on := not OS.get_cmdline_user_args().has("wallfirst:off")
 
@@ -474,7 +483,26 @@ func wall_first() -> bool:
 		return false
 	if _defending() or army_lags():
 		return false
+	if game.workers(team).size() < WALL_FIRST_LABS and not _wall_hall_waited():
+		return false            # (the labourers' ramp first, as the owner's: 26 at 4:00, then his ring)
 	return xw.keep() > 0
+
+
+## (crown-ai-v2) one hall's labourers: the owner's ring went down after his 26th labourer (3:49); a natural laid early (1:35
+## in test_crown_owner_eco) waits for them or for WALL_FIRST_WAIT s after it stood
+const WALL_FIRST_LABS := 22
+const WALL_FIRST_WAIT := 100.0
+
+
+func _wall_hall_waited() -> bool:
+	for id in xw.plans:
+		var p: Dictionary = xw.plans[id]
+		if not p.get("ok", false):
+			continue
+		var bt := float(p.get("built_t", -1.0))
+		if bt >= 0.0 and game.clock - bt >= WALL_FIRST_WAIT:
+			return true
+	return false
 
 
 ## (the doctrine's economy-first keeps a labourer's gold from the soldiers; not while the soldiers are due)
@@ -617,13 +645,12 @@ func _bo_labs() -> void:
 	var free := _gold() - bo_reserve
 	if _soldiers_first():
 		return
-	if wall_first():
-		free -= WALL_LAB_KEEP      # (crown-ai-v2: the natural's palisade before more labourers, above)
+	var wall_keep := WALL_LAB_KEEP if wall_first() else 0
 	var top := mini(bo_lab_cap, owner_lab_cap())      # (the owner's plans: never past the halls' saturation)
 	for h in _halls():
-		if not h.built or labs + queued >= top or free < LAB_COST:
-			continue
-		if h.queue.size() >= (2 if free >= 3 * LAB_COST else 1):
+		if not h.built or labs + queued >= top or free < LAB_COST + (wall_keep if queued > 0 else 0):
+			continue      # (crown-ai-v2: while the natural's palisade comes first, one labourer at a time, above)
+		if h.queue.size() >= (2 if free >= 3 * LAB_COST + wall_keep else 1):
 			continue
 		if game.train(h, _f()["worker"]) == "":
 			queued += 1

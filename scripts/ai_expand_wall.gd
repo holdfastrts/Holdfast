@@ -123,10 +123,10 @@ func _run(p: Dictionary) -> void:
 	var hall: Building = p["hall"]
 	if hall.built and float(p["built_t"]) < 0.0:
 		p["built_t"] = game.clock
-	# (crown-ai-v2: while the wall comes first (AICrown.wall_first) its palisade closes the rest of the ring fast, so the empty
+	# (crown-ai-v2: on the owner's plans the wall comes first (AICrown.wall_first) and its palisade closes the rest fast, so the empty
 	# slots wait SLOT_WAIT for the Cottage or the production building that is due: at 25 s every slot was palisade before
 	# the next Cottage came, and no building stood in the wall, test_ai_expand_wall)
-	var wait: float = SLOT_WAIT if not brood_walls() or (ai.has_method("wall_first") and ai.wall_first()) else BROOD_SLOT_WAIT
+	var wait: float = SLOT_WAIT if not brood_walls() or (ai.has_method("wall_first") and ai.wall_first_on and ai.owner_on()) else BROOD_SLOT_WAIT
 	var late: bool = float(p["built_t"]) >= 0.0 and game.clock - float(p["built_t"]) > wait
 	for s in p["slots"]:
 		if s["closed"]:
