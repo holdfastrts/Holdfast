@@ -103,11 +103,12 @@ func _run() -> void:
 	var pk: Array = ai.opt.picks[0] if not (ai.opt.picks as Array).is_empty() else [0.0, "", "", "", ""]
 	print("   Crown OPTIMAL v a greedy Clockwork: %s" % str(pk))
 	check(String(pk[2]) == "GREEDY", "the Crown reads the greedy Clockwork as GREEDY (%s)" % pk[2])
-	check(String(pk[3]) in ["rush", "economy", "balloon"] and float(pk[0]) <= 150.0, "it answers it in time (the riders, the Economy race or the balloons, crown-ai-v2): %s at %d s" % [pk[3], int(pk[0])])
+	check(String(pk[3]) in ["rush", "timing", "economy", "balloon"] and float(pk[0]) <= 150.0, "it answers it in time (the riders, the Timing attack, the Economy race or the balloons, crown-ai-v2): %s at %d s" % [pk[3], int(pk[0])])
 	check(ai.strategy == String(pk[3]), "the picked build plays (strategy %s)" % ai.strategy)
 	await _until(g.clock + 60.0)
-	var built := ai._mine("horse_breeder").size() if ai.strategy == "rush" else (ai._mine("foundry").size() if ai.strategy == "balloon" else g.halls_of(0, false).size() - 1)
-	check(built > 0, "its build is under way a minute later (%s: %d)" % [{"rush": "Horse Breeder", "balloon": "Foundry"}.get(ai.strategy, "second hall"), built])
+	var what: String = {"rush": "horse_breeder", "balloon": "foundry", "timing": "powder_mill"}.get(ai.strategy, "")
+	var built := ai._mine(what).size() if what != "" else g.halls_of(0, false).size() - 1
+	check(built > 0, "its build is under way a minute later (%s: %d)" % [what if what != "" else "second hall", built])
 	check(_log_has("reads GREEDY") and _log_has("picks"), "the read and the pick are in the match log")
 	await _stop()
 
@@ -204,7 +205,7 @@ func _run() -> void:
 			late_ok += 1
 	# (crown-ai-v2: the riders stay a choice against a greedy Brood read in time, AIOptimal.RIDERS_V_BROOD of them (the
 	# owner's rule, 2026-11-06); the rest out-expand it (measured: the Economy plan, docs/crown_ai_v2.md); never anything else)
-	check(vs_brood > 50 and vs_brood < 160 and vs_brood + vs_brood_eco == 300, "against a greedy Brood read by 2:30: the Horse Breeder and the riders %d of 300, the Economy race the rest (%d)" % [vs_brood, vs_brood_eco])
+	check(vs_brood > 100 and vs_brood < 200 and vs_brood + vs_brood_eco == 300, "against a greedy Brood read by 2:30: the Horse Breeder and the riders %d of 300, the Economy race the rest (%d)" % [vs_brood, vs_brood_eco])
 	check(late_ok == 300, "read too late for the riders, it out-expands, never the slow Siege push (%d of 300)" % late_ok)
 	var leans_b := 0
 	for i in 200:

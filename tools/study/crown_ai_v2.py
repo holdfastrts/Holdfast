@@ -19,15 +19,21 @@ PLAN_MAPS = ["border_march", "ashford_crossing", "kestrel_rise", "glimmerdeep"]
 CROWN_PLANS = ["balanced", "rush", "economy", "timing", "dragoon", "siege", "balloon"]
 
 
-def measure():
+def measure(mirror_rounds=(0, 1)):
+    """the cross games first (both rounds), then the mirror control"""
     out = []
+    mir = []
     for r in (0, 1):
         for g in Q.base(r):
             tag, m, seed, slots = g
             fs = sorted(s[0] for s in slots)
             if m in MEASURE_MAPS and "crown" in fs and fs != ["brood", "clockwork"]:
-                out.append(g)
-    return out
+                if fs == ["crown", "crown"]:
+                    if r in mirror_rounds:
+                        mir.append(g)
+                else:
+                    out.append(g)
+    return out + mir
 
 
 def plans(maps=None, which=None):
@@ -52,6 +58,8 @@ def plans(maps=None, which=None):
 def queue(only):
     if only == "measure":
         return measure()
+    if only == "measure1":                # (the mirror control in round 0 only)
+        return measure((0,))
     if only == "plans":
         return plans()
     if only.startswith("plans:"):

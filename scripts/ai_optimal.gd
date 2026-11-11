@@ -26,8 +26,11 @@ const UNKNOWN_WAIT := 45.0       # ... or this long after a first UNKNOWN with n
 const PUNISH_BY := {"crown": 150.0, "clockwork": 150.0, "brood": 150.0}    # a rush to punish greed only before this
 const TOO_LATE := 330.0          # a timing attack to punish greed only before this; later, out-expand it
 const BREEDER_BY := 165.0        # the Crown's Horse Breeder answers a greedy Brood read before this (crown-optimal-opening)
-const RIDERS_V_BROOD := 0.35     # (crown-ai-v2) the share of greedy Brood reads the Crown answers with the riders (else out-expand)
-const RIDERS_V_CLOCK := 0.25     # (crown-ai-v2) ... and of greedy Clockwork reads, early (was 0.35; else the Economy race)
+const RIDERS_V_BROOD := 0.5      # (crown-ai-v2) the share of greedy Brood reads the Crown answers with the riders (else out-expand)
+const RIDERS_V_CLOCK := 0.15     # (crown-ai-v2) ... and of greedy Clockwork reads, early (was 0.35; the riders' plan won or led 0 of 2)
+## (crown-ai-v2) a greedy Clockwork otherwise: the Timing attack won or led 3 of 4 plan games against Hard Clockwork OPTIMAL,
+## the Economy race and Balanced 1 of 4, the balloons 1 of 2 (docs/crown_ai_v2.md)
+const GREEDY_CLOCK := {"timing": 3.0, "economy": 1.0, "balloon": 1.0}
 ## (study switch, tools/measure_crown_opening.gd: `-- greedybrood:economy` (or siege, or another plan) makes the Crown
 ## answer a greedy Brood with that plan instead of the riders, to measure them; docs/crown_optimal_opening.md)
 static var GREEDY_BROOD_TRY := _arg("greedybrood:")
@@ -93,12 +96,13 @@ func say(s: String) -> void:
 ## The plan a NORMAL read leads to, by the matchup (weights), with a little chance in it.
 ## (crown-ai-v2, docs/crown_ai_v2.md: the Crown's cross picks MEASURED. The QA study (0.33.7): OPTIMAL's Crown played Balanced
 ## at 5:00 in 67 of 76 cross games and those won or led 2; every Crown plan against Hard Brood and Clockwork OPTIMAL on
-## three maps: only the Economy plan kept its income even (1.0 of the Brood's at 5:00, 0.97 at 8:00; 0.99-1.0 of the
-## Clockwork's at 8:00-10:00, against 0.47-0.81 for the others); Balanced, Timing and the Siege push lost to the Brood
-## every time. So the cross matchups lean to the Economy plan)
+## four maps: against the Brood only the Economy plan kept its income even (1.03 of the Brood's at 5:00, 0.91 at 8:00) and
+## the fixed Horseman rush held to 15:00 3 times of 4; Balanced, Timing, the Siege push, the raids lost every time. Against
+## the Clockwork the Timing attack won or led 3 of 4, the others 0-1. So the Brood gets the Economy race, the Clockwork
+## the Timing attack first)
 const NORMAL := {
 	"crown": {"brood": {"economy": 3.0, "balanced": 1.0},
-		"clockwork": {"economy": 3.0, "balloon": 1.0, "balanced": 1.0},
+		"clockwork": {"timing": 3.0, "economy": 1.0, "balloon": 1.0},
 		"crown": {"economy": 3.0, "balanced": 2.0, "dragoon": 2.0, "siege": 1.0, "timing": 1.0}},
 	"clockwork": {"brood": {"pendulum": 3.0, "balanced": 2.0, "owls": 2.0},
 		"crown": {"balanced": 2.0, "economy": 2.0, "springer": 2.0, "heavy": 1.0},
@@ -198,9 +202,9 @@ func _punish(f: String, t: float) -> Array:
 				return ["rush", "punish the greed before its army is up"]
 			if f == "clockwork":
 				# (coached: the one-hall Timing attack lost the race to a Clockwork economy, 9,500 to 16,600 earned by 12:00
-				# on Highmoor. crown-ai-v2: Balanced's waves, picked here in 24 of 38 QA games, won or led 2 of 33; the Economy
-				# plan kept even with its income (0.99 at 8:00) and the balloons led one game: the race, sometimes the raids)
-				var k := _weighted({"economy": 3.0, "balloon": 1.0})
+				# on Highmoor. crown-ai-v2: Balanced's waves, picked here in 24 of 38 QA games, won or led 2 of 33; in the plan
+				# games against Hard Clockwork OPTIMAL on four maps the Timing attack won or led 3 of 4: GREEDY_CLOCK)
+				var k := _weighted(GREEDY_CLOCK)
 				return [k, "out-expand it" if k == "economy" else _normal_why(k)]
 			if t < TOO_LATE:
 				if f == "crown":
