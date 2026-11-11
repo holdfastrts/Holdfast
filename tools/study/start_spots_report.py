@@ -216,6 +216,25 @@ if __name__ == "__main__":
             cells.append("%.2f (n %d)" % (math.exp(sum(rs) / len(rs)), len(rs)) if rs else "-")
         print("| %s | %s |" % (name, " | ".join(cells)))
     print()
+    print("Early economy, spot A's income over spot B's (geometric mean over games; the same seeds' early minutes repeat, so these are close to deterministic)\n")
+    print("| faction | group | games | 1:00 | 2:00 | 3:00 | 5:00 | 8:00 | 12:00 |")
+    print("|---|---|---|---|---|---|---|---|---|")
+    for f in ("crown", "brood", "clockwork"):
+        for gname, cond in (("not swapped", lambda g: not g["swap"]), ("swapped (index 0 on B)", lambda g: g["swap"])):
+            gs = [g for g in games if g["fac"] == f and cond(g)]
+            if not gs:
+                continue
+            cells = []
+            for mm in (1, 2, 3, 5, 8, 12):
+                rs = []
+                for g in gs:
+                    a = at_min(g["res"], g["a"], "income", mm)
+                    b = at_min(g["res"], 1 - g["a"], "income", mm)
+                    if a and b:
+                        rs.append(math.log(a / b))
+                cells.append("%.3f" % math.exp(sum(rs) / len(rs)) if rs else "-")
+            print("| %s | %s | %d | %s |" % (f, gname, len(gs), " | ".join(cells)))
+    print()
     print("Base layouts (main only, buildings within 30 tiles of the hall): spot A / spot B means\n")
     print("| map | minute | buildings | frontness (tiles toward the enemy) | buildings > 4 tiles in front | sideways (+ left) | army centre frontness |")
     print("|---|---|---|---|---|---|---|")
