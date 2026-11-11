@@ -170,6 +170,22 @@ const PLANS := {
 			{"do": "wall_gate", "at": {"labs": 10}},
 			{"do": "attack", "n": 9, "at": {"army": 9}},
 		],
+		# (crown-v-brood-coach round 2: against the Brood the second Farm at 9 labourers, not after the first rider: the
+		# coached rushes (Greenhold 1100) farmed one Farm with 8-9 labourers from 1:00 to 4:15 (its 8 posts full), the
+		# owner's own rush had its second Farm at 2:05 and 15 labourers at 4:00; then the riders, the Powder Mill and the
+		# second hall behind the raid as OPTIMAL's punish has them)
+		"bo_brood": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 8}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "army", "k": "cuirassier", "cap": 0, "first": true},
+			{"do": "labs", "n": 99},
+			{"do": "wall_gate", "at": {"labs": 10}},
+			{"do": "attack", "n": 9, "at": {"army": 9}},
+			{"do": "build", "k": "powder_mill"},
+			{"do": "hall", "n": 2, "at": {"labs": 13}},
+		],
 		# (OPTIMAL's punish of a greedy Brood, crown-optimal-opening: picked on the read from the common opening, whose
 		# Barracks, Farm and Gate stand already: the Breeder at once, Horsemen before labourers but the labourers never capped
 		# (the hall keeps one coming while the Barracks is busy), the riders out at 9 supply, and the second hall right
@@ -481,8 +497,8 @@ var wall_first_on := not OS.get_cmdline_user_args().has("wallfirst:off")
 func wall_first() -> bool:
 	if not on or not wall_first_on or difficulty < 1 or xw == null or not xw.active() or not owner_on():
 		return false
-	if _defending() or army_lags():
-		return false
+	if _defending() or army_lags() or army_grows():
+		return false            # (crown-v-brood-coach: the soldiers before the ring while the army is short against the Brood)
 	if game.workers(team).size() < WALL_FIRST_LABS and not _wall_hall_waited():
 		return false            # (the labourers' ramp first, as the owner's: 26 at 4:00, then his ring)
 	return xw.keep() > 0
@@ -544,6 +560,8 @@ func _army_due() -> bool:
 		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
 		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
 		short = army_behind() and _army_supply(game.army(team)) < int(1.0 * game.workers(team).size())
+		if not short and army_grows():
+			short = true        # (crown-v-brood-coach round 3: THE ARMY GROWS WITH THE ECONOMY, below)
 	if not short:
 		return false
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
@@ -1184,8 +1202,20 @@ func _bo_hall() -> String:
 ## rule kept 1-3 on it until 5:00, so the Musketeers waited for powder (about 20 a minute: 2 Musketeers) while gold piled up.
 ## After the opening every Mill gets its full crew (powder piling up with no gold sends two back to the farms, as before).
 func _mill_cap() -> int:
+	var cap := _mill_cap_plan()
+	if _foe_is("brood") and not mill_feed_off and on and difficulty >= 1:
+		# (crown-v-brood-coach: the Farms' posts before the powder: Greenhold 1100 at 5:33-6:34, six of 14 labourers on the
+		# Mills (61 -> 127 powder, nothing training with it) and the Farms at 5-8 of 16; no gold came in for 90 s)
+		var free_post := _mine("farm").any(func(f: Building) -> bool: return f.built and not f.barren() and f.crew.size() < f.crew_max())
+		if free_post and _res2() >= POWDER_WANT:
+			var mills := _mine("powder_mill").filter(func(m: Building) -> bool: return m.built).size()
+			cap = mini(cap, maxi(mills, game.workers(team).size() / 5))
+	return cap
+
+
+func _mill_cap_plan() -> int:
 	if not on or difficulty < 1 or (bo_done and scout != null and scout.verdict == "rush" and game.clock < 300.0):
-		return super()
+		return super._mill_cap()
 	if _mine("barracks").is_empty() and not bo_done:
 		return 0
 	var mills := _mine("powder_mill").filter(func(m: Building) -> bool: return m.built).size()
@@ -1208,6 +1238,7 @@ func _mill_cap() -> int:
 ## them the other way): a bank over twice POWDER_WANT sends a hand back to the farms, one under it brings one over (the
 ## shared _balance_mill moves them, two at a time). POWDER_WANT: 30, and 15 more for each Barracks or Foundry.
 const POWDER_WANT := 30.0
+var mill_feed_off := OS.get_cmdline_user_args().has("millfeed:off")      # (crown-v-brood-coach: the Mills as before)
 const MILL_STEP_T := 8.0         # (s) one hand more or less at most this often (a think each time swung it 6 -> 1 -> 6)
 var _mill_n := -1
 var _mill_t := -99.0
@@ -1223,9 +1254,16 @@ func _mill_feedback(mills: int) -> int:
 	if game.clock - _mill_t >= MILL_STEP_T:
 		_mill_t = game.clock
 		var want := POWDER_WANT + 15.0 * (_mine("barracks").size() + _mine("foundry").size())
-		if _res2() > want * 2.0:
+		# (crown-v-brood-coach: powder is wanted only while something trains with it: Greenhold 1100, 5:34-7:04, six hands
+		# on the Mills ground 19 -> 150 powder that nothing used, the Barracks idle for gold, while two Farm posts stood
+		# empty; and a bank far over the want sends two back at a time)
+		var using: bool = _mine("barracks").any(func(b: Building) -> bool: return b.built and not b.queue.is_empty()) \
+				or _mine("foundry").any(func(b: Building) -> bool: return b.built and not b.queue.is_empty())
+		if _res2() > want * 3.0 and not mill_feed_off:
+			_mill_n = maxi(mills, mini(_mill_n, crew) - 2)
+		elif _res2() > want * 2.0:
 			_mill_n = maxi(mills, mini(_mill_n, crew) - 1)
-		elif _res2() < want:
+		elif _res2() < want and (using or mill_feed_off):
 			_mill_n = mini(6 * mills, maxi(_mill_n, crew) + 1)
 	return clampi(_mill_n, mills, 6 * mills)
 
@@ -2349,6 +2387,28 @@ func foe_estimate() -> float:
 
 
 
+## THE ARMY GROWS WITH THE ECONOMY AGAINST THE BROOD (crown-v-brood-coach round 3). With the economy mended (rounds 1-2)
+## the coached Greenhold game (seed 1100, r4) had the Brood's income at 9:00 (8,740 against 8,842) and 45 labourers, but
+## its army stood at 5 Horsemen (575) from 4:30 to 7:34: HOLD_SHARE (0.6 of the reckoning) said "not behind" (575 against
+## 966 x 0.6) and every coin went to labourers and buildings; the first Musketeer came at 7:40, the first gun at 8:30, and
+## the Brood's wave of 2,305 at 9:30 met 1,515 in the open and took the natural. The owner's own game had 6 Musketeers and
+## 4 Horsemen at 7:00 behind the natural's palisade and held 2,325 of Brood at 8:05. So from ARMY_GROW_FROM, against the
+## Brood, the army keeps up with the smaller of ARMY_GROW_SHARE of the Brood army it reckons and ARMY_PER_LAB a labourer
+## (behind walls and guns that line holds): while it is under that, a hall trains a labourer only when every Barracks is
+## busy (the Barracks' gold first; as _army_due does for the plan's share). Switch: `-- armygrow:off`.
+const ARMY_GROW_FROM := 330.0
+const ARMY_GROW_SHARE := 0.85
+const ARMY_PER_LAB := 40.0
+var army_grow_off := OS.get_cmdline_user_args().has("armygrow:off")
+
+
+func army_grows() -> bool:
+	if army_grow_off or not blind_guard() or brood_army_off or game.clock < ARMY_GROW_FROM:
+		return false
+	var want := minf(foe_estimate() * ARMY_GROW_SHARE, ARMY_PER_LAB * float(game.workers(team).size()))
+	return float(game.army_value(team)) < want
+
+
 ## Under HOLD_SHARE of the Brood army it reckons (against the Brood only).
 func army_behind() -> bool:
 	if not blind_guard() or brood_army_off:
@@ -2414,6 +2474,9 @@ func brood_wall_keep() -> int:
 	var k := 0
 	if cannon_first and _gun_waiting():
 		k += int(Defs.UNITS["cannon"]["cost"])
+	if army_grows() and _mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty()):
+		k += 2 * int(Defs.UNITS["musketeer"]["cost"])     # (crown-v-brood-coach round 3: a palisade with nobody behind it holds
+		# a Raptor 15 s; Greenhold 1100 r5: 19 pieces laid at 6:37-6:41 before the first Musketeer at 6:51)
 	return k
 
 

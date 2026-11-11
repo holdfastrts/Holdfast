@@ -23,6 +23,14 @@ def measure():
     return [g for g in C.measure((0,)) if "crbr" in g[0]]
 
 
+QUICK_MAPS = ["greenhold", "dune_sea", "hollowfen", "frostmere"]
+
+
+def quick():
+    """(a coaching round's check) Crown OPTIMAL v Brood OPTIMAL, round 0 of 4 measure maps"""
+    return [g for g in measure() if g[1] in QUICK_MAPS and g[0].endswith("_r0")]
+
+
 def plans():
     out = []
     k = 0
@@ -47,7 +55,7 @@ def controls():
 def queue(only):
     q = []
     for part in only.split("+"):
-        q += {"measure": measure, "plans": plans, "controls": controls}[part]()
+        q += {"measure": measure, "plans": plans, "controls": controls, "quick": quick}[part]()
     return q
 
 
