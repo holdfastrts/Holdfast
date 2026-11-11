@@ -70,7 +70,44 @@ reaches the shared code) and `AIBroodNew._nb_army` (after its defence, when no w
 
 ### Measured
 
-RESULTS_PLACEHOLDER
+Hard v Hard, OPTIMAL plans, 15:00, the same maps, seeds and sides as docs/qa_2026_11_08_matches.md (tools/qa_match.gd
+through tools/study/qa_matches.py's run_one), 20 base games: the 4 dead-side draws that report names, then 16 more over
+every pairing and 14 maps. Data in docs/rules_fixes_data/<game>/ (result.json, story.txt). The baseline is v0.33.7, this
+run v0.33.12, so other changes since (0.33.8-0.33.11, small) play in too; one seed per game, so read the totals, not a
+single row.
+
+**Draws at 15:00: 16 of 20 before, 9 of 20 now.** Every game where one side sat with no workers and no army for minutes
+now ends (the minute samples "dead from" show it: a side seen dead at a minute is beaten within about a minute, or the
+hunt finishes it); the four named in the report: Frostmere and Highmoor now end at 11:44 and 10:35, Glimmerdeep and Border
+March are draws in which no side died this time. The draws left are games where both sides still had an army at 15:00
+(Crown mirrors, Clockwork mirrors on big maps, Hollowfen): the hunt only starts once the enemy has no army, so a weak but
+living army still holds a draw. No script errors in any of the 20 games (both errors of item 4 were seen in this
+kind of game before).
+
+| game | sides (P1 v P2) | before (0.33.7) | now (0.33.12) | errors |
+|---|---|---|---|---|
+| base_amberfall_vale_crbr_r0 | crown v brood | draw 15:00 P1 dead from 15:00 | P2 won 14:15 P1 dead from 14:00 | 0 error lines |
+| base_ashfall_crcw_r0 | clockwork v crown | draw 15:00  | P1 won 13:48 P2 dead from 13:00 | 0 error lines |
+| base_border_march_crcr_r0 | crown v crown | draw 15:00 P1 dead from 12:00 | draw 15:00  | 0 error lines |
+| base_cinder_steps_cwcw_r0 | clockwork v clockwork | draw 15:00  | P1 won 14:15  | 0 error lines |
+| base_dune_sea_crcw_r0 | crown v clockwork | draw 15:00 P2 dead from 13:00 | draw 15:00 P2 dead from 15:00 | 0 error lines |
+| base_frostfang_crcw_r0 | clockwork v crown | P1 won 14:01  | P1 won 10:11 P2 dead from 10:00 | 0 error lines |
+| base_frostmere_crcw_r0 | clockwork v crown | draw 15:00 P2 dead from 10:00 | P1 won 11:44 P2 dead from 11:00 | 0 error lines |
+| base_frostmere_cwcw_r1 | clockwork v clockwork | draw 15:00  | draw 15:00  | 0 error lines |
+| base_glimmerdeep_crcw_r1 | clockwork v crown | draw 15:00 P2 dead from 11:00 | draw 15:00  | 0 error lines |
+| base_greenhold_crbr_r0 | crown v brood | P2 won 11:17 P1 dead from 11:00 | P2 won 13:03 P1 dead from 13:00 | 0 error lines |
+| base_greenhold_cwcw_r0 | clockwork v clockwork | draw 15:00  | P1 won 12:54 P2 dead from 12:00 | 0 error lines |
+| base_highmoor_brcw_r0 | clockwork v brood | draw 15:00  | P2 won 13:54  | 0 error lines |
+| base_highmoor_crcw_r0 | clockwork v crown | draw 15:00 P2 dead from 13:00 | P1 won 10:35 P2 dead from 10:00 | 0 error lines |
+| base_hollowfen_crcw_r1 | crown v clockwork | draw 15:00  | draw 15:00  | 0 error lines |
+| base_kestrel_rise_crcr_r0 | crown v crown | draw 15:00 P1 dead from 14:00 | draw 15:00  | 0 error lines |
+| base_mirewood_brbr_r0 | brood v brood | P2 won 14:02  | P2 won 14:05  | 0 error lines |
+| base_red_coast_brcw_r0 | brood v clockwork | P1 won 13:07 P2 dead from 13:00 | draw 15:00  | 0 error lines |
+| base_saltmarsh_isles_cwcw_r0 | clockwork v clockwork | draw 15:00  | draw 15:00  | 0 error lines |
+| base_thornwood_maze_crcr_r1 | crown v crown | draw 15:00  | draw 15:00  | 0 error lines |
+| base_twin_fords_brbr_r0 | brood v brood | draw 15:00  | P1 won 12:48  | 0 error lines |
+
+("dead from" = the first minute sample where that side had no workers and no army value.)
 
 ## 4. The two script errors
 
@@ -96,7 +133,9 @@ lists them. Logged for the owner to draw: docs/art_redraw_queue.md items 63 and 
 ## Tests run
 
 test_files (1303 checks, 0 failures), test_i18n (PASS), test_content_all (0 FAIL, 8 WARN), test_hotkeys (0 failed),
-test_crown_ammo (0 failures), test_replay (ALL OK), test_rules_fixes (0 failures), OTHER_TESTS
+test_crown_ammo (0 failures), test_replay (ALL OK), test_rules_fixes (0 failures), test_ballista (ALL PASS), test_loose_horses (ALL PASS), test_brute_siege (0 failed), test_unit_stats (0 failures),
+test_brood_new (0 failures), test_ai_wall_vs_rush (ALL PASS), test_ballista_ai (1 FAIL: "its escort Winders crew it", the
+known flaky check of docs/qa_2026_11_08_tests.md, "pass, FAIL, pass" there; nothing here touches the Winders' crewing).
 
 ## Claude's choices for the owner
 
