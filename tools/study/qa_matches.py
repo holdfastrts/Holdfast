@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """QA MATCHES (qa-matches, docs/qa_2026_11_08_matches.md): Hard computer v Hard computer up to 15:00 with
 tools/qa_match.gd, measured. A measuring tool: it changes no rule.
-    python3 tools/study/qa_matches.py run OUT --data DATA [--jobs 2] [--end 900] [--only base|plans|multi|cw] [--root DIR] [--cwlog]
+    python3 tools/study/qa_matches.py run OUT --data DATA [--jobs 2] [--end 900] [--only base|plans|multi|cw] [--root DIR] [--cwlog] [--reverse]
     python3 tools/study/qa_matches.py list            (the queue, in order)
 The queue, in order (a cut run still has balanced data):
   base round 0 and 1: every 2-player map x the six pairings (Crown v Brood, Crown v Clockwork, Brood v Clockwork and the
@@ -171,6 +171,8 @@ if __name__ == "__main__":
     jobs = int(arg("--jobs", "2"))
     end = int(arg("--end", "900"))
     gl = queue(arg("--only", ""))
+    if "--reverse" in sys.argv:
+        gl = gl[::-1]       # (a second runner on the same data, from the other end: the two meet in the middle)
     print("%d games" % len(gl), flush=True)
     with ThreadPoolExecutor(jobs) as ex:
         for t in ex.map(lambda g: run_one(g, out, end, data), gl):
