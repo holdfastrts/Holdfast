@@ -809,7 +809,8 @@ func _siege_tick() -> bool:
 				_order(u, _centre(out_foes), true, 60.0)
 		_guard_ballistas(front, out_foes)
 	else:
-		_place_front(front, pc + from * SIEGE_FRONT, -from, false)
+		var fx := _siege_fixers(front)        # (clockwork-v-clockwork-coach: the menders of a building under siege first)
+		_place_front(front.filter(func(u: Unit) -> bool: return not fx.has(u)), pc + from * SIEGE_FRONT, -from, false)
 	var bi := 0
 	for b in bals:
 		var off := (float(bi % 3) - 1.0) * 50.0
@@ -1162,3 +1163,13 @@ func _climb_ok(foes: Array) -> bool:
 		return false
 	var up := foes.filter(func(o: Unit) -> bool: return game.on_high(o.position))
 	return _value(units) >= _value(up) * CLIMB_K
+
+
+## (clockwork-v-clockwork-coach) At a siege of a building that is no wall (a Clocktower at the goal: "the Ballistas lay
+## siege"), the front screening the Ballistas sends its share at the Winders mending it (_break_fixers). Two Ballistas at a
+## mended Clocktower in the enemy's main for 79 s did not break it (Dune Sea mirror, 7:41-9:00).
+func _siege_fixers(front: Array) -> Dictionary:
+	if piece == null or piece.kind == "wall" or piece.kind == "gate" or piece.kind == "cottage":
+		return {}
+	_break_note(piece)
+	return _break_fixers(piece, front)
