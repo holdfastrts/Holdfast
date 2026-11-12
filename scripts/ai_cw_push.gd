@@ -1062,8 +1062,8 @@ func _hunt_launch(home: Array) -> bool:
 	return true
 
 
-## (clockwork-v-clockwork-coach) The hunt's goal: the enemy's hall nearest the anchor, then its nearest building of any kind
-## (its last presses and works keep it in the game too); none: its nearest unit (a last Winder).
+## (clockwork-v-clockwork-coach) The hunt's goal: the enemy's hall nearest the anchor, then its nearest worker, then its
+## nearest building of any kind, then any unit of its.
 func _hunt_goal() -> bool:
 	var best: Entity = null
 	var bd := INF
@@ -1078,14 +1078,16 @@ func _hunt_goal() -> bool:
 		if dd < bd:
 			bd = dd
 			best = b
-	if best == null:
-		for u in game.units:
-			if u.team != foe or u.dead or u.off_field:
-				continue
-			var dd2: float = u.position.distance_to(anchor)
-			if dd2 < bd:
-				bd = dd2
-				best = u
+	for u in game.units:
+		if u.team != foe or u.dead or u.off_field:
+			continue
+		# (then its WORKERS, before the rest of its buildings: with no hall and no money its last Winders were all that
+		# kept it in the game; the hunt broke Regulators one by one for a minute while 12 of them stood idle, Dune Sea
+		# mirror, round 4, 13:07-14:17)
+		var dd2: float = u.position.distance_to(anchor) + (1500.0 if u.is_worker() else 4000.0)
+		if dd2 < bd:
+			bd = dd2
+			best = u
 	if best == null:
 		return false
 	goal_e = best

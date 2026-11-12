@@ -2,6 +2,7 @@
 """(clockwork-v-clockwork-coach, docs/clockwork-v-clockwork-coach.md) The Clockwork mirror measured: Hard Clockwork OPTIMAL v
 Hard Clockwork OPTIMAL to 15:00 with tools/qa_match.gd on 8 maps x N seeds. A measuring tool: it changes no rule.
     python3 tools/study/cwcw_coach.py run DATA [--jobs 2] [--seeds 3] [--root DIR] [--maps a,b] [--args x:y,...]
+        [--slots clockwork/optimal/0,crown/optimal/1]   (another pairing: the check that the others did not get worse)
     python3 tools/study/cwcw_coach.py report DATA [DATA2 ...]
 A game is done when DATA/<tag>/result.json exists; run again to resume. Kept per game: result.json, story.txt,
 cwlog.txt (the Clockwork's own match log lines) and errors.txt."""
@@ -21,6 +22,9 @@ def games(seeds, maps):
     return out
 
 
+SLOTS = "clockwork/optimal/0,clockwork/optimal/1"
+
+
 def run_one(g, data, root, extra):
     tag, m, seed = g
     dd = os.path.join(data, tag)
@@ -30,7 +34,7 @@ def run_one(g, data, root, extra):
     os.makedirs(work, exist_ok=True)
     cmd = ["timeout", "2400", "godot", "--headless", "--fixed-fps", "30", "--path", root, "--script",
            "res://tools/qa_match.gd", "--", "map:" + m, "seed:%d" % seed, "end:900", "out:" + work,
-           "slots:clockwork/optimal/0,clockwork/optimal/1"] + extra
+           "slots:" + SLOTS] + extra
     with open(os.path.join(work, "run.out"), "wb") as f:
         subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
     os.makedirs(dd, exist_ok=True)
@@ -90,6 +94,18 @@ def report(dirs):
             for e in r["events"]:
                 if e["ev"] == "first_attack" and e["p"] not in att:
                     att[e["p"]] = e["t"]
+            # the first minute one side's army is twice the other's (and 1,500 at least): "clearly ahead"
+            ahead = None
+            for t in range(60, int(end) + 1, 60):
+                a = [side_at(r, p, t) for p in (0, 1)]
+                if not all(a):
+                    continue
+                for p in (0, 1):
+                    if a[p]["army"] >= 1500 and a[p]["army"] >= 2 * a[1 - p]["army"]:
+                        ahead = (t, p)
+                        break
+                if ahead:
+                    break
             errn = 0
             ef = os.path.join(d, tag, "errors.txt")
             if os.path.exists(ef):
@@ -97,7 +113,7 @@ def report(dirs):
             rows.append(dict(tag=tag, end=end, win=win, lead=lead, dead=dead, halls=halls,
                              inc8=[x["income"] for x in a8 if x], army8=[x["army"] for x in a8 if x],
                              inc10=[x["income"] for x in a10 if x], army10=[x["army"] for x in a10 if x],
-                             att=[att.get(0), att.get(1)], errn=errn))
+                             att=[att.get(0), att.get(1)], errn=errn, ahead=ahead))
         n = len(rows)
         if n == 0:
             continue
@@ -119,9 +135,15 @@ def report(dirs):
         at = sorted([y for x in rows for y in x["att"] if y is not None])
         print("  first attack: median %s (%d sides of %d)" % (("%d:%02d" % divmod(at[len(at) // 2], 60)) if at else "-", len(at), 2 * n))
         print("  games with script errors: %d" % len([x for x in rows if x["errn"]]))
+        ah = [x for x in rows if x["ahead"]]
+        fin = [x for x in ah if x in dec and x["win"] == x["ahead"][1]]
+        print("  a side clearly ahead (army 2x, 1,500+) in %d games, at %s on average; it won %d of them, %s after (mean)" % (
+            len(ah), ("%d:%02d" % divmod(int(sum(x["ahead"][0] for x in ah) / len(ah)), 60)) if ah else "-", len(fin),
+            ("%d:%02d" % divmod(int(sum(x["end"] - x["ahead"][0] for x in fin) / len(fin)), 60)) if fin else "-"))
         for x in rows:
-            print("    %-28s %s %5s lead %2d halls %s army8 %s army10 %s att %s%s" % (x["tag"], "win P%d" % (x["win"] + 1) if x in dec else "draw  ",
-                  "%d:%02d" % divmod(int(x["end"]), 60), x["lead"], x["halls"], x["army8"], x["army10"], x["att"], " DEAD" if x["dead"] else ""))
+            print("    %-28s %s %5s lead %2d halls %s army8 %s army10 %s att %s ahead %s%s" % (x["tag"], "win P%d" % (x["win"] + 1) if x in dec else "draw  ",
+                  "%d:%02d" % divmod(int(x["end"]), 60), x["lead"], x["halls"], x["army8"], x["army10"], x["att"],
+                  ("P%d %d:%02d" % ((x["ahead"][1] + 1,) + divmod(x["ahead"][0], 60))) if x["ahead"] else "-", " DEAD" if x["dead"] and x not in dec else ""))
 
 
 def main():
@@ -144,6 +166,9 @@ def main():
             root = a[i + 1]; i += 2
         elif a[i] == "--maps":
             maps = a[i + 1].split(","); i += 2
+        elif a[i] == "--slots":
+            global SLOTS
+            SLOTS = a[i + 1]; i += 2
         elif a[i] == "--args":
             extra = a[i + 1].split(","); i += 2
         else:
