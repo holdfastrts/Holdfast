@@ -135,3 +135,17 @@ The fix (ai_cw_army._killed_for_reckon, one changed line in reckon): against the
 everything killed (reckon(true)). `-- cwreckon:off` plays it as before.
 The mirror table itself was checked against the real armies of the first 21 measured games (median at 5:00 630, 6:00 1,040,
 8:00 1,670, 10:00 2,380, 12:00 3,070; the table 400, 800, 1,500, 2,500, 3,500): close enough from 8:00, left as it is.
+
+### 8. The goal in reach is the goal reached
+
+Seen: Kestrel Rise 4 (round 3), 8:32-10:18: P1 clearly ahead and committed (1,780 growing to 3,860 against 470-775), its
+anchor stood 360 px short of P2's natural Clocktower for two minutes; "front 32, 16 at anchor". Half the front was already
+at the Clocktower, shooting it on its attack-move, so the march never had 60% of the front at its anchor and never
+"arrived" to send everyone in. The Clocktower fell at 10:18; the game at 12:57.
+
+The fix (CwPush._goal_in_reach, one condition in _march's "arrived"): committed against the Clockwork, a building goal within
+420 px of the anchor counts as reached: everyone breaks it, the menders first. `-- cwreach:off` plays it as before.
+
+Picture r3_dune_1306_into_the_gears.jpg (Dune Sea 2, round 3, 13:06) is fix 7's moment: P1's push (left, its Ballistas
+far left in the open) walks into P2's base, where P2's army of 49 stands on its own gears between the Cog Presses. It lost
+half and pulled back at 13:40.
