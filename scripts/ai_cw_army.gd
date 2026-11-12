@@ -138,13 +138,13 @@ static func table_at(tab: Array, t: float) -> float:
 
 ## The enemy army as reckoned: what it saw in the last two minutes (the push's memory), never less than an enemy of that
 ## age has (TABLES) less KILL_SHARE of what we have killed; plus the Brood's rooted fighters it has seen. Unknown is never 0.
-func reckon() -> float:
+func reckon(all_kills := false) -> float:
 	var foe := _foe()
 	if foe < 0:
 		return 0.0
 	var seen: float = ai.push.foe_mem() if ai.push != null else 0.0
 	var tab: Array = TABLES.get(game.faction_of(foe), TABLES["crown"])
-	var floor_v := maxf(0.0, table_at(tab, game.clock) - float(game.stats[team]["value_killed"]) * KILL_SHARE)
+	var floor_v := maxf(0.0, table_at(tab, game.clock) - _killed_for_reckon(all_kills) * KILL_SHARE)
 	return maxf(seen, floor_v) + _rooted_seen() * ROOTED_K
 
 
@@ -888,3 +888,29 @@ func spring_in(list: Array, foes: Array) -> void:
 		Springer.start(u, l["at"])
 		stats["springs"] = int(stats["springs"]) + 1
 		say("a Springer jumps in to shoot at a %s" % String(near_o.d["name"]), "spring", 15.0)
+
+
+## (clockwork-v-clockwork-coach) WHAT IT HAS KILLED LATELY, NOT ALL GAME. The reckoning took off half of everything killed
+## since 0:00 from the table of what an enemy of that age has; but the table is an army that has lost units too, and the
+## enemy rebuilds. Against the Clockwork (an economy as good as its own, rebuilding ~1,400 of army a minute at 12:00) the
+## reckoning fell to 765-1,395 while the enemy had 2,200-3,900 at home, and the push went out "worth 4,445 against the 1,225
+## it reckons" into 49 units on their gears and lost half (Dune Sea mirror, round 3, 12:43; 9:49 and 14:50 the same).
+## Against the Clockwork only what it killed in the last KILL_RECENT s counts, for the push going out (may_launch). The
+## push's "clearly ahead" (CwPush._commit_check) still counts everything killed (reckon(true)): a beaten enemy is far below
+## the table, and the commit is what finishes a won game. `-- cwreckon:off` plays it as before.
+const KILL_RECENT := 150.0
+var reckon_recent_on := not OS.get_cmdline_user_args().has("cwreckon:off")
+var _kill_hist: Array = []      # [clock, value killed] every 10 s
+
+
+func _killed_for_reckon(all_kills: bool) -> float:
+	var k := float(game.stats[team]["value_killed"])
+	var foe := _foe()
+	if all_kills or not reckon_recent_on or foe < 0 or game.faction_of(foe) != "clockwork":
+		return k
+	if _kill_hist.is_empty() or game.clock - float(_kill_hist[-1][0]) >= 10.0:
+		_kill_hist.append([game.clock, k])
+	while _kill_hist.size() > 1 and game.clock - float(_kill_hist[1][0]) >= KILL_RECENT:
+		_kill_hist.pop_front()
+	var old: float = float(_kill_hist[0][1]) if game.clock - float(_kill_hist[0][0]) >= KILL_RECENT - 10.0 else 0.0
+	return k - old

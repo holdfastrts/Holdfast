@@ -987,7 +987,7 @@ func _commit_check() -> void:
 			goal_e = null
 		return
 	var v := _value(units)
-	var rk: float = ai.army_g.reckon() if ai.get("army_g") != null and ai.army_g != null else 0.0
+	var rk: float = ai.army_g.reckon(true) if ai.get("army_g") != null and ai.army_g != null else 0.0      # (all kills: ai_cw_army._killed_for_reckon)
 	var mem := foe_mem()
 	var near := _value(_foes_near(_front_centre(), LOOK + 120.0))
 	# (once committed it stays so down to AHEAD_KEEP times: a fight's numbers going up and down made it flip every few seconds)
