@@ -79,8 +79,8 @@ def main():
         k = g["foe"] + (" (" + g["tag"].split("_v_")[0].replace("plan_cr-", "") + " v " + g["tag"].split("_v_")[1].split("_")[0] + ")" if g["tag"].startswith("plan_") else "")
         groups.setdefault(k, []).append(g)
     print()
-    print("| Crown v | games | W-D-L | won or led | labourers 6:00 (Crown/foe) | 8:00 | income 5:00 | 8:00 | 10:00 | army 8:00 (ratio) | halls 8:00 | halls lost |")
-    print("|---|---|---|---|---|---|---|---|---|---|---|---|")
+    print("| Crown v | games | W-D-L | won or led | labourers 6:00 (Crown/foe) | 8:00 | income 5:00 | 8:00 | 10:00 | army 8:00 (sum ratio) | halls 8:00 | halls lost | lost games end |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for k in sorted(groups):
         gl = groups[k]
         W = sum(g["res"] == "W" for g in gl)
@@ -88,11 +88,13 @@ def main():
         D = len(gl) - W - L
         wl = sum(g["res"] in ("W", "led") for g in gl)
         avg = lambda key, i=None: (sum((g[key][i] if i is not None else g[key]) for g in gl if key in g) / max(1, sum(key in g for g in gl)))
-        ar = [g["army480"][0] / max(1, g["army480"][1]) for g in gl if "army480" in g]
-        print("| %s | %d | %d-%d-%d | %d | %.1f / %.1f | %.1f / %.1f | %.2f | %.2f | %.2f | %.2f | %.1f / %.1f | %d |" % (
+        a0 = sum(g["army480"][0] for g in gl if "army480" in g)
+        a1 = sum(g["army480"][1] for g in gl if "army480" in g)
+        ends = [g["end"] for g in gl if g["res"] == "L"]
+        print("| %s | %d | %d-%d-%d | %d | %.1f / %.1f | %.1f / %.1f | %.2f | %.2f | %.2f | %.2f | %.1f / %.1f | %d | %s |" % (
             k, len(gl), W, D, L, wl, avg("w360", 0), avg("w360", 1), avg("w480", 0), avg("w480", 1), avg("inc300"),
-            avg("inc480"), avg("inc600"), sum(ar) / max(1, len(ar)), avg("halls480", 0), avg("halls480", 1),
-            sum(g["halls_lost"] for g in gl)))
+            avg("inc480"), avg("inc600"), a0 / max(1, a1), avg("halls480", 0), avg("halls480", 1),
+            sum(g["halls_lost"] for g in gl), mmss(int(sum(ends) / len(ends))) if ends else "-"))
 
 
 if __name__ == "__main__":

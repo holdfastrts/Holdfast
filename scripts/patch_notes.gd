@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.17", "items": [
+		"THE CROWN COMPUTER AGAINST THE BROOD, COACHED (docs/crown_v_brood_coach.md): its Horseman rush rides as a raiding party at the grubs on the Brood's outlying Rootmaws, pulls back from the Raptors and comes again somewhere else, instead of riding with a Musketeer wave into the Brood's main where the Raptors wait; its rush opening builds the second Farm before the riders and keeps a labourer coming (it farmed one Farm with 8-9 labourers until 4:15); after the rush it plays its Economy plan, labourers to two halls and a walled natural, instead of Balanced.",
+		"Against the Brood the Crown computer no longer buys Barracks, Foundries, a Church, an Armoury or research while its army is behind or its Barracks stand idle for want of gold; it casts a Field Cannon for every four Musketeers; from 5:30 its army grows with its economy; its Powder Mills no longer take the Farms' hands to grind powder nobody uses.",
+		"The Crown computer's army posted at its natural's gate turns to an enemy that got inside the wall instead of standing there facing out.",
+	]},
 	{"v": "0.33.16", "items": [
 		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
 	]},
