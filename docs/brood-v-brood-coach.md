@@ -8,6 +8,28 @@ find the decision behind it in the code, fix that decision, replay the same seed
 No unit, building or economy number was changed. Every fix is the computer's play and is GATED to the mirror (the enemy
 is the Brood) unless said otherwise.
 
+## In short
+
+Seven coaching rounds (26 filmed games) and a measuring batch of 16 games before and after. The Brood computer against
+another Brood made eight mistakes, now fixed (all in its own code, gated to the mirror):
+
+1. It read the other Brood's normal opening as GREEDY at 1:40 and rushed it (the Brood has no production building and
+   roots a turtle on new ground at 0:00 in every plan).
+2. It took the other Brood's Raptors for Horsemen and spent the game in the anti-Horseman lockdown (the biggest one:
+   a third of the economy at 8:00).
+3. Base trades: both waves left at the same second and walked past each other.
+4. It did not kill the enemy Mother: its Raptors bit her eggs, hatchlings and Sires while she stood at a fifth of her
+   health for minutes.
+5. Its three Sires all got up to defend her, so nothing could be laid while its food piled up.
+6. Its waves arrived single file into the enemy's gathered army.
+7. A reinforced wave never pulled back (its losses were counted against what first left) and a winning wave went home
+   at a quarter of its size.
+8. OPTIMAL threw the dice for a Raptor rush that lost or trailed 5 of 6 times in the mirror.
+
+After (16 games, 15:00): income at 8:00 9,606 a side (was 5,546), army 1,714 (was 915), the two sides even (1.05, was
+1.34), no dead games; more 15:00 draws (10, was 7), all between two live armies. Other matchups untouched (the code
+paths are gated). Details, pictures and the owner's choices below.
+
 ## The tool
 
 `tools/shot_brood_mirror.gd` (new): two Brood computers on any map and seed, filmed and logged.
@@ -325,7 +347,26 @@ What it says:
 - `tools/test_brood_new_defence.gd` fails its "muskets, rooted" case (the Mother dies to 5 Musketeers when she may not
   get up) on main too, the same numbers: a rule test with no computer in it, not touched by this job.
 
-(Other matchups below.)
+## The other matchups
+
+Every new decision returns at once unless the enemy is a Brood (`_foe_is("brood")`, `faction_of(foe) == "brood"`),
+`is_rider` changes only for Brood units, and the OPTIMAL row changed is the mirror's. So the Brood computer against the
+Crown or the Clockwork, and the Crown and Clockwork computers, run the same code as on main. A small check batch, the
+same seeds on main and on the branch, to 15:00:
+
+| game | before (main) | after (branch) |
+|---|---|---|
+| Crown v Brood, Greenhold 51 | Brood wins 14:52; income at 8:00 4,940 / 7,564 | draw, the Brood far ahead (Crown army 230 at the end); 4,560 / 7,038 |
+| Crown v Brood, Hollowfen 52 | Brood wins 11:40; 4,560 / 8,068 | Brood wins 12:12; 4,180 / 7,305 |
+| Brood v Clockwork, Greenhold 53 | draw, the Brood ahead (Clockwork army 0); 7,374 / 7,687 | draw, the Clockwork ahead on army; 6,993 / 7,745 |
+| Brood v Clockwork, Hollowfen 54 | Brood wins 12:51; 6,338 / 8,108 | draw, even (3,925 / 4,515 armies); 4,720 / 8,128 |
+
+These differ, but not because of this branch: the game is not repeatable from run to run. The same build (main) run
+twice on Crown v Brood, Greenhold 51, diverged by 3:00 (a Musketeer and a horse at 2:30 in one run, a horse only in the
+other; docs/pathfinding_audit.md already lists match determinism as open). The same noise is in the mirror batch above:
+one game's before and after are two different games, which is why the batch is read as a whole. With four games a side
+these cross checks only show that nothing broke (no error, no stall, the same kind of results: the Brood beats the
+Crown, Brood v Clockwork is close); the code paths are the proof that they are untouched.
 
 ## What is still wrong (not changed here)
 
