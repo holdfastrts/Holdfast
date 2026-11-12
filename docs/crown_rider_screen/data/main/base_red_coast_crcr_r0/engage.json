@@ -1,0 +1,155 @@
+[
+ {
+  "across": 240,
+  "cell": [
+   102,
+   42
+  ],
+  "clock": "9:07",
+  "depth": 171,
+  "fired5": 6,
+  "foe_val0": 115,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 4,
+  "home": true,
+  "in_reach0": 4,
+  "in_reach5": 3,
+  "killed": 345,
+  "lay_st": "",
+  "len": 22,
+  "lost": 0,
+  "mine_val0": 610,
+  "moving": 2,
+  "n": 8,
+  "prev_st": "",
+  "since_lay": -1,
+  "t": 547,
+  "team": 1,
+  "warn": 11.5,
+  "warn_first": 11.5
+ },
+ {
+  "across": 163,
+  "cell": [
+   14,
+   30
+  ],
+  "clock": "10:36",
+  "depth": 71,
+  "fired5": 2,
+  "foe_val0": 230,
+  "guns": [
+   {
+    "behind": false,
+    "from_line": -17,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -71,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 0,
+  "held": 0,
+  "home": true,
+  "in_reach0": 3,
+  "in_reach5": 3,
+  "killed": 115,
+  "lay_st": "form",
+  "len": 14,
+  "lost": 0,
+  "mine_val0": 1775,
+  "moving": 22,
+  "n": 22,
+  "prev_st": "",
+  "since_lay": 61,
+  "t": 636,
+  "team": 0,
+  "warn": 13.0,
+  "warn_first": 13.0
+ },
+ {
+  "across": 198,
+  "cell": [
+   45,
+   32
+  ],
+  "clock": "11:21",
+  "depth": 177,
+  "fired5": 5,
+  "foe_val0": 230,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -112,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -276,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 0,
+  "home": true,
+  "in_reach0": 3,
+  "in_reach5": 1,
+  "killed": 590,
+  "lay_st": "",
+  "len": 30,
+  "lost": 300,
+  "mine_val0": 1950,
+  "moving": 23,
+  "n": 23,
+  "prev_st": "",
+  "since_lay": 0,
+  "t": 681,
+  "team": 0,
+  "warn": 49.0,
+  "warn_first": 49.0
+ },
+ {
+  "across": 116,
+  "cell": [
+   67,
+   46
+  ],
+  "clock": "11:34",
+  "depth": 53,
+  "fired5": 13,
+  "foe_val0": 1380,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -156,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 0,
+  "held": 0,
+  "home": true,
+  "in_reach0": 2,
+  "in_reach5": 0,
+  "killed": 300,
+  "lay_st": "form",
+  "len": 17,
+  "lost": 360,
+  "mine_val0": 1305,
+  "moving": 15,
+  "n": 17,
+  "prev_st": "form",
+  "since_lay": 1,
+  "t": 694,
+  "team": 1,
+  "warn": 13.0,
+  "warn_first": 13.0
+ }
+]
