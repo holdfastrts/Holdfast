@@ -11,7 +11,8 @@ extends "res://tools/film_coach.gd"
 ##  - traded: the value of the enemy army units killed and of ours lost near it (every unit that came within JOIN px of
 ##    the contact while it lasted counts).
 ##  - (crown-rider-screen) the WARNING: how long the enemy soldiers in the engagement had been in the Crown's sight when it
-##    began (each enemy soldier's sighting starts when it comes into sight; "warn" = the median of those near the contact,
+##    began (each enemy soldier's sighting starts when it comes into sight and lasts while it is seen again within 20 s,
+##    as the line remembers it; "warn" = the median of those near the contact,
 ##    "warn_first" the earliest, capped at 60 s), the line's state just before it ("prev_st") and the seconds since the
 ##    line was last laid on the march ("since_lay"); screen.json at the end: the rider screen's counts per Crown side
 ##    (riders sent, lost, the line formed on the screen's sightings, the picket's warnings, the flank work).
@@ -70,7 +71,11 @@ func _crown_ai(tm: int):
 	return null
 
 
-## Each enemy soldier's sighting: the clock it came into tm's sight (dropped when out of sight).
+## Each enemy soldier's sighting: [the clock it came into tm's sight, the clock it was last seen]; out of sight for
+## SIGHT_GAP s it is forgotten (the line remembers what it saw 20 s, AICrownLine.KNOWN_T).
+const SIGHT_GAP := 20.0
+
+
 func _sight(tm: int) -> void:
 	var d: Dictionary = _since.get(tm, {})
 	var keep := {}
@@ -78,7 +83,9 @@ func _sight(tm: int) -> void:
 		if not Game.fights_back(o) or o.is_air():
 			continue
 		if g.is_visible_to(tm, o.position):
-			keep[o] = d.get(o, g.clock)
+			keep[o] = [(d[o] as Array)[0] if d.has(o) else g.clock, g.clock]
+		elif d.has(o) and g.clock - float((d[o] as Array)[1]) <= SIGHT_GAP:
+			keep[o] = d[o]
 	_since[tm] = keep
 
 
@@ -87,7 +94,7 @@ func _warn(tm: int, foes_near: Array) -> Array:
 	var ts: Array = []
 	for o in foes_near:
 		if d.has(o):
-			ts.append(minf(60.0, g.clock - float(d[o])))
+			ts.append(minf(60.0, g.clock - float((d[o] as Array)[0])))
 	if ts.is_empty():
 		return [0.0, 0.0]
 	ts.sort()
@@ -166,6 +173,7 @@ func _track(tm: int) -> void:
 		e["since_lay"] = -1
 		if ca != null and ca.ln != null and not (ca.ln.line_log as Array).is_empty():
 			e["since_lay"] = int(c - float(ca.ln.line_log[-1][0]))
+			e["lay_st"] = String(ca.ln.line_log[-1][1])      # (the line's state when it was last laid: "form" = formed before contact)
 		e["mine_val0"] = int(_val(mine.filter(func(u: Unit) -> bool: return u.position.distance_to(mid) < NEAR + 200.0)))
 		var gs: Array = []
 		for u in mine:
@@ -250,7 +258,7 @@ func _close(tm: int) -> void:
 			"mine_val0": e["mine_val0"], "foe_val0": e["foe_val0"], "guns": e["guns0"],
 			"guns_fired": (e["guns_fired"] as Dictionary).size(), "killed": killed, "lost": lost,
 			"home": _near_home(tm, e["sc"]), "warn": e.get("warn", 0.0), "warn_first": e.get("warn_first", 0.0),
-			"prev_st": e.get("prev_st", "?"), "since_lay": e.get("since_lay", -1)})
+			"prev_st": e.get("prev_st", "?"), "since_lay": e.get("since_lay", -1), "lay_st": e.get("lay_st", "")})
 
 
 func _near_home(tm: int, p: Vector2) -> bool:

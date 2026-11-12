@@ -20,6 +20,20 @@ import crown_line_report as R
 FORMED = ("form", "step", "set", "advance", "back")
 
 
+def formed(e):
+    """The line was formed when the fight began: its state just before was a formed one, or it was in a fight already
+    (the line's own contact comes a moment before the film's) on a line laid formed ("form", "back") in the last 90 s;
+    without lay_st (the first after games): in a fight on a line laid 3+ s before (a deploy is laid at contact)."""
+    st = e.get('prev_st', '')
+    if st in FORMED:
+        return True
+    if st != 'fight':
+        return False
+    if 'lay_st' in e:
+        return e['lay_st'] in ('form', 'back') and 0 <= e.get('since_lay', -1) <= 90
+    return 3 <= e.get('since_lay', -1) <= 90
+
+
 def screen_rows(rows, key, data_of):
     sel = [x for x in rows if ('_%s_' % key) in x[0]]
     if not sel:
@@ -43,7 +57,7 @@ def screen_rows(rows, key, data_of):
                 out['n5'] += e['n']
             if 'prev_st' in e:
                 out['has_st'] += 1
-                if e['prev_st'] in FORMED:
+                if formed(e):
                     out['formed'] += 1
             if 'warn' in e:
                 out['warn'].append(e['warn'])
