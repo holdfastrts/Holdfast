@@ -1,0 +1,22 @@
+# crown-line-fight (docs/crown_line_fight.md): the AI STORY's sentences for the Crown computer's musket line
+# (scripts/ai_story_lines.gd). The placeholders keep their English order: the first %s is the player.
+
+> %s's wave forms its musket line before the enemy army ahead (%s): %s muskets in %s rank(s), %s gun(s) behind them.
+pt A onda de %s forma a sua linha de mosquetes diante do exército inimigo à frente (%s): %s mosquetes em %s fileira(s), %s canhão(ões) atrás deles.
+es La oleada de %s forma su línea de mosquetes ante el ejército enemigo que tiene delante (%s): %s mosquetes en %s fila(s), %s cañón(es) detrás de ellos.
+
+> %s's wave meets the enemy before its line is formed: %s muskets deploy into a line under fire.
+pt A onda de %s encontra o inimigo antes de formar a linha: %s mosquetes se desdobram em linha sob fogo.
+es La oleada de %s se topa con el enemigo antes de formar su línea: %s mosquetes se despliegan en línea bajo el fuego.
+
+> %s's musket line has won the field: it forms up again and goes on.
+pt A linha de mosquetes de %s venceu no campo: forma-se de novo e segue em frente.
+es La línea de mosquetes de %s ha ganado el campo: se vuelve a formar y sigue adelante.
+
+> %s's musket line is losing the fight (%s lost for %s): it falls back toward its guns in order.
+pt A linha de mosquetes de %s está perdendo a luta (%s perdidos por %s): recua em ordem para junto dos seus canhões.
+es La línea de mosquetes de %s está perdiendo la lucha (%s perdidos por %s): se repliega en orden hacia sus cañones.
+
+> %s meets the force at its buildings with a musket line: %s muskets facing it, %s gun(s) behind them.
+pt %s enfrenta a força junto às suas construções com uma linha de mosquetes: %s mosquetes de frente para ela, %s canhão(ões) atrás deles.
+es %s hace frente a la fuerza junto a sus edificios con una línea de mosquetes: %s mosquetes de cara a ella, %s cañón(es) detrás de ellos.

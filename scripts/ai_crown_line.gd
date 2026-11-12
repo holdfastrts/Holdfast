@@ -46,6 +46,7 @@ const ADVANCE_TO := 165.0       # (px) ... else to this far from the nearest ene
 const ADVANCE_FAR := 480.0      # (px) ... at most this far in one step
 const STEP_LEN := 128.0         # (px) a step of the formed line and its guns toward an enemy beyond the guns' reach
 const STEP_MAX := 12.0          # (s) the line waits this long at most for its guns at a halt
+const SET_MAX := 8.0            # (s) ... and for them to set up once in reach
 const GUN_SET := 330.0          # (px) an enemy this near the front rank is in the guns' reach from behind it (430 - the
                                 # guns' place behind the line - a margin)
 const ADVANCE_MAX := 25.0       # (s) an advance not in contact by then fights where it stands
@@ -297,8 +298,9 @@ func march(wave: Array, target: Vector2) -> bool:
 	for u in body:
 		bc += u.position
 	bc /= maxi(1, body.size())
-	if pc != null and is_instance_valid(pc) and not pc.dead and bc.distance_to(pc.center()) < 560.0:
-		return _reset(ground, target, "")       # (at the wall: the siege's own order)
+	if pc != null and is_instance_valid(pc) and not pc.dead and bc.distance_to(pc.center()) < 560.0 \
+			and not (st in ["form", "step", "set"] and not _guns_set()):
+		return _reset(ground, target, "")       # (at the wall: the siege's own order, once the line's guns are set up)
 	# the enemy army ahead (in sight now, or seen in the last KNOWN_T s where it was seen: the scouts' and the army's own
 	# eyes, AICrownHold._seen), and the nearest of it; contact only with what is in sight
 	var foes := _known(body)
@@ -316,7 +318,7 @@ func march(wave: Array, target: Vector2) -> bool:
 	var mine := _value(ground)
 	var ahead := _value(foes)
 	match st:
-		"form", "step":
+		"form", "step", "set":
 			return _forming(ground, target, contact, foes)
 		"advance":
 			if contact:
@@ -354,7 +356,7 @@ func march(wave: Array, target: Vector2) -> bool:
 			st = "close"
 			_t0 = game.clock
 			_close_pt = _head(body, target)
-			_say("'s wave is strung out on the march: %d men %.1f tiles apart close up before going on" % [body.size(), spread2])
+			_say("'s wave strung out on the march: %d men %.1f tiles apart close up before going on" % [body.size(), spread2])
 			_close_orders(ground, target)
 			return true
 	return false
@@ -402,6 +404,10 @@ func _forming(ground: Array, target: Vector2, contact: bool, foes: Array) -> boo
 		return _fight_begin(ground)         # (they came to us: the line shoots where it stands)
 	if foes.is_empty() and game.clock - _t0 > 4.0:
 		return _reset(ground, target, "")
+	if st == "set":
+		if _guns_set() or game.clock - _t0 > SET_MAX:
+			_step(foes)
+		return true
 	var guns_up := _guns_at_spots()
 	if (share >= FORMED and (st == "form" or guns_up)) or game.clock - _t0 > (FORM_MAX if st == "form" else STEP_MAX):
 		_step(foes)
@@ -429,6 +435,12 @@ func _step(foes: Array) -> void:
 		_c += _face * step
 		st = "step"
 		steps += 1
+		_t0 = game.clock
+		return
+	if not guns.is_empty() and st != "set" and not _guns_set():
+		# (in the guns' reach: they set up behind the line first, the line holds; then it walks on alone)
+		_guns_down()
+		st = "set"
 		_t0 = game.clock
 		return
 	var adv := ADVANCE
@@ -461,6 +473,16 @@ func _guns_down() -> void:
 			var p: Vector2 = _same_level(_c - _face * (GUN_BACK * T) + perp * side, game.level_of(_c), _c)
 			_spot[u] = p
 			u.cmd_move(p)
+
+
+## Every gun of the line set up (or none): coached, Greenhold 1103 8:08-8:21 (the mirror): the line formed in the open, walked
+## on to the enemy's ramp gate and the siege took it there without its two guns, still rolling 900 px behind; it lost 540
+## for 120 at the gate and pulled back. A siege now waits for the line's guns to set up in reach of the gate.
+func _guns_set() -> bool:
+	for u in _spot:
+		if _ok(u) and is_gun(u) and u.tesla_mode != "deployed":
+			return false
+	return true
 
 
 ## The guns at their spots (or none).
@@ -668,7 +690,7 @@ func _close_orders(ground: Array, target: Vector2) -> void:
 
 
 func regrouping() -> bool:
-	return st in ["close", "form", "step", "back"]
+	return st in ["close", "form", "step", "set", "back"]
 
 
 # ============================================================ 4. the defence

@@ -144,6 +144,12 @@ const RULES := [
 	["^'s wave strung out on the march: (\\d+) men [\\d.]+ tiles apart close up", "%s's wave was strung out on the march: its %s men close up before they go on.", 1, "attack"],
 	["^'s wave forms up before the enemy army ahead \\((\\d+)\\): (\\d+) men", "%s's wave forms up before the enemy army ahead (%s): %s men close up before they fight.", 2, "attack"],
 	["^'s wave goes on together", "", 1, "attack"],
+	# ---- THE CROWN'S LINE (crown-line-fight, scripts/ai_crown_line.gd)
+	["^'s wave forms its line before the enemy army ahead \\((\\d+)\\): (\\d+) muskets in (\\d+) ranks?, (\\d+) guns? behind", "%s's wave forms its musket line before the enemy army ahead (%s): %s muskets in %s rank(s), %s gun(s) behind them.", 2, "attack"],
+	["^'s wave meets the enemy before its line is formed: (\\d+) muskets deploy into a line", "%s's wave meets the enemy before its line is formed: %s muskets deploy into a line under fire.", 2, "attack"],
+	["^'s line has won the field", "%s's musket line has won the field: it forms up again and goes on.", 2, "attack"],
+	["^'s line is losing the fight \\((\\d+) lost for (\\d+)\\): it falls back", "%s's musket line is losing the fight (%s lost for %s): it falls back toward its guns in order.", 2, "attack"],
+	["^meets the force at its buildings with a line: (\\d+) muskets facing it, (\\d+) guns? behind", "%s meets the force at its buildings with a musket line: %s muskets facing it, %s gun(s) behind them.", 2, "defend"],
 	["^trains (\\d+) Musketeers? first: enemy soldiers \\((\\d+)\\) at its labourers", "%s trains Musketeers first (%s): enemy soldiers (%s) are at its labourers and too few of its own meet them.", 2, "defend"],
 	["^brings its guns up to shell the enemy hall over its wall", "%s brings its guns up to shell the enemy's Town Hall over its wall.", 2, "attack"],
 	["^holds its line out of reach and shells the enemy hall with (\\d+) guns", "%s holds its musket line out of reach and shells the enemy's Town Hall with %s guns.", 2, "attack"],
