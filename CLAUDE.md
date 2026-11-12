@@ -75,6 +75,12 @@
   1.67 killed per 1 lost (was 1.36); results by 12:00 unchanged; most fights still start unformed (the enemy first seen at
   contact) -> crown-rider-screen started. 9 Claude's choices for the owner in its doc. test_crown_hold's [below] labourer
   check is flaky too.
+  MERGED crown-rider-screen 0.33.25 (2026-11-12; scripts/ai_crown_screen.gd, docs/crown_rider_screen.md, switch
+  screen:off): 2-4 Horsemen ahead/flanks of a marching wave, the line forms on their sightings (from 8% of the wave),
+  flank work at contact, a picket forward at home; 9 of 291 riders lost; fights begun formed: mirror 42% (was 22%), v
+  Clockwork 36% (was 28%); trades and results unchanged within noise. Still wrong: v the Clockwork most fights are at its
+  bases where units come out at a few seconds' notice; after a won fight the line marches on as a crowd. 8 choices in its
+  doc.
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
