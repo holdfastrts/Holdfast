@@ -150,26 +150,30 @@ Picture r3_dune_1306_into_the_gears.jpg (Dune Sea 2, round 3, 13:06) is fix 7's 
 far left in the open) walks into P2's base, where P2's army of 49 stands on its own gears between the Cog Presses. It lost
 half and pulled back at 13:40.
 
-### 9. The hunt broke Regulators while the enemy's last Winders stood by
+### 9. The hunt broke the enemy's last buildings one at a time
 
 Seen: Dune Sea 2 (round 4, fixes 1-8 in): P1 won, but only at 14:17. From 13:07 P2 had no hall, no army and no cogs, only
-12-14 Winders (10-12 of them idle). The hunt broke its buildings one by one, "the Regulator at its goal falls after 2-7 s"
-a dozen times, while the Winders stood about outside (picture r4_dune_1332_buildings_not_winders.jpg: P1's army in rows
-breaking UNLINKED buildings, P2's Winders scattered top left). A side is beaten only once it has no worker left (or no
-means for a minute: rules-fixes).
+12-14 Winders (10-12 of them idle). The whole push broke its buildings one by one, "the Regulator at its goal falls after
+2-7 s" a dozen times, walking as a block from each to the next (picture r4_dune_1332_buildings_not_winders.jpg: P1's army
+in rows breaking UNLINKED buildings, P2's Winders scattered top left). Hollowfen 3 (round 4): P1's last Clocktower fell at
+12:53 and 11 of its Winders were still alive at 15:00, a draw.
 
-The fix (CwPush._hunt_goal): the hunt's order is the enemy's halls, then its WORKERS, then its other buildings, then any
+How a side loses: with no building left it is out at once, whatever units it has; with buildings it is beaten once it
+has had no worker, no soldier and no means for a minute (rules-fixes).
+
+A first fix sent the hunt at the WORKERS before the other buildings, and the parties (10) after the units. Measured, it was
+worse: a Winder runs 74, a Clock Soldier 68, a hunted Winder flees, and the last one or two outran their party while the
+buildings stood: 5 of the first 16 "after" games were draws with one side beaten in all but name (before: 1 of 24).
+
+The fix (CwPush._hunt_goal): the hunt's order is the enemy's halls, then its other buildings, then its workers, then any
 unit.
 
 ### 10. Hunting parties
 
-Seen: Hollowfen 3 (round 4, fixes 1-9 in): P2 hunted from 11:59 and broke P1's last Clocktower at 12:53. From 13:08 P1
-had no hall, no army and no cogs; the hunt went for its Winders (fix 9) and killed 17 of 28 in a minute, but one at a
-time, the whole push walking after each across the big marsh: 11 were still alive at 15:00. A draw.
-
-The fix (CwPush._hunt_parties): hunting against the Clockwork with every enemy hall gone, the front splits into parties of
-up to 4, each after one of the enemy's last units (Winders first), the nearest soldiers first; the rest break its nearest
-buildings. The push stops marching as a block for that.
+The fix (CwPush._hunt_parties, CwPush._party_score): hunting against the Clockwork with every enemy hall gone, the push
+stops marching as a block; its front and its Ballistas split into parties of up to 4, each at one of the enemy's last
+buildings, then its units (Winders first), the nearest first. With 6 targets or fewer everyone goes, split evenly. At a
+unit the shooters (Springers, range 170) and the Netters (they hold a unit 4 s) go first.
 
 ### 11. A few reactive turrets read as a turtle (the side behind, the middle game)
 
@@ -194,7 +198,7 @@ Red Coast seed 6, sides swapped) with fixes 1-10.
 | film | round 1 (main) | round 4 / 5 |
 |---|---|---|
 | Greenhold 1 | (headless) P2 far ahead from 8:00, a draw | an even game to 12:00; P2 ahead from 13:00 (its push 5,900 against 1,215 reckoned), a draw |
-| Dune Sea 2 | P1 ahead from 8:00, won 12:07 (the hunt on and off 8 times) | P1 ahead from 7:00, won 14:17 (fix 9 came from it) |
+| Dune Sea 2 | P1 ahead from 8:00, won 12:07 (the hunt on and off 8 times) | P1 ahead from 7:00, won 14:17 (fixes 9-10 came from it) |
 | Hollowfen 3 | P1 ahead from 8:00, a draw: 50 soldiers run down in P2's main | P2 ahead from 9:49, no run-down soldier, P1's last hall at 12:53, a draw with 11 Winders left (fix 10 came from it) |
 | Kestrel Rise 4 | P1 won 11:18 | P1 won 11:57 (the hunt from 8:08) |
 | Cinder Steps 5 | | P1 won 13:14 (fix 11 came from P2's side of it) |
@@ -230,7 +234,7 @@ Existing functions changed (each a line or two calling the new ones):
 - AIOptimal.choose: the DEFENSIVE branch first asks _mirror_turrets.
 Gated against the Clockwork (the enemy's faction): the menders first, the cliff, the Ballistas' wait, the reckoning, the
 goal in reach, the hunting parties; OPTIMAL's DEFENSIVE read: the Clockwork against the Clockwork only. In every matchup:
-the hunt through the push and its order (halls, workers, the rest), the march not waiting for the Great Winder.
+the hunt through the push and its order (halls, other buildings, workers, the rest), the march not waiting for the Great Winder.
 Every one has a switch (`-- cwhunt:off`, `cwfixers:off`, `cwclimb:off`, `cwgwlag:off`, `cwreckon:off`, `cwreach:off`,
 `optturrets:off`; the Ballistas' wait goes with `cwgwlag:off`).
 No unit, building, research or economy number changed. No shared AI file (scripts/ai.gd, ai_hunt.gd, ai_cw_army's tables)
@@ -238,15 +242,6 @@ changed apart from the lines above.
 
 Tools: tools/shot_ai_match.gd (sa:/sb: plans, every:N pictures, status.txt, story.txt, the push's state in ai.txt, files
 written every minute), tools/study/cwcw_coach.py (the measuring batch and its report; `--slots` for other pairings).
-
-### 12. The last Winders outran their hunters
-
-Seen in the first "after" games (fixes 1-11): Twin Fords and Red Coast, the winner hunted in parties from 12:33 / 12:56,
-the loser's last 25 / 14 units fell to 1 by 14:12 / 14:26, and that one lived to 15:00: "4 soldiers after its last 1
-units" for a minute. A Winder runs 74, a Clock Soldier 68 (less as it runs down), and a hunted Winder flees.
-
-The fix (CwPush._party_score, in _hunt_parties): with 3 or fewer enemy units left everyone hunts them (split evenly), and
-the shooters (Springers, range 170) and the Netters (they hold a unit 4 s) go first, as if 500 px nearer.
 
 ## Still wrong (for a later look)
 
