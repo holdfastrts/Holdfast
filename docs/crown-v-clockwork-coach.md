@@ -193,3 +193,84 @@ loses afterwards is the economy behind it. So:
   the powder bank sits at 13-30 in the fights after 9:00 (one Powder Mill to 10:00-12:00), so guns and Musketeers wait
   for powder (AI._produce skips the Foundry under 20 powder).
 - **Kestrel Rise**: the natural under the main's ramp falls to the Clockwork's first push in most runs, two halls or one.
+
+## The numbers: 16 measuring games, before and after
+
+Hard Crown OPTIMAL v Hard Clockwork OPTIMAL, to 15:00, 8 maps (Greenhold, Dune Sea, Hollowfen, Kestrel Rise, Ashford
+Crossing, Red Coast, Frostmere, Border March), the qa-matches base seeds of rounds 0 and 1 (each map played from both
+start slots). Before: main at 0.33.16 (this job's start). After: this branch's final code (rounds 1-6, the two-hall
+Timing off). `python3 tools/study/crcw_coach_report.py docs/crown-v-clockwork-coach/data/before
+docs/crown-v-clockwork-coach/data/after` and `tools/study/crcw_coach_sides.py` the same. "Won or led": won, or ahead at
+15:00 by income earned + 2 x army value by 10%. No script errors in any of the 32 games.
+
+| | before | after |
+|---|---|---|
+| Crown W-D-L (won or led) | 1-9-6 (2) | 2-4-10 (2) |
+| games decided (mean length) | 7 (12:46) | 12 (12:59) |
+| income Crown / Clockwork, 8:00 / 10:00 | 0.66 / 0.63 | 0.65 / 0.61 |
+| army 8:00, Crown / Clockwork | 1,056 / 1,569 | 965 / 1,396 |
+| army 10:00, Crown / Clockwork | 852 / 2,505 | 635 / 2,441 |
+| halls at 8:00, Crown / Clockwork | 1.4 / 2.6 | 1.7 / 2.6 |
+| halls lost, Crown / Clockwork | 36 / 13 | 33 / 7 |
+| the Crown's first attacks (12 each) | 106 lost for 218 killed | 111 lost for 261 killed |
+| the Clockwork's first attacks | 104 lost for 54 killed (15) | 91 lost for 60 killed (16) |
+| the Clockwork's bank at 5:00, median (most) | 146 (1,177) | 111 (736) |
+| Crown labourers at 8:00 / 10:00 (medians) | 19.5 / 21.5 | 20.5 / 22.5 |
+
+Per game (before -> after): Ashford Crossing D -> L and D -> D; Border March D -> D and L -> L; Dune Sea W -> W and
+D -> L; Frostmere L -> L and D (Crown ahead) -> W; Greenhold D -> L and L -> L; Hollowfen D -> D and L -> L; Kestrel
+Rise L -> L and D -> D; Red Coast L -> L and D -> L.
+
+**What it says.** Both computers play this matchup better in the ways that were coached, and the Clockwork's gains are
+the bigger ones: it finishes 12 of 16 games instead of 7 (10 wins instead of 6), loses half as many halls (7 against
+13), its first pushes lose less, and its bank no longer sleeps. The Crown's first attacks kill a fifth more (261 against
+218) and its guns come early (the round 5-6 films: the first Field Cannon at 4:32-8:40 instead of 13:25), its waves
+stay out, but its economy is where it was (0.65 of the Clockwork's income at 8:00) and that is what loses its games. The
+Crown computer still won or led only 2 of 16; the matchup is now decided more often, in the Clockwork's favour.
+
+The one-hall Timing against the two-hall try ("after A", 6 games of the 16, in docs/crown-v-clockwork-coach/data/afterA):
+0 of 6 won or led, income 0.57, army at 8:00 437.
+
+## The tests
+
+Run on the final code (`godot --headless --fixed-fps 30 --script res://tools/X.gd`): test_crcw_coach (new: 12 of 13,
+see below), test_ai_optimal (35 of 35; its "army keeps up against a greedy Clockwork" check failed with the two-hall
+Timing, 460 of army at 8:00, and passes with the final code, 1,865), test_ai_wall_vs_rush, test_crown_hold,
+test_ai_round6, test_crown_lost_hall, test_clockwork_home, test_crown_owner_eco, test_clockwork_builds_b,
+test_ai_crown_bank, test_crown_stall, test_clockwork_army, test_cw_army: all pass.
+
+Two Crown-v-Brood tests fail on this branch (twice each) and pass on main, and the failure is NOT this job's logic:
+test_crown_build_order ([rush] the first attack at 196 s with 2 Horsemen, wants 3) and test_ai_expand_wall (Kestrel Rise
+40% of the ways in shut at 180 s, wants 50%; in the second run also Cinder Steps 48%); test_ai_harass (its Tyrant Sire
+check, Crown v Brood) failed in one of two runs here. Bisected with a worktree
+of main plus single files: main + ai_crown.gd + ai.gd passes, adding ai_crown_hold.gd fails, and with a print in
+`_cc_edge_floor` the function is **never called** in that test (0 calls); replacing the never-run call by the literal
+`0.0` makes the test pass again. The outcome of these games depends on the scripts' layout (most likely the order of
+object ids in dictionaries keyed by units and buildings), not on any rule that runs against the Brood: every new rule
+here returns at once unless every enemy is the Clockwork (or, for the Clockwork, the Crown). The same flips are to be
+expected from any change to these files; they are reported here for the owner, not "fixed" by tuning the Brood games.
+test_clockwork_springer_timing ("the Springers leap up onto the enemy main by 6:30") failed once of two on this branch
+(it plays the Clockwork against the Crown, so CW-1 and CW-2 do apply there).
+
+test_crcw_coach's one failure: "a natural standing by 7:00 is worked" (the natural stood at 8:05 in that run and was not
+worked by 10:00): the one-hall Timing's natural comes late and its Farms wait for labourers and gold (see "Still wrong").
+
+## Claude's choices for the owner to confirm
+
+1. **The two-hall Timing is off** (kept as `-- crcw:twohall`): it gave the Crown its economy from 10:00 on but lost the
+   window from 5:00 to 8:00 to the Clockwork's first push (0 of 6 won or led). The Crown's timing on one hall is its best
+   card in this matchup today.
+2. **The Clockwork was coached too**, and it now beats the Crown computer more often (10 wins of 16 against 6). Its two
+   fixes are corrections of plain mistakes (an army reckoned at half its size, a bank of 1,186 cogs with one Springer);
+   I kept them although they make this matchup harder for the Crown. Say if the Crown's side should come first instead.
+3. **A balance question, not applied** (the job does not change numbers): per worker the Crown earns less than the
+   Clockwork, and the gap grows as its soil tires (8:00 45 against 54 a minute; 10:00 34 against 57; 12:00 31 against
+   51, the 16 "before" games). With the computers playing their best builds the Crown computer is behind 0.6-0.66 in
+   income in every game. Proposals to weigh: a Crown Farm's yield on tired soil (the "tired land pays a third" curve)
+   or its 8 hands, or the Clockwork's press yield against the Crown only after the owner's own games agree.
+4. **The wave stays out** for a raid at home worth under 40% of the wave and under 500; a hall under half health still
+   calls it home. The numbers are my pick.
+5. **The guns get the horses** until 3 Field Cannons are out or queued (the owner's CANNONS_FIRST), one rider for the
+   scouting always allowed.
+6. **The Clockwork's reckoning of a Crown** is now the lower quartile of 16 games' Crown armies; if the Crown computer
+   changes a lot (the other coaching jobs), this row should be measured again.

@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import qa_matches as Q
 
 MAPS = ["greenhold", "dune_sea", "hollowfen", "kestrel_rise", "ashford_crossing", "red_coast", "frostmere", "border_march"]
-OTHER_MAPS = ["greenhold", "kestrel_rise", "frostmere"]
+OTHER_MAPS = ["greenhold", "frostmere"]
 
 
 def measure():
@@ -18,7 +18,7 @@ def measure():
 
 
 def others():
-    """the Crown v the Brood and the Clockwork v the Brood (and both mirrors) on three maps, round 0"""
+    """the Crown v the Brood and the Clockwork v the Brood (and both mirrors) on two maps, round 0"""
     keep = ("_crbr_r0", "_brcw_r0", "_crcr_r0", "_cwcw_r0")
     return [g for g in Q.base(0) if g[1] in OTHER_MAPS and g[0].endswith(keep)]
 
