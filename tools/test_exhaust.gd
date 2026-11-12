@@ -10,7 +10,8 @@ extends SceneTree
 ##   MAINSPRINGS EXHAUST: winding draws its Clocktower's spring life (Defs.TENSION_RESERVE), what went into the pool only.
 ##   LIMITS: 2 Cog Presses and 1 Mainspring per Clocktower (a second Mainspring is refused; a second tower allows another);
 ##   a Mainspring placed past the limit by an old save keeps working.
-##   The numbers: press small 7.2/s with 5, big 10/s with 8, Winder 60, brass 9,000, spring life 1,320.
+##   The numbers: press small 6.4/s with 5, big 8.9/s with 8, Winder 60, brass 8,000, spring life 1,320 (0.33.26 economy-parity;
+##   0.24.0 had 7.2, 10 and 9,000).
 ##   The "cogs earned" statistic counts income whole (repairs keep their own fraction).
 ##   godot --headless --fixed-fps 30 --script res://tools/test_exhaust.gd
 const U := preload("res://tools/gear_test_util.gd")
@@ -69,10 +70,10 @@ func _run() -> void:
 	check("second_share: 100% fresh, the floor spent, linear between", is_equal_approx(Defs.second_share(1.0, pf), 1.0) and is_equal_approx(Defs.second_share(0.0, pf), pf)
 		and is_equal_approx(Defs.second_share(0.5, fl), fl + (1.0 - fl) * 0.5))
 	var gp: Dictionary = Defs.GEAR["press"]
-	check("press small 7.2/s with 5, big 10/s with 8", is_equal_approx(float(gp["small"]["full"]), 7.2) and int(gp["small"]["crew"]) == 5 \
-		and is_equal_approx(float(gp["big"]["full"]), 10.0) and int(gp["big"]["crew"]) == 8, str(gp))
+	check("press small 6.4/s with 5, big 8.9/s with 8", is_equal_approx(float(gp["small"]["full"]), 6.4) and int(gp["small"]["crew"]) == 5 \
+		and is_equal_approx(float(gp["big"]["full"]), 8.9) and int(gp["big"]["crew"]) == 8, str(gp))
 	check("a Winder costs 60", int(Defs.UNITS["winder"]["cost"]) == 60)
-	check("brass 9,000 and spring life 1,320 a Clocktower", float(Defs.LODE["clocktower"]) == 9000.0 and Defs.TENSION_RESERVE == 1320.0)
+	check("brass 8,000 and spring life 1,320 a Clocktower", float(Defs.LODE["clocktower"]) == 8000.0 and Defs.TENSION_RESERVE == 1320.0)
 	check("2 Cog Presses and 1 Mainspring per Clocktower", Defs.econ_per_hall("clockwork", "cog_press") == 2 and Defs.econ_per_hall("clockwork", "mainspring") == 1
 		and Defs.is_econ("mainspring"), str(Defs.econ_of("clockwork")))
 	check("the retired kinds are out of the Clockwork's limits", not Defs.econ_of("clockwork").has("boiler") and not Defs.econ_of("clockwork").has("ore_crusher"))
@@ -90,7 +91,7 @@ func _run() -> void:
 	var press := _first(g, 0, Defs.GEAR_PRESS)
 	var farm := _first(g, 1, "farm")
 	check("a Clocktower, a Cog Press, a Town Hall and a Farm stand", hall != null and press != null and th != null and farm != null)
-	check("the Clocktower holds 9,000 brass and 1,320 spring life", is_equal_approx(hall.lode, 9000.0) and is_equal_approx(hall.soil, 1320.0), "%.0f / %.0f" % [hall.lode, hall.soil])
+	check("the Clocktower holds 8,000 brass and 1,320 spring life", is_equal_approx(hall.lode, 8000.0) and is_equal_approx(hall.soil, 1320.0), "%.0f / %.0f" % [hall.lode, hall.soil])
 	var e0 := [int(g.stats[0]["gold"]), int(g.stats[1]["gold"])]
 	var gr0 := farm.growth
 	U.step(g, 30.0)
@@ -103,7 +104,7 @@ func _run() -> void:
 
 	# ---------------------------------------------------------------- the press: crew, then spent brass
 	var ws := _crew(g, press, 5)
-	check("5 Winders: 7.2 cogs a second", absf(press.press_rate() - 7.2) < 0.01, "%.2f" % press.press_rate())
+	check("5 Winders: 6.4 cogs a second", absf(press.press_rate() - 6.4) < 0.01, "%.2f" % press.press_rate())
 	var b0 := hall.lode
 	var paid0 := press.press_paid
 	U.step(g, 5.0)
@@ -120,7 +121,7 @@ func _run() -> void:
 	for w in ws:
 		if is_instance_valid(w):
 			w.cmd_stop()
-	hall.lode = 9000.0
+	hall.lode = 8000.0
 
 	# ---------------------------------------------------------------- the Mainspring: spring life, fatigue
 	var spring := U.put(g, 0, "mainspring", hall.cell + Vector2i(0, -9))

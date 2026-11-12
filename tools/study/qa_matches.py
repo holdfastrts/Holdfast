@@ -85,9 +85,20 @@ def cw():
     return [g for g in base(0) + base(1) if g[1] in CW_MAPS and "cw" in g[0].split("_")[-2]]
 
 
+# (economy-parity, docs/economy_parity.md) six maps of all kinds, every pairing, both rounds (the sides swapped): 12
+# games a pairing, the same tags and seeds as the base rounds: `--only parity`
+PARITY_MAPS = ["greenhold", "dune_sea", "frostfang", "ashford_crossing", "hollowfen", "cinder_steps"]
+
+
+def parity():
+    return [g for r in (0, 1) for g in base(r) if g[1] in PARITY_MAPS]
+
+
 def queue(only=""):
     if only == "cw":
         return cw()
+    if only == "parity":
+        return parity()
     q = []
     if only in ("", "base"):
         q += base(0) + base(1)

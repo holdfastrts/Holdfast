@@ -29,7 +29,7 @@ const SPACING_FOE := 0.85
 ## ore lasts a saturated Clockwork base (~1,150-1,200 ore a minute) about 10 minutes. Once
 ## spent, its Mill / Crushers yield NOTHING (LODE_SPENT = 0: barren, no efficiency trickle). Like soil, a hall raised where one fell takes
 ## over what was left there. The Brood has no lode (its pits' ground is PIT_GROUND).
-const LODE := {"town_hall": 1320.0, "clocktower": 9000.0}     # saltpetre 3 x 440 powder; raw brass 9,000 cogs, the Crown's soil (0.24.0, docs/exhaust_economy.md; was 11,400)
+const LODE := {"town_hall": 1320.0, "clocktower": 8000.0}     # saltpetre 3 x 440 powder; raw brass 8,000 cogs (0.33.26 economy-parity, docs/economy_parity.md: was 9,000, the Crown's soil, and 11,400 before 0.24.0; cut with the press rates so a Clocktower lasts as long)
 ## SPRING LIFE (0.24.0, the owner 2026-10-30: MAINSPRINGS EXHAUST): every Clocktower's ground holds this much Tension for its
 ## Mainspring (the Crown's saltpetre: 11 minutes of a full small Mainspring); a Mainspring draws on its nearest Clocktower's
 ## (kept in that Clocktower's `soil`, the field the retired coal used); spent, the spring is FATIGUED ("it has taken a set":
@@ -171,7 +171,7 @@ const FOOD_RATE := 0.6            # biomass per grub-second of round trip (near 
 const FOOD_NEAR := 8.0           # (was 6 until 0.24.22: the Mother's own Rootmaw, ~8.5 tiles, pays as before)
 const FOOD_FAR := 24.0            # (was 18)
 const FOOD_PEAK := 32.0           # (was 22)
-const FOOD_BONUS := 1.2          # (0.33.6, the owner: "nerf the Brood's economy, just slightly": was 1.5; 0.3 until 0.24.22)
+const FOOD_BONUS := 1.0          # (0.33.26 economy-parity, docs/economy_parity.md: was 1.2; 0.33.6, the owner: "nerf the Brood's economy, just slightly": was 1.5; 0.3 until 0.24.22)
 const FOOD_FADE := 0.015          # share of the rate lost per tile beyond FOOD_PEAK
 const FOOD_TRIP := 0.8            # seconds of round trip per tile walked (mostly on swamp)
 const FOOD_REACH := 1.5           # tiles of the gap a grub doesn't walk
@@ -465,7 +465,7 @@ const GEAR := {
 	# nobody on it presses nothing) and FEWER WINDERS than the Crown's Labourers for about the same income (the Winders are
 	# needed at the front): small 7.2/s with 5 (1.44 a Winder), big 10.0/s with 8 (1.25 a Winder). (Was base 0.15, small
 	# 8.0 with 6, big 10.5 with 12.)
-	"press": {"base": 0.0, "small": {"full": 7.2, "crew": 5}, "big": {"full": 10.0, "crew": 8}},
+	"press": {"base": 0.0, "small": {"full": 6.4, "crew": 5}, "big": {"full": 8.9, "crew": 8}},     # (0.33.26 economy-parity: was 7.2 and 10.0, docs/economy_parity.md)
 	# THE MAINSPRING (docs/clockwork_ground_up.md): winds TENSION, the second resource, at `full` a second with its whole
 	# `crew`, `base` of that alone, like the press: SMALL gear 2.0/s with 3 Winders, BIG gear 2.6/s with 6 (the big one wins
 	# from 5 Winders). Every finished Mainspring STORES `store` Tension: winding stops when the pool holds what the springs
