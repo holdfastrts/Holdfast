@@ -28,8 +28,8 @@ const FLANK_SIDE := 430.0        # ... and this far out to each side
 const KEEP := 360.0              # (px) a screen rider keeps this far from the nearest enemy soldier known
 const EYE_R := 300.0             # (px) a rider's eyes for the line (a Horseman sees 8 tiles = 256 px)
 const DANGER_R := 400.0          # (px) enemies this near a rider are weighed
-const HURT := 0.5                # a rider below this share of its hit points leaves the screen
-const PICK_HP := 0.6             # ... and none is picked below this
+const HURT := 0.3                 # a rider below this share of its hit points leaves the screen
+const PICK_HP := 0.45            # ... and none is picked below this (it keeps out of reach: a hurt rider can still see)
 const COOL := 60.0               # (s) a rider sent home is not picked again for this long
 const ROUTE_EVERY := 3.0         # (s) the wave's road looked up again this often
 const FLANK_R := 480.0           # (px) at contact: prey this near a rider's flank post
@@ -433,6 +433,14 @@ func _flank(u: Unit, wave: Array, ln: AICrownLine) -> void:
 	var post: Vector2 = _flank_post[u]
 	if post == Vector2.INF:
 		return
+	if _in_fire(u.position, ln, 460.0):
+		# (coached, Dune Sea 1107 8:17: the lead rider rode back through the line's front, in its fire: out round its end)
+		var perp := Vector2(-ln._face.y, ln._face.x)
+		var side: float = 1.0 if (u.position - ln._c).dot(perp) >= 0.0 else -1.0
+		var end: Vector2 = _open(ln._c + perp * side * (_half(ln) + 5.0 * Defs.TILE) + ln._face * Defs.TILE, post)
+		if u.order != "move" or u.order_point.distance_to(end) > 60.0:
+			u.cmd_move(end)
+		return
 	# hurt or too far out: back to the post
 	if u.position.distance_to(post) > FLANK_LEASH:
 		if u.order != "move" or u.order_point.distance_to(post) > 60.0:
@@ -491,17 +499,22 @@ func _post_for(role: String, ln: AICrownLine) -> Vector2:
 	return _open(p, ln._c - ln._face * 3.0 * T)
 
 
-## In front of the line's muskets (between them and the enemy, within its width): their fire.
-func _in_fire(p: Vector2, ln: AICrownLine) -> bool:
-	if ln._c == Vector2.INF or ln._face == Vector2.ZERO:
-		return false
+func _half(ln: AICrownLine) -> float:
 	var perp := Vector2(-ln._face.y, ln._face.x)
 	var half := 3.0 * Defs.TILE
 	for s in ln._spot.keys():
 		if is_instance_valid(s) and AICrownLine.shooter(s):
 			half = maxf(half, absf((ln._spot[s] - ln._c).dot(perp)))
+	return half
+
+
+## In front of the line's muskets (between them and the enemy, within its width, `depth` px out): their fire.
+func _in_fire(p: Vector2, ln: AICrownLine, depth := 260.0) -> bool:
+	if ln._c == Vector2.INF or ln._face == Vector2.ZERO:
+		return false
+	var perp := Vector2(-ln._face.y, ln._face.x)
 	var q: Vector2 = p - ln._c
-	return q.dot(ln._face) > -20.0 and q.dot(ln._face) < 260.0 and absf(q.dot(perp)) < half + 30.0
+	return q.dot(ln._face) > -20.0 and q.dot(ln._face) < depth and absf(q.dot(perp)) < _half(ln) + 30.0
 
 
 func _guards(u: Unit, o: Unit) -> int:
