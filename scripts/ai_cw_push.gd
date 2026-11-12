@@ -1255,9 +1255,12 @@ func _hunt_parties() -> bool:
 	for u in _party_of:
 		per[_party_of[u]] = int(per.get(_party_of[u], 0)) + 1
 	var free: Array = front.filter(func(u: Unit) -> bool: return not _party_of.has(u))
+	# (the last few: everyone hunts them, the shooters and Netters first: a Winder runs 74 against a Clock Soldier's 68, and
+	# the last one or two outran their party of soldiers to 15:00 in two of the measured games)
+	var n_per := PARTY_N if prey.size() > 3 else maxi(PARTY_N, ceili(float(front.size()) / float(maxi(1, prey.size()))))
 	for e in prey:
-		while int(per.get(e, 0)) < PARTY_N and not free.is_empty():
-			free.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.distance_to(e.position) < b.position.distance_to(e.position))
+		while int(per.get(e, 0)) < n_per and not free.is_empty():
+			free.sort_custom(func(a: Unit, b: Unit) -> bool: return _party_score(a, e) < _party_score(b, e))
 			var u: Unit = free.pop_front()
 			if not u.can_hit(e):
 				continue
@@ -1282,3 +1285,12 @@ func _hunt_parties() -> bool:
 	if not prey.is_empty():
 		_note_once("parties", "hunts in parties: %d soldiers after its last %d units" % [_party_of.size(), prey.size()], 30.0)
 	return true
+
+
+## (clockwork-v-clockwork-coach) who goes after a fleeing unit first: the nearest, the shooters (Springers) and the Netters
+## as if 500 px nearer
+func _party_score(u: Unit, e: Unit) -> float:
+	var d := u.position.distance_to(e.position)
+	if float(u.d.get("range", 0.0)) >= 100.0 or u.kind == "netter":
+		d -= 500.0
+	return d
