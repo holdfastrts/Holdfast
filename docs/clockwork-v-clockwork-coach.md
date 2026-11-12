@@ -200,7 +200,8 @@ Red Coast seed 6, sides swapped) with fixes 1-10.
 | Cinder Steps 5 | | P1 won 13:14 (fix 11 came from P2's side of it) |
 | Red Coast 6 | | P1 won 14:23; hunting parties from 12:44 (11 enemy units left, 1 at 13:44) |
 
-A coach's eye on the winner in rounds 4-5: no soldier ran down (the wind lines show 0 run down to 15:00 in all six films,
-where round 1 had 50 in Hollowfen), the hunt no longer flips, a Clocktower under the push falls in 16-41 s with "goes for
-the N Winders mending it first" (round 1-2: 60-80 s, or not at all in 79 s of siege), the push does not stand still for
-its Great Winder or its Ballistas.
+A coach's eye on the winner in rounds 4-5: at most one soldier stood run down at any time in the six films (round 1: 55
+in Hollowfen, 6 in Dune Sea); the hunt no longer flips on and off; a Clocktower at the committed push's goal fell in a
+median 25 s (20 Clocktowers, 10 to 81 s), mostly after "goes for the N Winders mending it first" (the time was not logged
+before this job; in round 2 two Ballistas did not break a mended main Clocktower in 79 s of siege); the push no longer
+stands still for its Great Winder or its Ballistas.
