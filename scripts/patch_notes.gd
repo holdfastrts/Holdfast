@@ -5,7 +5,7 @@ extends RefCounted
 
 const NOTES := [
 	{"v": "0.33.17", "items": [
-		"THE CLOCKWORK COMPUTER FINISHES THE MIRROR (Clockwork against Clockwork, coached game by game): once the enemy has no army left, its push hunts with its Winders along to wind the soldiers (the army no longer stands run down in the enemy's main), goes for the enemy's Clocktowers, then its Winders, then the rest, and with every Clocktower gone splits into small parties after the last Winders.",
+		"THE CLOCKWORK COMPUTER FINISHES THE MIRROR (Clockwork against Clockwork, coached game by game): once the enemy has no army left, its push hunts with its Winders along to wind the soldiers (the army no longer stands run down in the enemy's main), goes for the enemy's Clocktowers, then its other buildings, then its Winders, and with every Clocktower gone splits into small parties, one at each last building and Winder.",
 		"AT AN ENEMY CLOCKTOWER its soldiers go for the Winders mending it first; a winning push no longer stands still waiting for its Great Winder (sweeping at home) or long for its Spring Ballistas, a goal in reach is attacked by the whole push, and one enemy on a cliff no longer holds it at the foot of a ramp.",
 		"IT NO LONGER WALKS INTO AN EQUAL CLOCKWORK ARMY ON ITS OWN GEARS: it counted every unit it had killed since the start against the enemy army it expects, so by the middle game it expected almost nothing. And two Ratchet Turrets seen at a Clockwork expansion no longer make it stop training soldiers to save for a Heavy Works push.",
 	]},
