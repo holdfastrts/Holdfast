@@ -1525,7 +1525,8 @@ static func crew_max(g: Game, src: Unit) -> int:
 	if src.kind == PILE:
 		return int(Defs.NB["pile_crew"])
 	var q := queen(g, src.team)
-	var dt := BroodRoot.anchor(g, q).distance_to(BroodRoot.anchor(g, src)) / Defs.TILE      # (start-spots-fix: the feet as the first start reads them; plain feet hang below each footprint on screen, so a Rootmaw above its Mother paid more than its mirror below hers) if q else 0.0
+	# (start-spots-fix: measured from the feet as the first start reads them, as load_value)
+	var dt := BroodRoot.anchor(g, q).distance_to(BroodRoot.anchor(g, src)) / Defs.TILE if q else 0.0
 	return mini(int(Defs.NB["maw_crew"]) + int(maxf(0.0, dt - Defs.FOOD_NEAR) / Defs.PIT_CREW_STEP), Defs.PIT_CREW_MAX)
 
 
