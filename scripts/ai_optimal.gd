@@ -141,6 +141,8 @@ func choose(read: String) -> Array:
 		"GREEDY":
 			return _punish(f, t)
 		"DEFENSIVE":
+			if _mirror_turrets():
+				return []         # (clockwork-v-clockwork-coach: see _mirror_turrets)
 			if st == "opening":
 				return ["economy", "out-expand and tech up before a siege"]
 			match fac:
@@ -315,3 +317,15 @@ func lean_said(plan: String) -> void:
 	current = plan
 	picks.append([0.0, "opening", "LEAN", plan, "the matchup"])
 	say("leans to %s before it scouts (%s)" % [plan_name(plan), "Horsemen are good against the Brood's grubs"])
+
+
+## (clockwork-v-clockwork-coach) THE CLOCKWORK'S TURRETS ARE NO TURTLE. The Clockwork computer lays Ratchet Turrets only as
+## an answer (a rush, a raid at an expansion: the owner's rule, "static defence is not a build"), so in the mirror a
+## DEFENSIVE read is a few reactive turrets, not a turtle to siege. It switched the middle game to the Heavy Works push and
+## its written build: no soldiers while it saved for Ballistas and a Great Winder, 874 cogs in the bank at 8:06 and 1,915 at
+## 9:06 while the enemy's push (1,990) broke its army of 1,450 at home (Cinder Steps mirror, round 5, 7:52-9:24; the game
+## lost at 13:14). In the mirror after the opening a DEFENSIVE read keeps what it plays. `-- optturrets:off` as before.
+func _mirror_turrets() -> bool:
+	if fac != "clockwork" or foe() != "clockwork" or stage_of(game.clock) == "opening":
+		return false
+	return not OS.get_cmdline_user_args().has("optturrets:off")
