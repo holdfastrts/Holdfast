@@ -153,4 +153,61 @@ Fixes for round 4:
   Tyrant Sire, else the Venom Sire) keeps his nest when an attack comes to her; the other Sires may still get up. And no
   food is kept back for her next stage while an enemy army is at her (_nb_growth_keep, mirror only).
 
-(Round 4 onward below.)
+## Round 4: fixes 1 to 5 (same seeds)
+
+| map | result | income at 8:00 | notes |
+|---|---|---|---|
+| Highmoor | P1 wins 12:03 (round 3: 12:57) | 9,902 / 9,464 | P2 spends its food now (45, 36, 5 at 10:30-11:30, against 722-1,597 banked in round 3) |
+| Greenhold | draw, even (both 200/200, armies 3,735 / 3,645) | 9,830 / 9,723 | four even trades; the game diverged from round 3 at 7:00 |
+| Hollowfen | P2 wins 11:12 (round 3: P1 13:44) | 8,996 / 9,152 | P1's 82 met P2's 94 in the field at 9:10 and lost |
+| Kestrel Rise | draw (P1 ahead, 25,400 earned to 19,300) | 9,598 / 9,744 | meetings at 6:53, 7:01, 10:18, 10:23 |
+
+The Queen hunt did not fire once: the wave's middle (averaged over a hundred creatures and their stragglers) was rarely
+within 14 tiles of the enemy Mother. Changed: the creatures of the wave that are near her count, and they are the ones
+sent.
+
+### Coach's notes, round 4
+
+- **THE COLUMN** (Hollowfen 9:04, P1): P1's wave of 82 walked into P2's army of 94 as a column a screen long, single file
+  along the path; its head fought alone while the tail was still crossing the marsh. It pulled back at 9:14 with 895 of
+  2,090 (killed 1,390) and the game was lost from there. A human closes the army up before the fight.
+
+![Hollowfen 9:04: P1's wave (red) arrives single file into P2's gathered army (blue)](shots/brood-v-brood-coach/r4_hollowfen_0904_column_into_blob.jpg)
+
+Fix 6, the wave closes up (AIBroodNew._nb_wave_gather): against another Brood, a wave on the road that sees an enemy army
+worth 40% of it or more within 15 tiles of its head (but not yet within 5: no backing off mid-fight), with under 60% of
+its supply within 7 tiles of its head, gathers on its middle (the head waits, the tail comes up) until 80% is together,
+for at most 10 s or until it is attacked, then goes at that army on attack-move. Once per 40 s.
+
+## Round 5: fixes 1 to 6 (Greenhold 1, Kestrel Rise 1; Highmoor 2, Hollowfen 2)
+
+(The first pair ran before fix 6 was in.)
+
+| map | result | notes |
+|---|---|---|
+| Kestrel Rise 1 | P2 wins 12:32 (rounds 3 and 4: draws at 15:00) | the Queen hunt: 9:26 "goes for the enemy Mother with 16", her health 2,190 (9:58), 923 (10:37), 471 (11:08), 146 (12:23) |
+| Greenhold 1 | draw | even game |
+| Highmoor 2 | draw, P1 far ahead | see below |
+| Hollowfen 2 | P2 (Economy) wins 9:33 | the Queen hunt with 70 at 9:16: the Mother died in 17 s |
+
+![Kestrel Rise 12:18: P2's Raptors on P1's Mother at last](shots/brood-v-brood-coach/r5_kestrel_1218_queen_hunt.jpg)
+
+### Coach's notes, round 5
+
+- **THE ENDLESS TRICKLE** (Highmoor seed 2, P1): a wave of 23 supply left at 6:30 and was still "attacking" at 15:00,
+  70 to 90 Raptors fed in by groups of 6 supply into P2's ramp, where a rooted Mound Turtle closed the way, the Mother
+  stood up at the top and the Sires bit. P2 killed 13,750 and lost little; P1 sat on 1,000 to 2,900 food, its waves
+  never home to gather. The reason in the code: _nb_wave_tick reckons a wave's losses against the value that LEFT
+  (`_wave_v0`, 575), and the reinforcements (_nb_join_fresh) kept "what is left" above it, so no retreat rule could
+  ever fire. At 13:51 P2's Mother sat untouched with her clutch full while P1's army was stuck at the ramp.
+- The other side of it: waves that were winning went home at a quarter of their size even with nothing left ahead
+  (Kestrel Rise round 3, 12:36: 575 of 2,340 left, 6,205 killed, 0 ahead), and the beaten side lived to 15:00.
+
+![Highmoor seed 2, 13:04: P1's Raptors piled at P2's ramp top (the turtle at top left), P2's Mother up](shots/brood-v-brood-coach/r5_highmoor2_1304_trickle_at_ramp.jpg)
+![Highmoor seed 2, 13:51: P2's Mother untouched, clutch full; P1's army is still at the ramp](shots/brood-v-brood-coach/r5_highmoor2_1351_mother_untouched.jpg)
+
+Fix 7, the wave's sums (in _nb_join_fresh and _nb_wave_tick, mirror only): reinforcements add their value to what went
+out (`_wave_v0`), so the retreat rules see the real losses; and a wave down to a quarter goes on while it has killed at
+least what it lost and sees no more than itself ahead.
+
+(Round 6 onward below.)

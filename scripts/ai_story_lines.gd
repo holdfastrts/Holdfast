@@ -202,6 +202,7 @@ const RULES := [
 	["^'s Brood: calls its wave home", "%s calls its wave home: the Mother is under attack.", 3, "defend"],
 	["^'s Brood: turns its wave to meet an enemy army of (\\d+)", "%s turns its wave to meet an enemy army of %s heading for its Mother.", 3, "attack"],
 	["^'s Brood: goes for the enemy Mother with (\\d+)", "%s's wave goes for the enemy Mother with %s creatures.", 3, "attack"],
+	["^'s Brood: its wave closes up before it meets an enemy army of (\\d+)", "%s's wave closes up before it meets an enemy army of %s.", 2, "attack"],
 	["^'s Brood: its rush failed", "%s's rush failed: it builds up and will return in force.", 3, "rush"],
 	["^'s Brood: defends with (\\d+) .* against (\\d+) .* at the Mother", "%s defends its Mother with %s against %s.", 2, "defend"],
 	["^'s Brood: defends with (\\d+) .* against (\\d+)", "%s defends its home with %s against %s.", 2, "defend"],
