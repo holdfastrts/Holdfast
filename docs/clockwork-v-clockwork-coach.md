@@ -149,3 +149,14 @@ The fix (CwPush._goal_in_reach, one condition in _march's "arrived"): committed 
 Picture r3_dune_1306_into_the_gears.jpg (Dune Sea 2, round 3, 13:06) is fix 7's moment: P1's push (left, its Ballistas
 far left in the open) walks into P2's base, where P2's army of 49 stands on its own gears between the Cog Presses. It lost
 half and pulled back at 13:40.
+
+### 9. The hunt broke Regulators while the enemy's last Winders stood by
+
+Seen: Dune Sea 2 (round 4, fixes 1-8 in): P1 won, but only at 14:17. From 13:07 P2 had no hall, no army and no cogs, only
+12-14 Winders (10-12 of them idle). The hunt broke its buildings one by one, "the Regulator at its goal falls after 2-7 s"
+a dozen times, while the Winders stood about outside (picture r4_dune_1332_buildings_not_winders.jpg: P1's army in rows
+breaking UNLINKED buildings, P2's Winders scattered top left). A side is beaten only once it has no worker left (or no
+means for a minute: rules-fixes).
+
+The fix (CwPush._hunt_goal): the hunt's order is the enemy's halls, then its WORKERS, then its other buildings, then any
+unit.
