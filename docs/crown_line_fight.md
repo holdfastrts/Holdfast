@@ -77,7 +77,80 @@ at its buildings with a line: 5 muskets facing it, 2 guns behind".
 (Times are game time; P1 is the first start spot. The games are not deterministic: a replay of a seed is the same start,
 not the same game.)
 
-SESSIONS
+### One rank or two (`tools/study_line_ranks.gd`)
+
+A line of N Musketeers laid with `line_orders` (one rank, two ranks, or the old blob: every man sent to the same point
+with a little scatter), on HOLD, two Field Cannons set up behind it; an enemy force walks into it on an attack-move from
+600 px (the force grows with N). Killed / lost, three runs each:
+
+| | 14 muskets: blob | 1 rank | 2 ranks | 24 muskets: blob | 1 rank | 2 ranks |
+|---|---|---|---|---|---|---|
+| v Raptors (70 / 120) | 2.82 | **5.20** | 3.80 | 2.26 | **2.98** | 2.47 |
+| v Clock Soldiers (28 / 48) | 7.54 | 10.89 | **12.25** | 3.67 | 3.17 | **6.50** |
+| v Musketeers (22 / 37) | 2.06 | **2.54** | 2.36 | 1.17 | 0.84 | **1.21** |
+
+A line beats the blob in every case but one: a 24-man single rank (730 px wide) against Clock Soldiers or Musketeers who
+come on in a column hit one end of it while the far end cannot reach. So the line stands in one rank against the Brood's
+swarm up to 26 shooters (a wide front catches more of it), in two ranks from 12 against the Clockwork, from 16 in the
+mirror (`AICrownLine.rank2`).
+
+### Round 1: Greenhold 1101, Crown OPTIMAL (Timing) v Clockwork OPTIMAL
+
+The first cut formed a line only before an enemy army in sight. **7:08-7:16:** the wave went out from the cliff edge where
+its line had been shooting down at the Clockwork army at the ramp's foot (contact from the first moment, so no forming),
+the fight there went its way (980 killed for 180), "the line has won the field" and it walked down the ramp in a column
+into a formed line of Clock Soldiers waiting at the foot (`r1_greenhold1101_0716_column_down_the_ramp.jpg`). The same
+again at 7:26 and 7:41: contact met unformed. The cause: a musket sees 8 tiles (256 px) and a contact is 250 px, so an
+enemy is first SEEN at contact; the line never had warning.
+![](shots/crown_line_fight/r1_greenhold1101_0716_column_down_the_ramp.jpg)
+
+**Fixes:** the line knows an enemy seen in the last 20 s where it was seen (the scouts', the cliff line's and the wave's
+own eyes, `AICrownHold._seen` and its own memory); a contact met unformed DEPLOYS the rest into a line through the men
+already firing; riders skirmishing out ahead are not the line's contact.
+
+### Round 2: Greenhold 1101 replayed
+
+**7:00:** the wave meets the Clock Soldiers in the open and deploys: 11 muskets in a line across their approach, the guns
+behind (`r2_greenhold1101_0701_deploys_into_line.jpg`); all 11 fired in the first 5 s, 770 killed for 360. **8:04:** the
+wave formed its line before the enemy at a Clocktower (350) with 3 guns, then stepped forward with the guns limbered
+among the muskets; the Clockwork came on, contact mid-step, the guns never set up (`r2_..._0800-0815_guns_limbered_in_the_line.jpg`):
+810 lost for 350, the line fell back toward its guns in order at 8:21.
+![](shots/crown_line_fight/r2_greenhold1101_0701_deploys_into_line.jpg)
+![](shots/crown_line_fight/r2_greenhold1101_0800-0815_guns_limbered_in_the_line.jpg)
+
+**Fixes:** the line steps toward an enemy beyond the guns' reach WITH its guns (the line waits at each halt for them);
+once the enemy is in their reach from behind the line they set up and the line holds until they have; the guns rolling
+with the line when a fight starts (or when the enemy walks into their reach) set up where they stand if behind the front
+rank, or go back behind it first.
+
+### Round 3: Dune Sea 1106, Crown OPTIMAL v Brood OPTIMAL
+
+The Crown's Horseman rush failed (5:31) and its army stayed small (8 Musketeers at 8:00); the Brood took its natural's
+wall at 7:44-8:30 and the game at 10:36. No line fight to coach: the fights were at the natural's palisade, the hold
+module's "inside the wall" post (`AICrownHold._wall_plan`), not the line's. Left as it is (the Crown v the Brood is
+crown-v-brood-coach's matter: the economy and the rush).
+
+### Round 4: Greenhold 1103, Crown OPTIMAL v Crown OPTIMAL (the mirror)
+
+**8:08:** P1's wave formed its line in the open before P2's army (295), stepped on, and at P2's ramp gate the SIEGE took
+it over (a wave within 560 px of a siege's piece follows the siege's own orders); its two guns were still rolling 900 px
+behind. The muskets clumped at the gate under the ramp's line and gun: 540 lost for 120, "pulls back from the gate: too
+dear" at 8:21. Replayed (8:05-8:16): the wave walked to the gate without forming at all (the siege was planned before any
+enemy was seen) and pulled back the same way (`r4_greenhold1103_0805-0815_at_the_gate_without_guns.jpg`).
+![](shots/crown_line_fight/r4_greenhold1103_0805-0815_at_the_gate_without_guns.jpg)
+
+**Fixes:** a siege ahead with guns in the wave: the line forms facing the piece out of reach, steps up with its guns,
+holds while they set up in reach of it, and only then hands over to the siege (the siege waits while the line forms).
+
+### Round 5: Greenhold 1103 replayed
+
+**7:13:** "forms its line before the enemy's gate: 8 muskets in 1 rank, 2 guns behind to break it"; by 7:50 the guns had
+come up and set up behind the line and were firing at the gate and the enemy behind it
+(`r5_greenhold1103_0730-0750_line_before_the_gate_guns_set.jpg`); at 8:18 the mirror's bombard (crown-v-crown-coach)
+held the line out of reach while the guns shelled the hall.
+![](shots/crown_line_fight/r5_greenhold1103_0730-0750_line_before_the_gate_guns_set.jpg)
+
+ROUND6
 
 ## Numbers
 
