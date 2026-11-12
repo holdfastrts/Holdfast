@@ -441,7 +441,7 @@ func _rush_verdict(party: Array) -> String:
 	if float(alive) <= float(_rush_n0) * 0.4 and gained < wv * 0.8:
 		_rush_why = "the riders were beaten back (%d of %d left)" % [alive, _rush_n0]
 		return "failed"
-	if defv >= 100.0 and defv > mine * 1.15 and gained < wv * 0.8 or r5.rush_beaten(defv, mine, gained, wv):
+	if not _rush_kites(party) and (defv >= 100.0 and defv > mine * 1.15 and gained < wv * 0.8 or r5.rush_beaten(defv, mine, gained, wv)):
 		_rush_why = "the defenders are worth more than the riders"
 		return "failed"
 	if t > 90.0 and gained < wv * 0.3:
@@ -562,6 +562,33 @@ func _rush_tick(party: Array) -> bool:
 			_rush_log("the hunt ends (%s): the riders ride home" % why)
 			_rush_mop(party)
 			return true
+	return false
+
+
+## (crown-v-brood-coach) The Horseman rush rides out with the wave (the shared rule); AICrown rides it as a raiding party
+## against the Brood (its grubs are spread over the Rootmaws; the wave went for the Mother, where the Raptors wait).
+func _rush_with_wave() -> bool:
+	return opening == "breeder" and strategy == "rush"
+
+
+## (crown-v-brood-coach) the riders a rush's raiding party waits for before it first goes out (AICrown: the plan's three)
+func _raid_group_min() -> int:
+	return GROUP_MIN
+
+
+## (crown-v-brood-coach) defenders worth more than the riders do not end the rush while the raid can keep away from
+## them (AICrown against the Brood: the raid pulls back, then comes again elsewhere)
+func _rush_kites(_party: Array) -> bool:
+	return false
+
+
+## (crown-v-brood-coach) the raid was chased off near `at` (AICrown remembers it)
+func _raid_chased(_at: Vector2) -> void:
+	pass
+
+
+## (crown-v-brood-coach) a spot the raid was chased off lately (AIHarass.work_line looks for another)
+func raid_spot_bad(_p: Vector2) -> bool:
 	return false
 
 
@@ -3304,7 +3331,7 @@ func _rush_raid_or_new() -> bool:
 
 func _raid() -> void:
 	_raiders = _raiders.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead)
-	if opening == "breeder" and strategy == "rush":
+	if _rush_with_wave():
 		_raiders.clear()             # (a Horseman rush: they ride out together with the wave)
 		return
 	var rush_raid := opening == "breeder" and game.clock < 600.0 and (_rush_state == "" or _rush_state == "ongoing" or _rush_state == "succeeded") and _rush_raid_or_new()
@@ -3325,7 +3352,7 @@ func _raid() -> void:
 		if game.clock < _raid_block:
 			return
 		var pool := _rush_pool(game.army(team).filter(func(u: Unit) -> bool: return not _on_errand(u)))
-		if pool.size() < GROUP_MIN:
+		if pool.size() < (_raid_group_min() if rush_raid and _rush_state == "" else GROUP_MIN):
 			return
 		for u in pool:
 			if _raiders.size() < 4:
@@ -3370,6 +3397,8 @@ func _raid() -> void:
 			danger += int(o.d["supply"])
 	var foes_ := hz_.defenders_near(c, _raiders)
 	if hp < (0.35 if press else 0.45) or danger >= (9 if press else 6) or hz_.outmatched(_raiders, foes_):
+		if _raid_home <= 0.0:
+			_raid_chased(c)        # (crown-v-brood-coach: the spot it was chased off is left for another a while)
 		_raid_home = 12.0          # (fast units in number, shooters, more than the party: it pulls back, then comes again)
 	if _raid_home > 0.0:
 		_raid_home -= 1.0
@@ -4504,6 +4533,16 @@ const ABANDON_WAIT := 8.0       # s a dropped site (its builder fled) waits befo
 ## placed a Barracks on the same blocked spot four times in a row, 7:21-7:47 Dune Sea): _find_spot looks elsewhere.
 const BAD_SITE_T := 90.0
 const CANNONS_FIRST := 3        # (crown-hold) Field Cannons out or queued before the first Mortar, in every Crown plan
+
+
+## (crown-v-brood-coach) the Barracks train only riders (AICrown: the Horseman rush against the Brood)
+func _rush_horse_only() -> bool:
+	return false
+
+
+## (crown-v-brood-coach) Musketeers per Field Cannon the Barracks wait for (AICrown: 4 against the Brood); 0: no such wait
+func _gun_share() -> int:
+	return 999
 const GUN_LINE_FIRST := 4       # (crown-hold) Musketeers in the line before the Barracks wait for those cannons' gold
 var _bad_sites := {}            # cell -> [size, clock until which it is not picked]
 var bad_site_n := 0             # (tests) sites dropped as blocked
@@ -4891,8 +4930,8 @@ func _produce() -> void:
 				gun_wait = true
 	if not gun_wait and not short_powder and cannons == 0 and _gun_save() and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40:
 		gun_wait = _mine("foundry").any(func(f: Building) -> bool: return f.built and f.queue.is_empty())     # (AICrown: the first gun's gold)
-	if not gun_wait and not short_powder and _crown() and difficulty >= 1 and cannons_q < CANNONS_FIRST and muskets >= GUN_LINE_FIRST \
-			and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40 and _threat() == Vector2.INF:
+	if not gun_wait and not short_powder and _crown() and difficulty >= 1 and (cannons_q < CANNONS_FIRST or cannons_q * _gun_share() < muskets) \
+			and muskets >= GUN_LINE_FIRST and _gold() < int(Defs.UNITS["cannon"]["cost"]) + 40 and _threat() == Vector2.INF:
 		# (crown-hold: the first CANNONS_FIRST Field Cannons are massed: once the line has GUN_LINE_FIRST Musketeers the
 		# Barracks wait for a gun's gold while a Foundry stands idle that may cast one; not while the enemy is at home)
 		for f in _mine("foundry"):
@@ -4916,7 +4955,11 @@ func _produce() -> void:
 			var rush := _rush_open()
 			var hcap: int = r5.horsemen_cap()      # (round 5: two riders and no more against the Clockwork)
 			var horse_ok: bool = (horse < 3 or horse * 6 < army.size() or rush) if hcap < 0 else horse < hcap
-			if horse_ok and randf() < (0.85 if rush else (0.6 if short_powder else 0.3)) and hk != "":
+			if _rush_horse_only():
+				if hk == "":
+					continue        # (crown-v-brood-coach: the riders' gold, not a Musketeer's)
+				k = hk
+			elif horse_ok and randf() < (0.85 if rush else (0.6 if short_powder else 0.3)) and hk != "":
 				k = hk
 			elif hk != "" and ch.wants_rider():
 				k = hk      # (THE OWNER'S DOCTRINE: a Horseman to scout the map comes first once the Breeder stands)
@@ -4937,7 +4980,7 @@ func _produce() -> void:
 		if mortar_ok and f.queue.size() < 2 and mortars < mini(2, int(muskets / 6.0)) and not f.queue.has("mortar") and game.can_train(f, "mortar") == "":
 			game.train(f, "mortar")
 			mortars += 1
-		elif f.queue.size() < (2 if _gold() > 600 else 1) and (cannons * 4 < army.size() + 2 or cannons_q < CANNONS_FIRST) and game.can_train(f, "cannon") == "":
+		elif f.queue.size() < (2 if _gold() > 600 else 1) and (cannons * 4 < army.size() + 2 or cannons_q < CANNONS_FIRST or cannons_q * _gun_share() < muskets) and game.can_train(f, "cannon") == "":
 			game.train(f, "cannon")
 			cannons_q += 1
 			mortar_ok = cannons_q >= CANNONS_FIRST

@@ -435,6 +435,18 @@ es %s amuralla su nueva base: %s piezas.
 pt %s expande enquanto a sua base ainda é rica: mais %s, a %s casas de distância.
 es %s se expande mientras su base aún es rica: más %s, a %s casillas.
 
+> %s's riders are chased off the grubs there: they pull back and come again at another Rootmaw.
+pt Os cavaleiros de %s são expulsos das larvas ali: recuam e voltam noutra Bocarraiz.
+es Los jinetes de %s son expulsados de las larvas allí: se retiran y vuelven en otra Bocarraíz.
+
+> %s's rush is over: it hands over to its Economy plan, labourers to two halls and a walled natural.
+pt A investida de %s acabou: passa para o seu plano de Economia, trabalhadores para duas bases e uma expansão murada.
+es La embestida de %s terminó: pasa a su plan de Economía, trabajadores para dos bases y una expansión amurallada.
+
+> %s turns from its natural's gate to the enemy inside its wall (%s against %s).
+pt %s se vira do portão da sua expansão para o inimigo dentro da sua muralha (%s contra %s).
+es %s se gira desde la puerta de su expansión hacia el enemigo dentro de su muralla (%s contra %s).
+
 > %s lost a base: it keeps off that ground until it is clear of enemies.
 pt %s perdeu uma base: fica longe daquele terreno até ele estar livre de inimigos.
 es %s perdió una base: se mantiene lejos de ese terreno hasta que esté libre de enemigos.

@@ -221,13 +221,18 @@ func _run() -> void:
 	var out_t := -1.0
 	while g.clock < RUSH_BY + 30.0:
 		await wait(2.0)
-		if ai._attacking and out_t < 0.0:
+		# (crown-v-brood-coach: against the Brood the riders ride as a raiding party, AICrown._rush_with_wave: the rush has
+		# begun when the party is out)
+		if (ai._attacking or ai._rush_state != "") and out_t < 0.0:
 			out_t = g.clock
 			break
 	var riders := ai._wave_set.keys().filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and u.kind == "cuirassier").size()
+	riders = maxi(riders, ai._raiders.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and u.kind == "cuirassier").size())
 	check(out_t >= 0.0 and out_t <= RUSH_BY and riders >= 3, "[rush] the first attack went by %d s with 3 Horsemen or more (%d s, %d)" % [int(RUSH_BY), int(out_t), riders])
 	await wait(3.0)
-	check(ai.bo_done, "[rush] ... and it ended the opening (%s)" % ai.bo_why)
+	# (crown-v-brood-coach: against the Brood the rush's own opening, PLANS["rush"]["bo_brood"], goes on past the raid to
+	# the Powder Mill and the second hall, as OPTIMAL's punish does)
+	check(ai.bo_done or (ai._rush_raid and ai._bo_plan.slice(ai.bo_i).any(func(st: Dictionary) -> bool: return String(st["do"]) in ["build", "hall"])), "[rush] ... and it ended the opening, or goes on to the steps behind the raid (%s)" % ai.bo_why)
 	# [switch]
 	ai.on = false
 	check(not ai.bo_owns() and not ai._plan_tech(), "[switch] with `on` false no build order owns the gold (the shared computer)")

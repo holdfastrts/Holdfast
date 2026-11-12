@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.19", "items": [
+		"THE CROWN COMPUTER AGAINST THE BROOD, COACHED (docs/crown_v_brood_coach.md): its Horseman rush rides as a raiding party at the grubs on the Brood's outlying Rootmaws, pulls back from the Raptors and comes again somewhere else, instead of riding with a Musketeer wave into the Brood's main where the Raptors wait; its rush opening builds the second Farm before the riders and keeps a labourer coming (it farmed one Farm with 8-9 labourers until 4:15); after the rush it plays its Economy plan, labourers to two halls and a walled natural, instead of Balanced.",
+		"Against the Brood the Crown computer no longer buys Barracks, Foundries, a Church, an Armoury or research while its army is behind or its Barracks stand idle for want of gold; it casts a Field Cannon for every four Musketeers; from 5:30 its army grows with its economy; its Powder Mills no longer take the Farms' hands to grind powder nobody uses.",
+		"The Crown computer's army posted at its natural's gate turns to an enemy that got inside the wall instead of standing there facing out.",
+	]},
 	{"v": "0.33.18", "items": [
 		"CROWN AGAINST CLOCKWORK, COACHED (both computers, Hard): the Crown computer's attack no longer walks home from a won fight because one or two Clockwork raiders reached its base: a small raid is left to the soldiers at home and the wave presses on.",
 		"ITS GUNS GET THE HORSES: against the Clockwork, once its scout rider is out, the Crown computer's horses go to Field Cannons (canister against the Clock Soldiers) before more riders. Its first gun came at 13:25 in a coached game; now from about 4:30 to 8:40.",

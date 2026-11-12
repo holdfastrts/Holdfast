@@ -254,9 +254,15 @@ func _run() -> void:
 	await _until(g.clock + 20.0)
 	check(not ai._mine("horse_breeder").is_empty(), "the Horse Breeder goes down at once after the read (%d)" % ai._mine("horse_breeder").size())
 	await _until(300.0, func() -> bool: return g.halls_of(0, false).size() >= 2)
-	check(ai._attacking or _log_has("first attack goes out"), "the riders ride out")
+	# (merge of crown-v-brood-coach: against the Brood the riders go out as a RAIDING PARTY, which starts the rush
+	# (_rush_state) without the wave's _attacking flag)
+	check(ai._attacking or _log_has("first attack goes out") or ai._rush_state != "",
+			"the riders ride out (rush %s, %d riders)" % [ai._rush_state, game_riders()])
 	check(g.halls_of(0, false).size() >= 2, "the second hall goes down behind the raid (%d s)" % int(g.clock))
-	check(not ai._mine("powder_mill").is_empty(), "and the Powder Mill (%d)" % ai._mine("powder_mill").size())
+	# (crown-v-brood-coach: the hall keeps a labourer coming in the rush, so the riders ride at ~4:00 and the Mill follows
+	# the raid a little later than it did; it may come after the hall the shared expansion lays)
+	await _until(360.0, func() -> bool: return not ai._mine("powder_mill").is_empty())
+	check(not ai._mine("powder_mill").is_empty(), "and the Powder Mill (%d, %d s)" % [ai._mine("powder_mill").size(), int(g.clock)])
 	await _stop()
 
 	# ---- 6: an AGGRESSIVE read puts the Powder Mill (and the soldiers) up at once
@@ -308,3 +314,7 @@ func _run() -> void:
 
 	print("ALL PASS" if fails == 0 else "%d FAILED" % fails)
 	quit(0 if fails == 0 else 1)
+
+
+func game_riders() -> int:
+	return g.army(0).filter(func(u: Unit) -> bool: return u.kind in ["horseman", "dragoon"]).size()

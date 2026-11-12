@@ -5,7 +5,7 @@ extends SceneTree
 ##       a:crown b:clockwork map:greenhold seed:11 swap:0 out:/abs/dir [end:1800] [da:hard db:normal]
 ## Writes <out>/fight_MMSS_<x>_<y>.png (a fight: where the most units of both sides meet, at most one every FIGHT_GAP s),
 ## <out>/base_<team>_MMSS.png (each main at BASE_AT), <out>/log.txt (the match log) and <out>/result.txt.
-const FIGHT_GAP := 25.0
+var FIGHT_GAP := 25.0        # gap:N seconds between fight shots (crown-v-brood-coach: from:T, the gap only after T)
 const FIGHT_MIN := 4            # units of each side near each other
 const NEAR := 230.0
 const BASE_AT := [180.0, 360.0, 600.0, 900.0]
@@ -27,6 +27,14 @@ var pa := "balanced"         # pa:/pb: the computers' plans (crown-v-clockwork-c
 var pb := "balanced"
 var every := 0.0             # every:N each side's main and its army filmed every N s (base_<team>_MMSS, army_<team>_MMSS)
 var _next_every := 0.0
+var gap_from := 0.0
+var gap_n := 25.0
+var coach := false           # coach:1 (crown-v-brood-coach) a status line every 15 s (coach.txt), the Crown army filmed
+                             # every 30 s (army_MMSS.jpg), the bases every 2 minutes; pictures as jpg
+var next_status := 15.0
+var next_army := 30.0
+var next_raid := 0.0
+var status_lines: Array = []
 var minwave := 0             # minwave:N only a siege by a wave of at least N units is watched (the flags start with it)
 var siege_end := false       # siege_end:1 stop once the first siege has played out, writing siege.txt
 var _siege_t0 := -1.0
@@ -78,6 +86,9 @@ func _initialize() -> void:
 			"pa": pa = kv[1]
 			"pb": pb = kv[1]
 			"every": every = float(kv[1])
+			"coach": coach = kv[1] == "1"
+			"gap": gap_n = float(kv[1])
+			"from": gap_from = float(kv[1])
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -137,6 +148,8 @@ func _process(delta: float) -> bool:
 		_shoot()
 		return false
 	var c: float = g.clock
+	if coach:
+		_coach_tick(c)
 	if base_i < BASE_AT.size() and c >= BASE_AT[base_i]:
 		for tm in 2:
 			var h: Building = g._own_hall(tm)
@@ -387,6 +400,7 @@ func _mmss(c: float) -> String:
 
 
 func _look_for_fight(c: float) -> void:
+	FIGHT_GAP = gap_n if c >= gap_from else 25.0
 	if c - last_fight < FIGHT_GAP:
 		return
 	var army: Array = []
@@ -465,7 +479,10 @@ func _shoot() -> void:
 		await process_frame
 	print("SHOT %s zoom %s at %s view %s gearvis %s draws %d" % [p[0], str(cam.zoom), str(cam.get_screen_center_position()), str(g.view_rect), str(g.gear_net.is_visible_in_tree()), _draws])
 	var img := root.get_viewport().get_texture().get_image()
-	img.save_png(out.path_join(p[0]))
+	if coach:
+		img.save_jpg(out.path_join(String(p[0]).replace(".png", ".jpg")), 0.85)
+	else:
+		img.save_png(out.path_join(p[0]))
 	_why_lines(p[0], p[1])
 	RenderingServer.render_loop_enabled = live
 	cam.position = keep_pos
@@ -491,6 +508,145 @@ func _finish() -> void:
 	for l in ai_lines:
 		af.store_line(l)
 	af.close()
+	if coach:
+		var cf := FileAccess.open(out.path_join("coach.txt"), FileAccess.WRITE)
+		for l in status_lines:
+			cf.store_line(l)
+		cf.close()
 	var r := FileAccess.open(out.path_join("result.txt"), FileAccess.WRITE)
 	r.store_line("over %s winner %s clock %.0f" % [str(g.over), str(g.get("winner")), g.clock])
 	r.close()
+
+
+## (crown-v-brood-coach) THE COACH'S EYES: a status line per side every 15 s, the Crown's army filmed every 30 s, the
+## mains every 2 minutes.
+func _coach_tick(c: float) -> void:
+	if c >= next_status:
+		next_status = c + 15.0
+		for tm in 2:
+			status_lines.append(_status(tm, c))
+	if c >= next_raid and c < 480.0:
+		next_raid = c + 10.0
+		for tm in 2:
+			if g.faction_of(tm) != "crown":
+				continue
+			var home: Building = g._own_hall(tm)
+			var riders: Array = _mobile(tm).filter(func(u) -> bool: return u.kind in ["cuirassier", "dragoon"] and home != null and u.position.distance_to(home.center()) > 35.0 * Game.T)
+			if riders.size() >= 2:
+				pending.append(["raid_%s.png" % _mmss(c), _centre(riders), 1.0])
+	if c >= next_army:
+		next_army = c + 30.0
+		for tm in 2:
+			if g.faction_of(tm) != "crown":
+				continue
+			var au := _mobile(tm)
+			if au.size() >= 3:
+				pending.append(["army_%s.png" % _mmss(c), _centre(au), 0.9])
+		if int(c) % 120 < 30 and c > 100.0:
+			for tm in 2:
+				var h: Building = g._own_hall(tm)
+				var at: Vector2 = h.global_position + Vector2(0, -40) if h else Vector2.ZERO
+				if g.faction_of(tm) == "brood":
+					var q = BroodNew.queen(g, tm)
+					at = q.position if q else at
+				if at != Vector2.ZERO:
+					pending.append(["base_%d_%s.png" % [tm, _mmss(c)], at, 0.75])
+
+
+func _mobile(tm: int) -> Array:
+	var o: Array = []
+	for u in g.army(tm):
+		if u.dead or u.off_field or u.is_worker() or not u.has_attack():
+			continue
+		if u._k_nb and (u.kind == BroodNew.QUEEN or BroodNew.rooted(u)):
+			continue
+		o.append(u)
+	return o
+
+
+func _centre(list: Array) -> Vector2:
+	var s := Vector2.ZERO
+	for u in list:
+		s += u.position
+	return s / maxf(1.0, list.size())
+
+
+func _status(tm: int, c: float) -> String:
+	var st: Dictionary = g.stats[tm]
+	var au := _mobile(tm)
+	var val := 0
+	var kinds := {}
+	for u in au:
+		val += Game.unit_value(u)
+		kinds[u.kind] = int(kinds.get(u.kind, 0)) + 1
+	var ks: Array = []
+	for k in kinds:
+		ks.append("%d %s" % [kinds[k], k])
+	var halls := 0
+	if g.faction_of(tm) == "brood":
+		var q = BroodNew.queen(g, tm)
+		halls = (1 + BroodNew.expansions(g, q).size()) if q else 0
+	else:
+		halls = g.halls_of(tm).size()
+	var where := "-"
+	if not au.is_empty():
+		var ctr := _centre(au)
+		var home: Building = g._own_hall(tm)
+		var dh := ctr.distance_to(home.center()) / Game.T if home else -1.0
+		var de := 9999.0
+		for e in g.enemies_of(tm):
+			for b in g.buildings:
+				if b.team == e and not b.dead:
+					de = minf(de, ctr.distance_to(b.center()) / Game.T)
+			for u in g.units:
+				if u.team == e and not u.dead and u._k_nb and (u.kind == BroodNew.QUEEN or BroodNew.rooted(u)):
+					de = minf(de, ctr.distance_to(u.position) / Game.T)
+		where = "centre %s, %d tiles from its main hall, %d from the enemy's nearest base" % [str(g.cell_of(ctr)), int(dh), int(de)]
+	var a = null
+	for x in g.ais:
+		if x.team == tm:
+			a = x
+	var extra := ""
+	if a:
+		extra = " | plan %s attacking %s" % [str(a.strategy), str(a.get("_attacking"))]
+	var pw := ""
+	if g.faction_of(tm) == "crown":
+		pw = " powder %d" % int(float(g.players[tm]["res2"]))
+		var busy := {}
+		var tot := {}
+		for b in g.buildings:
+			if b.team == tm and not b.dead and b.built and b.kind in ["town_hall", "barracks", "foundry", "horse_breeder"]:
+				tot[b.kind] = int(tot.get(b.kind, 0)) + 1
+				if not b.queue.is_empty():
+					busy[b.kind] = int(busy.get(b.kind, 0)) + 1
+		var bs: Array = []
+		for k in tot:
+			bs.append("%s %d/%d" % [k, int(busy.get(k, 0)), tot[k]])
+		extra += " | busy: " + ", ".join(bs)
+		var fc := 0
+		var fm := 0
+		var mc := 0
+		var nf := 0
+		for b in g.buildings:
+			if b.team == tm and not b.dead and b.built and b.kind == "farm":
+				fc += b.crew.size()
+				fm += b.crew_max()
+				nf += 1
+			elif b.team == tm and not b.dead and b.built and b.kind == "powder_mill":
+				mc += b.crew.size()
+		var ords := {}
+		for w in g.workers(tm):
+			ords[w.order] = int(ords.get(w.order, 0)) + 1
+		extra += " | farms %d crew %d/%d, mills crew %d, orders %s" % [nf, fc, fm, mc, str(ords)]
+		if a and a.has_method("foe_estimate"):
+			# (the Crown computer's own reckoning: why it trains labourers or not)
+			extra += " | reckons %d, army_due %s, owner_labs %s, behind %s, threat %s, reserve %d" % [int(a.foe_estimate()), str(a._army_due()), str(a.owner_labs(g.workers(tm).size())), str(a.army_behind()), str(a._threat() != Vector2.INF), int(a._reserve)]
+	return "%s P%d %s: earned %d bank %d%s | workers %d supply %d/%d halls %d | army %d (%s) | killed %d lost %d (value) | army at %s%s" % [_mmss(c), tm + 1, g.faction_of(tm), int(st["gold"]), int(g.players[tm]["gold"]), pw, g.workers(tm).size(), g.supply_used(tm), int(g.players[tm]["cap"]), halls, val, ", ".join(ks), int(st["value_killed"]), _lost_value(tm), where, extra]
+
+
+## the value the side lost: what its enemies killed of it
+func _lost_value(tm: int) -> int:
+	var v := 0
+	for e in g.enemies_of(tm):
+		v += int(g.stats[e]["value_killed"])
+	return v
