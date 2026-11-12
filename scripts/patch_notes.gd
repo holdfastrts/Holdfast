@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.17", "items": [
+		"FAIR STARTS: on every mirrored map the two starts are now exact mirror images. The workers' row, the starting Farm and Cog Press, the Brood Mother's nest, her Rootmaw, her grubs and her swamp stood a little differently on the second start (the first start's Brood earned up to a fifth less in its first minute). Every choice the game and the computers make by screen order (where a trained unit steps out, which of two equally short ways a unit walks, where a computer puts a building, its gears or its ramp wall) is now made the mirrored way on the mirrored start, and the computers aim at the middle of the enemy's hall, not its top-left corner.",
+		"THE BROOD'S GRUBS take their food at the Rootmaw's side, sideways to the way back to the Mother (it was always its left side on screen, which faced the Mother on one start and turned its back on her on the other), and a Rootmaw's load pays by its distance from the Mother measured the same way on both starts.",
+		"A computer's worker running from a raid picks the way out farthest from the raiders when several are as good.",
+	]},
 	{"v": "0.33.16", "items": [
 		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
 	]},
