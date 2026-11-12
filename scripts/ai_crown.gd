@@ -1556,7 +1556,7 @@ func _cannon_check() -> void:
 
 
 func _riders_wait() -> bool:
-	return rider_waits()
+	return rider_waits() or _cc_guns_first()
 
 
 ## THE FIRST GUN'S WAIT: against the Brood, until the first Field Cannon is out or ordered, once the Foundry and the
@@ -2901,3 +2901,22 @@ func _cc_keep_wave(army: Array, spots: Array) -> Array:
 		if u.order == "idle" and u.wall_flee_t <= 0.0 and u.siege_t <= 0.0:
 			u.cmd_move(_wave_target + Vector2(randf_range(-60, 60), randf_range(-60, 60)), true)
 	return army.filter(func(u: Unit) -> bool: return not _wave_set.has(u))
+
+
+## THE GUNS GET THE HORSES. Greenhold (seed 1101, round 4): the Foundry stood at 5:15, the Breeder at 5:24, and the first
+## Field Cannon came at 13:25: the horses went to five riders (the Barracks train one now and then, and each Officer
+## trained for it takes the next horse), while 21 Musketeers fought 55 Clock Soldiers. Canister is the answer to a mass of
+## melee machines (the owner's rule: 3 Field Cannons before any Mortar). Against the Clockwork, once one rider is out and a
+## Foundry stands, the Barracks train no more riders until AI.CANNONS_FIRST Field Cannons are out or queued.
+func _cc_guns_first() -> bool:
+	if not cc_on or difficulty < 1 or not cc_vs_clock() or _rush_open():
+		return false
+	if not _mine("foundry").any(func(f: Building) -> bool: return f.built):
+		return false
+	var army := game.army(team)
+	if not army.any(func(u: Unit) -> bool: return u.kind == "cuirassier"):
+		return false            # (the first rider: the map scout)
+	var guns := army.filter(func(u: Unit) -> bool: return u.kind == "cannon").size()
+	for f in _mine("foundry"):
+		guns += (f.queue as Array).count("cannon")
+	return guns < CANNONS_FIRST
