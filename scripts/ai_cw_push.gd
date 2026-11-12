@@ -1229,8 +1229,8 @@ func _goal_in_reach() -> bool:
 ## (clockwork-v-clockwork-coach) HUNTING PARTIES. Hunting with every enemy hall gone, the block chased the last Winders one
 ## at a time across the map: Hollowfen mirror, round 4, the enemy had no hall, no army and no cogs from 13:08, and 11 of its
 ## Winders were still alive at 15:00 (a draw; a side is beaten once it has no worker left, or no means for a minute).
-## Now against the Clockwork and the Crown (a Crown v Clockwork check game, Greenhold: the Crown had no hall and no army
-## from 12:00 and its last buildings stood to 15:00), hunting with no enemy hall left, the front (the Ballistas too) splits into parties of up to
+## Now against the Clockwork and the Crown (a Crown v Clockwork check game, Greenhold: the Crown's last Town Hall fell at
+## 14:30 and its last buildings, its Cottages and palisades, stood to 15:00), hunting with no enemy hall left, the front (the Ballistas too) splits into parties of up to
 ## PARTY_N, each sent at one of the enemy's last buildings (a side with no building left is out at once), then at its last
 ## units (its Winders first), the nearest first. (A first version went for the Winders before the buildings: the Winders
 ## outran their hunters, the buildings stood, 5 of 16 measured games ended in a draw with one side beaten in all but name.)
