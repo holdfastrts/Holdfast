@@ -43,15 +43,15 @@ def main():
     ax = axes[0]
     sets = [("crown", "before/fix_crown.json", "before/fix_crown.json"),
             ("clockwork", "before/fix_clockwork.json", "after/fix_clockwork.json"),
-            ("brood", "before/nat_brood.json", "after/nat_brood.json")]
+            ("brood", "before/nat_brood.json", "before/nat_brood.json")]
     offs = {"crown": 6, "clockwork": -8, "brood": 0}
     for fac, b, a in sets:
         rb, ra = rows(os.path.join(D, b)), rows(os.path.join(D, a))
         xs = [0] + [r["min"] for r in rb]
-        if fac != "crown":
+        if fac == "clockwork":
             ax.plot(xs, [0] + [r["value_cum"] for r in rb], color=COL[fac], lw=1.6, ls=(0, (4, 3)), alpha=0.8)
         ax.plot([0] + [r["min"] for r in ra], [0] + [r["value_cum"] for r in ra], color=COL[fac], lw=2)
-        label_end(ax, 15, ra[14]["value_cum"], NAME[fac] + (" after" if fac != "crown" else " (unchanged)"), COL[fac], offs[fac])
+        label_end(ax, 15, ra[14]["value_cum"], NAME[fac] + (" after" if fac == "clockwork" else " (unchanged)"), COL[fac], offs[fac])
     ax.set_xlim(0, 20)
     style(ax, "Bench: value earned, cumulative\n(ideal build; dashed = before 0.33.26)", "resources earned (primary + secondary)")
     # 2. bench, per minute, after
