@@ -52,7 +52,8 @@ func _process(delta: float) -> bool:
 				sc[str(tm)] = {"sent": s2.sent, "lost": s2.lost, "picket_lost": s2.picket_lost, "sightings": s2.sightings,
 						"warns": s2.warns, "flank_hits": s2.flank_hits, "pulled": s2.pulled, "trained": s2.get("trained")}
 			if a != null and a.ln != null:
-				sc[str(tm) + "_line"] = {"forms": a.ln.forms, "approaches": a.ln.approaches, "deploys": a.ln.deploys}
+				sc[str(tm) + "_line"] = {"forms": a.ln.forms, "approaches": a.ln.approaches, "deploys": a.ln.deploys,
+						"lost_sight": a.ln.get("lost_sight")}
 		var f2 := FileAccess.open(out.path_join("screen.json"), FileAccess.WRITE)
 		if f2:
 			f2.store_string(JSON.stringify(sc, " "))

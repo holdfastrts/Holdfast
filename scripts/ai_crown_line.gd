@@ -192,7 +192,10 @@ func _known(body: Array) -> Array:
 			if not seen.has(o) or float(seen[o][0]) < float(ai.ch._seen[o][0]):
 				seen[o] = ai.ch._seen[o]
 	for o in seen.keys():
-		if not is_instance_valid(o) or o.dead or o.off_field or game.clock - float(seen[o][0]) > KNOWN_T:
+		# (crown-rider-screen: an enemy the screen saw is remembered FAR_T s while the line forms and steps on it: the
+		# riders keep out of a musket's reach, which is longer than their sight, so they lose sight of what they found)
+		var keep_t: float = FAR_T if _far.has(o) and st in ["form", "step", "set", "advance"] else KNOWN_T
+		if not is_instance_valid(o) or o.dead or o.off_field or game.clock - float(seen[o][0]) > keep_t:
 			_mem.erase(o)
 			continue
 		if got.has(o):
@@ -216,6 +219,8 @@ func _known(body: Array) -> Array:
 const SCREEN_R := 1300.0         # (px) (crown-rider-screen) an enemy the screen saw this near the body is "ahead"
 const SCREEN_SHARE := 0.08       # ... and the line forms before it when it is worth this share of the wave ...
 const SCREEN_MIN := 100.0        # ... and this much at least
+const FAR_T := 45.0              # (s) ... and remembered this long while the line forms and steps on it
+var lost_sight := 0              # (the coach) formings given up: the enemy forgotten
 var _far := {}                   # enemy soldier -> true: seen by the screen's riders (scripts/ai_crown_screen.gd)
 var screen_saw := false          # (the coach) the screen's riders saw an enemy this think
 
@@ -560,6 +565,9 @@ func _forming(ground: Array, target: Vector2, contact: bool, foes: Array) -> boo
 	if contact:
 		return _fight_begin(ground)         # (they came to us: the line shoots where it stands)
 	if foes.is_empty() and game.clock - _t0 > 4.0:
+		if _piece_pt == Vector2.INF:
+			lost_sight += 1
+			return _reset(ground, target, "'s line has lost sight of the enemy it formed for: it marches on")
 		return _reset(ground, target, "")
 	if st == "set":
 		if _guns_set() or game.clock - _t0 > SET_MAX:
