@@ -1,39 +1,52 @@
 extends SceneTree
-## Economy benchmark: measures how much each faction's economy earns, with nothing attacking.
+## ECONOMY BENCH (economy-parity, docs/economy_parity.md): measures each faction's ECONOMY DESIGN, not its computer's skill.
+## One faction alone on a map (the other slot is an idle dummy that never moves), driven by a SCRIPTED IDEAL BUILD, the
+## same plan for every faction:
+##   - workers trained without a break (every hall / the Brood Mother's eggs) up to the posts its economy offers,
+##     each new worker taking the game's own first post (Game.free_site / BroodNew.free_source; idle or released
+##     workers are sent to a free post every 2 s);
+##   - the faction's economy buildings as soon as they can be paid (Crown: 2 Farms + a Powder Mill a Town Hall; Clockwork:
+##     2 Cog Presses + a Mainspring a Clocktower; Brood: Rootmaws wherever its spot finder has room, while its grubs fill them);
+##   - supply buildings just in time (Cottage, Spring Tower, Mound Turtle at home);
+##   - the 2nd base at exp1 (4:00) and the 3rd at exp2 (8:00) (Town Hall / Clocktower on the computer's own next hall
+##     spot; the Brood: a Mound Turtle on new ground, its far spot finder, then Rootmaws round it); the Brood Mother
+##     grows to stage 2 at exp1 (the computer plans do it about then);
+##   - NO army, no research, no walls: everything goes into the economy, the rest stays in the bank.
+## Buildings are laid where the computer would lay them (its spot finders, called on a computer player whose own
+## thinking is switched off) and stand up after their build time without builders (one ideal builder, no walking).
+## The secondary resources (powder, Tension) are counted as earned and taken out of the pool every second, so a full
+## store never stops them.
 ##
-## Usage (always with --fixed-fps 30, so the sim runs as fast as the CPU allows while every
-## physics tick stays exactly 1/30 s, the same as a real match):
+##   godot --headless --fixed-fps 30 --script res://tools/econ_bench.gd -- <faction> [minutes=20] [map=greenhold]
+##       [seed=1] [exp=240,480] [press=big|small] [out=<file.json>]
 ##
-##   godot --headless --fixed-fps 30 --script res://tools/econ_bench.gd -- <mode> [faction] [key=value ...]
-##
-## Modes:
-##   ai <faction>      The faction's Hard computer player (balanced strategy, AI.peaceful on, so
-##                     it builds its normal economy and army but never attacks) against an idle
-##                     opponent on a fixed map. One CSV row per game minute: income of each
-##                     resource in that minute, banked amounts, workers, economy buildings, supply.
-##                     Options: minutes=10 map=greenhold seed=1 opp=<faction>
-##   sat <faction>     Saturation test: one hall with every economy structure its limit allows,
-##                     placed with the AI's own placement (AI._econ_spot), and N workers sent to
-##                     work the way the game assigns them (Game.free_site). Steady-state income
-##                     per minute after a warm-up, for each N. No AI runs.
-##                     Options: n=4,8,12,16,20,24 warm=60 measure=240 map=greenhold seed=1
-##   (0.18.0: the Brood of buildings is gone, and with it the Brood's benches here (ai, sat, pits): the Brood's
-##   economy is measured by tools/sim_brood_new.gd and tools/play_brood_new.gd.)
-##   crush             Clockwork only: one Boiler beside the Clocktower and one Ore Crusher at
-##                     each distance from it, with W Winders; trip time, charge per battery,
-##                     overloads, ore per minute.
-##                     Options: d=4,6,8,11,14,18,24 w=7 warm=25 measure=120
-##   all               ai + sat for the Crown and the Clockwork, then crush.
-##
-## Output: CSV files in tools/econ_bench_out/ (<mode>_<faction>.csv), and a summary on stdout.
-## Uses only debug hooks that are off in real matches (AI.peaceful) and the "res2_in" statistic
-## (secondary resource earned). Gameplay code is untouched.
+## Prints a line a minute and a final RESULT line (JSON): per minute the primary and secondary earned that minute and
+## cumulative, workers, workers at work, halls / Rootmaws, the primary resource left (soil, brass, ground), spending.
+## TOTAL VALUE = primary + secondary at 1:1 (a Musketeer is 60 gold + 10 powder, a Clock Soldier 70 cogs, a Springer
+## 100 cogs + 25 Tension: one unit of each resource buys about the same fighting power; docs/economy_parity.md).
+## (The pre-0.33.26 econ_bench, for the shelved Line's Boilers and Ore Crushers, is in git history.)
 
-const OUT_DIR := "res://tools/econ_bench_out"
 const DT := 1.0 / 30.0
 
 var main: Node
-var opts := {}
+var g: Game
+var ai
+var fac := "crown"
+var opts := {"minutes": "20", "map": "greenhold", "seed": "1", "exp": "240,480", "press": "big", "out": ""}
+var t := 0.0
+var started := false
+var next_min := 60.0
+var next_think := 0.0
+var next_route := 0.0
+var no_room := {}             # "kind@hall" -> clock: no spot found, not looked for again till then
+var pending: Array = []        # [done_clock, kind, cell, big]
+var exp_times: Array = []
+var exp_done := 0
+var grew := false
+var r2_total := 0.0            # secondary earned (counted here: drained every second)
+var last := {"p": 0.0, "s": 0.0, "spent": 0.0}
+var rows: Array = []
+var firsts := {}
 var wall0 := 0
 
 
@@ -42,537 +55,493 @@ func _initialize() -> void:
 	Settings.device = "pc"
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
-	_run.call_deferred()
-
-
-func _run() -> void:
-	await process_frame
-	var args := OS.get_cmdline_user_args()
-	var mode := "ai"
-	var fac := "crown"
-	var pos: Array = []
-	for a in args:
+	for a in OS.get_cmdline_user_args():
 		if "=" in a:
-			var kv: PackedStringArray = a.split("=", true, 1)
+			var kv := a.split("=", true, 1)
 			opts[kv[0]] = kv[1]
 		else:
-			pos.append(a)
-	if pos.size() > 0:
-		mode = pos[0]
-	if pos.size() > 1:
-		fac = pos[1]
-	if fac == "brood" or mode == "pits":
-		print("the Brood has no buildings since 0.18.0: no Brood bench here (tools/sim_brood_new.gd measures it)")
-		quit(1)
-		return
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
+			fac = a
+	for s in String(opts["exp"]).split(","):
+		if s != "" and s != "auto":
+			exp_times.append(float(s))
 	wall0 = Time.get_ticks_msec()
-	match mode:
-		"ai":
-			await _ai_run(fac)
-		"sat":
-			await _sat_run(fac)
-		"crush":
-			await _crush_sweep()
-		"all":
-			for f in ["crown", "clockwork"]:
-				await _ai_run(f)
-			for f in ["crown", "clockwork"]:
-				await _sat_run(f)
-			await _crush_sweep()
-		_:
-			print("unknown mode ", mode)
-	print("done in %.1f s wall" % ((Time.get_ticks_msec() - wall0) / 1000.0))
-	quit()
 
 
-func _opt(k: String, def: Variant) -> Variant:
-	if not opts.has(k):
-		return def
-	var v: String = opts[k]
-	if def is int:
-		return int(v)
-	if def is float:
-		return float(v)
-	if def is Array:
-		var out: Array = []
-		for p in v.split(","):
-			out.append(float(p) if "." in p else int(p))
-		return out
-	return v
+func _process(delta: float) -> bool:
+	t += delta
+	if t > 0.2 and main.game == null:
+		seed(int(opts["seed"]))
+		var other := "crown" if fac != "crown" else "clockwork"
+		main.start({"map": opts["map"], "seed": int(opts["seed"]), "slots": [
+			{"who": "hard", "faction": fac, "colour": 0, "side": 0, "strategy": "balanced"},
+			{"who": "you", "faction": other, "colour": 1, "side": 1, "strategy": "balanced"}]})
+		g = main.game
+		for a in g.ais:
+			if a.team == 0:
+				ai = a
+			a.peaceful = true
+			a.process_mode = Node.PROCESS_MODE_DISABLED
+		started = true
+		return false
+	if not started or g == null:
+		return false
+	if g.hud:
+		g.hud.countdown = 0.0
+	paused = false
+	_drain()
+	if g.clock >= next_think:
+		next_think = g.clock + 0.5
+		_think()
+	if g.clock >= next_route:
+		next_route = g.clock + 2.0
+		_route()
+	if g.clock >= next_min:
+		next_min += 60.0
+		_row()
+	if g.clock >= float(opts["minutes"]) * 60.0:
+		_finish()
+	return false
 
 
-# ------------------------------------------------------------------ match setup
+# ------------------------------------------------------------------ the secondary: counted and drained
 
-## A match on a fixed map. `ai_team0`: team 0 is a (peaceful) computer player; otherwise
-## team 0 is the "human" slot (no AI) and the opponent's AI is switched off too.
-func _start(fac: String, opp: String, ai_team0: bool) -> Game:
-	var slots := [
-		{"who": "hard" if ai_team0 else "you", "faction": fac, "colour": 0, "side": 0, "strategy": "balanced"},
-		{"who": "you" if ai_team0 else "hard", "faction": opp, "colour": 1, "side": 1, "strategy": "balanced"},
-	]
-	seed(int(_opt("seed", 1)))
-	main.start({"map": _opt("map", "greenhold"), "slots": slots, "seed": int(_opt("seed", 1))})
-	var g: Game = main.game
-	for ai in g.ais:
-		if ai.team == 0 and ai_team0:
-			ai.peaceful = true
-		else:
-			ai.peaceful = true
-			ai.process_mode = Node.PROCESS_MODE_DISABLED
-	await physics_frame
-	return g
+func _drain() -> void:
+	match fac:
+		"crown":
+			pass       # (powder: Game.add_res2 counts it in stats "res2_in"; the bank has no cap that stops a Mill)
+		"clockwork":
+			var v := g.tension(0)
+			if v > 0.0:
+				g.add_tension(0, -v)       # (stats "tension_in" counts what was wound; an empty pool never stops the springs)
+		"brood":
+			pass
 
 
-func _hall(g: Game, t: int) -> Building:
-	for b in g.buildings:
-		if b.team == t and not b.dead and b.kind == g.faction_hall(t):
-			return b
-	return null
+func _primary() -> float:
+	return float(g.stats[0]["gold"])
 
 
-func _built(g: Game, t: int, kind: String) -> Array:
-	return g.buildings.filter(func(b: Building) -> bool: return b.team == t and not b.dead and b.built and b.kind == kind)
+func _secondary() -> float:
+	if fac == "clockwork":
+		return float(g.stats[0].get("tension_in", 0.0))
+	return float(g.stats[0]["res2_in"])
 
 
-func _speed_note(g: Game) -> String:
-	var w := (Time.get_ticks_msec() - wall0) / 1000.0
-	return "(game %.0f s, x%.1f real time)" % [g.clock, g.clock / maxf(w, 0.001)]
+# ------------------------------------------------------------------ the scripted build
+
+func _gold() -> int:
+	return int(g.players[0]["gold"])
 
 
-# ------------------------------------------------------------------ per-frame trackers
+func _halls() -> Array:
+	return g.halls_of(0, true)
 
-## Watches team `t` every physics tick and counts what the economy does.
-class Tracker:
-	var g: Game
-	var t: int
-	var fac: String
-	var w_carry := {}        # unit -> [carrying, carry_t, carry_blue, home]
-	var bat_t := {}          # building -> last _bat_t
-	var farm_g := {}         # farm -> last growth
-	var only: Building = null  # count batteries of this building only
-	# counters (reset with snapshot())
-	var c := {}
 
-	func _init(game: Game, team: int) -> void:
-		g = game
-		t = team
-		fac = g.faction_of(t)
-		reset()
+func _hall_kind() -> String:
+	return g.faction_hall(0)
 
-	func reset() -> void:
-		c = {"deliveries": 0, "delivered": 0.0, "carry_t": 0.0, "blasts": 0, "bat_made": 0,
-			"stall_s": 0.0, "loads": 0, "food": 0.0, "harvests": 0, "growth_gold": 0.0,
-			"by_pit": {}, "work_s": 0.0, "worker_s": 0.0}
 
-	func tick(dt: float) -> void:
+func _workers() -> Array:
+	return g.workers(0)
+
+
+## Posts the economy offers (built buildings and the ones going up), and the workers on the way (in training, in eggs).
+func _posts() -> int:
+	var n := 0
+	if fac == "brood":
 		for u in g.units:
-			if u.team != t or u.dead or not u.is_worker():
-				continue
-			c["worker_s"] += dt
-			if u.order == "gather" and u.home_mine != null:
-				c["work_s"] += dt
-			var prev: Array = w_carry.get(u, [0, 0.0, false, null])
-			if fac == "clockwork":
-				if prev[0] > 0 and u.carrying == 0:
-					if u.carry_empty:
-						var ct: float = prev[1] + dt
-						c["deliveries"] += 1
-						c["carry_t"] += ct
-						c["delivered"] += roundf(Defs.battery_charge(prev[2], ct) * float(Defs.BATTERY["ore"]))
-					else:
-						c["blasts"] += 1
-				w_carry[u] = [u.carrying, u.carry_t, u.carry_blue, u.home_mine]
-			elif fac == "brood":
-				if prev[0] > 0 and u.carrying == 0 and u.order == "gather":
-					c["loads"] += 1
-					c["food"] += prev[0]
-					var pit = prev[3]
-					if pit != null and is_instance_valid(pit):
-						var key := str(pit.get_instance_id())
-						var bp: Dictionary = c["by_pit"].get(key, {"loads": 0, "food": 0.0, "value": prev[0]})
-						bp["loads"] += 1
-						bp["food"] += prev[0]
-						c["by_pit"][key] = bp
-				w_carry[u] = [u.load_f if u.carrying > 0 else 0.0, 0.0, false, u.home_mine]
-		for b in g.buildings:
-			if b.team != t or b.dead or not b.built:
-				continue
-			if only != null and b != only:
-				continue
-			if b.d.has("battery"):
-				var last: float = bat_t.get(b, b._bat_t)
-				if b._bat_t < last - 1e-6:
-					c["bat_made"] += 1
-				bat_t[b] = b._bat_t
-				if b.batteries >= int(b.d["battery"][1]):
-					c["stall_s"] += dt
-			elif b.kind == "farm":
-				var lg: float = farm_g.get(b, b.growth)
-				if b.growth < lg - 1e-6:
-					c["harvests"] += 1
-					c["growth_gold"] += (1.0 - lg + b.growth) * g.harvest_value(b)
-				else:
-					c["growth_gold"] += (b.growth - lg) * g.harvest_value(b)
-				farm_g[b] = b.growth
+			if u.team == 0 and not u.dead and u.kind == BroodNew.MAW and BroodNew.rooted(u):
+				n += BroodNew.crew_max(g, u)
+			elif u.team == 0 and not u.dead and u.kind == "grub" and u.order == "nb_morph" and String(u.nb.get("mk", "")) == BroodNew.MAW:
+				n += int(Defs.NB["maw_crew"])
+		return n
+	for b in g.buildings:
+		if b.team == 0 and not b.dead and b.built and b.crew_max() > 0 and b.haul_cap() <= 0 and not b.barren():
+			n += b.crew_max()
+	for p in pending:
+		n += int(Defs.BUILDINGS[p[1]].get("crew", 0)) if not (p[1] == Defs.GEAR_PRESS) else int(Defs.GEAR["press"]["big" if p[3] else "small"]["crew"])
+	return n
 
 
-# ------------------------------------------------------------------ mode: ai
-
-func _ai_run(fac: String) -> void:
-	var opp: String = _opt("opp", "crown" if fac != "crown" else "clockwork")
-	var minutes: int = _opt("minutes", 10)
-	var g := await _start(fac, opp, true)
-	var tr := Tracker.new(g, 0)
-	var res: Array = Defs.FACTIONS[fac]["res"]
-	var econ: Array = Defs.FACTIONS[fac]["econ"].keys()
-	var extra_kinds: Array = {"crown": ["cottage"], "brood": ["clutch_mound"], "clockwork": ["spring_tower", "charging_pylon"]}[fac]
-	var head := ["minute", "income_" + res[0].to_lower(), "income_" + res[1].to_lower() + ("_batteries_filled" if fac == "clockwork" else ""),
-		"bank_" + res[0].to_lower(), "bank_" + res[1].to_lower(), "spent", "workers", "workers_at_work", "halls"]
-	for k in econ:
-		head.append(k)
-	for k in extra_kinds:
-		head.append(k)
-	head += ["crew_slots", "supply_used", "supply_cap", "army_supply", "army_value"]
-	match fac:
-		"crown":
-			head += ["harvests", "farm_gold_incl_growth", "soil_pct_per_hall", "saltpetre_pct_per_mill"]
-		"clockwork":
-			head += ["deliveries", "avg_trip_s", "avg_charge", "overloads", "battery_stall_s", "ore_pct_per_crusher"]
-	var rows: Array = [head]
-	var last_gold := 0
-	var last_r2 := 0.0
-	var last_spent := 0
-	print("== ai %s vs idle %s on %s, %d min" % [fac, opp, g.map_name, minutes])
-	for m in minutes:
-		tr.reset()
-		var end := float(m + 1) * 60.0
-		while g.clock < end and not g.over:
-			await physics_frame
-			tr.tick(DT)
-		var st: Dictionary = g.stats[0]
-		var inc1: int = int(st["gold"]) - last_gold
-		var inc2: float = float(tr.c["bat_made"]) if fac == "clockwork" else float(st["res2_in"]) - last_r2
-		last_gold = int(st["gold"])
-		last_r2 = float(st["res2_in"])
-		var spent: int = int(st["spent"]) - last_spent
-		last_spent = int(st["spent"])
-		var ws := g.workers(0)
-		var working := ws.filter(func(u: Unit) -> bool: return u.order == "gather" and u.home_mine != null).size()
-		var crew := 0
-		for b in g.buildings:
-			if b.team == 0 and not b.dead and b.built:
-				crew += int(b.d.get("crew", 0))
-		var army := g.army(0)
-		var av := 0
-		var asup := 0
-		for u in army:
-			av += int(u.d["cost"]) / maxi(1, int(u.d.get("spawn", 1)))
-			asup += int(u.d["supply"])
-		var row: Array = [m + 1, inc1, snappedf(inc2, 0.1), g.players[0]["gold"], snappedf(float(g.players[0]["res2"]), 0.1), spent,
-			ws.size(), working, _built(g, 0, g.faction_hall(0)).size()]
-		for k in econ:
-			row.append(_built(g, 0, k).size())
-		for k in extra_kinds:
-			row.append(_built(g, 0, k).size())
-		row += [crew, g.supply_used(0), g.players[0]["cap"], asup, av]
-		match fac:
-			"crown":
-				var soil: Array = []
-				for h in g.halls_of(0):
-					soil.append(int(round(h.soil_left() * 100)))
-				row += [tr.c["harvests"], int(tr.c["growth_gold"]), " ".join(soil.map(func(x): return str(x))), _dep_pcts(g, "powder_mill")]
-			"clockwork":
-				var n: int = tr.c["deliveries"]
-				row += [n, snappedf(tr.c["carry_t"] / maxf(1, n), 0.01), snappedf(tr.c["delivered"] / maxf(1, n), 0.01), tr.c["blasts"], snappedf(tr.c["stall_s"], 0.1), _dep_pcts(g, "ore_crusher")]
-		rows.append(row)
-		print("  min %2d  %s=%d  %s=%.0f  bank=%d/%.0f  workers=%d (%d at work)  %s" % [m + 1, res[0], inc1, res[1], inc2,
-			g.players[0]["gold"], float(g.players[0]["res2"]), ws.size(), working, _speed_note(g)])
-	_write_csv("ai_%s.csv" % fac, rows)
+func _coming() -> int:
+	var n := 0
+	if fac == "brood":
+		for u in g.units:
+			if u.team == 0 and not u.dead and u.kind == BroodNew.EGG and String(u.nb.get("k", "")) == "grub":
+				n += 1
+		return n
+	for h in _halls():
+		for k in h.queue:
+			if k == Defs.FACTIONS[fac]["worker"]:
+				n += 1
+	return n
 
 
-## Share of its hall's saltpetre (ore) left (%) for each of team 0's Powder Mills (Ore Crushers).
-func _dep_pcts(g: Game, kind: String) -> String:
-	return " ".join(_built(g, 0, kind).map(func(b: Building) -> String: return str(int(round(b.lode_left() * 100)))))
-
-
-# ------------------------------------------------------------------ mode: sat
-
-## Fill one hall's economy slots the way the AI would place them (instantly built).
-func _build_out(g: Game, t: int) -> void:
-	var fac := g.faction_of(t)
-	var helper := AI.new()
-	helper.game = g
-	helper.team = t
-	var order: Array = []
-	match fac:
-		"crown":
-			order = ["farm", "farm", "powder_mill"]
-		"clockwork":
-			order = ["boiler", "ore_crusher", "boiler", "ore_crusher"]
-	for k in order:
-		if g.econ_count(t, k) >= g.econ_limit(t, k):
+func _think() -> void:
+	# finish what is going up
+	for p in pending.duplicate():
+		if g.clock >= float(p[0]):
+			var c: Vector2i = p[2]
+			if GearNet.pickable(p[1]):
+				g.set_gear_pick(0, p[1], bool(p[3]))
+			if g.placement_problem(0, p[1], c) != "":
+				c = _spot(p[1])
+				if c.x < 0:
+					continue          # (no room yet: tried again next time)
+			pending.erase(p)
+			var b := g._add_building(p[1], 0, c, true)
+			if GearNet.pickable(p[1]):
+				b.gear_big = bool(p[3])
+			if fac != "brood":
+				g._recount_supply(0)
+			if p[1] == _hall_kind():
+				_first("hall_%d" % _halls().size())
+	if fac == "brood":
+		_think_brood()
+		return
+	# 1. the next base when its time has come (money kept for it first)
+	var saving := 0
+	if _exp_due():
+		var hk := _hall_kind()
+		var price := g.build_price(0, hk)
+		if _gold() >= price:
+			var spot: Vector2i = _spot(hk)
+			if spot.x >= 0 and _lay(hk, spot, false):
+				exp_done += 1
+				_first("expansion_%d_laid" % exp_done)
+		else:
+			saving = price
+	# 2. supply just in time
+	_supply(saving)
+	# 3. workers
+	var want := _posts()
+	var have := _workers().size() + _coming()
+	for h in _halls():
+		if have >= want:
+			break
+		if not h.queue.is_empty():
 			continue
-		var spot: Vector2i = helper._econ_spot(k)
-		var tries := 0
-		while spot.x < 0 and k == "feeding_pit" and tries < 3:
-			# the AI pushes its swamp out with a Clutch Mound when a pit has no room
-			var vs := g.find_spot(t, "clutch_mound", _hall(g, t), 6, 22, "far_safe")
-			if vs.x >= 0:
-				g._add_building("clutch_mound", t, vs, true)
-				g._update_swamp()
-			spot = helper._econ_spot(k)
-			tries += 1
-		if spot.x < 0:
-			print("  no room for ", k)
+		var wk: String = Defs.FACTIONS[fac]["worker"]
+		if _gold() - saving >= int(g.unit_price(0, wk)[0]) and g.supply_used(0) + 1 <= int(g.players[0]["cap"]):
+			if g.train(h, wk) == "":
+				have += 1
+	# 4. economy buildings: spent ones pulled down (a player frees the hall limit for fresh ground), then each hall's
+	#    own quota, the freshest hall first, one going up at a time
+	_recycle()
+	if pending.any(func(p: Array) -> bool: return Defs.is_econ(String(p[1]))):
+		return
+	var order: Array = ["farm", "farm", "powder_mill"] if fac == "crown" else [Defs.GEAR_PRESS, Defs.GEAR_PRESS, "mainspring"]
+	var halls := _halls()
+	halls.sort_custom(func(x: Building, y: Building) -> bool: return _fresh(x) > _fresh(y))
+	for h in halls:
+		if _fresh(h) <= 0.05:
 			continue
-		g._add_building(k, t, spot, true)
-		g._update_swamp()
-	helper.free()
+		for k in order:
+			if _of_hall(k, h) >= Defs.econ_per_hall(fac, k) or g.econ_count(0, k) >= g.econ_limit(0, k):
+				continue
+			var big: bool = fac == "clockwork" and k == Defs.GEAR_PRESS and String(opts["press"]) == "big"
+			if GearNet.pickable(k):
+				g.set_gear_pick(0, k, big)
+			if _gold() - saving < g.build_price(0, k):
+				return
+			var key := "%s@%d" % [k, h.serial]
+			if float(no_room.get(key, -1.0)) > g.clock:
+				continue
+			var spot := _spot_by(k, h)
+			if spot.x < 0 and big:
+				big = false
+				g.set_gear_pick(0, k, false)
+				spot = _spot_by(k, h)
+			if spot.x < 0:
+				no_room[key] = g.clock + 15.0
+				_first("no_room_" + key)
+				continue
+			_lay(k, spot, big)
+			return
 
 
-func _clear_workers(g: Game, t: int) -> void:
-	for u in g.workers(t):
-		g.consume_unit(u)
+## The share of a hall's primary resource left (soil, raw brass).
+func _fresh(h: Building) -> float:
+	return h.soil_left() if fac == "crown" else h.lode_left()
 
 
-func _spawn_workers(g: Game, t: int, n: int, assign := true) -> Array:
-	var h := _hall(g, t)
-	var hc := h.rect().get_center()
-	var below: bool = g.starts[t].y < Game.H / 2
-	var out: Array = []
-	for i in n:
-		var p := hc + Vector2(-90 + (i % 7) * 30, (80 + 26 * (i / 7)) * (1 if below else -1))
-		p = g.cell_center(g.nearest_free(g.cell_of(p), 8))
-		var u := g._add_unit(Defs.FACTIONS[g.faction_of(t)]["worker"], t, p)
-		out.append(u)
-		if assign:
-			var site := g.free_site(t, u.position)
-			if site:
-				u.cmd_gather(site)
-	return out
+## Economy buildings of kind k that belong to hall h (the nearest hall), built or going up.
+func _of_hall(k: String, h: Building) -> int:
+	var n := 0
+	for b in g.buildings:
+		if b.team == 0 and not b.dead and b.kind == k and g.nearest_hall(b.center(), 0) == h:
+			n += 1
+	for p in pending:
+		if p[1] == k and _nearest_hall_at(k, p[2]) == h:
+			n += 1
+	return n
 
 
-func _sat_run(fac: String) -> void:
-	var ns: Array = _opt("n", [4, 8, 12, 16, 20, 24])
-	var warm: float = _opt("warm", 60.0)
-	var meas: float = _opt("measure", 240.0)
-	var res: Array = Defs.FACTIONS[fac]["res"]
-	var head := ["workers", "at_work", "crew_slots", "income_" + res[0].to_lower() + "_per_min", "income_" + res[1].to_lower() + "_per_min",
-		"per_worker_" + res[0].to_lower(), "per_worker_" + res[1].to_lower()]
-	match fac:
-		"crown":
-			head += ["harvests", "farm_crews", "mill_crew"]
-		"clockwork":
-			head += ["deliveries_per_min", "avg_trip_s", "avg_charge", "overloads", "batteries_filled_per_min", "battery_stall_s", "crews", "crusher_dists"]
-	var rows: Array = [head]
-	print("== sat %s (warm %d s, measure %d s)" % [fac, warm, meas])
-	for n in ns:
-		var g := await _start(fac, "crown" if fac != "crown" else "clockwork", false)
-		_clear_workers(g, 0)
-		_build_out(g, 0)
+func _nearest_hall_at(k: String, c: Vector2i) -> Building:
+	var ctr := (Vector2(c) + Vector2(Defs.BUILDINGS[k]["size"]) * 0.5) * Defs.TILE
+	return g.nearest_hall(ctr, 0)
+
+
+## A spot for kind k that belongs to hall h: the Clockwork's meshing finder round it; the Crown's "behind" search
+## round it (its own level first), kept only if h is the nearest hall (else it would draw another hall's soil).
+func _spot_by(k: String, h: Building) -> Vector2i:
+	var c := Vector2i(-1, -1)
+	if fac == "clockwork":
+		c = GearEcon.room_spot(g, 0, k, [h], [], h.center(), true, 8)
+	else:
+		for mode in ["behind", "near"]:
+			for ground in [true, false]:
+				c = g.find_spot(0, k, h, 3, Defs.ECON_RANGE - 2, mode, ground)
+				if c.x >= 0 and _nearest_hall_at(k, c) == h:
+					return c
+		return Vector2i(-1, -1)
+	if c.x >= 0 and _nearest_hall_at(k, c) != h:
+		return Vector2i(-1, -1)
+	return c
+
+
+## Spent economy buildings come down (Farms on spent soil, Mills on spent saltpetre, Presses on spent brass): their
+## places under the hall limit go to fresh ground. (A FATIGUED Mainspring still winds a little and stays.)
+func _recycle() -> void:
+	for b in g.buildings:
+		if b.team != 0 or b.dead or not b.built or not Defs.is_econ(b.kind) or b.kind == "mainspring":
+			continue
+		if b.barren():
+			_first("recycled_" + b.kind)
+			g._remove_quietly(b)       # (pulled down; nobody hurt, nothing paid back)
+
+
+## Where the computer would lay it: its economy spot finder for Farms, Mills, Presses and Mainsprings, its general one else.
+func _spot(k: String) -> Vector2i:
+	if Defs.is_econ(k):
+		return ai._econ_spot(k)
+	return ai._find_spot(k)
+
+
+## Is the next base due? exp=<times>: at those clock times. exp=auto: as soon as the bases there are nearly full
+## (workers within 2 of the posts) and nothing is already going up, from 1:00, up to 6 bases (a greedy ideal).
+func _exp_due() -> bool:
+	if String(opts["exp"]) == "auto":
+		if g.clock < 60.0 or exp_done >= 5:
+			return false
 		if fac == "brood":
-			_hall(g, 0).soil = 1e9      # (steady state: the Hive's ground never runs out here)
-		_spawn_workers(g, 0, int(n))
-		var tr := Tracker.new(g, 0)
-		var t_end := g.clock + warm
-		while g.clock < t_end:
-			await physics_frame
-			tr.tick(DT)
-		tr.reset()
-		var gold0 := int(g.stats[0]["gold"])
-		var r20 := float(g.stats[0]["res2_in"])
-		var c0 := g.clock
-		t_end = g.clock + meas
-		while g.clock < t_end:
-			await physics_frame
-			tr.tick(DT)
-		var mins := (g.clock - c0) / 60.0
-		var inc1 := (int(g.stats[0]["gold"]) - gold0) / mins
-		if fac == "crown":
-			inc1 = tr.c["growth_gold"] / mins     # harvests plus crop growth: no 40 s lumps
-		var inc2 := (float(g.stats[0]["res2_in"]) - r20) / mins
-		if fac == "clockwork":
-			inc2 = tr.c["bat_made"] / mins
-		var at_work := g.workers(0).filter(func(u: Unit) -> bool: return u.order == "gather" and u.home_mine != null).size()
-		var crew := 0
-		for b in g.buildings:
-			if b.team == 0 and not b.dead and b.built:
-				crew += int(b.d.get("crew", 0))
-		var row: Array = [n, at_work, crew, int(inc1), snappedf(inc2, 0.1), snappedf(inc1 / n, 0.1), snappedf(inc2 / n, 0.01)]
-		var extra := ""
-		match fac:
-			"crown":
-				var crews: Array = []
-				for f in _built(g, 0, "farm"):
-					crews.append(f.working_crew())
-				var mill: Array = _built(g, 0, "powder_mill")
-				row += [tr.c["harvests"], " ".join(crews.map(func(x): return str(x))), mill[0].working_crew() if not mill.is_empty() else 0]
-				extra = "farm crews %s" % [crews]
-			"clockwork":
-				var nd: int = tr.c["deliveries"]
-				var cs: Array = []
-				for b in g.buildings:
-					if b.team == 0 and not b.dead and b.d.has("battery"):
-						cs.append("%s:%d" % [b.kind, b.crew.size()])
-				var cds: Array = []
-				var hc := _hall(g, 0).center()
-				for cr in _built(g, 0, "ore_crusher"):
-					cds.append(snappedf(cr.center().distance_to(hc) / Game.T, 0.1))
-				for bo in _built(g, 0, "boiler"):
-					var near := g.nearest_of(bo.center(), 0, "ore_crusher")
-					cds.append("boiler->crusher %.1f" % (near.center().distance_to(bo.center()) / Game.T))
-				row += [snappedf(nd / mins, 0.1), snappedf(tr.c["carry_t"] / maxf(1, nd), 0.01), snappedf(tr.c["delivered"] / maxf(1, nd), 0.01),
-					tr.c["blasts"], snappedf(tr.c["bat_made"] / mins, 0.1), snappedf(tr.c["stall_s"], 0.1), " ".join(cs), " ".join(cds.map(func(x): return str(x)))]
-				extra = "trip %.2f s, charge %.2f, crews %s" % [tr.c["carry_t"] / maxf(1, nd), tr.c["delivered"] / maxf(1, nd), cs]
-		rows.append(row)
-		print("  N=%2d at_work=%d  %s/min=%d  %s/min=%.1f  %s %s" % [n, at_work, res[0], int(inc1), res[1], inc2, extra, _speed_note(g)])
-	_write_csv("sat_%s.csv" % fac, rows)
+			if _morphing(BroodNew.TURTLE) > 0:
+				return false
+		elif _pending_of(_hall_kind()) > 0:
+			return false
+		var n := (BroodNew.count_of(g, 0, "grub") - _morphing("")) if fac == "brood" else _workers().size()
+		return n + _coming() >= _posts() - 2
+	return exp_done < exp_times.size() and g.clock >= float(exp_times[exp_done])
 
 
-# ------------------------------------------------------------------ mode: pits (Brood)
-
-## A free spot for a building of `kind` whose centre is `d` tiles from `from`, with a
-## clear straight line to it (so the walk is about the straight distance).
-func _spot_at(g: Game, kind: String, from: Building, d: float, avoid: Array = []) -> Vector2i:
-	var size: Vector2i = Defs.BUILDINGS[kind]["size"]
-	var c0: Vector2 = from.rect().get_center() / Game.T
-	var best := Vector2i(-1, -1)
-	var bs := INF
-	for y in range(int(c0.y - d) - 3, int(c0.y + d) + 3):
-		for x in range(int(c0.x - d) - 3, int(c0.x + d) + 3):
-			var cell := Vector2i(x, y)
-			var cc := Vector2(cell) + Vector2(size) * 0.5
-			var err := absf(cc.distance_to(c0) - d)
-			if err > 0.75:
-				continue
-			var ok := true
-			for yy in size.y:
-				for xx in size.x:
-					var q := cell + Vector2i(xx, yy)
-					if not g.in_map(q) or not g.is_free(q):
-						ok = false
-			if not ok or not g.margin_free(cell, size):
-				continue
-			var too_close := false
-			for a in avoid:
-				if a.distance_to(cc) < 5.0:
-					too_close = true
-			if too_close:
-				continue
-			# prefer a clear walk: every tile on the line (outside the two buildings) is open
-			var r0: Rect2 = from.rect().grow(4)
-			var r1 := Rect2(Vector2(cell) * Game.T, Vector2(size) * Game.T).grow(4)
-			var a0 := from.rect().get_center()
-			var a1 := (cc) * Game.T
-			var steps := int(a0.distance_to(a1) / 12.0) + 1
-			var clear := true
-			for s in steps + 1:
-				var p := a0.lerp(a1, float(s) / steps)
-				if r0.has_point(p) or r1.has_point(p):
-					continue
-				for off in [Vector2(-9, -9), Vector2(9, 9), Vector2(-9, 9), Vector2(9, -9)]:
-					if not g.is_free(g.cell_of(p + off)):
-						clear = false
-			var score := err
-			if not clear:
-				# otherwise the shortest walk around whatever is in the way
-				var path := g.find_path(a0, a1)
-				var plen := 0.0
-				var q0 := a0
-				for q in path:
-					plen += q0.distance_to(q)
-					q0 = q
-				if path.size() <= 1 or plen > a0.distance_to(a1) * 1.6:
-					continue
-				score = 10.0 + plen / maxf(1.0, a0.distance_to(a1))
-			if score < bs:
-				bs = score
-				best = cell
-	return best
+func _pending_of(k: String) -> int:
+	return pending.filter(func(p: Array) -> bool: return p[1] == k).size()
 
 
-# ------------------------------------------------------------------ mode: crush (Clockwork)
+func _supply(saving: int) -> void:
+	var sk: String = Defs.FACTIONS[fac]["supply"]
+	var cap := int(g.players[0]["cap"])
+	if cap >= g.max_supply(0) or _pending_of(sk) > 0:
+		return
+	if g.supply_used(0) + _coming() + 2 + _halls().size() < cap:
+		return
+	if _gold() - saving < g.build_price(0, sk):
+		return
+	var spot: Vector2i = _spot(sk)
+	if spot.x >= 0:
+		_lay(sk, spot, false)
 
-func _crush_sweep() -> void:
-	var ds: Array = _opt("d", [4, 6, 8, 11, 14, 18, 24])
-	var nw: int = _opt("w", 7)
-	var warm: float = _opt("warm", 25.0)
-	var meas: float = _opt("measure", 120.0)
-	var g := await _start("clockwork", "crown", false)
-	_clear_workers(g, 0)
-	for b in g.buildings.duplicate():
-		if b.team == 0 and b.kind == "ore_crusher":
-			b.die()
-	await physics_frame
-	var tower := _hall(g, 0)
-	var bspot := g.find_spot(0, "boiler", tower, 4, 10, "behind")
-	var boiler := g._add_building("boiler", 0, bspot, true)
-	var ws := _spawn_workers(g, 0, nw, false)
-	var rows: Array = [["dist_tiles", "walk_tiles", "winders", "deliveries_per_min", "avg_trip_s", "avg_charge", "ore_per_min", "per_winder_per_min", "overloads", "boiler_stall_s", "batteries_filled_per_min"]]
-	print("== crush: %d Winders on one Boiler, one Ore Crusher at each distance" % nw)
-	for d in ds:
-		var spot := _spot_at(g, "ore_crusher", boiler, float(d), [tower.rect().get_center() / Game.T])
-		if spot.x < 0:
-			print("  d=%s: no clear spot" % d)
+
+## Pay for a building and stand it up after its build time (no builder walks).
+func _lay(k: String, c: Vector2i, big: bool) -> bool:
+	if GearNet.pickable(k):
+		g.set_gear_pick(0, k, big)
+	var price := g.build_price(0, k)
+	if _gold() < price or g.placement_problem(0, k, c) != "":
+		return false
+	g.players[0]["gold"] -= price
+	g.stats[0]["spent"] += price
+	# (no ghost: the game takes back a site nobody builds. One building of a kind goes up at a time, one ideal builder;
+	# if its ground was taken meanwhile it goes up on the next spot found)
+	pending.append([g.clock + float(Defs.BUILDINGS[k].get("time", 30.0)), k, c, big])
+	_first(k + "_laid")
+	return true
+
+
+func _first(k: String) -> void:
+	if not firsts.has(k):
+		firsts[k] = int(g.clock)
+
+
+# ------------------------------------------------------------------ the Brood's build
+
+func _think_brood() -> void:
+	var q := BroodNew.queen(g, 0)
+	if q == null:
+		return
+	var saving := 0
+	# her growth (stage 2) at the first expansion time
+	if not grew and g.clock >= (float(exp_times[0]) if exp_times.size() > 0 else 240.0):
+		if BroodNew.grow_problem(g, q) == "":
+			BroodNew.grow(g, q)
+			grew = true
+			_first("grow_2")
+		elif BroodNew.stage(q) < 1:
+			saving = int(Defs.NB["stages"][1]["cost"])
+	# new ground at the expansion times: a Mound Turtle on far ground
+	if _exp_due():
+		var price := int(g.unit_price(0, BroodNew.TURTLE)[0])
+		if _gold() >= price + saving and BroodRoot.morph_problem(g, 0, BroodNew.TURTLE) == "":
+			var picks: Array = ai._nb_far_spots(q)
+			if picks.is_empty():
+				picks = ai._nb_far_spots(q, 40.0)       # (the near ones taken: farther out, as the computer does)
+			if not picks.is_empty() and _morph(BroodNew.TURTLE, picks[0]):
+				exp_done += 1
+				_first("expansion_%d_laid" % exp_done)
+		else:
+			saving += price
+	# supply: a turtle at home
+	var cap := int(g.players[0]["cap"])
+	var walking_turtle := _morphing(BroodNew.TURTLE)
+	if cap < g.max_supply(0) and walking_turtle == 0 and g.supply_used(0) + 4 >= cap:
+		if _gold() - saving >= int(g.unit_price(0, BroodNew.TURTLE)[0]) and BroodRoot.morph_problem(g, 0, BroodNew.TURTLE) == "":
+			var sp = ai._nb_supply_turtle_spot(q, null)
+			if sp == null:
+				sp = ai._nb_spot_for(q, BroodNew.TURTLE, null)
+			if sp == null:
+				var fp: Array = ai._nb_far_spots(q, 40.0)     # (no room at home: a turtle on new ground gives the same supply)
+				if not fp.is_empty():
+					sp = fp[0]
+			if sp != null:
+				_morph(BroodNew.TURTLE, sp)
+	# grubs: eggs while the Rootmaws have posts
+	var want := _posts()
+	var grubs := BroodNew.count_of(g, 0, "grub") - _morphing("")
+	var have := grubs + _coming()
+	while have < want + 1 and _gold() - saving >= int(g.unit_price(0, "grub")[0]):
+		if BroodNew.lay(g, q, "grub") != "":
+			break
+		have += 1
+	# spent Rootmaws get up and walk to fresh ground (as the computer does: AIBroodNew._nb_rootmaws)
+	for m in g.units:
+		if m.team != 0 or m.dead or m.kind != BroodNew.MAW:
 			continue
-		var cr := g._add_building("ore_crusher", 0, spot, true)
-		boiler.batteries = 0
-		for u in ws:
-			u.carrying = 0
-			u.carry_t = 0.0
-			u.cmd_gather(boiler)
-		var tr := Tracker.new(g, 0)
-		tr.only = boiler
-		var t_end := g.clock + warm
-		while g.clock < t_end:
-			await physics_frame
-			tr.tick(DT)
-		tr.reset()
-		var gold0 := int(g.stats[0]["gold"])
-		var c0 := g.clock
-		t_end = g.clock + meas
-		while g.clock < t_end:
-			await physics_frame
-			tr.tick(DT)
-		var mins := (g.clock - c0) / 60.0
-		var real_d := boiler.center().distance_to(cr.center()) / Game.T
-		var nd: int = tr.c["deliveries"]
-		var ore := (int(g.stats[0]["gold"]) - gold0) / mins
-		rows.append([snappedf(real_d, 0.1), snappedf(_walk_tiles(g, boiler, cr), 0.1), nw, snappedf(nd / mins, 0.1), snappedf(tr.c["carry_t"] / maxf(1, nd), 0.01), snappedf(tr.c["delivered"] / maxf(1, nd), 0.01),
-			int(ore), snappedf(ore / nw, 0.1), tr.c["blasts"], snappedf(tr.c["stall_s"], 0.1), snappedf(tr.c["bat_made"] / mins, 0.1)])
-		print("  d=%.1f walk=%.1f deliveries/min=%.1f trip=%.2f s charge=%.2f ore/min=%d per winder=%.1f overloads=%d stall=%.0f s %s" % [real_d, _walk_tiles(g, boiler, cr), nd / mins,
-			tr.c["carry_t"] / maxf(1, nd), tr.c["delivered"] / maxf(1, nd), ore, ore / nw, tr.c["blasts"], tr.c["stall_s"], _speed_note(g)])
-		cr.die()
-		await physics_frame
-	_write_csv("crush_clockwork.csv", rows)
+		if BroodNew.rooted(m) and float(m.nb.get("food", 0.0)) < 1.0 and BroodNew.ground_left(g, m) < 1.0:
+			BroodNew.uproot(m, true)
+			_first("maw_moved")
+			continue
+		if m.tesla_mode == "packed" and m.order != "nb_root" and m.target == null:
+			var goal = ai._nb_find_spot(q, m)
+			if goal != null:
+				m.give({"o": "nb_root", "p": goal})
+	# Rootmaws: one more when the posts are nearly all taken (one walking at a time)
+	if _morphing(BroodNew.MAW) == 0 and grubs >= want - 2 and grubs >= 3:
+		if _gold() - saving >= int(g.unit_price(0, BroodNew.MAW)[0]) and BroodRoot.morph_problem(g, 0, BroodNew.MAW) == "":
+			var sp = ai._nb_spot_for(q, BroodNew.MAW, null)
+			if sp != null and _morph(BroodNew.MAW, sp):
+				_first("rootmaw_%d" % (BroodNew.count_of(g, 0, BroodNew.MAW) + 1))
 
 
-## Length in tiles of the walk between two buildings (door to door, by the game's pathfinder).
-func _walk_tiles(g: Game, a: Building, b: Building) -> float:
-	var p0 := g.approach_point(a, b.center())
-	var p1 := g.approach_point(b, a.center())
-	var path := g.find_path(p0, p1)
-	var plen := 0.0
-	var q0 := p0
-	for q in path:
-		plen += q0.distance_to(q)
-		q0 = q
-	return plen / Game.T
+func _morphing(k: String) -> int:
+	var n := 0
+	for u in g.units:
+		if u.team == 0 and not u.dead and u.kind == "grub" and u.order == "nb_morph" and (k == "" or String(u.nb.get("mk", "")) == k):
+			n += 1
+	return n
 
 
-# ------------------------------------------------------------------ output
+func _morph(k: String, spot) -> bool:
+	var best: Unit = null
+	for u in g.units:
+		if u.team == 0 and not u.dead and u.kind == "grub" and u.carrying == 0 and u.cocoon <= 0.0 and u.order != "nb_morph" \
+				and (best == null or u.position.distance_squared_to(spot) < best.position.distance_squared_to(spot)):
+			best = u
+	if best == null:
+		return false
+	best.give({"o": "nb_morph", "k": k, "p": spot})
+	return true
 
-func _write_csv(name: String, rows: Array) -> void:
-	var path := ProjectSettings.globalize_path(OUT_DIR + "/" + name)
-	var f := FileAccess.open(path, FileAccess.WRITE)
-	for r in rows:
-		var cells: Array = []
-		for v in r:
-			var s := str(v)
-			if "," in s or " " in s:
-				s = "\"" + s + "\""
-			cells.append(s)
-		f.store_line(",".join(cells))
-	f.close()
-	print("wrote ", path)
+
+# ------------------------------------------------------------------ idle workers back to work
+
+func _route() -> void:
+	for u in _workers():
+		if u.dead:
+			continue
+		if fac == "brood":
+			if u.order == "nb_morph" or u.cocoon > 0.0:
+				continue
+			if u.order == "gather" and u.home_mine != null and is_instance_valid(u.home_mine) and not u.home_mine.dead:
+				continue
+			var src := BroodNew.free_source(g, 0, u.position)
+			if src != null:
+				u.cmd_gather(src)
+			continue
+		var hm = u.home_mine
+		var ok: bool = u.order == "gather" and hm != null and is_instance_valid(hm) and not hm.dead and hm is Building \
+				and hm.haul_cap() <= 0 and not hm.barren()
+		if ok:
+			continue
+		var site := g.free_site(0, u.position)
+		if site != null and site.haul_cap() <= 0 and not site.barren():
+			u.cmd_gather(site)
+
+
+# ------------------------------------------------------------------ the record
+
+func _left() -> float:
+	var n := 0.0
+	if fac == "brood":
+		for u in g.units:
+			if u.team == 0 and not u.dead and u.kind == BroodNew.MAW and BroodNew.rooted(u):
+				n += BroodNew.ground_left(g, u)
+		return n
+	for h in _halls():
+		if fac == "crown":
+			n += float(h.soil)
+		else:
+			n += h.lode_left() * float(Defs.LODE["clocktower"])
+	return n
+
+
+func _row() -> void:
+	var p := _primary()
+	var s := _secondary()
+	var ws := _workers()
+	var working := ws.filter(func(u: Unit) -> bool: return u.order == "gather" and u.home_mine != null).size()
+	var econ := {}
+	if fac == "brood":
+		econ["rootmaw"] = BroodNew.count_of(g, 0, BroodNew.MAW)
+		econ["turtle"] = BroodNew.count_of(g, 0, BroodNew.TURTLE)
+		var q := BroodNew.queen(g, 0)
+		econ["stage"] = BroodNew.stage(q) + 1 if q else 0
+		econ["lay_x"] = snappedf(BroodNew.egg_rate(g, 0), 0.01)
+	else:
+		for k in Defs.FACTIONS[fac]["econ"].keys():
+			econ[k] = g.econ_count(0, k)
+		econ["halls"] = _halls().size()
+	var row := {"min": rows.size() + 1, "p": int(p - float(last["p"])), "s": snappedf(s - float(last["s"]), 0.1),
+		"p_cum": int(p), "s_cum": snappedf(s, 0.1), "workers": ws.size(), "working": working, "econ": econ,
+		"left": int(_left()), "bank": _gold(), "spent": int(g.stats[0]["spent"]), "supply": g.supply_used(0), "cap": int(g.players[0]["cap"])}
+	row["value"] = int(row["p"] + row["s"])
+	row["value_cum"] = int(p + s)
+	row["per_worker"] = snappedf(float(row["value"]) / maxf(1.0, float(working)), 0.1)
+	rows.append(row)
+	last["p"] = p
+	last["s"] = s
+	print("%s min %2d  value %5d (+%5d cum %6d)  p %5d s %5.0f  workers %3d (%3d at work, %5.1f each)  %s  left %6d  bank %5d  supply %d/%d" % [
+		fac, row["min"], row["value"], row["value"], row["value_cum"], row["p"], row["s"], row["workers"], row["working"],
+		row["per_worker"], JSON.stringify(econ), row["left"], row["bank"], row["supply"], row["cap"]])
+
+
+func _finish() -> void:
+	var res := {"faction": fac, "map": opts["map"], "seed": int(opts["seed"]), "exp": exp_times, "press": opts["press"],
+		"version": ProjectSettings.get_setting("application/config/version", "dev"), "rows": rows, "firsts": firsts,
+		"wall_s": (Time.get_ticks_msec() - wall0) / 1000.0}
+	var js := JSON.stringify(res)
+	print("RESULT " + js)
+	if String(opts["out"]) != "":
+		var f := FileAccess.open(String(opts["out"]), FileAccess.WRITE)
+		if f:
+			f.store_string(js)
+	quit()
