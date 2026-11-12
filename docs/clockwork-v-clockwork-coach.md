@@ -205,3 +205,36 @@ in Hollowfen, 6 in Dune Sea); the hunt no longer flips on and off; a Clocktower 
 median 25 s (20 Clocktowers, 10 to 81 s), mostly after "goes for the N Winders mending it first" (the time was not logged
 before this job; in round 2 two Ballistas did not break a mended main Clocktower in 79 s of siege); the push no longer
 stands still for its Great Winder or its Ballistas.
+
+## What changed where (for the merges)
+
+New functions (all new logic is in these): AIClockwork._cw_hunt, _cw_hunt_set (scripts/ai_clockwork.gd); CwPush._hunt_launch,
+_hunt_goal, _hunt_parties, _break_fixers, _break_note, _siege_fixers, _climb_ok, _lag_wait, _goal_in_reach
+(scripts/ai_cw_push.gd); CwArmy._killed_for_reckon (scripts/ai_cw_army.gd); AIOptimal._mirror_turrets
+(scripts/ai_optimal.gd).
+
+Existing functions changed (each a line or two calling the new ones):
+- AIClockwork._army: with ONE ARMY the Clockwork's own hunt (_cw_hunt) instead of the shared AIHunt.tick, which returned
+  before the push ran. All matchups (the run-down army is not the mirror's alone). The shared hunt (scripts/ai_hunt.gd) is
+  not changed; the Clockwork still reads its constants (EVERY, HUNT_AFTER, fighter) and its `_had_army`.
+- CwPush.tick: the hunt's launch (_hunt_launch) and the hunting parties (_hunt_parties) before the goal.
+- CwPush._commit_check: hunting = committed; the reckoning there is reckon(true) (all kills, as before).
+- CwPush._commit_goal / _commit_goal_kept: the hunt's goal.
+- CwPush._pick_goal: says when the building at its goal fell (_break_note).
+- CwPush._march: no waiting for the Great Winder (gw_nowait_on, all matchups); _lag_wait; hunting needs no 60% at the
+  anchor; _goal_in_reach in "arrived".
+- CwPush._assault (committed at a building): the menders first (_break_fixers). CwPush._siege_tick: the same at a sieged
+  building that is no wall (_siege_fixers).
+- CwPush._fight: `low` is false when _climb_ok.
+- CwArmy.reckon: a parameter `all_kills` (default false) and _killed_for_reckon in place of the plain value_killed.
+- AIOptimal.choose: the DEFENSIVE branch first asks _mirror_turrets.
+Gated against the Clockwork (the enemy's faction): the menders first, the cliff, the Ballistas' wait, the reckoning, the
+goal in reach, the hunting parties; OPTIMAL's DEFENSIVE read: the Clockwork against the Clockwork only. In every matchup:
+the hunt through the push and its order (halls, workers, the rest), the march not waiting for the Great Winder.
+Every one has a switch (`-- cwhunt:off`, `cwfixers:off`, `cwclimb:off`, `cwgwlag:off`, `cwreckon:off`, `cwreach:off`,
+`optturrets:off`; the Ballistas' wait goes with `cwgwlag:off`).
+No unit, building, research or economy number changed. No shared AI file (scripts/ai.gd, ai_hunt.gd, ai_cw_army's tables)
+changed apart from the lines above.
+
+Tools: tools/shot_ai_match.gd (sa:/sb: plans, every:N pictures, status.txt, story.txt, the push's state in ai.txt, files
+written every minute), tools/study/cwcw_coach.py (the measuring batch and its report; `--slots` for other pairings).
