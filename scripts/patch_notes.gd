@@ -4,6 +4,14 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.22", "items": [
+		"THE BROOD COMPUTER AGAINST ANOTHER BROOD, COACHED (docs/brood-v-brood-coach.md): two Hard Brood computers were filmed on five maps and each mistake fixed and replayed. It no longer takes the other Brood's Raptors for Horsemen: every Raptor wave used to set off its answer to a Horseman rush for the rest of the game (grubs off work, warriors on guard, no chase, waves held back), and in 16 measured games it now earns 9,600 by 8:00 with 51 grubs on average (5,500 and 34 before; 2,500-3,500 in the games the lockdown took).",
+		"It no longer reads the other Brood's normal opening (no production building, a turtle on new ground) as greed and rushes it at 1:40: against a Brood, greed is a third base early with little army. Its OPTIMAL plan no longer throws the dice for the Raptor rush against another Brood either (it lost or trailed 5 of 6 measured games).",
+		"NO BASE TRADE: when the enemy Brood's army heads for its Mother while its own wave walks the other way, the wave turns and meets it; and a wave strung out along the road closes up before it meets an enemy army instead of arriving single file.",
+		"IT KILLS THE MOTHER: a wave with the upper hand at the enemy Brood's Mother goes for her instead of her fresh eggs, hatchlings and Sires (a Mother at a fifth of her health lived for minutes with a hundred Raptors round her).",
+		"ITS SIRE KEEPS LAYING: with eggs in her clutch and the food for them, the Sire of its quickest line stays on his nest when the enemy comes to the Mother (all three got up to fight and nothing could be laid while the food piled up), and it saves nothing for her growth while she is under attack.",
+		"A wave fed by reinforcements now counts them in what it lost (it fought on into a ramp for eight minutes and never pulled back), and a wave that is winning goes on instead of going home at a quarter of its size. Only against another Brood; no unit, building or economy number changed.",
+	]},
 	{"v": "0.33.21", "items": [
 		"THE CLOCKWORK COMPUTER FINISHES THE MIRROR (Clockwork against Clockwork, coached game by game): once the enemy has no army left, its push hunts with its Winders along to wind the soldiers (the army no longer stands run down in the enemy's main), goes for the enemy's Clocktowers, then its other buildings, then its Winders, and with every Clocktower gone splits into small parties, one at each last building and Winder.",
 		"AT AN ENEMY CLOCKTOWER its soldiers go for the Winders mending it first; a winning push no longer stands still waiting for its Great Winder (sweeping at home) or long for its Spring Ballistas, a goal in reach is attacked by the whole push, and one enemy on a cliff no longer holds it at the foot of a ramp.",

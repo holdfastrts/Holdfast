@@ -555,6 +555,18 @@ es %s defiende su casa con %s contra %s.
 pt %s recua os defensores até a Mãe.
 es %s retira a sus defensores junto a la Madre.
 
+> %s turns its wave to meet an enemy army of %s heading for its Mother.
+pt %s vira a sua onda para enfrentar um exército inimigo de %s que vai rumo à sua Mãe.
+es %s gira su oleada para enfrentar a un ejército enemigo de %s que va hacia su Madre.
+
+> %s's wave goes for the enemy Mother with %s creatures.
+pt A onda de %s vai atrás da Mãe inimiga com %s criaturas.
+es La oleada de %s va a por la Madre enemiga con %s criaturas.
+
+> %s's wave closes up before it meets an enemy army of %s.
+pt A onda de %s se reagrupa antes de enfrentar um exército inimigo de %s.
+es La oleada de %s se reagrupa antes de enfrentarse a un ejército enemigo de %s.
+
 > %s grows its Mother to stage %s.
 pt %s faz a sua Mãe crescer ao estágio %s.
 es %s hace crecer a su Madre a la fase %s.
