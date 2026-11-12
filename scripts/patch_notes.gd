@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.17", "items": [
+		"CLOCKWORK AGAINST THE BROOD, COACHED (the computers): the Clockwork counter-attacks right after it breaks a Brood wave at its base, and does not march out into a wave at its door; a push far out turns home fighting when Raptors raid its base, and a push that pulls back fights what chases it instead of being run down; a new Cog Press goes by the Clocktower with the most brass, so its income no longer stops when the main runs dry; a written build stuck for a minute with cogs in the bank hands over to the normal rules.",
+		"THE BROOD AGAINST THE CLOCKWORK (the computer): its wave waits for its slower creatures and arrives as one pack, not in a long column; when a push it cannot meet stands at the Mother's nest, the Mother gets up and moves to her safest expansion, and her Sires go with her instead of dying in the defence.",
+	]},
 	{"v": "0.33.16", "items": [
 		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
 	]},

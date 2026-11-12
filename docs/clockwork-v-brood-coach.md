@@ -7,7 +7,37 @@ job is the Clockwork against the Brood: Hard OPTIMAL against Hard OPTIMAL, filme
 its time and a picture, the decision behind it fixed, the same seed played again. Both computers are coached. No unit,
 building or economy number was changed: every fix is a decision of a computer.
 
-(This document grows round by round; the numbers and the summary come at the end of the job.)
+## The short version
+
+Five coaching rounds (six filmed games each, the same seeds every round) and one extra film, then a measuring batch of
+16 games (8 maps, both start slots) before and after. Ten decisions changed: eight of the Clockwork's, two of the
+Brood's. One fix (C1) was tried, shown wrong by the films and taken back.
+
+| | the Clockwork's W-D-L | won or led | games decided (mean length) | halls lost: Clockwork / Brood | income at 8:00 / 10:00 (medians, CW / BR) | army at 8:00 (CW / BR) |
+|---|---|---|---|---|---|---|
+| before (main, 0.33.16) | 2-8-6 | 6 of 16 | 8 (12:37) | 22 / 10 | 7,109 / 4,742 ; 9,763 / 7,574 | 1,090 / 775 |
+| **after** | **4-7-5** | **9 of 16** | 9 (11:52) | **20 / 17** | 7,367 / 5,426 ; 10,209 / 9,579 | 1,375 / 775 |
+
+The films, round by round (the Clockwork's result in the six games): round 1 (main) 1 win, 1 loss, 4 draws; round 2 0-2-4
+(C1 was wrong); round 3 4 wins, 2 draws; round 4 1 win, 5 draws; round 5 2 wins, 1 loss, 3 draws. One game a seed is
+noise (the qa study: a seed agrees with itself about 2 times in 3), so read the batch, not a single film.
+
+**The Clockwork** (scripts/ai_cw_army.gd, ai_cw_push.gd, ai_clockwork.gd; every fix gated on a Brood enemy):
+- C2 **counter-attacks** right after its defence breaks a Brood wave (it sat on its gears for minutes before);
+- C3 + C5 a push far out **turns home fighting** when Raptors raid the base (the guard rule counted the push itself as
+  the base's guard, so it never came; and when it came it walked home on plain moves into the raid);
+- C4 **does not push out into a wave** that is at its door (it met it in the open and lost 1,555 in 12 s);
+- C6 a written build stuck for 60 s with 1,000 cogs in the bank **hands over** to the shared rules (a Pendulum build
+  waited 5 minutes for a Heavy Works it had no room for, bank 4,545);
+- C7 a new Cog Press goes **by the Clocktower with the most brass** for each press (four presses sat on the dying main,
+  none by the natural; the Clockwork's income stopped at about 9:00 in 4 of 16 games);
+- C8 a push pulling back from the Brood **falls back fighting** when chased (Raptors ran it down from behind).
+**The Brood** (scripts/ai_brood_new.gd; gated on a Clockwork enemy):
+- B1 **the pack marches together**: its wave waits for its bulk until contact instead of arriving in a column;
+- B2 **the Mother moves house** to her safest expansion when a push she cannot meet stands at her nest; her Sires go
+  with her instead of dying in the defence.
+Not changed (written up): the Clockwork's counters into the Brood's swamp (2 of 8 lost badly), its Winders lost while a
+push turns home, the Brood's biomass piling up at 1,000-2,000 in some games, a shared economy finding for the mirror.
 
 ## How the games are filmed
 
@@ -19,7 +49,7 @@ building or economy number was changed: every fix is a decision of a computer.
 - The six filmed seeds (both start slots on the first two maps): Greenhold 11 (both slots), Dune Sea 23 (both slots),
   Hollowfen 37 (Clockwork P1), Kestrel Rise 41 (Clockwork P2). Every round plays the same six.
 - `tools/study/cvb_coach.py`: the measuring batch (16 games, tools/qa_match.gd, headless) and its report.
-- Pictures: `docs/shots/clockwork-v-brood-coach/` (jpg, 640 wide). Names: round, map/seed/slot, game clock, what.
+- Pictures: `docs/shots/clockwork-v-brood-coach/` (jpg, 640 wide). Names: round, map/seed/slot, game clock, what. The films' stats and AI STORY lines: `docs/clockwork-v-brood-coach/films/<round>/`.
 
 ## Round 1 (main, 0.33.16)
 
@@ -269,5 +299,140 @@ Kestrel Rise 41 **Clockwork won 14:44** (P2; round 1 a Brood-led draw, round 2 a
 - **C8, falling back fighting** (`ai_cw_push._fall_back_fighting`, new; one line in `_go_back`): against the Brood a
   pulling-back push unit with an armed enemy (not rooted) within 180 px walks home on an ATTACK-move (it turns and fights
   what catches it); with none near it walks on a plain move again. `-- cvbback:off`.
+- Before and after at the same moment: `ba_d23w0_1000_base_round1_vs_round3.jpg` (Dune Sea 23, Clockwork P1, its main at
+  10:00): round 1, "WINDERS 0/5" at every press while the push was out; round 3 (C3-C5), the presses manned and the
+  push back in time.
 - One more film of the lost seed with C8 (Greenhold 11, Clockwork P2; "round 6"): a draw, even (income 16,854 to 15,956,
   army 2,305 to 2,075), its push out at 7:11 came back at 11:39 having killed 1,905 for 1,850, and it countered at 14:02.
+
+## The measuring batch
+
+Hard Clockwork OPTIMAL against Hard Brood OPTIMAL, to 15:00, 8 maps of different shapes (Greenhold, Dune Sea, Hollowfen,
+Kestrel Rise, Redrock Canyon, Twin Fords, Frostfang, Cinder Steps), both start slots, fixed seeds (3300 + 7 x the map's
+index). "Before" is main at 0.33.16 (a worktree), "after" this branch. Won or led: won, or led a draw (income earned +
+2 x army value at the end 10% ahead, as docs/brood_nerf_study.md). Halls lost: the Clockwork's Clocktowers; the Brood's
+grounds lost (qa_match.gd's events).
+`python3 tools/study/cvb_coach.py run OUT --data DATA [--root DIR] [--set main|other]`, `... report DATA`.
+Data: docs/clockwork-v-brood-coach/data/ (result.json and the AI STORY per game).
+
+| game | before | after |
+|---|---|---|
+| Cinder Steps, Clockwork P1 | draw, CW led | draw, BR led |
+| Cinder Steps, Clockwork P2 | draw, even | draw, even |
+| Dune Sea, CW P1 | draw, BR led | draw, CW led |
+| Dune Sea, CW P2 | BR won 13:03 | BR won 14:22 |
+| Frostfang, CW P1 | draw, BR led | **CW won 10:29** |
+| Frostfang, CW P2 | BR won 12:53 | draw, CW led |
+| Greenhold, CW P1 | BR won 9:11 | draw, CW led |
+| Greenhold, CW P2 | draw, BR led | draw, CW led |
+| Hollowfen, CW P1 | CW won 14:58 | CW won 10:53 |
+| Hollowfen, CW P2 | draw, CW led | draw, CW led |
+| Kestrel Rise, CW P1 | BR won 13:48 | BR won 8:15 |
+| Kestrel Rise, CW P2 | draw, CW led | BR won 14:24 |
+| Redrock Canyon, CW P1 | BR won 13:51 | BR won 14:14 |
+| Redrock Canyon, CW P2 | BR won 10:26 | **CW won 14:33** |
+| Twin Fords, CW P1 | CW won 12:52 | CW won 6:39 |
+| Twin Fords, CW P2 | draw, CW led | BR won 12:59 |
+| **the Clockwork** | **2-8-6, won or led 6** | **4-7-5, won or led 9** |
+
+- **The Clockwork wins and leads more** (9 of 16 against 6) and loses fewer (5 against 6); the Brood loses more of its
+  ground (17 against 10) and the Clockwork fewer halls (20 against 22). Decided games 9 (8), 50 s shorter.
+- **The Clockwork's economy holds after 9:00**: its income at 10:00 10,209 (9,763); its cogs a minute did not collapse at
+  9:00-10:00 in any after game with its Winders alive (before: 4 of 16, C7). Its army at 8:00 1,375 (1,090).
+- **The Brood earns more too** (5,426 at 8:00 against 4,742; 9,579 at 10:00 against 7,574): it is not weaker for the
+  Clockwork's fixes; its waves arrive together (B1) and its losses now come late (four of its five wins after 12:59).
+- Per game the noise is large (Twin Fords P1: a win at 6:39 in the batch, at 14:31 when played again); 16 games say the
+  direction, not the size.
+
+### The other matchups (no worse)
+
+Two games each, Greenhold and Dune Sea, the sides swapped between them, Hard OPTIMAL. Every change here is gated on a
+Clockwork-v-Brood pairing, so these should play as before up to noise:
+
+| pairing, map (P1 v P2) | before | after |
+|---|---|---|
+| Clockwork v Crown, Greenhold | Clockwork won 10:04 | Clockwork won 12:12 |
+| Crown v Clockwork, Dune Sea | Crown won 14:41 | Crown won 13:26 |
+| Brood v Crown, Greenhold | Brood won 12:06 | Brood won 13:35 |
+| Crown v Brood, Dune Sea | Brood won 10:16 | Brood won 13:05 |
+| Clockwork mirror, Greenhold | P1 won 12:05 | draw, P1 led |
+| Clockwork mirror, Dune Sea | draw, P1 led | P1 won 13:35 |
+| Brood mirror, Greenhold | draw, P2 led | P2 won 14:35 |
+| Brood mirror, Dune Sea | P2 won 12:22 | draw, P2 led |
+
+The same winner or leader in all eight; nothing got worse.
+
+## Tests
+
+Run on this branch: test_clockwork_army (check:1), test_clockwork_home (check:1), test_clockwork_builds_b, test_ai_harass,
+test_great_winder, test_ai_optimal, test_cw_air_ai, test_ai_expand, test_brood_new, test_brood_new_defence,
+test_brood_ai_defend, test_brood_builds, test_ai_brood, test_files, test_i18n. All pass but two, which fail the same way on
+main at 0.33.16 (run there too): test_great_winder (3 checks: "a wreck with its own soldiers crowding round it is still
+swept", "it is sent to the army", "and follows it when it moves") and test_brood_new_defence ([rooted] muskets: the Mother
+dies). Neither touches a change of this job (the Great Winder is not in any fix here; the defence test is against the
+Crown's muskets, and B2 only acts against the Clockwork).
+
+## Shared functions changed (for the merges)
+
+Every fix is NEW code in a new function; the shared functions got one-line hooks:
+
+| file | function | the change | gate |
+|---|---|---|---|
+| scripts/ai_cw_army.gd | `tick` | keeps `_defend`'s result in a variable and calls `_held_note()` | (the note is cheap; acts only via `_counter_ok`) |
+| scripts/ai_cw_army.gd | `may_launch` | `if _wave_at_door(): return false` and `if _counter_ok(mine): return true`, after `_note_retreat()` | enemy is the Brood |
+| scripts/ai_cw_push.gd | `_should_retreat` | `if _brood_raid_home(): return true` before the "base is attacked" rule | enemy is the Brood |
+| scripts/ai_cw_push.gd | `_go_back` | `if _fall_back_fighting(u, home): continue` before the plain move | enemy is the Brood |
+| scripts/ai_clockwork.gd | `_build_up` | `if bo_on and _stuck_hand_over(): return` after the dry-land hand-over | enemy is the Brood |
+| scripts/ai_clockwork.gd | `_drive_spot` (new override of AI's) | a Cog Press by `_press_by_brass()`, else `super` | enemy is the Brood |
+| scripts/ai_brood_new.gd | `_nb_army` | `_nb_close_start(first_rush)` after the wave's orders | enemy is the Clockwork |
+| scripts/ai_brood_new.gd | `_nb_wave_tick` | `if _closing and _nb_close_ranks(): ... return` after the written build's block | enemy is the Clockwork |
+| scripts/ai_brood_new.gd | `_wave_end_nb` | `_closing = false` | |
+| scripts/ai_brood_new.gd | `_nb_mother` | `_nb_mother_moves(q)` before `mother_guard` | enemy is the Clockwork |
+| scripts/ai_brood_new.gd | `_nb_sires_needed` | `false` while the Mother is moving house | (only set against the Clockwork) |
+| tools/shot_ai_match.gd | `_initialize`, `_process`, `_finish` | new args `pa:` `pb:` `every:` (stats, army pictures, the AI STORY); the Brood's "base" picture at her Mother | additive |
+
+scripts/ai_optimal.gd is unchanged (C1 was reverted). New tool: tools/study/cvb_coach.py. Every fix has an off switch
+(`-- cvbcounter:off`, `cvbhome:off`, `cvbstuck:off`, `cvbpress:off`, `cvbback:off`, `nbpack:off`, `nbmove:off`; C4 goes
+with `cvbcounter:off`).
+
+## What is still wrong
+
+1. **The Clockwork's counters into the Brood's land** lose now and then (2 of 8 in the films: Hollowfen 37 round 4,
+   Dune Sea 23 round 5): what it has seen alive lately is not what the Mother lays in a minute on her swamp. A counter to
+   the Brood's nearest expansion (its rooted turtles away from the Mother) rather than its main would be the next try.
+2. **Winders die while the push turns home** (Hollowfen 37 round 4: 13). C5 saves the push; the base needs a guard that
+   stays (a few soldiers on the worker line) when the push goes out against the Brood. Not tried.
+3. **The Clockwork's army at home loses to the pack** (Greenhold 11 round 3: 2,395 to 66 Raptors with Pack Hunt in 15 s).
+   With B1 the Brood's waves are a real threat; the Clockwork's answer (Pendulums) rarely comes in Balanced (0-2 a game).
+4. **The Brood's biomass piles up** to 1,000-2,000 for minutes in some games (Dune Sea 23 round 1 from 8:34; Hollowfen 37
+   round 1 while the push stood at her nest). Her eggs are the limit (one egg every few seconds, faster with Sires near
+   and expansions); not looked into further.
+5. **A shared economy finding for the mirror job**: the opening's `press_new` step skips a Clocktower with an enemy
+   within 360 px and lays the press by the old one; with the Brood's rush at the natural at 3:20 every early press went by
+   the main. C7 fixes the later presses against the Brood only; the step itself and `AI._drive_spot` for the other
+   matchups are unchanged.
+
+## Claude's choices for the owner to confirm
+
+1. **C1 reverted**: against the Brood the Clockwork still reads the Brood's 0:00 turtle as GREEDY and picks the Clock
+   Soldier rush, then Balanced when the Raptors come. The films showed the rush's early soldiers are what turn the Brood
+   to Balanced and keep its waves small. The read's wording ("a second base and little army") is the same untruth the
+   Crown study found; only the pick was tried.
+2. **The counter** (C2): 75 s after a defence that killed 600 or more, worth 1.4 times the enemy army seen alive lately,
+   at least 900 and 0.7 of the reckoning's table for that minute. Not before a wave at the door (C4: 300 or more within
+   900 px of its buildings).
+3. **The recall** (C3/C5): a raid worth 300 or more that the armed units at home do not match, the push 1,000 px or more
+   out. The push turns round on attack-moves and the army's whole-army defence takes it over: no "need_up", no AFTER_FAIL.
+4. **The stuck build** (C6): 60 s with no step and 1,000 cogs banked. Against the Brood only (the mirror job may want it
+   too).
+5. **Presses by brass** (C7) against the Brood only; it would help every matchup in the same way (the main dries at about
+   9:00 everywhere).
+6. **Falling back fighting** (C8): an armed enemy within 180 px turns that unit's walk home into an attack-move.
+7. **The pack** (B1): units more than 5 tiles ahead of the bulk (70th percentile) hold until contact (an armed enemy or a
+   building within 12 tiles of the leaders, 14 tiles from the goal, or 75 s). Not on a rush's first wave, not for the
+   written builds (they march their own way), only against the Clockwork. The Crown would face it too if it were turned
+   on there.
+8. **The Mother moves house** (B2): a push worth 600 or more within 14 tiles of her and her army there under half of it;
+   to the expansion farthest from the push with no enemy within 18 tiles; once every 120 s. Her swamp goes with her, so
+   the Rootmaws by the old nest lose theirs. This is the "Queen safety" the owner named; it changes how the Brood loses
+   (later, and not always), never a number.
