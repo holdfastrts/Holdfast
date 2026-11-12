@@ -279,6 +279,30 @@ def main():
         P("- %s: %d games; the subject did better in %d, worse in %d, the same in %d (sign test p %.2f); decided %d then, %d now."
           % (name, len(both), up, dn, same, binom_p(up, up + dn), decided_old, decided_new))
     P()
+    # plans
+    P("## What OPTIMAL played (the plan at 5:00 and at the end) and how those sides did (now)")
+    P()
+    P("| side | plan at 5:00 | sides | won | won or led | lost or trailed | at the end (most common) |")
+    P("|---|---|---|---|---|---|---|")
+    import collections
+    for lab0, pk, fac in (("Clockwork", "brcw", "clockwork"), ("Brood", "brcw", "brood"), ("Crown (mirror)", "crcr", "crown")):
+        by = collections.defaultdict(list)
+        for g in new.values():
+            if g["pk"] != pk:
+                continue
+            for p in (0, 1):
+                if g["fac"][p] != fac:
+                    continue
+                r = row(g, p, 5)
+                by[r["plan"] if r else "?"].append((g, p))
+        for plan, lst in sorted(by.items(), key=lambda x: -len(x[1])):
+            won = len([1 for g, p in lst if g["res"] == p])
+            wol = len([1 for g, p in lst if g["lead"] == p])
+            lt = len([1 for g, p in lst if g["lead"] == 1 - p])
+            ends = collections.Counter(g["final"][p]["plan"] for g, p in lst)
+            P("| %s | %s | %d | %d | %d | %d | %s |" % (lab0, plan, len(lst), won, wol, lt,
+              ", ".join("%s %d" % kv for kv in ends.most_common(3))))
+    P()
     # per-game list
     P("## Every game (now)")
     P()
