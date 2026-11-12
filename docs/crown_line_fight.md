@@ -174,6 +174,23 @@ gun behind the line sets up where it stands" did not ask how far behind). **Fix:
 stands only when a known enemy is in its reach; else it comes up behind the line first.
 
 
+### Round 8: the first after-batch games, and Kestrel Rise 1131 (Crown OPTIMAL v Clockwork OPTIMAL)
+
+The first ten games of the after batch (the code of round 7) said the line forms BEFORE contact rarely: of 28 contacts
+of a Crown wave, 24 were met unformed and deployed into a line under fire, 4 formed first. A musket sees 8 tiles and
+reaches 6, so an enemy is first seen at contact; most of those contacts were at the enemy's natural or main. The owner's
+ask was "gather out of the enemy's reach, form the line facing the target, then advance in line". **Fix:** a wave that
+knows of no enemy ahead halts 900 px from its target (the enemy's base), forms its line facing it with the guns behind,
+and walks on in line with its guns (the steps; the guns set up once the target is in their reach), then alone to musket
+reach; once a target, again after a won fight. The after batch was started again with it.
+
+Kestrel Rise 1131 with the halt: 6:56 the wave met Clock Soldiers on the road and deployed (12 muskets, 9 fired in the
+first 5 s): 800 killed for 60. 7:34 formed before the enemy army (425): 15 muskets in two ranks, 3 guns. 7:57 halted out
+of reach of the enemy's base and formed (14 muskets, 3 guns); the fight at the plateau above the enemy's natural from
+8:00: 1,760 killed for 535, the guns 45-103 px behind the line and all three fired
+(`r8_kestrel1131_0745-0815_halt_form_and_fight.jpg`: at 8:00 the muskets stand along the plateau's edge).
+![](shots/crown_line_fight/r8_kestrel1131_0745-0815_halt_form_and_fight.jpg)
+
 ## Numbers
 
 NUMBERS
