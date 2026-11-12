@@ -1284,6 +1284,9 @@ func _hunt_parties() -> bool:
 					u.cmd_attack(best)
 	if not prey.is_empty():
 		_note_once("parties", "hunts in parties: %d soldiers after its last %d units" % [_party_of.size(), prey.size()], 30.0)
+		if OS.get_cmdline_user_args().has("partydebug") and prey.size() <= 3:
+			for e in prey:
+				print("PARTY %d %s at %s h%d air %s order %s off %s hp %d hunters %d" % [int(game.clock), e.kind, str(game.cell_of(e.position)), game.height[game.idx(game.cell_of(e.position))], str(e.is_air()), e.order, str(e.off_field), int(e.hp), int(per.get(e, 0))])
 	return true
 
 
