@@ -170,3 +170,37 @@ time, the whole push walking after each across the big marsh: 11 were still aliv
 The fix (CwPush._hunt_parties): hunting against the Clockwork with every enemy hall gone, the front splits into parties of
 up to 4, each after one of the enemy's last units (Winders first), the nearest soldiers first; the rest break its nearest
 buildings. The push stops marching as a block for that.
+
+### 11. A few reactive turrets read as a turtle (the side behind, the middle game)
+
+Seen: Cinder Steps 5 (round 5, a new map), 7:52: P2's scout saw P1's two Ratchet Turrets at an expansion, read DEFENSIVE
+("turrets or rooted defenders") and OPTIMAL switched to the Heavy Works push from where it stood: its written build, 7
+steps left, Spring Ballistas and a Great Winder first. It trained no soldier while it saved: 874 cogs in the bank at 8:06,
+1,915 at 9:06, while P1's push of 1,990 (out at 7:39) broke its army of 1,450 at home. Its army was 100 at 9:06, the game
+lost at 13:14. The same read came late in four other games (11:48-14:20), by the side already winning.
+
+The decision: AIOptimal.choose, DEFENSIVE after the opening: the Clockwork picks the Heavy Works push ("a siege to break its
+defences"). But the Clockwork computer only lays turrets as an answer (the owner's rule: static defence is not a build,
+turrets only reactive), so in the mirror a DEFENSIVE read is never a turtle.
+
+The fix (AIOptimal._mirror_turrets, one line in choose): the Clockwork against the Clockwork, after the opening, keeps what
+it plays on a DEFENSIVE read. `-- optturrets:off` plays it as before.
+
+## Rounds 4 and 5: the same seeds again, and two new maps
+
+Round 4 replayed the four coaching seeds with fixes 1-8 (9 from Greenhold on), round 5 two new maps (Cinder Steps seed 5,
+Red Coast seed 6, sides swapped) with fixes 1-10.
+
+| film | round 1 (main) | round 4 / 5 |
+|---|---|---|
+| Greenhold 1 | (headless) P2 far ahead from 8:00, a draw | an even game to 12:00; P2 ahead from 13:00 (its push 5,900 against 1,215 reckoned), a draw |
+| Dune Sea 2 | P1 ahead from 8:00, won 12:07 (the hunt on and off 8 times) | P1 ahead from 7:00, won 14:17 (fix 9 came from it) |
+| Hollowfen 3 | P1 ahead from 8:00, a draw: 50 soldiers run down in P2's main | P2 ahead from 9:49, no run-down soldier, P1's last hall at 12:53, a draw with 11 Winders left (fix 10 came from it) |
+| Kestrel Rise 4 | P1 won 11:18 | P1 won 11:57 (the hunt from 8:08) |
+| Cinder Steps 5 | | P1 won 13:14 (fix 11 came from P2's side of it) |
+| Red Coast 6 | | P1 won 14:23; hunting parties from 12:44 (11 enemy units left, 1 at 13:44) |
+
+A coach's eye on the winner in rounds 4-5: no soldier ran down (the wind lines show 0 run down to 15:00 in all six films,
+where round 1 had 50 in Hollowfen), the hunt no longer flips, a Clocktower under the push falls in 16-41 s with "goes for
+the N Winders mending it first" (round 1-2: 60-80 s, or not at all in 79 s of siege), the push does not stand still for
+its Great Winder or its Ballistas.
