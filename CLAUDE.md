@@ -67,6 +67,9 @@
   OWNER 2026-11-12 07:59: the Crown computer never uses the player's DRAG-A-LINE (no AI calls Game.line_move): a line of
   Musketeers with the cannons behind it. Job crown-line-fight (coached, filmed; docs/crown_line_fight.md): the line at
   every position and before contact, guns unlimbered behind it, the march as a formed body; merge on its DONE.
+  OWNER 08:03: PAIR IT WITH HORSEMEN SCOUTING IN FRONT: queued as job crown-rider-screen, to start once crown-line-fight
+  merges (riders ahead and on the flanks of the marching line, find the enemy before the line walks in, pull back behind
+  the line at contact, catch fleeing/harassing units; a forward picket at defended positions).
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
