@@ -26,7 +26,19 @@ extends RefCounted
 const SHOOT_KINDS := ["musketeer", "musketeer_armoured", "dismounted", "dismounted_armoured", "dragoon"]
 const GUN_KINDS := ["cannon", "mortar"]
 const LINE_MIN := 4             # shooters: fewer than this, no line
-const RANK2 := 14               # shooters: from this many, two ranks
+## ONE RANK OR TWO, chosen by testing (tools/study_line_ranks.gd: N Musketeers on HOLD with 2 Field Cannons behind, an
+## enemy force walking into them; killed / lost over 3 runs each, the blob = the old way):
+##              14 muskets: blob   1 rank  2 ranks    24 muskets: blob   1 rank  2 ranks
+##   v Raptors              2.82   5.20    3.80                   2.26   2.98    2.47
+##   v Clock Soldiers       7.54   10.89   12.25                  3.67   3.17    6.50
+##   v Musketeers           2.06   2.54    2.36                   1.17   0.84    1.21
+## A line beats the blob every time but one (a 24-man single rank, 730 px wide, against Clock Soldiers or Musketeers who
+## come on in a column: they hit one end of it and the far end cannot reach). So: one rank against the Brood's swarm up
+## to RANK2_BROOD (a wide front catches more of it), two ranks from RANK2_CLOCK against the Clockwork, from RANK2 in the
+## mirror.
+const RANK2 := 16               # shooters: from this many, two ranks (the mirror)
+const RANK2_BROOD := 26
+const RANK2_CLOCK := 12
 const LINE_GAP := 0.95          # (tiles) between men in a rank
 const ROW_GAP := 0.9            # (tiles) between the ranks
 const FLANK := 1.6              # (tiles) the melee beyond each end of the front rank
@@ -102,6 +114,15 @@ func _say(s: String) -> void:
 	said.append([snappedf(game.clock, 0.1), s])
 	if game.mlog:
 		game.mlog.add("%s%s%s" % [game.mlog.who(ai.team), "" if s.begins_with("'s") else " ", s])
+
+
+## Shooters from which the line stands in two ranks, by the enemy (see RANK2).
+func rank2() -> int:
+	if ai._foe_is("brood"):
+		return RANK2_BROOD
+	if ai._foe_is("clockwork"):
+		return RANK2_CLOCK
+	return RANK2
 
 
 static func shooter(u: Unit) -> bool:
@@ -189,7 +210,7 @@ func lay(units: Array, c: Vector2, face: Vector2, attack: bool, least := LINE_MI
 	var T := float(Defs.TILE)
 	face = face.normalized()
 	var perp := Vector2(-face.y, face.x)
-	var ranks := 2 if shooters.size() >= RANK2 else 1
+	var ranks := 2 if shooters.size() >= rank2() else 1
 	var per: int = int(ceil(float(shooters.size()) / ranks))
 	var half: float = per * LINE_GAP * T * 0.5
 	# the front rank: the men nearest the enemy (they are there first)
@@ -396,7 +417,7 @@ func _form(ground: Array, bc: Vector2, near_o: Unit, foes: Array) -> bool:
 	forms += 1
 	var guns: int = ground.filter(func(u: Unit) -> bool: return is_gun(u)).size()
 	_say("'s wave forms its line before the enemy army ahead (%d): %d muskets in %d rank%s, %d gun%s behind" % [
-		int(_value(foes)), n, 2 if n >= RANK2 else 1, "s" if n >= RANK2 else "", guns, "" if guns == 1 else "s"])
+		int(_value(foes)), n, 2 if n >= rank2() else 1, "s" if n >= rank2() else "", guns, "" if guns == 1 else "s"])
 	return true
 
 
@@ -430,7 +451,7 @@ func _form_piece(ground: Array, bc: Vector2, pc: Building) -> bool:
 	forms += 1
 	var guns: int = ground.filter(func(u: Unit) -> bool: return is_gun(u)).size()
 	_say("'s wave forms its line before the enemy's %s: %d muskets in %d rank%s, %d gun%s behind to break it" % [
-		pc.d.get("name", pc.kind).to_lower() if pc.d.has("name") else pc.kind, n, 2 if n >= RANK2 else 1, "s" if n >= RANK2 else "", guns, "" if guns == 1 else "s"])
+		pc.d.get("name", pc.kind).to_lower() if pc.d.has("name") else pc.kind, n, 2 if n >= rank2() else 1, "s" if n >= rank2() else "", guns, "" if guns == 1 else "s"])
 	return true
 
 
