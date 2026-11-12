@@ -81,6 +81,10 @@
   Clockwork 36% (was 28%); trades and results unchanged within noise. Still wrong: v the Clockwork most fights are at its
   bases where units come out at a few seconds' notice; after a won fight the line marches on as a crowd. 8 choices in its
   doc.
+  OWNER 2026-11-12 20:47: WIN RATES IN ALL MATCHUPS, coached: study jobs winrate-a (Crown v Brood, Crown v Clockwork),
+  winrate-b (Clockwork v Brood, Crown mirror), winrate-c (Clockwork and Brood mirrors): the 0.33.7 qa-matches design (19
+  maps x 2 seeds, 15:00), 2 filmed games per pairing with coach's notes and proposals (no code changes); combine into
+  docs/winrate_2026_11_12.md.
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
