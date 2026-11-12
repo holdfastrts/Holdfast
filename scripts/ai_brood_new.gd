@@ -1299,7 +1299,83 @@ func _nb_mother(q: Unit) -> void:
 	if q.team != team or bool(plan.get("mother_free", false)):
 		return          # (mother_free: a coach walks her itself, tools/play_brood_3.gd)
 	_q_guard["stay"] = _nb_mother_up(q) == ""
+	_nb_mother_moves(q)
 	BroodNew.mother_guard(game, q, _q_guard, [1.6, 1.0, 0.6, 0.4][clampi(difficulty, 0, 3)])
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 3) THE MOTHER MOVES HOUSE: against the Clockwork, a
+## push at her nest that her army there cannot meet (armed enemies worth MOVE_AT or more within 14 tiles of her, her
+## warriors and Sires there worth less than MOVE_K of it) sends her to her safest expansion (a rooted Mound Turtle's
+## ground with no enemy seen within MOVE_SAFE tiles, the farthest from the push); her nest is moved there and she roots
+## again once it is calm (BroodNew.mother_guard). Once per MOVE_GAP s. (Round 3, Dune Sea 23, 7:49-10:22: the Clockwork's
+## push of 1,455 stood at her nest for two and a half minutes, its Netters caught her and everything near her, her army
+## was 75-300; she stayed on her nest and fell, the game with her. Hollowfen 37 and Greenhold 11 the same.)
+## `-- nbmove:off` plays it as before.
+const MOVE_AT := 600.0
+const MOVE_K := 0.5
+const MOVE_SAFE := 18.0
+const MOVE_GAP := 120.0
+var move_on := not OS.get_cmdline_user_args().has("nbmove:off")
+var _move_t := -999.0
+var _move_to := Vector2.INF
+var mother_moves := 0
+
+
+func _nb_mother_moves(q: Unit) -> void:
+	if not move_on or not _foe_is("clockwork") or difficulty < 1:
+		return
+	if _move_to != Vector2.INF:
+		if q.position.distance_to(_move_to) < 2.0 * Defs.TILE or game.clock - _move_t > 60.0:
+			_move_to = Vector2.INF          # (there: mother_guard roots her on her new nest once it is calm)
+		elif q.tesla_mode == "deployed":
+			q.cmd_uproot(false)
+		elif q.tesla_mode == "packed" and q.order != "move":
+			q.cmd_move(_move_to)
+		return
+	if game.clock - _move_t < MOVE_GAP:
+		return
+	var at := 0.0
+	var foes_mid := Vector2.ZERO
+	var nf := 0
+	for u in game.units_near(q.position, 14.0 * Defs.TILE):
+		if not game.hostile(u.team, team) or u.dead or u.off_field or u.is_air() or not u.has_attack() or u.is_worker():
+			continue
+		at += float(Game.unit_value(u))
+		foes_mid += u.position
+		nf += 1
+	if at < MOVE_AT:
+		return
+	foes_mid /= maxf(1, nf)
+	var mine := 0.0
+	for u in _nb_army_units():
+		if u.position.distance_to(q.position) < 14.0 * Defs.TILE:
+			mine += float(Game.unit_value(u))
+	for fk in BroodNew.FATHERS:
+		var f := BroodNew.father(game, team, fk)
+		if f and f.position.distance_to(q.position) < 14.0 * Defs.TILE:
+			mine += float(Game.unit_value(f))
+	if mine >= at * MOVE_K:
+		return
+	var best := Vector2.INF
+	var bd := -1.0
+	for t in BroodNew.expansions(game, q):
+		var p: Vector2 = (t as Unit).position
+		if _foe_near(p, MOVE_SAFE * Defs.TILE):
+			continue
+		var d := p.distance_to(foes_mid)
+		if d > bd:
+			bd = d
+			best = p
+	if best == Vector2.INF:
+		return
+	_move_t = game.clock
+	_move_to = best + (q.position - best).normalized() * 3.0 * Defs.TILE
+	_q_guard["home"] = _move_to
+	_q_guard["calm"] = 0.0
+	mother_moves += 1
+	if q.tesla_mode == "deployed":
+		q.cmd_uproot(false)
+	say("the Mother moves house: a push of %d at her nest against %d of hers; she goes to her ground %d tiles away" % [int(at), int(mine), int(q.position.distance_to(_move_to) / Defs.TILE)])
 
 
 ## THE MOTHER GETS UP ONLY FOR A REAL REASON (the owner's playtest, 2026-11-01: two Clock Soldiers near her got her up
@@ -2519,6 +2595,8 @@ func _nb_threat_big(q: Unit) -> bool:
 ## his nest fathers nothing, and a dead one stops his line for minutes: round 3's games lost their Tyrant Sire this way).
 ## Fast riders are left out: the Sire never catches one (docs/raid_micro.md D; the owner: "keep the Tyrant rooted").
 func _nb_sires_needed(q: Unit) -> bool:
+	if _move_to != Vector2.INF:
+		return false          # (clockwork-v-brood-coach: the Mother is moving house: her Sires go with her, not into the push)
 	if not _nb_threat_big(q):
 		return false
 	var v := 0.0
