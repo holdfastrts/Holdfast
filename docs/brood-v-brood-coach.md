@@ -100,7 +100,7 @@ The lockdown is gone (0 rider lines in all four games) and the economies are thr
   home) and meets it, at home if need be, where the swamp, the Sires and the fresh eggs help.
 
 ![Kestrel Rise 6:43, round 1: the two armies cross the middle](shots/brood-v-brood-coach/r1_kestrel_0643_armies_pass.jpg)
-![Kestrel Rise 8:48, round 2: the base trade, P1's column (red) heads for P2's base while P2 (blue) kills P1's turtle](shots/brood-v-brood-coach/r2_kestrel_0848_base_trade.jpg)
+![Kestrel Rise 8:48, round 2: the base trade, P2's column (red) marches north-east past P1's army (blue), which is busy with a Mound Turtle](shots/brood-v-brood-coach/r2_kestrel_0848_base_trade.jpg)
 
 Fixes for round 3:
 - Fix 1 (final): only a third base early with little army seen is greed against another Brood (_nb_brood_greedy).
@@ -159,7 +159,7 @@ Fixes for round 4:
 |---|---|---|---|
 | Highmoor | P1 wins 12:03 (round 3: 12:57) | 9,902 / 9,464 | P2 spends its food now (45, 36, 5 at 10:30-11:30, against 722-1,597 banked in round 3) |
 | Greenhold | draw, even (both 200/200, armies 3,735 / 3,645) | 9,830 / 9,723 | four even trades; the game diverged from round 3 at 7:00 |
-| Hollowfen | P2 wins 11:12 (round 3: P1 13:44) | 8,996 / 9,152 | P1's 82 met P2's 94 in the field at 9:10 and lost |
+| Hollowfen | P2 wins 11:12 (round 3: P1 13:44) | 8,996 / 9,152 | P1's 82 met P2's 94 in the field at 9:04-9:14 and pulled back |
 | Kestrel Rise | draw (P1 ahead, 25,400 earned to 19,300) | 9,598 / 9,744 | meetings at 6:53, 7:01, 10:18, 10:23 |
 
 The Queen hunt did not fire once: the wave's middle (averaged over a hundred creatures and their stragglers) was rarely
@@ -168,11 +168,14 @@ sent.
 
 ### Coach's notes, round 4
 
-- **THE COLUMN** (Hollowfen 9:04, P1): P1's wave of 82 walked into P2's army of 94 as a column a screen long, single file
-  along the path; its head fought alone while the tail was still crossing the marsh. It pulled back at 9:14 with 895 of
-  2,090 (killed 1,390) and the game was lost from there. A human closes the army up before the fight.
+- **THE COLUMN** (Hollowfen 9:04, P2): P2's wave of 94 supply walked into P1's gathered wave of 82 as a column a
+  screen long, single file along the path through the marsh; its head fought alone while its tail was still crossing.
+  With the bigger army it only traded even: P1 killed 1,390 and lost 1,195 before it pulled back at 9:14 (895 left, 1,515
+  of P2's still ahead). P2 won the game (11:12) on its numbers, but a fight it should have won clearly was a coin toss.
+  A human closes the army up before it meets the enemy's. (The same on Kestrel Rise and Greenhold: waves of 100+ arrive
+  as a stream.)
 
-![Hollowfen 9:04: P1's wave (red) arrives single file into P2's gathered army (blue)](shots/brood-v-brood-coach/r4_hollowfen_0904_column_into_blob.jpg)
+![Hollowfen 9:04: P2's wave (red) arrives single file into P1's gathered army (blue)](shots/brood-v-brood-coach/r4_hollowfen_0904_column_into_blob.jpg)
 
 Fix 6, the wave closes up (AIBroodNew._nb_wave_gather): against another Brood, a wave on the road that sees an enemy army
 worth 40% of it or more within 15 tiles of its head (but not yet within 5: no backing off mid-fight), with under 60% of
@@ -309,7 +312,54 @@ What it says:
   before, to 8:00): the computers are deterministic on a map and the dice landed the same, so the batch is about 14
   different games.
 
-(Other matchups and tests below.)
+## Tests
+
+- New: `tools/test_brood_mirror.gd` (two Hard Brood OPTIMAL computers on Greenhold to 5:00): an enemy Raptor is no rider,
+  no rider read or rider guard in the mirror, the other Brood's opening not read GREEDY, two bases are no greed and three
+  are, 25 grubs or more a side at 5:00 (35 here), no Rush in the mirror's dice. ALL PASS; on 0.33.16 it fails (the
+  Raptor a rider, 4 rider lines, a GREEDY read, the Rush in the dice).
+- `tools/test_ai_optimal.gd` ALL PASS; `tools/test_brood_v_riders.gd` ALL PASS (the Horseman raid is still read and
+  guarded against: the riders answer is untouched for real riders); `tools/test_brood_ai_defend.gd` ALL PASS;
+  `tools/test_ai_brood.gd` (the Balanced timeline against the Crown) PASS; `tools/test_spectator.gd` ALL OK;
+  `tools/test_i18n.gd` PASS.
+- `tools/test_brood_new_defence.gd` fails its "muskets, rooted" case (the Mother dies to 5 Musketeers when she may not
+  get up) on main too, the same numbers: a rule test with no computer in it, not touched by this job.
+
+(Other matchups below.)
+
+## What is still wrong (not changed here)
+
+- The P1 start spot wins more decided mirror games (5-1 after, 8-1 before): the start-spots study's finding, being
+  fixed by its own job (start-spots-fix).
+- A Brood at the supply cap banks food (1,000-2,900 late in some games): her laying, not food, is the limit. Spending
+  it is the RICH branch's job (maturing, Brutes, research); in the mirror it could also go into more Mound Turtles on
+  new ground to lay faster, which I did not try.
+- The waves are mostly Raptors (75-110 of 120-135 supply): Spitters come one for two Raptors only while the Venom Sire
+  is beside her and the Raptor line hatches faster. Whether a Spitter-heavier mirror army wins more is untested.
+- The Brood's Rush plan, when it is played against a Brood (set by hand, or OPTIMAL's punish of a third base), goes for
+  the enemy's start, where her Mother, Sire and eggs are; a human would raid the grubs at the Rootmaws and turtles away
+  from her. Not changed.
+- The meeting and the closing up are tuned on these 8 maps; on a map with long single paths the closing up (at most
+  10 s, once in 40 s) may still leave a column.
+- 15:00 draws between two live, even armies: the time limit of the study, not a dead game.
+
+## Claude's choices for the owner to confirm
+
+1. The mirror's read of greed: only a THIRD base early with little army (a Brood with no production building and its
+   turtle at 0:00 looks "greedy" by the other factions' rules every game).
+2. OPTIMAL plays no Raptor rush against a Brood on a NORMAL read (fix 8). It still punishes a real greed (three bases)
+   with it. If the owner wants the Rush in the mirror's dice for variety, it is one number in AIOptimal.NORMAL.
+3. The laying Sire stays: with 3 eggs in her clutch and the food for 3 of his warriors, the Tyrant Sire (else the
+   Venom Sire) keeps his nest when the enemy is at the Mother; the other two Sires may still fight.
+4. The Queen hunt goes for the enemy Mother when the wave's creatures near her (4 or more within 14 tiles) outweigh
+   her guard (the enemy warriors within 8 tiles worth under 70% of them) or she is under half health. It is strong:
+   a wave of 70 killed a full-health Mother in 17 s (Hollowfen seed 2). That is the Brood's win condition, and the
+   defender's answer is an army at home.
+5. A winning wave against a Brood no longer goes home at a quarter of its size while it has killed at least what it
+   lost and sees no more than itself ahead.
+6. All these are gated to the mirror. Some may be good against the other factions too (the Queen hunt does not apply:
+   they have no Mother; the laying Sire and the wave's sums might): not tried, to keep the six coaching jobs' merges
+   apart.
 
 ## What changed in the code (for the merges)
 

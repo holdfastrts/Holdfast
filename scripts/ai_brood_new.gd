@@ -3052,9 +3052,9 @@ func _nb_meet_army(q: Unit, mid: Vector2, left: float) -> bool:
 
 
 ## THE WAVE CLOSES UP BEFORE A FIGHT (brood-v-brood-coach, docs/brood-v-brood-coach.md, round 4: on Hollowfen at 9:04
-## P1's wave of 82 walked into P2's army of 94 as a column a screen long, single file along the path, and its head was
-## eaten before its tail arrived: it pulled back at 9:14 with 895 of 2,090 having killed 1,390, and the game was lost.
-## A human gathers the army before it meets the enemy's). Against another Brood: a wave on the road that sees an enemy
+## P2's wave of 94 walked into P1's gathered 82 as a column a screen long, single file along the path, its head fighting
+## alone while its tail crossed the marsh: with the bigger army it only traded even (it lost 1,390 for 1,195). A human
+## gathers the army before it meets the enemy's). Against another Brood: a wave on the road that sees an enemy
 ## army worth GATHER_SHARE of it or more within GATHER_SEE tiles of its head, not yet fighting it, with under
 ## GATHER_TIGHT of its supply within GATHER_R tiles of its head, gathers on its middle (the head waits, the tail comes
 ## up) for at most GATHER_MAX s, then goes at that army on attack-move. Once per GATHER_GAP s. True while it gathers.
