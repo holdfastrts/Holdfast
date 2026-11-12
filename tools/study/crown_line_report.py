@@ -88,6 +88,30 @@ def fights(rows, key):
                 gset=gset, gbeh=gbeh, gfired=gfired, won=won, out=len(out_), ratio_out=ko / max(1, lo))
 
 
+LINES = [("formed before an army", r"forms its line before the enemy army ahead"), ("halted before the base", r"halts out of reach of the enemy's base"),
+         ("formed before a wall", r"forms its line before the enemy's"), ("deployed under fire", r"deploy into a line"),
+         ("fell back in order", r"falls back toward its guns"), ("defence lines", r"meets the force at its buildings with a line"),
+         ("waves out", r"(first attack goes out|wave \d+ goes out)"), ("pulled back", r"pulls its wave back|pulls back from the gate")]
+
+
+def lines(rows, key):
+    import re
+    out = {}
+    for name, r, _ in rows:
+        if ('_%s_' % key) not in name:
+            continue
+        f = os.path.join(DATA_OF[name], name, 'crownlog.txt')
+        if not os.path.exists(f):
+            continue
+        t = open(f, errors='replace').read()
+        for nm, pat in LINES:
+            out[nm] = out.get(nm, 0) + len(re.findall(pat, t))
+    return out
+
+
+DATA_OF = {}
+
+
 if __name__ == '__main__':
     dirs = [a for a in sys.argv[1:] if not a.startswith('--')]
     keep = None
@@ -96,6 +120,8 @@ if __name__ == '__main__':
         keep = set.intersection(*[set(n for n, _, _ in load(d)) for d in dirs])
     for d in dirs:
         rows = [x for x in load(d) if keep is None or x[0] in keep]
+        for x in rows:
+            DATA_OF[x[0]] = d
         print('## %s (%d games)' % (d, len(rows)))
         print()
         print('| matchup | games | Crown W-D-L | won or led | army 8:00 | 10:00 | income 8:00 | 10:00 | Crown halls lost / game |')
@@ -114,4 +140,11 @@ if __name__ == '__main__':
                 print('| %s | %d | %d / %d (%.2f) | %d, %.2f | %d | %d%% | %d / %d | %d%% | %d: %d%% / %d%% / %d%% |' % (nm, f['n'], f['k'], f['l'], f['ratio'],
                       f['out'], f['ratio_out'], f['won'], 100 * f['fired'], f['across'], f['depth'], 100 * f['wide'], f['guns'],
                       100 * f['gset'], 100 * f['gbeh'], 100 * f['gfired']))
+        print()
+        print('| matchup | ' + ' | '.join(nm for nm, _ in LINES) + ' |')
+        print('|---|' + '---|' * len(LINES))
+        for key, nm in KEYS:
+            c = lines(rows, key)
+            if c:
+                print('| %s | ' % nm + ' | '.join(str(c.get(n, 0)) for n, _ in LINES) + ' |')
         print()
