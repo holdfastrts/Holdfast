@@ -160,3 +160,13 @@ means for a minute: rules-fixes).
 
 The fix (CwPush._hunt_goal): the hunt's order is the enemy's halls, then its WORKERS, then its other buildings, then any
 unit.
+
+### 10. Hunting parties
+
+Seen: Hollowfen 3 (round 4, fixes 1-9 in): P2 hunted from 11:59 and broke P1's last Clocktower at 12:53. From 13:08 P1
+had no hall, no army and no cogs; the hunt went for its Winders (fix 9) and killed 17 of 28 in a minute, but one at a
+time, the whole push walking after each across the big marsh: 11 were still alive at 15:00. A draw.
+
+The fix (CwPush._hunt_parties): hunting against the Clockwork with every enemy hall gone, the front splits into parties of
+up to 4, each after one of the enemy's last units (Winders first), the nearest soldiers first; the rest break its nearest
+buildings. The push stops marching as a block for that.
