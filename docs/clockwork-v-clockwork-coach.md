@@ -1,14 +1,63 @@
 # The Clockwork mirror, coached (job clockwork-v-clockwork-coach)
 
-Short sentences, to be read aloud. (Written as the job goes; the numbers at the end are filled in last.)
+Short sentences, to be read aloud.
 
 The owner (2026-11-11 22:35): every matchup coached and filmed "with the same level of scrutiny and attention" as the
 Crown v Brood job. This job is the Clockwork mirror: Hard Clockwork OPTIMAL against Hard Clockwork OPTIMAL. Coaching, as a
 human coach would: film real games, watch them, name each mistake with its time and a picture, fix the decision behind
 it, play the same seeds again and look for the mistake.
 
-No unit, building or economy number changed. Only the Clockwork computer's play (scripts/ai_cw_push.gd and
-scripts/ai_clockwork.gd, new functions; the lines changed in existing functions are listed below).
+No unit, building or economy number changed. Only the Clockwork computer's play (scripts/ai_cw_push.gd,
+scripts/ai_clockwork.gd, scripts/ai_cw_army.gd and one line of scripts/ai_optimal.gd; new functions, the lines changed in
+existing functions are listed below). Version 0.33.17.
+
+## The short version
+
+Five coaching rounds, 18 filmed games on six maps (Greenhold, Dune Sea, Hollowfen, Kestrel Rise, Cinder Steps, Red
+Coast), the pictures in docs/shots/clockwork-v-clockwork-coach/. The mirror is decided by small edges in the middle game;
+that is as it should be. The mistakes were mostly the WINNER's: it did not finish a won game.
+
+1. The hunt took the army off its push: no Winders went along, 50 of 78 soldiers stood run down in the enemy's main.
+   Now the push hunts, its Winders along. (All matchups.)
+2. At an enemy Clocktower, the soldiers go for the Winders mending it first.
+3. One enemy on the cliff no longer holds a winning push at the foot of a ramp.
+4. The march no longer waits for the Great Winder (sweeping wrecks at home, 2,275 px away). (All matchups.)
+5. ... nor more than 12 s for Ballistas shooting something off the way.
+6. Hunting, the push does not regroup after every building.
+7. Both sides: the push going out no longer counts every unit killed since 0:00 against the enemy army it expects
+   ("worth 4,445 against the 1,225 it reckons", into 49 soldiers on their gears).
+8. A goal in reach (420 px) is the goal reached: everyone breaks it.
+9. The hunt's order: the enemy's halls, its other buildings (none left = out at once), then its Winders.
+10. With every enemy hall gone the push splits into parties, one at each last building and unit.
+11. The side behind: a few reactive Clockwork turrets no longer read as a turtle (it switched to the Heavy Works build and
+    stopped training soldiers, 1,915 cogs in the bank while its army died).
+
+## The numbers
+
+Hard Clockwork OPTIMAL against itself, 8 maps (Greenhold, Dune Sea, Hollowfen, Kestrel Rise, Cinder Steps, Red Coast,
+Frostfang, Twin Fords), the same seeds before and after, headless to 15:00 (tools/study/cwcw_coach.py). "Before" is main at
+0.33.16 (24 games, 3 seeds a map); "after" is this branch (16 games, the first 2 seeds of each map; the third seed was cut to
+save time once the fixes were final). The 16 before games of the same seeds are the fair comparison.
+
+| | before, the same 16 seeds | after (16) | before, all 24 |
+|---|---|---|---|
+| decided by 15:00 | 8 (P1 4, P2 4) | **11** (P1 7, P2 4) | 14 (P1 9, P2 5) |
+| mean length of the decided | 12:53 | 13:10 | 12:52 |
+| a side clearly ahead (army twice the other's, 1,500 or more) | 15 games, at 8:44 | 13 games, at 8:36 | 22, at 8:43 |
+| ... and it won | **8 of 15**, 4:53 after | **11 of 13**, 4:38 after | 14 of 22, 4:43 after |
+| draws with one side beaten in all but name | 0 | 0 | 1 |
+| cogs earned per side at 8:00 / 10:00 | 9,340 / 12,623 | 9,040 / 12,292 | 9,338 / 12,617 |
+| army per side at 8:00 / 10:00 | 1,578 / 2,317 | 1,526 / 2,309 | 1,538 / 2,324 |
+| first attack (median) | 5:15 | 5:20 | 5:15 |
+| games with a script error | 1 (ballista.gd:328, known) | 1 (the same) | 1 |
+
+- The won games are finished: a side clearly ahead won 11 of 13 games (before 8 of 15). The 5 draws left are 2 even games
+  with nobody ahead and 3 where the leader got ahead only at 11:00 or not at all.
+- The economy and the armies are the same (no number changed): the fixes are in what the army does.
+- Two measured versions on the way were WORSE and were not kept, which is why the numbers matter: fixes 1-11 with the hunt
+  going for the enemy's Winders before its buildings (14 games: 6 decided, the side ahead won 6 of 13, 2 draws beaten in
+  all but name) and the same with the hunting parties after units only (16 games: 5 decided, 5 draws beaten in all but
+  name). The Winders outran their hunters while the buildings stood. Data: docs/clockwork-v-clockwork-coach/data/.
 
 ## How it was watched
 
@@ -265,3 +314,41 @@ written every minute), tools/study/cwcw_coach.py (the measuring batch and its re
    in these games (the front still shoots what comes in reach), noted.
 5. **Greenhold's high main.** A committed push took 80 s from the natural to the main's Clocktower up the ramp (after games,
    Greenhold s0, 11:30-12:51); the headless batch has no push state to say why (the films do: tools/shot_ai_match.gd).
+
+## Claude's choices for the owner to confirm
+
+1. **The hunt goes through the push in every matchup** (fix 1), not only the mirror: the run-down army and the missing
+   Winders are the Clockwork's whatever the enemy. Its end condition is the Clockwork's own: an enemy army worth a quarter
+   of ours (300 at least), not one new soldier. `-- cwhunt:off` gives back the shared hunt.
+2. **The hunt's order** (fix 9): halls, other buildings, Winders, the rest. A side with no building left is out at once;
+   chasing Winders first lost games (measured above).
+3. **The menders first** (fix 2): up to 40% of the front, two at most on each Winder within 220 px of the building. Against
+   the Clockwork only; the Crown's labourers mend too (a look for crown-v-clockwork-coach).
+4. **The cliff** (fix 3): committed and worth 4 times what stands on the high ground, the push goes up. Against the
+   Clockwork only (the rule was made for Crown Musketeers on a ramp, and it stays for them).
+5. **The Great Winder is never waited for** (fix 4, every matchup); **Ballistas 12 s at most** (fix 5, committed against
+   the Clockwork).
+6. **The reckoning** (fix 7): against the Clockwork, the push going out takes off only what it killed in the last 150 s;
+   the "clearly ahead" check keeps all kills (it is what finishes games).
+7. **The turrets** (fix 11): in the mirror, after the opening, a DEFENSIVE read keeps the plan.
+8. **Seeds**: films and batches use fixed seeds, but a seed is not the same game twice (see "How it was watched").
+
+## Proposals (not applied)
+
+1. **The mirror's reckoning by trades.** The table of what a Clockwork of that age has, less half of recent kills, still
+   misjudges: "goes out: worth 3,470 against the 1,070 it reckons" at 9:50 (after games, Dune Sea s0) with about 2,500 of
+   the enemy at home 40 s later; the push lost 2,940 for 1,260. In the mirror the same AI on the same economy has about our
+   army plus what we lost less what we killed. As the only floor it would stop the 5:00 pushes too (no trades yet: the
+   enemy is reckoned as big as us), and with nobody going out the mirror would end 15:00 draws; as a second floor from
+   7:00 it might be right. Worth a measured try.
+2. **The lockout after a failed push.** After a push pulls back the next one waits until it is worth 1.25 times what went
+   out (AFTER_FAIL). Twice in a row and the bar can never be met: "its last push (4,870) had to pull back; the next goes
+   worth 6,087 (it has 2,430)" from 11:44 to 15:00 (after games, Dune Sea s0), a draw. A bar that fades with time (back to
+   the plain reckoning after 2-3 minutes) would let it go again. Shared by every matchup (ai_cw_army.may_launch), so left
+   for the owner.
+3. **The defender's edge on its gears.** A push into the enemy's base needs about 1.3 times the army there (mended,
+   wound, its Ballistas behind). That is the defender's advantage the design principles ask for; keep it. If games should
+   end sooner, a stronger push (Ballistas first, Springers on the cliffs) is the AI's way, not a number.
+
+The data: docs/clockwork-v-clockwork-coach/data/<before|after|after_v1|after_v2>/<game>/ (result.json, cwlog.txt.gz: the
+Clockwork's own match log lines). The table: `python3 tools/study/cwcw_coach.py report docs/clockwork-v-clockwork-coach/data/after`.
