@@ -95,3 +95,63 @@ had 0 army and 8 Winders at 15:00).
   written build, not a rush's first wave, 6 units or more), until contact (an armed enemy or an enemy building within 12
   tiles of the leaders, the leaders within 14 tiles of the goal, or 75 s) the units more than 5 tiles ahead of the pack's
   bulk (its 70th percentile on the way) wait on HOLD. Then all go in together. `-- nbpack:off`.
+
+## Round 2 (round 1's fixes)
+
+Results: Greenhold 11 **Brood won 14:51** (Clockwork P1; round 1 draw) and draw, the Clockwork far ahead (army 3,900 to
+195; round 1 the Brood led); Dune Sea 23 **Brood won 14:10** (Clockwork P1; round 1 14:49) and draw; Hollowfen 37 **Brood
+won 8:55** (round 1 the Clockwork won); Kestrel Rise 41 **Brood won 11:16** (round 1 a draw the Brood led).
+Worse for the Clockwork. What the films showed:
+
+### What worked
+
+- **C2, the counter** (Greenhold 11, Clockwork P2, 11:52): "counter-attacks: its defence killed 1,170, it goes out worth
+  3,615 against the 72 it has seen alive lately"; the push committed at 11:53 and held the field to 15:00 (army 3,900 to
+  195, income even).
+- **C3 fired** (Dune Sea 23, 11:02): "Brood raiders in the base (1,250 value, 70 at home to meet them)".
+- **B1, the pack**: "its pack meets the enemy: all go in together (62 supply)" (Dune Sea 23, 7:51); that wave killed 2,710.
+
+### Coach's notes: the Clockwork
+
+1. **C1 was wrong.** Without the Clock Soldier rush pick the Brood's read of the Clockwork did not change at 3:20: it kept
+   its Rush plan, and its next wave was bigger (Hollowfen 37: 53 supply of Raptors at 6:29 against 33 in round 1, picture
+   `r2_h37w0_0656_rush_brood_wave.jpg`; the Clockwork's whole army of 1,625 was gone by 7:19). In round 1 the Clock
+   Soldiers of the dropped rush went out at 3:37-4:16 ("push goes out: 8 units") and the Brood answered "defends its home
+   with 12 against 560", read the Clockwork AGGRESSIVE and turned Balanced. Checked on the two lost seeds with
+   `-- cvbread:off` and the other fixes kept: Hollowfen 37 the Clockwork won (11:27), Kestrel Rise 41 the Brood won (13:15).
+   The early Clock Soldiers are worth their cost against the Brood: **C1 is reverted** (scripts/ai_optimal.gd is as on
+   main). A human coach's lesson too: the "wasted" rush was the pressure that kept the Brood at home.
+2. **The push goes out into the Brood's wave at its own door** (Greenhold 11, Clockwork P1, 8:44; picture
+   `r2_g11w0_0844_push_into_wave.jpg`): "goes out: worth 2,420 against the 1,822 it reckons (a report 0 s old)", as 56
+   supply of Raptors reached the base; it met them in the open and "pulls back (it has lost 1,555 of the 2,420)" 12 s
+   later. *Decision:* `ai_cw_army.may_launch` does not look at an army at its door. *Fix C4.*
+3. **Called home, the push walked into the raid and died** (Dune Sea 23, Clockwork P1, 11:02-12:04; picture
+   `r2_d23w0_1110_push_far_out_when_called.jpg`, the push deep in the Brood's land at 11:10): C3 turned it round, but
+   `_retreat` walks it home on plain moves (it does not shoot) for up to 90 s; the push of 3,050 met the raid of 2,120 on
+   the way and was lost to the last soldier (84 units by 12:04). *Fix C5.*
+4. **The counter went out too small** (Greenhold 11, 12:03): 950 "against the 135 it has seen alive lately" while the
+   Brood had 85 supply coming at 12:16 (it pulled back unharmed). *Fix: the counter's floor.*
+5. **A stuck written build** (Kestrel Rise 41, Clockwork P2, the Pendulums picked at 1:51; picture
+   `r2_k41w1_0802_stuck_build_560_army.jpg`): "finds no room for a Heavy Works by its Mainsprings"; the steps after the
+   Heavy Works waited for it and the bank went 618 -> 4,545 from 5:00 to 10:04 with the army at 560. A build switched
+   from the common opening has no time cap (`_bo_cap_t`), and nothing noticed. *Fix C6.*
+
+### Coach's notes: the Brood
+
+1. **Its Rush pays when it is not answered** (Hollowfen 37, Kestrel Rise 41): the waves after it were its biggest yet.
+2. **The pack** brings the wave in at once; the Clockwork's armies at home lost more to them (Hollowfen 37 6:55: 1,625
+   gone in 25 s). Kept: it is the Brood playing better.
+
+### Fixes after round 2
+
+- **C1 reverted** (see above).
+- **C4, no push into a wave at the door** (`ai_cw_army._wave_at_door`, new; one line in `may_launch`): against the Brood
+  the push does not go while an enemy army worth 300 or more is in sight within 900 px of its buildings; the army meets it
+  on its gears, then C2 counters.
+- **C5, turn home fighting** (in `ai_cw_push._brood_raid_home`): the push recalled by raiders is not a failed push: every
+  unit attack-moves at the raid (the Great Winder walks) and the army's whole-army defence takes them over at once; no
+  "need_up", no AFTER_FAIL.
+- **The counter's floor** (`_counter_ok`): also at least 0.7 of the reckoning's table for that minute (1,900 at 12:00).
+- **C6, a stuck build hands over** (`AIClockwork._stuck_hand_over`, new; one line in `_build_up`): against the Brood, a
+  written build that has done no step for 60 s with 1,000 cogs or more in the bank ends; the shared rules play on.
+  `-- cvbstuck:off`.
