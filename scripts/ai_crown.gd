@@ -565,6 +565,8 @@ func _army_due() -> bool:
 		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
 	if not short and army_lags():
 		short = true            # (ai-followups: far behind the enemy's army: the soldiers before more labourers)
+		if _cc_labs_due():
+			short = false       # (crown-v-clockwork-coach: the halls' Farms worked first while the army holds half)
 	if not short and blind_guard() and not brood_army_off:
 		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
 		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
@@ -2798,7 +2800,8 @@ var cc_on := not OS.get_cmdline_user_args().has("crcw:off")      # (`-- crcw:off
 
 
 ## A plan's own opening against the Clockwork ("bo_clock": the Timing attack from two halls), else the key given.
-var cc_two := not OS.get_cmdline_user_args().has("crcw:onehall")     # (`-- crcw:onehall`: the Timing on one hall, as before)
+var cc_two := OS.get_cmdline_user_args().has("crcw:twohall")     # (`-- crcw:twohall`: the Timing from two halls, round 2-5's
+                        # opening; off by default: the measuring batch, docs/crown-v-clockwork-coach.md "Round 6")
 
 
 func _cc_bo_key(key: String) -> String:
@@ -2923,3 +2926,33 @@ func _cc_guns_first() -> bool:
 	for f in _mine("foundry"):
 		guns += (f.queue as Array).count("cannon")
 	return guns < CANNONS_FIRST
+
+
+## THE FARMS BEFORE "THE ARMY FIRST" (round 6). Against the Clockwork the army keeps 60% of the enemy army it reckons (90%
+## after a GREEDY read answered by an attacking plan: AICrown.army_lags), or the labourers wait. The Clockwork's army grows
+## faster than the Crown's on one hall, so the labourers never came again: 18-19 from 5:00 to 8:00 and 19-22 at 10:00 in the
+## Timing games, the natural laid at 7:30-8:20 and its soil at 100% to the end, the main's soil spent at 9-10 minutes and
+## the income flat for whole minutes. Against the Clockwork, while the labourers are fewer than CC_LABS_HALL a built hall
+## (its two Farms and the Mill's share; CC_LABS_MAX at most) and the army is worth CC_LABS_ARMY of the reckoning or more,
+## the hall keeps training labourers whatever the army lags; not while a rush is defended.
+const CC_LABS_HALL := 16
+const CC_LABS_MAX := 40
+const CC_LABS_ARMY := 0.5
+var _cc_labs_said := -99.0
+
+
+func _cc_labs_due() -> bool:
+	if not cc_on or difficulty < 1 or not cc_vs_clock() or _defending():
+		return false
+	var halls := _halls().filter(func(h: Building) -> bool: return h.built and _land(h) > 0.0).size()
+	var want := mini(CC_LABS_MAX, CC_LABS_HALL * halls)
+	var labs := game.workers(team).size()
+	if labs >= want:
+		return false
+	var est := foe_reckon()
+	if float(game.army_value(team)) < est * CC_LABS_ARMY:
+		return false
+	if game.clock - _cc_labs_said > 60.0:
+		_cc_labs_said = game.clock
+		say("the Farms first: %d labourers for %d halls (it wants %d) while its army (%d) holds half the %d it reckons" % [labs, halls, want, game.army_value(team), int(est)])
+	return true
