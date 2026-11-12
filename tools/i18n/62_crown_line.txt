@@ -20,3 +20,7 @@ es La línea de mosquetes de %s está perdiendo la lucha (%s perdidos por %s): s
 > %s meets the force at its buildings with a musket line: %s muskets facing it, %s gun(s) behind them.
 pt %s enfrenta a força junto às suas construções com uma linha de mosquetes: %s mosquetes de frente para ela, %s canhão(ões) atrás deles.
 es %s hace frente a la fuerza junto a sus edificios con una línea de mosquetes: %s mosquetes de cara a ella, %s cañón(es) detrás de ellos.
+
+> %s's wave forms its musket line before the enemy's %s: %s muskets in %s rank(s), %s gun(s) behind them to break it.
+pt A onda de %s forma a sua linha de mosquetes diante do %s inimigo: %s mosquetes em %s fileira(s), %s canhão(ões) atrás deles para derrubá-lo.
+es La oleada de %s forma su línea de mosquetes ante el %s enemigo: %s mosquetes en %s fila(s), %s cañón(es) detrás de ellos para derribarlo.

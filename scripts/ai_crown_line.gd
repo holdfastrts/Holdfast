@@ -53,6 +53,7 @@ const ADVANCE_MAX := 25.0       # (s) an advance not in contact by then fights w
 const STEP := 96.0              # (px) ... a line in a fight with nothing in reach steps this far on
 const IDLE_PUSH := 4.0          # (s) a held line with nothing in reach this long steps on
 const FORM_COOL := 20.0         # (s) between two formings of the same wave
+const PIECE_FORM_R := 1100.0    # (px) a siege's piece this near the body: the line forms before it (with guns in the wave)
 const SPREAD_MAX := 5.0         # (tiles) the body's mean distance from its middle that calls a close-up on the march
 const DONE_SPREAD := 2.4
 const CLOSE_MAX := 14.0
@@ -298,6 +299,10 @@ func march(wave: Array, target: Vector2) -> bool:
 	for u in body:
 		bc += u.position
 	bc /= maxi(1, body.size())
+	if pc != null and is_instance_valid(pc) and not pc.dead and st == "" and _formed_for != pc and _has_guns(ground) \
+			and bc.distance_to(pc.center()) < PIECE_FORM_R and bc.distance_to(pc.center()) > 520.0:
+		_formed_for = pc
+		return _form_piece(ground, bc, pc)
 	if pc != null and is_instance_valid(pc) and not pc.dead and bc.distance_to(pc.center()) < 560.0 \
 			and not (st in ["form", "step", "set"] and not _guns_set()):
 		return _reset(ground, target, "")       # (at the wall: the siege's own order, once the line's guns are set up)
@@ -395,6 +400,48 @@ func _form(ground: Array, bc: Vector2, near_o: Unit, foes: Array) -> bool:
 	return true
 
 
+## A siege ahead (a wall or gate the wave must break, AI._siege_plan): coached, Greenhold 1103 8:05-8:16 (the mirror): the
+## wave walked on to the enemy's ramp gate with its guns 30 tiles behind and pulled back from it "too dear" one volley in.
+## Now with guns in the wave it forms its line facing the piece FORM_D short of it (or of the enemy soldiers known by it),
+## steps up with its guns until they reach the piece, holds while they set up, and only then hands over to the siege.
+func _form_piece(ground: Array, bc: Vector2, pc: Building) -> bool:
+	var near: Vector2 = pc.center()
+	var nd0: float = bc.distance_to(near)
+	for o in _known(ground):
+		var p: Vector2 = _pos(o)
+		if p.distance_to(pc.center()) < 420.0 and p.distance_to(bc) < nd0:
+			nd0 = p.distance_to(bc)
+			near = p
+	_face = (pc.center() - bc).normalized()
+	if _face == Vector2.ZERO:
+		return false
+	_piece_pt = near
+	var nd: float = (near - bc).dot(_face)
+	var c: Vector2 = _same_level(bc + _face * clampf(nd - FORM_D - 60.0, 0.0, 260.0), game.level_of(bc), bc)
+	_c = c
+	st = "form"
+	_t0 = game.clock
+	_last_form = game.clock
+	var n := lay(ground, c, _face, false)
+	if n == 0:
+		st = ""
+		_piece_pt = Vector2.INF
+		return false
+	forms += 1
+	var guns: int = ground.filter(func(u: Unit) -> bool: return is_gun(u)).size()
+	_say("'s wave forms its line before the enemy's %s: %d muskets in %d rank%s, %d gun%s behind to break it" % [
+		pc.d.get("name", pc.kind).to_lower() if pc.d.has("name") else pc.kind, n, 2 if n >= RANK2 else 1, "s" if n >= RANK2 else "", guns, "" if guns == 1 else "s"])
+	return true
+
+
+func _has_guns(ground: Array) -> bool:
+	return ground.any(func(u: Unit) -> bool: return is_gun(u))
+
+
+var _formed_for = null           # the siege piece the line last formed before
+var _piece_pt := Vector2.INF     # the point the line steps toward (a siege's piece or the enemy by it)
+
+
 func _forming(ground: Array, target: Vector2, contact: bool, foes: Array) -> bool:
 	var reach := _guns_reach(foes)
 	if reach and st == "step":
@@ -421,6 +468,8 @@ func _step(foes: Array) -> void:
 	var nd := INF
 	for o in foes:
 		nd = minf(nd, (_pos(o) - _c).dot(_face))
+	if _piece_pt != Vector2.INF:
+		nd = minf(nd, (_piece_pt - _c).dot(_face))
 	var on_spots: Array = _spot.keys().filter(func(u) -> bool: return _ok(u))
 	var guns: Array = on_spots.filter(func(u: Unit) -> bool: return is_gun(u))
 	var men: Array = on_spots.filter(func(u: Unit) -> bool: return not is_gun(u))
@@ -495,6 +544,8 @@ func _guns_at_spots() -> bool:
 
 ## The nearest enemy known is in the guns' reach from their place behind the line: they set up.
 func _guns_reach(foes: Array) -> bool:
+	if _piece_pt != Vector2.INF and (_piece_pt - _c).dot(_face) <= GUN_SET + 20.0:
+		return true
 	for o in foes:
 		if (_pos(o) - _c).dot(_face) <= GUN_SET + 20.0:
 			return true
@@ -621,6 +672,7 @@ func _reset(ground: Array, target: Vector2, why: String) -> bool:
 	var was := st
 	st = ""
 	_spot.clear()
+	_piece_pt = Vector2.INF
 	if why != "":
 		_say(why)
 	if was == "close":

@@ -146,6 +146,7 @@ const RULES := [
 	["^'s wave goes on together", "", 1, "attack"],
 	# ---- THE CROWN'S LINE (crown-line-fight, scripts/ai_crown_line.gd)
 	["^'s wave forms its line before the enemy army ahead \\((\\d+)\\): (\\d+) muskets in (\\d+) ranks?, (\\d+) guns? behind", "%s's wave forms its musket line before the enemy army ahead (%s): %s muskets in %s rank(s), %s gun(s) behind them.", 2, "attack"],
+	["^'s wave forms its line before the enemy's (.+?): (\\d+) muskets in (\\d+) ranks?, (\\d+) guns? behind to break it", "%s's wave forms its musket line before the enemy's %s: %s muskets in %s rank(s), %s gun(s) behind them to break it.", 2, "attack"],
 	["^'s wave meets the enemy before its line is formed: (\\d+) muskets deploy into a line", "%s's wave meets the enemy before its line is formed: %s muskets deploy into a line under fire.", 2, "attack"],
 	["^'s line has won the field", "%s's musket line has won the field: it forms up again and goes on.", 2, "attack"],
 	["^'s line is losing the fight \\((\\d+) lost for (\\d+)\\): it falls back", "%s's musket line is losing the fight (%s lost for %s): it falls back toward its guns in order.", 2, "attack"],
