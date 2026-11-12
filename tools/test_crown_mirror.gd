@@ -115,15 +115,18 @@ func _run() -> void:
 	for u in wave:
 		ai._wave_set[u] = true
 		u.cmd_move(Vector2(g.starts[1]) * Defs.TILE, true)
-	var said0: int = cm.said.size()
-	await _until(g.clock + 30.0, func() -> bool: return cm.said.size() > said0)
-	var lines: Array = cm.said.slice(said0).map(func(x) -> String: return String(x[1]))
+	# (crown-line-fight: with the Crown's line on, the march's close-up is AICrownLine's; `-- line:off` the mirror's own)
+	var ln = ai.line_ai()
+	var talk: Array = ln.said if ln != null and ln.active() else cm.said
+	var said0: int = talk.size()
+	await _until(g.clock + 30.0, func() -> bool: return talk.size() > said0)
+	var lines: Array = talk.slice(said0).map(func(x) -> String: return String(x[1]))
 	check(lines.any(func(l: String) -> bool: return l.contains("close up")), "the strung-out wave closes up (%s)" % str(lines))
 	for kk in 4:
 		await _until(g.clock + 3.0)
-		print("   t %.0f regroup %s attacking %s: %s" % [g.clock, str(cm.regrouping()), str(ai._attacking), str(wave.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead).map(func(u) -> String: return "%s@%d,%d" % [u.order, int(u.position.x / 32), int(u.position.y / 32)]))])
-	await _until(g.clock + 16.0, func() -> bool: return not cm.regrouping())
-	var last: String = String(cm.said[-1][1]) if not cm.said.is_empty() else ""
+		print("   t %.0f regroup %s attacking %s: %s" % [g.clock, str(cm.regrouping() or (ln != null and ln.regrouping())), str(ai._attacking), str(wave.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead).map(func(u) -> String: return "%s@%d,%d" % [u.order, int(u.position.x / 32), int(u.position.y / 32)]))])
+	await _until(g.clock + 16.0, func() -> bool: return not cm.regrouping() and not (ln != null and ln.regrouping()))
+	var last: String = String(talk[-1][1]) if not talk.is_empty() else ""
 	var sp := 99.0
 	var k := last.find("together (")
 	if k >= 0:
