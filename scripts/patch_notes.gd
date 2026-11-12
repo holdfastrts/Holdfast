@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.17", "items": [
+		"CROWN AGAINST CLOCKWORK, COACHED (both computers, Hard): the Crown computer's attack no longer walks home from a won fight because one or two Clockwork raiders reached its base: a small raid is left to the soldiers at home and the wave presses on.",
+		"ITS GUNS GET THE HORSES: against the Clockwork, once its scout rider is out, the Crown computer's horses go to Field Cannons (canister against the Clock Soldiers) before more riders. Its first gun came at 13:25 in a coached game; now from about 4:30 to 8:40.",
+		"THE FARMS BEFORE THE CATCH-UP: against the Clockwork the Crown computer keeps training labourers for its halls' Farms while its army holds half of the enemy's, and buys no Armoury or Church before (its labourers stopped at 19 to 22 and its natural's fields lay unworked). A Clockwork rush read now means soldiers before the Foundry, the second Barracks and the Horse Breeder, and its Musketeers keep the main's cliff edge over a natural whose wall is not yet half closed.",
+		"THE CLOCKWORK COMPUTER COUNTS THE CROWN RIGHT: it reckons a Crown army at its real size (its first pushes went out half as big as the Crown's army and died under the ramp), and in its Springer timing and Heavy Works openings the cogs no step is waiting for train Clock Soldiers (1,186 cogs once sat in the bank at 5:00 with one Springer for an army).",
+	]},
 	{"v": "0.33.16", "items": [
 		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
 	]},

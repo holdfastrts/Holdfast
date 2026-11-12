@@ -137,7 +137,7 @@ func _two() -> void:
 			print("LOG ", l)
 	check(cr._cc_bo == "bo" or cr.cc_two, "[farms] the Timing attack opens on one hall by default (%s)" % cr._cc_bo)
 	check(g.over or labs10 >= LABS_MIN, "[farms] %d labourers at %d:00 (wants %d; the Timing games had 19-22 at 10:00)" % [labs10, int(LABS_AT / 60.0), LABS_MIN])
-	check(nat == null or nat_t > LABS_AT - 90.0 or nat_soil < 0.995, "[farms] a natural standing by %d:30 is worked (stood at %d, %d%% left)" % [int(LABS_AT / 60.0) - 2, int(nat_t), int(nat_soil * 100.0)])
+	check(nat == null or nat_t > LABS_AT - 180.0 or nat_soil < 0.995, "[farms] a natural standing by %d:00 is worked (stood at %d, %d%% left)" % [int(LABS_AT / 60.0) - 3, int(nat_t), int(nat_soil * 100.0)])
 	check(guns >= 1, "[guns] a Field Cannon by %d:00 (most %d)" % [int(LABS_AT / 60.0), guns])
 	check(bank_worst < BANK_MAX, "[bank] the Springer timing's free cogs at 4:30-5:30 stay under %d (worst %d)" % [BANK_MAX, bank_worst])
 

@@ -138,7 +138,8 @@ functions only gained a call or a term:
 | scripts/ai_crown.gd | PLANS["timing"] | new keys `bo_clock` (the opening against the Clockwork) and `labs_clock` |
 | scripts/ai_crown.gd | the plan set-up (`_bo_plan` from `bo_key`) and `opt_switch` | the key goes through `_cc_bo_key`, the cap through `_cc_lab_cap` |
 | scripts/ai_crown.gd | `_think_stage` (stage 1, while the opening owns the gold) | `_cc_econ()` after `_bo_tick()` |
-| scripts/ai_crown.gd | `_mid_tick` | `if _cc_rush_hold(k, army): continue` after the lagging check |
+| scripts/ai_crown.gd | `_mid_tick` | `if _cc_rush_hold(k, army) or _cc_tech_hold(k): continue` after the lagging check |
+| scripts/ai_crown.gd | `_army_due` | `if _cc_labs_due(): short = false` after "the army first" |
 | scripts/ai_crown.gd | `owner_walls` | true also for `_cc_walls()` |
 | scripts/ai_crown.gd | `wall_first` | `owner_on()` -> `(owner_on() or _cc_walls())` |
 | scripts/ai_crown.gd | `_riders_wait` | `or _cc_guns_first()` |
@@ -166,5 +167,29 @@ loses afterwards is the economy behind it. So:
   stopped the labourers for good, because the Clockwork's army grows faster than a one-hall Crown's: 18-19 labourers from
   5:00 to 8:00 and 19-22 at 10:00, the natural's soil at 100% to the end. Now, while the labourers are fewer than 16 a
   built hall with land (40 at most) and the army is worth half the reckoning or more, the halls keep training labourers.
+- **... AND THE FARMS BEFORE THE TECH** (`_cc_tech_hold`, from `_mid_tick`): the Armoury and the Church wait while the halls
+  lack those labourers (the replay bought the Armoury at 8:09 with 21 labourers and the Church at 9:22 while the main's
+  soil ran out and the natural stood unworked).
 - CR-3, CR-4, CR-5 and CR-6 stay (each matters with one hall too: the wave stays out, the cliff edge until the gate post,
   the guns get the horses, soldiers when a rush is read).
+
+## What is still wrong
+
+- **The Crown earns less per labourer than the Clockwork per Winder, and the gap grows** (the 16 "before" games, gold or
+  cogs earned per worker per minute, medians): 8:00 Crown 45 / Clockwork 54; 10:00 34 / 57; 12:00 31 / 51. The Crown's
+  soil runs down (a main is spent at 9-10 minutes), its labourers run from raids and haul, and a Farm needs 8 hands; the
+  Clockwork's Winders keep their pace on fresh brass. The computers' play cannot close that alone: see "Claude's choices".
+- **The Crown's waves into the Clockwork's base trade badly** (Hollowfen 9:45 after round 5: 20 lost for 3; Greenhold
+  10:27: about 20 lost): the wave is an attack-move of each unit to the target, the guns and the wagon trail behind, and it
+  walks into the gear field where the Winders mend and the Netters net. Defending, the Crown's line wins (Kestrel 7:26:
+  26 Clock Soldiers for 7). A Crown march like the Clockwork's push (an anchor, the line formed, the guns set up behind it,
+  a halt out of reach of the gear field) is the next job; it was not started here (a new module, not a small fix).
+- **The Clockwork's whole army meets an equal raid of muskets and guns on open ground** (Kestrel 7:26, 797 against 804:
+  26 lost for 7). Its rule (AICwArmy._defend: the whole army goes unless worth less than 0.55 of the raid, and only far
+  from its gathering point) does not weigh a musket line with canister against Clock Soldiers. Not changed: a stricter
+  rule lets the Crown's line shoot the Clocktower down unanswered; the right answer (pull back out of reach to the main,
+  come back with the Ballistas) is the push's own logic, not the defence's.
+- **The Crown's horses and powder.** With the guns first the Field Cannon comes at 7:30-8:40 (was 13:25 in one game), but
+  the powder bank sits at 13-30 in the fights after 9:00 (one Powder Mill to 10:00-12:00), so guns and Musketeers wait
+  for powder (AI._produce skips the Foundry under 20 powder).
+- **Kestrel Rise**: the natural under the main's ramp falls to the Clockwork's first push in most runs, two halls or one.
