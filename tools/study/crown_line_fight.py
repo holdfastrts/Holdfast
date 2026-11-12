@@ -41,7 +41,7 @@ def run_one(g, out, end, data, root, extra):
     with open(os.path.join(d, "run.out"), "wb") as f:
         rc = subprocess.call(cmd, stdout=f, stderr=subprocess.STDOUT)
     os.makedirs(dd, exist_ok=True)
-    for fn in ("result.json", "story.txt", "engage.json", "coach.txt"):
+    for fn in ("result.json", "story.txt", "engage.json", "coach.txt", "screen.json"):
         if os.path.exists(os.path.join(d, fn)):
             shutil.copy(os.path.join(d, fn), dd)
     if os.path.exists(os.path.join(d, "log.txt")):

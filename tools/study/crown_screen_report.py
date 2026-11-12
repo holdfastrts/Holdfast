@@ -48,7 +48,17 @@ def screen_rows(rows, key, data_of):
             if 'warn' in e:
                 out['warn'].append(e['warn'])
         f = os.path.join(data_of[name], name, 'screen.json')
-        if os.path.exists(f):
+        lg0 = os.path.join(data_of[name], name, 'crownlog.txt')
+        if not os.path.exists(f) and os.path.exists(lg0):
+            # (no screen.json: counted from the Crown's log lines; the flank rides are said at most every 12 s)
+            t = open(lg0, errors='replace').read()
+            out['sent'] += sum(int(x) for x in re.findall(r"wave sends (\d+) Horsem", t))
+            out['lost'] += len(re.findall(r"screen rider is lost", t))
+            out['plost'] += len(re.findall(r"picket is lost", t))
+            out['sight'] += len(re.findall(r"its screen saw it", t))
+            out['warns'] += len(re.findall(r"picket sees a force coming", t))
+            out['flank'] += len(re.findall(r"rides down .* on the flank", t))
+        elif os.path.exists(f):
             sc = json.load(open(f))
             for t in crown:
                 s = sc.get(str(t))

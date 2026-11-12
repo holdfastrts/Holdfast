@@ -36,7 +36,7 @@ const FLANK_R := 480.0           # (px) at contact: prey this near a rider's fla
 const FLANK_LEASH := 620.0       # (px) ... and it never rides farther than this from the post
 const PREY_GUARDS := 2           # a prey with this many enemies by it that can catch or shoot a rider is left alone
 const PICKET_D := 520.0          # (px) the picket this far forward of the post along the road toward the enemy
-const PICKET_WARN := 150.0       # value of an armed force the picket rides back for
+const PICKET_WARN := 150.0       # value of an armed force the picket warns of (or two soldiers that can catch or shoot it)
 const PICKET_BACK := 25.0        # (s) the picket stays back at least this long
 const PICKET_EVERY := 20.0       # (s) the picket's spot worked out again this often
 const TRAIN_FREE := 3            # the screen and the picket want this many sound Horsemen free for them (the loop's scout too) ...
@@ -668,7 +668,7 @@ func _picket_tick() -> void:
 		v += float(Game.unit_value(o))
 		n += 1
 	var dg0: Array = _danger(u)
-	if v >= PICKET_WARN and not bool(_pk.get("warned", false)):
+	if (v >= PICKET_WARN or (n >= 2 and int(dg0[1]) > 0)) and not bool(_pk.get("warned", false)):
 		_pk["state"] = "back"
 		_pk["warned"] = true
 		_pk["until"] = game.clock + PICKET_BACK

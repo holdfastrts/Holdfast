@@ -214,6 +214,8 @@ func _known(body: Array) -> Array:
 
 
 const SCREEN_R := 1300.0         # (px) (crown-rider-screen) an enemy the screen saw this near the body is "ahead"
+const SCREEN_SHARE := 0.08       # ... and the line forms before it when it is worth this share of the wave ...
+const SCREEN_MIN := 100.0        # ... and this much at least
 var _far := {}                   # enemy soldier -> true: seen by the screen's riders (scripts/ai_crown_screen.gd)
 var screen_saw := false          # (the coach) the screen's riders saw an enemy this think
 
@@ -407,7 +409,13 @@ func march(wave: Array, target: Vector2) -> bool:
 			return true
 	if contact:
 		return _fight_begin(ground)
-	if not foes.is_empty() and ahead >= mine * SEE_SHARE and game.clock - _last_form >= FORM_COOL:
+	# (crown-rider-screen, coached Dune Sea 1109 9:47-10:06: the screen saw 2-3 Musketeers at the enemy's ramp gate, worth
+	# under a quarter of the wave, the line did not form, and the wave walked into the ramp post's whole line unformed: 600
+	# lost for 0. What the screen sees counts from SCREEN_SHARE: a few seen up ahead are often the front of more)
+	var share := SEE_SHARE
+	if foes.any(func(o) -> bool: return _far.has(o)) and ahead >= SCREEN_MIN:
+		share = SCREEN_SHARE
+	if not foes.is_empty() and ahead >= mine * share and game.clock - _last_form >= FORM_COOL:
 		return _form(ground, bc, near_o, foes)
 	if st in ["", "close"] and foes.is_empty() and target != Vector2.INF and game.clock - _last_form >= FORM_COOL \
 			and (_approach_for == Vector2.INF or _approach_for.distance_to(target) > 300.0) \
