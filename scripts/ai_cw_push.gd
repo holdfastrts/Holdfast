@@ -1064,8 +1064,8 @@ func _hunt_launch(home: Array) -> bool:
 	return true
 
 
-## (clockwork-v-clockwork-coach) The hunt's goal: the enemy's hall nearest the anchor, then its nearest worker, then its
-## nearest building of any kind, then any unit of its.
+## (clockwork-v-clockwork-coach) The hunt's goal: the enemy's hall nearest the anchor, then its nearest building of any
+## kind (a side with no building left is out at once), then its nearest worker, then any unit of its.
 func _hunt_goal() -> bool:
 	var best: Entity = null
 	var bd := INF
@@ -1083,10 +1083,9 @@ func _hunt_goal() -> bool:
 	for u in game.units:
 		if u.team != foe or u.dead or u.off_field:
 			continue
-		# (then its WORKERS, before the rest of its buildings: with no hall and no money its last Winders were all that
-		# kept it in the game; the hunt broke Regulators one by one for a minute while 12 of them stood idle, Dune Sea
-		# mirror, round 4, 13:07-14:17)
-		var dd2: float = u.position.distance_to(anchor) + (1500.0 if u.is_worker() else 4000.0)
+		# (units only after every building: a side with no building left is out at once, whatever units it has; with
+		# buildings it is beaten only once it has no worker, soldier or means left for a minute)
+		var dd2: float = u.position.distance_to(anchor) + (6000.0 if u.is_worker() else 8000.0)
 		if dd2 < bd:
 			bd = dd2
 			best = u
@@ -1230,10 +1229,12 @@ func _goal_in_reach() -> bool:
 ## (clockwork-v-clockwork-coach) HUNTING PARTIES. Hunting with every enemy hall gone, the block chased the last Winders one
 ## at a time across the map: Hollowfen mirror, round 4, the enemy had no hall, no army and no cogs from 13:08, and 11 of its
 ## Winders were still alive at 15:00 (a draw; a side is beaten once it has no worker left, or no means for a minute).
-## Now against the Clockwork, hunting with no enemy hall left, the front splits into parties of up to PARTY_N, each sent at
-## one of the enemy's last units (its Winders first), the nearest first; the rest break its nearest buildings.
+## Now against the Clockwork, hunting with no enemy hall left, the front (the Ballistas too) splits into parties of up to
+## PARTY_N, each sent at one of the enemy's last buildings (a side with no building left is out at once), then at its last
+## units (its Winders first), the nearest first. (A first version went for the Winders before the buildings: the Winders
+## outran their hunters, the buildings stood, 5 of 16 measured games ended in a draw with one side beaten in all but name.)
 const PARTY_N := 4
-var _party_of := {}             # front Unit -> the enemy unit it hunts
+var _party_of := {}             # front Unit -> the enemy building or unit it hunts
 
 
 func _hunt_parties() -> bool:
@@ -1241,13 +1242,18 @@ func _hunt_parties() -> bool:
 		_party_of.clear()
 		return false
 	var hall_kind: String = game.faction_hall(foe)
+	var blds: Array = []
 	for b in game.buildings:
-		if b.team == foe and not b.dead and not b.ghost and b.kind == hall_kind:
-			_party_of.clear()
-			return false
-	var prey: Array = game.units.filter(func(u: Unit) -> bool: return u.team == foe and not u.dead and not u.off_field)
-	prey.sort_custom(func(a: Unit, b: Unit) -> bool: return a.is_worker() and not b.is_worker())
-	var front: Array = units.filter(func(u: Unit) -> bool: return _front_kind(u))
+		if b.team == foe and not b.dead and not b.ghost:
+			if b.kind == hall_kind:
+				_party_of.clear()
+				return false
+			blds.append(b)
+	# (the targets: every building left (a side with none left is out at once), then its units, Winders first)
+	var units_left: Array = game.units.filter(func(u: Unit) -> bool: return u.team == foe and not u.dead and not u.off_field)
+	units_left.sort_custom(func(a: Unit, b: Unit) -> bool: return a.is_worker() and not b.is_worker())
+	var prey: Array = blds + units_left
+	var front: Array = units.filter(func(u: Unit) -> bool: return _front_kind(u) or _heavy(u))
 	for u in _party_of.keys():
 		if not is_instance_valid(u) or u.dead or not front.has(u) or not is_instance_valid(_party_of[u]) or _party_of[u].dead:
 			_party_of.erase(u)
@@ -1255,9 +1261,9 @@ func _hunt_parties() -> bool:
 	for u in _party_of:
 		per[_party_of[u]] = int(per.get(_party_of[u], 0)) + 1
 	var free: Array = front.filter(func(u: Unit) -> bool: return not _party_of.has(u))
-	# (the last few: everyone hunts them, the shooters and Netters first: a Winder runs 74 against a Clock Soldier's 68, and
-	# the last one or two outran their party of soldiers to 15:00 in two of the measured games)
-	var n_per := PARTY_N if prey.size() > 3 else maxi(PARTY_N, ceili(float(front.size()) / float(maxi(1, prey.size()))))
+	# (the last few: everyone goes, split evenly; at a unit the shooters and Netters first: a Winder runs 74 against a Clock
+	# Soldier's 68, and the last one or two outran their party of soldiers to 15:00 in two of the measured games)
+	var n_per := PARTY_N if prey.size() > 6 else maxi(PARTY_N, ceili(float(front.size()) / float(maxi(1, prey.size()))))
 	for e in prey:
 		while int(per.get(e, 0)) < n_per and not free.is_empty():
 			free.sort_custom(func(a: Unit, b: Unit) -> bool: return _party_score(a, e) < _party_score(b, e))
@@ -1267,33 +1273,24 @@ func _hunt_parties() -> bool:
 			_party_of[u] = e
 			per[e] = int(per.get(e, 0)) + 1
 	for u in _party_of:
-		var e: Unit = _party_of[u]
+		var e: Entity = _party_of[u]
 		if u.target != e:
 			u.cmd_attack(e)
-	if not free.is_empty():
-		var best: Building = null
-		var bd := INF
-		var c := _centre(free)
-		for b in game.buildings:
-			if b.team == foe and not b.dead and not b.ghost and b.center().distance_to(c) < bd:
-				bd = b.center().distance_to(c)
-				best = b
-		if best != null:
-			for u in free:
-				if u.target != best and u.can_hit(best):
-					u.cmd_attack(best)
+	for u in free:
+		if u.order == "idle" and not blds.is_empty():
+			u.cmd_attack(blds[0])
 	if not prey.is_empty():
-		_note_once("parties", "hunts in parties: %d soldiers after its last %d units" % [_party_of.size(), prey.size()], 30.0)
-		if OS.get_cmdline_user_args().has("partydebug") and prey.size() <= 3:
-			for e in prey:
-				print("PARTY %d %s at %s h%d air %s order %s off %s hp %d hunters %d" % [int(game.clock), e.kind, str(game.cell_of(e.position)), game.height[game.idx(game.cell_of(e.position))], str(e.is_air()), e.order, str(e.off_field), int(e.hp), int(per.get(e, 0))])
+		_note_once("parties", "hunts in parties: %d after its last %d buildings and %d units" % [_party_of.size(), blds.size(), units_left.size()], 30.0)
+		if OS.get_cmdline_user_args().has("partydebug") and units_left.size() <= 3 and blds.is_empty():
+			for e in units_left:
+				print("PARTY %d %s at %s air %s order %s hp %d hunters %d" % [int(game.clock), e.kind, str(game.cell_of(e.position)), str(e.is_air()), e.order, int(e.hp), int(per.get(e, 0))])
 	return true
-
 
 ## (clockwork-v-clockwork-coach) who goes after a fleeing unit first: the nearest, the shooters (Springers) and the Netters
 ## as if 500 px nearer
-func _party_score(u: Unit, e: Unit) -> float:
-	var d := u.position.distance_to(e.position)
-	if float(u.d.get("range", 0.0)) >= 100.0 or u.kind == "netter":
+func _party_score(u: Unit, e: Entity) -> float:
+	var at: Vector2 = e.center() if e is Building else (e as Unit).position
+	var d := u.position.distance_to(at)
+	if e is Unit and (float(u.d.get("range", 0.0)) >= 100.0 or u.kind == "netter"):
 		d -= 500.0
 	return d
