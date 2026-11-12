@@ -934,6 +934,37 @@ func _brood_raid_home() -> bool:
 	return true
 
 
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 5) FALLING BACK FIGHTING: against the Brood a push
+## that pulls back walks home on plain moves (it does not shoot), and Raptors are faster than anything it has: they ran
+## down the back of it. (Greenhold 11, Clockwork P2, 10:49: "pulls back (the enemy's army comes, worth 2,850 against its
+## 1,960)"; by 12:04 the army was 270 and 19 Winders had died with it at home.) Now a unit with an armed enemy within
+## CHASED px of it walks home on an attack-move (it turns and fights what catches it, then walks on); the others walk.
+## `-- cvbback:off` plays it as before.
+const CHASED := 180.0
+var back_fight_on := not OS.get_cmdline_user_args().has("cvbback:off")
+
+
+func _fall_back_fighting(u: Unit, home: Vector2) -> bool:
+	if not back_fight_on or not _vs_brood() or u.kind == Defs.GREAT_WINDER_KIND:
+		return false
+	var chased := false
+	for o in game.units_near(u.position, CHASED):
+		if not o.dead and not o.off_field and game.hostile(o.team, team) and not o.is_worker() and ai._armed(o) \
+				and not BroodNew.rooted(o) and game.is_visible_to(team, o.position):
+			chased = true
+			break
+	if chased:
+		if u.order != "amove":
+			u.cmd_move(home, true)
+			_orders[u] = [home, game.clock]
+		return true
+	if u.order == "amove":
+		u.cmd_move(home, false)
+		_orders[u] = [home, game.clock]
+		return true
+	return false
+
+
 func _retreat(why: String) -> void:
 	stats["retreats"] = int(stats["retreats"]) + 1
 	var left := _value(units)
@@ -952,6 +983,8 @@ func _go_back() -> void:
 	for u in units:
 		if u.position.distance_to(home) > 300.0:
 			all_home = false
+			if _fall_back_fighting(u, home):
+				continue
 			_order(u, home, false, 80.0)
 	if all_home or game.clock - since > 90.0:
 		units.clear()
