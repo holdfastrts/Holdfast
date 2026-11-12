@@ -10,7 +10,8 @@ is the Brood) unless said otherwise.
 
 ## In short
 
-Seven coaching rounds (26 filmed games) and a measuring batch of 16 games before and after. The Brood computer against
+Six filmed coaching rounds (24 games), a seventh from the measuring batch's first seed, and a measuring batch of 16
+games before and after. The Brood computer against
 another Brood made eight mistakes, now fixed (all in its own code, gated to the mirror):
 
 1. It read the other Brood's normal opening as GREEDY at 1:40 and rushed it (the Brood has no production building and
