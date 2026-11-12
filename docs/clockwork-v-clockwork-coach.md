@@ -219,7 +219,8 @@ unit.
 
 ### 10. Hunting parties
 
-The fix (CwPush._hunt_parties, CwPush._party_score): hunting against the Clockwork with every enemy hall gone, the push
+The fix (CwPush._hunt_parties, CwPush._party_score): hunting against the Clockwork (and the Crown, after the check game
+below) with every enemy hall gone, the push
 stops marching as a block; its front and its Ballistas split into parties of up to 4, each at one of the enemy's last
 buildings, then its units (Winders first), the nearest first. With 6 targets or fewer everyone goes, split evenly. At a
 unit the shooters (Springers, range 170) and the Netters (they hold a unit 4 s) go first.
@@ -282,7 +283,8 @@ Existing functions changed (each a line or two calling the new ones):
 - CwArmy.reckon: a parameter `all_kills` (default false) and _killed_for_reckon in place of the plain value_killed.
 - AIOptimal.choose: the DEFENSIVE branch first asks _mirror_turrets.
 Gated against the Clockwork (the enemy's faction): the menders first, the cliff, the Ballistas' wait, the reckoning, the
-goal in reach, the hunting parties; OPTIMAL's DEFENSIVE read: the Clockwork against the Clockwork only. In every matchup:
+goal in reach; the hunting parties against the Clockwork and the Crown (not the Brood, which lives while its Mother does);
+OPTIMAL's DEFENSIVE read: the Clockwork against the Clockwork only. In every matchup:
 the hunt through the push and its order (halls, other buildings, workers, the rest), the march not waiting for the Great Winder.
 Every one has a switch (`-- cwhunt:off`, `cwfixers:off`, `cwclimb:off`, `cwgwlag:off`, `cwreckon:off`, `cwreach:off`,
 `optturrets:off`; the Ballistas' wait goes with `cwgwlag:off`).
@@ -352,3 +354,22 @@ written every minute), tools/study/cwcw_coach.py (the measuring batch and its re
 
 The data: docs/clockwork-v-clockwork-coach/data/<before|after|after_v1|after_v2>/<game>/ (result.json, cwlog.txt.gz: the
 Clockwork's own match log lines). The table: `python3 tools/study/cwcw_coach.py report docs/clockwork-v-clockwork-coach/data/after`.
+
+## Tests and the other matchups
+
+The AI tests the Clockwork's computer has, run on the branch, all pass: test_ai_gg_rule, test_great_winder, test_ai_harass
+(clock, horse, raid), test_ai_expand (crown, clockwork, brood), test_gear_turn_match, test_ai_optimal, test_clockwork_army
+check:1, test_clockwork_home check:1, test_cw_air_ai, test_ai_scout_sentry; test_files and test_i18n too.
+
+The other matchups, one game each (Hard OPTIMAL, Greenhold and Dune Sea, the same seeds; before = main at 0.33.16,
+after = this branch before the last change, the parties against the Crown). Single games: they show nothing broke, not
+a rate.
+
+| Clockwork against | map | before | after |
+|---|---|---|---|
+| the Crown | Greenhold | won at 14:48 (the Crown's halls gone) | a draw: the Crown at 0 halls, 0 army, its last Cottages and palisades standing (hence the parties against the Crown) |
+| the Crown | Dune Sea | a draw, the Crown ahead (12,920 earned against 11,354) | a draw, the Clockwork ahead (14,903 against 13,680) |
+| the Brood | Greenhold | won at 7:20 | won at 9:19 |
+| the Brood | Dune Sea | LOST at 9:09 | a draw at 15:00 (the Brood ahead on income) |
+
+Data: docs/clockwork-v-clockwork-coach/data/cross/.
