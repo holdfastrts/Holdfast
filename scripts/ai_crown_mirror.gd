@@ -186,6 +186,19 @@ func bombard(wave: Array, _piece: Building, back: Vector2, target: Vector2) -> b
 			hall = b
 	if hall == null or game.clock - float(_bomb_last.get(hall, -999.0)) < BOMBARD_COOL:
 		return false
+	# (only when the guns have somewhere to shell it from: out of reach of the shooters they see and in range of the hall.
+	# Under a main's cliff every such spot may be covered: then it pulls back as before; the first version said "shells" and
+	# "its guns are gone" in the same second, Dune Sea 1109 8:07)
+	var spots := {}
+	for gu in guns:
+		var sp := _spot_for(gu, hall, float(gu.d["range"]))
+		if sp != Vector2.INF:
+			spots[gu] = sp
+	if spots.size() < BOMBARD_GUNS:
+		_bomb_last[hall] = game.clock
+		return false
+	for gu in spots:
+		_gun_spot[gu] = [spots[gu], game.clock]
 	_bomb_last[hall] = game.clock
 	_bomb_hall = hall
 	_bomb_until = game.clock + BOMBARD_T
@@ -197,7 +210,7 @@ func bombard(wave: Array, _piece: Building, back: Vector2, target: Vector2) -> b
 			u.cmd_move(back + Vector2(randf_range(-60, 60), randf_range(-60, 60)))
 			u.wall_flee_t = 10.0      # (a plain walk out of reach, as the siege's own pull-back: on an attack-move the men
 			                          # stopped to shoot at the gate under the cliff and died there, Greenhold 1103 8:15)
-	_say("holds its line out of reach and shells the enemy hall with %d guns" % guns.size())
+	_say("holds its line out of reach and shells the enemy hall with %d guns" % spots.size())
 	guns_at_hall(wave, hall.center(), true)
 	return true
 

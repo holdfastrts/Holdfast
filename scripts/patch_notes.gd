@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.17", "items": [
+		"THE CROWN COMPUTER AGAINST A CROWN, COACHED AND FILMED: its waves march as one. A wave strung out on the way (riders ahead, Musketeers and guns behind, reinforcements walking alone) stops, its head waits and the rest walks up to it, and it forms up before an enemy army it sees instead of walking into the enemy's line in a column.",
+		"ITS GUNS SHELL THE HALL: at a walled enemy base its Field Cannons and Mortars go to a spot outside the wall, out of reach of the shooters they see and in range of the Town Hall, and fire at the hall itself instead of breaking palisade after palisade. When the wall is too well held, the musket line stands back out of reach while the guns shell it, rather than going home.",
+		"IT FINISHES A WON GAME: with a big army it keeps hunting over a token enemy army (one Musketeer out of a Barracks no longer calls the hunt off) and goes for the Town Halls first.",
+		"ITS ECONOMY: a lone enemy rider among its labourers is met with Musketeers before anything else is built; its Powder Mills give hands back to half-empty Farms while powder is banked (the gold of its Balanced plan could stop for minutes); a raid at the edge of its base no longer keeps its Siege push at home; and OPTIMAL's Timing attack keeps its timing on a late greedy scout read.",
+	]},
 	{"v": "0.33.16", "items": [
 		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
 	]},
