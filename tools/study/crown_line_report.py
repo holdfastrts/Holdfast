@@ -84,8 +84,10 @@ def fights(rows, key):
     out_ = [e for e in es if not e['home']]
     ko = sum(e['killed'] for e in out_)
     lo = sum(e['lost'] for e in out_)
+    sho = [e for e in out_ if e['n'] >= 4 and e['fired5'] >= 0]
+    fired_out = sum(e['fired5'] for e in sho) / max(1, sum(e['n'] for e in sho))
     return dict(n=len(es), k=k, l=l, ratio=k / max(1, l), fired=fired, across=across, depth=depth, wide=wide, guns=len(guns),
-                gset=gset, gbeh=gbeh, gfired=gfired, won=won, out=len(out_), ratio_out=ko / max(1, lo))
+                gset=gset, gbeh=gbeh, gfired=gfired, won=won, out=len(out_), ratio_out=ko / max(1, lo), fired_out=fired_out, ko=ko, lo=lo)
 
 
 LINES = [("formed before an army", r"forms its line before the enemy army ahead"), ("halted before the base", r"halts out of reach of the enemy's base"),
@@ -132,13 +134,13 @@ if __name__ == '__main__':
                 print('| %s | %d | %d-%d-%d | %d of %d | %d | %d | %d | %d | %.2f |' % (nm, t['games'], t['won'], t['draw'], t['lost'],
                       t['led'], t['sides'], t['a8'], t['a10'], t['i8'], t['i10'], t['halls']))
         print()
-        print('| matchup | fights | killed / lost (ratio) | away from home: fights, ratio | won | shooters firing in the first 5 s | shape at contact across / depth (median, 6+ shooters) | in a line (across > 1.5 depth) | guns near: set up / behind / fired |')
+        print('| matchup | fights | killed / lost (ratio) | away from home: fights, killed / lost (ratio), firing in 5 s | won | shooters firing in the first 5 s | shape at contact across / depth (median, 6+ shooters) | in a line (across > 1.5 depth) | guns near: set up / behind / fired |')
         print('|---|---|---|---|---|---|---|---|---|')
         for key, nm in KEYS:
             f = fights(rows, key)
             if f:
-                print('| %s | %d | %d / %d (%.2f) | %d, %.2f | %d | %d%% | %d / %d | %d%% | %d: %d%% / %d%% / %d%% |' % (nm, f['n'], f['k'], f['l'], f['ratio'],
-                      f['out'], f['ratio_out'], f['won'], 100 * f['fired'], f['across'], f['depth'], 100 * f['wide'], f['guns'],
+                print('| %s | %d | %d / %d (%.2f) | %d: %d / %d (%.2f), %d%% | %d | %d%% | %d / %d | %d%% | %d: %d%% / %d%% / %d%% |' % (nm, f['n'], f['k'], f['l'], f['ratio'],
+                      f['out'], f['ko'], f['lo'], f['ratio_out'], 100 * f['fired_out'], f['won'], 100 * f['fired'], f['across'], f['depth'], 100 * f['wide'], f['guns'],
                       100 * f['gset'], 100 * f['gbeh'], 100 * f['gfired']))
         print()
         print('| matchup | ' + ' | '.join(nm for nm, _ in LINES) + ' |')
