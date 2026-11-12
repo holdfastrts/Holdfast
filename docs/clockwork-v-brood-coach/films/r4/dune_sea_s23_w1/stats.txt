@@ -1,0 +1,118 @@
+0015 P1 brood balanced income 25 bank 25 workers 7 army 100 ({ "mound_turtle": 1 }) rooted 2 halls 1 supply 7/16 lost 0 bld_lost 0 at (304.0, 1032.0)
+0015 P2 clockwork balanced income 63 bank 243 workers 5 army 0 ({  }) rooted 0 halls 1 supply 6/10 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0030 P1 brood balanced income 79 bank 4 workers 7 army 100 ({ "mound_turtle": 1 }) rooted 2 halls 1 supply 7/16 lost 0 bld_lost 0 at (304.0, 1032.0)
+0030 P2 clockwork balanced income 154 bank 174 workers 6 army 0 ({  }) rooted 0 halls 1 supply 7/10 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0045 P1 brood balanced income 137 bank 12 workers 6 army 75 ({ "rootmaw": 1 }) rooted 3 halls 2 supply 7/28 lost 0 bld_lost 0 at (688.0, 152.0)
+0045 P2 clockwork balanced income 262 bank 82 workers 7 army 0 ({  }) rooted 0 halls 1 supply 8/10 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0100 P1 brood balanced income 188 bank 13 workers 7 army 0 ({  }) rooted 4 halls 2 supply 8/28 lost 0 bld_lost 0 at (0.0, 0.0)
+0100 P2 clockwork balanced income 370 bank 130 workers 8 army 0 ({  }) rooted 0 halls 1 supply 9/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0115 P1 brood balanced income 256 bank 31 workers 8 army 0 ({  }) rooted 4 halls 2 supply 9/28 lost 0 bld_lost 0 at (0.0, 0.0)
+0115 P2 clockwork balanced income 478 bank 118 workers 10 army 0 ({  }) rooted 0 halls 1 supply 11/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0130 P1 brood balanced income 343 bank 68 workers 10 army 0 ({  }) rooted 4 halls 2 supply 10/28 lost 0 bld_lost 0 at (0.0, 0.0)
+0130 P2 clockwork balanced income 639 bank 219 workers 11 army 0 ({  }) rooted 0 halls 1 supply 12/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0145 P1 brood rush income 445 bank 45 workers 9 army 75 ({ "rootmaw": 1 }) rooted 4 halls 2 supply 10/28 lost 0 bld_lost 0 at (112.0, 1240.0)
+0145 P2 clockwork balanced income 793 bank 313 workers 12 army 0 ({  }) rooted 0 halls 1 supply 13/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0200 P1 brood rush income 545 bank 145 workers 10 army 0 ({  }) rooted 5 halls 2 supply 10/28 lost 0 bld_lost 0 at (0.0, 0.0)
+0200 P2 clockwork cs_rush income 995 bank 55 workers 13 army 0 ({  }) rooted 0 halls 1 supply 14/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0215 P1 brood rush income 651 bank 101 workers 9 army 150 ({ "tyrannosaur": 1 }) rooted 5 halls 2 supply 13/28 lost 0 bld_lost 0 at (408.0, 512.0)
+0215 P2 clockwork cs_rush income 1212 bank 122 workers 14 army 0 ({  }) rooted 0 halls 1 supply 14/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0230 P1 brood rush income 751 bank 201 workers 9 army 150 ({ "tyrannosaur": 1 }) rooted 5 halls 2 supply 13/28 lost 0 bld_lost 0 at (408.0, 512.0)
+0230 P2 clockwork cs_rush income 1428 bank 188 workers 14 army 0 ({  }) rooted 0 halls 1 supply 14/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0245 P1 brood rush income 857 bank 7 workers 9 army 0 ({  }) rooted 6 halls 2 supply 25/28 lost 0 bld_lost 0 at (0.0, 0.0)
+0245 P2 clockwork cs_rush income 1645 bank 405 workers 14 army 0 ({  }) rooted 0 halls 1 supply 14/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0302 P1 brood rush income 966 bank 16 workers 8 army 400 ({ "raptor": 12, "mound_turtle": 1 }) rooted 6 halls 2 supply 24/28 lost 0 bld_lost 0 at (1297.0, 1199.0)
+0302 P2 clockwork cs_rush income 1886 bank 406 workers 14 army 0 ({  }) rooted 0 halls 1 supply 16/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0317 P1 brood rush income 1072 bank 22 workers 8 army 400 ({ "raptor": 12, "mound_turtle": 1 }) rooted 6 halls 2 supply 26/28 lost 0 bld_lost 0 at (2648.0, 1608.0)
+0317 P2 clockwork cs_rush income 2102 bank 482 workers 14 army 140 ({ "clock_soldier": 2 }) rooted 0 halls 2 supply 18/30 lost 0 bld_lost 0 at (2866.0, 1678.0) push 
+0332 P1 brood rush income 1189 bank 39 workers 10 army 275 ({ "raptor": 11 }) rooted 7 halls 2 supply 27/40 lost 1 bld_lost 0 at (2950.0, 1720.0)
+0332 P2 clockwork balanced income 2311 bank 31 workers 15 army 140 ({ "clock_soldier": 2 }) rooted 0 halls 2 supply 21/40 lost 3 bld_lost 0 at (2978.0, 1778.0) push 
+0347 P1 brood rush income 1326 bank 26 workers 13 army 150 ({ "raptor": 6 }) rooted 7 halls 2 supply 25/40 lost 6 bld_lost 0 at (3013.0, 1912.0)
+0347 P2 clockwork balanced income 2443 bank 30 workers 14 army 210 ({ "clock_soldier": 3 }) rooted 0 halls 2 supply 21/40 lost 7 bld_lost 0 at (2989.0, 2080.0) push 
+0404 P1 brood balanced income 1505 bank 30 workers 14 army 200 ({ "raptor": 5, "rootmaw": 1 }) rooted 7 halls 2 supply 26/40 lost 7 bld_lost 0 at (1648.0, 1265.0)
+0404 P2 clockwork balanced income 2597 bank 14 workers 16 army 350 ({ "clock_soldier": 5 }) rooted 0 halls 2 supply 23/40 lost 7 bld_lost 0 at (2764.0, 1585.0) push 
+0419 P1 brood balanced income 1663 bank 38 workers 16 army 150 ({ "raptor": 6 }) rooted 8 halls 2 supply 30/40 lost 7 bld_lost 0 at (602.0, 515.0)
+0419 P2 clockwork balanced income 2861 bank 18 workers 16 army 490 ({ "clock_soldier": 7 }) rooted 0 halls 2 supply 27/40 lost 7 bld_lost 0 at (2788.0, 1603.0) push 
+0434 P1 brood balanced income 1871 bank 46 workers 15 army 375 ({ "raptor": 11, "mound_turtle": 1 }) rooted 8 halls 2 supply 32/40 lost 7 bld_lost 0 at (577.0, 495.0)
+0434 P2 clockwork balanced income 3161 bank 58 workers 19 army 630 ({ "clock_soldier": 9 }) rooted 0 halls 2 supply 31/40 lost 7 bld_lost 0 at (2822.0, 1662.0) push march
+0449 P1 brood balanced income 2067 bank 42 workers 16 army 425 ({ "raptor": 13, "mound_turtle": 1 }) rooted 8 halls 2 supply 35/40 lost 7 bld_lost 0 at (388.0, 1059.0)
+0449 P2 clockwork balanced income 3479 bank 116 workers 21 army 770 ({ "clock_soldier": 11 }) rooted 0 halls 2 supply 35/40 lost 7 bld_lost 0 at (2008.0, 1236.0) push march
+0504 P1 brood balanced income 2256 bank 31 workers 15 army 525 ({ "raptor": 17, "mound_turtle": 1 }) rooted 9 halls 2 supply 41/52 lost 7 bld_lost 0 at (397.0, 1028.0)
+0504 P2 clockwork balanced income 3803 bank 60 workers 22 army 910 ({ "clock_soldier": 13 }) rooted 0 halls 2 supply 37/40 lost 7 bld_lost 0 at (1400.0, 949.0) push fight
+0519 P1 brood balanced income 2479 bank 4 workers 16 army 675 ({ "raptor": 23, "mound_turtle": 1 }) rooted 9 halls 2 supply 51/52 lost 7 bld_lost 0 at (390.0, 1055.0)
+0519 P2 clockwork balanced income 4127 bank 44 workers 22 army 1050 ({ "clock_soldier": 15 }) rooted 0 halls 2 supply 40/40 lost 7 bld_lost 0 at (1350.0, 883.0) push fight
+0534 P1 brood balanced income 2672 bank 97 workers 15 army 950 ({ "raptor": 31, "rootmaw": 1, "mound_turtle": 1 }) rooted 8 halls 2 supply 50/52 lost 8 bld_lost 0 at (570.0, 950.0)
+0534 P2 clockwork balanced income 4451 bank 73 workers 24 army 1120 ({ "clock_soldier": 16 }) rooted 0 halls 2 supply 41/50 lost 7 bld_lost 0 at (645.0, 880.0) push fight
+0549 P1 brood balanced income 2870 bank 95 workers 16 army 950 ({ "raptor": 31, "rootmaw": 1, "mound_turtle": 1 }) rooted 8 halls 2 supply 52/52 lost 8 bld_lost 0 at (393.0, 996.0)
+0549 P2 clockwork balanced income 4775 bank 5 workers 24 army 770 ({ "clock_soldier": 11 }) rooted 0 halls 2 supply 36/60 lost 13 bld_lost 0 at (2412.0, 1512.0) push back
+0604 P1 brood balanced income 3023 bank 48 workers 16 army 875 ({ "raptor": 31, "mound_turtle": 1 }) rooted 10 halls 2 supply 59/64 lost 8 bld_lost 0 at (387.0, 999.0)
+0604 P2 clockwork balanced income 5099 bank 24 workers 25 army 770 ({ "clock_soldier": 11 }) rooted 0 halls 2 supply 38/60 lost 13 bld_lost 0 at (2638.0, 1697.0) push 
+0619 P1 brood balanced income 3197 bank 72 workers 16 army 1025 ({ "raptor": 41 }) rooted 11 halls 3 supply 64/76 lost 8 bld_lost 0 at (394.0, 991.0)
+0619 P2 clockwork balanced income 5423 bank 68 workers 26 army 840 ({ "clock_soldier": 12 }) rooted 0 halls 2 supply 42/60 lost 13 bld_lost 0 at (2634.0, 1629.0) push 
+0634 P1 brood balanced income 3341 bank 41 workers 17 army 1075 ({ "raptor": 43 }) rooted 11 halls 3 supply 68/76 lost 8 bld_lost 0 at (391.0, 1007.0)
+0634 P2 clockwork balanced income 5784 bank 14 workers 26 army 980 ({ "clock_soldier": 14 }) rooted 0 halls 2 supply 44/60 lost 13 bld_lost 0 at (2618.0, 1620.0) push 
+0649 P1 brood balanced income 3513 bank 13 workers 15 army 1350 ({ "raptor": 47, "rootmaw": 1, "mound_turtle": 1 }) rooted 11 halls 3 supply 69/76 lost 8 bld_lost 0 at (392.0, 1009.0)
+0649 P2 clockwork balanced income 6173 bank 203 workers 26 army 1120 ({ "clock_soldier": 16 }) rooted 0 halls 2 supply 47/60 lost 13 bld_lost 0 at (2318.0, 1667.0) push 
+0704 P1 brood balanced income 3673 bank 23 workers 16 army 1325 ({ "raptor": 49, "mound_turtle": 1 }) rooted 12 halls 3 supply 75/76 lost 8 bld_lost 0 at (394.0, 1013.0)
+0704 P2 clockwork balanced income 6562 bank 22 workers 27 army 1260 ({ "clock_soldier": 18 }) rooted 0 halls 2 supply 48/60 lost 13 bld_lost 0 at (2314.0, 1568.0) push 
+0719 P1 brood balanced income 3808 bank 108 workers 16 army 1375 ({ "raptor": 55 }) rooted 13 halls 3 supply 77/88 lost 8 bld_lost 0 at (628.0, 1007.0)
+0719 P2 clockwork balanced income 6950 bank 350 workers 27 army 1470 ({ "clock_soldier": 21 }) rooted 0 halls 2 supply 49/70 lost 13 bld_lost 0 at (2612.0, 1623.0) push 
+0734 P1 brood balanced income 3981 bank 31 workers 15 army 1525 ({ "raptor": 57, "mound_turtle": 1 }) rooted 13 halls 3 supply 81/88 lost 8 bld_lost 0 at (387.0, 1059.0)
+0734 P2 clockwork balanced income 7353 bank 188 workers 28 army 1470 ({ "clock_soldier": 21 }) rooted 0 halls 2 supply 59/70 lost 13 bld_lost 0 at (2599.0, 1625.0) push 
+0749 P1 brood balanced income 4112 bank 12 workers 16 army 1625 ({ "raptor": 61, "mound_turtle": 1 }) rooted 13 halls 3 supply 87/88 lost 8 bld_lost 0 at (387.0, 1064.0)
+0749 P2 clockwork balanced income 7752 bank 177 workers 28 army 1455 ({ "clock_soldier": 19, "netter": 1 }) rooted 0 halls 2 supply 61/70 lost 16 bld_lost 0 at (2586.0, 1627.0) push 
+0804 P1 brood balanced income 4357 bank 207 workers 16 army 1775 ({ "raptor": 67, "mound_turtle": 1 }) rooted 13 halls 3 supply 88/88 lost 8 bld_lost 0 at (390.0, 1059.0)
+0804 P2 clockwork balanced income 8141 bank 256 workers 28 army 1865 ({ "clock_soldier": 22, "netter": 1, "pendulum": 1 }) rooted 0 halls 2 supply 66/70 lost 16 bld_lost 0 at (2587.0, 1621.0) push march
+0819 P1 brood balanced income 4557 bank 57 workers 16 army 1775 ({ "raptor": 67, "mound_turtle": 1 }) rooted 14 halls 3 supply 92/100 lost 8 bld_lost 0 at (652.0, 841.0)
+0819 P2 clockwork balanced income 8531 bank 206 workers 30 army 2105 ({ "clock_soldier": 24, "netter": 1, "pendulum": 1, "springer": 1 }) rooted 0 halls 3 supply 70/90 lost 16 bld_lost 0 at (1788.0, 1153.0) push march
+0834 P1 brood balanced income 4782 bank 32 workers 23 army 1625 ({ "raptor": 61, "mound_turtle": 1 }) rooted 14 halls 3 supply 91/100 lost 14 bld_lost 0 at (1635.0, 1099.0)
+0834 P2 clockwork balanced income 8953 bank 37 workers 30 army 875 ({ "netter": 1, "clock_soldier": 5, "pendulum": 1, "springer": 2 }) rooted 0 halls 3 supply 50/90 lost 37 bld_lost 0 at (2550.0, 1732.0) push back
+0849 P1 brood balanced income 5089 bank 39 workers 26 army 1475 ({ "raptor": 59 }) rooted 15 halls 3 supply 95/112 lost 16 bld_lost 0 at (2527.0, 1754.0)
+0849 P2 clockwork balanced income 9000 bank 46 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 3 supply 32/100 lost 49 bld_lost 0 at (2561.0, 1793.0) push 
+0904 P1 brood balanced income 5400 bank 50 workers 32 army 375 ({ "raptor": 7, "dilophosaurus": 1 }) rooted 15 halls 3 supply 48/112 lost 68 bld_lost 0 at (393.0, 1071.0)
+0904 P2 clockwork balanced income 9026 bank 55 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 3 supply 32/100 lost 49 bld_lost 0 at (2255.0, 1487.0) push 
+0919 P1 brood balanced income 5764 bank 364 workers 33 army 375 ({ "raptor": 7, "dilophosaurus": 1 }) rooted 15 halls 3 supply 50/112 lost 68 bld_lost 0 at (548.0, 590.0)
+0919 P2 clockwork balanced income 9120 bank 118 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 3 supply 32/100 lost 49 bld_lost 0 at (2515.0, 1792.0) push 
+0934 P1 brood balanced income 6208 bank 308 workers 33 army 450 ({ "raptor": 10, "dilophosaurus": 1 }) rooted 15 halls 3 supply 59/112 lost 68 bld_lost 0 at (404.0, 1023.0)
+0934 P2 clockwork balanced income 9211 bank 69 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 3 supply 32/100 lost 49 bld_lost 1 at (2568.0, 1767.0) push 
+0949 P1 brood balanced income 6689 bank 399 workers 40 army 250 ({ "raptor": 10 }) rooted 16 halls 3 supply 67/112 lost 68 bld_lost 0 at (392.0, 1073.0)
+0949 P2 clockwork balanced income 9319 bank 37 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 4 supply 32/110 lost 49 bld_lost 1 at (2615.0, 1631.0) push 
+1004 P1 brood balanced income 7138 bank 598 workers 46 army 340 ({ "raptor": 10, "spitter": 2 }) rooted 16 halls 3 supply 75/112 lost 68 bld_lost 0 at (395.0, 1062.0)
+1004 P2 clockwork balanced income 9427 bank 5 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 4 supply 32/110 lost 49 bld_lost 1 at (2608.0, 1660.0) push 
+1019 P1 brood balanced income 7773 bank 758 workers 46 army 690 ({ "raptor": 20, "spitter": 2, "mound_turtle": 1 }) rooted 16 halls 3 supply 85/112 lost 68 bld_lost 0 at (477.0, 782.0)
+1019 P2 clockwork balanced income 9598 bank 176 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 4 supply 32/110 lost 49 bld_lost 1 at (2618.0, 1632.0) push 
+1034 P1 brood balanced income 8469 bank 834 workers 47 army 865 ({ "raptor": 27, "spitter": 2, "mound_turtle": 1 }) rooted 16 halls 3 supply 90/112 lost 68 bld_lost 0 at (644.0, 471.0)
+1034 P2 clockwork balanced income 9814 bank 22 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 4 supply 39/110 lost 49 bld_lost 1 at (2616.0, 1631.0) push 
+1049 P1 brood balanced income 8963 bank 963 workers 45 army 1275 ({ "raptor": 26, "spitter": 10, "rootmaw": 1, "mound_turtle": 1 }) rooted 17 halls 3 supply 91/124 lost 68 bld_lost 0 at (643.0, 461.0)
+1049 P2 clockwork balanced income 10043 bank 81 workers 28 army 200 ({ "pendulum": 1 }) rooted 0 halls 4 supply 42/110 lost 49 bld_lost 1 at (2616.0, 1631.0) push 
+1104 P1 brood balanced income 9446 bank 1246 workers 47 army 1200 ({ "raptor": 26, "spitter": 10, "mound_turtle": 1 }) rooted 18 halls 3 supply 93/124 lost 68 bld_lost 0 at (1074.0, 1061.0)
+1104 P2 clockwork balanced income 10353 bank 21 workers 27 army 670 ({ "pendulum": 2, "springer": 2, "clock_soldier": 1 }) rooted 0 halls 4 supply 45/110 lost 50 bld_lost 1 at (2674.0, 1664.0) push 
+1119 P1 brood balanced income 10070 bank 1420 workers 49 army 1100 ({ "raptor": 26, "spitter": 10 }) rooted 19 halls 4 supply 108/136 lost 68 bld_lost 0 at (1912.0, 1726.0)
+1119 P2 clockwork balanced income 10678 bank 76 workers 28 army 810 ({ "pendulum": 2, "springer": 2, "clock_soldier": 3 }) rooted 0 halls 4 supply 50/110 lost 50 bld_lost 1 at (2644.0, 1659.0) push 
+1134 P1 brood balanced income 10509 bank 1284 workers 47 army 1085 ({ "rootmaw": 2, "raptor": 19, "spitter": 8, "mound_turtle": 1 }) rooted 18 halls 4 supply 96/136 lost 93 bld_lost 0 at (1413.0, 1344.0)
+1134 P2 clockwork balanced income 11003 bank 78 workers 28 army 770 ({ "pendulum": 2, "springer": 3, "clock_soldier": 1 }) rooted 0 halls 4 supply 53/110 lost 52 bld_lost 1 at (2190.0, 1749.0) push 
+1150 P1 brood balanced income 11026 bank 1451 workers 49 army 575 ({ "rootmaw": 1, "raptor": 20 }) rooted 20 halls 4 supply 84/148 lost 113 bld_lost 0 at (1207.0, 1214.0)
+1150 P2 clockwork balanced income 11340 bank 30 workers 28 army 1010 ({ "springer": 4, "pendulum": 2, "clock_soldier": 3 }) rooted 0 halls 4 supply 53/110 lost 53 bld_lost 2 at (2065.0, 1785.0) push 
+1205 P1 brood balanced income 11789 bank 1714 workers 53 army 400 ({ "rootmaw": 1, "raptor": 13 }) rooted 20 halls 4 supply 88/148 lost 125 bld_lost 0 at (635.0, 702.0)
+1205 P2 clockwork balanced income 11677 bank 127 workers 29 army 1150 ({ "springer": 4, "pendulum": 2, "clock_soldier": 5 }) rooted 0 halls 4 supply 57/110 lost 53 bld_lost 2 at (2467.0, 1640.0) push 
+1220 P1 brood balanced income 12213 bank 1113 workers 54 army 875 ({ "tyrant_challenger": 2, "raptor": 27 }) rooted 21 halls 4 supply 105/148 lost 125 bld_lost 0 at (641.0, 487.0)
+1220 P2 clockwork balanced income 12047 bank 3 workers 31 army 1390 ({ "springer": 5, "pendulum": 2, "clock_soldier": 7 }) rooted 0 halls 4 supply 64/110 lost 53 bld_lost 2 at (2613.0, 1622.0) push 
+1235 P1 brood balanced income 12965 bank 1565 workers 54 army 1100 ({ "tyrant_challenger": 2, "raptor": 36 }) rooted 21 halls 4 supply 114/148 lost 125 bld_lost 0 at (649.0, 482.0)
+1235 P2 clockwork balanced income 12453 bank 114 workers 32 army 1390 ({ "springer": 5, "pendulum": 2, "clock_soldier": 7 }) rooted 0 halls 4 supply 69/110 lost 53 bld_lost 2 at (2594.0, 1618.0) push 
+1250 P1 brood balanced income 13693 bank 1918 workers 53 army 1550 ({ "tyrant_challenger": 2, "raptor": 50, "mound_turtle": 1 }) rooted 21 halls 4 supply 122/148 lost 125 bld_lost 0 at (637.0, 493.0)
+1250 P2 clockwork balanced income 12871 bank 27 workers 30 army 1640 ({ "springer": 6, "pendulum": 2, "clock_soldier": 7, "ballista": 1 }) rooted 0 halls 4 supply 76/110 lost 53 bld_lost 3 at (2297.0, 1416.0) push march
+1305 P1 brood balanced income 14180 bank 2180 workers 54 army 1700 ({ "tyrant_challenger": 2, "raptor": 56, "mound_turtle": 1 }) rooted 21 halls 4 supply 131/148 lost 125 bld_lost 0 at (1006.0, 1084.0)
+1305 P2 clockwork balanced income 13304 bank 220 workers 31 army 1835 ({ "springer": 6, "pendulum": 2, "clock_soldier": 8, "ballista": 1, "netter": 1 }) rooted 0 halls 4 supply 80/110 lost 53 bld_lost 3 at (1779.0, 1098.0) push march
+1320 P1 brood balanced income 14868 bank 2193 workers 53 army 675 ({ "rootmaw": 1, "tyrant_challenger": 2, "raptor": 12, "mound_turtle": 1 }) rooted 21 halls 4 supply 93/160 lost 178 bld_lost 0 at (486.0, 561.0)
+1320 P2 clockwork balanced income 13740 bank 153 workers 31 army 1860 ({ "springer": 5, "pendulum": 2, "clock_soldier": 8, "ballista": 1, "netter": 2 }) rooted 0 halls 4 supply 80/110 lost 57 bld_lost 4 at (1430.0, 1015.0) push fight
+1335 P1 brood balanced income 15554 bank 2219 workers 54 army 800 ({ "rootmaw": 1, "tyrant_challenger": 3, "mound_turtle": 1, "raptor": 13 }) rooted 21 halls 4 supply 99/160 lost 193 bld_lost 0 at (436.0, 679.0)
+1335 P2 clockwork balanced income 14215 bank 136 workers 32 army 2030 ({ "springer": 6, "pendulum": 2, "clock_soldier": 9, "ballista": 1, "netter": 2 }) rooted 0 halls 4 supply 87/110 lost 58 bld_lost 4 at (1515.0, 1045.0) push fight
+1350 P1 brood balanced income 15866 bank 1586 workers 54 army 835 ({ "rootmaw": 1, "tyrant_challenger": 2, "raptor": 17, "spitter": 3 }) rooted 22 halls 4 supply 110/172 lost 206 bld_lost 0 at (1136.0, 913.0)
+1350 P2 clockwork balanced income 14690 bank 136 workers 32 army 2300 ({ "springer": 8, "pendulum": 2, "clock_soldier": 10, "ballista": 1, "netter": 2 }) rooted 0 halls 4 supply 92/110 lost 58 bld_lost 4 at (1566.0, 1057.0) push march
+1405 P1 brood balanced income 16593 bank 1518 workers 54 army 780 ({ "rootmaw": 1, "spitter": 9, "raptor": 12 }) rooted 22 halls 4 supply 105/172 lost 232 bld_lost 0 at (872.0, 942.0)
+1405 P2 clockwork balanced income 15138 bank 24 workers 32 army 2640 ({ "springer": 8, "pendulum": 3, "clock_soldier": 12, "ballista": 1, "netter": 2 }) rooted 0 halls 4 supply 97/110 lost 58 bld_lost 4 at (1419.0, 1021.0) push march
+1420 P1 brood balanced income 17053 bank 1303 workers 54 army 1550 ({ "rootmaw": 1, "spitter": 15, "tyrant_challenger": 1, "raptor": 28 }) rooted 21 halls 3 supply 128/160 lost 233 bld_lost 0 at (405.0, 958.0)
+1420 P2 clockwork balanced income 15614 bank 213 workers 32 army 2740 ({ "springer": 9, "pendulum": 3, "clock_soldier": 12, "ballista": 1, "netter": 2 }) rooted 0 halls 4 supply 99/110 lost 58 bld_lost 4 at (1229.0, 989.0) push march
+1435 P1 brood balanced income 17678 bank 1078 workers 54 army 2000 ({ "rootmaw": 1, "spitter": 15, "tyrant_challenger": 2, "raptor": 42 }) rooted 21 halls 3 supply 138/160 lost 237 bld_lost 0 at (623.0, 937.0)
+1435 P2 clockwork balanced income 16118 bank 337 workers 32 army 3035 ({ "springer": 10, "pendulum": 3, "clock_soldier": 13, "ballista": 1, "netter": 3 }) rooted 0 halls 4 supply 105/110 lost 58 bld_lost 4 at (845.0, 879.0) push fight
+1450 P1 brood balanced income 18342 bank 1567 workers 53 army 1225 ({ "tyrannosaur": 1, "dilophosaurus": 1, "rootmaw": 1, "spitter": 10, "raptor": 4, "mound_turtle": 1, "brute": 1 }) rooted 19 halls 3 supply 86/160 lost 289 bld_lost 0 at (412.0, 448.0)
+1450 P2 clockwork balanced income 16616 bank 369 workers 32 army 3315 ({ "springer": 10, "clock_soldier": 17, "pendulum": 3, "ballista": 1, "netter": 3 }) rooted 0 halls 4 supply 106/120 lost 59 bld_lost 4 at (703.0, 837.0) push march

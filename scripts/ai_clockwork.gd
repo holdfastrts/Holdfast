@@ -344,6 +344,8 @@ func _build_up() -> void:
 	_air_answer()
 	if bo_on and _dry_hand_over():
 		return
+	if bo_on and _stuck_hand_over():
+		return
 	if bo_on:
 		_bo_tick()
 	else:
@@ -396,6 +398,67 @@ func _dry_hand_over() -> bool:
 	if difficulty < 1 or not Defs.gear_mode or not _dry():
 		return false
 	_end_build("its land is dry: a new Clocktower and its press first, before more units")
+	super._build_up()
+	return true
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 4) PRESSES WHERE THE BRASS IS: against the Brood a
+## new Cog Press goes by the built Clocktower with the most brass for each press it already has (brass left / (presses + 1)),
+## not by the one nearest the main. (Greenhold 11, Clockwork P2, a dump at 8:00: four presses on the main at 9% brass, none
+## by the natural at 83% (its first press, "press_new", went by the old Clocktower while the Brood's rush stood at the
+## natural); at 9:00 the main was spent and 15 Winders stood idle; income 9,018 -> 10,063 from 9:00 to 11:00. The same
+## collapse at about 9:00 in 4 of the 16 games of the "before" batch, with 27-30 Winders alive.) `-- cvbpress:off`.
+var press_on := not OS.get_cmdline_user_args().has("cvbpress:off")
+
+
+func _drive_spot(kind: String) -> Vector2i:
+	if press_on and kind == Defs.GEAR_PRESS and Defs.gear_mode and difficulty >= 1 and _foe_is("brood"):
+		var c := _press_by_brass()
+		if c.x >= 0:
+			return c
+	return super._drive_spot(kind)
+
+
+func _press_by_brass() -> Vector2i:
+	var halls: Array = _halls().filter(func(h: Building) -> bool: return h.built and h.lode_left() > 0.05)
+	if halls.is_empty():
+		return Vector2i(-1, -1)
+	var n := {}
+	for b in _mine(Defs.GEAR_PRESS):
+		var nh = game.nearest_hall(b.center(), team)
+		if nh != null:
+			n[nh] = int(n.get(nh, 0)) + 1
+	halls.sort_custom(func(a: Building, b: Building) -> bool: return a.lode_left() / (1.0 + int(n.get(a, 0))) > b.lode_left() / (1.0 + int(n.get(b, 0))))
+	for h in halls:
+		var c := GearEcon.room_spot(game, team, Defs.GEAR_PRESS, [h], [], h.center(), true, 8)
+		if c.x >= 0:
+			return c
+	return Vector2i(-1, -1)
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 2) A STUCK BUILD ORDER: against the Brood, a written
+## build that has done no step for STUCK_T s with STUCK_BANK cogs or more in the bank hands over to the shared rules.
+## (Kestrel Rise 41, the Pendulums picked at 1:51 from the common opening: "finds no room for a Heavy Works by its
+## Mainsprings", the steps after it waited for that Heavy Works, and the bank went 618 -> 4,545 from 5:00 to 10:04 with
+## the army at 560 and 30 of 50 supply; the Brood razed it at 11:16.) `-- cvbstuck:off` plays it as before.
+const STUCK_T := 60.0
+const STUCK_BANK := 1000
+var stuck_on := not OS.get_cmdline_user_args().has("cvbstuck:off")
+var _stuck_n := -1
+var _stuck_t := 0.0
+
+
+func _stuck_hand_over() -> bool:
+	if not stuck_on or difficulty < 1 or not _foe_is("brood"):
+		return false
+	var n := done.count(true)
+	if n != _stuck_n:
+		_stuck_n = n
+		_stuck_t = game.clock
+		return false
+	if game.clock - _stuck_t < STUCK_T or _gold() < STUCK_BANK:
+		return false
+	_end_build("stuck: no step done for %d s with %d cogs in the bank" % [int(game.clock - _stuck_t), _gold()])
 	super._build_up()
 	return true
 

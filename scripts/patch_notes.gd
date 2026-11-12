@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.20", "items": [
+		"CLOCKWORK AGAINST THE BROOD, COACHED (the computers): the Clockwork counter-attacks right after it breaks a Brood wave at its base, and does not march out into a wave at its door; a push far out turns home fighting when Raptors raid its base, and a push that pulls back fights what chases it instead of being run down; a new Cog Press goes by the Clocktower with the most brass, so its income no longer stops when the main runs dry; a written build stuck for a minute with cogs in the bank hands over to the normal rules.",
+		"THE BROOD AGAINST THE CLOCKWORK (the computer): its wave waits for its slower creatures and arrives as one pack, not in a long column; when a push it cannot meet stands at the Mother's nest, the Mother gets up and moves to her safest expansion, and her Sires go with her instead of dying in the defence.",
+	]},
 	{"v": "0.33.19", "items": [
 		"THE CROWN COMPUTER AGAINST THE BROOD, COACHED (docs/crown_v_brood_coach.md): its Horseman rush rides as a raiding party at the grubs on the Brood's outlying Rootmaws, pulls back from the Raptors and comes again somewhere else, instead of riding with a Musketeer wave into the Brood's main where the Raptors wait; its rush opening builds the second Farm before the riders and keeps a labourer coming (it farmed one Farm with 8-9 labourers until 4:15); after the rush it plays its Economy plan, labourers to two halls and a walled natural, instead of Balanced.",
 		"Against the Brood the Crown computer no longer buys Barracks, Foundries, a Church, an Armoury or research while its army is behind or its Barracks stand idle for want of gold; it casts a Field Cannon for every four Musketeers; from 5:30 its army grows with its economy; its Powder Mills no longer take the Farms' hands to grind powder nobody uses.",

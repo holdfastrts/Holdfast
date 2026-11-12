@@ -868,6 +868,8 @@ func _should_retreat() -> bool:
 	if now < value_in * (1.0 - LOST_SHARE) and now < fv * RETREAT_K:
 		_retreat("worth %d against %d near it, %d of %d lost" % [int(now), int(fv), int(value_in - now), int(value_in)])
 		return true
+	if _brood_raid_home():
+		return true
 	# a big attack on the base while it is far out: home to meet it
 	var th: Vector2 = ai._threat()
 	if th != Vector2.INF and ai._home_dist(_front_centre()) > 1200.0:
@@ -883,6 +885,83 @@ func _should_retreat() -> bool:
 			if b.hp < b.max_hp * KEY_LOW and not _foes_near(b.center(), 260.0).is_empty():
 				_retreat("its %s at %s is about to fall" % [String(b.d["name"]), _where(b.center())])
 				return true
+	return false
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 1) THE BASE TRADE: against the Brood, Raptors that go
+## round the push into the base kill the Winders by the dozen. The rule above compares the raid with AI._guard_value(),
+## which is the WHOLE army, the push included, so a raid had to be worth 1.5 times the push to call it home. (Dune Sea 23,
+## 9:07-10:41: raids of 549 and 805 at the base while the push of 2,030 walked on; the Clockwork went from 27 Winders to 6
+## and lost its main, then the game.) Here the guard is what stands at home (armed, not the push's), and a raid worth
+## RAID_HOME or more that the guard does not match, while the push is far out, calls it home. `-- cvbhome:off` as before.
+const RAID_HOME := 300.0
+var raid_home_on := not OS.get_cmdline_user_args().has("cvbhome:off")
+
+
+func _brood_raid_home() -> bool:
+	if not raid_home_on or not _vs_brood():
+		return false
+	var th: Vector2 = ai._threat()
+	if th == Vector2.INF or ai._home_dist(_front_centre()) < 1000.0:
+		return false
+	var at_home := _foes_near(th, 450.0)
+	var v := _value(at_home)
+	if v < RAID_HOME:
+		return false
+	var guard := 0.0
+	for u in game.army(team):
+		if u.dead or units.has(u) or joining.has(u) or not ai._armed(u) or u.powered_down():
+			continue
+		if u.position.distance_to(th) < 700.0:
+			guard += ai._unit_value(u)
+	if guard >= v:
+		return false
+	# (round 2, Dune Sea 23, 11:02: called home with _retreat, the push of 3,050 walked home on plain moves for a minute
+	# through a raid of 2,120 and was lost to the last soldier, 84 units by 12:04. Now it turns round FIGHTING: an
+	# attack-move at the raid, and the army's whole-army defence takes it over at once (ai_cw_army._defend). A recall is
+	# no failed push: no need_up, no AFTER_FAIL)
+	say("turns home fighting: Brood raiders in the base (%d value at %s, %d at home to meet them); %d value of push" % [int(v), _where(th), int(guard), int(_value(units))])
+	stats["raid_home"] = int(stats.get("raid_home", 0)) + 1
+	for u in units + joining:
+		if is_instance_valid(u) and not u.dead:
+			u.cmd_move(th, u.kind != Defs.GREAT_WINDER_KIND)
+	units.clear()
+	joining.clear()
+	_orders.clear()
+	_guards.clear()
+	piece = null
+	_phase("")
+	return true
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 5) FALLING BACK FIGHTING: against the Brood a push
+## that pulls back walks home on plain moves (it does not shoot), and Raptors are faster than anything it has: they ran
+## down the back of it. (Greenhold 11, Clockwork P2, 10:49: "pulls back (the enemy's army comes, worth 2,850 against its
+## 1,960)"; by 12:04 the army was 270 and 19 Winders had died with it at home.) Now a unit with an armed enemy within
+## CHASED px of it walks home on an attack-move (it turns and fights what catches it, then walks on); the others walk.
+## `-- cvbback:off` plays it as before.
+const CHASED := 180.0
+var back_fight_on := not OS.get_cmdline_user_args().has("cvbback:off")
+
+
+func _fall_back_fighting(u: Unit, home: Vector2) -> bool:
+	if not back_fight_on or not _vs_brood() or u.kind == Defs.GREAT_WINDER_KIND:
+		return false
+	var chased := false
+	for o in game.units_near(u.position, CHASED):
+		if not o.dead and not o.off_field and game.hostile(o.team, team) and not o.is_worker() and ai._armed(o) \
+				and not BroodNew.rooted(o) and game.is_visible_to(team, o.position):
+			chased = true
+			break
+	if chased:
+		if u.order != "amove":
+			u.cmd_move(home, true)
+			_orders[u] = [home, game.clock]
+		return true
+	if u.order == "amove":
+		u.cmd_move(home, false)
+		_orders[u] = [home, game.clock]
+		return true
 	return false
 
 
@@ -904,6 +983,8 @@ func _go_back() -> void:
 	for u in units:
 		if u.position.distance_to(home) > 300.0:
 			all_home = false
+			if _fall_back_fighting(u, home):
+				continue
 			_order(u, home, false, 80.0)
 	if all_home or game.clock - since > 90.0:
 		units.clear()

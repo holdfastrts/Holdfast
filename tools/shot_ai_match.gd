@@ -35,6 +35,8 @@ var next_status := 15.0
 var next_army := 30.0
 var next_raid := 0.0
 var status_lines: Array = []
+var _next_stat := 15.0      # (clockwork-v-brood-coach) with every:N, a stats line per side every 15 s (stats.txt)
+var stat_lines: Array = []
 var minwave := 0             # minwave:N only a siege by a wave of at least N units is watched (the flags start with it)
 var siege_end := false       # siege_end:1 stop once the first siege has played out, writing siege.txt
 var _siege_t0 := -1.0
@@ -155,10 +157,16 @@ func _process(delta: float) -> bool:
 			var h: Building = g._own_hall(tm)
 			if h:
 				pending.append(["base_%d_%s.png" % [tm, _mmss(c)], h.global_position + Vector2(0, -40), 0.8])
+			elif g.faction_of(tm) == "brood" and BroodNew.queen(g, tm):
+				pending.append(["base_%d_%s.png" % [tm, _mmss(c)], BroodNew.queen(g, tm).position, 0.8])
 		base_i += 1
 	if every > 0.0 and c >= _next_every:
 		_next_every = c + every
 		_every_shots(c)
+	if every > 0.0 and c >= _next_stat:
+		_next_stat = c + 15.0
+		for tm in 2:
+			stat_lines.append(_stat_line(c, tm))
 	if c >= next_check:
 		next_check = c + 2.0
 		_look_for_fight(c)
@@ -490,7 +498,89 @@ func _shoot() -> void:
 	shooting = false
 
 
+func _army_of(tm: int) -> Array:
+	var o: Array = []
+	for u in g.army(tm):
+		if u.dead or u.off_field or u.is_worker() or not u.has_attack() or u.is_air():
+			continue
+		if u._k_nb and (u.kind == BroodNew.QUEEN or BroodNew.rooted(u)):
+			continue
+		o.append(u)
+	return o
+
+
+## the densest group's middle (the unit with the most own units within 300 px, then their mean)
+func _mid(list: Array) -> Vector2:
+	var best: Unit = list[0]
+	var bn := -1
+	for u in list:
+		var n := 0
+		for o in list:
+			if o.position.distance_to(u.position) < 300.0:
+				n += 1
+		if n > bn:
+			bn = n
+			best = u
+	var s := Vector2.ZERO
+	var k := 0
+	for o in list:
+		if o.position.distance_to(best.position) < 300.0:
+			s += o.position
+			k += 1
+	return s / maxf(1, k)
+
+
+func _stat_line(c: float, tm: int) -> String:
+	var st: Dictionary = g.stats[tm]
+	var v := 0
+	var kinds := {}
+	for u in _army_of(tm):
+		v += Game.unit_value(u)
+		kinds[u.kind] = int(kinds.get(u.kind, 0)) + 1
+	var rooted := 0
+	if g.faction_of(tm) == "brood":
+		for u in g.units:
+			if u.team == tm and not u.dead and u._k_nb and BroodNew.rooted(u):
+				rooted += 1
+	var halls := g.halls_of(tm).size()
+	if g.faction_of(tm) == "brood":
+		var q := BroodNew.queen(g, tm)
+		halls = (1 + BroodNew.expansions(g, q).size()) if q else 0
+	var au := _army_of(tm)
+	var at := _mid(au) if au.size() > 0 else Vector2.ZERO
+	var a = null
+	for x in g.ais:
+		if x.team == tm:
+			a = x
+	return "%s P%d %s %s income %d bank %d workers %d army %d (%s) rooted %d halls %d supply %d/%d lost %d bld_lost %d at %s%s" % [_mmss(c),
+		tm + 1, g.faction_of(tm), a.strategy if a else "?", int(st["gold"]), int(g.players[tm]["gold"]), g.workers(tm).size(), v,
+		str(kinds), rooted, halls, g.supply_used(tm), int(g.players[tm]["cap"]), int(st["lost"]), int(st["bld_lost"]), str(at.round()),
+		(" push %s" % String(a.push.phase)) if a and ("push" in a) and a.push != null else ""]
+
+
 func _finish() -> void:
+	if every > 0.0:
+		var sf := FileAccess.open(out.path_join("stats.txt"), FileAccess.WRITE)
+		for l in stat_lines:
+			sf.store_line(l)
+		sf.close()
+		var story := FileAccess.open(out.path_join("story.txt"), FileAccess.WRITE)
+		if g.mlog:
+			for l in g.mlog.lines:
+				var line := str(l)
+				for tm in 2:
+					var who: String = g.mlog.who(tm)
+					var i := line.find(who)
+					if i < 0 or i > 12:
+						continue
+					var rest := line.substr(i + who.length())
+					rest = rest.strip_edges(true, false) if not rest.begins_with("'s ") else rest
+					var m := AIStoryLines.match_line(rest)
+					if not m.is_empty() and String(m["template"]) != "" and int(m["prio"]) >= 2:
+						var args: Array = ["P%d %s" % [tm + 1, g.faction_of(tm).capitalize()]] + (m["args"] as Array)
+						var tpl := String(m["template"])
+						story.store_line("%s %s" % [line.substr(0, 7), tpl % args if tpl.count("%s") == args.size() else tpl])
+		story.close()
 	var f := FileAccess.open(out.path_join("log.txt"), FileAccess.WRITE)
 	if g.mlog:
 		for l in g.mlog.lines:
