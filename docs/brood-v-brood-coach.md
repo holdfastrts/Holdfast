@@ -210,4 +210,31 @@ Fix 7, the wave's sums (in _nb_join_fresh and _nb_wave_tick, mirror only): reinf
 out (`_wave_v0`), so the retreat rules see the real losses; and a wave down to a quarter goes on while it has killed at
 least what it lost and sees no more than itself ahead.
 
-(Round 6 onward below.)
+## Round 6: fixes 1 to 7 (the seeds of the mistakes: Highmoor 2, Hollowfen 1, Greenhold 1, Kestrel Rise 1)
+
+| map | result | before (the round the mistake was named) | now |
+|---|---|---|---|
+| Highmoor 2 | P1 wins 13:15 | round 5: a draw, P1's wave of 6:30 "attacking" to 15:00, 13,750 killed by the defender | the wave pulls back at 8:42 (725 of 3,290 left), gathers, goes again at 11:31 with 134; 12:06 "goes for the enemy Mother with 43", 13:06 with 86 |
+| Hollowfen 1 | draw, even | round 4: P1's column eaten at 9:04, P2 wins 11:12 | 10:48 "its wave closes up before it meets an enemy army of 1,265 (16 of 38 supply at its head)"; three even trades |
+| Kestrel Rise 1 | draw, even (both at 200 supply) | round 2: the base trade at 6:30 and 8:35 | 6:44 / 6:47 both waves close up and meet in the middle; 8:40 the armies fight face to face |
+| Greenhold 1 | draw, even (both at 200 supply) | round 3: the Mother not finished; round 4: even | even to the end |
+
+![Kestrel Rise, before (round 2, 8:48: the armies pass) and after (round 6, 8:40: they fight)](shots/brood-v-brood-coach/before_after_kestrel_base_trade.jpg)
+![Highmoor seed 2, round 6, 12:58: the Raptors on P2's Mother this time (she fell at 13:15)](shots/brood-v-brood-coach/r6_highmoor2_1258_after_on_the_mother.jpg)
+
+(Also as a gif: shots/brood-v-brood-coach/kestrel_base_trade_before_after.gif.)
+
+### Coach's notes, round 6
+
+- Every mistake named above is gone on its own seed. The games left are even games: the same computer on both sides on
+  a mirrored map, both at 9,500-10,000 earned at 8:00 and at the supply cap from about 13:00, with waves of 100-135
+  supply trading in the middle. A draw at 15:00 between two live armies of 4,000 is the honest result of an even
+  mirror; the draws of rounds 1-3 were dead games (a Mother at a fifth of her health, a side with no army for four
+  minutes) and those are the ones that no longer happen on these seeds.
+- What I still see and did not change: a Brood at the cap banks food (Kestrel Rise P1 2,117 at 15:00, Highmoor 2 P1
+  1,244 at 8:00): the Mother's laying, not food, is the limit (her eggs), and the computer's RICH branch already sends
+  the extra food to maturing, Brutes and research. Waves are mostly Raptors (75-110 of 120-135); Spitters are a fifth
+  of the army at most (plan "mixed": one Spitter for two Raptors while the Venom Sire is beside her, but the Raptor line
+  hatches faster).
+
+(Measuring batch below.)
