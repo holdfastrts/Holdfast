@@ -256,7 +256,7 @@ func _in_walled_natural(b: Building) -> bool:
 		var h = p.get("hall")
 		if h == null or not is_instance_valid(h) or (h as Building).dead:
 			continue
-		if ai.xw.closed_share(p) <= 0.0:
+		if ai.xw.closed_share(p) <= _cc_edge_floor():
 			continue
 		if (h as Building).center().distance_to(b.center()) < NATURAL_R * T:
 			edge_skips += 1
@@ -1559,3 +1559,14 @@ func _gate_plan(n_musk: int, n_gun: int) -> void:
 ## (AI._army) Where the waiting army's other units (riders, the rest) rally: behind the gate post's line once there is one.
 func home_front(fallback: Vector2) -> Vector2:
 	return _gate_back if gate_live() and _gate_back != Vector2.INF else fallback
+
+
+## (crown-v-clockwork-coach) A natural with a wall plan skips the cliff edge once any piece of it stands (ai-followups);
+## the gate post comes only at GATE_CLOSED. Between the two the line had no post at all: Kestrel Rise (seed 1131) 6:33-6:59,
+## the natural's wall had a few pieces, its hall burned under 11 Clock Soldiers while 8 Musketeers stood idle in the main's
+## Farm above (docs/shots/crown-v-clockwork-coach/r4_kestrel_0654_natural_burns_line_idle.jpg). Against the Clockwork the
+## cliff edge answers until the wall is closed enough for the gate post.
+func _cc_edge_floor() -> float:
+	if ai.has_method("cc_vs_clock") and ai.cc_on and ai.cc_vs_clock():
+		return GATE_CLOSED - 0.001
+	return 0.0
