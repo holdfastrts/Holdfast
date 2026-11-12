@@ -1,0 +1,137 @@
+[
+ {
+  "across": 147,
+  "cell": [
+   94,
+   87
+  ],
+  "clock": "8:34",
+  "depth": 116,
+  "fired5": 4,
+  "foe_val0": 850,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -74,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -74,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 2,
+  "held": 0,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 6,
+  "killed": 900,
+  "lay_st": "",
+  "len": 18,
+  "lost": 240,
+  "mine_val0": 1395,
+  "moving": 7,
+  "n": 7,
+  "prev_st": "",
+  "since_lay": -1,
+  "t": 514,
+  "team": 1,
+  "warn": 12.5,
+  "warn_first": 13.0
+ },
+ {
+  "across": 62,
+  "cell": [
+   94,
+   86
+  ],
+  "clock": "9:16",
+  "depth": 42,
+  "fired5": 2,
+  "foe_val0": 450,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -104,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -104,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 2,
+  "held": 3,
+  "home": true,
+  "in_reach0": 4,
+  "in_reach5": 8,
+  "killed": 1970,
+  "lay_st": "",
+  "len": 49,
+  "lost": 595,
+  "mine_val0": 1455,
+  "moving": 3,
+  "n": 8,
+  "prev_st": "",
+  "since_lay": 2,
+  "t": 556,
+  "team": 1,
+  "warn": 15.5,
+  "warn_first": 16.5
+ },
+ {
+  "across": 236,
+  "cell": [
+   95,
+   88
+  ],
+  "clock": "10:20",
+  "depth": 155,
+  "fired5": 6,
+  "foe_val0": 250,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -74,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -38,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -70,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 0,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 8,
+  "killed": 1730,
+  "lay_st": "",
+  "len": 69,
+  "lost": 230,
+  "mine_val0": 1625,
+  "moving": 8,
+  "n": 9,
+  "prev_st": "",
+  "since_lay": 28,
+  "t": 620,
+  "team": 1,
+  "warn": 4.5,
+  "warn_first": 5.0
+ }
+]

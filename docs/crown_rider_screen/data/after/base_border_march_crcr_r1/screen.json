@@ -1,0 +1,42 @@
+{
+ "0": {
+  "flank_hits": 3,
+  "lost": 0,
+  "picket_lost": 0,
+  "pulled": 1,
+  "sent": 5,
+  "sightings": 0,
+  "trained": 0,
+  "warns": [
+   [
+    619.1,
+    355
+   ]
+  ]
+ },
+ "0_line": {
+  "approaches": 0,
+  "deploys": 1,
+  "forms": 0
+ },
+ "1": {
+  "flank_hits": 25,
+  "lost": 3,
+  "picket_lost": 0,
+  "pulled": 3,
+  "sent": 4,
+  "sightings": 1,
+  "trained": 0,
+  "warns": [
+   [
+    644.0,
+    180
+   ]
+  ]
+ },
+ "1_line": {
+  "approaches": 0,
+  "deploys": 1,
+  "forms": 2
+ }
+}

@@ -1,0 +1,32 @@
+[
+ {
+  "across": 227,
+  "cell": [
+   91,
+   54
+  ],
+  "clock": "8:00",
+  "depth": 136,
+  "fired5": 12,
+  "foe_val0": 1810,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 1,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 15,
+  "killed": 3405,
+  "lay_st": "",
+  "len": 196,
+  "lost": 2750,
+  "mine_val0": 1095,
+  "moving": 13,
+  "n": 17,
+  "prev_st": "",
+  "since_lay": -1,
+  "t": 480,
+  "team": 1,
+  "warn": 3.5,
+  "warn_first": 4.0
+ }
+]

@@ -1,0 +1,57 @@
+[
+ {
+  "across": 157,
+  "cell": [
+   19,
+   30
+  ],
+  "clock": "9:40",
+  "depth": 139,
+  "fired5": 9,
+  "foe_val0": 325,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -63,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -94,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -99,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -66,
+    "kind": "mortar",
+    "set": false
+   }
+  ],
+  "guns_fired": 3,
+  "held": 0,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 13,
+  "killed": 2035,
+  "lay_st": "",
+  "len": 72,
+  "lost": 60,
+  "mine_val0": 1895,
+  "moving": 13,
+  "n": 13,
+  "prev_st": "",
+  "since_lay": -1,
+  "t": 580,
+  "team": 0,
+  "warn": 29.5,
+  "warn_first": 30.0
+ }
+]

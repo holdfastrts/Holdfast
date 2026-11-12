@@ -1,0 +1,71 @@
+[00:23] P1 Crown walls off its ramp: 1 pieces.
+[00:23] P2 Crown walls off its ramp: 1 pieces.
+[01:44] P1 Crown's scout saw too little (the scout was killed): that proves nothing, so it builds no army for it and looks again soon.
+[01:44] P2 Crown's scout saw too little (the scout was killed): that proves nothing, so it builds no army for it and looks again soon.
+[02:29] P1 Crown follows its own Siege push build order: 9 steps, then its milestones.
+[02:29] P1 Crown reads the enemy as UNKNOWN (no read yet) and picks Siege push: a siege to break its defences.
+[02:29] P2 Crown follows its own Economy build order: 9 steps, then its milestones.
+[02:29] P2 Crown reads the enemy as UNKNOWN (no read yet) and picks Economy: an economic race.
+[02:31] P2 Crown expands while its base is still rich: more land, 18 tiles out.
+[02:31] P2 Crown plans a walled expansion.
+[03:17] P1 Crown expands while its base is still rich: more land, 18 tiles out.
+[03:18] P1 Crown plans a walled expansion.
+[04:04] P1 Crown's opening is over: its milestones and its doctrine take over.
+[04:59] P2 Crown puts its army first (0 against the 199 it reckons the enemy has): the labourers and the tech wait.
+[05:09] P2 Crown posts its army down at its natural's gate: room for 6 Musketeers behind the palisade and 2 guns behind them.
+[05:27] P2 Crown's opening is over: its milestones and its doctrine take over.
+[05:41] P2 Crown puts up its next milestone: Barracks 2.
+[06:00] P2 Crown puts its army first (60 against the 325 it reckons the enemy has): the labourers and the tech wait.
+[06:38] P2 Crown puts up its next milestone: Barracks 3.
+[07:13] P2 Crown moves its army along the palisade to where it is attacked (a line of 6 behind the wall).
+[07:20] P2 Crown puts up its next milestone: Barracks 4.
+[07:26] P2 Crown's Horseman goes after the enemy workers.
+[07:31] P2 Crown puts up its next milestone: Church 1.
+[07:56] P1 Crown's Horseman goes after the enemy workers.
+[07:59] P2 Crown moves its army along the palisade to where it is attacked (a line of 11 behind the wall).
+[08:01] P1 Crown's Horseman goes after the enemy workers.
+[08:05] P1 Crown reads the enemy as DEFENSIVE (walls all round one base).
+[08:05] P1 Crown reads the enemy as DEFENSIVE (walls all round one base) and keeps Siege push: a siege to break its defences.
+[08:07] P2 Crown moves its army along the palisade to where it is attacked (a line of 12 behind the wall).
+[08:13] P2 Crown moves its army along the palisade to where it is attacked (a line of 14 behind the wall).
+[08:14] P2 Crown plans a walled expansion.
+[08:18] P2 Crown goes down its ramp with its army.
+[08:18] P2 Crown sends out its first attack: 21 supply, 1 of them Horsemen.
+[08:19] P2 Crown's wave sends 1 Horseman/Horsemen ahead and to its flanks as a screen.
+[08:20] P1 Crown goes down its ramp with its army.
+[08:28] P2 Crown moves its army along the palisade to where it is attacked (a line of 1 behind the wall).
+[08:31] P2 Crown puts up its next milestone: Armoury 1.
+[08:37] P1 Crown expands while its base is still rich: more land, 22 tiles out.
+[08:38] P1 Crown puts up its next milestone: Armoury 1.
+[09:05] P1 Crown meets the force at its buildings with a musket line: 4 muskets facing it, 0 gun(s) behind them.
+[09:07] P1 Crown puts up its next milestone: Foundry 2.
+[09:10] P1 Crown holds the top of its ramp: against the force below (895) its army (1040) goes down only at 1164.
+[09:18] P2 Crown's wave sends 1 Horseman/Horsemen ahead and to its flanks as a screen.
+[09:21] P1 Crown's scout saw too little (too little of its base): that proves nothing, so it builds no army for it and looks again soon.
+[09:22] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[09:22] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[09:26] P2 Crown's musket line has won the field: it forms up again and goes on.
+[09:31] P2 Crown's wave meets the enemy before its line is formed: 12 muskets deploy into a line under fire.
+[09:40] P1 Crown holds the top of its ramp: against the force below (854) its army (1110) goes down only at 1111.
+[09:40] P2 Crown brings its guns up to shell the enemy's Town Hall over its wall.
+[09:40] P1 Crown meets the force at its buildings with a musket line: 7 muskets facing it, 1 gun(s) behind them.
+[09:49] P2 Crown's Horseman goes after the enemy workers.
+[09:50] P2 Crown puts up its next milestone: Foundry 2.
+[09:53] P1 Crown's Horseman goes after the enemy workers.
+[10:02] P2 Crown's musket line has won the field: it forms up again and goes on.
+[10:05] P1 Crown meets the force at its buildings with a musket line: 5 muskets facing it, 0 gun(s) behind them.
+[10:15] P2 Crown's wave forms its musket line before the enemy army ahead (235): 8 muskets in 1 rank(s), 1 gun(s) behind them.
+[10:19] P1 Crown's picket sees a force coming (120, 2 soldiers) and rides back to warn the post.
+[10:26] P2 Crown's wave sends 1 Horseman/Horsemen ahead and to its flanks as a screen.
+[10:40] P2 Crown's wave halts out of reach of the enemy's base and forms its musket line: 10 muskets in 1 rank(s), 1 gun(s) behind them.
+[10:43] P1 Crown meets the force at its buildings with a musket line: 5 muskets facing it, 0 gun(s) behind them.
+[10:44] P2 Crown's musket line has won the field: it forms up again and goes on.
+[10:45] P2 Crown's wave meets the enemy before its line is formed: 10 muskets deploy into a line under fire.
+[11:01] P2 Crown's wave sends 2 Horseman/Horsemen ahead and to its flanks as a screen.
+[11:01] P2 Crown's musket line has won the field: it forms up again and goes on.
+[11:14] P1 Crown's Horseman goes after the enemy workers.
+[11:19] P2 Crown's wave forms its musket line before the enemy army ahead (115): 11 muskets in 1 rank(s), 1 gun(s) behind them.
+[11:30] P1 Crown expands while its base is still rich: more land, 23 tiles out.
+[11:30] P1 Crown plans a walled expansion.
+[11:35] P1 Crown's siege push goes out: 23 supply, 3 guns behind a line of Musketeers.
+[11:55] P2 Crown's wave sends 1 Horseman/Horsemen ahead and to its flanks as a screen.
