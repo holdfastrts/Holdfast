@@ -53,6 +53,10 @@
   OWNER 22:35: EVERY matchup coached and filmed with the same scrutiny: jobs crown-v-crown-coach, crown-v-clockwork-coach,
   clockwork-v-brood-coach, clockwork-v-clockwork-coach, brood-v-brood-coach (docs/<job>.md each). Six AI jobs at once:
   fixes kept small and gated by matchup; merge them one at a time and rerun the AI tests after each.
+  MERGED 2026-11-12: crown-v-crown-coach 0.33.17 (all gated to the mirror, AICrownMirror; Claude's choice 1: open its
+  fixes to the Crown's other matchups after a measured batch), crown-v-clockwork-coach 0.33.18 (the Clockwork now wins
+  10 of 16; OWNER QUESTIONS in its doc: the Crown earns less per worker than the Clockwork, 34 v 57 a minute at 10:00;
+  a Crown march with a formed line and guns is the next job; the Clockwork's fixes kept though they hurt the Crown).
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
