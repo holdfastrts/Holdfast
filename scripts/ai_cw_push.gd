@@ -102,6 +102,16 @@ var commit_on := not OS.get_cmdline_user_args().has("cwcommit:off")      # (`-- 
 ## (clockwork-army, scripts/ai_cw_army.gd: the army's own word before a push goes out: stronger than the enemy army it
 ## reckons, with a fresh report; an empty Callable = the plan's needs alone, as before)
 var gate := Callable()
+## (clockwork-v-clockwork-coach) THE CLOCKWORK'S HUNT IS ITS PUSH: set by AIClockwork._cw_hunt while the enemy has no army.
+## The push then goes out with whatever is at home, stays committed and goes for the enemy's nearest building of any kind.
+## (The shared hunt took the army off the push: the escort Winders stopped following it and it walked into the enemy's main
+## as a stream; 50 of 78 Clock Soldiers stood run down there, 119 tiles from home, at 14:02, Hollowfen mirror.)
+var hunt_on := false
+## (clockwork-v-clockwork-coach) THE MARCH DOES NOT WAIT FOR THE GREAT WINDER. It joins the push at once wherever it is
+## (clockwork-ai-v2) and sweeps wrecks on its way; the anchor waited for it to come within HEAVY_LAG of its spot. A committed
+## push of 30-36 stood 90 s at the enemy's natural while its Great Winder swept wrecks 2,275 px away, at home (Hollowfen
+## mirror, round 2, 10:30-12:00). It is unarmed: it catches up. `-- cwgwlag:off` plays it as before.
+var gw_nowait_on := not OS.get_cmdline_user_args().has("cwgwlag:off")
 
 
 func _init(a, settings: Dictionary) -> void:
@@ -203,6 +213,8 @@ func tick() -> void:
 				if u.kind == Defs.PENDULUM and not home.has(u):
 					why.append("pd%s r5%s hz%s w%.2f o%s" % [u.powered_down(), ai.r5.busy(u), ai.harass != null and ai.harass.has(u), u.wind, u.order])
 			print("PUSHDBG %d home %s supply %d need %s up %d army %d out %s" % [int(game.clock), str(kinds), ai._army_supply(home), str(cfg.get("need")), need_up, game.army(team).size(), str(why)])
+		if hunt_on and _hunt_launch(home):
+			return
 		if ready_now(home) and not ai.peaceful and game.clock >= float(cfg.get("not_before", 0.0)) and (not gate.is_valid() or gate.call(home)):
 			_launch(home)
 		return
@@ -210,6 +222,8 @@ func tick() -> void:
 	if _should_retreat():
 		return
 	_join()
+	if _hunt_parties():
+		return
 	_pick_goal()
 	if goal == Vector2.INF:
 		return
@@ -342,6 +356,8 @@ func _remember_brood() -> void:
 ## three or more were seen together), then the Mother; against the others the shared computer's target (an open
 ## expansion or economy building first, else the main: AI._enemy_base).
 func _pick_goal() -> void:
+	if _brk_e != null and is_instance_valid(_brk_e) and _brk_e.dead:
+		_break_note(null)
 	if goal_e != null and is_instance_valid(goal_e) and not goal_e.dead and (game.clock - path_t < REPATH or (committed and _commit_goal_kept())):
 		return
 	var old := goal
@@ -437,14 +453,17 @@ func _march() -> void:
 	var heavies: Array = units.filter(func(u: Unit) -> bool: return _heavy(u) or u.kind == Defs.GREAT_WINDER_KIND)
 	var at_r := _front_at(front.size())
 	var near_n := front.filter(func(u: Unit) -> bool: return u.position.distance_to(anchor) < at_r).size()
-	var at := front.is_empty() or float(near_n) >= float(front.size()) * 0.6
+	var at := front.is_empty() or float(near_n) >= float(front.size()) * 0.6 or hunt_on      # (hunting: no regrouping, see _hunt_launch)
 	var dir := _dir()
 	var lag := false
 	for h in heavies:
+		if h.kind == Defs.GREAT_WINDER_KIND and gw_nowait_on:
+			continue          # (clockwork-v-clockwork-coach: the march never waits for the Great Winder, see gw_nowait_on)
 		var back := (BACK_GW_V2 if ai.get("gw_sweep_on") == true else BACK_GW) if h.kind == Defs.GREAT_WINDER_KIND else BACK_BAL
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
-	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
+	lag = _lag_wait(lag, heavies, dir)
+	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0 or _goal_in_reach()
 	_leash(front)
 	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and ((not committed and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K))) or _value(units) < float(cfg.get("main_min", 0.0)) * (COMMIT_MAIN if committed else 1.0)):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
@@ -532,8 +551,12 @@ func _assault(front: Array) -> void:
 		return
 	_arrive_t = game.clock
 	if committed and tgt is Building:
+		_break_note(tgt)
+		var fixers := _break_fixers(tgt, front)
 		# (committed: the hall (or what is at the goal) is broken by everyone together, the Ballistas and the front)
 		for u in units:
+			if fixers.has(u):
+				continue
 			if _guards.has(u) or u.kind == Defs.GREAT_WINDER_KIND or not u.can_hit(tgt):
 				continue
 			if u.target != null and is_instance_valid(u.target) and not u.target.dead and u.target is Unit and u.position.distance_to(u.target.position) < 120.0:
@@ -674,7 +697,7 @@ func _fight(foes: Array) -> void:
 	# (not up a cliff: enemies on high ground the anchor is below are not chased up the ramp into their main; the line steps
 	# back out of their reach instead. 8 Clock Soldiers ran up a Crown ramp after 3 Musketeers and died there in 20 s,
 	# Greenhold 11 7:06)
-	var low := not game.on_high(anchor)
+	var low := not game.on_high(anchor) and not _climb_ok(foes)
 	var above: Array = foes.filter(func(o: Unit) -> bool: return low and game.on_high(o.position))
 	var close: Array = foes.filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) < SCREEN_R and not above.has(o))
 	if close.is_empty() and not above.is_empty():
@@ -796,7 +819,8 @@ func _siege_tick() -> bool:
 				_order(u, _centre(out_foes), true, 60.0)
 		_guard_ballistas(front, out_foes)
 	else:
-		_place_front(front, pc + from * SIEGE_FRONT, -from, false)
+		var fx := _siege_fixers(front)        # (clockwork-v-clockwork-coach: the menders of a building under siege first)
+		_place_front(front.filter(func(u: Unit) -> bool: return not fx.has(u)), pc + from * SIEGE_FRONT, -from, false)
 	var bi := 0
 	for b in bals:
 		var off := (float(bi % 3) - 1.0) * 50.0
@@ -1039,8 +1063,14 @@ func _commit_check() -> void:
 	if not commit_on or phase == "back":
 		committed = false
 		return
+	if hunt_on:
+		if not committed:
+			committed = true          # (the hunt: the enemy has no army, nothing to weigh)
+			path_t = -99.0
+			goal_e = null
+		return
 	var v := _value(units)
-	var rk: float = ai.army_g.reckon() if ai.get("army_g") != null and ai.army_g != null else 0.0
+	var rk: float = ai.army_g.reckon(true) if ai.get("army_g") != null and ai.army_g != null else 0.0      # (all kills: ai_cw_army._killed_for_reckon)
 	var mem := foe_mem()
 	var near := _value(_foes_near(_front_centre(), LOOK + 120.0))
 	# (once committed it stays so down to AHEAD_KEEP times: a fight's numbers going up and down made it flip every few seconds)
@@ -1061,6 +1091,8 @@ func _commit_check() -> void:
 ## the nearest to the anchor, the goal swapped between two halls as the anchor moved and the push walked to and fro
 ## (Cinder Steps mirror, 9:35-13:01).
 func _commit_goal_kept() -> bool:
+	if hunt_on and goal_e is Building:
+		return true
 	if goal_e is Building:
 		return (goal_e as Building).kind == game.faction_hall(foe)
 	return goal_e is Unit and (goal_e as Unit).kind == "brood_mother"
@@ -1069,6 +1101,8 @@ func _commit_goal_kept() -> bool:
 ## (clockwork-ai-v2) Committed: the goal is the enemy's nearest hall (the Brood: its Mother, kill her and the game is won).
 ## False when there is none (the usual goals then).
 func _commit_goal() -> bool:
+	if hunt_on and _hunt_goal():
+		return true
 	if _vs_brood():
 		var q = BroodNew.queen(game, foe)
 		if q != null and is_instance_valid(q) and not q.dead:
@@ -1097,3 +1131,248 @@ func _commit_goal() -> bool:
 ## soldier near it): in a fight and at a siege too, not only on the march.
 func _gw_busy(h: Unit) -> bool:
 	return ai.get("gw_sweep_on") == true and ai.gw_tend(h, _front_centre(), -_dir())
+
+
+## (clockwork-v-clockwork-coach) The hunt: the push goes out at once with what is at home (MIN_LEFT fighters or more).
+## Hunting, the anchor does not wait for 60% of the front to gather at it (CwPush._march): there is no army to meet, and a
+## front of 57 after a hall stood regrouping with 13 at its anchor (Greenhold mirror, round 3, 13:03-13:33).
+func _hunt_launch(home: Array) -> bool:
+	var fighters: Array = home.filter(func(u: Unit) -> bool: return _front_kind(u) or _heavy(u))
+	if fighters.size() < MIN_LEFT or ai.peaceful:
+		return false
+	_launch(home)
+	say("hunts: the enemy has no army left: the push goes for its last buildings, its Winders along")
+	return true
+
+
+## (clockwork-v-clockwork-coach) The hunt's goal: the enemy's hall nearest the anchor, then its nearest building of any
+## kind (a side with no building left is out at once), then its nearest worker, then any unit of its.
+func _hunt_goal() -> bool:
+	var best: Entity = null
+	var bd := INF
+	var hall_kind: String = game.faction_hall(foe)
+	for b in game.buildings:
+		if b.team != foe or b.dead or b.ghost:
+			continue
+		# (its HALLS first: the Winders work round them and a hall makes new ones; a side is beaten once it has no
+		# worker, soldier or means left. Hollowfen: the hunt broke the main's small buildings one by one while 32 Winders
+		# kept the enemy's other three Clocktowers going to 15:00)
+		var dd: float = b.center().distance_to(anchor) + (0.0 if b.kind == hall_kind else 3000.0)
+		if dd < bd:
+			bd = dd
+			best = b
+	for u in game.units:
+		if u.team != foe or u.dead or u.off_field:
+			continue
+		# (units only after every building: a side with no building left is out at once, whatever units it has; with
+		# buildings it is beaten only once it has no worker, soldier or means left for a minute)
+		var dd2: float = u.position.distance_to(anchor) + (6000.0 if u.is_worker() else 8000.0)
+		if dd2 < bd:
+			bd = dd2
+			best = u
+	if best == null:
+		return false
+	goal_e = best
+	goal = best.center() if best is Building else (best as Unit).position
+	return true
+
+
+## (clockwork-v-clockwork-coach) THE MENDERS FIRST. A Clocktower under attack is mended by every Winder near it (the repair
+## autocast); against the Clockwork the committed push broke a hall in 60-77 s while its Winders stood mending it, and kept
+## them. Now, at a building it breaks, up to BREAK_FIX_N of the front go for the enemy Winders within BREAK_FIX_R of it
+## (the nearest first, two at most on one), the rest break the building. Against the Clockwork only (the mirror's coaching;
+## the Crown's labourers mend too, a later look). `-- cwfixers:off` plays it as 0.33.16.
+const BREAK_FIX_R := 220.0
+const BREAK_FIX_N := 0.4
+var fixers_on := not OS.get_cmdline_user_args().has("cwfixers:off")
+var _fixer_of := {}             # front Unit -> the enemy Winder it was sent at
+
+
+func _break_fixers(tgt: Building, front: Array) -> Dictionary:
+	var out := {}
+	for u in _fixer_of.keys():
+		var w = _fixer_of[u]
+		if not is_instance_valid(u) or u.dead or not is_instance_valid(w) or w.dead or w.position.distance_to(tgt.center()) > BREAK_FIX_R + 120.0:
+			_fixer_of.erase(u)
+	if not fixers_on or foe < 0 or game.faction_of(foe) != "clockwork":
+		return out
+	var ws: Array = []
+	for o in game.units_near(tgt.center(), BREAK_FIX_R):
+		if o.team == foe and not o.dead and not o.off_field and o.is_worker():
+			ws.append(o)
+	if ws.is_empty():
+		for u in _fixer_of.keys():
+			out[u] = true
+		return out
+	var cap := maxi(1, int(float(front.size()) * BREAK_FIX_N))
+	var per := {}
+	for u in _fixer_of.keys():
+		per[_fixer_of[u]] = int(per.get(_fixer_of[u], 0)) + 1
+		out[u] = true
+	ws.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.distance_to(_front_centre()) < b.position.distance_to(_front_centre()))
+	var free: Array = front.filter(func(u: Unit) -> bool: return not _fixer_of.has(u) and not _guards.has(u))
+	for w in ws:
+		if _fixer_of.size() >= cap:
+			break
+		while int(per.get(w, 0)) < 2 and _fixer_of.size() < cap and not free.is_empty():
+			free.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.distance_to(w.position) < b.position.distance_to(w.position))
+			var u: Unit = free.pop_front()
+			if not u.can_hit(w):
+				continue
+			_fixer_of[u] = w
+			per[w] = int(per.get(w, 0)) + 1
+			out[u] = true
+			u.cmd_attack(w)
+	if not out.is_empty():
+		_note_once("fixers", "goes for the %d Winders mending the %s first" % [ws.size(), String(tgt.d["name"])], 30.0)
+	return out
+
+
+## (clockwork-v-clockwork-coach) how long the committed push takes to break a building at its goal (said when it falls)
+var _brk_e: Building = null
+var _brk_t := 0.0
+
+
+func _break_note(tgt: Building) -> void:
+	if _brk_e != null and is_instance_valid(_brk_e) and _brk_e.dead:
+		say("the %s at its goal falls after %d s" % [String(_brk_e.d["name"]), int(game.clock - _brk_t)])
+		stats["breaks"] = int(stats.get("breaks", 0)) + 1
+		_brk_e = null
+	if _brk_e != tgt:
+		_brk_e = tgt
+		_brk_t = game.clock
+
+
+## (clockwork-v-clockwork-coach) A FEW ON THE CLIFF DO NOT HOLD A WINNING PUSH. The line steps back out of reach of enemies
+## shooting down from high ground (made against the Crown's Musketeers on a ramp). In the mirror one Clock Soldier or a
+## Springer on the cliff kept a committed push of 44-60 units at the foot of the enemy's main for minutes (Greenhold mirror,
+## 10:03-11:26, 4,360 value against 70). Committed against the Clockwork and worth CLIMB_K times what stands up there, it
+## goes on up. `-- cwclimb:off` plays it as 0.33.16.
+const CLIMB_K := 4.0
+var climb_on := not OS.get_cmdline_user_args().has("cwclimb:off")
+
+
+func _climb_ok(foes: Array) -> bool:
+	if not climb_on or not committed or foe < 0 or game.faction_of(foe) != "clockwork":
+		return false
+	var up := foes.filter(func(o: Unit) -> bool: return game.on_high(o.position))
+	return _value(units) >= _value(up) * CLIMB_K
+
+
+## (clockwork-v-clockwork-coach) At a siege of a building that is no wall (a Clocktower at the goal: "the Ballistas lay
+## siege"), the front screening the Ballistas sends its share at the Winders mending it (_break_fixers). Two Ballistas at a
+## mended Clocktower in the enemy's main for 79 s did not break it (Dune Sea mirror, 7:41-9:00).
+func _siege_fixers(front: Array) -> Dictionary:
+	if piece == null or piece.kind == "wall" or piece.kind == "gate" or piece.kind == "cottage":
+		return {}
+	_break_note(piece)
+	return _break_fixers(piece, front)
+
+
+## (clockwork-v-clockwork-coach) A COMMITTED PUSH WAITS FOR ITS BALLISTAS LAG_MAX s AT MOST. They lagged because they were
+## shooting a building 550 px off the way (the attack order of the last goal), and the whole front, every one at its
+## anchor, stood still for a minute (Hollowfen mirror, round 2, 13:32-14:02). After LAG_MAX s the lagging ones are walked to
+## their spot (a plain move: they stop shooting elsewhere) and the march goes on. Against the Clockwork only.
+const LAG_MAX := 12.0
+var _lag_t := -1.0
+
+
+func _lag_wait(lag: bool, heavies: Array, dir: Vector2) -> bool:
+	if not lag or not committed or not gw_nowait_on or foe < 0 or game.faction_of(foe) != "clockwork":
+		_lag_t = -1.0
+		return lag
+	if _lag_t < 0.0:
+		_lag_t = game.clock
+	if game.clock - _lag_t < LAG_MAX:
+		return true
+	for h in heavies:
+		if _heavy(h) and h.position.distance_to(anchor - dir * BACK_BAL) > HEAVY_LAG:
+			_order(h, anchor - dir * BACK_BAL, false, 60.0)
+	_note_once("lagwait", "does not wait for its Ballistas any more: they walk to it, the march goes on", 30.0)
+	return false
+
+
+## (clockwork-v-clockwork-coach) THE GOAL IN REACH IS THE GOAL REACHED. Committed against the Clockwork, a building goal
+## within GOAL_NEAR of the anchor counts as reached: the whole push breaks it (and goes for its menders) at once. The march
+## waits for 60% of the front at its anchor, and with the goal that near, half the front was already at it, shooting it on
+## its attack-move: the anchor stood 360 px short of a Clocktower for two minutes with 32 soldiers, 16 at the anchor
+## (Kestrel Rise mirror, round 3, 8:32-10:18). `-- cwreach:off` plays it as before.
+const GOAL_NEAR := 420.0
+var reach_on := not OS.get_cmdline_user_args().has("cwreach:off")
+
+
+func _goal_in_reach() -> bool:
+	if not reach_on or not committed or foe < 0 or game.faction_of(foe) != "clockwork":
+		return false
+	return goal_e is Building and is_instance_valid(goal_e) and not goal_e.dead and anchor.distance_to(goal) < GOAL_NEAR
+
+
+## (clockwork-v-clockwork-coach) HUNTING PARTIES. Hunting with every enemy hall gone, the block chased the last Winders one
+## at a time across the map: Hollowfen mirror, round 4, the enemy had no hall, no army and no cogs from 13:08, and 11 of its
+## Winders were still alive at 15:00 (a draw; a side is beaten once it has no worker left, or no means for a minute).
+## Now against the Clockwork and the Crown (a Crown v Clockwork check game, Greenhold: the Crown's last Town Hall fell at
+## 14:30 and its last buildings, its Cottages and palisades, stood to 15:00), hunting with no enemy hall left, the front (the Ballistas too) splits into parties of up to
+## PARTY_N, each sent at one of the enemy's last buildings (a side with no building left is out at once), then at its last
+## units (its Winders first), the nearest first. (A first version went for the Winders before the buildings: the Winders
+## outran their hunters, the buildings stood, 5 of 16 measured games ended in a draw with one side beaten in all but name.)
+const PARTY_N := 4
+var _party_of := {}             # front Unit -> the enemy building or unit it hunts
+
+
+func _hunt_parties() -> bool:
+	if not hunt_on or foe < 0 or game.faction_of(foe) == "brood":      # (the Brood lives while its Mother does: the push's own goal)
+		_party_of.clear()
+		return false
+	var hall_kind: String = game.faction_hall(foe)
+	var blds: Array = []
+	for b in game.buildings:
+		if b.team == foe and not b.dead and not b.ghost:
+			if b.kind == hall_kind:
+				_party_of.clear()
+				return false
+			blds.append(b)
+	# (the targets: every building left (a side with none left is out at once), then its units, Winders first)
+	var units_left: Array = game.units.filter(func(u: Unit) -> bool: return u.team == foe and not u.dead and not u.off_field)
+	units_left.sort_custom(func(a: Unit, b: Unit) -> bool: return a.is_worker() and not b.is_worker())
+	var prey: Array = blds + units_left
+	var front: Array = units.filter(func(u: Unit) -> bool: return _front_kind(u) or _heavy(u))
+	for u in _party_of.keys():
+		if not is_instance_valid(u) or u.dead or not front.has(u) or not is_instance_valid(_party_of[u]) or _party_of[u].dead:
+			_party_of.erase(u)
+	var per := {}
+	for u in _party_of:
+		per[_party_of[u]] = int(per.get(_party_of[u], 0)) + 1
+	var free: Array = front.filter(func(u: Unit) -> bool: return not _party_of.has(u))
+	# (the last few: everyone goes, split evenly; at a unit the shooters and Netters first: a Winder runs 74 against a Clock
+	# Soldier's 68, and the last one or two outran their party of soldiers to 15:00 in two of the measured games)
+	var n_per := PARTY_N if prey.size() > 6 else maxi(PARTY_N, ceili(float(front.size()) / float(maxi(1, prey.size()))))
+	for e in prey:
+		while int(per.get(e, 0)) < n_per and not free.is_empty():
+			free.sort_custom(func(a: Unit, b: Unit) -> bool: return _party_score(a, e) < _party_score(b, e))
+			var u: Unit = free.pop_front()
+			if not u.can_hit(e):
+				continue
+			_party_of[u] = e
+			per[e] = int(per.get(e, 0)) + 1
+	for u in _party_of:
+		var e: Entity = _party_of[u]
+		if u.target != e:
+			u.cmd_attack(e)
+	for u in free:
+		if u.order == "idle" and not blds.is_empty():
+			u.cmd_attack(blds[0])
+	if not prey.is_empty():
+		_note_once("parties", "hunts in parties: %d after its last %d buildings and %d units" % [_party_of.size(), blds.size(), units_left.size()], 30.0)
+		if OS.get_cmdline_user_args().has("partydebug") and units_left.size() <= 3 and blds.is_empty():
+			for e in units_left:
+				print("PARTY %d %s at %s air %s order %s hp %d hunters %d" % [int(game.clock), e.kind, str(game.cell_of(e.position)), str(e.is_air()), e.order, int(e.hp), int(per.get(e, 0))])
+	return true
+
+## (clockwork-v-clockwork-coach) who goes after a fleeing unit first: the nearest, the shooters (Springers) and the Netters
+## as if 500 px nearer
+func _party_score(u: Unit, e: Entity) -> float:
+	var at: Vector2 = e.center() if e is Building else (e as Unit).position
+	var d := u.position.distance_to(at)
+	if e is Unit and (float(u.d.get("range", 0.0)) >= 100.0 or u.kind == "netter"):
+		d -= 500.0
+	return d

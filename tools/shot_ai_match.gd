@@ -85,8 +85,8 @@ func _initialize() -> void:
 			"noopen": noopen = kv[1] == "1"
 			"da": da = kv[1]
 			"db": db = kv[1]
-			"pa": pa = kv[1]
-			"pb": pb = kv[1]
+			"pa", "sa": pa = kv[1]      # (sa:/sb: clockwork-v-clockwork-coach's names for the same)
+			"pb", "sb": pb = kv[1]
 			"every": every = float(kv[1])
 			"coach": coach = kv[1] == "1"
 			"gap": gap_n = float(kv[1])
