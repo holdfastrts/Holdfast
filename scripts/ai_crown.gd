@@ -2901,7 +2901,10 @@ func _cc_keep_wave(army: Array, spots: Array) -> Array:
 	cc_wave_kept += 1
 	if game.clock - _cc_wave_said > 60.0:
 		_cc_wave_said = game.clock
-		say("its wave stays out: a raid worth %d at home is left to the soldiers there (the wave is worth %d)" % [int(raid), int(wv)])
+		if raid <= 0.0:
+			say("its wave stays out: only scouts by its buildings at home (the wave is worth %d)" % int(wv))
+		else:
+			say("its wave stays out: a raid worth %d at home is left to the soldiers there (the wave is worth %d)" % [int(raid), int(wv)])
 	# (the wave's own think does not run while the threat holds the army's think: an idle one walks on to the target)
 	_wave_target = _enemy_base()
 	for u in wave:

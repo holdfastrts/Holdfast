@@ -1,6 +1,16 @@
 # crown-v-clockwork-coach: Crown v Clockwork, coached and filmed
 
-(Work in progress: this file grows with each coaching round.)
+**In short.** Six coaching rounds on five maps (films of every 30 s of each main and army, the match logs, the AI STORY),
+then 16 measuring games before and after. Named and fixed, each gated by the matchup: for the Crown, the wave that walked
+home from a won fight for one raider (it stays out now), horses that went to riders while the Foundry waited (the guns
+first: the first Field Cannon at 4:30-8:40 instead of 13:25), a rush read that bought tech with no army (soldiers first),
+an idle line above a natural under attack (the cliff edge until the gate post), labourers that "the army first" stopped
+for good (the Farms first while the army holds half); for the Clockwork, a reckoning of the Crown's army at half its
+size (first pushes of 8 Clock Soldiers into musket lines) and a bank that slept in the written builds (1,186 cogs at
+5:00). A two-hall Timing for the Crown was built, measured and turned off (0 of 6 won or led). Result: the Clockwork now
+decides 12 of 16 games (7 before) and wins 10 (6); the Crown won or led 2 of 16 before and after, its first attacks kill
+more, but its income is still 0.65 of the Clockwork's at 8:00, and that, with the per-worker yield (a balance question
+for the owner, below), is what decides this matchup.
 
 The owner (2026-11-11 22:35) asked for every matchup coached and filmed with the scrutiny of the Crown v Brood job. This
 job is Crown v Clockwork: Hard OPTIMAL v Hard OPTIMAL, filmed (tools/shot_ai_match.gd, now with `pa:`/`pb:` plans and
@@ -274,3 +284,28 @@ worked by 10:00): the one-hall Timing's natural comes late and its Farms wait fo
    scouting always allowed.
 6. **The Clockwork's reckoning of a Crown** is now the lower quartile of 16 games' Crown armies; if the Crown computer
    changes a lot (the other coaching jobs), this row should be measured again.
+
+## Pictures (docs/shots/crown-v-clockwork-coach/)
+
+- `r1_kestrel_wave_goes_home.gif`: Kestrel Rise before, 7:02-9:02 every 30 s: the Crown's wave at the Clockwork's new
+  Clocktower, then back home with the Clockwork's army at 350.
+- `ba_kestrel_wave_after_the_clocktower.jpg`: the same seed, before (8:32, home) and after (8:02, still out with three
+  Field Cannons and the wagon; the Clocktower fell at 7:50).
+- `ba_kestrel_natural_defence.jpg`: round 4 (the natural burns, the line idle in the Farm above) and round 5 (the line at
+  the cliff edge from 6:01; the natural still fell, at 7:12).
+- `ba_greenhold_0632_crown_main.jpg`: Greenhold 6:32 before (one hall) and with the two-hall Timing (turned off later).
+- Round 1 stills: `r1_greenhold_0706_waves_meet.jpg`, `r1_hollowfen_0650_column_meets_push.jpg` (the Crown's strung-out
+  waves), `r1_kestrel_0628_cw_push_under_muskets.jpg` (the Clockwork's too-small first push at the Crown's ramp),
+  `r1_kestrel_0720_cw_army_shot_on_its_gears.jpg`, `r1_dune_0502_cw_bank_1186.jpg`,
+  `r1_greenhold_sw_0532_crown_tech_no_army.jpg` (the rush read buying tech, Farms at 2 of 8 hands),
+  `r1_kestrel_0802_...` and `r1_kestrel_0832_...`, `r4_kestrel_0654_natural_burns_line_idle.jpg`.
+
+The films themselves (about 100 stills a game) were not kept in the repository; `/tmp/cc/bin/film.sh`'s command is
+`xvfb-run -a godot --rendering-driver opengl3 --resolution 1280x720 --fixed-fps 30 --script res://tools/shot_ai_match.gd
+-- a:crown b:clockwork pa:optimal pb:optimal map:kestrel_rise seed:1131 swap:0 out:/abs/dir end:900 every:30`.
+
+## The AI STORY
+
+New narrator rows (scripts/ai_story_lines.gd, pt/es in tools/i18n/61_crcw_coach.txt): the Crown's wave staying out (for
+scouts, or a raid left to the soldiers at home), the Farms first, a milestone held back by a rush read, and the
+Clockwork's idle cogs put into Clock Soldiers. The rows were checked against real log lines (AIStoryLines.match_line).
