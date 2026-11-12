@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.26", "items": [
+		"THE FREE ASSEMBLY'S NEW DRAWINGS (campaign mission 1): the torch-bearer seen from behind walks, stands, sets fire and falls with his one torch in his hand (it used to come and go, or sit on his hat); Etienne Varenne walking or standing north now shows his back, not his face, and he waits calmly with his hands down instead of raising his fist.",
+		"The rebel pikemen level their pikes and thrust with their own whole pike when they face south, south-east, east and north-east (they were one man moved back and forth), and facing south they now turn toward us instead of showing their side.",
+	]},
 	{"v": "0.33.25", "items": [
 		"THE CROWN COMPUTER SCREENS ITS LINE WITH HORSEMEN (docs/crown_rider_screen.md): when its wave marches, two to four Horsemen ride ahead of it along its road and out on its flanks. What they see, its line knows: the wave halts out of reach and forms its line of Musketeers with the guns behind, facing the enemy, before it walks into it (before, the enemy was first seen at contact, a musket's sight). The riders keep out of reach of what can catch or shoot them; at contact they pull back round the ends of the line, out of its fire, and work the flanks: enemy workers, the hurt, stragglers and scouts, and what comes at the guns.",
 		"At home a Horseman stands as a PICKET on the road in front of the army's post (the natural's gate, the cliff edge or the ramp's top) and rides back with a warning when an enemy force comes. The Barracks train a rider for the screen and the picket when none is free. The Horseman rush, the raids and the Balloon harass keep their own riders; no unit or economy number changed.",

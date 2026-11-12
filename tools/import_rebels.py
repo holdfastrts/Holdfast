@@ -54,6 +54,45 @@ ROW_RULE = {"aim": "left", "fire": "left", "brace": "left", "attack": "left", "t
 PICK = {
 	("rebel_militia", "idle"): {"e": [0, 1]},      # the e group's idle has two pairs: the first is the side view
 }
+# REDRAWS (rebel-art-2, docs/rebel_art.md): the owner's later sheets, each drawing a few rows for some directions; their
+# frames REPLACE those rows of the main sheet (rows[row][dir]). A sheet: (name, scale reference, sole rule, boxes);
+# a figure goes to the first box holding its (body middle x, sole y) in sheet px: (row, dir, x0, x1, y0, y1, pick).
+# The scale reference: ("idle", body_h) = hat to soles of that row's figures; ("match", art row, rows) = the hat to
+# soles (in game px) of the main sheet's men in that art row, measured on this sheet's men of the given rows.
+# The sole: "dark" = the lowest row with 6+ dark pixels (boots); a number = the lowest row with that many drawn pixels
+# (a pike pointing down past the boots is narrower than a pair of boots).
+REDRAWS = {
+	"rebel_torch": [
+		# the torch-bearer from behind: one torch in every frame (problem 3)
+		("torchbearer_n", ("idle", 30), "dark", [
+			("idle", "n", 0, 9999, 0, 300, [0, 1]), ("walk", "n", 0, 9999, 300, 600, None),
+			("setfire", "n", 0, 9999, 600, 850, None), ("thrust", "n", 0, 9999, 850, 1100, None),
+			("death", "n", 0, 9999, 1100, 1300, None)]),
+	],
+	"rebel_varenne": [
+		# Varenne from behind (problem 2, north): the walk's third frame turns side-on (unused); the bottom line (meant as
+		# calm idles for the other directions, drawn as back views again) is not used
+		("varenne_n", ("idle", 31), "dark", [
+			("idle", "n", 0, 9999, 0, 280, None), ("walk", "n", 0, 9999, 280, 460, [0, 1]),
+			("shout", "n", 0, 9999, 460, 650, None), ("pistol", "n", 0, 9999, 650, 830, None),
+			("sabre", "n", 0, 9999, 830, 1000, None), ("death", "n", 0, 9999, 1000, 1250, None)]),
+		# his calm idles, hands down (problem 2, the raised fist): s, se, e, ne
+		("varenne_idles", ("idle", 31), "dark", [
+			("idle", "s", 0, 380, 0, 9999, None), ("idle", "se", 380, 760, 0, 9999, None),
+			("idle", "e", 760, 1150, 0, 9999, None), ("idle", "ne", 1150, 9999, 0, 9999, None)]),
+	],
+	"rebel_pikeman": [
+		# levelled pike (top row: e, ne, n, nw, w) and thrust (2 x 2 per direction) with room between the men (problem
+		# 4): e and ne used; the n men face us (not a back view) and nw, w are the game's mirrors
+		("pikeman_thrust", ("match", "brace", ["brace2"]), "dark", [
+			("brace2", "e", 0, 300, 0, 500, None), ("brace2", "ne", 300, 600, 0, 500, None),
+			("thrust2", "e", 0, 330, 500, 9999, None), ("thrust2", "ne", 330, 650, 500, 9999, None)]),
+		# the south and south-east, facing us (problem 1 for the pike rows)
+		("pikeman_thrust_s", ("match", "brace", ["brace2"]), 30, [
+			("brace2", "s", 0, 700, 0, 500, None), ("brace2", "se", 700, 9999, 0, 500, None),
+			("thrust2", "s", 0, 760, 500, 9999, None), ("thrust2", "se", 760, 9999, 500, 9999, None)]),
+	],
+}
 BIG = 1100            # sheet px: a piece this big is (part of) a man
 ATTACH = 26           # sheet px: a small piece this close to a man is his (a flash, a flame, a pike's tip)
 BODY_COL = 22         # sheet px: a column at least this tall in a piece is a man's body
@@ -340,7 +379,8 @@ def cut_sheet(art):
 		img = np.zeros((h, w, 4), np.uint8)
 		img[..., :3] = px[y0:y0 + h, x0:x0 + w]
 		img[..., 3] = np.where(mask, 255, 0)
-		rows[anim][DIRS5[g]].append({"img": img, "x0": x0, "y0": y0, "cx": f["cx"] - x0, "sx": f["cx"]})
+		rows[anim][DIRS5[g]].append({"img": img, "x0": x0, "y0": y0, "cx": f["cx"] - x0, "sx": f["cx"],
+			"sole": f["sole"] - y0})
 	for a in anims:
 		for d in DIRS5:
 			rows[a][d].sort(key=lambda e: e["sx"])
@@ -359,10 +399,82 @@ def cut_sheet(art):
 
 
 def small_of(e, scale):
+	scale = e.get("scale", scale)
 	s = shrink(e["img"], scale, 0.4)
 	s = unteam(clean(s))
+	if "dsole" in e:
+		# a redraw: the soles found on the sheet (a pike may reach below them)
+		return s, e["cx"] * scale, int(round((e["dsole"] + 0.5) * scale - 0.5))
 	ys = np.nonzero(s[..., 3].any(1))[0]
 	return s, e["cx"] * scale, (ys.max() if len(ys) else s.shape[0] - 1)
+
+
+def height(e):
+	"""hat to soles of a cut man, sheet px"""
+	sole = e.get("dsole")
+	if sole is None:
+		sole = np.nonzero(e["img"][..., 3].any(1))[0].max()
+	return sole - hat_top(e["img"]) + 1
+
+
+def cut_redraw(name, sole_rule, boxes):
+	"""the men of a redraw sheet (separate figures, no overlaps): {(row, dir): [entries]} in box order, by x"""
+	px, fg, _bg = load(name)
+	lab, n = ndimage.label(fg, structure=np.ones((3, 3)))
+	objs = ndimage.find_objects(lab)
+	sizes = ndimage.sum(fg, lab, range(1, n + 1))
+	figs, small = [], []
+	for i, o in enumerate(objs):
+		m = lab[o] == i + 1
+		if sizes[i] < 6 or is_smoke(px[o], m):
+			continue
+		if sizes[i] < BIG:
+			small.append((o, m))
+			continue
+		dark = m & (px[o].mean(-1) < 90)
+		ys, xs = np.nonzero(dark)
+		if sole_rule == "dark":
+			sole = np.nonzero(dark.sum(1) >= 6)[0].max()
+		else:
+			sole = np.nonzero(m.sum(1) >= sole_rule)[0].max()
+		figs.append({"o": o, "m": m, "own": m, "cx": o[1].start + xs.mean(), "sole": o[0].start + sole})
+	attach(px, figs, small)
+	out = {}
+	for f in figs:
+		box = next((b for b in boxes if b[2] <= f["cx"] < b[3] and b[4] <= f["sole"] < b[5]), None)
+		if box is None:
+			continue
+		mask, (x0, y0) = assemble(px, f)
+		h, w = mask.shape
+		img = np.zeros((h, w, 4), np.uint8)
+		img[..., :3] = px[y0:y0 + h, x0:x0 + w]
+		img[..., 3] = np.where(mask, 255, 0)
+		out.setdefault((box[0], box[1]), []).append({"img": img, "x0": x0, "y0": y0, "cx": f["cx"] - x0,
+			"sx": f["cx"], "dsole": f["sole"] - y0})
+	for b in boxes:
+		es = sorted(out.get((b[0], b[1]), []), key=lambda e: e["sx"])
+		assert es, (name, b)
+		if b[6] is not None:
+			es = [es[i] for i in b[6]]
+		out[(b[0], b[1])] = es
+	return out
+
+
+def apply_redraws(art, rows, scale):
+	for name, ref, sole_rule, boxes in REDRAWS.get(art, []):
+		got = cut_redraw(name, sole_rule, boxes)
+		if ref[0] == "idle":
+			hs = [height(e) for (r, _d), es in got.items() if r == "idle" for e in es]
+			k = ref[1] / float(np.median(hs))
+		else:
+			main = [height(e) * scale for d in DIRS5 for e in rows[ref[1]][d]]
+			hs = [height(e) for (r, _d), es in got.items() if r in ref[2] for e in es]
+			k = float(np.median(main)) / float(np.median(hs))
+		print(art, name, "hat to soles (sheet px)", sorted(int(h) for h in hs), "scale %.4f" % k)
+		for (r, d), es in got.items():
+			for e in es:
+				e["scale"] = k
+			rows.setdefault(r, {dd: [] for dd in DIRS5})[d] = es
 
 
 def place(frames, cell, anchor):
@@ -396,13 +508,18 @@ BUILD = {
 	"rebel_pikeman": {
 		# the sheet draws each row's men overlapping (a pike runs over the next man): only the LAST man of a brace or
 		# attack row keeps his whole pike, so the thrust is that man moved: drawn back, then lunging
-		"idle": [("idle", None)], "walk": [("walk", None)], "brace": [("brace", [-1])],
-		"attack": [("attack", [(-1, -7), (-1, -4), (-1, 1), (-1, 5), (-1, 2)])], "death": [("death", None)],
+		"idle": [("idle", None)], "walk": [("walk", None)], "death": [("death", None)],
+		# the redraw (pikeman_thrust*_chatgpt.png) for s, se, e, ne: levelled pike, then the thrust by reach
+		"brace": [("brace2", None)], "attack": [("thrust2", "reach")],
+		# STAND-IN for n (the redraw's n men face us): the main sheet draws each row's men overlapping (a pike runs over
+		# the next man), so only the LAST man of a brace or attack row keeps his whole pike: that man moved
+		"brace@n": [("brace", [-1])],
+		"attack@n": [("attack", [(-1, -7), (-1, -4), (-1, 1), (-1, 5), (-1, 2)])],
 	},
 	"rebel_torch": {
 		"idle": [("idle", None)], "walk": [("walk", None)], "death": [("death", None)],
-		# (the n group's walk and setting fire lose or double the torch from frame to frame in the sheet: STAND-INS)
-		"walk@n": [("walk", [1, (1, 0, 1)])], "mine@n": [("idle", None)],
+		# (n: the redraw torchbearer_n_chatgpt.png, from behind, replaces the main sheet's n rows; build n stays the
+		# main sheet's crouch)
 		"mine@se": [("setfire", [0]), ("thrust", None)],     # (the se group's second and third: the torch flies off)
 		"mine": [("setfire", None), ("thrust", None)],      # setting fire: raise the torch, thrust it in
 		"build": [("crouch", None)],                         # STAND-IN: the crouch row
@@ -412,6 +529,15 @@ BUILD = {
 		"aim": [("pistol", [0])], "fire": [("pistol", "rest")], "melee": [("sabre", None)], "death": [("death", None)],
 	},
 }
+
+
+def reach(e):
+	"""how far a man's weapon reaches: the farthest drawn pixel from the middle of his dark pixels, sheet px"""
+	a = e["img"][..., 3] > 0
+	ys, xs = np.nonzero(a)
+	dk = a & (e["img"][..., :3].astype(int).mean(-1) < 90)
+	cy = np.nonzero(dk)[0].mean()
+	return float(np.sqrt((xs - e["cx"]) ** 2 + (ys - cy) ** 2).max())
 
 
 def build(art, rows, scale):
@@ -430,6 +556,10 @@ def build(art, rows, scale):
 					fr += es
 				elif idx == "rest":
 					fr += es[1:] if len(es) > 1 else es
+				elif idx == "reach":
+					# a thrust: least reach first, the longest lunge, then the second longest (the recovery)
+					order = sorted(es, key=reach)
+					fr += order[:-2] + order[-1:] + order[-2:-1] if len(order) > 2 else order
 				else:
 					for i in idx:
 						i, dx, dy = (i, 0, 0) if isinstance(i, int) else (tuple(i) + (0,))[:3]
@@ -442,14 +572,16 @@ def build(art, rows, scale):
 					out[(anim, d)].append((sm, cx - e.get("dx", 0), sole - e.get("dy", 0)))
 	# the cell: room for every frame around the anchor
 	left = right = up = 0
+	down = GROUND_PAD
 	for frs in out.values():
 		for s, cx, sole in frs:
 			left = max(left, int(np.ceil(cx)) + 1)
 			right = max(right, s.shape[1] - int(np.floor(cx)) + 1)
 			up = max(up, sole + 2)
+			down = max(down, s.shape[0] - 1 - sole + 1)      # (a pike pointing down past the soles)
 	half = max(left, right)
-	cell = (2 * half + (2 * half) % 2, up + GROUND_PAD)
-	anchor = (cell[0] // 2, cell[1] - GROUND_PAD)
+	cell = (2 * half + (2 * half) % 2, up + down)
+	anchor = (cell[0] // 2, cell[1] - down)
 	strips = {k: place(v, cell, anchor) for k, v in out.items()}
 	return strips, cell, anchor
 
@@ -490,6 +622,7 @@ def main():
 	entries = []
 	for art in SHEETS:
 		rows, scale = cut_sheet(art)
+		apply_redraws(art, rows, scale)
 		strips, cell, anchor = build(art, rows, scale)
 		print(art, "cell", cell, "anchor", anchor)
 		d = "assets/units/%s" % art
