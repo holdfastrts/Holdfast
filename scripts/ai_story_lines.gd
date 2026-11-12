@@ -130,6 +130,14 @@ const RULES := [
 	# ---- defence
 	# (crown-ai-v2: the numbers said the opposite, "the force below (484) is more than its army (820) can beat", 205 lines in the
 	# QA study: the army goes down only with an edge over the force, AICrownHold._beat; the line says so)
+	# ---- THE CROWN MIRROR (crown-v-crown-coach, scripts/ai_crown_mirror.gd)
+	["^'s wave strung out on the march: (\\d+) men [\\d.]+ tiles apart close up", "%s's wave was strung out on the march: its %s men close up before they go on.", 1, "attack"],
+	["^'s wave forms up before the enemy army ahead \\((\\d+)\\): (\\d+) men", "%s's wave forms up before the enemy army ahead (%s): %s men close up before they fight.", 2, "attack"],
+	["^'s wave goes on together", "", 1, "attack"],
+	["^trains (\\d+) Musketeers? first: raiders \\((\\d+)\\) at its labourers", "%s trains %s Musketeers first: raiders (%s) are at its labourers and no soldier meets them.", 2, "defend"],
+	["^brings its guns up to shell the enemy hall over its wall", "%s brings its guns up to shell the enemy's Town Hall over its wall.", 2, "attack"],
+	["^holds its line out of reach and shells the enemy hall with (\\d+) guns", "%s holds its musket line out of reach and shells the enemy's Town Hall with %s guns.", 2, "attack"],
+	["^stops shelling: (.+)$", "", 1, "attack"],
 	["^holds the top of its ramp: the force below \\((\\d+)\\) is more than its army at home \\((\\d+)\\) can beat, down at (\\d+)", "%s holds the top of its ramp: against the force below (%s) its army (%s) goes down only at %s.", 2, "defend"],
 	["^holds its natural's gate: the force outside \\((\\d+)\\) is too strong to go out to with its army at home \\((\\d+)\\), out at (\\d+)", "%s holds the gate of its walled natural: against the force outside (%s) its army (%s) goes out only at %s.", 2, "defend"],
 	["^holds the top of its ramp: the force below \\((\\d+)\\) is more than its army at home \\((\\d+)\\)", "%s holds the top of its ramp: the force below (%s) is more than its army (%s) can beat.", 2, "defend"],
