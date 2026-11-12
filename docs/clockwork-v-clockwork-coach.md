@@ -1,6 +1,6 @@
 # The Clockwork mirror, coached (job clockwork-v-clockwork-coach)
 
-Short sentences, to be read aloud.
+Short sentences, to be read aloud. Done 2026-11-12 (branch clockwork-v-clockwork-coach, 0.33.17).
 
 The owner (2026-11-11 22:35): every matchup coached and filmed "with the same level of scrutiny and attention" as the
 Crown v Brood job. This job is the Clockwork mirror: Hard Clockwork OPTIMAL against Hard Clockwork OPTIMAL. Coaching, as a
