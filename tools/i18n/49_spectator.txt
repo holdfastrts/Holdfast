@@ -582,9 +582,9 @@ es La oleada de %s iba estirada en la marcha: sus %s hombres se juntan antes de 
 pt A onda de %s entra em formação diante do exército inimigo à frente (%s): %s homens se juntam antes de lutar.
 es La oleada de %s forma ante el ejército enemigo de delante (%s): %s hombres se juntan antes de luchar.
 
-> %s trains %s Musketeers first: raiders (%s) are at its labourers and no soldier meets them.
-pt %s treina primeiro %s Mosqueteiros: há atacantes (%s) entre os seus operários e nenhum soldado os enfrenta.
-es %s entrena primero %s Mosqueteros: hay asaltantes (%s) entre sus peones y ningún soldado los enfrenta.
+> %s trains Musketeers first (%s): enemy soldiers (%s) are at its labourers and too few of its own meet them.
+pt %s treina Mosqueteiros primeiro (%s): soldados inimigos (%s) estão entre os seus operários e poucos dos seus os enfrentam.
+es %s entrena Mosqueteros primero (%s): soldados enemigos (%s) están entre sus peones y pocos de los suyos los enfrentan.
 
 > %s brings its guns up to shell the enemy's Town Hall over its wall.
 pt %s traz os seus canhões para bombardear a Prefeitura inimiga por cima do muro.

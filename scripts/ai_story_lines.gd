@@ -134,7 +134,7 @@ const RULES := [
 	["^'s wave strung out on the march: (\\d+) men [\\d.]+ tiles apart close up", "%s's wave was strung out on the march: its %s men close up before they go on.", 1, "attack"],
 	["^'s wave forms up before the enemy army ahead \\((\\d+)\\): (\\d+) men", "%s's wave forms up before the enemy army ahead (%s): %s men close up before they fight.", 2, "attack"],
 	["^'s wave goes on together", "", 1, "attack"],
-	["^trains (\\d+) Musketeers? first: raiders \\((\\d+)\\) at its labourers", "%s trains %s Musketeers first: raiders (%s) are at its labourers and no soldier meets them.", 2, "defend"],
+	["^trains (\\d+) Musketeers? first: enemy soldiers \\((\\d+)\\) at its labourers", "%s trains Musketeers first (%s): enemy soldiers (%s) are at its labourers and too few of its own meet them.", 2, "defend"],
 	["^brings its guns up to shell the enemy hall over its wall", "%s brings its guns up to shell the enemy's Town Hall over its wall.", 2, "attack"],
 	["^holds its line out of reach and shells the enemy hall with (\\d+) guns", "%s holds its musket line out of reach and shells the enemy's Town Hall with %s guns.", 2, "attack"],
 	["^stops shelling: (.+)$", "", 1, "attack"],

@@ -14,6 +14,15 @@ toward the ramp, the army at the gate, OPTIMAL picks by read). No unit, building
 new file, `scripts/ai_crown_mirror.gd` (class `AICrownMirror`), and is switched off with `-- mirror:off` for comparison
 games. The shared code only calls in (section "Shared functions changed").
 
+**In short.** Five coaching rounds on twelve maps (8 games filmed with the camera, every game with a map picture every
+15 s). The Crown computer in the mirror now marches its waves as one and forms up before an enemy army, brings its Field
+Cannons up to shell a walled Town Hall over its wall (and holds its line out of reach while they do), answers a lone
+raider among its labourers with Musketeers, keeps its farms crewed before its Powder Mills, keeps the Timing attack's
+timing, lets no small raid keep its Siege push home, and hunts a beaten enemy over a token army, halls first. Measured on
+the same 16 games: a won field now turns into enemy halls 60% of the time (36% on main), 1.9 halls fall a game (1.2), the
+armies stay closer at 10:00; but the games still mostly run to 15:00 (2 of 16 decided, as on main): a Crown's main on its
+plateau rarely falls by then. The other matchups are untouched (all of it is gated to the mirror).
+
 ## Tools
 
 - `tools/film_coach.gd` (new): `tools/qa_match.gd`'s measured match (result.json, story.txt, log.txt) plus
@@ -117,7 +126,7 @@ the film above). Thornwood's Balanced kept its farms going (18 labourers at 5:00
 - the first cohesion counted every man of the wave, also one still at its own gate: "goes on together (20.4 tiles apart)"
   after its 14 s; hence the BODY (above);
 - Greenhold 1140's Balanced still lost: the raider got its Musketeers (3:37, 5:01, 5:56: "trains 1 Musketeer first: raiders
-  (115) at its labourers and no soldier to meet them") but the labourers then all went to the natural's palisade (build
+  (115) at its labourers and no soldier to meet them") (the line now reads "enemy soldiers (115) at its labourers and too few of its own to meet them") but the labourers then all went to the natural's palisade (build
   7-10 of 10 at 6:15-6:45) and the gold stopped again; the 8 Musketeers stood on the main's high ground (the doctrine)
   while the labourers at the natural died. Left open (see "What is still wrong").
 
@@ -166,6 +175,48 @@ the film above). Thornwood's Balanced kept its farms going (18 labourers at 5:00
   were within the point's 2.5 tiles: the whole wave stood on HOLD for 14 s. The meeting point is now the body's HEAD (the
   man nearest the target): it waits where it stands and everyone behind walks up to it.
 
+## Rounds 4 and 5: four new maps on the final code (filmed): Border March 1124, Glimmerdeep 1145, Ashford Crossing 1130, Twin Fords 1115
+
+Maps the fixes were not made on, to see what carries over and what is left (no code changed after them but two words of a
+log line):
+- **Border March 1124** (Balanced v Economy): even to 10:00 (1,645 v 1,580); P2's wave 2 (41 supply) closes up twice on
+  the way ("27 men 5.1 tiles apart"), forms its line at P1's natural palisade (`r4_border_march_1200_formed_line_at_palisade.jpg`),
+  goes in through the breach (`r4_border_march_1230_in_through_the_breach.jpg`), hunts from 12:17 and takes all three of
+  P1's halls by 14:33 (0 labourers left at 15:00). On main this seed's QA game was a draw.
+- **Glimmerdeep 1145** (Dragoon raids v Siege push -> Economy): P2 takes P1's natural under P1's cliff with cannon at 12:53
+  (`r4_glimmerdeep_1223_natural_under_the_cliff.jpg`: P1's musket line on the high ground above it); ahead on income
+  (17,740 v 12,920) but behind on army at 15:00. Seen once more here: **a wave pulled back one second after it went out**
+  ("pulls back from the palisade: down in ~3 s, too dear under 7 dps of fire"): the siege's race is run from home against
+  the whole enemy army behind the wall, and an even army (the GO rule's "not behind") cannot win it. In the final batch it
+  happened 0 times in 43 waves (5 in 42 on main): the march's regroup now holds the siege's judgement until the wave is near.
+- **Ashford Crossing 1130** (Siege push v Economy): **the Siege push's own march is not coached here** (AICrownSiege moves
+  its push itself: no regroup, no guns on the hall): it went out at 8:42 with 1,480 just as P2's wave came the other way and
+  lost 880 for 315; P2's Economy then took P1's natural at 11:16 and led 21,540 to 12,160 in income.
+- **Twin Fords 1115** (Economy v Economy): even to 11:00; P1's wave 2 closes up (22 men), takes P2's natural at 12:45, and
+  P2 ends with 6 labourers against 66. **A wording slip:** the raid answer said "raiders (840)" when a whole enemy wave was at
+  the labourers; the line now says "enemy soldiers (840) at its labourers and too few of its own to meet them".
+
+## The other matchups
+
+All of this job's play is behind `AICrown.mirror()`, null unless the Crown faces a Crown. Six games of the Crown's cross
+matchups on this branch (the crown-ai-v2 "after" seeds: Greenhold 1100/1101, Hollowfen 1151/1152, Dune Sea 1106/1107, Hard
+OPTIMAL, to 15:00): not one mirror line in their logs, and the same outcomes as crown-ai-v2's measured games of those seeds
+(against the Brood lost at 9:55, 11:42 and 13:35, there 10:25, 11:56 and a draw at 15:00 behind; against the Clockwork draws
+at 15:00, behind on Greenhold and Hollowfen, ahead on Dune Sea, as there).
+
+## Tests
+
+| test | result |
+|---|---|
+| test_crown_mirror (new) | ALL PASS: no mirror play against the Brood or the Clockwork; a Musketeer queued 0.2 s after a raider reaches the labourers; the late greedy read keeps the Timing attack; the hunt over a token army (and not with a small army), for a hall; a strung-out wave closes up and goes on 2.2 tiles apart |
+| test_ai_optimal | ALL PASS |
+| test_rules_fixes | 0 failures (the hunt, the beaten side) |
+| test_crown_gate, test_crown_siege, test_crown_hold, test_crown_build_order, test_crown_lost_hall, test_ai_expand_wall, test_crown_owner_eco, test_ai_wall_vs_rush, test_crown_stall | PASS |
+| test_crown_dragoon_raid | 1 failure ("[plan] ... a group out by 690 s (formed true, rode false)"): **the same on main** (run on a main worktree: the same failure), not this job's |
+| test_files | 1303 checks, 0 failures |
+| test_i18n | PASS |
+| test_ai_brood, test_ai_cw_horse_raid (the other factions' computers through the shared hooks) | 0 failures / ALL PASS |
+
 ## Shared functions changed (for the merges)
 
 Six coaching jobs run at once on the AI scripts. Everything of this job's play is in the new `scripts/ai_crown_mirror.gd`;
@@ -184,7 +235,83 @@ the shared code only got small hooks whose default does exactly what it did befo
 | scripts/ai_crown_siege.gd | `_maybe_go` | the "an enemy force is at our buildings" hold skips a force under a quarter of the push (mirror) | fix 4 |
 | scripts/ai_optimal.gd | `_punish` (the Crown's branch), new `_mirror_keep` | a greedy read keeps the Timing attack in the mirror | fix 8 (round 1's 4) |
 
-MEASURE
+## Before and after, the same start
+
+The games are not deterministic, so "the same moment" is the same map, seed and plans at about the same time:
+
+- Highmoor 1143, P2's Timing attack at P1's walled natural under P1's cliff. Before (main, 8:12): the wave breaks palisades
+  under the cliff line, trades even and kills no labourer; P1's economy wins the game. After (8:30): its guns stand off and
+  shell the natural's hall, which falls at 8:53.
+  ![](shots/crown-v-crown-coach/pair_highmoor_1143_timing_at_natural.jpg)
+- Frostmere 1148, P1's Dragoon-raid army leaving for P2. Before (11:05): a column into P2's line, 1,625 -> 540 in fifteen
+  seconds. After (10:20): **still a column** in this replay: the wave had planned its siege of P2's natural and its body
+  read under 5 tiles apart (the riders far ahead are outside its body); it met P2's wave on the frozen lake and lost far less
+  (1,485 -> 1,185 against 1,285 -> 1,400). The regroup does not catch every column (see "What is still wrong").
+  ![](shots/crown-v-crown-coach/pair_frostmere_1148_the_column.jpg)
+- Kestrel Rise 1133 after, the finish as a map film (P2 yellow, P1 light blue; 8:30-12:45): the formed line at P1's
+  natural, the guns, the hunt; P1 beaten at 12:59 (on main: P1 won at 14:47).
+  ![](shots/crown-v-crown-coach/r3_kestrel_finish_0830_1245.gif)
+- Frostmere 1148 before, the column as a map film (10:30-11:45): ![](shots/crown-v-crown-coach/r1_frostmere_1030_1145_the_column.gif)
+
+## Measured: 16 games before and after
+
+The same 16 games as the "before" (8 maps, the QA seeds, Hard OPTIMAL v Hard OPTIMAL, to 15:00), on this branch's final
+play code (`python3 tools/study/crown_v_crown_report.py DIR`; the runs: `tools/film_coach.gd`, headless):
+
+| batch | games | decided (P1-P2) | P1 won or led | decided by | median length decided | army 8:00 | 10:00 | income 8:00 | 10:00 | lead ratio army 10:00 (median) | halls lost / game | waves / game | pull-backs / game | dominant minutes -> enemy hall lost in 3 min |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| before | 16 | 2 (1-1) | 7 | 2 before 15:00 | 13:56 | 738 | 1249 | 5130 | 7944 | 1.52 | 1.2 | 2.6 | 1.2 | 61 -> 22 |
+| after | 16 | 2 (0-2) | 3 | 2 before 15:00 | 14:09 | 796 | 1321 | 5368 | 8028 | 1.23 | 1.9 | 2.7 | 1.1 | 43 -> 26 |
+
+"Decided" = a side beaten before 15:00; "won or led" = decided, or ahead at 15:00 by 10% on income + 2 x army (P1's, a
+control: it should sit near half); "army / income 8:00, 10:00" = the mean of both sides; "lead ratio" = the median of the
+bigger army over the smaller at 10:00; "dominant minutes" = minutes where a side's army was 1.8 times the other's and 800+,
+and how many of those were followed by an enemy hall lost within three minutes.
+
+What changed, in the numbers:
+- **A won field now turns into halls**: 60% of the dominant minutes were followed by an enemy hall lost within three minutes
+  (26 of 43), 36% before (22 of 61); halls lost per game 1.9 (1.2 before). The guns took most of them ("lost a Town Hall to
+  P2 Crown (cannon)").
+- **Fewer one-sided armies at 10:00** (the median lead 1.23, 1.52 before): the raid answer and the farms keep the side being
+  raided in the game, and a wave that marches as one trades evenly instead of melting in a column.
+- **Not changed: the games still mostly run to 15:00** (2 of 16 decided, as before). A Crown's main sits on its plateau
+  behind its ramp gate and its cliff line; the natural falls, the main does not by 15:00, and the "beaten" rule wants a side
+  with nothing at all. The study's 15:00 cutoff is short for a mirror where both sides wall and saturate 40-60 labourers.
+- P1 won or led 3 of 16 (7 before). Both sides play the same code, so this is the maps and the seeds (the QA study saw a
+  start-spot edge too; the start-spots-fix job measures it), made bigger by play in which a lead now converts.
+- Noise: the same seed agrees with itself about 2 times in 3, so one game's flip says little; the per-game table:
+
+| game | before (main) | after |
+|---|---|---|
+| dune_sea_1109 | dragoon(led) v timing(behind) end 900 | dragoon(led) v timing(behind) end 900 |
+| dune_sea_1146 | balanced(behind) v balanced(led) end 900 | balanced(behind) v balanced(led) end 900 |
+| frostmere_1148 | dragoon(led) v balanced(behind) end 900 | dragoon(behind) v balanced(led) end 900 |
+| frostmere_1185 | dragoon(behind) v economy(led) end 900 | dragoon(L) v economy(W) end 882 |
+| greenhold_1103 | timing(behind) v dragoon(led) end 900 | timing(behind) v dragoon(led) end 900 |
+| greenhold_1140 | balanced(L) v dragoon(W) end 786 | balanced(L) v dragoon(W) end 816 |
+| highmoor_1106 | economy(behind) v economy(led) end 900 | economy(led) v economy(behind) end 900 |
+| highmoor_1143 | economy(behind) v timing(led) end 900 | economy(led) v timing(behind) end 900 |
+| hollowfen_1154 | dragoon(led) v dragoon(behind) end 900 | dragoon(behind) v dragoon(led) end 900 |
+| hollowfen_1191 | timing(led) v balanced(behind) end 900 | dragoon(behind) v balanced(led) end 900 |
+| kestrel_rise_1133 | balanced(W) v dragoon(L) end 887 | balanced(behind) v dragoon(led) end 900 |
+| kestrel_rise_1170 | balanced(led) v timing(behind) end 900 | balanced(behind) v timing(led) end 900 |
+| red_coast_1127 | dragoon(behind) v balanced(led) end 900 | dragoon(behind) v balanced(led) end 900 |
+| red_coast_1164 | balanced(behind) v economy(led) end 900 | balanced(behind) v economy(led) end 900 |
+| thornwood_maze_1136 | balanced(led) v economy(behind) end 900 | balanced(behind) v economy(led) end 900 |
+| thornwood_maze_1173 | dragoon(behind) v timing(led) end 900 | dragoon(behind) v timing(led) end 900 |
+
+What OPTIMAL played (its pick at 5:00; won or led counts a side):
+
+| plan (as OPTIMAL played it at 5:00) | before: games, won or led | after |
+|---|---|---|
+| balanced | 10, 5 | 10, 4 |
+| dragoon | 10, 5 | 11, 5 |
+| economy | 6, 3 | 6, 5 |
+| timing | 6, 3 | 5, 2 |
+
+The Dragoon raids did worse in round 3's games than on main while the raid answer was new (their raiders now meet
+Musketeers), and as well as before in the final batch; the Economy race did best (5 of 6).
+
 
 ## What is still wrong
 
@@ -198,6 +325,12 @@ MEASURE
   natural's palisade took up to 10 of its 10 labourers at once at 6:15-6:45; its army stood on the main's high ground while
   the natural's labourers died). Fixes 2 and 3 helped (Greenhold 1140 in the final batch: P1 Balanced led 20,400 to 15,840)
   but its milestones were not touched (they are the plan's identity, shared with the other matchups).
+- **A column is not always caught**: the regroup measures the wave's BODY (12 tiles round its densest man), so riders far
+  ahead of it are stragglers, not a spread (Frostmere 1148 after, 10:20); and the Siege push marches on its own code
+  (AICrownSiege), which this job did not coach (Ashford Crossing 1130: its push met P2's wave in the open and lost 880 for 315).
+- **The siege's race is run from home**: a wave sent out "not behind" (the GO rule's even army) can be pulled back by the
+  siege in the same second ("down in ~3 s, too dear under 7 dps of fire": the race counts the whole enemy army behind the
+  wall). Rare now (0 in 43 waves in the final batch, 5 in 42 on main), seen once on Glimmerdeep and once on Border March.
 - **The siege through layered walls** still takes the piece "nearest the target" ring by ring for the men; the guns now go
   round it (fix 5) and a dominant army hunts (fix 6), but a musket wave without guns still chews palisades.
 - **The games are not deterministic** (a replay of a seed is a new game): before/after of "the same moment" is the same
@@ -223,6 +356,6 @@ MEASURE
 6. **The Timing attack keeps its timing** on a late greedy read in the mirror (it was turned into the Economy race).
 7. **No balance change proposed.** The mirror is fair by construction; nothing seen needed a number changed.
 
-ROUNDS_END
+
 
 

@@ -308,7 +308,7 @@ func raid_answer() -> void:
 			n += 1
 	if n > 0 and game.clock - _answer_said > 45.0:
 		_answer_said = game.clock
-		_say("trains %d Musketeer%s first: raiders (%d) at its labourers and no soldier to meet them" % [n, "" if n == 1 else "s", int(theirs)])
+		_say("trains %d Musketeer%s first: enemy soldiers (%d) at its labourers and too few of its own to meet them" % [n, "" if n == 1 else "s", int(theirs)])
 
 
 func _init(owner) -> void:
