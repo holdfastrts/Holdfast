@@ -129,3 +129,25 @@ fire. **Fix:** a rider in front of the line rides out round its end first, then 
   force coming (150: 6 soldiers)"); the Brood came to the walled natural at 9:36, the fight began with 2.5 s of warning
   by the measure (17.5 s for the first enemy seen) and the Crown won it, 1,165 killed for 230. No Crown wave went out in
   12 minutes (the Brood army was reckoned bigger), so no screen.
+
+### Round 5: the first after batch, cut at 18 games; Dune Sea 1109 (the mirror) filmed
+
+The first after batch (the code of round 4) was looked at game by game after 18 games (its data: the measure of the
+first cut, below). The screen went out with most waves (25 riders sent in the 9 Clockwork and mirror games looked at, none
+lost), but the line formed on its sighting in only 2 of them. Dune Sea 1109 (the mirror), P2's second wave, filmed every
+5 s from 9:40: its two riders backed off "from the enemy (1 near)" at 9:47, 9:55 and 10:06, the line never formed, and at
+10:06 the wave walked into P1's ramp post unformed, 13 muskets deploying under its fire: 600 lost for 0, falling back at
+10:39. The screen had seen two or three of P1's Musketeers at the ramp's gate (the rest of the ramp post's line stood
+behind the lip, out of a rider's sight from below), worth under a quarter of the wave: the line's rule for an army ahead
+(SEE_SHARE).
+![](shots/crown_rider_screen/r5_dunesea1109_0955-1005_into_the_gate_unformed.jpg)
+
+**Fixes:** what the screen sees counts from 8% of the wave (100 at least: `AICrownLine.SCREEN_SHARE`, `SCREEN_MIN`): a few
+seen up ahead are often the front of more. Replayed (headless, the same start): P2's first wave formed at 7:26 "before the
+enemy army ahead (115) ... (its screen saw it 975 px off)". And the picket rode back from the first enemy musket without a
+warning (a musket's reach, 190 + 110 px, is longer than a Horseman's sight, 256): two soldiers that can catch or shoot it
+are now a warning too. The after batch was started again with this code.
+
+The Dune Sea 1107 screen at work (the after picture above, every 10 s from 8:00):
+![](shots/crown_rider_screen/after_dunesea1107_0800-0850.gif)
+
