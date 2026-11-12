@@ -197,8 +197,48 @@ NUMBERS
 
 ## What is still wrong
 
-WRONG
+1. **Most fights still begin unformed.** A musket sees 8 tiles and reaches 6: an enemy army is first seen at contact
+   unless something else saw it (the cliff line, a scout). The halt before the enemy's base helps (round 8), but an enemy
+   army that comes out to meet the wave between the halt and the base, or after a won fight, is met unformed and the line
+   deploys under fire (in the after batch "deployed under fire" still outnumbers "formed before an army" and "halted before
+   the base" together against the Clockwork). The queued job crown-rider-screen (Horsemen ahead and on the flanks of the
+   marching line) is the answer: the line forms on what the screen sees.
+2. **After its last step the line goes on as a crowd.** When the line has walked on to musket reach of the target (the
+   enemy's base) and finds nobody there, it hands the wave back to the shared attack-move to the target: the next contact
+   inside the base is met unformed. A line that keeps stepping on in line until contact is the next change (not made: the
+   after batch was running; it needs its own measured batch).
+3. **The guns set the pace.** A Field Cannon rolls at 38, a Musketeer walks at 62: a line stepping with its guns moves at
+   the guns' pace and an attack from the halt takes 20-30 s longer. The guns are often still 300-600 px back when the
+   enemy comes on (the fights' "guns set up at contact" stays low: they set up a few seconds in, and most of them fire).
+4. **Home fights are the hold module's.** Against the Brood almost every fight is at the Crown's own natural, behind the
+   palisade ("inside the wall of its new hall", the gate post): the line changes little there (only the defence
+   detachments and the ramp post's row). The Crown v Brood numbers move with the noise of the games.
+5. **The measure of a line's shape** at contact (`engage.json` across / depth) counts every shooter within 520 px of the
+   contact, the posts and stragglers too; it rarely shows a clean line even when the pictures do. The pictures and the
+   share of muskets firing in the first 5 s are the better measure.
+6. The games are not deterministic: one seed's replay is the same start, not the same game; 16 games a matchup at 12:00
+   move with that noise (a single game swings the Crown's killed / lost by thousands).
+7. Pre-existing test failures (on main too): test_ai_rush ("workers before the Brood Mother"), test_ai_rush_followup (14),
+   test_crown_dragoon_raid ("a group out by 690 s ... rode false"). Flaky either way: test_ai_worker_safety (the brute case
+   failed and passed with and without the line), test_crown_build_order (passed on a rerun).
 
 ## Claude's choices for the owner to confirm
 
-CHOICES
+1. **One rank or two by the enemy** (the ranks study): one rank against the Brood up to 26 shooters, two ranks from 12
+   against the Clockwork, from 16 in the mirror.
+2. **Where it forms:** 330 px from the nearest known enemy (a musket reaches 190, a cannon 430); the halt before the
+   enemy's base at 900 px from it; a defence line 150 px short of the force it meets (inside musket reach at once).
+3. **What it knows:** an enemy in sight, or seen in the last 20 s where it was seen; nothing more (fair: what a player
+   watching his army would know).
+4. **The guns walk with the line** (it waits for them at each 128 px halt) until the enemy is in their reach; then they set
+   up and the line holds until they have (8 s at most); then the line walks on alone. A gun behind the line sets up where
+   it stands only with an enemy in its reach.
+5. **The siege waits** for the line's guns to set up before it takes the wave (with guns in the wave).
+6. **Falling back:** a line that lost 260 or more and over 1.6 times what it killed in this fight steps back 150 px toward
+   its guns and holds 9 s, then fights on (the shared pull-back rules still decide whether the wave goes home).
+7. **The march's close-up is the line's in every matchup** (it was the mirror's, crown-v-crown-coach); the mirror's bombard
+   (the guns shell a walled hall while the line holds out of reach) is kept.
+8. **The ramp post's first row is as long as its muskets** (6 to 12) before a second row; the gate post and the cliff edge
+   are unchanged.
+9. The raids (the Horseman rush, the Dragoon raids, the Balloon harass) keep their own play: a wave mostly of Horsemen is
+   not formed; Dragoons in a mixed wave stand in the line (they dismount to hold).
