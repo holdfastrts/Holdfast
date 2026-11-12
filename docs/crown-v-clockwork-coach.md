@@ -91,8 +91,9 @@ Fixes (each replayed on the same seeds, headless, `tools/qa_match.gd`, then film
 - **CW-2 THE BANK WORKS** (scripts/ai_clockwork.gd `_cc_bank`, from `_bo_tick`): in a written build that is not the Economy
   or Balanced opening, once the cogs no waiting step needs stay over 350 for 15 s (a heavy machine's kept cogs excluded),
   each idle Light Works trains a Clock Soldier. Dune Sea (seed 1107): the Springer timing's army at 5:00 went from 100 to
-  490, its first push came at 5:38 with 880, and the Crown's only win of the 16 (against that empty army) became a game
-  the Crown led at the end instead (the Clockwork's mistake, so its fix makes this matchup harder for the Crown).
+  490, its first push came at 5:38 with 880, and the Crown's only win of the 16 (against that empty army) became, in that
+  replay, a game the Crown only led at 15:00 (in the final batch the Crown won it again). The Clockwork's mistake, so its
+  fix makes this matchup harder for the Crown.
 
 What the replays showed (the same seeds): the natural stood at 3:12-3:56 instead of 7:26-8:17, but its soil stayed at
 100%: an opening lays no Farm by itself (the shared economy rules are off while a build order runs) and 26 labourers do
@@ -309,3 +310,20 @@ The films themselves (about 100 stills a game) were not kept in the repository; 
 New narrator rows (scripts/ai_story_lines.gd, pt/es in tools/i18n/61_crcw_coach.txt): the Crown's wave staying out (for
 scouts, or a raid left to the soldiers at home), the Farms first, a milestone held back by a rush read, and the
 Clockwork's idle cogs put into Clock Soldiers. The rows were checked against real log lines (AIStoryLines.match_line).
+
+## The other matchups (a control)
+
+Every rule of this job returns at once unless every enemy is the Clockwork (the Crown's rules) or the Crown (the
+Clockwork's), so the other matchups cannot change but for the layout effect described under "The tests". A small control
+batch (`crcw_coach.py run ... --only others`, the qa-matches round-0 tags, Greenhold; before = main, after = this
+branch; data in docs/crown-v-clockwork-coach/data/others_before and others_after):
+
+| game | before | after |
+|---|---|---|
+| Greenhold, Crown v Brood | the Brood wins at 11:37 (Crown income 4,180 / 9,423 at 10:00) | the Brood wins at 12:09 (4,180 / 8,738) |
+| Greenhold, Brood v Clockwork | the Brood wins at 13:42 | the Brood wins at 14:46 |
+| Greenhold, Crown mirror | a draw (P1 6,460 / P2 6,840 at 10:00) | P1 wins at 14:52 |
+| Greenhold, Clockwork mirror | P2 wins at 13:54 | P1 wins at 12:51 |
+
+The cross matchups end the same way; the mirrors (no rule of this job runs in them) went the other way, as mirrors do
+from one run to the next. No script errors.
