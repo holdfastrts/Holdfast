@@ -155,3 +155,49 @@ Worse for the Clockwork. What the films showed:
 - **C6, a stuck build hands over** (`AIClockwork._stuck_hand_over`, new; one line in `_build_up`): against the Brood, a
   written build that has done no step for 60 s with 1,000 cogs or more in the bank ends; the shared rules play on.
   `-- cvbstuck:off`.
+
+## Round 3 (C1 reverted; C2-C6, B1)
+
+Results: Greenhold 11 **Clockwork won 13:40** (P1) and draw, the Brood ahead (income 23,105 to 13,141); Dune Sea 23
+**Clockwork won 12:14** (P1) and **Clockwork won 10:23** (P2); Hollowfen 37 **Clockwork won 12:45**; Kestrel Rise 41 draw
+(even). (One game per seed: the qa study found the same seed agrees with itself about 2 times in 3. The batch decides.)
+
+### What worked
+
+- **C4** held the push home 7 times in 6 games ("holds at its gathering point: a Brood army of 600 is at its door; it
+  meets it on its gears first"), and **C2** then countered (Dune Sea 23, P2: "its defence killed 650, it goes out worth
+  1,385 against the 332 it has seen alive lately"; the push committed and the Mother fell at 10:23).
+- **C5** (Hollowfen 37, 7:4x): "turns home fighting: Brood raiders in the base (325 value, 140 at home)"; nothing lost on
+  the way; push 3 went out 1:30 later and won the game.
+- **B1**: the Brood's waves now arrive as one body (picture `r3_g11w1_0936_the_pack_arrives_together.jpg`, 66 Raptors at
+  9:36): that wave beat the Clockwork's whole army of 2,395 at its own gears (it fell to 945 in 15 s) and killed 2,995.
+
+### Coach's notes: the Brood
+
+1. **The Mother dies on her nest** (Dune Sea 23 7:49-10:22, picture `r3_d23w1_1002_mother_falls_on_her_nest.jpg`; also
+   Greenhold 11 and Hollowfen 37): the Clockwork's push of 1,455 stood at her nest for two and a half minutes, its Netters
+   caught her and the creatures near her, her army there was 75-300. She stays rooted or fights on her leash; the computer
+   never takes her away. Her expansions (rooted Mound Turtles 26-32 tiles out) were untouched. *Decision:* nothing in
+   `AIBroodNew._nb_mother` / `BroodNew.mother_guard` ever moves her nest. *Fix B2.*
+2. **A Sire alone into the push** (Dune Sea 23, 10:07: "defends with 1 (1 tyrannosaur, 150) against 1,455 at the Mother").
+   `_nb_sires_needed` sends every Sire when the threat at her is big and the army small, the very case they cannot win.
+   *Fix with B2:* while she moves house her Sires go with her.
+
+### Coach's notes: the Clockwork
+
+1. **The main runs dry and the new Clocktowers get no presses** (Greenhold 11, P2: the main's brass spent at 9:10, picture
+   `r3_g11w1_1000_main_spent_no_new_presses.jpg`; one press at 9:16, the next at 11:46 although Clocktowers finished at
+   8:32 and 9:58; income 9,000 at 9:19 and 9,958 at 12:05). Its army had just been beaten (9:37) and every cog went into
+   soldiers. This is the shared economy's (AI._drive_spot, AI._hall_first; clockwork-ai-v2's dry-land rules) and the
+   mirror's too: **not changed here**, written up for the owner and the clockwork-v-clockwork job.
+2. **Its army at home loses to the pack** (the same game, 9:37): 29 units on their gears against 66 Raptors arriving at
+   once. Met as one body, Raptors with Pack Hunt beat Clock Soldiers. The Pendulums (the anti-swarm machine) were 0-2 in
+   these armies: written up below (open questions).
+
+### Fix after round 3
+
+- **B2, the Mother moves house** (`AIBroodNew._nb_mother_moves`, new; one line in `_nb_mother`, one in
+  `_nb_sires_needed`): against the Clockwork, armed enemies worth 600 or more within 14 tiles of her and her warriors and
+  Sires there worth less than half of that: she gets up and walks to her expansion farthest from the push with no enemy
+  seen within 18 tiles of it; her nest moves there (`_q_guard["home"]`) and she roots again once it is calm. Once per
+  120 s. Her Sires are not "needed" in the defence while she moves (they keep to her). `-- nbmove:off`.
