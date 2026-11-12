@@ -64,6 +64,9 @@
   in the mirror), start-spots-fix 0.33.23 (docs/start_spots_fix.md: no spot edge left except the Brood mirror 26-13-1, p
   0.05; proposals there). test_ai_brood's stage-3 timing is flaky; test_brood_new_defence's rooted-muskets case fails on
   main too. ALL SEVEN JOBS MERGED 2026-11-12.
+  OWNER 2026-11-12 07:59: the Crown computer never uses the player's DRAG-A-LINE (no AI calls Game.line_move): a line of
+  Musketeers with the cannons behind it. Job crown-line-fight (coached, filmed; docs/crown_line_fight.md): the line at
+  every position and before contact, guns unlimbered behind it, the march as a formed body; merge on its DONE.
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
