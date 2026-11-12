@@ -253,7 +253,63 @@ read in the mirror (Balanced 2, Timing 2, Economy 1). The Rush is still a plan o
 OPTIMAL still punishes a GREEDY Brood (a third base early) with it. The batch was restarted with a different seed for
 every game (31 to 46).
 
-(Measuring batch below.)
+## The measuring batch: 16 games before (main, 0.33.16) and after (this branch)
+
+Hard OPTIMAL against Hard OPTIMAL to 15:00 on eight maps (Greenhold, Highmoor, Hollowfen, Kestrel Rise, Twin Fords,
+Frostmere, Ashfall, Redrock Canyon), two games each, a different seed for every game (31 to 46) so OPTIMAL's dice
+differ; the same 16 seeds before and after. (`tools/shot_brood_mirror.gd ... shots:0`, side by side, one game on
+main and the same game on the branch.)
+
+| | before (main) | after (this branch) |
+|---|---|---|
+| decided (a Mother killed) | 9 (P1 8, P2 1) | 6 (P1 5, P2 1) |
+| draws at 15:00 | 7 (one with a side under 150 army) | 10 (every draw had two live armies, 645 to 4,270; in 7 of 10 the bigger was within 1.5x of the other) |
+| won or led, P1 / P2 | 11 / 5 | 9 / 7 |
+| decided games' mean length | 12.3 min | 11.5 min |
+| income at 8:00 (mean per side) | 5,546 | 9,606 |
+| income at 10:00 | 8,459 | 13,528 |
+| army at 8:00 | 915 | 1,714 |
+| army at 10:00 | 1,156 | 2,525 |
+| grubs at 8:00 | 34 | 51 |
+| richer side's income / poorer's at 8:00 | 1.34 | 1.05 |
+| rider lines ("riders in its land", "guards its grubs") | in every game that saw Raptors | none |
+
+Per game (P1 / P2 income and army at 8:00, then how it ended):
+
+| game | before | after |
+|---|---|---|
+| Ashfall 37 | draw, 4,955 / 3,212 | P1 wins 11:43, 8,852 / 9,276 |
+| Ashfall 45 | draw, 3,244 / 2,607 | draw (P1 ahead), 9,669 / 10,186 |
+| Frostmere 36 | P1 wins 10:22, 8,836 / 5,179 | draw (P2 ahead), 9,101 / 8,742 |
+| Frostmere 44 | P1 wins 10:59, 8,816 / 5,024 | P1 wins 9:46, 9,919 / 9,799 |
+| Greenhold 31 | P1 wins 13:54, 4,009 / 1,876 | draw, even, 10,946 / 10,534 |
+| Greenhold 39 | draw (P2 ahead), 2,897 / 3,885 | draw (P2 ahead), 10,592 / 8,979 |
+| Highmoor 32 | draw, 2,835 / 2,748 | P1 wins 10:57, 9,291 / 9,281 |
+| Highmoor 40 | P1 wins 12:51, 4,360 / 2,502 | P1 wins 11:25, 10,695 / 10,691 |
+| Hollowfen 33 | draw (P2 ahead), 3,786 / 3,446 | draw, even, 8,625 / 9,492 |
+| Hollowfen 41 | draw, 3,786 / 3,446 | draw (P2 ahead), 8,178 / 9,062 |
+| Kestrel Rise 34 | P1 wins 12:55, 10,119 / 10,162 | draw (P1 ahead), 9,406 / 9,116 |
+| Kestrel Rise 42 | P1 wins 14:02, 9,573 / 7,824 | draw, even, 9,406 / 9,116 |
+| Redrock Canyon 38 | P1 wins 11:09, 10,827 / 9,477 | draw (P2 ahead), 10,811 / 10,563 |
+| Redrock Canyon 46 | P1 wins 10:04, 9,704 / 7,232 | P2 wins 11:14, 9,858 / 9,396 |
+| Twin Fords 35 | draw (P2 ahead), 5,310 / 5,247 | P1 wins 13:40, 9,274 / 9,629 |
+| Twin Fords 43 | P2 wins 14:42, 5,310 / 5,247 | draw, even, 9,274 / 9,629 |
+
+What it says:
+- Both computers now play a full economy: the mirror earns 73% more by 8:00 and its armies are twice as big. Before,
+  the games where the read went wrong (GREEDY, then the Raptors as riders) were the poor ones (2,600-5,300 at 8:00); the
+  games where neither side read anything (Kestrel Rise, Redrock Canyon, Frostmere's one side) were the healthy ones.
+- The two sides are even now (1.05 at 8:00, against 1.34): before, one side's misread usually decided the game. The P1
+  start spot still wins more of the decided games (5-1; it was 8-1): the start-spot study's edge (start-spots-fix is
+  its own job).
+- More draws (10 against 7), and all of them live: two armies of thousands at the cap trading in the middle at 15:00.
+  The dead draws (a side with no army, a Mother at a fifth of her health for minutes) are gone. In an even mirror a
+  15:00 draw between two live armies is the honest result; the decided games are a little shorter (11.5 min).
+- Two pairs of games are the same game (Kestrel Rise 34 and 42, Twin Fords 35 and 43 after; Hollowfen 33 and 41
+  before, to 8:00): the computers are deterministic on a map and the dice landed the same, so the batch is about 14
+  different games.
+
+(Other matchups and tests below.)
 
 ## What changed in the code (for the merges)
 
