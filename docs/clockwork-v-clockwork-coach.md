@@ -51,8 +51,11 @@ save time once the fixes were final). The 16 before games of the same seeds are 
 | first attack (median) | 5:15 | 5:20 | 5:15 |
 | games with a script error | 1 (ballista.gd:328, known) | 1 (the same) | 1 |
 
-- The won games are finished: a side clearly ahead won 11 of 13 games (before 8 of 15). The 5 draws left are 2 even games
-  with nobody ahead and 3 where the leader got ahead only at 11:00 or not at all.
+- The won games are finished: a side clearly ahead won 11 of 13 games (before 8 of 15). Of the 5 draws left, 3 had nobody
+  clearly ahead at any minute, 1 a leader only from 11:00, and 1 (Dune Sea s0) a leader from 7:00 that lost two pushes
+  into the enemy's gears (9:50, 3,470 against the 1,070 it reckoned) and then waited for 6,087 to the end (proposals 1
+  and 2 below).
+- The last change (the hunting parties against the Crown too) came after this batch; it does not touch the mirror.
 - The economy and the armies are the same (no number changed): the fixes are in what the army does.
 - Two measured versions on the way were WORSE and were not kept, which is why the numbers matter: fixes 1-11 with the hunt
   going for the enemy's Winders before its buildings (14 games: 6 decided, the side ahead won 6 of 13, 2 draws beaten in
