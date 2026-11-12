@@ -158,7 +158,9 @@ const PLANS := {
 		# (crown-v-clockwork-coach: against the Clockwork, whose economy opening has its second Clocktower up by ~3:00, the
 		# timing on one hall went out at 7:10-7:35 with 18-19 labourers into 30 Winders on three halls (the Crown earned
 		# 0.6-0.7 of its income at 8:00 in every game). The same timing, from TWO halls: the walled natural behind the Mill
-		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to "labs_clock". The
+		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to "labs_clock" (the
+		# Barracks keeps a guard of 8 supply until the Breeder, then trains for the wave: uncapped from 2:00 it held the
+		# labourers at 19 at 6:00 and the natural's Farms unworked, tools/test_crcw_coach.gd). The
 		# natural's Farms and Mill come from the shared economy rules while it runs (_cc_econ: an opening lays no Farm by
 		# itself, and a first try left the natural's soil at 100% for the whole game))
 		"bo_clock": [
@@ -167,10 +169,11 @@ const PLANS := {
 			{"do": "build", "k": "barracks", "at": {"labs": 7}},
 			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
 			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
-			{"do": "army", "k": "musketeer", "cap": 0},
+			{"do": "army", "k": "musketeer", "cap": 8},
 			{"do": "hall", "n": 2, "at": {"labs": 12}},
 			{"do": "build", "k": "foundry", "at": {"labs": 14}},
 			{"do": "build", "k": "horse_breeder", "at": {"labs": 17}},
+			{"do": "army", "k": "musketeer", "cap": 0},
 			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 19}},
 			{"do": "attack", "n": 22, "at": {"army": 22}},
 		],
@@ -501,8 +504,8 @@ var wall_first_on := not OS.get_cmdline_user_args().has("wallfirst:off")
 
 
 func wall_first() -> bool:
-	if not on or not wall_first_on or difficulty < 1 or xw == null or not xw.active() or not owner_on():
-		return false
+	if not on or not wall_first_on or difficulty < 1 or xw == null or not xw.active() or not (owner_on() or _cc_walls()):
+		return false            # (crown-v-clockwork-coach: the two-hall Timing's natural wall comes first too)
 	if _defending() or army_lags():
 		return false
 	if game.workers(team).size() < WALL_FIRST_LABS and not _wall_hall_waited():

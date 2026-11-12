@@ -2,7 +2,7 @@
 """CROWN V CLOCKWORK COACH (crown-v-clockwork-coach, docs/crown-v-clockwork-coach.md): Hard Crown OPTIMAL v Hard Clockwork
 OPTIMAL measured with tools/qa_match.gd (the qa-matches base tags and seeds, both start slots), plus a small batch of each
 faction's other matchups as a control. A measuring tool: it changes no rule.
-    python3 tools/study/crcw_coach.py run OUT --data DATA [--only measure|others|one:map:seed] [--jobs 2] [--root DIR]
+    python3 tools/study/crcw_coach.py run OUT --data DATA [--only measure|others|one:map:seed] [--jobs 2] [--root DIR] [--reverse]
     python3 tools/study/crcw_coach.py list [--only ...]"""
 import os, sys
 from concurrent.futures import ThreadPoolExecutor
@@ -47,6 +47,8 @@ if __name__ == "__main__":
     data = os.path.abspath(arg("--data", os.path.join(out, "data")))
     jobs = int(arg("--jobs", "2"))
     end = int(arg("--end", "900"))
+    if "--reverse" in sys.argv:
+        gl = gl[::-1]       # (a second runner on the same data, from the other end)
     print("%d games" % len(gl), flush=True)
     with ThreadPoolExecutor(jobs) as ex:
         for t in ex.map(lambda g: Q.run_one(g, out, end, data), gl):
