@@ -24,3 +24,7 @@ es %s hace frente a la fuerza junto a sus edificios con una línea de mosquetes:
 > %s's wave forms its musket line before the enemy's %s: %s muskets in %s rank(s), %s gun(s) behind them to break it.
 pt A onda de %s forma a sua linha de mosquetes diante do %s inimigo: %s mosquetes em %s fileira(s), %s canhão(ões) atrás deles para derrubá-lo.
 es La oleada de %s forma su línea de mosquetes ante el %s enemigo: %s mosquetes en %s fila(s), %s cañón(es) detrás de ellos para derribarlo.
+
+> %s's wave halts out of reach of the enemy's base and forms its musket line: %s muskets in %s rank(s), %s gun(s) behind them.
+pt A onda de %s para fora do alcance da base inimiga e forma a sua linha de mosquetes: %s mosquetes em %s fileira(s), %s canhão(ões) atrás deles.
+es La oleada de %s se detiene fuera del alcance de la base enemiga y forma su línea de mosquetes: %s mosquetes en %s fila(s), %s cañón(es) detrás de ellos.

@@ -4,7 +4,8 @@ extends SceneTree
 ##     across the direction to the force (wider than deep), the guns' spots behind the muskets, and the men get there
 ##  2. a MARCHING wave that sees an enemy army ahead FORMS its line before contact: when the first enemy comes within
 ##     contact of a musket, the muskets stand wider than deep across the line to the enemy and the guns are behind them
-##  3. `-- line:off` is the old way (no line), and AI.line_orders is what Game.line_move gives a player's drag
+##  3. a wave knowing of no enemy halts out of reach of the enemy's base and forms its line there
+##  4. Game.line_orders (what Game.line_move gives a player's drag) gives each man his own spot in order along the line
 ##   godot --headless --fixed-fps 30 --script res://tools/test_crown_line.gd
 var main: Node
 var g: Game
@@ -176,9 +177,6 @@ func _run() -> void:
 					if is_instance_valid(o) and not o.dead and o.position.distance_to(u.position) < 215.0:
 						return true
 		return false
-	for kk in 12:
-		await _until(g.clock + 1.0, contact)
-		print("   t %.1f st %s said %s known %d seen %d spotter vis %s" % [g.clock, ln.st, str(ln.said.slice(-1)), ln._known(wave).size(), ai.ch._seen.size(), str(g.is_visible_to(0, foes[0].position))])
 	await _until(g.clock + 60.0, contact)
 	check(ln.forms > f0, "the wave formed its line before the enemy ahead (%s)" % str(ln.said.slice(-3)))
 	var ms: Array = []
@@ -199,6 +197,40 @@ func _run() -> void:
 	check(sh2[0] > 1.5 * maxf(sh2[1], 10.0), "at contact the muskets stand in a line across (across %d, depth %d)" % [int(sh2[0]), int(sh2[1])])
 	check(not gs.is_empty() and gs.all(func(p: Vector2) -> bool: return (p - sh2[2]).dot(face2) < 0.0),
 			"at contact the guns are behind the line (%s)" % str(gs.map(func(p: Vector2) -> int: return int((p - sh2[2]).dot(face2)))))
+	# 2b. THE HALT BEFORE THE BASE: a wave knowing of no enemy halts out of reach of the enemy's base and forms its line
+	for u in wave + foes:
+		if is_instance_valid(u) and not u.dead:
+			u.take_damage(99999.0, null)
+	if is_instance_valid(spotter) and not spotter.dead:
+		spotter.take_damage(99999.0, null)
+	await _until(g.clock + 1.0)
+	ai._attacking = false
+	ai._wave_set.clear()
+	ln._reset([], goal, "")
+	ln._last_form = -99.0
+	var base: Vector2 = ai._enemy_base()
+	var from: Vector2 = Vector2(g.starts[0]) * Defs.TILE
+	var start_at: Vector2 = base + (from - base).normalized() * 1250.0
+	var wave2: Array = []
+	for i in 8:
+		wave2.append(_spawn("musketeer", 0, start_at + Vector2((i % 4) * 26, (i / 4) * 26)))
+	wave2.append(_spawn("cannon", 0, start_at - (base - start_at).normalized() * 60.0))
+	await _until(g.clock + 0.5)
+	ai._attacking = true
+	for u in wave2:
+		ai._wave_set[u] = true
+		u.cmd_move(base, true)
+	var a0: int = ln.approaches
+	await _until(g.clock + 45.0, func() -> bool: return ln.approaches > a0)
+	check(ln.approaches > a0, "a wave knowing of no enemy halts out of reach of the enemy's base and forms (%s)" % str(ln.said.slice(-2)))
+	if ln.approaches > a0:
+		var d: float = 0.0
+		var k := 0
+		for u in wave2:
+			if is_instance_valid(u) and not u.dead:
+				d += u.position.distance_to(base)
+				k += 1
+		check(k > 0 and d / k > ln.APPROACH_MIN - 60.0, "... out of the base's reach (%d px from it)" % int(d / maxi(1, k)))
 	# 3. line_orders is the drag's assignment: one spot each, in order along the line
 	var pts := PackedVector2Array([mid + Vector2(-100, 200), mid + Vector2(100, 200)])
 	var some: Array = []

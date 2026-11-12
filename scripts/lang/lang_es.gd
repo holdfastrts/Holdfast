@@ -2981,6 +2981,7 @@ const T := {
 	"%s's musket line is losing the fight (%s lost for %s): it falls back toward its guns in order.": "La línea de mosquetes de %s está perdiendo la lucha (%s perdidos por %s): se repliega en orden hacia sus cañones.",
 	"%s meets the force at its buildings with a musket line: %s muskets facing it, %s gun(s) behind them.": "%s hace frente a la fuerza junto a sus edificios con una línea de mosquetes: %s mosquetes de cara a ella, %s cañón(es) detrás de ellos.",
 	"%s's wave forms its musket line before the enemy's %s: %s muskets in %s rank(s), %s gun(s) behind them to break it.": "La oleada de %s forma su línea de mosquetes ante el %s enemigo: %s mosquetes en %s fila(s), %s cañón(es) detrás de ellos para derribarlo.",
+	"%s's wave halts out of reach of the enemy's base and forms its musket line: %s muskets in %s rank(s), %s gun(s) behind them.": "La oleada de %s se detiene fuera del alcance de la base enemiga y forma su línea de mosquetes: %s mosquetes en %s fila(s), %s cañón(es) detrás de ellos.",
 	"THE CAMPAIGN": "LA CAMPAÑA",
 	"Prologue: The Revolt": "Prólogo: La Revuelta",
 	"The year 2500. The world has fallen back to muskets and sail. A revolt flares against the Crown.": "El año 2500. El mundo ha vuelto a los mosquetes y las velas. Una revuelta estalla contra la Corona.",

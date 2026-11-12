@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """CROWN LINE FIGHT (docs/crown_line_fight.md): the measuring table of a batch made with tools/study/crown_line_fight.py
 (one folder per game: result.json, engage.json). A measuring tool: it changes no rule.
-    python3 tools/study/crown_line_report.py DATA [DATA2 ...]      (a block per DATA: per matchup, then the fights)
+    python3 tools/study/crown_line_report.py DATA [DATA2 ...] [--same]  (a block per DATA: per matchup, then the fights;
+        --same: only the games every DATA has)
 Per matchup (the Crown's side; in the mirror both sides): games, the Crown won / lost / drew, won-or-led (a draw is led
 when income + 2 x army at the end is 10% over the other's), army and income at 8:00 and 10:00 (means), Crown halls lost
 a game. The fights (engage.json, every engagement of a Crown army worth 60+ in losses): how many, value killed / lost
@@ -88,8 +89,13 @@ def fights(rows, key):
 
 
 if __name__ == '__main__':
-    for d in sys.argv[1:]:
-        rows = load(d)
+    dirs = [a for a in sys.argv[1:] if not a.startswith('--')]
+    keep = None
+    if '--same' in sys.argv:
+        # (only the games every batch has: a batch still running is compared on what it has)
+        keep = set.intersection(*[set(n for n, _, _ in load(d)) for d in dirs])
+    for d in dirs:
+        rows = [x for x in load(d) if keep is None or x[0] in keep]
         print('## %s (%d games)' % (d, len(rows)))
         print()
         print('| matchup | games | Crown W-D-L | won or led | army 8:00 | 10:00 | income 8:00 | 10:00 | Crown halls lost / game |')

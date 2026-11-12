@@ -66,6 +66,8 @@ const STEP := 96.0              # (px) ... a line in a fight with nothing in rea
 const IDLE_PUSH := 4.0          # (s) a held line with nothing in reach this long steps on
 const FORM_COOL := 20.0         # (s) between two formings of the same wave
 const PIECE_FORM_R := 1100.0    # (px) a siege's piece this near the body: the line forms before it (with guns in the wave)
+const APPROACH_R := 900.0       # (px) the wave halts and forms this far from its target (the enemy's base) ...
+const APPROACH_MIN := 520.0     # ... unless it is nearer than this already
 const SPREAD_MAX := 5.0         # (tiles) the body's mean distance from its middle that calls a close-up on the march
 const DONE_SPREAD := 2.4
 const CLOSE_MAX := 14.0
@@ -369,6 +371,11 @@ func march(wave: Array, target: Vector2) -> bool:
 		return _fight_begin(ground)
 	if not foes.is_empty() and ahead >= mine * SEE_SHARE and game.clock - _last_form >= FORM_COOL:
 		return _form(ground, bc, near_o, foes)
+	if st in ["", "close"] and foes.is_empty() and target != Vector2.INF and game.clock - _last_form >= FORM_COOL \
+			and (_approach_for == Vector2.INF or _approach_for.distance_to(target) > 300.0) \
+			and bc.distance_to(target) < APPROACH_R and bc.distance_to(target) > APPROACH_MIN:
+		_approach_for = target
+		return _form_approach(ground, bc, target)
 	if st == "close":
 		var spread := _spread(body, bc)
 		if spread <= DONE_SPREAD or game.clock - _t0 > CLOSE_MAX:
@@ -453,6 +460,38 @@ func _form_piece(ground: Array, bc: Vector2, pc: Building) -> bool:
 	_say("'s wave forms its line before the enemy's %s: %d muskets in %d rank%s, %d gun%s behind to break it" % [
 		pc.d.get("name", pc.kind).to_lower() if pc.d.has("name") else pc.kind, n, 2 if n >= rank2() else 1, "s" if n >= rank2() else "", guns, "" if guns == 1 else "s"])
 	return true
+
+
+## THE HALT BEFORE THE ENEMY'S BASE (the owner's ask: "gather out of the enemy's reach, form the line facing the target,
+## then advance in line"): measured in the first 10 games of the after batch, 24 of 28 contacts were met unformed (a musket
+## sees 8 tiles, its reach is 6: the enemy is first seen at contact) and deployed under fire; most of them at the enemy's
+## natural or main. Now a wave that knows of no enemy ahead halts APPROACH_R from its target (the enemy's base), forms its
+## line facing it with the guns behind, and walks on in line with its guns (the steps, the guns set up once the target is
+## in their reach), then on alone to musket reach. Once a target (again after a won fight).
+func _form_approach(ground: Array, bc: Vector2, target: Vector2) -> bool:
+	_face = (target - bc).normalized()
+	if _face == Vector2.ZERO:
+		return false
+	_piece_pt = target
+	_c = bc
+	st = "form"
+	_t0 = game.clock
+	_last_form = game.clock
+	var n := lay(ground, _c, _face, false)
+	if n == 0:
+		st = ""
+		_piece_pt = Vector2.INF
+		return false
+	forms += 1
+	approaches += 1
+	var guns: int = ground.filter(func(u: Unit) -> bool: return is_gun(u)).size()
+	_say("'s wave halts out of reach of the enemy's base and forms its line: %d muskets in %d rank%s, %d gun%s behind" % [
+		n, 2 if n >= rank2() else 1, "s" if n >= rank2() else "", guns, "" if guns == 1 else "s"])
+	return true
+
+
+var _approach_for := Vector2.INF   # the target the wave last halted before
+var approaches := 0                # (tests) halts before the enemy's base
 
 
 func _has_guns(ground: Array) -> bool:
@@ -642,6 +681,7 @@ func _fight(ground: Array, target: Vector2, foes: Array, contact: bool) -> bool:
 	settle(_face)
 	if foes.is_empty():
 		_say("'s line has won the field: it forms up again and goes on")
+		_approach_for = Vector2.INF          # (it halts and forms again before the base)
 		return _reset(ground, target, "")
 	# losing the trade: back toward the guns in order, form again
 	var killed: float = float(game.stats[ai.team]["value_killed"]) - _trade0.x
