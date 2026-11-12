@@ -238,3 +238,35 @@ changed apart from the lines above.
 
 Tools: tools/shot_ai_match.gd (sa:/sb: plans, every:N pictures, status.txt, story.txt, the push's state in ai.txt, files
 written every minute), tools/study/cwcw_coach.py (the measuring batch and its report; `--slots` for other pairings).
+
+### 12. The last Winders outran their hunters
+
+Seen in the first "after" games (fixes 1-11): Twin Fords and Red Coast, the winner hunted in parties from 12:33 / 12:56,
+the loser's last 25 / 14 units fell to 1 by 14:12 / 14:26, and that one lived to 15:00: "4 soldiers after its last 1
+units" for a minute. A Winder runs 74, a Clock Soldier 68 (less as it runs down), and a hunted Winder flees.
+
+The fix (CwPush._party_score, in _hunt_parties): with 3 or fewer enemy units left everyone hunts them (split evenly), and
+the shooters (Springers, range 170) and the Netters (they hold a unit 4 s) go first, as if 500 px nearer.
+
+## Still wrong (for a later look)
+
+1. **The middle game is a coin toss decided by who attacks into whom.** Both sides go out at 5:00-5:45 with 10-13 Clock
+   Soldiers; the side that wins that exchange (about half the time the one that went first) snowballs. Pushes into the
+   enemy's base, where its army stands on its own gears, wound and mended, need about 1.3 times the defenders to win
+   (Hollowfen: 2,510 against 1,875 won; Dune Sea: 4,445 against 3,920 lost half). Fix 7 stops the worst ones (the
+   reckoning wiped out by old kills), but the table of what an enemy of that age has is still the "typical" Clockwork army,
+   and a side that out-earned its enemy by 10% still walks into an equal army now and then (Greenhold round 4, 12:02:
+   "worth 3,355 against the 2,065 it reckons", the enemy had 3,660). A mirror-only reckoning by TRADES (the enemy's army is
+   about ours plus what we lost less what we killed: the same AI, the same economy) was weighed and not applied: alone it
+   would stop the 5:00 pushes too, and with nobody going out the mirror would be a 15:00 draw. A proposal for the owner
+   below.
+2. **The defence comes out in pieces.** The side defending its natural sometimes meets the push with a few units at a
+   time while the rest are still on the way from the main (Kestrel Rise 4, round 1, 6:36). Not looked into further.
+3. **The loser's economy dies with its Winders alive.** With its presses broken, 20-32 Winders stand idle, 0 cogs, no new
+   press or hall laid (Hollowfen before, 12:00-15:00; Greenhold round 3, "idle 19"). The game ends only when they are
+   hunted down. Not changed (the losing side's rebuild is the shared AI's dry-land rule, and a beaten side).
+4. **The "fast rider" rule in the mirror.** The push ignores lone enemy Clock Soldiers round it as "fast riders" (a Clock
+   Soldier is faster than a front with a Netter, a Pendulum or a run-down soldier in it): 10-20 such lines a game. Harmless
+   in these games (the front still shoots what comes in reach), noted.
+5. **Greenhold's high main.** A committed push took 80 s from the natural to the main's Clocktower up the ramp (after games,
+   Greenhold s0, 11:30-12:51); the headless batch has no push state to say why (the films do: tools/shot_ai_match.gd).
