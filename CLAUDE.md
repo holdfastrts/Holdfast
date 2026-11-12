@@ -57,6 +57,13 @@
   fixes to the Crown's other matchups after a measured batch), crown-v-clockwork-coach 0.33.18 (the Clockwork now wins
   10 of 16; OWNER QUESTIONS in its doc: the Crown earns less per worker than the Clockwork, 34 v 57 a minute at 10:00;
   a Crown march with a formed line and guns is the next job; the Clockwork's fixes kept though they hurt the Crown).
+  Then crown-v-brood-coach 0.33.19 (docs/crown_v_brood_coach.md; Crown W-D-L v Brood 0-14-26 -> 1-18-21; BALANCE PROPOSAL
+  waiting: Cottage 10 supply or the hall training 2 labourers at once; the GREEDY read of every Brood), clockwork-v-brood-
+  coach 0.33.20 (Clockwork won or led 6 -> 9 of 16), clockwork-v-clockwork-coach 0.33.21 (a side clearly ahead wins 11
+  of 13, was 8 of 15), brood-v-brood-coach 0.33.22 (income at 8:00 5,546 -> 9,606; the Raptor no longer read as a rider
+  in the mirror), start-spots-fix 0.33.23 (docs/start_spots_fix.md: no spot edge left except the Brood mirror 26-13-1, p
+  0.05; proposals there). test_ai_brood's stage-3 timing is flaky; test_brood_new_defence's rooted-muskets case fails on
+  main too. ALL SEVEN JOBS MERGED 2026-11-12.
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
