@@ -70,6 +70,11 @@
   OWNER 08:03: PAIR IT WITH HORSEMEN SCOUTING IN FRONT: queued as job crown-rider-screen, to start once crown-line-fight
   merges (riders ahead and on the flanks of the marching line, find the enemy before the line walks in, pull back behind
   the line at contact, catch fleeing/harassing units; a forward picket at defended positions).
+  MERGED crown-line-fight 0.33.24 (2026-11-12; scripts/ai_crown_line.gd, docs/crown_line_fight.md, switch line:off):
+  waves form the player's drag-a-line before a known enemy, a gate or a halt, guns 2.6 tiles behind; v Clockwork fights
+  1.67 killed per 1 lost (was 1.36); results by 12:00 unchanged; most fights still start unformed (the enemy first seen at
+  contact) -> crown-rider-screen started. 9 Claude's choices for the owner in its doc. test_crown_hold's [below] labourer
+  check is flaky too.
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main
