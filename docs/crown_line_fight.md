@@ -150,7 +150,29 @@ come up and set up behind the line and were firing at the gate and the enemy beh
 held the line out of reach while the guns shelled the hall.
 ![](shots/crown_line_fight/r5_greenhold1103_0730-0750_line_before_the_gate_guns_set.jpg)
 
-ROUND6
+### Round 6: Red Coast 1125, Crown OPTIMAL v Clockwork OPTIMAL
+
+No wave went out (the Clockwork pushed first). **8:04-8:06:** "holds the top of its ramp: the force below (1,140) is
+more than its army at home (772) can beat"; eight Musketeers stood three deep behind the ramp's gate (the ramp post's rows
+of 6) while the Clockwork burned the Cottage at the natural below; only the front row reached, and a Field Cannon stood
+limbered at the ramp's foot, in front of everyone (`fight_0806`). 1,365 lost for 1,815 at home.
+
+**Fix:** with the line on, the ramp post's first row is as long as its muskets (6 to 12) before a second row: one line
+across the ramp's top and along the lip either side of it (`AICrownHold._row_len`; test_crown_hold passes).
+
+### Round 7: Greenhold 1101, main against the line, the same first fight
+
+The key picture. On main (0.33.23) the first wave met the Clockwork's line of Clock Soldiers at 6:50 strung out over the
+mid plateau, its guns limbered 330-360 px back: 5 of 9 muskets fired in the first 5 s, 570 killed for 660. With the line
+(7:11): "forms its line before the enemy army ahead (420): 12 muskets in 2 ranks, 3 guns behind"; at contact (7:18) all 12
+held their place and all 12 fired in the first 5 s, 770 killed for 540.
+![](shots/crown_line_fight/key_greenhold1101_before_after_first_fight.jpg)
+![](shots/crown_line_fight/before_greenhold1101_0645-0657.gif) ![](shots/crown_line_fight/after_greenhold1101_0709-0721.gif)
+
+But its three guns set up at the ramp's top 400-590 px behind the line, out of reach of the Clock Soldiers (the rule "a
+gun behind the line sets up where it stands" did not ask how far behind). **Fix:** a gun behind the line sets up where it
+stands only when a known enemy is in its reach; else it comes up behind the line first.
+
 
 ## Numbers
 
