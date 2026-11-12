@@ -1,0 +1,34 @@
+| clock | side | plan | income | bank | workers | army | army kinds | halls | supply | units lost | buildings lost |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0:15 | P1 clockwork | balanced | 60 | 240 | 5 | 0 | {} | 1 | 6/10 | 0 | 0 |
+| 0:15 | P2 brood | balanced | 36 | 36 | 7 | 100 | {mound_turtle:1} | 1 | 7/16 | 0 | 0 |
+| 1:02 | P1 clockwork | balanced | 376 | 136 | 9 | 0 | {} | 1 | 9/20 | 0 | 0 |
+| 1:02 | P2 brood | balanced | 223 | 48 | 7 | 0 | {} | 2 | 8/28 | 0 | 0 |
+| 2:02 | P1 clockwork | cs_rush | 1051 | 271 | 13 | 0 | {} | 1 | 13/20 | 0 | 0 |
+| 2:02 | P2 brood | rush | 580 | 30 | 9 | 150 | {tyrannosaur:1} | 2 | 13/28 | 0 | 0 |
+| 3:05 | P1 clockwork | cs_rush | 1957 | 657 | 13 | 280 | {clock_soldier:4} | 1 | 19/20 | 0 | 0 |
+| 3:05 | P2 brood | rush | 985 | 35 | 8 | 400 | {raptor:12,mound_turtle:1} | 2 | 24/28 | 0 | 0 |
+| 4:05 | P1 clockwork | balanced | 2765 | 31 | 16 | 560 | {clock_soldier:8} | 1 | 27/40 | 1 | 0 |
+| 4:05 | P2 brood | balanced | 1392 | 17 | 12 | 125 | {raptor:5} | 2 | 23/40 | 6 | 0 |
+| 5:05 | P1 clockwork | balanced | 3629 | 31 | 22 | 630 | {clock_soldier:9} | 2 | 33/50 | 5 | 0 |
+| 5:05 | P2 brood | balanced | 2003 | 28 | 16 | 600 | {tyrannosaur:1,raptor:11,rootmaw:1,mound_turtle:1} | 2 | 33/40 | 9 | 0 |
+| 6:05 | P1 clockwork | balanced | 4695 | 163 | 26 | 630 | {clock_soldier:9} | 2 | 37/60 | 9 | 0 |
+| 6:05 | P2 brood | balanced | 2772 | 47 | 20 | 600 | {raptor:20,mound_turtle:1} | 2 | 46/52 | 14 | 0 |
+| 7:05 | P1 clockwork | balanced | 6030 | 39 | 25 | 775 | {clock_soldier:5,netter:1,springer:3} | 2 | 48/60 | 14 | 0 |
+| 7:05 | P2 brood | balanced | 3495 | 20 | 22 | 325 | {raptor:13} | 3 | 44/76 | 33 | 0 |
+| 8:05 | P1 clockwork | balanced | 7371 | 198 | 26 | 1630 | {clock_soldier:9,netter:2,springer:6,ballista:1} | 2 | 60/70 | 14 | 0 |
+| 8:05 | P2 brood | balanced | 4485 | 10 | 21 | 1150 | {raptor:42,mound_turtle:1} | 3 | 74/76 | 34 | 0 |
+| 9:05 | P1 clockwork | balanced | 9027 | 62 | 27 | 940 | {ballista:1,clock_soldier:7,pendulum:1,springer:1} | 2 | 56/90 | 31 | 0 |
+| 9:05 | P2 brood | balanced | 5603 | 278 | 32 | 1250 | {raptor:39,rootmaw:1,dilophosaurus:1} | 3 | 80/100 | 41 | 0 |
+| 10:05 | P1 clockwork | balanced | 10544 | 347 | 31 | 2260 | {ballista:2,clock_soldier:18,pendulum:1,springer:5} | 3 | 76/100 | 31 | 0 |
+| 10:05 | P2 brood | balanced | 7141 | 66 | 29 | 1775 | {raptor:59,mound_turtle:1,pterodactyl:1} | 3 | 107/112 | 41 | 0 |
+| 11:05 | P1 clockwork | balanced | 12084 | 65 | 32 | 2770 | {ballista:2,clock_soldier:21,pendulum:2,springer:6} | 3 | 92/100 | 35 | 0 |
+| 11:05 | P2 brood | balanced | 8823 | 8 | 52 | 200 | {raptor:5,rootmaw:1} | 4 | 83/136 | 98 | 0 |
+| 12:05 | P1 clockwork | balanced | 13370 | 35 | 32 | 3490 | {ballista:2,clock_soldier:27,pendulum:2,springer:9} | 4 | 106/120 | 36 | 0 |
+| 12:05 | P2 brood | balanced | 10961 | 166 | 50 | 2220 | {raptor:52,spitter:16,mound_turtle:2} | 4 | 136/136 | 98 | 0 |
+| 13:05 | P1 clockwork | balanced | 14901 | 45 | 32 | 1710 | {ballista:1,springer:6,clock_soldier:8,pendulum:2} | 4 | 77/130 | 74 | 0 |
+| 13:05 | P2 brood | balanced | 12893 | 43 | 54 | 1545 | {rootmaw:3,spitter:16,raptor:24} | 4 | 118/184 | 168 | 0 |
+| 14:05 | P1 clockwork | balanced | 16322 | 12 | 29 | 1660 | {ballista:2,springer:6,pendulum:1,clock_soldier:8} | 4 | 78/140 | 88 | 0 |
+| 14:05 | P2 brood | balanced | 15412 | 582 | 54 | 1795 | {rootmaw:2,spitter:31,raptor:10} | 4 | 113/184 | 217 | 0 |
+| 14:51 | P1 clockwork | balanced | 17599 | 64 | 32 | 1125 | {ballista:2,netter:1,clock_soldier:10} | 4 | 70/140 | 104 | 0 |
+| 14:51 | P2 brood | balanced | 17004 | 49 | 52 | 2850 | {rootmaw:3,spitter:35,raptor:34,mound_turtle:2} | 4 | 155/184 | 249 | 0 |

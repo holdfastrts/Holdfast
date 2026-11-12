@@ -1,0 +1,34 @@
+| clock | side | plan | income | bank | workers | army | army kinds | halls | supply | units lost | buildings lost |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0:15 | P1 crown | optimal | 0 | 100 | 5 | 0 | {} | 1 | 6/10 | 0 | 0 |
+| 0:15 | P2 crown | optimal | 0 | 100 | 5 | 0 | {} | 1 | 6/10 | 0 | 0 |
+| 1:02 | P1 crown | optimal | 380 | 30 | 8 | 0 | {} | 1 | 9/18 | 0 | 0 |
+| 1:02 | P2 crown | optimal | 380 | 30 | 8 | 0 | {} | 1 | 9/18 | 0 | 0 |
+| 2:02 | P1 crown | optimal | 760 | 258 | 9 | 0 | {} | 1 | 11/18 | 1 | 0 |
+| 2:02 | P2 crown | optimal | 760 | 258 | 9 | 0 | {} | 1 | 11/18 | 1 | 0 |
+| 3:04 | P1 crown | dragoon | 1140 | 138 | 13 | 0 | {} | 1 | 15/26 | 1 | 0 |
+| 3:04 | P2 crown | balanced | 1140 | 38 | 13 | 0 | {} | 2 | 13/36 | 1 | 0 |
+| 4:04 | P1 crown | dragoon | 1900 | 28 | 15 | 115 | {cuirassier:1} | 1 | 21/34 | 2 | 0 |
+| 4:04 | P2 crown | balanced | 1520 | 15 | 15 | 0 | {} | 2 | 15/36 | 2 | 0 |
+| 5:05 | P1 crown | dragoon | 2660 | 48 | 16 | 175 | {cuirassier:1,musketeer:1} | 2 | 21/44 | 2 | 0 |
+| 5:05 | P2 crown | balanced | 2280 | 5 | 20 | 0 | {} | 2 | 20/36 | 2 | 0 |
+| 6:05 | P1 crown | dragoon | 3040 | 18 | 16 | 175 | {cuirassier:1,musketeer:1} | 2 | 26/52 | 2 | 0 |
+| 6:05 | P2 crown | economy | 3040 | 0 | 23 | 60 | {musketeer:1} | 2 | 25/44 | 3 | 0 |
+| 7:06 | P1 crown | dragoon | 3800 | 18 | 19 | 465 | {cuirassier:1,musketeer:3,cannon:1} | 2 | 35/52 | 3 | 0 |
+| 7:06 | P2 crown | economy | 4940 | 20 | 30 | 175 | {musketeer:1,cuirassier:1} | 2 | 49/52 | 3 | 0 |
+| 8:06 | P1 crown | dragoon | 4940 | 28 | 23 | 820 | {cuirassier:2,musketeer:7,cannon:1} | 2 | 52/60 | 4 | 0 |
+| 8:06 | P2 crown | economy | 6460 | 0 | 37 | 635 | {musketeer:2,cuirassier:3,cannon:1} | 2 | 63/76 | 4 | 0 |
+| 9:06 | P1 crown | dragoon | 6460 | 133 | 30 | 935 | {cuirassier:3,musketeer:7,cannon:1} | 2 | 68/68 | 5 | 0 |
+| 9:06 | P2 crown | economy | 7980 | 10 | 46 | 1295 | {musketeer:13,cuirassier:3,cannon:1} | 2 | 81/100 | 5 | 0 |
+| 10:06 | P1 crown | dragoon | 8360 | 8 | 37 | 1350 | {cuirassier:4,musketeer:12,cannon:1} | 2 | 82/84 | 8 | 0 |
+| 10:06 | P2 crown | economy | 10260 | 0 | 48 | 2010 | {musketeer:23,cuirassier:4,cannon:1} | 2 | 97/116 | 6 | 0 |
+| 11:06 | P1 crown | dragoon | 9500 | 8 | 46 | 1470 | {cuirassier:4,musketeer:14,cannon:1} | 3 | 90/110 | 8 | 0 |
+| 11:06 | P2 crown | economy | 11780 | 34 | 57 | 1890 | {musketeer:21,cuirassier:4,cannon:1} | 3 | 108/142 | 8 | 0 |
+| 12:06 | P1 crown | dragoon | 10260 | 58 | 44 | 350 | {musketeer:3,cannon:1} | 4 | 65/120 | 27 | 1 |
+| 12:06 | P2 crown | economy | 13560 | 5 | 51 | 1595 | {musketeer:17,cuirassier:5} | 3 | 113/150 | 17 | 0 |
+| 13:06 | P1 crown | dragoon | 10640 | 6 | 38 | 520 | {cannon:1,musketeer:2,cuirassier:2} | 4 | 63/128 | 39 | 2 |
+| 13:06 | P2 crown | economy | 16220 | 10 | 60 | 1950 | {musketeer:21,cuirassier:6} | 3 | 134/150 | 23 | 0 |
+| 14:06 | P1 crown | dragoon | 11400 | 6 | 40 | 520 | {cannon:1,musketeer:2,cuirassier:2} | 3 | 66/118 | 40 | 3 |
+| 14:06 | P2 crown | economy | 17740 | 26 | 65 | 2715 | {musketeer:29,cuirassier:7,cannon:1} | 4 | 148/184 | 25 | 0 |
+| 14:51 | P1 crown | dragoon | 11400 | 6 | 30 | 405 | {cannon:1,musketeer:2,cuirassier:1} | 3 | 47/118 | 57 | 5 |
+| 14:51 | P2 crown | economy | 19260 | 21 | 72 | 2540 | {musketeer:28,cuirassier:6,cannon:1} | 5 | 152/200 | 32 | 0 |

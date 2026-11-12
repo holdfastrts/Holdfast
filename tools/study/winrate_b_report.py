@@ -34,7 +34,7 @@ def load(data):
             continue
         g = json.load(open(f))
         g["tag"], g["pk"] = tag, pk
-        g["mapn"] = tag[5:-10]
+        g["mapn"] = tag[5:-8]
         g["rnd"] = int(tag[-1])
         g["fac"] = [s[0] for s in g["slots"]]
         g["at"] = {}
@@ -139,7 +139,7 @@ def main():
     new, old = load(NEW), load(OLD)
     P = print
     vers = sorted({g["version"] for g in new.values()})
-    P("Games read: now %d (version %s), 0.33.7 %d (the same tags and seeds)." % (len(new), ", ".join(vers), len([t for t in old if t in new or True])))
+    P("Games read: now %d (version %s) and the same %d tags and seeds of 0.33.7 (%s)." % (len(new), ", ".join(vers), len([t for t in old if t in new]), os.path.relpath(OLD, ROOT)))
     P()
     P("## Win rates")
     P()
