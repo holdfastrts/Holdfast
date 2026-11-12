@@ -402,6 +402,40 @@ func _dry_hand_over() -> bool:
 	return true
 
 
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 4) PRESSES WHERE THE BRASS IS: against the Brood a
+## new Cog Press goes by the built Clocktower with the most brass for each press it already has (brass left / (presses + 1)),
+## not by the one nearest the main. (Greenhold 11, Clockwork P2, a dump at 8:00: four presses on the main at 9% brass, none
+## by the natural at 83% (its first press, "press_new", went by the old Clocktower while the Brood's rush stood at the
+## natural); at 9:00 the main was spent and 15 Winders stood idle; income 9,018 -> 10,063 from 9:00 to 11:00. The same
+## collapse at about 9:00 in 4 of the 16 games of the "before" batch, with 27-30 Winders alive.) `-- cvbpress:off`.
+var press_on := not OS.get_cmdline_user_args().has("cvbpress:off")
+
+
+func _drive_spot(kind: String) -> Vector2i:
+	if press_on and kind == Defs.GEAR_PRESS and Defs.gear_mode and difficulty >= 1 and _foe_is("brood"):
+		var c := _press_by_brass()
+		if c.x >= 0:
+			return c
+	return super._drive_spot(kind)
+
+
+func _press_by_brass() -> Vector2i:
+	var halls: Array = _halls().filter(func(h: Building) -> bool: return h.built and h.lode_left() > 0.05)
+	if halls.is_empty():
+		return Vector2i(-1, -1)
+	var n := {}
+	for b in _mine(Defs.GEAR_PRESS):
+		var nh = game.nearest_hall(b.center(), team)
+		if nh != null:
+			n[nh] = int(n.get(nh, 0)) + 1
+	halls.sort_custom(func(a: Building, b: Building) -> bool: return a.lode_left() / (1.0 + int(n.get(a, 0))) > b.lode_left() / (1.0 + int(n.get(b, 0))))
+	for h in halls:
+		var c := GearEcon.room_spot(game, team, Defs.GEAR_PRESS, [h], [], h.center(), true, 8)
+		if c.x >= 0:
+			return c
+	return Vector2i(-1, -1)
+
+
 ## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 2) A STUCK BUILD ORDER: against the Brood, a written
 ## build that has done no step for STUCK_T s with STUCK_BANK cogs or more in the bank hands over to the shared rules.
 ## (Kestrel Rise 41, the Pendulums picked at 1:51 from the common opening: "finds no room for a Heavy Works by its
