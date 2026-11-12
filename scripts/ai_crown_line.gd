@@ -1,0 +1,567 @@
+class_name AICrownLine
+extends RefCounted
+## THE CROWN'S LINE (crown-line-fight, the owner 2026-11-12 07:59: "Maybe there is one thing the Crown isn't doing: the
+## drag-to-draw line of Musketeers. This line of fire and cannon placement could help in fights."; docs/crown_line_fight.md).
+## A human Crown player drags a LINE for his Musketeers (Game.line_move) so every musket fires at once, and puts his Field
+## Cannons behind it where they shoot over it. The computer attack-moved its wave as a blob to a point: the Musketeers met
+## the enemy in a clump or a column and only the front rows fired. Now (the Crown computer, Normal and up, the main army
+## only: raids, the Horseman rush, the Dragoon raids and the Balloon harass keep their own play):
+##  1. THE LINE: Game.line_orders, the very orders of a player's drag: the shooters (Musketeers, Guardsmen, Dragoons,
+##     the dismounted) across the approach facing the enemy, one rank (two from RANK2 shooters), LINE_GAP apart, centred
+##     on the enemy's direction; the melee (Horsemen, Officers, Pikemen) on the flanks; nobody in front of the muskets.
+##  2. THE GUNS: the Field Cannons GUN_BACK behind the line, spread along it, unlimbered there (round shot 430 px reaches
+##     over the line and past it); Mortars MORTAR_BACK behind.
+##  3. THE MARCH: an attack whose wave sees an enemy army ahead stops out of its reach (FORM_D from the nearest enemy),
+##     forms the line facing it, the guns unlimber behind; then the line steps forward on an attack-move (each man to his
+##     spot ADVANCE px on, so they arrive together and stop to fire as one); the guns come up behind it. Contact: it
+##     fights where it stands (the held line shoots; a line with nothing left in reach steps on: a winning line pushes on);
+##     a line losing the trade falls back toward its guns in order (BACK px) and forms again. After the fight it re-forms.
+##     Strung out on the march with nothing ahead, the head waits and the tail closes up (SPREAD_MAX).
+##  4. THE DEFENCE: a detachment sent to a force at our buildings (AI._defend) with LINE_MIN shooters or more arrives as a
+##     line facing it, DEF_D short of it (inside musket reach), not as a blob on the spot.
+## Design: docs/design_principles.md 1 (fair: the computer uses the player's own tool, nothing it could not do by hand),
+## 4 (battles that carry the weight of the match: formed lines and guns). No unit or economy number changed.
+## Study switch: `-- line:off` (the old blob).
+
+const SHOOT_KINDS := ["musketeer", "musketeer_armoured", "dismounted", "dismounted_armoured", "dragoon"]
+const GUN_KINDS := ["cannon", "mortar"]
+const LINE_MIN := 4             # shooters: fewer than this, no line
+const RANK2 := 14               # shooters: from this many, two ranks
+const LINE_GAP := 0.95          # (tiles) between men in a rank
+const ROW_GAP := 0.9            # (tiles) between the ranks
+const FLANK := 1.6              # (tiles) the melee beyond each end of the front rank
+const GUN_BACK := 2.6           # (tiles) the Field Cannons behind the front rank
+const GUN_GAP := 1.7            # (tiles) between guns
+const MORTAR_BACK := 6.0        # (tiles) the Mortars behind the front rank (their least range is 5 tiles)
+const SEE_R := 760.0            # (px) an armed enemy this near the wave's body is "ahead"
+const SEE_SHARE := 0.25         # ... when worth this share of the wave
+const FORM_D := 330.0           # (px) the line forms this far from the nearest enemy (a musket reaches 190)
+const CONTACT_R := 250.0        # (px) an armed enemy this near a man of the wave: the fight is on
+const FORM_MAX := 12.0          # (s) a line not formed by then goes on anyway
+const FORMED := 0.75            # share of the shooters at their spots: formed
+const AT_SPOT := 30.0           # (px) a man this near his spot is at it
+const ADVANCE := 190.0          # (px) the formed line steps this far on ... (to musket reach of the enemy it formed at)
+const STEP := 96.0              # (px) ... a line in a fight with nothing in reach steps this far on
+const IDLE_PUSH := 4.0          # (s) a held line with nothing in reach this long steps on
+const FORM_COOL := 20.0         # (s) between two formings of the same wave
+const SPREAD_MAX := 5.0         # (tiles) the body's mean distance from its middle that calls a close-up on the march
+const DONE_SPREAD := 2.4
+const CLOSE_MAX := 14.0
+const CLOSE_COOL := 18.0
+const BODY_R := 12.0            # (tiles)
+const LOSE_RATIO := 1.6         # lost / killed in this fight ...
+const LOSE_MIN := 260.0         # ... and lost at least this: the line falls back
+const BACK := 150.0             # (px) a falling-back line steps this far toward its guns
+const BACK_T := 9.0             # (s) it holds there this long before it fights on
+const DEF_D := 150.0            # (px) a defence's line stands this far short of the force it meets
+
+var ai = null                    # the AICrown
+var game: Game = null
+var on := not OS.get_cmdline_user_args().has("line:off")
+var said: Array = []             # [clock, text] (tests, the coach)
+var forms := 0                   # (tests) lines formed on the march
+var def_lines := 0               # (tests) defence lines
+var falls := 0                   # (tests) lines that fell back in order
+
+# the wave's line
+var st := ""                     # "" (marching), "form", "advance", "fight", "back", "close"
+var _t0 := 0.0
+var _c := Vector2.INF            # the front rank's middle
+var _face := Vector2.ZERO        # toward the enemy
+var _spot := {}                  # Unit -> his spot in the line
+var _last_form := -99.0
+var _close_next := 0.0
+var _close_pt := Vector2.INF
+var _reach_t := 0.0              # the last clock a held shooter had an enemy in reach
+var _trade0 := Vector2.ZERO      # (killed, lost) when the fight began
+var line_log: Array = []         # [clock, kind, shooters, across px, guns] (tests)
+
+
+func _init(owner) -> void:
+	ai = owner
+	game = owner.game
+
+
+func active() -> bool:
+	return on and ai.difficulty >= 1
+
+
+func _say(s: String) -> void:
+	said.append([snappedf(game.clock, 0.1), s])
+	if game.mlog:
+		game.mlog.add("%s%s%s" % [game.mlog.who(ai.team), "" if s.begins_with("'s") else " ", s])
+
+
+static func shooter(u: Unit) -> bool:
+	return u.kind in SHOOT_KINDS
+
+
+static func is_gun(u: Unit) -> bool:
+	return u.kind in GUN_KINDS
+
+
+func _ok(u) -> bool:
+	return is_instance_valid(u) and not u.dead and not u.off_field and not u.is_air()
+
+
+func _value(list: Array) -> float:
+	var v := 0.0
+	for u in list:
+		v += float(Game.unit_value(u))
+	return v
+
+
+func _foe_ok(o: Unit) -> bool:
+	return not o.dead and not o.off_field and game.hostile(o.team, ai.team) and not o.is_worker() and o.has_attack() \
+			and game.is_visible_to(ai.team, o.position)
+
+
+# ============================================================ 1-2. the line and its guns
+
+## Lays the line: the front rank's middle `c`, facing `face`; `units` the men and guns to place. attack: the shooters go on
+## an attack-move (they stop to fire at what comes in reach). Returns the number of shooters placed.
+func lay(units: Array, c: Vector2, face: Vector2, attack: bool) -> int:
+	var shooters: Array = units.filter(func(u) -> bool: return _ok(u) and shooter(u))
+	var guns: Array = units.filter(func(u) -> bool: return _ok(u) and is_gun(u))
+	var melee: Array = units.filter(func(u) -> bool: return _ok(u) and not shooter(u) and not is_gun(u))
+	_spot.clear()
+	if shooters.size() < LINE_MIN:
+		return 0
+	var T := float(Defs.TILE)
+	face = face.normalized()
+	var perp := Vector2(-face.y, face.x)
+	var ranks := 2 if shooters.size() >= RANK2 else 1
+	var per: int = int(ceil(float(shooters.size()) / ranks))
+	var half: float = per * LINE_GAP * T * 0.5
+	# the front rank: the men nearest the enemy (they are there first)
+	shooters.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.dot(face) > b.position.dot(face))
+	var lvl: int = game.level_of(c)
+	for r in ranks:
+		var mid: Vector2 = c - face * (ROW_GAP * T * r)
+		var row: Array = shooters.slice(r * per, mini((r + 1) * per, shooters.size()))
+		if row.is_empty():
+			continue
+		var h2: float = half * float(row.size()) / float(per)
+		var pts := PackedVector2Array([mid - perp * h2, mid + perp * h2])
+		var got: Dictionary = game.line_orders(row, pts, attack)
+		for u in got:
+			_spot[u] = got[u]
+	# the melee on the flanks, half each side, a little behind the front rank
+	for i in melee.size():
+		var u: Unit = melee[i]
+		var side := 1.0 if i % 2 == 0 else -1.0
+		var k: int = i / 2
+		var p: Vector2 = c + perp * side * (half + (FLANK + 0.9 * k) * T) - face * (0.6 * T)
+		p = _same_level(p, lvl, c)
+		_spot[u] = p
+		if attack:
+			u.cmd_move(p, true)
+		else:
+			u.cmd_move(p)
+	# the guns behind the line, spread along it
+	var cannons: Array = guns.filter(func(u: Unit) -> bool: return u.kind == "cannon")
+	var mortars: Array = guns.filter(func(u: Unit) -> bool: return u.kind == "mortar")
+	_place_guns(cannons, c - face * (GUN_BACK * T), perp, half, lvl, c, attack)
+	_place_guns(mortars, c - face * (MORTAR_BACK * T), perp, half, lvl, c, attack)
+	line_log.append([snappedf(game.clock, 0.1), st, shooters.size(), int(half * 2.0), guns.size()])
+	return shooters.size()
+
+
+func _place_guns(guns: Array, mid: Vector2, perp: Vector2, half: float, lvl: int, c: Vector2, attack: bool) -> void:
+	if guns.is_empty():
+		return
+	var T := float(Defs.TILE)
+	var span: float = minf(half * 0.8, (guns.size() - 1) * GUN_GAP * T * 0.5)
+	guns.sort_custom(func(a: Unit, b: Unit) -> bool: return a.position.dot(perp) < b.position.dot(perp))
+	for i in guns.size():
+		var f: float = 0.0 if guns.size() == 1 else -1.0 + 2.0 * float(i) / float(guns.size() - 1)
+		var p: Vector2 = _same_level(mid + perp * span * f, lvl, c)
+		_spot[guns[i]] = p
+		var u: Unit = guns[i]
+		if u.position.distance_to(p) < AT_SPOT and u.tesla_mode != "packed":
+			continue          # (set up at its spot already)
+		if attack:
+			u.cmd_move(p, true)
+		else:
+			u.cmd_move(p)
+
+
+## p moved toward `back` until it is open ground on level `lvl` (a line's flank or gun spot over a cliff's rim).
+func _same_level(p: Vector2, lvl: int, back: Vector2) -> Vector2:
+	for k in 9:
+		var q: Vector2 = p.lerp(back, k / 8.0)
+		var c: Vector2i = game.cell_of(q)
+		if game.in_map(c) and game.open_cell(c) and game.level_of(q) == lvl:
+			return q
+	return back
+
+
+## Men at their spots stand on HOLD facing the enemy; guns there set up. Returns the share of the shooters at their spots.
+func settle(face: Vector2) -> float:
+	var n := 0
+	var at := 0
+	for u in _spot.keys():
+		if not _ok(u):
+			_spot.erase(u)
+			continue
+		var sp: Vector2 = _spot[u]
+		var there: bool = u.position.distance_to(sp) < AT_SPOT
+		if shooter(u):
+			n += 1
+			if there:
+				at += 1
+		if not there:
+			if u.order == "idle" and u.target == null:
+				u.cmd_move(sp)          # (stopped short: on to his spot)
+			continue
+		if is_gun(u):
+			if u.order == "idle" and u.tesla_mode == "packed":
+				u.cmd_deploy()
+		elif u.order != "hold" and (u.target == null or u.order in ["move", "idle"]):
+			u.cmd_hold()
+			if face != Vector2.ZERO:
+				u.facing = face
+	return float(at) / float(maxi(1, n))
+
+
+# ============================================================ 3. the march
+
+## Called every army think while the wave is out (AI._army through AICrown._cohesion): true = the line has its men in hand
+## this think (the shared loop sends nobody).
+func march(wave: Array, target: Vector2) -> bool:
+	if not active():
+		return false
+	var ground: Array = wave.filter(func(u) -> bool: return _ok(u))
+	if ground.filter(func(u: Unit) -> bool: return shooter(u)).size() < LINE_MIN:
+		return _reset(ground, target, "")
+	var pc = ai._siege.get("piece")
+	var body := _body(ground)
+	var bc := Vector2.ZERO
+	for u in body:
+		bc += u.position
+	bc /= maxi(1, body.size())
+	if pc != null and is_instance_valid(pc) and not pc.dead and bc.distance_to(pc.center()) < 560.0:
+		return _reset(ground, target, "")       # (at the wall: the siege's own order)
+	# the enemy army ahead, and the nearest of it
+	var foes: Array = []
+	var seen := {}
+	for u in body:
+		for o in game.units_near(u.position, SEE_R):
+			if not seen.has(o) and _foe_ok(o):
+				seen[o] = true
+				foes.append(o)
+	var contact := false
+	var nearest := INF
+	var near_o: Unit = null
+	for o in foes:
+		for u in ground:
+			var d: float = o.position.distance_to(u.position)
+			if d < nearest:
+				nearest = d
+				near_o = o
+		if nearest < CONTACT_R:
+			contact = true
+	var mine := _value(ground)
+	var ahead := _value(foes)
+	match st:
+		"form":
+			return _forming(ground, target, contact, foes)
+		"advance":
+			if contact:
+				return _fight_begin(ground)
+			if foes.is_empty():
+				return _reset(ground, target, "")
+			if _all_still(ground) and game.clock - _t0 > 3.0:
+				return _fight_begin(ground)
+			return true
+		"fight":
+			return _fight(ground, target, foes, contact)
+		"back":
+			if game.clock - _t0 >= BACK_T or (contact and nearest < 120.0):
+				st = "fight"
+				_reach_t = game.clock
+				return _fight(ground, target, foes, contact)
+			settle(_face)
+			return true
+	if contact:
+		return _fight_begin(ground)
+	if not foes.is_empty() and ahead >= mine * SEE_SHARE and game.clock - _last_form >= FORM_COOL:
+		return _form(ground, bc, near_o, foes)
+	if st == "close":
+		var spread := _spread(body, bc)
+		if spread <= DONE_SPREAD or game.clock - _t0 > CLOSE_MAX:
+			_say("'s wave goes on together (%.1f tiles apart)" % spread)
+			return _reset(ground, target, "")
+		_close_orders(ground, target)
+		return true
+	if game.clock >= _close_next and body.size() >= 4:
+		var spread2 := _spread(body, bc)
+		if spread2 > SPREAD_MAX:
+			st = "close"
+			_t0 = game.clock
+			_close_pt = _head(body, target)
+			_say("'s wave is strung out on the march: %d men %.1f tiles apart close up before going on" % [body.size(), spread2])
+			_close_orders(ground, target)
+			return true
+	return false
+
+
+func _form(ground: Array, bc: Vector2, near_o: Unit, foes: Array) -> bool:
+	var fc := Vector2.ZERO
+	var w := 0.0
+	for o in foes:
+		var k: float = float(Game.unit_value(o))
+		fc += o.position * k
+		w += k
+	fc = fc / w if w > 0.0 else near_o.position
+	_face = (fc - bc).normalized()
+	if _face == Vector2.ZERO:
+		_face = Vector2.RIGHT
+	# the front rank's middle: FORM_D short of the nearest enemy along the line to the enemy's middle, never ahead of where
+	# the body's head stands now (it waits there for the rest)
+	var nd: float = (near_o.position - bc).dot(_face)
+	var fwd: float = clampf(nd - FORM_D, 0.0, 260.0)
+	var c: Vector2 = bc + _face * fwd
+	var lvl: int = game.level_of(bc)
+	c = _same_level(c, lvl, bc)
+	_c = c
+	st = "form"
+	_t0 = game.clock
+	_last_form = game.clock
+	var n := lay(ground, c, _face, false)
+	if n == 0:
+		st = ""
+		return false
+	forms += 1
+	var guns: int = ground.filter(func(u: Unit) -> bool: return is_gun(u)).size()
+	_say("'s wave forms its line before the enemy army ahead (%d): %d muskets in %d rank%s, %d gun%s behind" % [
+		int(_value(foes)), n, 2 if n >= RANK2 else 1, "s" if n >= RANK2 else "", guns, "" if guns == 1 else "s"])
+	return true
+
+
+func _forming(ground: Array, target: Vector2, contact: bool, foes: Array) -> bool:
+	var share := settle(_face)
+	if contact:
+		return _fight_begin(ground)         # (they came to us: the line shoots where it stands)
+	if foes.is_empty() and game.clock - _t0 > 4.0:
+		return _reset(ground, target, "")
+	if share >= FORMED or game.clock - _t0 > FORM_MAX:
+		# formed: the line steps on together, each man to his spot ADVANCE on (an attack-move: they stop to fire as one)
+		var on_spots: Array = _spot.keys().filter(func(u) -> bool: return _ok(u))
+		var shooters: Array = on_spots.filter(func(u: Unit) -> bool: return shooter(u))
+		var rest: Array = on_spots.filter(func(u: Unit) -> bool: return not shooter(u) and not is_gun(u))
+		for u in shooters + rest:
+			u.cmd_move(_spot[u] + _face * ADVANCE, true)
+		# the guns stay set up where they reach; packed ones come up on an attack-move (they set up as soon as in reach)
+		for u in on_spots.filter(func(u: Unit) -> bool: return is_gun(u)):
+			if u.tesla_mode == "packed":
+				u.cmd_move(_spot[u] + _face * ADVANCE * 0.5, true)
+		st = "advance"
+		_t0 = game.clock
+		_c += _face * ADVANCE
+		return true
+	return true
+
+
+func _fight_begin(ground: Array) -> bool:
+	st = "fight"
+	_t0 = game.clock
+	_reach_t = game.clock
+	_trade0 = Vector2(float(game.stats[ai.team]["value_killed"]), float(ai._lost_value()))
+	# the men still walking to the line stop where they are and fire (an attack-move in place); the held line holds
+	# (the men at the line hold it: they shoot what comes in reach and do not walk on into the enemy one by one)
+	for u in ground:
+		if not shooter(u):
+			continue
+		if u.order == "move":
+			u.cmd_move(u.position, true)
+		elif u.order == "idle":
+			u.cmd_hold()
+			if _face != Vector2.ZERO:
+				u.facing = _face
+	return false
+
+
+func _fight(ground: Array, target: Vector2, foes: Array, contact: bool) -> bool:
+	if foes.is_empty():
+		_say("'s line has won the field: it forms up again and goes on")
+		return _reset(ground, target, "")
+	# losing the trade: back toward the guns in order, form again
+	var killed: float = float(game.stats[ai.team]["value_killed"]) - _trade0.x
+	var lost: float = float(ai._lost_value()) - _trade0.y
+	if lost >= LOSE_MIN and lost > killed * LOSE_RATIO and _face != Vector2.ZERO:
+		var bc := Vector2.ZERO
+		var sh: Array = ground.filter(func(u: Unit) -> bool: return shooter(u))
+		if sh.size() >= LINE_MIN:
+			for u in sh:
+				bc += u.position
+			bc /= sh.size()
+			var c: Vector2 = _same_level(bc - _face * BACK, game.level_of(bc), bc)
+			st = "back"
+			_t0 = game.clock
+			_c = c
+			_trade0 = Vector2(float(game.stats[ai.team]["value_killed"]), float(ai._lost_value()))
+			lay(ground.filter(func(u: Unit) -> bool: return not is_gun(u)), c, _face, false)
+			falls += 1
+			_say("'s line is losing the fight (%d lost for %d): it falls back toward its guns in order and forms again" % [int(lost), int(killed)])
+			return true
+	# the held line: something in reach keeps it; nothing for IDLE_PUSH s, it steps on toward the enemy (pushes on)
+	var held: Array = ground.filter(func(u: Unit) -> bool: return shooter(u) and u.order == "hold")
+	var any_reach := false
+	for u in held:
+		var r: float = float(u.d.get("range", 190)) + 10.0
+		for o in foes:
+			if o.position.distance_to(u.position) < r:
+				any_reach = true
+				break
+		if any_reach:
+			break
+	if any_reach or held.is_empty():
+		_reach_t = game.clock
+	elif game.clock - _reach_t > IDLE_PUSH:
+		_reach_t = game.clock
+		var nf: Unit = null
+		var nd := INF
+		for o in foes:
+			var d: float = o.position.distance_to(_c)
+			if d < nd:
+				nd = d
+				nf = o
+		if nf != null:
+			var dir: Vector2 = (nf.position - _c).normalized()
+			if dir != Vector2.ZERO:
+				_face = dir
+			for u in held:
+				u.cmd_move(u.position + _face * STEP, true)
+			_c += _face * STEP
+	return false       # (the shared loop sends the idle men on: the line's held men stay)
+
+
+func _reset(ground: Array, target: Vector2, why: String) -> bool:
+	if st == "":
+		return false
+	var was := st
+	st = ""
+	_spot.clear()
+	if why != "":
+		_say(why)
+	if was == "close":
+		_close_next = game.clock + CLOSE_COOL
+	for u in ground:
+		if u.order in ["hold", "idle"] and not (is_gun(u) and u.tesla_mode != "packed" and u.target != null):
+			u.cmd_move(target + Vector2(randf_range(-50, 50), randf_range(-50, 50)), true)
+	return false
+
+
+func _all_still(ground: Array) -> bool:
+	for u in ground:
+		if shooter(u) and u.order in ["amove", "d_amove", "move"] and u.target == null:
+			return false
+	return true
+
+
+func _body(ground: Array) -> Array:
+	var r2 := pow(BODY_R * Defs.TILE, 2)
+	var best: Unit = null
+	var bn := -1
+	for u in ground:
+		var k := 0
+		for o in ground:
+			if o.position.distance_squared_to(u.position) < r2:
+				k += 1
+		if k > bn:
+			bn = k
+			best = u
+	if best == null:
+		return []
+	return ground.filter(func(o) -> bool: return o.position.distance_squared_to(best.position) < r2)
+
+
+func _spread(body: Array, c: Vector2) -> float:
+	var s := 0.0
+	for u in body:
+		s += u.position.distance_to(c)
+	return s / maxf(1.0, body.size() * Defs.TILE)
+
+
+func _head(body: Array, target: Vector2) -> Vector2:
+	var best: Unit = null
+	var bd := INF
+	for u in body:
+		var d: float = u.position.distance_to(target)
+		if d < bd:
+			bd = d
+			best = u
+	return best.position if best else target
+
+
+func _close_orders(ground: Array, target: Vector2) -> void:
+	var to_t: float = _close_pt.distance_to(target)
+	for u in ground:
+		if u.deploys() and u.tesla_mode == "deployed":
+			continue
+		var d: float = u.position.distance_to(_close_pt)
+		if d <= 2.5 * Defs.TILE or u.position.distance_to(target) < to_t:
+			if u.is_mounted() or u.kind == "dragoon":
+				if u.order != "idle":
+					u.cmd_stop()
+			elif u.order != "hold":
+				u.cmd_hold()
+		elif not (u.order in ["amove", "d_amove"] and u.order_point.distance_to(_close_pt) < 60.0):
+			u.cmd_move(_close_pt + Vector2(randf_range(-40, 40), randf_range(-40, 40)), true)
+
+
+func regrouping() -> bool:
+	return st in ["close", "form", "back"]
+
+
+# ============================================================ 4. the defence
+
+## AI._defend's picks for a force at `spot`: with LINE_MIN shooters or more they arrive as a line facing it, DEF_D short of
+## it, on an attack-move (the guns behind them). true = sent.
+func defend(picks: Array, spot: Vector2) -> bool:
+	if not active():
+		return false
+	var sh: Array = picks.filter(func(u) -> bool: return _ok(u) and shooter(u))
+	if sh.size() < LINE_MIN:
+		return false
+	var bc := Vector2.ZERO
+	for u in sh:
+		bc += u.position
+	bc /= sh.size()
+	if bc.distance_to(spot) < DEF_D + 40.0:
+		return false        # (already on it: they fight where they are)
+	var face: Vector2 = (spot - bc).normalized()
+	var lvl: int = game.level_of(spot)
+	var c: Vector2 = spot - face * DEF_D
+	if game.level_of(c) != lvl and game.level_of(c) != game.level_of(bc):
+		c = _same_level(c, lvl, spot)
+	var keep := _spot.duplicate()
+	var was := st
+	var n := lay(picks, c, face, true)
+	var placed := _spot.duplicate()
+	_spot = keep if was != "" else {}
+	if n == 0:
+		return false
+	for u in placed:
+		_def_spot[u] = placed[u]
+	def_lines += 1
+	if game.clock - _def_said > 20.0:
+		_def_said = game.clock
+		_say("meets the force at its buildings with a line: %d muskets facing it, %d gun%s behind" % [n,
+				picks.filter(func(u) -> bool: return _ok(u) and is_gun(u)).size(), "" if picks.filter(func(u) -> bool: return _ok(u) and is_gun(u)).size() == 1 else "s"])
+	return true
+
+
+var _def_spot := {}             # Unit -> his spot in a defence line (AI._defend leaves him be while he walks to it)
+var _def_said := -99.0
+
+
+## AI._defend's detachment men on their way to a defence line's spot: left be (not sent onto the raid spot).
+func def_walking(u: Unit) -> bool:
+	if not _def_spot.has(u):
+		return false
+	if not _ok(u) or u.order == "idle" or u.position.distance_to(_def_spot[u]) < AT_SPOT:
+		_def_spot.erase(u)
+		return false
+	return true

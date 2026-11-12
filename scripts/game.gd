@@ -8341,9 +8341,19 @@ func _line_spot_free(c: Vector2i, taken: Dictionary) -> Vector2:
 ## spots in order along the line, so their paths don't cross.
 func line_move(list: Array, pts: PackedVector2Array, attack: bool, queued := false) -> void:
 	if net_forward(self, "line_move", [list, pts, attack, queued]): return
+	if line_orders(list, pts, attack, queued).is_empty():
+		return
+	_ping(pts[pts.size() - 1], Color(1, 0.4, 0.3) if attack else Color(0.4, 1, 0.4))
+
+
+## The drag-a-line's orders without the click's ring (line_move; the Crown computer's line, AICrownLine, calls it too, so
+## its line is exactly a player's drag): each unit gets its own spot along the line, matched in order along it so their
+## paths don't cross. Returns {unit: spot}.
+func line_orders(list: Array, pts: PackedVector2Array, attack: bool, queued := false) -> Dictionary:
+	var got := {}
 	var us: Array = list.filter(func(u: Unit) -> bool: return is_instance_valid(u) and not u.dead)
 	if us.is_empty() or pts.size() < 2:
-		return
+		return got
 	var spots := line_spots(pts, us.size())
 	var dir := (pts[pts.size() - 1] - pts[0]).normalized()
 	us.sort_custom(func(a: Unit, b: Unit) -> bool: return a.plan_end().dot(dir) < b.plan_end().dot(dir))
@@ -8354,7 +8364,8 @@ func line_move(list: Array, pts: PackedVector2Array, attack: bool, queued := fal
 		if in_map(cell_of(sp)) and not open_cell(cell_of(sp)):
 			sp = _line_spot_free(cell_of(sp), taken)     # (a spot on a cliff's rim, a tree: free ground beside it on its own level)
 		u.give({"o": "amove" if attack else "move", "p": sp}, queued)
-	_ping(pts[pts.size() - 1], Color(1, 0.4, 0.3) if attack else Color(0.4, 1, 0.4))
+		got[u] = sp
+	return got
 
 
 ## A blast: units in it are hurt (less at the edge), enemy buildings close by take dmg x `bb`, the building_bonus of

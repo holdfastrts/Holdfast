@@ -5476,6 +5476,16 @@ func _siege_skip(_u: Unit) -> bool:
 	return false
 
 
+## (crown-line-fight) A detachment sent to a force at our buildings arrives as a line (the Crown: AICrown._def_line,
+## scripts/ai_crown_line.gd). true = sent.
+func _def_line(_picks: Array, _spot: Vector2) -> bool:
+	return false
+
+
+func _def_walking(_u: Unit) -> bool:
+	return false
+
+
 func _siege_paused() -> bool:
 	return false
 
@@ -7187,6 +7197,8 @@ func _defend(army: Array, threat: Vector2, spots: Array) -> void:
 			_release(u, lone)
 			continue
 		e["spot"] = a["spot"]
+		if _def_walking(u):
+			continue          # (crown-line-fight: on his way to his spot in the defence's line)
 		if u.order == "idle" and u.target == null:
 			u.cmd_move(a["spot"] + Vector2(randf_range(-30, 30), randf_range(-30, 30)), true)
 	for a in asses:
@@ -7233,6 +7245,9 @@ func _defend(army: Array, threat: Vector2, spots: Array) -> void:
 			continue     # nobody fast enough that is worth sending: it is ignored
 		for u in picks:
 			_det[u] = {"spot": spot, "t0": game.clock, "lone": lone}
+		if not lone and _def_line(picks, spot):
+			continue          # (crown-line-fight: the Crown's detachment arrives as a line facing the force)
+		for u in picks:
 			u.cmd_move(spot + Vector2(randf_range(-30, 30), randf_range(-30, 30)), true)
 
 

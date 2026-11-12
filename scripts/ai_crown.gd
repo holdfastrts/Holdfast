@@ -50,7 +50,31 @@ func mirror() -> AICrownMirror:
 
 
 func _cohesion(wave: Array) -> bool:
+	if line_ai() != null and ln.active():
+		if cm != null and cm.bombarding():
+			return true           # (the mirror's line holds out of reach while the guns shell the hall)
+		if _cavalry_wave(wave):
+			return false          # (a riders' wave keeps its own play: the Horseman rush, the raids)
+		return ln.march(wave, _wave_target)      # (crown-line-fight: the wave forms its line before the enemy, scripts/ai_crown_line.gd)
 	return mirror() != null and cm.cohesion(wave, _wave_target)
+
+
+var ln: AICrownLine = null       # (crown-line-fight) the Crown's line (scripts/ai_crown_line.gd)
+
+
+## (crown-line-fight) the line, Normal and up, every matchup; `-- line:off` plays as before.
+func line_ai() -> AICrownLine:
+	if ln == null and on and difficulty >= 1:
+		ln = AICrownLine.new(self)
+	return ln
+
+
+func _def_line(picks: Array, spot: Vector2) -> bool:
+	return line_ai() != null and ln.defend(picks, spot)
+
+
+func _def_walking(u: Unit) -> bool:
+	return ln != null and ln.def_walking(u)
 
 
 func _guns_at_hall(wave: Array) -> void:
@@ -63,6 +87,8 @@ func _siege_skip(u: Unit) -> bool:
 
 
 func _siege_paused() -> bool:
+	if ln != null and ln.active() and ln.regrouping():
+		return true
 	return cm != null and (cm.regrouping() or cm.bombarding())
 
 
