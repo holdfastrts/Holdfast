@@ -175,11 +175,11 @@ func _maybe_go() -> void:
 		mine += float(Game.unit_value(u)) * (GUN_WEIGHT if GUNS.has(u.kind) else 1.0)
 	# an enemy force at our buildings (not a lone scout or a raider the guards see off): the push stays, and QUIET s after
 	var near: float = ai.ch.foe_near()
-	if ai._threat() != Vector2.INF and near >= THREAT_MIN:
+	if ai._threat() != Vector2.INF and near >= THREAT_MIN and not (ai.mirror() != null and ai.cm.threat_small(near, mine)):
 		_threat_t = game.clock
 		_stay("an enemy force (%d) is at our buildings" % int(near))
 		return
-	if game.clock - _threat_t < QUIET:
+	if game.clock - _threat_t < QUIET and not (ai.mirror() != null and ai.cm.threat_small(near, mine)):
 		_stay("an enemy force was at our buildings %d s ago" % int(game.clock - _threat_t))
 		return
 	var known: float = ai.ch.foe_known()

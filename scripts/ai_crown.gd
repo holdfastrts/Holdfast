@@ -51,6 +51,33 @@ func mirror() -> AICrownMirror:
 
 func _cohesion(wave: Array) -> bool:
 	return mirror() != null and cm.cohesion(wave, _wave_target)
+
+
+func _guns_at_hall(wave: Array) -> void:
+	if mirror() != null:
+		cm.guns_at_hall(wave, _wave_target)
+
+
+func _siege_skip(u: Unit) -> bool:
+	return cm != null and cm.gunners.has(u)
+
+
+func _siege_paused() -> bool:
+	return cm != null and (cm.regrouping() or cm.bombarding())
+
+
+func _siege_hold_off(wave: Array, piece: Building, back: Vector2) -> bool:
+	return mirror() != null and cm.bombard(wave, piece, back, _wave_target)
+
+
+func _hunt_anyway(foe_t: int, army: Array) -> bool:
+	return mirror() != null and cm.hunt_anyway(foe_t, army)
+
+
+func _hunt_goal(foe_t: int, from: Vector2) -> Vector2:
+	if mirror() != null:
+		return cm.hunt_goal(foe_t, from)
+	return super(foe_t, from)
 const BO_LIMIT := 600.0          # (game seconds) the opening hands over by then whatever is left
 ## THE BALLOON HARASS (scripts/ai_crown_balloon.gd): made on the Balloon harass plan only (Normal and up)
 const AICrownBalloon := preload("res://scripts/ai_crown_balloon.gd")

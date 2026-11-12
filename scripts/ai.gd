@@ -5354,6 +5354,7 @@ func _army() -> void:
 		var wagon := _wagon() if _crown() else null
 		var cav := _cavalry_wave(ready)
 		var prey := Vector2.INF
+		_guns_at_hall(wave)              # (crown-v-crown-coach: the guns shell the hall over the wall)
 		var held := _cohesion(wave)      # (crown-v-crown-coach: a wave regrouping on the march is not sent on this think)
 		for u in (wave if not held else []):
 			if cav and u.kind == "cuirassier" and u.siege_t <= 0.0 and u.wall_flee_t <= 0.0:
@@ -5397,6 +5398,36 @@ func _army() -> void:
 ## (AICrown._cohesion, scripts/ai_crown_mirror.gd). true = it is regrouping, its men are not sent on this think.
 func _cohesion(_wave: Array) -> bool:
 	return false
+
+
+## (crown-v-crown-coach) The wave's guns go for the enemy hall itself from outside its wall (the Crown against a Crown:
+## AICrown._guns_at_hall, scripts/ai_crown_mirror.gd); the siege leaves those guns alone (_siege_skip).
+func _guns_at_hall(_wave: Array) -> void:
+	pass
+
+
+func _siege_skip(_u: Unit) -> bool:
+	return false
+
+
+func _siege_paused() -> bool:
+	return false
+
+
+## (crown-v-crown-coach) A siege weighed up as lost: instead of pulling the wave back, the line may hold out of reach while
+## the guns shell the hall (the Crown mirror: AICrownMirror.bombard). true = it holds off (the wave stays out).
+func _siege_hold_off(_wave: Array, _piece: Building, _back: Vector2) -> bool:
+	return false
+
+
+## (crown-v-crown-coach) The hunt (scripts/ai_hunt.gd) goes on over a token enemy army (the Crown mirror: AICrown), and
+## where it goes (the shared rule: the nearest enemy building).
+func _hunt_anyway(_foe_t: int, _army: Array) -> bool:
+	return false
+
+
+func _hunt_goal(foe_t: int, from: Vector2) -> Vector2:
+	return AIHunt._target(game, foe_t, from)
 
 
 ## Gear mode's Clockwork against a walled enemy: the first attack waits for its kit, the Springers that shoot the menders
@@ -5751,6 +5782,8 @@ func _is_piece(b) -> bool:
 ## Called every think while a wave is out. True while a siege runs the wave (the caller then
 ## leaves units with siege_t > 0 alone) or the wave has just pulled back from one.
 func _siege_tick(wave: Array) -> bool:
+	if _siege_paused():
+		return true              # (crown-v-crown-coach: the wave closes up on its way to the wall first)
 	# after a breach: the melee walk through the gap, the ranged let them by first; then
 	# everyone goes on after the base
 	for u in _dive_wait.keys():
@@ -5773,7 +5806,7 @@ func _siege_tick(wave: Array) -> bool:
 			u.siege_t = 0.0
 			if u.order == "hold" or u.order == "move" or u.order == "idle":
 				u.cmd_move(_enemy_base() + Vector2(randf_range(-60, 60), randf_range(-60, 60)), true)
-	var ground: Array = wave.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and not u.is_air() and not u.off_field)
+	var ground: Array = wave.filter(func(u) -> bool: return is_instance_valid(u) and not u.dead and not u.is_air() and not u.off_field and not _siege_skip(u))
 	if ground.is_empty():
 		_siege_clear()
 		return false
@@ -5946,6 +5979,9 @@ func _siege_plan(ground: Array, wave: Array) -> bool:
 		# men packed in there on a plain move order, did not fight back, and died to the Musketeers who came out after
 		# them, 24 Clock Soldiers for 9 in one 0.14.72 game)
 		back = _home_spot(_front())
+	if _siege_hold_off(wave, b0, back):
+		_siege_clear()
+		return true          # (crown-v-crown-coach: the line holds out of reach while the guns shell the hall)
 	_say("back", "%s pulls back from the %s: %s under %d dps of fire (%d dps on it)" % [who, String(b0.d["name"]).to_lower(),
 		"the wave is dying and the piece stands" if best.get("stalled", false) else (("down in ~%d s, too dear" % int(best["t"])) if best["breach"] else "it can't get through"), int(best["inc"]), int(best["dps"])])
 	for u in wave:

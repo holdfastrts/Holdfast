@@ -44,15 +44,17 @@ func tick(army: Array) -> bool:
 	var foe: int = ai._foe()
 	if foe < 0 or ai.peaceful:
 		return _stop("")
-	if has_army(game, foe):
+	if has_army(game, foe) and not ai._hunt_anyway(foe, army):
 		_had_army[foe] = true
 		return _stop("the enemy has an army again")
+	if has_army(game, foe):
+		_had_army[foe] = true          # (crown-v-crown-coach: a hunt on anyway over a token army, AI._hunt_anyway)
 	if not _had_army.has(foe) and game.clock < HUNT_AFTER:
 		return false
 	var hunters: Array = army.filter(func(u: Unit) -> bool: return fighter(u, ai.team) and not BroodRoot.fixed(u) and u.order != "sacrifice")
 	if hunters.size() < MIN_UNITS:
 		return _stop("too few to hunt with")
-	_goal = _target(game, foe, game.center_of_team(ai.team))
+	_goal = ai._hunt_goal(foe, game.center_of_team(ai.team))
 	if _goal == Vector2.INF:
 		return _stop("")
 	if not on:

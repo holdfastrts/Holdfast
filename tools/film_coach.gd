@@ -55,6 +55,7 @@ func _process(delta: float) -> bool:
 			_write_coach()
 		return done
 	var c: float = g.clock
+	_siege_dump(c)
 	if c >= _next_map:
 		_next_map += 15.0
 		_map_png(c)
@@ -77,6 +78,77 @@ func _process(delta: float) -> bool:
 			_next_fcheck = c + 2.0
 			_fight(c)
 	return false
+
+
+## A new siege piece of a computer: the ground round it as text (siege_MMSS_t<team>.txt): '#' rock, '~' water, '^' high
+## ground, '/' ramp, 'P' the piece, 'H' a hall, 'W' a wall or palisade, 'G' a gate, 'B' another building, 'a' an attacker,
+## 'd' a defender soldier, 'w' a defender worker, 'T' the wave's target.
+var _siege_seen := {}
+
+
+func _siege_dump(c: float) -> void:
+	for a in g.ais:
+		var sg = a.get("_siege")
+		if not (sg is Dictionary) or sg.is_empty() or not is_instance_valid(sg.get("piece")):
+			continue
+		var pc: Building = sg["piece"]
+		if _siege_seen.get(a.team) == pc.get_instance_id():
+			continue
+		_siege_seen[a.team] = pc.get_instance_id()
+		var c0: Vector2i = pc.cell - Vector2i(14, 14)
+		var grid := {}
+		for b in g.buildings:
+			if b.dead:
+				continue
+			var ch := "B"
+			if b == pc:
+				ch = "P"
+			elif b.kind == g.faction_hall(b.team):
+				ch = "H"
+			elif b.kind.contains("gate"):
+				ch = "G"
+			elif b.kind.contains("palisade") or b.kind.contains("wall"):
+				ch = "W"
+			for y in b.size.y:
+				for x in b.size.x:
+					grid[b.cell + Vector2i(x, y)] = ch if b.team != a.team else ch.to_lower()
+		for u in g.units:
+			if u.dead or u.off_field:
+				continue
+			var cc: Vector2i = g.cell_of(u.position)
+			if u.team == a.team and not u.is_worker():
+				grid[cc] = "a"
+			elif u.team != a.team and u.team >= 0:
+				grid[cc] = "w" if u.is_worker() else "d"
+		var tg: Vector2i = g.cell_of(a._wave_target) if a._wave_target != Vector2.INF else Vector2i(-99, -99)
+		var lines: Array = ["%s team %d siege on %s at %s, target %s" % [_mmss(c), a.team, pc.kind, str(pc.cell), str(tg)]]
+		for y in range(c0.y, c0.y + 29):
+			var row := ""
+			for x in range(c0.x, c0.x + 29):
+				var cc := Vector2i(x, y)
+				if not g.in_map(cc):
+					row += " "
+					continue
+				var i: int = g.idx(cc)
+				if grid.has(cc):
+					row += grid[cc]
+				elif cc == tg:
+					row += "T"
+				elif g.water[i] != 0:
+					row += "~"
+				elif g.solid[i] == 1:
+					row += "#"
+				elif g.ramp[i] != 0:
+					row += "/"
+				elif g.height[i] != 0:
+					row += "^"
+				else:
+					row += "."
+			lines.append(row)
+		var f := FileAccess.open(out.path_join("siege_%s_t%d.txt" % [_mm(c), a.team]), FileAccess.WRITE)
+		for l in lines:
+			f.store_line(l)
+		f.close()
 
 
 func _mm(c: float) -> String:
