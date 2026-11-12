@@ -916,7 +916,21 @@ func _brood_raid_home() -> bool:
 			guard += ai._unit_value(u)
 	if guard >= v:
 		return false
-	_retreat("Brood raiders in the base (%d value at %s, %d at home to meet them)" % [int(v), _where(th), int(guard)])
+	# (round 2, Dune Sea 23, 11:02: called home with _retreat, the push of 3,050 walked home on plain moves for a minute
+	# through a raid of 2,120 and was lost to the last soldier, 84 units by 12:04. Now it turns round FIGHTING: an
+	# attack-move at the raid, and the army's whole-army defence takes it over at once (ai_cw_army._defend). A recall is
+	# no failed push: no need_up, no AFTER_FAIL)
+	say("turns home fighting: Brood raiders in the base (%d value at %s, %d at home to meet them); %d value of push" % [int(v), _where(th), int(guard), int(_value(units))])
+	stats["raid_home"] = int(stats.get("raid_home", 0)) + 1
+	for u in units + joining:
+		if is_instance_valid(u) and not u.dead:
+			u.cmd_move(th, u.kind != Defs.GREAT_WINDER_KIND)
+	units.clear()
+	joining.clear()
+	_orders.clear()
+	_guards.clear()
+	piece = null
+	_phase("")
 	return true
 
 

@@ -171,6 +171,8 @@ func may_launch(list: Array) -> bool:
 	var rk := reckon()
 	var edge := EDGE_PLAN if ai.plan.has("push") else EDGE
 	_note_retreat()
+	if _wave_at_door():
+		return false
 	if _counter_ok(mine):
 		return true
 	if _fail_v > 0.0 and mine < _fail_v * AFTER_FAIL:
@@ -200,11 +202,38 @@ const COUNTER_KILL := 600.0
 const COUNTER_T := 75.0
 const COUNTER_K := 1.4
 const COUNTER_MIN := 900.0
+const COUNTER_TAB := 0.7
 var counter_on := not OS.get_cmdline_user_args().has("cvbcounter:off")
 var _def_vk := -1.0             # value killed when the whole-army defence began
 var _held_t := -999.0           # when a defence that killed COUNTER_KILL or more ended
 var _held_v := 0.0
 var counters := 0
+
+
+## (round 2, Greenhold 11, 8:44: the push went out "against the 1,822 it reckons (a report 0 s old)" into the Brood's wave
+## of 56 supply just reaching the base, met it in the open in front of its own gears and pulled back 12 s later having
+## lost 1,555 of 2,420.) Against the Brood the push does not go while an enemy army worth DOOR_V or more is in sight
+## within DOOR_R px of its buildings: the army meets it on its gears first, then counter-attacks (_counter_ok).
+const DOOR_R := 900.0
+const DOOR_V := 300.0
+
+
+func _wave_at_door() -> bool:
+	if not counter_on:
+		return false
+	var foe := _foe()
+	if foe < 0 or game.faction_of(foe) != "brood":
+		return false
+	var v := 0.0
+	for o in game.army(foe):
+		if o.dead or o.off_field or not ai._armed(o) or BroodNew.rooted(o) or o.is_air() or not game.is_visible_to(team, o.position):
+			continue
+		if ai._home_dist(o.position) < DOOR_R:
+			v += ai._unit_value(o)
+	if v < DOOR_V:
+		return false
+	say("holds at its gathering point: a Brood army of %d is at its door; it meets it on its gears first" % int(v), "door", 30.0)
+	return true
 
 
 func _held_note() -> void:
@@ -227,7 +256,10 @@ func _counter_ok(mine: float) -> bool:
 	if foe < 0 or game.faction_of(foe) != "brood":
 		return false
 	var seen: float = ai.push.foe_mem() if ai.push != null else 0.0
-	if mine < maxf(COUNTER_MIN, seen * COUNTER_K):
+	# (round 2, Greenhold 11 at 12:03: a counter of 950 went out against "135 seen alive" while the Brood had 1,500 coming:
+	# at least COUNTER_TAB of the reckoning's table for that minute too)
+	var tab: Array = TABLES.get("brood", [])
+	if mine < maxf(maxf(COUNTER_MIN, seen * COUNTER_K), table_at(tab, game.clock) * COUNTER_TAB):
 		return false
 	_held_t = -999.0
 	_fail_v = 0.0

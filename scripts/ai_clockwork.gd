@@ -344,6 +344,8 @@ func _build_up() -> void:
 	_air_answer()
 	if bo_on and _dry_hand_over():
 		return
+	if bo_on and _stuck_hand_over():
+		return
 	if bo_on:
 		_bo_tick()
 	else:
@@ -396,6 +398,33 @@ func _dry_hand_over() -> bool:
 	if difficulty < 1 or not Defs.gear_mode or not _dry():
 		return false
 	_end_build("its land is dry: a new Clocktower and its press first, before more units")
+	super._build_up()
+	return true
+
+
+## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 2) A STUCK BUILD ORDER: against the Brood, a written
+## build that has done no step for STUCK_T s with STUCK_BANK cogs or more in the bank hands over to the shared rules.
+## (Kestrel Rise 41, the Pendulums picked at 1:51 from the common opening: "finds no room for a Heavy Works by its
+## Mainsprings", the steps after it waited for that Heavy Works, and the bank went 618 -> 4,545 from 5:00 to 10:04 with
+## the army at 560 and 30 of 50 supply; the Brood razed it at 11:16.) `-- cvbstuck:off` plays it as before.
+const STUCK_T := 60.0
+const STUCK_BANK := 1000
+var stuck_on := not OS.get_cmdline_user_args().has("cvbstuck:off")
+var _stuck_n := -1
+var _stuck_t := 0.0
+
+
+func _stuck_hand_over() -> bool:
+	if not stuck_on or difficulty < 1 or not _foe_is("brood"):
+		return false
+	var n := done.count(true)
+	if n != _stuck_n:
+		_stuck_n = n
+		_stuck_t = game.clock
+		return false
+	if game.clock - _stuck_t < STUCK_T or _gold() < STUCK_BANK:
+		return false
+	_end_build("stuck: no step done for %d s with %d cogs in the bank" % [int(game.clock - _stuck_t), _gold()])
 	super._build_up()
 	return true
 
