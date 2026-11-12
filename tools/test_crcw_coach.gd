@@ -9,7 +9,7 @@ extends SceneTree
 ##  [bank]     the Clockwork's Springer timing keeps less than BANK_MAX cogs in the bank at 4:30-5:30 (before: 1,186 at 5:00)
 ##  [brood]    against the Brood the Timing attack opens as before ("bo"), no "bank works" line for the Clockwork against it
 const TWO_BY := 270.0
-const FARM_BY := 450.0
+const FARM_BY := 540.0          # (the first two-hall try never worked it: 100% to the end; now ~7:30-8:00)
 const LABS_MIN := 22
 const BANK_MAX := 700
 var fails := 0
@@ -120,7 +120,7 @@ func _two() -> void:
 	var labs6 := 0
 	var bank_worst := 0
 	var soil0 := -1.0
-	while g.clock < 460.0:
+	while g.clock < 550.0:
 		await wait(2.0)
 		var nat := _natural()
 		if nat != null and two_t < 0.0:

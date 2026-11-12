@@ -2798,8 +2798,11 @@ var cc_on := not OS.get_cmdline_user_args().has("crcw:off")      # (`-- crcw:off
 
 
 ## A plan's own opening against the Clockwork ("bo_clock": the Timing attack from two halls), else the key given.
+var cc_two := not OS.get_cmdline_user_args().has("crcw:onehall")     # (`-- crcw:onehall`: the Timing on one hall, as before)
+
+
 func _cc_bo_key(key: String) -> String:
-	if cc_on and key == "bo" and plan.has("bo_clock") and cc_vs_clock():
+	if cc_on and cc_two and key == "bo" and plan.has("bo_clock") and cc_vs_clock():
 		return "bo_clock"
 	return key
 

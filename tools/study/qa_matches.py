@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RUN_ROOT = ROOT
 KEEP_CW = False
+EXTRA = []          # (crown-v-clockwork-coach) more user args for every game, e.g. ["crcw:off"]
 CLASSIC = ["greenhold", "highmoor", "dune_sea", "frostfang", "twin_fords", "ashfall", "mirewood", "border_march", "red_coast"]
 NAMED_1V1 = ["ashford_crossing", "kestrel_rise", "thornwood_maze", "redrock_canyon", "saltmarsh_isles", "glimmerdeep",
              "frostmere", "cinder_steps", "hollowfen", "amberfall_vale"]
@@ -113,7 +114,7 @@ def run_one(g, out, end, data):
     os.makedirs(d, exist_ok=True)
     spec = ",".join("%s/%s/%d" % s for s in slots)
     cmd = ["timeout", "3000", "godot", "--headless", "--fixed-fps", "30", "--path", RUN_ROOT, "--script",
-           "res://tools/qa_match.gd", "--", "map:" + m, "seed:%d" % seed, "end:%d" % end, "out:" + d, "slots:" + spec]
+           "res://tools/qa_match.gd", "--", "map:" + m, "seed:%d" % seed, "end:%d" % end, "out:" + d, "slots:" + spec] + EXTRA
     with open(os.path.join(d, "run.out"), "wb") as f:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         n = 0
