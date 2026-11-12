@@ -201,3 +201,42 @@ Results: Greenhold 11 **Clockwork won 13:40** (P1) and draw, the Brood ahead (in
   Sires there worth less than half of that: she gets up and walks to her expansion farthest from the push with no enemy
   seen within 18 tiles of it; her nest moves there (`_q_guard["home"]`) and she roots again once it is calm. Once per
   120 s. Her Sires are not "needed" in the defence while she moves (they keep to her). `-- nbmove:off`.
+
+## Round 4 (B2 added)
+
+Results: Greenhold 11 draw, the Clockwork far ahead (army 2,780 to 300) and draw, the Brood far ahead (the Clockwork 0
+army); Dune Sea 23 **Clockwork won 12:05** (P1) and draw, the Clockwork ahead; Hollowfen 37 draw, the Brood ahead;
+Kestrel Rise 41 draw, even.
+
+### What worked
+
+- **B2**: "the Mother moves house: a push of 1,410 at her nest against 575 of hers; she goes to her ground 22 tiles away"
+  (Dune Sea 23 at 10:49, picture `r4_d23w0_1055_the_mother_moves_house.jpg`: she walks off with 15 eggs while the push
+  fights at her old nest) and Greenhold 11 at 13:55 (she lived to 15:00 where round 3's fell at 13:40). On Dune Sea she
+  bought 76 s; the push found her again.
+
+### Coach's notes: the Clockwork
+
+1. **The economy collapses at about 9:00** (Greenhold 11, Clockwork P2: income 9,000 at 9:19 and 10,360 at 15:00; the
+   Brood out-earned it 22,170 to 10,360 and razed it). Measured in the "before" batch, the Clockwork's cogs a minute fell
+   from 1,400-1,650 to 0-430 at 9:00-10:00 in 4 of 16 games (Greenhold, Twin Fords, Frostfang, Dune Sea, all with the
+   Clockwork as P2) with 27-30 Winders alive. A dump of the Clockwork's halls and presses at 8:00 (Greenhold 11, P2):
+   four Cog Presses on the main at 9% brass, none by the natural at 83% (it had only Mainsprings). Its first press for the
+   natural ("press_new" at 3:23) went by the old Clocktower: the Brood's rush stood at the natural then (`AICwEco._press_new`
+   skips a Clocktower with an enemy within 360 px); every later press went by the hall nearest the main
+   (`AI._drive_spot`). At 9:00 the main was spent, 15 Winders stood idle, and new presses came one at a time while every
+   cog went to the army the Brood kept killing. *Fix C7.*
+2. **A counter into the swamp** (Hollowfen 37, 12:43, picture `r4_h37w0_1324_counter_into_the_swamp.jpg`): after a held
+   wave ("its defence killed 2,025") the push of 3,155 marched for the Brood's main and met 50 fresh Raptors on its swamp
+   at 13:24: "lost 1,940 of 3,155, killed 450". The Brood rebuilds fast from her eggs; what it saw "alive lately" (308)
+   was not what was there. Not changed (the counter won the other games where it went: Dune Sea 23 round 3, Greenhold 11
+   rounds 2 and 4); written down as an open question.
+3. **The recall costs Winders** (the same game, 11:21): the push turned home fighting from far out; the Brood's 875 at the
+   base killed 13 Winders before it came. C5 saves the push, not the Winders: the guard at home is the answer, open.
+
+### Fix after round 4
+
+- **C7, presses where the brass is** (`AIClockwork._drive_spot`, an override, and `_press_by_brass`, new): against the
+  Brood a new Cog Press goes by the built Clocktower with the most brass left for each press it already has. In the same
+  dump with C7 the natural had its press by 8:00 and the third Clocktower one by 9:00; income 10,478 at 10:00 and 11,238 at
+  11:00 (before: 9,371 and 10,063). `-- cvbpress:off`.
