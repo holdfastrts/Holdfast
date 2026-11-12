@@ -240,3 +240,34 @@ Kestrel Rise 41 draw, even.
   Brood a new Cog Press goes by the built Clocktower with the most brass left for each press it already has. In the same
   dump with C7 the natural had its press by 8:00 and the third Clocktower one by 9:00; income 10,478 at 10:00 and 11,238 at
   11:00 (before: 9,371 and 10,063). `-- cvbpress:off`.
+
+## Round 5 (C7 added)
+
+Results: Greenhold 11 draw, the Clockwork ahead (army 2,155 to 600) and **Brood won 13:39** (Clockwork P2); Dune Sea 23
+two draws, the Brood far ahead in both (the Clockwork's army 0 and 70 at 15:00); Hollowfen 37 **Clockwork won 12:55**;
+Kestrel Rise 41 **Clockwork won 14:44** (P2; round 1 a Brood-led draw, round 2 a Brood win).
+
+### What worked
+
+- **C7**: Greenhold 11, Clockwork P2, income 9,235 at 9:04 and 11,572 at 11:04 (round 4, the same seat: 9,000 -> 9,419,
+  flat). The economy no longer stops when the main runs dry.
+
+### Coach's notes: the Clockwork
+
+1. **A push that pulls back is run down** (Greenhold 11, Clockwork P2, 10:49-12:04; pictures
+   `r5_g11w1_1102_push_walks_home_in_a_column.jpg` and `r5_g11w1_1132_the_raptors_catch_it_at_home.jpg`): "pulls back (the
+   enemy's army comes, worth 2,850 against its 1,960)"; it walked home on plain moves in a column, the Raptors (faster than
+   anything it has) caught it on the way and at its third Clocktower; by 12:04 its army was 270 and 19 Winders had died,
+   and the Brood razed it at 13:39. A human does not turn his back on Zerglings. *Decision:* `ai_cw_push._go_back`
+   (plain moves home for up to 90 s). *Fix C8.*
+2. **Counters into the Brood's land lose** (Dune Sea 23, Clockwork P1, 8:56: "counter-attacks ... worth 1,790 against
+   the 188 it has seen alive lately", then "pulls back (it has lost 1,305 of the 2,000 ...), killed 250"). With round 4's
+   Hollowfen counter that is 2 bad counters of 8 seen in the films (4 good, 2 even). Open question below.
+
+### Fix after round 5
+
+- **C8, falling back fighting** (`ai_cw_push._fall_back_fighting`, new; one line in `_go_back`): against the Brood a
+  pulling-back push unit with an armed enemy (not rooted) within 180 px walks home on an ATTACK-move (it turns and fights
+  what catches it); with none near it walks on a plain move again. `-- cvbback:off`.
+- One more film of the lost seed with C8 (Greenhold 11, Clockwork P2; "round 6"): a draw, even (income 16,854 to 15,956,
+  army 2,305 to 2,075), its push out at 7:11 came back at 11:39 having killed 1,905 for 1,850, and it countered at 14:02.
