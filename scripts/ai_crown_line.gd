@@ -466,7 +466,7 @@ var _piece_pt := Vector2.INF     # the point the line steps toward (a siege's pi
 func _forming(ground: Array, target: Vector2, contact: bool, foes: Array) -> bool:
 	var reach := _guns_reach(foes)
 	if reach and st == "step":
-		_guns_down()                         # (the enemy came into the guns' reach mid-step: they set up behind the line now)
+		_guns_down(foes)                         # (the enemy came into the guns' reach mid-step: they set up behind the line now)
 	var share := settle(_face, st == "form" or reach)
 	if contact:
 		return _fight_begin(ground)         # (they came to us: the line shoots where it stands)
@@ -509,7 +509,7 @@ func _step(foes: Array) -> void:
 		return
 	if not guns.is_empty() and st != "set" and not _guns_set():
 		# (in the guns' reach: they set up behind the line first, the line holds; then it walks on alone)
-		_guns_down()
+		_guns_down(foes)
 		st = "set"
 		_t0 = game.clock
 		return
@@ -526,7 +526,7 @@ func _step(foes: Array) -> void:
 
 ## The fight is on (or the enemy in the guns' reach) while the guns roll with the line: a gun behind the front rank sets up
 ## where it stands; one level with it or ahead goes back behind it first.
-func _guns_down() -> void:
+func _guns_down(foes: Array = []) -> void:
 	if _face == Vector2.ZERO or _c == Vector2.INF:
 		return
 	var T := float(Defs.TILE)
@@ -535,7 +535,14 @@ func _guns_down() -> void:
 		if not _ok(u) or not is_gun(u) or u.tesla_mode != "packed":
 			continue
 		var back: float = (u.position - _c).dot(_face)
-		if back < -GUN_MIN_BACK * T:
+		# (coached, Greenhold 1101 7:11-7:19: three guns set up at the ramp's top 400-590 px behind the line, out of reach
+		# of the Clock Soldiers the line fought: one behind the line sets up where it stands only if the enemy is in reach)
+		var reach := false
+		for o in foes:
+			if _pos(o).distance_to(u.position) < float(u.d.get("range", 430)) - 30.0:
+				reach = true
+				break
+		if back < -GUN_MIN_BACK * T and (reach or foes.is_empty()):
 			_spot[u] = u.position
 			u.cmd_deploy()
 		else:
@@ -578,7 +585,7 @@ func _fight_begin(ground: Array) -> bool:
 	if unprepared:
 		_deploy(ground)
 	else:
-		_guns_down()
+		_guns_down(_known(ground))
 	st = "fight"
 	_t0 = game.clock
 	_reach_t = game.clock
