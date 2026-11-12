@@ -1,0 +1,179 @@
+[
+ {
+  "across": 0,
+  "cell": [
+   48,
+   111
+  ],
+  "clock": "8:52",
+  "depth": 0,
+  "fired5": -1,
+  "foe_val0": 240,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 0,
+  "home": false,
+  "in_reach0": 1,
+  "in_reach5": -1,
+  "killed": 0,
+  "len": 1,
+  "lost": 60,
+  "mine_val0": 60,
+  "moving": 0,
+  "n": 1,
+  "t": 532,
+  "team": 0
+ },
+ {
+  "across": 52,
+  "cell": [
+   53,
+   109
+  ],
+  "clock": "8:52",
+  "depth": 291,
+  "fired5": -1,
+  "foe_val0": 60,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 0,
+  "home": true,
+  "in_reach0": 2,
+  "in_reach5": -1,
+  "killed": 60,
+  "len": 1,
+  "lost": 0,
+  "mine_val0": 355,
+  "moving": 2,
+  "n": 3,
+  "t": 532,
+  "team": 1
+ },
+ {
+  "across": 39,
+  "cell": [
+   33,
+   49
+  ],
+  "clock": "10:25",
+  "depth": 268,
+  "fired5": 0,
+  "foe_val0": 350,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -656,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -522,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 0,
+  "held": 0,
+  "home": false,
+  "in_reach0": 1,
+  "in_reach5": 1,
+  "killed": 0,
+  "len": 14,
+  "lost": 1000,
+  "mine_val0": 600,
+  "moving": 8,
+  "n": 8,
+  "t": 625,
+  "team": 0
+ },
+ {
+  "across": 61,
+  "cell": [
+   46,
+   74
+  ],
+  "clock": "10:29",
+  "depth": 142,
+  "fired5": 10,
+  "foe_val0": 480,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -732,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 0,
+  "held": 0,
+  "home": false,
+  "in_reach0": 2,
+  "in_reach5": 12,
+  "killed": 1000,
+  "len": 18,
+  "lost": 0,
+  "mine_val0": 950,
+  "moving": 11,
+  "n": 12,
+  "t": 629,
+  "team": 1
+ },
+ {
+  "across": 286,
+  "cell": [
+   11,
+   19
+  ],
+  "clock": "11:13",
+  "depth": 204,
+  "fired5": 4,
+  "foe_val0": 835,
+  "guns": [
+   {
+    "behind": false,
+    "from_line": 53,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 3,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 4,
+  "killed": 655,
+  "len": 46,
+  "lost": 120,
+  "mine_val0": 470,
+  "moving": 2,
+  "n": 5,
+  "t": 673,
+  "team": 0
+ },
+ {
+  "across": 209,
+  "cell": [
+   20,
+   28
+  ],
+  "clock": "11:13",
+  "depth": 302,
+  "fired5": 5,
+  "foe_val0": 700,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 0,
+  "home": false,
+  "in_reach0": 2,
+  "in_reach5": 5,
+  "killed": 120,
+  "len": 45,
+  "lost": 655,
+  "mine_val0": 835,
+  "moving": 2,
+  "n": 12,
+  "t": 673,
+  "team": 1
+ }
+]

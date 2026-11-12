@@ -1,0 +1,147 @@
+[
+ {
+  "across": 106,
+  "cell": [
+   13,
+   34
+  ],
+  "clock": "9:44",
+  "depth": 87,
+  "fired5": 0,
+  "foe_val0": 650,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 0,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 0,
+  "killed": 60,
+  "len": 15,
+  "lost": 540,
+  "mine_val0": 540,
+  "moving": 8,
+  "n": 8,
+  "t": 584,
+  "team": 0
+ },
+ {
+  "across": 136,
+  "cell": [
+   17,
+   17
+  ],
+  "clock": "10:24",
+  "depth": 52,
+  "fired5": 0,
+  "foe_val0": 1190,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 0,
+  "home": true,
+  "in_reach0": 2,
+  "in_reach5": 0,
+  "killed": 0,
+  "len": 18,
+  "lost": 240,
+  "mine_val0": 120,
+  "moving": 2,
+  "n": 2,
+  "t": 624,
+  "team": 0
+ },
+ {
+  "across": 47,
+  "cell": [
+   93,
+   51
+  ],
+  "clock": "9:31",
+  "depth": 71,
+  "fired5": 0,
+  "foe_val0": 115,
+  "guns": [
+   {
+    "behind": false,
+    "from_line": 529,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 0,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 0,
+  "killed": 1180,
+  "len": 72,
+  "lost": 60,
+  "mine_val0": 180,
+  "moving": 3,
+  "n": 3,
+  "t": 571,
+  "team": 1
+ },
+ {
+  "across": 162,
+  "cell": [
+   19,
+   11
+  ],
+  "clock": "11:08",
+  "depth": 32,
+  "fired5": 1,
+  "foe_val0": 1355,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 0,
+  "home": false,
+  "in_reach0": 1,
+  "in_reach5": 2,
+  "killed": 240,
+  "len": 39,
+  "lost": 375,
+  "mine_val0": 120,
+  "moving": 2,
+  "n": 2,
+  "t": 668,
+  "team": 0
+ },
+ {
+  "across": 204,
+  "cell": [
+   12,
+   22
+  ],
+  "clock": "11:08",
+  "depth": 313,
+  "fired5": 4,
+  "foe_val0": 120,
+  "guns": [
+   {
+    "behind": false,
+    "from_line": 56,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": false,
+    "from_line": 150,
+    "kind": "cannon",
+    "set": true
+   }
+  ],
+  "guns_fired": 2,
+  "held": 0,
+  "home": false,
+  "in_reach0": 1,
+  "in_reach5": 8,
+  "killed": 375,
+  "len": 39,
+  "lost": 240,
+  "mine_val0": 1415,
+  "moving": 11,
+  "n": 12,
+  "t": 668,
+  "team": 1
+ }
+]

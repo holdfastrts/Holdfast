@@ -1,0 +1,27 @@
+[
+ {
+  "across": 0,
+  "cell": [
+   95,
+   62
+  ],
+  "clock": "7:17",
+  "depth": 0,
+  "fired5": 1,
+  "foe_val0": 475,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 1,
+  "home": true,
+  "in_reach0": 0,
+  "in_reach5": 1,
+  "killed": 450,
+  "len": 14,
+  "lost": 175,
+  "mine_val0": 405,
+  "moving": 0,
+  "n": 1,
+  "t": 437,
+  "team": 1
+ }
+]

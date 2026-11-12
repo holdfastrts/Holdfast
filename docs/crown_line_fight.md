@@ -17,6 +17,18 @@ in `AICrown`; the shared code only calls in).
 
 **Switch:** `-- line:off` plays the old way (comparison games).
 
+**In short.** Eight coached rounds on five maps (Greenhold, Dune Sea, Red Coast, Kestrel Rise; Greenhold filmed four
+times), a ranks study and two batches of 48 games. The Crown computer's waves now form a line across the enemy's approach
+(the player's own drag-a-line orders) with the Field Cannons set up behind it: before an enemy army it knows of, before a
+wall or gate it must break, and at a halt out of reach of the enemy's base; met by surprise it deploys into a line under
+fire; its guns step with the line and set up once in reach; a losing line falls back toward the guns. Defence detachments
+arrive as a line; the ramp post's muskets stand in one line along the ramp's top. In the waves' fights against the
+Clockwork it now kills 1.67 for each 1 lost (1.36 on main) and more of its muskets fire in the first 5 s (68%, was 64%;
+the mirror 60%, was 54%); the results by 12:00 did not move (no Crown win against Hard Brood or Clockwork either way; the
+four games lost that main drew were lost by a Horseman-rush opening, not the line). Most fights still begin unformed (an
+enemy is first seen at contact): the rider screen (the next job) is the answer.
+![](shots/crown_line_fight/key_greenhold1101_before_after_first_fight.jpg)
+
 ## What was built (`scripts/ai_crown_line.gd`, class `AICrownLine`)
 
 1. **The line is the player's drag.** `Game.line_move` now hands its orders to `Game.line_orders` (the same spot
@@ -193,7 +205,83 @@ of reach of the enemy's base and formed (14 muskets, 3 guns); the fight at the p
 
 ## Numbers
 
-NUMBERS
+The batch: `tools/study/crown_line_fight.py` (Hard Crown OPTIMAL against Hard Brood, Clockwork and Crown OPTIMAL; the
+qa-matches base tags and seeds on 8 maps of different shapes: Greenhold, Dune Sea, Hollowfen, Kestrel Rise, Ashford
+Crossing, Red Coast, Frostmere, Border March; both start slots; 16 games a matchup) to **12:00** (not 15:00: the machine
+had two cores and the batches had to fit; both batches the same), measured with `tools/film_line.gd`; tables by
+`tools/study/crown_line_report.py docs/crown_line_fight/data/before docs/crown_line_fight/data/after`. The data (each
+game's result.json, engage.json and the Crown's lines of the match log) is in `docs/crown_line_fight/data/`. "Fights" are
+every engagement of a Crown army (both Crowns in the mirror); "away from home" are those more than 900 px from all its
+halls (the waves); "firing in 5 s" is the share of the shooters near the contact that fired in its first 5 seconds.
+
+**Before** (main, 0.33.23; 48 games):
+
+| matchup | games | Crown W-D-L | won or led | army 8:00 | 10:00 | income 8:00 | 10:00 | Crown halls lost / game |
+|---|---|---|---|---|---|---|---|---|
+| v Brood | 16 | 0-11-5 | 1 of 16 | 808 | 980 | 5628 | 7671 | 1.50 |
+| v Clockwork | 16 | 0-16-0 | 3 of 16 | 983 | 861 | 5177 | 6863 | 1.12 |
+| mirror | 16 | 0-32-0 | 11 of 32 | 844 | 1284 | 5367 | 8288 | 0.41 |
+
+| matchup | fights | killed / lost (ratio) | away from home: fights, killed / lost (ratio), firing in 5 s | won | shooters firing in the first 5 s | shape at contact across / depth (median, 6+ shooters) | in a line (across > 1.5 depth) | guns near: set up / behind / fired |
+|---|---|---|---|---|---|---|---|---|
+| v Brood | 47 | 40230 / 20640 (1.95) | 2: 1725 / 660 (2.61), 66% | 29 | 37% | 106 / 123 | 23% | 43: 9% / 69% / 58% |
+| v Clockwork | 59 | 38110 / 20470 (1.86) | 31: 15325 / 11235 (1.36), 64% | 37 | 62% | 135 / 206 | 32% | 72: 23% / 70% / 63% |
+| mirror | 99 | 41800 / 38455 (1.09) | 47: 19815 / 21380 (0.93), 54% | 50 | 43% | 120 / 153 | 27% | 92: 18% / 85% / 53% |
+
+| matchup | formed before an army | halted before the base | formed before a wall | deployed under fire | fell back in order | defence lines | waves out | pulled back |
+|---|---|---|---|---|---|---|---|---|
+| v Brood | 0 | 0 | 0 | 0 | 0 | 0 | 7 | 0 |
+| v Clockwork | 0 | 0 | 0 | 0 | 0 | 0 | 17 | 0 |
+| mirror | 0 | 0 | 0 | 0 | 0 | 0 | 30 | 4 |
+
+**After** (this branch at 5a615aac, the final line code; 48 games):
+
+| matchup | games | Crown W-D-L | won or led | army 8:00 | 10:00 | income 8:00 | 10:00 | Crown halls lost / game |
+|---|---|---|---|---|---|---|---|---|
+| v Brood | 16 | 0-9-7 | 2 of 16 | 725 | 833 | 5391 | 7220 | 1.38 |
+| v Clockwork | 16 | 0-14-2 | 2 of 16 | 1018 | 804 | 5130 | 6916 | 1.12 |
+| mirror | 16 | 0-32-0 | 11 of 32 | 791 | 1354 | 5331 | 8193 | 0.50 |
+
+| matchup | fights | killed / lost (ratio) | away from home: fights, killed / lost (ratio), firing in 5 s | won | shooters firing in the first 5 s | shape at contact across / depth (median, 6+ shooters) | in a line (across > 1.5 depth) | guns near: set up / behind / fired |
+|---|---|---|---|---|---|---|---|---|
+| v Brood | 38 | 32240 / 20230 (1.59) | 2: 870 / 235 (3.70), 0% | 20 | 37% | 169 / 160 | 20% | 29: 3% / 68% / 51% |
+| v Clockwork | 53 | 36745 / 20585 (1.79) | 25: 16845 / 10070 (1.67), 68% | 37 | 64% | 120 / 104 | 40% | 73: 27% / 71% / 69% |
+| mirror | 106 | 37400 / 32650 (1.15) | 42: 14880 / 16410 (0.91), 60% | 57 | 44% | 132 / 172 | 19% | 77: 6% / 70% / 58% |
+
+| matchup | formed before an army | halted before the base | formed before a wall | deployed under fire | fell back in order | defence lines | waves out | pulled back |
+|---|---|---|---|---|---|---|---|---|
+| v Brood | 0 | 0 | 0 | 0 | 0 | 9 | 8 | 0 |
+| v Clockwork | 10 | 9 | 0 | 21 | 0 | 8 | 14 | 0 |
+| mirror | 11 | 6 | 7 | 43 | 8 | 27 | 31 | 4 |
+
+
+**In short.**
+- **The waves' fights** (away from home), the line's own ground: against the Clockwork the Crown now kills 1.67 for each
+  1 it loses (1.36 on main: 16,845 for 10,070 against 15,325 for 11,235) and 68% of its muskets fire in the first 5 s
+  (64%); in the mirror 60% fire in the first 5 s (54%) and the trade is as even as before (0.91, 0.93). The line formed
+  before an army 10 times and halted before the base 9 times against the Clockwork, before a wall 7 times in the mirror,
+  and deployed under fire 21 and 43 times (see "What is still wrong" 1).
+- **Results did not move**: the Crown still wins no game against the Hard Brood or Clockwork by 12:00 (the Brood 0-9-7,
+  was 0-11-5; the Clockwork 0-14-2, was 0-16-0; won or led 2 and 2 of 16, were 1 and 3). The four games it lost that it
+  drew before (Frostmere 1146, Red Coast 1125 against the Clockwork; Border March 1121, Red Coast 1161 against the Brood)
+  were lost by the opening, not the line: in all four the OPTIMAL plan read GREEDY at 1:33-1:46 and picked the Horseman
+  rush (3 Horsemen out at 3:42-4:04), the army stood at 40-370 for the next five minutes, and the line was used once in
+  the four games (one defence line) (`crownlog.txt`: "holds the top of its ramp:
+  the force below (1305) is more than its army at home (40)"). The games are not deterministic and one opening swings a
+  game; 16 games a matchup at 12:00 cannot show a change this size in results.
+- **Against the Brood the line is rarely used**: its waves are the Horseman rush (riders, not formed) and its fights are
+  at home behind the natural's palisade (the hold module's posts); 9 defence lines in 16 games. Its numbers there move
+  with the games' noise (killed / lost at home 1.95 on main, 1.59 after).
+- The economy is untouched (income at 8:00 and 10:00 within 1-6% either way, the noise of the games).
+- The Clockwork and Brood computers are untouched: everything is in `AICrown` (and `AICrownHold`'s ramp row with the line
+  on); the shared code only calls in (`AI._def_line`, `AI._def_walking` are false for them; `Game.line_orders` is the
+  player's own drag-a-line code, unchanged in what it does).
+
+**Tests** (tools/test_ai_*.gd, tools/test_crown_*.gd, 38 tests, on the branch): all pass but test_ai_rush (1),
+test_ai_rush_followup (14) and test_crown_dragoon_raid (1), which fail the same way on main (pre-existing), and
+test_ai_worker_safety, flaky (its brute case failed and passed both with the line and with `line:off`); test_crown_mirror
+reads the line's close-up when the line is on. New: tools/test_crown_line.gd (all pass).
+
 
 ## What is still wrong
 

@@ -1,0 +1,140 @@
+[
+ {
+  "across": 106,
+  "cell": [
+   94,
+   88
+  ],
+  "clock": "8:01",
+  "depth": 204,
+  "fired5": 0,
+  "foe_val0": 700,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -74,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 1,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 6,
+  "killed": 700,
+  "len": 16,
+  "lost": 175,
+  "mine_val0": 990,
+  "moving": 5,
+  "n": 6,
+  "t": 481,
+  "team": 1
+ },
+ {
+  "across": 126,
+  "cell": [
+   95,
+   88
+  ],
+  "clock": "10:06",
+  "depth": 122,
+  "fired5": 0,
+  "foe_val0": 1175,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -24,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -112,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -59,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -103,
+    "kind": "mortar",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 0,
+  "home": true,
+  "in_reach0": 3,
+  "in_reach5": 18,
+  "killed": 1625,
+  "len": 35,
+  "lost": 0,
+  "mine_val0": 1965,
+  "moving": 17,
+  "n": 18,
+  "t": 606,
+  "team": 1
+ },
+ {
+  "across": 169,
+  "cell": [
+   96,
+   88
+  ],
+  "clock": "10:55",
+  "depth": 123,
+  "fired5": -1,
+  "foe_val0": 215,
+  "guns": [
+   {
+    "behind": false,
+    "from_line": -19,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -36,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -98,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -45,
+    "kind": "mortar",
+    "set": false
+   },
+   {
+    "behind": false,
+    "from_line": -19,
+    "kind": "mortar",
+    "set": false
+   }
+  ],
+  "guns_fired": 0,
+  "held": 3,
+  "home": true,
+  "in_reach0": 2,
+  "in_reach5": -1,
+  "killed": 215,
+  "len": 2,
+  "lost": 0,
+  "mine_val0": 2440,
+  "moving": 19,
+  "n": 23,
+  "t": 655,
+  "team": 1
+ }
+]

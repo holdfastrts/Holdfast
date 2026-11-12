@@ -1,0 +1,46 @@
+[
+ {
+  "across": 127,
+  "cell": [
+   13,
+   26
+  ],
+  "clock": "9:58",
+  "depth": 147,
+  "fired5": 2,
+  "foe_val0": 150,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -64,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -124,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": false,
+    "from_line": 143,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 3,
+  "held": 2,
+  "home": true,
+  "in_reach0": 2,
+  "in_reach5": 1,
+  "killed": 4290,
+  "len": 121,
+  "lost": 180,
+  "mine_val0": 2070,
+  "moving": 24,
+  "n": 26,
+  "t": 598,
+  "team": 0
+ }
+]

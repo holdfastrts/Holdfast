@@ -1,0 +1,226 @@
+[00:00] P2 Crown's plan: OPTIMAL: the common opening (the ramp Cottage, the Gate, the Barracks, the second Farm), a scout at once, then it picks its build from what it sees
+  P2 Crown  side 2  colour Red  AI: HARD, OPTIMAL
+[00:00] P2 Crown's base layout at its main: 12 Cottage spots in 3 blocks at the back, 5 production rows' spots, 1 Farm and 1 Mill spots by the hall
+[00:00] P2 Crown's build order: the ramp Cottage (supply 5, 4 labourers, 150 gold)
+[00:02] P2 Crown sends a Labourer to scout
+[00:12] P2 Crown got its first Labourer
+[00:22] P2 Crown finished a Cottage
+[00:22] P2 Crown walled its ramp with a Cottage (1 pieces, 1 labourers on it)
+[00:22] P2 Crown's build order: the ramp Gate (supply 6, 5 labourers, 50 gold)
+[00:36] P2 Crown's ramp wall stands (1 pieces, 13 s after it was laid)
+[00:46] P2 Crown's build order: Barracks 1 (supply 8, 7 labourers, 180 gold)
+[00:58] P2 Crown's build order: Farm 2 (supply 9, 8 labourers, 30 gold)
+  P2 Crown: earned 380 gold total, has 30 + 0 powder | supply 9/18 | workers 8 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | soil 96% | saltpetre 100% | efficiency 60%
+[01:24] P2 Crown finished a Farm
+[01:27] P2 Crown finished a Barracks
+[01:46] P2 Crown scouted: GREEDY [a second base and little army] (the Mother and 1 turtle on new ground, 2 Rootmaws and 7 grubs seen, 0 Sires, 0 supply of army seen near its base): OPTIMAL picks its build from this
+[01:46] P2 Crown's plan: Rush, a build order of 6 steps from here (scripts/ai_crown.gd)
+[01:46] P2 Crown's plan: optimal: reads GREEDY [a second base and little army]: picks Rush (punish the greed: the Horse Breeder at once, the riders before its army)
+[01:47] P2 Crown's build order: Horse Breeder 1 (supply 11, 9 labourers, 210 gold)
+[01:47] P2 Crown's build order: Horsemans from now on (supply 11, 9 labourers, 210 gold)
+[01:47] P2 Crown's build order: labourers up to 99 (supply 11, 9 labourers, 210 gold)
+[01:53] P2 Crown's build order: a Cottage (supply 12/18) (supply 12, 9 labourers, 60 gold)
+  P2 Crown: earned 760 gold total, has 60 + 0 powder | supply 12/18 | workers 10 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | soil 92% | saltpetre 100% | efficiency 29%
+[02:16] P2 Crown finished a Horse Breeder
+[02:16] P2 Crown finished a Cottage
+[02:30] P2 Crown's build order: a Cottage (supply 17/26) (supply 17, 11 labourers, 35 gold)
+[02:32] P2 Crown got its first Musketeer
+[02:39] P2 Crown moves its musket line to the cliff edge above the enemy below: 1 spots on the high ground, the nearest 177 px from it
+[02:44] P2 Crown got its first Horse
+[02:45] P2 Crown moves its musket line to the cliff edge above the enemy below: 1 spots on the high ground, the nearest 151 px from it
+[02:51] P2 Crown finished a Cottage
+[02:51] P2 Crown moves its musket line to the cliff edge above the enemy below: 1 spots on the high ground, the nearest 143 px from it
+[02:54] P2 Crown got its first Horseman
+[02:54] P2 Crown's first horse hauled by a hauler
+[02:56] P2 Crown's first Officer mounted (Horseman)
+  P2 Crown: earned 1140 gold total, has 35 + 0 powder | supply 17/34 | workers 13 | halls 1 | army (215 value): 1 Musketeer, 1 Horseman, 1 Horse | kills +0 (0) losses +0 (0) | soil 87% | saltpetre 100% | efficiency 66%
+[03:31] P2 Crown moves its musket line to the cliff edge above the enemy below: 1 spots on the high ground, the nearest 172 px from it
+[03:33] P2 Crown moves its musket line to the cliff edge above the enemy below: 1 spots on the high ground, the nearest 159 px from it
+[03:37] P2 Crown's build order: a Cottage (supply 29/34) (supply 29, 14 labourers, 80 gold)
+[03:54] P2 Crown's rush: goes out (3 Horsemen together)
+[03:54] P2 Crown's build order: the first attack (9 supply) (supply 29, 15 labourers, 40 gold)
+[03:58] P2 Crown finished a Cottage
+  P2 Crown: earned 1900 gold total, has 40 + 0 powder | supply 29/42 | workers 16 | halls 1 | army (485 value): 1 Musketeer, 3 Horseman, 2 Horse | kills +1 (1) losses +0 (0) | soil 79% | saltpetre 100% | efficiency 69%
+[04:05] P2 Crown's build order: Powder Mill 1 (supply 29, 15 labourers, 320 gold)
+[04:20] P2 Crown's plan: its riders are chased off the grubs there: they pull back and come again at another Rootmaw
+[04:20] P2 Crown saw an enemy Raptors (fast, a Brood rush unit): evidence of a rush
+[04:22] P2 Crown scouted: NORMAL [a standard opening] (the Mother and 1 turtle on new ground, 2 Rootmaws and 7 grubs seen, 0 Sires, 12 supply of army seen near its base, 200 of army known): OPTIMAL picks its build from this
+[04:22] P2 Crown's plan: optimal: reads NORMAL [a standard opening]: keeps Rush (what it plays already answers it)
+[04:27] P2 Crown is expanding to fresh land (left at its best hall: 70%), 19 tiles from its main (its build order)
+[04:27] P2 Crown's build order: Town Hall 2 (supply 30, 15 labourers, 250 gold)
+[04:27] P2 Crown's plan: the opening is over (the build order is done): the milestones take over
+[04:28] P2 Crown plans a walled expansion: 34 ways-in cells (radius 13), 8 building slots, 7 palisade, 2 gate
+[04:28] P2 Crown lays 1 wall pieces at its new hall (2 labourers on it)
+[04:36] P2 Crown finished a Powder Mill
+[04:36] P2 Crown sends a Labourer to scout again (trip 2)
+[04:42] P2 Crown's plan: its riders are chased off the grubs there: they pull back and come again at another Rootmaw
+  P2 Crown: earned 2660 gold total, has 35 + 2 powder | supply 34/42 | workers 18 | halls 1 | army (675 value): 1 Musketeer, 5 Horseman, 1 Horse | kills +0 (1) losses +0 (0) | soil 70% | saltpetre 99% | efficiency 40%
+[05:00] P2 Crown finished a Town Hall (expansion)
+[05:04] P2 Crown's plan: its riders are chased off the grubs there: they pull back and come again at another Rootmaw
+[05:10] P2 Crown's plan: milestone Barracks waits: the army is far behind the enemy's (675 against the 400 it reckons)
+[05:21] P2 Crown's plan: its riders are chased off the grubs there: they pull back and come again at another Rootmaw
+[05:21] P2 Crown scout under guard (Raptors), backing out of range
+[05:24] P2 Crown's rush: FAILED (no headway in 90 s): the riders ride home, no more go out alone; it builds up and attacks only with a proper force
+[05:24] P2 Crown's base layout at its new hall: 0 Cottage spots in 0 blocks at the back, 1 production rows' spots, 1 Farm and 1 Mill spots by the hall
+[05:24] P2 Crown's plan: the Brood is seen (its army in sight): the Foundry before the Horse Breeder, a Field Cannon for the ramp post first
+[05:24] P2 Crown's plan: Economy, a build order of 0 steps from here (scripts/ai_crown.gd)
+[05:24] P2 Crown's plan: the rush is over (failed): the economy now, balanced hands it to the Economy plan (labourers to two halls, the walled natural)
+[05:24] P2 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[05:24] P2 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[05:24] P2 Crown's scouts know: an enemy army of 550 (seen in the last 120 s), 0 enemy halls, tech none seen
+[05:25] P2 Crown's plan: the Brood is seen (its army in sight): the Foundry before the Horse Breeder, a Field Cannon for the ramp post first
+[05:27] P2 Crown scout under guard (Raptors), backing out of range
+[05:29] P2 Crown scout killed: it saw nothing to go on, will look again soon
+[05:52] P2 Crown finished a Church
+[05:55] P2 Crown finished a Cottage
+[05:56] P2 Crown finished a Foundry
+[06:00] P2 Crown's Horseman goes on to harass the workers (the scout found workers)
+[06:00] P2 Crown's scout found workers to hunt: it hands over to the raid
+  P2 Crown: earned 3420 gold total, has 45 + 19 powder | supply 37/60 | workers 21 | halls 2 | army (675 value): 1 Musketeer, 5 Horseman, 1 Horse | kills +2 (3) losses +1 (1) | soil 62% 100% | saltpetre 96% 100% | efficiency 47%
+[06:00] P2 Crown plans palisade for an empty wall slot at its new hall (6 pieces, laid later)
+[06:00] P2 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[06:00] P2 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[06:00] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[06:00] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[06:00] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[06:00] P2 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[06:02] P2 Crown's Horseman pulls back from Raptors
+[06:03] P2 Crown finished a Farm
+[06:04] P2 Crown sends a Labourer to scout again (trip 3)
+[06:08] P2 Crown's Horseman goes on to harass the workers (the scout found workers)
+[06:08] P2 Crown's scout found workers to hunt: it hands over to the raid
+[06:09] P2 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[06:10] P2 Crown's plan: milestone Barracks waits: the army is far behind the enemy's (675 against the 600 it reckons)
+[06:11] P2 Crown plans a walled expansion: 48 ways-in cells (radius 12), 7 building slots, 28 palisade, 2 gate
+[06:11] P2 Crown's Horseman pulls back from Raptors
+[06:12] P2 Crown's Horseman keeps away from Rootmaw
+[06:21] P2 Crown's Horseman keeps away from Rootmaw
+[06:25] P2 Crown's Horseman pulls back from Raptors
+[06:25] P2 Crown's Horseman pulls back from Raptors
+[06:28] P2 Crown's Horseman goes on to harass the workers (the scout found workers)
+[06:28] P2 Crown's scout found workers to hunt: it hands over to the raid
+[06:29] P2 Crown's first pistol shot (Horseman)
+[06:30] P2 Crown's Horseman pulls back from Raptors
+[06:35] P2 Crown finished a Farm
+[06:37] P2 Crown's Horseman pulls back from Raptors
+[06:37] P2 Crown's Horseman pulls back from Raptors
+[06:40] P2 Crown's scouts know: an enemy army of 575 (seen in the last 120 s), 0 enemy halls, tech none seen
+[06:41] P2 Crown's scout rides home (chased)
+[06:44] P2 Crown's Horseman goes home (driven back too often)
+[06:44] P2 Crown's Horseman goes home (driven back too often)
+[06:47] P2 Crown scout under guard (Raptors), backing out of range
+[06:47] P2 Crown's Horseman pulls back from Raptors
+[06:50] P2 Crown lays 8 wall pieces at its new hall (2 labourers on it)
+[06:50] P2 Crown lays 8 wall pieces at its new hall (2 labourers on it)
+[06:52] P2 Crown lays 2 wall pieces at its new hall (2 labourers on it)
+[06:52] P2 Crown scout under guard (Raptors), backing out of range
+[06:53] P2 Crown finished a Barracks
+[06:58] P2 Crown's Horseman pulls back from Rootmaw
+[06:58] P2 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[06:59] P2 Crown lays 8 wall pieces at its new hall (2 labourers on it)
+[06:59] P2 Crown lays 8 wall pieces at its new hall (2 labourers on it)
+[06:59] P2 Crown scout under guard (Spitters), backing out of range
+  P2 Crown: earned 4940 gold total, has 10 + 54 powder | supply 40/60 | workers 24 | halls 2 | army (675 value): 1 Musketeer, 5 Horseman, 1 Horse | kills +1 (4) losses +0 (1) | soil 45% 100% | saltpetre 94% 100% | efficiency 8%
+[07:06] P2 Crown holds the top of its ramp: the force below (537) is more than its army at home (232) can beat, down at 1075; the labourers there run up
+[07:09] P2 Crown scout killed: it saw nothing to go on, will look again soon
+[07:09] P2 Crown could not see the enemy [the scout was killed] (the scout was killed before it saw the base): that proves nothing; no army for it, keeps to Economy and looks again soon
+[07:10] P2 Crown's plan: milestone Barracks waits: the army is far behind the enemy's (675 against the 765 it reckons)
+[07:12] P2 Crown's Horseman goes home (hurt)
+[07:22] P2 Crown posts its army at its natural's gate: 6 musket spots behind the palisade, 2 guns behind them (the gate 6 tiles from the foot of its main's ramp)
+[07:24] P2 Crown turns from its natural's gate to the enemy inside its wall (232 against 192)
+[07:28] P2 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[07:29] P2 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[07:32] P2 Crown finished a Town Hall (expansion)
+[07:33] P2 Crown's base layout at its new hall: 0 Cottage spots in 0 blocks at the back, 6 production rows' spots, 2 Farm and 1 Mill spots by the hall
+[07:36] P2 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[07:38] P2 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[07:45] P2 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[07:48] P2 Crown sends a Labourer to finish its Powder Mill (nobody was working on it)
+[07:49] P2 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[07:52] P2 Crown sends 3 labourers to mend its Palisade under the line's fire
+[07:56] P2 Crown's scouts know: an enemy army of 240 (seen in the last 120 s), 0 enemy halls, tech none seen
+  P2 Crown: earned 4940 gold total, has 10 + 55 powder | supply 28/70 | workers 19 | halls 3 | army (425 value): 3 Horseman, 2 Horse | kills +22 (26) losses +8 (9) | soil 45% 100% 100% | saltpetre 93% 100% 100% | efficiency 5%
+[08:10] P2 Crown's plan: milestone Barracks waits: the army is far behind the enemy's (425 against the 200 it reckons)
+[08:10] P2 Crown finished a Powder Mill
+[08:12] P2 Crown lost a Gate (unfinished) to P1 Brood (raptor)
+[08:12] P2 Crown's plan: its riders are chased off the grubs there: they pull back and come again at another Rootmaw
+[08:13] P2 Crown holds its natural's gate: the force outside (447) is too strong to go out to with its army at home (115), out at 896; the labourers run in behind the line
+[08:16] P2 Crown's scout rides home (chased)
+[08:16] P2 Crown lost a Gate (unfinished) to P1 Brood (raptor)
+[08:17] P2 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[08:17] P2 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[08:18] P2 Crown sends 2 labourers to mend its Gate under the line's fire
+[08:19] P2 Crown calls its menders off (nothing of ours shoots at what is on it)
+[08:20] P2 Crown's scout rides home (chased)
+[08:23] P2 Crown moves its army inside the wall of its new hall where it is attacked: 1 musket spots 1-3 tiles behind the palisade, 0 guns behind them
+[08:24] P2 Crown scouted: NORMAL [a standard opening] (the Mother and 3 turtles on new ground, 6 Rootmaws and 15 grubs seen, 0 Sires, 18 supply of army seen near its base, 700 of army known): OPTIMAL picks its build from this
+[08:24] P2 Crown's plan: optimal: reads NORMAL [a standard opening]: keeps Economy (what it plays already answers it)
+[08:33] P2 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[08:33] P2 Crown plans palisade for an empty wall slot at its new hall (3 pieces, laid later)
+[08:33] P2 Crown plans palisade for an empty wall slot at its new hall (3 pieces, laid later)
+[08:33] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[08:33] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[08:33] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[08:33] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+  P2 Crown: earned 4940 gold total, has 9 + 79 powder | supply 12/70 | workers 12 | halls 3 | army (80 value): 2 Horse | kills +17 (43) losses +10 (19) | soil 45% 100% 100% | saltpetre 91% 100% 100% | efficiency 13%
+[09:10] P2 Crown lost a Powder Mill to P1 Brood (raptor)
+[09:10] P2 Crown's plan: milestone Barracks waits: the army is far behind the enemy's (80 against the 920 it reckons)
+[09:12] P2 Crown lost a Church to P1 Brood (raptor)
+[09:12] P2 Crown plans palisade for an empty wall slot at its new hall (3 pieces, laid later)
+[09:16] P2 Crown lost a Cottage to P1 Brood (raptor)
+[09:16] P2 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[09:18] P2 Crown lost a Palisade to P1 Brood (raptor)
+[09:23] P2 Crown lost a Gate to P1 Brood (raptor)
+[09:31] P2 Crown lost a Gate to P1 Brood (raptor)
+[09:32] P2 Crown lost a Farm to P1 Brood (raptor)
+[09:36] P2 Crown lost a Palisade to P1 Brood (raptor)
+[09:39] P2 Crown lost a Palisade to P1 Brood (raptor)
+[09:39] P2 Crown lost a Farm to P1 Brood (raptor)
+[09:44] P2 Crown lost a Palisade to P1 Brood (raptor)
+[09:46] P2 Crown lost a Cottage to P1 Brood (raptor)
+[09:47] P2 Crown lost a Palisade to P1 Brood (raptor)
+[09:55] P2 Crown lost a Town Hall to P1 Brood (raptor)
+[09:55] P2 Crown lost a Town Hall at (104, 51): that ground waits 240 s and then only with no enemy there
+[09:58] P2 Crown lost a Horse Breeder to P1 Brood (raptor)
+  P2 Crown: earned 4940 gold total, has 8 + 95 powder | supply 0/44 | workers 0 | halls 2 | army (0 value): none | kills +4 (47) losses +12 (31) | soil 45% 100% | saltpetre 90% 100% | efficiency 0%
+[10:02] P2 Crown lost a Foundry to P1 Brood (spitter)
+[10:09] P2 Crown lost a Town Hall to P1 Brood (raptor)
+[10:09] P2 Crown lost a Town Hall at (95, 68): that ground waits 240 s and then only with no enemy there
+[10:10] P2 Crown lost a Farm to P1 Brood (raptor)
+[10:14] P2 Crown lost a Farm to P1 Brood (raptor)
+[10:17] P2 Crown lost a Barracks to P1 Brood (raptor)
+[10:24] P2 Crown lost a Barracks to P1 Brood (raptor)
+[10:26] P2 Crown lost a Powder Mill to P1 Brood (raptor)
+[10:34] P2 Crown lost a Cottage to P1 Brood (raptor)
+[10:37] P2 Crown lost a Cottage to P1 Brood (raptor)
+[10:38] P2 Crown lost a Cottage to P1 Brood (raptor)
+[10:53] P2 Crown lost a Gate to P1 Brood (raptor)
+[10:53] P2 Crown lost a Town Hall to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood (raptor)
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown lost a Palisade to P1 Brood
+[10:53] P2 Crown is beaten: nothing left to fight with
+  P2 Crown: earned 4940, spent 5230, trained 34, built 53, killed 47, lost 31, razed 0, buildings lost 55, peak army 635. Kills by: Horseman 34, Musketeer 2, Labourer 11 Haulers brought 5 horses and 0 powder kegs.
