@@ -107,6 +107,11 @@ var gate := Callable()
 ## (The shared hunt took the army off the push: the escort Winders stopped following it and it walked into the enemy's main
 ## as a stream; 50 of 78 Clock Soldiers stood run down there, 119 tiles from home, at 14:02, Hollowfen mirror.)
 var hunt_on := false
+## (clockwork-v-clockwork-coach) THE MARCH DOES NOT WAIT FOR THE GREAT WINDER. It joins the push at once wherever it is
+## (clockwork-ai-v2) and sweeps wrecks on its way; the anchor waited for it to come within HEAVY_LAG of its spot. A committed
+## push of 30-36 stood 90 s at the enemy's natural while its Great Winder swept wrecks 2,275 px away, at home (Hollowfen
+## mirror, round 2, 10:30-12:00). It is unarmed: it catches up. `-- cwgwlag:off` plays it as before.
+var gw_nowait_on := not OS.get_cmdline_user_args().has("cwgwlag:off")
 
 
 func _init(a, settings: Dictionary) -> void:
@@ -446,13 +451,16 @@ func _march() -> void:
 	var heavies: Array = units.filter(func(u: Unit) -> bool: return _heavy(u) or u.kind == Defs.GREAT_WINDER_KIND)
 	var at_r := _front_at(front.size())
 	var near_n := front.filter(func(u: Unit) -> bool: return u.position.distance_to(anchor) < at_r).size()
-	var at := front.is_empty() or float(near_n) >= float(front.size()) * 0.6
+	var at := front.is_empty() or float(near_n) >= float(front.size()) * 0.6 or hunt_on      # (hunting: no regrouping, see _hunt_launch)
 	var dir := _dir()
 	var lag := false
 	for h in heavies:
+		if h.kind == Defs.GREAT_WINDER_KIND and gw_nowait_on:
+			continue          # (clockwork-v-clockwork-coach: the march never waits for the Great Winder, see gw_nowait_on)
 		var back := (BACK_GW_V2 if ai.get("gw_sweep_on") == true else BACK_GW) if h.kind == Defs.GREAT_WINDER_KIND else BACK_BAL
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
+	lag = _lag_wait(lag, heavies, dir)
 	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
 	_leash(front)
 	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and ((not committed and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K))) or _value(units) < float(cfg.get("main_min", 0.0)) * (COMMIT_MAIN if committed else 1.0)):
@@ -1043,6 +1051,8 @@ func _gw_busy(h: Unit) -> bool:
 
 
 ## (clockwork-v-clockwork-coach) The hunt: the push goes out at once with what is at home (MIN_LEFT fighters or more).
+## Hunting, the anchor does not wait for 60% of the front to gather at it (CwPush._march): there is no army to meet, and a
+## front of 57 after a hall stood regrouping with 13 at its anchor (Greenhold mirror, round 3, 13:03-13:33).
 func _hunt_launch(home: Array) -> bool:
 	var fighters: Array = home.filter(func(u: Unit) -> bool: return _front_kind(u) or _heavy(u))
 	if fighters.size() < MIN_LEFT or ai.peaceful:
@@ -1173,3 +1183,26 @@ func _siege_fixers(front: Array) -> Dictionary:
 		return {}
 	_break_note(piece)
 	return _break_fixers(piece, front)
+
+
+## (clockwork-v-clockwork-coach) A COMMITTED PUSH WAITS FOR ITS BALLISTAS LAG_MAX s AT MOST. They lagged because they were
+## shooting a building 550 px off the way (the attack order of the last goal), and the whole front, every one at its
+## anchor, stood still for a minute (Hollowfen mirror, round 2, 13:32-14:02). After LAG_MAX s the lagging ones are walked to
+## their spot (a plain move: they stop shooting elsewhere) and the march goes on. Against the Clockwork only.
+const LAG_MAX := 12.0
+var _lag_t := -1.0
+
+
+func _lag_wait(lag: bool, heavies: Array, dir: Vector2) -> bool:
+	if not lag or not committed or not gw_nowait_on or foe < 0 or game.faction_of(foe) != "clockwork":
+		_lag_t = -1.0
+		return lag
+	if _lag_t < 0.0:
+		_lag_t = game.clock
+	if game.clock - _lag_t < LAG_MAX:
+		return true
+	for h in heavies:
+		if _heavy(h) and h.position.distance_to(anchor - dir * BACK_BAL) > HEAVY_LAG:
+			_order(h, anchor - dir * BACK_BAL, false, 60.0)
+	_note_once("lagwait", "does not wait for its Ballistas any more: they walk to it, the march goes on", 30.0)
+	return false
