@@ -307,7 +307,7 @@ func _gear_pick(g: Game, hall: Building, sp: Building) -> void:
 	var crew_b := pr.crew_max()
 	g._remove_quietly(pr)
 	check("a Cog Press: 5 Winders on the small ring, 8 on the big", crew_s == int(Defs.GEAR["press"]["small"]["crew"]) and crew_b == int(Defs.GEAR["press"]["big"]["crew"]) and crew_b > crew_s, "%d / %d" % [crew_s, crew_b])
-	check("its card: 7.2 cogs a second small, 10 big", GearEcon.trade_line(Defs.GEAR_PRESS, false).contains("7.2") and GearEcon.trade_line(Defs.GEAR_PRESS, true).contains("10.0"))
+	check("its card: 6.4 cogs a second small, 8.9 big (0.33.26)", GearEcon.trade_line(Defs.GEAR_PRESS, false).contains("6.4") and GearEcon.trade_line(Defs.GEAR_PRESS, true).contains("8.9"))
 	if sp != null:
 		var cap_s := GearEcon.tension_cap(g, 0)
 		var was := sp.gear_big

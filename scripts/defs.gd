@@ -1445,7 +1445,7 @@ const BUILDINGS := {
 	"clocktower": {
 		"name": "Clocktower", "hp": 2000, "armor": 3, "cost": 400, "time": 60.0, "size": Vector2i(5, 4),
 		"supply": 10, "sight": 9, "trains": ["winder"], "field": 9, "battery": [2.0, 6], "crew": 4, "faction": "clockwork",
-		"about": "The blueprint of the machine: builds Winders, takes in the cogs and unlocks the other buildings. Its gear ring is the biggest: every building must mesh with it, directly or through others, or it stops. Allows 2 Cog Presses and 1 Mainspring nearby. Its ground holds 9,000 raw brass for its presses (spent, they yield nothing) and 1,320 SPRING LIFE for its Mainspring (it winds less as that runs down, 5% once spent). A new Clocktower brings fresh brass and spring life and starts its own gear field.",
+		"about": "The blueprint of the machine: builds Winders, takes in the cogs and unlocks the other buildings. Its gear ring is the biggest: every building must mesh with it, directly or through others, or it stops. Allows 2 Cog Presses and 1 Mainspring nearby. Its ground holds 8,000 raw brass for its presses (spent, they yield nothing) and 1,320 SPRING LIFE for its Mainspring (it winds less as that runs down, 5% once spent). A new Clocktower brings fresh brass and spring life and starts its own gear field.",
 	},
 	"spring_tower": {
 		"name": "Spring Tower", "hp": 500, "armor": 2, "cost": 100, "time": 20.0, "size": Vector2i(2, 2),
@@ -2447,7 +2447,7 @@ static func about_of(kind: String, armoured := false) -> String:
 ## The short tooltip text for a unit, building or research ("about" when it has none).
 ## Gear mode's own tooltips where the old text speaks of batteries, Boilers or coal (no power in gear mode).
 const GEAR_TIPS := {
-	"clocktower": "The blueprint of the machine: builds Winders, takes in the cogs and unlocks the other buildings. Its gear ring is the biggest: every building must mesh with it, directly or through others, or it stops. Allows 2 Cog Presses and 1 Mainspring nearby. Its ground holds 9,000 raw brass for its presses (spent, they yield nothing) and 1,320 SPRING LIFE for its Mainspring (it winds less as that runs down, 5% once spent). A new Clocktower brings fresh brass and spring life and starts its own gear field.",
+	"clocktower": "The blueprint of the machine: builds Winders, takes in the cogs and unlocks the other buildings. Its gear ring is the biggest: every building must mesh with it, directly or through others, or it stops. Allows 2 Cog Presses and 1 Mainspring nearby. Its ground holds 8,000 raw brass for its presses (spent, they yield nothing) and 1,320 SPRING LIFE for its Mainspring (it winds less as that runs down, 5% once spent). A new Clocktower brings fresh brass and spring life and starts its own gear field.",
 }
 
 
