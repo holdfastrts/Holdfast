@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.17", "items": [
+		"THE CLOCKWORK COMPUTER FINISHES THE MIRROR (Clockwork against Clockwork, coached game by game): once the enemy has no army left, its push hunts with its Winders along to wind the soldiers (the army no longer stands run down in the enemy's main), goes for the enemy's Clocktowers, then its Winders, then the rest, and with every Clocktower gone splits into small parties after the last Winders.",
+		"AT AN ENEMY CLOCKTOWER its soldiers go for the Winders mending it first; a winning push no longer stands still waiting for its Great Winder (sweeping at home) or long for its Spring Ballistas, a goal in reach is attacked by the whole push, and one enemy on a cliff no longer holds it at the foot of a ramp.",
+		"IT NO LONGER WALKS INTO AN EQUAL CLOCKWORK ARMY ON ITS OWN GEARS: it counted every unit it had killed since the start against the enemy army it expects, so by the middle game it expected almost nothing. And two Ratchet Turrets seen at a Clockwork expansion no longer make it stop training soldiers to save for a Heavy Works push.",
+	]},
 	{"v": "0.33.16", "items": [
 		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
 	]},
