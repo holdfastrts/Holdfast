@@ -257,6 +257,7 @@ func work_line(from: Vector2) -> Vector2:
 		# (the Brood has no economy buildings: its grubs walk between the Rootmaws and the Mother)
 		var best := Vector2.INF
 		var bd := INF
+		var best_q := false
 		var seen_worker := false
 		for o in game.units:
 			if o.team == foe and not o.dead and o.is_worker() and game.is_visible_to(ai.team, o.position) and not ai.raid_spot_bad(o.position):
@@ -276,8 +277,13 @@ func work_line(from: Vector2) -> Vector2:
 				if dd < bd:
 					bd = dd
 					best = o.position
+					best_q = o.kind == BroodNew.QUEEN
 			if best != Vector2.INF:
 				p = best
+				if best_q and ai.has_method("raid_v_brood") and ai.raid_v_brood():
+					# (crown-v-brood-coach: at the Mother the raid waits 6 tiles out on the riders' side, where the grubs walk in
+					# with their food: never at the Mother herself, test_ai_rush "workers before the Brood Mother")
+					p = best + (from - best).normalized() * 6.0 * Defs.TILE
 	return p
 
 

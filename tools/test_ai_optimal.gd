@@ -256,7 +256,10 @@ func _run() -> void:
 	await _until(300.0, func() -> bool: return g.halls_of(0, false).size() >= 2)
 	check(ai._attacking or _log_has("first attack goes out"), "the riders ride out")
 	check(g.halls_of(0, false).size() >= 2, "the second hall goes down behind the raid (%d s)" % int(g.clock))
-	check(not ai._mine("powder_mill").is_empty(), "and the Powder Mill (%d)" % ai._mine("powder_mill").size())
+	# (crown-v-brood-coach: the hall keeps a labourer coming in the rush, so the riders ride at ~4:00 and the Mill follows
+	# the raid a little later than it did; it may come after the hall the shared expansion lays)
+	await _until(360.0, func() -> bool: return not ai._mine("powder_mill").is_empty())
+	check(not ai._mine("powder_mill").is_empty(), "and the Powder Mill (%d, %d s)" % [ai._mine("powder_mill").size(), int(g.clock)])
 	await _stop()
 
 	# ---- 6: an AGGRESSIVE read puts the Powder Mill (and the soldiers) up at once

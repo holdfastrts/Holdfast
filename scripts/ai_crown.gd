@@ -2168,6 +2168,11 @@ func _rush_raid_brood() -> bool:
 	return not rush_raid_off and on and difficulty >= 1 and opening == "breeder" and _foe_is("brood") and game.clock < 600.0
 
 
+## (AIHarass.work_line asks) the riders raid the Brood's grubs as a party
+func raid_v_brood() -> bool:
+	return _rush_raid_brood() and _rush_raid
+
+
 func _rush_with_wave() -> bool:
 	if _rush_raid_brood():
 		return false
