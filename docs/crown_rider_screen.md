@@ -15,6 +15,19 @@ untouched (everything is in `AICrown`; the shared code only calls in).
 
 **Switch:** `-- screen:off` plays as before (no screen, no picket, no riders trained for them).
 
+**In short.** Five coached rounds on five maps (Greenhold, Dune Sea, Kestrel Rise, Hollowfen, Ashford Crossing;
+Greenhold 1101 and Dune Sea 1107 filmed against main, Dune Sea 1109 filmed in round 5) and three batches of 48 games
+(main, the screen, the screen again as a noise check). When a Crown wave marches, two to four Horsemen ride ahead of it
+and on its flanks; the line knows what they see and halts and forms before the enemy it would have met unformed; at
+contact they pull back round the ends of the line and work the flanks; at home a picket stands forward of the army's post
+and rides back with a warning. The screen keeps alive (9 of 291 riders lost) and the line formed on its sightings 64
+times; the waves' fights began with the line formed about twice as often in the mirror (42%, main 22%) and somewhat more
+often against the Clockwork (36%, main 28%); the trade of those fights did not move (1.22 and 0.90 killed per 1 lost, main
+1.22 and 0.93); against the Brood, where only the picket rides, the Crown lost fewer games and halls (7 of 32 and 1.22
+a game, main 6 of 16 and 1.38), within the games' noise. A Horseman sees 256 px and a musket reaches 190 (+ the margin it
+keeps): against muskets the screen sees the enemy's front once and backs off.
+![](shots/crown_rider_screen/key_dunesea1107_before_after.jpg)
+
 ## What was built (`scripts/ai_crown_screen.gd`, class `AICrownScreen`)
 
 1. **The screen ahead.** While a Crown wave marches (the main army's wave with a line to form: not a riders' wave, not
@@ -159,7 +172,7 @@ Rise, Ashford Crossing, Red Coast, Frostmere, Border March; both start slots; 16
 job's `tools/film_line.gd` (so main has the warning and the line's state too); tables by `python3
 tools/study/crown_screen_report.py docs/crown_rider_screen/data/main docs/crown_rider_screen/data/after`. The data (each
 game's result.json, engage.json, screen.json, coach.txt and the Crown's lines of the match log) is in
-`docs/crown_rider_screen/data/` (main, after; cut1 = the first after batch, cut at 18 games in round 5). "Away fights" are
+`docs/crown_rider_screen/data/` (main, after; after2 = the noise check below; cut1 = the first after batch, cut at 18 games in round 5). "Away fights" are
 the engagements of a Crown army more than 900 px from all its halls (the waves); "formed when it began" = the line's state
 just before the fight was a formed one (form, step, set, advance, back), or it was in a fight already on a line laid
 formed (the line's own contact comes a moment before the film's); "warning" = how long the enemy soldiers near the
@@ -241,6 +254,23 @@ contact had been known when the fight began (median of the fights).
   and `AICrownHold` (the loop's scout waits while a wave's screen is short); the shared code only calls in
   (`AI._screen_tick`, `_screen_has`, `_screen_rider` do nothing for them).
 
+**The noise check.** The second after batch (`data/after2`, the same 48 games with the 45 s memory of "What is still
+wrong" 2, which never came into play: no forming was given up for want of sight in any game, so it played as the first)
+shows how far two batches of the same play differ: against the Clockwork the waves' fights began formed 43% (first
+batch 29%) and traded 1.34 (1.13); the mirror 36% (48%) and 0.97 (0.83); against the Brood 0-11-5 and 1 game won or led
+(0-14-2 and 4). Riders sent 155, lost on the screen 2; pickets lost 7 (6 against the Brood); the line formed on the
+screen's sightings 30 times. Both batches together (96 games) against main (48):
+
+| matchup | waves' fights begun formed | the log: formed before an army / (that + deployed) | waves' fights killed / lost | firing in 5 s | Crown W-D-L | won or led |
+|---|---|---|---|---|---|---|
+| v Brood | 0 of 3 (main 2 of 5) | - (main 2 / 2) | 900 / 530 (main 2765 / 1055) | - | 0-25-7 (main 0-10-6) | 5 of 32 (main 0 of 16) |
+| v Clockwork | 18 of 50, 36% (main 8 of 28, 28%) | 26 / 58, 45% (main 11 / 27, 40%) | 1.22 (main 1.22) | 62% (main 62%) | 0-29-3 (main 0-14-2) | 2 of 32 (main 3 of 16) |
+| mirror | 30 of 71, 42% (main 10 of 44, 22%) | 54 / 91, 59% (main 13 / 60, 21%) | 0.90 (main 0.93) | 52% (main 44%) | 0-64-0 (main 0-32-0) | 22 of 64 (main 12 of 32) |
+
+So: the line forms before contact about twice as often in the mirror and a little more often against the Clockwork, more
+of its muskets fire at once in the mirror, the trade of the waves' fights is where it was, and the Crown against the Brood
+loses fewer games (7 of 32, main 6 of 16) and halls (1.22 a game, main 1.38), where only the picket rides.
+
 **Tests** (tools/test_ai_*.gd, tools/test_crown_*.gd, 39 tests, on the branch): all pass but test_ai_rush (1),
 test_ai_rush_followup (14) and test_crown_dragoon_raid (1), which fail the same way on main (crown-line-fight's list),
 and two flaky ones: test_ai_worker_safety (the brute case, as before) and test_ai_cw_horse_raid (a Clockwork test with
@@ -260,7 +290,7 @@ tools/test_crown_rider_screen.gd (all pass); test_crown_line passes.
    screen sees the enemy's front once and the line must form on that (hence the screen's 8% share, round 5); a gate's
    or ramp post's line on the high ground is out of a rider's sight from below. Tried after the batch: remembering what
    the screen saw 45 s (not 20) while the line forms; a second batch of 48 games showed no forming was ever given up for
-   want of sight (`lost_sight` 0 in every game), so it was taken out again (the log line stays for the coach).
+   want of sight (`lost_sight` 0 in all 64 Crown sides), so it was taken out again (the log line stays for the coach).
 3. **The trade did not get better** (the waves' fights against the Clockwork 1.13 killed per 1 lost, main 1.22; the
    mirror 0.83, 0.93). A line formed before a bigger army loses anyway, and a halted line gives the enemy time to gather
    too; the numbers move with the noise (below).

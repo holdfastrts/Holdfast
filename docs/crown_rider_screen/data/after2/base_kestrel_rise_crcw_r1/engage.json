@@ -1,0 +1,143 @@
+[
+ {
+  "across": 85,
+  "cell": [
+   62,
+   51
+  ],
+  "clock": "8:22",
+  "depth": 329,
+  "fired5": 2,
+  "foe_val0": 1500,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -198,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 7,
+  "home": true,
+  "in_reach0": 0,
+  "in_reach5": 4,
+  "killed": 1050,
+  "lay_st": "form",
+  "len": 16,
+  "lost": 300,
+  "mine_val0": 890,
+  "moving": 5,
+  "n": 12,
+  "prev_st": "fight",
+  "since_lay": 8,
+  "t": 502,
+  "team": 1,
+  "warn": 10.0,
+  "warn_first": 10.5
+ },
+ {
+  "across": 115,
+  "cell": [
+   54,
+   46
+  ],
+  "clock": "9:02",
+  "depth": 53,
+  "fired5": 1,
+  "foe_val0": 715,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -109,
+    "kind": "cannon",
+    "set": true
+   }
+  ],
+  "guns_fired": 1,
+  "held": 0,
+  "home": true,
+  "in_reach0": 3,
+  "in_reach5": 1,
+  "killed": 265,
+  "lay_st": "form",
+  "len": 5,
+  "lost": 300,
+  "mine_val0": 585,
+  "moving": 3,
+  "n": 5,
+  "prev_st": "advance",
+  "since_lay": 9,
+  "t": 542,
+  "team": 1,
+  "warn": 8.0,
+  "warn_first": 9.5
+ },
+ {
+  "across": 57,
+  "cell": [
+   13,
+   36
+  ],
+  "clock": "10:42",
+  "depth": 40,
+  "fired5": -1,
+  "foe_val0": 1860,
+  "guns": [],
+  "guns_fired": 0,
+  "held": 0,
+  "home": false,
+  "in_reach0": 4,
+  "in_reach5": -1,
+  "killed": 70,
+  "lay_st": "form",
+  "len": 3,
+  "lost": 0,
+  "mine_val0": 240,
+  "moving": 0,
+  "n": 4,
+  "prev_st": "",
+  "since_lay": 110,
+  "t": 642,
+  "team": 1,
+  "warn": 7.0,
+  "warn_first": 8.0
+ },
+ {
+  "across": 103,
+  "cell": [
+   75,
+   67
+  ],
+  "clock": "11:45",
+  "depth": 140,
+  "fired5": 5,
+  "foe_val0": 1450,
+  "guns": [
+   {
+    "behind": false,
+    "from_line": 31,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 0,
+  "held": 0,
+  "home": true,
+  "in_reach0": 0,
+  "in_reach5": 5,
+  "killed": 140,
+  "lay_st": "",
+  "len": 13,
+  "lost": 0,
+  "mine_val0": 1225,
+  "moving": 8,
+  "n": 8,
+  "prev_st": "",
+  "since_lay": 14,
+  "t": 705,
+  "team": 1,
+  "warn": 13.5,
+  "warn_first": 14.0
+ }
+]

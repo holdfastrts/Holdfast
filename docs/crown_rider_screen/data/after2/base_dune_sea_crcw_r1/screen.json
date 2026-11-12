@@ -1,0 +1,23 @@
+{
+ "1": {
+  "flank_hits": 0,
+  "lost": 0,
+  "picket_lost": 0,
+  "pulled": 1,
+  "sent": 2,
+  "sightings": 0,
+  "trained": 0,
+  "warns": [
+   [
+    542.8,
+    350
+   ]
+  ]
+ },
+ "1_line": {
+  "approaches": 1,
+  "deploys": 0,
+  "forms": 2,
+  "lost_sight": 0
+ }
+}

@@ -1,0 +1,162 @@
+[00:00] P1 Crown's plan: OPTIMAL: the common opening (the ramp Cottage, the Gate, the Barracks, the second Farm), a scout at once, then it picks its build from what it sees
+  P1 Crown  side 1  colour Blue  AI: HARD, OPTIMAL
+[00:00] P1 Crown's base layout at its main: 12 Cottage spots in 3 blocks at the back, 4 production rows' spots, 1 Farm and 1 Mill spots by the hall
+[00:00] P1 Crown's build order: the ramp Cottage (supply 5, 4 labourers, 150 gold)
+[00:02] P1 Crown sends a Labourer to scout
+[00:12] P1 Crown got its first Labourer
+[00:24] P1 Crown finished a Cottage
+[00:25] P1 Crown walled its ramp with a Cottage (1 pieces, 1 labourers on it)
+[00:25] P1 Crown's build order: the ramp Gate (supply 7, 6 labourers, 0 gold)
+[00:38] P1 Crown's ramp wall stands (1 pieces, 13 s after it was laid)
+[00:45] P1 Crown's build order: Barracks 1 (supply 8, 7 labourers, 180 gold)
+[00:57] P1 Crown's build order: Farm 2 (supply 9, 8 labourers, 30 gold)
+  P1 Crown: earned 380 gold total, has 30 + 0 powder | supply 9/18 | workers 8 | halls 1 | army (0 value): none | kills +0 (0) losses +0 (0) | soil 96% | saltpetre 100% | efficiency 36%
+[01:24] P1 Crown finished a Farm
+[01:28] P1 Crown finished a Barracks
+[01:33] P1 Crown scouted: GREEDY [no army and no production at its base] (its base seen (97%) at 1:33: no army, no production building; 2 economy buildings, 7 workers, 0 wall pieces): OPTIMAL picks its build from this
+[01:33] P1 Crown's plan: Timing attack, a build order of 10 steps from here (scripts/ai_crown.gd)
+[01:33] P1 Crown's plan: optimal: reads GREEDY [no army and no production at its base]: picks Timing attack (a timing attack)
+[01:34] P1 Crown's build order: the ramp Cottage (supply 8, 8 labourers, 30 gold)
+[01:34] P1 Crown's build order: the ramp Gate (supply 8, 8 labourers, 30 gold)
+[01:34] P1 Crown's build order: Barracks 1 (supply 8, 8 labourers, 30 gold)
+[01:41] P1 Crown's build order: Powder Mill 1 (supply 9, 8 labourers, 260 gold)
+[01:41] P1 Crown's build order: Farm 2 (supply 9, 8 labourers, 260 gold)
+[01:41] P1 Crown's build order: Musketeers from now on (supply 9, 8 labourers, 260 gold)
+  P1 Crown: earned 760 gold total, has 158 + 0 powder | supply 11/18 | workers 9 | halls 1 | army (0 value): none | kills +0 (0) losses +1 (1) | soil 92% | saltpetre 100% | efficiency 29%
+[02:06] P1 Crown's build order: a Cottage (supply 12/18) (supply 12, 10 labourers, 8 gold)
+[02:13] P1 Crown finished a Powder Mill
+[02:26] P1 Crown finished a Cottage
+[02:47] P1 Crown's build order: Foundry 1 (supply 14, 13 labourers, 88 gold)
+  P1 Crown: earned 1140 gold total, has 28 + 14 powder | supply 15/26 | workers 14 | halls 1 | army (0 value): none | kills +1 (1) losses +0 (1) | soil 87% | saltpetre 99% | efficiency 47%
+[03:04] P1 Crown got its first Musketeer
+[03:25] P1 Crown moves its musket line to the cliff edge above the enemy below: 1 spots on the high ground, the nearest 104 px from it
+[03:29] P2 Clockwork saw an enemy Musketeer: a slow foot soldier, the Crown's standard opening (a horse rush would show Horsemen)
+[03:30] P1 Crown's build order: Horse Breeder 1 (supply 19, 15 labourers, 88 gold)
+[03:34] P1 Crown finished a Foundry
+[03:45] P1 Crown finished a Horse Breeder
+[03:49] P1 Crown's build order: a Cottage (supply 21/26) (supply 21, 15 labourers, 258 gold)
+  P1 Crown: earned 1900 gold total, has 63 + 59 powder | supply 24/26 | workers 16 | halls 1 | army (180 value): 3 Musketeer | kills +0 (1) losses +0 (1) | soil 79% | saltpetre 93% | efficiency 56%
+[04:04] P1 Crown got its first Horse
+[04:09] P1 Crown's first horse hauled by a hauler
+[04:10] P1 Crown finished a Cottage
+[04:24] P1 Crown sends a Labourer to scout again (trip 2)
+[04:25] P1 Crown got its first Horseman
+[04:25] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[04:25] P1 Crown's scouts know: an enemy army of 0 (seen in the last 120 s), 1 enemy hall, tech none seen
+[04:32] P1 Crown's build order: a Cottage (supply 26/34) (supply 26, 17 labourers, 243 gold)
+[04:53] P1 Crown finished a Cottage
+  P1 Crown: earned 2280 gold total, has 13 + 123 powder | supply 31/42 | workers 19 | halls 1 | army (455 value): 5 Musketeer, 1 Horse, 1 Horseman | kills +0 (1) losses +0 (1) | soil 75% | saltpetre 86% | efficiency 62%
+[05:01] P1 Crown's build order: a Cottage (supply 33/42) (supply 33, 18 labourers, 143 gold)
+[05:04] P1 Crown got its first Field Cannon
+[05:12] P1 Crown's Horseman goes on to harass the workers (the scout found workers)
+[05:12] P1 Crown's scout found workers to hunt: it hands over to the raid
+[05:13] P1 Crown's first pistol shot (Horseman)
+[05:22] P1 Crown finished a Cottage
+[05:22] P1 Crown scout under guard (Clock Soldier), backing out of range
+[05:23] P1 Crown's Horseman keeps away from Clock Soldier
+[05:32] P1 Crown's Horseman goes home (hurt)
+[05:33] P1 Crown scout killed: it saw nothing to go on, will look again soon
+[05:33] P1 Crown could not see the enemy [the scout was killed] (the scout was killed before it saw the base): that proves nothing; no army for it, keeps to Timing attack and looks again soon
+[05:35] P1 Crown's build order: Barracks 2 (supply 34, 18 labourers, 223 gold)
+[05:53] P1 Crown's build order: a Cottage (supply 37/50) (supply 37, 19 labourers, 333 gold)
+[05:53] P1 Crown trains a Horseman for its screen and picket
+  P1 Crown: earned 3420 gold total, has 118 + 99 powder | supply 41/50 | workers 20 | halls 1 | army (885 value): 8 Musketeer, 1 Horseman, 1 Field Cannon, 3 Horse | kills +3 (4) losses +1 (2) | soil 62% | saltpetre 84% | efficiency 46%
+[06:00] P1 Crown got its first Powder Wagon
+[06:09] P1 Crown sends a Horseman to scout again (trip 3)
+[06:15] P1 Crown finished a Cottage
+[06:16] P1 Crown finished a Barracks
+[06:17] P1 Crown's build order: a Cottage (supply 47/58) (supply 47, 19 labourers, 68 gold)
+[06:27] P1 Crown's first Field Cannon with a team of 2 horses
+[06:30] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[06:30] P1 Crown's scouts know: an enemy army of 700 (seen in the last 120 s), 2 enemy halls, tech none seen
+[06:38] P1 Crown finished a Cottage
+[06:39] P1 Crown scout under guard (Springer), backing out of range
+[06:46] P1 Crown's build order: a Cottage (supply 51/66) (supply 51, 19 labourers, 28 gold)
+[06:47] P1 Crown's Horseman was killed and a horse bolted loose (the first: anyone's to catch)
+[06:47] P1 Crown scout killed: it saw nothing to go on, will look again soon
+[06:49] P1 Crown scouted: NORMAL [a standard opening] (2 halls, 4 economy, 1 military buildings, 10 supply of army): OPTIMAL picks its build from this
+[06:49] P1 Crown's plan: optimal: reads NORMAL [a standard opening]: keeps Timing attack (what it plays already answers it)
+  P1 Crown: earned 4560 gold total, has 138 + 81 powder | supply 53/66 | workers 20 | halls 1 | army (1285 value): 12 Musketeer, 2 Field Cannon, 1 Powder Wagon, 1 Horseman, 1 Horse | kills +0 (4) losses +1 (3) | soil 49% | saltpetre 81% | efficiency 42%
+[07:02] P1 Crown's first attack goes out (22 supply, 0 Horsemen)
+[07:03] P1 Crown's plan: the opening is over (the first attack is out): the milestones take over
+[07:03] P1 Crown's wave sends 1 Horseman ahead and to its flanks as a screen (1 out)
+[07:07] P1 Crown finished a Cottage
+[07:15] P1 Crown's wave meets the enemy before its line is formed: 14 muskets deploy into a line through the 0 already firing
+[07:16] P1 Crown's screen pulls back to the line's flanks at contact
+[07:17] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:18] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:19] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:20] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:20] P1 Crown's screen rider rides down a worker on the flank
+[07:20] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:22] P1 Crown sends a Labourer to scout again (trip 4)
+[07:38] P1 Crown's line has won the field: it forms up again and goes on
+[07:41] P1 Crown is expanding to fresh land (left at its best hall: 41%), 18 tiles from its main
+[07:41] P1 Crown scout turned back: it saw nothing to go on, will look again soon
+[07:42] P1 Crown plans a walled expansion: 30 ways-in cells (radius 16), 8 building slots, 6 palisade, 2 gate
+[07:52] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:53] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:54] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[07:56] P1 Crown's wave meets the enemy before its line is formed: 13 muskets deploy into a line through the 2 already firing
+[07:56] P1 Crown's screen pulls back to the line's flanks at contact
+  P1 Crown: earned 5320 gold total, has 8 + 65 powder | supply 60/74 | workers 21 | halls 1 | army (1715 value): 15 Musketeer, 3 Field Cannon, 1 Powder Wagon, 1 Horseman, 3 Horse | kills +15 (19) losses +3 (6) | soil 41% | saltpetre 76% | efficiency 45%
+[08:01] P1 Crown's plan: its wave stays out: only scouts by its buildings at home (the wave is worth 1269)
+[08:01] P1 Crown moves its musket line to the cliff edge above its Town Hall: 2 spots on the high ground, the nearest 81 px from it
+[08:01] P2 Clockwork's Netter caught P1 Crown's Horseman
+[08:01] P1 Crown's screen rider rides back (hurt)
+[08:02] P1 Crown sends 3 labourers to mend its Town Hall under the line's fire
+[08:04] P1 Crown's wave sends 2 Horsemen ahead and to its flanks as a screen (2 out)
+[08:05] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:05] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:06] P2 Clockwork's Netter caught P1 Crown's Musketeer
+[08:16] P1 Crown sends a Labourer to scout again (trip 5)
+[08:22] P1 Crown finished a Town Hall (expansion)
+[08:37] P1 Crown's line has won the field: it forms up again and goes on
+[08:37] P1 Crown's wave strung out on the march: 11 men 7.5 tiles apart close up before going on
+[08:40] P1 Crown is expanding to fresh land (left at its best hall: 100%), 19 tiles from its main
+[08:40] P1 Crown's wave meets the enemy before its line is formed: 3 muskets deploy into a line through the 6 already firing
+[08:41] P1 Crown plans a walled expansion: 68 ways-in cells (radius 15), 7 building slots, 45 palisade, 2 gate
+[08:41] P1 Crown's screen pulls back to the line's flanks at contact
+[08:42] P1 Crown's screen rider rides down a worker on the flank
+[08:52] P2 Clockwork lost a Clocktower to P1 Crown (cannon)
+[08:54] P1 Crown's first keg hauled by a hauler
+[08:57] P1 Crown's screen rider rides down a worker on the flank
+  P1 Crown: earned 6080 gold total, has 18 + 145 powder | supply 53/84 | workers 23 | halls 2 | army (1450 value): 10 Musketeer, 3 Field Cannon, 1 Powder Wagon, 1 Horse, 2 Horseman | kills +36 (55) losses +6 (12) | soil 32% 100% | saltpetre 69% 100% | efficiency 34%
+[09:07] P1 Crown scout under guard (Spring Ballista), backing out of range
+[09:10] P1 Crown's screen rider rides down a worker on the flank
+[09:12] P1 Crown scout under guard (Clock Soldier), backing out of range
+[09:14] P1 Crown finished a Town Hall (expansion)
+[09:21] P2 Clockwork lost a Cog Press to P1 Crown (cuirassier)
+[09:22] P1 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[09:22] P1 Crown plans palisade for an empty wall slot at its new hall (3 pieces, laid later)
+[09:22] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[09:22] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[09:22] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[09:22] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[09:23] P1 Crown's screen rides home (the wave is home)
+[09:23] P2 Clockwork lost a Cog Press to P1 Crown (cannon)
+[09:25] P1 Crown finished a Barracks
+[09:27] P1 Crown finished a Church
+[09:45] P2 Clockwork lost a Light Works to P1 Crown (cannon)
+[09:46] P1 Crown scout under guard (Spring Ballista), backing out of range
+[09:52] P1 Crown scout driven off by the enemy's guns: it saw nothing to go on, will look again soon
+[09:52] P1 Crown could not see the enemy [the scout was driven off] (the scout was driven off by the enemy's guns before it saw the base): that proves nothing; no army for it, keeps to Timing attack and looks again soon
+  P1 Crown: earned 6460 gold total, has 8 + 109 powder | supply 38/94 | workers 25 | halls 3 | army (670 value): 3 Musketeer, 1 Powder Wagon, 2 Field Cannon, 2 Horse | kills +18 (73) losses +10 (22) | soil 28% 100% 100% | saltpetre 63% 100% 100% | efficiency 32%
+[10:10] P1 Crown finished a Cottage
+[10:15] P1 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[10:15] P1 Crown plans palisade for an empty wall slot at its new hall (4 pieces, laid later)
+[10:15] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[10:15] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[10:15] P1 Crown plans palisade for an empty wall slot at its new hall (2 pieces, laid later)
+[10:18] P1 Crown finished a Barracks
+[10:36] P1 Crown: the soil around a Town Hall is running low (under 25%)
+[10:58] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)
+[10:58] P1 Crown's scouts know: an enemy army of 150 (seen in the last 120 s), 3 enemy halls, tech movement_works
+[10:58] P1 Crown sets a Horseman as a picket on the road 520 px out from its post
+  P1 Crown: earned 7220 gold total, has 13 + 140 powder | supply 42/102 | workers 26 | halls 3 | army (580 value): 1 Powder Wagon, 4 Musketeer, 1 Horse, 2 Horseman | kills +1 (74) losses +3 (25) | soil 20% 100% 100% | saltpetre 57% 100% 100% | efficiency 31%
+[11:08] P1 Crown scouted: NORMAL [a standard opening] (3 halls, 5 economy, 1 military buildings, 6 supply of army): OPTIMAL picks its build from this
+[11:08] P1 Crown's plan: optimal: reads NORMAL [a standard opening]: keeps Timing attack (what it plays already answers it)
+[11:15] P1 Crown finished a Farm
+[11:30] P2 Clockwork lost a Cog Press to P1 Crown
+[11:46] P1 Crown's scout rides home (chased)
+[11:47] P1 Crown sends a Horseman to scout the map (a loop of 10 spots: the hall sites and the foot of the enemy's ramp)

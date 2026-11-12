@@ -1,0 +1,149 @@
+[
+ {
+  "across": 77,
+  "cell": [
+   94,
+   88
+  ],
+  "clock": "8:00",
+  "depth": 233,
+  "fired5": 2,
+  "foe_val0": 800,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -42,
+    "kind": "cannon",
+    "set": false
+   }
+  ],
+  "guns_fired": 1,
+  "held": 0,
+  "home": true,
+  "in_reach0": 2,
+  "in_reach5": 3,
+  "killed": 800,
+  "lay_st": "",
+  "len": 8,
+  "lost": 180,
+  "mine_val0": 925,
+  "moving": 2,
+  "n": 3,
+  "prev_st": "",
+  "since_lay": -1,
+  "t": 480,
+  "team": 1,
+  "warn": 24.5,
+  "warn_first": 60.0
+ },
+ {
+  "across": 159,
+  "cell": [
+   95,
+   89
+  ],
+  "clock": "10:30",
+  "depth": 90,
+  "fired5": 15,
+  "foe_val0": 1150,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -23,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -56,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": false,
+    "from_line": 4,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -145,
+    "kind": "mortar",
+    "set": false
+   }
+  ],
+  "guns_fired": 4,
+  "held": 0,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 20,
+  "killed": 2590,
+  "lay_st": "",
+  "len": 49,
+  "lost": 60,
+  "mine_val0": 2545,
+  "moving": 20,
+  "n": 20,
+  "prev_st": "",
+  "since_lay": -1,
+  "t": 630,
+  "team": 1,
+  "warn": 32.5,
+  "warn_first": 33.5
+ },
+ {
+  "across": 38,
+  "cell": [
+   89,
+   83
+  ],
+  "clock": "11:34",
+  "depth": 226,
+  "fired5": 5,
+  "foe_val0": 475,
+  "guns": [
+   {
+    "behind": true,
+    "from_line": -320,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -342,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -429,
+    "kind": "cannon",
+    "set": false
+   },
+   {
+    "behind": true,
+    "from_line": -394,
+    "kind": "mortar",
+    "set": false
+   }
+  ],
+  "guns_fired": 0,
+  "held": 0,
+  "home": true,
+  "in_reach0": 1,
+  "in_reach5": 10,
+  "killed": 550,
+  "lay_st": "",
+  "len": 25,
+  "lost": 300,
+  "mine_val0": 2430,
+  "moving": 12,
+  "n": 13,
+  "prev_st": "",
+  "since_lay": 4,
+  "t": 694,
+  "team": 1,
+  "warn": 4.5,
+  "warn_first": 6.5
+ }
+]
