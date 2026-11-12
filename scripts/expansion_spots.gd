@@ -344,7 +344,9 @@ static func nb_rate(g: Game, t: int, all_sites: Array) -> Array:
 		if int(s["team"]) != t:
 			continue
 		var c: Vector2i = s["c"]
-		var mid := Vector2(c) + Vector2(MapGen.HALL) * 0.5
+		# (start-spots-fix: worked out in side t's first-start frame and mirrored back, Game.start_flip: the footprint's
+		# rounding and the order of the cells looked at fell the other way on a mirrored start, a tile off its mirror)
+		var mid: Vector2 = g.sym_pt(t, (Vector2(c) + Vector2(MapGen.HALL) * 0.5) * Defs.TILE) / Defs.TILE
 		var tc := Vector2i(-1, -1)
 		# the turtle's footprint in the hall spot (its middle first, then round it): level, open ground, no ramp
 		for r in 4:
@@ -352,12 +354,12 @@ static func nb_rate(g: Game, t: int, all_sites: Array) -> Array:
 				for dx in range(-r, r + 1):
 					if tc.x >= 0 or (absi(dx) != r and absi(dy) != r):
 						continue
-					var cc := Vector2i(int(mid.x - fs.x * 0.5), int(mid.y - fs.y * 0.5)) + Vector2i(dx, dy)
+					var cc := g.sym_rect(t, Vector2i(int(mid.x - fs.x * 0.5), int(mid.y - fs.y * 0.5)) + Vector2i(dx, dy), fs)
 					if _ground_ok(g, cc, fs):
 						tc = cc
 		if tc.x < 0:
 			continue
-		var maws := _maw_room(g, tc, fs)
+		var maws := _maw_room(g, tc, fs, t)
 		if maws < 1:
 			continue           # (room for a turtle and a Rootmaw circle; since 0.24.7's 8-tile circles one fits round a turtle)
 		var e: Dictionary = s.duplicate()
@@ -392,8 +394,9 @@ static func _ground_ok(g: Game, c: Vector2i, sz: Vector2i) -> bool:
 
 ## How many Rootmaw circles fit round a turtle at `tc` (greedy, their middles PIT_CLAIM x 2 tiles apart, inside its
 ## swamp, on its level, clear of its footprint).
-static func _maw_room(g: Game, tc: Vector2i, fs: Vector2i) -> int:
-	var mid := Vector2(tc) + Vector2(fs) * 0.5
+static func _maw_room(g: Game, tc: Vector2i, fs: Vector2i, t := -1) -> int:
+	# (start-spots-fix: the circles are laid in side t's first-start frame and mirrored back)
+	var mid := Vector2(g.sym_rect(t, tc, fs)) + Vector2(fs) * 0.5
 	var lv := int(g.height[g.idx(tc)])
 	var ms: Vector2i = BroodRoot.fp(BroodNew.MAW)[0]
 	var apart := float(Defs.PIT_CLAIM) * 2.0
@@ -405,7 +408,7 @@ static func _maw_room(g: Game, tc: Vector2i, fs: Vector2i) -> int:
 			break
 		for i in 16:
 			var p: Vector2 = mid + Vector2.from_angle(TAU * i / 16.0 + ring * 0.3) * ring
-			var mc := Vector2i(int(p.x - ms.x * 0.5), int(p.y - ms.y * 0.5))
+			var mc := g.sym_rect(t, Vector2i(int(p.x - ms.x * 0.5), int(p.y - ms.y * 0.5)), ms)
 			if Rect2i(mc, ms).intersects(trect) or not _ground_ok(g, mc, ms) or int(g.height[g.idx(mc)]) != lv:
 				continue
 			if got.all(func(o: Vector2) -> bool: return o.distance_to(p) >= apart):

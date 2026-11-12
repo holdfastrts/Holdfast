@@ -152,11 +152,16 @@ const START_SIZE := Vector2i(5, 4)
 
 
 static func start(g: Game, t: int, cell: Vector2i) -> void:
-	var c := BroodRoot.snap(QUEEN, (Vector2(cell) + Vector2(START_SIZE) * 0.5) * Defs.TILE)
+	# (start-spots-fix: everything is worked out in this side's first-start frame, as the first start always did it, and
+	# mirrored back (Game.start_flip, BroodRoot.sym_snap): the two starts of a mirrored map are mirror images, footprints
+	# and all, and the first start is laid out as before)
+	var mid := (Vector2(cell) + Vector2(START_SIZE) * 0.5) * Defs.TILE
+	var c_k := BroodRoot.snap(QUEEN, g.sym_pt(t, mid))          # (her feet in the first-start frame)
+	var c := BroodRoot.sym_snap(g, t, QUEEN, c_k)
 	var q := g._add_unit(QUEEN, t, c)
 	q.facing = SE
 	q.nb["eggs"] = int(Defs.NB["start_eggs"])
-	var spot := BroodRoot.snap(MAW, _maw_start_spot(g, c))      # (before her footprint is taken: her cell's region is looked at)
+	var spot := _maw_start_spot(g, t, c_k)      # (before her footprint is taken: her cell's region is looked at)
 	_start_rooting(g, q)
 	q.nb["swr"] = swamp_full(q)        # (her swamp is there in full once she has rooted at the start: her Rootmaw is on it)
 	var m := g._add_unit(MAW, t, spot)
@@ -164,11 +169,11 @@ static func start(g: Game, t: int, cell: Vector2i) -> void:
 	m.nb["food"] = float(Defs.NB["start_food"])       # (the first loads are ready: the grubs start at once)
 	_claim(g, m)
 	_start_rooting(g, m)
-	# the grubs just outside her nest's ground, on the side away from the map's edge
-	var qr := BroodRoot.rect_of(q)
-	var gy := qr.end.y + 22.0 if c.y < Game.H * Defs.TILE * 0.5 else qr.position.y - 22.0
+	# the grubs just outside her nest's ground, on the side away from the map's edge (in the first start's frame, mirrored back)
+	var qr := BroodRoot.rect_for(QUEEN, c_k)
+	var gy := qr.end.y + 22.0 if c_k.y < Game.H * Defs.TILE * 0.5 else qr.position.y - 22.0
 	for i in int(Defs.FACTIONS["brood"]["start_workers"]):
-		var gp := Vector2(c.x - 60.0 + i * 30.0, gy)
+		var gp := g.sym_pt(t, Vector2(c_k.x - 60.0 + i * 30.0, gy))
 		if not g._clear_at(gp, 8.0, t):
 			gp = g.cell_center(g.nearest_free(g.cell_of(gp), 6))
 		var gr := g._add_unit("grub", t, gp)
@@ -187,18 +192,23 @@ static func _start_rooting(g: Game, u: Unit) -> void:
 
 ## Fresh ground beside the Mother (clear of her great body: about 8 to 10 tiles out), walkable round it, on her level,
 ## a little away from the map's middle (behind her, as the old starting pits were) but not off the edge of her ground.
-static func _maw_start_spot(g: Game, c: Vector2) -> Vector2:
+## `c`: her feet in side t's first-start frame; the search runs in that frame and every spot is mirrored back
+## (start-spots-fix: Game.sym_*, BroodRoot.sym_snap), so mirrored starts pick mirrored spots. Returns the Rootmaw's feet.
+static func _maw_start_spot(g: Game, t: int, c: Vector2) -> Vector2:
 	var mid := Vector2(Game.W, Game.H) * Defs.TILE * 0.5
 	var away := (c - mid).normalized() if c.distance_to(mid) > 1.0 else Vector2.DOWN
-	var h := int(g.height[g.idx(g.cell_of(c))])
-	var home := g.region_of(g.cell_of(c))
-	var best := c + away * 10.0 * Defs.TILE      # (none found: out past her nest)
+	var ck := g.sym_rect(t, g.cell_of(c), Vector2i.ONE)
+	var h := int(g.height[g.idx(ck)])
+	var home := g.region_of(ck)
+	var qrect := BroodRoot.rect_for(QUEEN, BroodRoot.sym_snap(g, t, QUEEN, c))
+	var best := BroodRoot.sym_snap(g, t, MAW, c + away * 10.0 * Defs.TILE)      # (none found: out past her nest)
 	var bs := -INF
 	for r in [8.5, 9.5, 7.5, 10.5, 6.5]:
 		for i in 24:
 			var dir := Vector2.from_angle(TAU * i / 24.0)
-			var p: Vector2 = c + dir * r * Defs.TILE
-			var cc := g.cell_of(p)
+			var pk: Vector2 = c + dir * r * Defs.TILE
+			var p := BroodRoot.sym_snap(g, t, MAW, pk)
+			var cc := g.sym_rect(t, g.cell_of(pk), Vector2i.ONE)
 			if not g._walkable(cc) or int(g.height[g.idx(cc)]) != h or g.ramp[g.idx(cc)] != 0 or g.region_of(cc) != home:
 				continue
 			# room round it: the cells within 2 tiles walkable and on its level
@@ -209,7 +219,7 @@ static func _maw_start_spot(g: Game, c: Vector2) -> Vector2:
 					if g.in_map(c2) and g._walkable(c2) and int(g.height[g.idx(c2)]) == h:
 						room += 1
 			if room < 22 or BroodRoot.place_problem(g, -1, MAW, p, null, false, 1.0, false) != "" \
-					or BroodRoot.rect_for(QUEEN, c).grow(Defs.TILE).intersects(BroodRoot.rect_for(MAW, p)):
+					or qrect.grow(Defs.TILE).intersects(BroodRoot.rect_for(MAW, p)):
 				continue          # (its whole footprint must fit)
 			var s: float = dir.dot(away) * 0.5 + room * 0.05 - absf(r - 8.5) * 0.3
 			if s > bs:
@@ -250,7 +260,7 @@ static func swamp_sources(g: Game, t: int) -> Array:
 		if u.team != t or u.dead or not rooted(u):
 			continue
 		if u.kind == QUEEN or u.kind == TURTLE:
-			out.append([u.position / Defs.TILE, minf(swamp_full(u), float(u.nb.get("swr", 0.0)))])
+			out.append([BroodRoot.anchor(g, u) / Defs.TILE, minf(swamp_full(u), float(u.nb.get("swr", 0.0)))])      # (start-spots-fix)
 	return out
 
 
@@ -266,7 +276,7 @@ static func swamp_coming(g: Game, t: int, p: Vector2) -> bool:
 	for u in (BroodRoot._bt_swamp if BroodRoot.in_batch(g, t) else g.units):      # (a search batch: the same units)
 		if u.team != t or u.dead or not (u.kind == QUEEN or u.kind == TURTLE) or not rooted(u):
 			continue
-		var d: Vector2 = (p - u.position) / Defs.TILE
+		var d: Vector2 = (p - BroodRoot.anchor(g, u)) / Defs.TILE
 		var full := swamp_full(u) - 0.6
 		if d.x * d.x + d.y * 1.15 * d.y * 1.15 <= full * full and float(u.nb.get("swr", 0.0)) < swamp_full(u):
 			return true
@@ -291,7 +301,7 @@ static func swamp_grow(g: Game, step: float) -> bool:
 			continue           # (still rooting, or in its cocoon: its swamp starts once it is rooted)
 		var full := swamp_full(u)
 		if not u.nb.has("swr"):
-			u.nb["swr"] = g.swamp_cover(u.team, u.position / Defs.TILE, full)
+			u.nb["swr"] = g.swamp_cover(u.team, BroodRoot.anchor(g, u) / Defs.TILE, full)
 			changed = true
 		elif float(u.nb["swr"]) < full:
 			u.nb["swr"] = minf(full, float(u.nb["swr"]) + step)
@@ -605,6 +615,11 @@ static func lay(g: Game, q: Unit, k: String) -> String:
 		# rooted, curled round her nest facing south-east: the eggs roll out in front of the nest's rim, south-west of her
 		# middle, where they can be seen (behind her they lay under her great body)
 		p = q.position + Vector2(-34.0 + float((n % 5) - 2) * 15.0, drawn_r(q) + 16.0 + float(n % 2) * 8.0)
+		if BroodRoot.has_fp(q):
+			# (start-spots-fix: worked out from her nest's middle in her side's first-start frame and mirrored back, so a
+			# mirrored Mother's eggs land on the mirrored side of her nest; Game.start_flip)
+			var qm := BroodRoot.rect_of(q).get_center()
+			p = g.sym_pt(q.team, g.sym_pt(q.team, qm) + (p - qm))
 	var fk := father_of(k)
 	var fa: Unit = father(g, q.team, fk) if fk != "" else null
 	var on_top := false
@@ -684,14 +699,14 @@ static func egg_spot(g: Game, q: Unit, pref: Vector2) -> Array:
 	var c := r.get_center()
 	var want := (pref - c).normalized() if pref.distance_to(c) > 1.0 else Vector2.DOWN
 	if rooted_q:
-		want = Vector2(0.0, 1.0)          # (her front: the nest's south side)
+		want = g.sym_dir(q.team, Vector2(0.0, 1.0))          # (her front: the nest's south side; mirrored with her start)
 	var best := Vector2.INF
 	var bs := INF
 	var steps := int((EGG_REACH - 0.4) * 2.0)         # (from 0.4 to just under EGG_REACH tiles past her rim, half a tile at a time)
 	for di in range(0, steps + 1):
 		var dd := (0.4 + di * 0.5) * Defs.TILE
 		for ai in 32:
-			var dir := Vector2.from_angle(TAU * ai / 32.0)
+			var dir := g.sym_dir(q.team, Vector2.from_angle(TAU * ai / 32.0))
 			var pt := _rim(r, dir) + dir * dd
 			var front := dir.dot(want)          # 1 front, 0 the sides, -1 behind
 			var sc := dd / Defs.TILE + (1.0 - front) * 0.7 + (1.5 if front < -0.5 else 0.0)
@@ -1510,7 +1525,8 @@ static func crew_max(g: Game, src: Unit) -> int:
 	if src.kind == PILE:
 		return int(Defs.NB["pile_crew"])
 	var q := queen(g, src.team)
-	var dt := q.position.distance_to(src.position) / Defs.TILE if q else 0.0
+	# (start-spots-fix: measured from the feet as the first start reads them, as load_value)
+	var dt := BroodRoot.anchor(g, q).distance_to(BroodRoot.anchor(g, src)) / Defs.TILE if q else 0.0
 	return mini(int(Defs.NB["maw_crew"]) + int(maxf(0.0, dt - Defs.FOOD_NEAR) / Defs.PIT_CREW_STEP), Defs.PIT_CREW_MAX)
 
 
@@ -1519,7 +1535,7 @@ static func load_value(g: Game, src: Unit, t: int) -> float:
 	var q := queen(g, t)
 	if q == null:
 		return 0.0
-	var dt := q.position.distance_to(src.position) / Defs.TILE
+	var dt := BroodRoot.anchor(g, q).distance_to(BroodRoot.anchor(g, src)) / Defs.TILE      # (start-spots-fix: the feet as the first start reads them; plain feet hang below each footprint on screen, so a Rootmaw above its Mother paid more than its mirror below hers)
 	var gap := maxf(0.0, dt - (q.radius + src.radius) / Defs.TILE)
 	return Game.food_at(dt, gap)
 
@@ -1594,14 +1610,29 @@ static func stack(u: Unit, top: float) -> Dictionary:
 	return s
 
 
-## Where a grub stands to take food: by the Rootmaw's flank (its left side as it faces south-east), spread out.
+## Where a grub stands to take food: by the Rootmaw's flank, spread out. Rooted: just outside its footprint on the
+## flank SIDEWAYS to the way to the Mother (start-spots-fix, docs/start_spots_fix.md: it used to be the footprint's
+## screen-left side, which faced the Mother on one start and turned its back on her on the mirrored one: the two Broods'
+## trips differed by a third). Sideways is the middle of the two old trips; the side is picked in the first start's frame
+## (Game.sym_dir), so mirrored Rootmaws pick mirrored flanks.
 static func flank_point(g: Game, src: Unit, gr: Unit) -> Vector2:
-	var i := (gr.serial % 7) - 3
+	var i := (gr.tserial % 7) - 3
 	var base := src.position + Vector2(-src.radius - 6.0, -2.0) if src.kind == MAW else src.position
+	var spread := Vector2(float(i) * 2.0, float(i) * 5.0)
 	if src.kind == MAW and BroodRoot.has_fp(src):
 		var r := BroodRoot.rect_of(src)
-		base = Vector2(r.position.x - 7.0, r.get_center().y + 6.0)       # (rooted: just outside its footprint, at its flank)
-	return base + Vector2(float(i) * 2.0, float(i) * 5.0)
+		var c := r.get_center()
+		var q := queen(g, src.team)
+		var qc := Vector2.INF
+		if q != null:
+			qc = BroodRoot.rect_of(q).get_center() if BroodRoot.has_fp(q) else q.position
+		var to_q := (qc - c) if qc != Vector2.INF and qc.distance_to(c) > 1.0 else g.sym_dir(src.team, Vector2.RIGHT)
+		var side := g.sym_dir(src.team, g.sym_dir(src.team, to_q.normalized()).orthogonal())
+		var hx := r.size.x * 0.5 / maxf(absf(side.x), 0.001)
+		var hy := r.size.y * 0.5 / maxf(absf(side.y), 0.001)
+		base = c + side * (minf(hx, hy) + 7.0)
+		spread = side.orthogonal() * float(i) * 5.0
+	return base + spread
 
 
 ## Where a grub carrying food walks to: the NEAREST point of the Mother (the owner, 2026-10-30: her back or any side,

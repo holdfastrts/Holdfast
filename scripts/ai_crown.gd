@@ -1267,7 +1267,7 @@ func _bo_hall() -> String:
 	_guards.clear()
 	if game.mlog:
 		game.mlog.add("%s is expanding to fresh land (left at its best hall: %d%%), %d tiles from its main (its build order)" % [game.mlog.who(team),
-			int(round(_best_soil() * 100)), int(nb.center().distance_to(Vector2(game.starts[team]) * Defs.TILE) / Defs.TILE)])
+			int(round(_best_soil() * 100)), int(nb.center().distance_to(game.start_mid(team)) / Defs.TILE)])
 	return ""
 
 
@@ -1395,7 +1395,7 @@ func _tend_wagon() -> void:
 		return
 	var home: Building = halls[0]
 	if game.starts.size() > team:
-		var st := Vector2(game.starts[team]) * Defs.TILE
+		var st: Vector2 = game.start_mid(team)
 		for h in halls:
 			if h.built and h.center().distance_to(st) < home.center().distance_to(st):
 				home = h
@@ -2791,7 +2791,7 @@ func main_hall() -> Building:
 	var best: Building = null
 	if game.starts.size() <= team:
 		return null
-	var st := Vector2(game.starts[team]) * Defs.TILE
+	var st: Vector2 = game.start_mid(team)
 	for h in _halls():
 		if best == null or h.center().distance_to(st) < best.center().distance_to(st):
 			best = h

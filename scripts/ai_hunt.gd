@@ -97,4 +97,4 @@ static func _target(game: Game, foe: int, from: Vector2) -> Vector2:
 				best = u.position
 	if best != Vector2.INF:
 		return best
-	return Vector2(game.starts[foe]) * Defs.TILE if foe < game.starts.size() else Vector2.INF
+	return game.start_mid(foe) if foe < game.starts.size() else Vector2.INF

@@ -1056,7 +1056,7 @@ func _tier2(t: float) -> void:
 				for deg in [90.0, 270.0, 0.0, 180.0, 45.0, 135.0, 225.0, 315.0]:
 					if c.x >= 0:
 						break
-					c = GearNet.ring_spot(game, team, Defs.CW_TECH, sp, deg, true)
+					c = GearNet.ring_spot(game, team, Defs.CW_TECH, sp, _sdeg(deg), true)
 				if c.x >= 0:
 					_construct(Defs.CW_TECH, c)
 					return
@@ -1345,7 +1345,7 @@ func _heavy_spot() -> Vector2i:
 			for deg in [90.0, 270.0, 0.0, 180.0, 45.0, 135.0, 225.0, 315.0]:
 				if c.x >= 0:
 					break
-				c = GearNet.ring_spot(game, team, Defs.CW_HEAVY, sp, deg, true)
+				c = GearNet.ring_spot(game, team, Defs.CW_HEAVY, sp, _sdeg(deg), true)
 			if c.x >= 0:
 				return c
 	return _heavy_spot_fed() if sw_on else Vector2i(-1, -1)
@@ -1443,7 +1443,7 @@ func _drive_spot(kind: String) -> Vector2i:
 	var users: Array = ["mainspring"] if kind == _works() and _mine(_works()).is_empty() else []
 	var halls: Array = _halls().filter(func(h: Building) -> bool: return h.built)
 	if game.starts.size() > team:
-		var home := Vector2(game.starts[team]) * Defs.TILE
+		var home: Vector2 = game.start_mid(team)
 		halls.sort_custom(func(a: Building, b: Building) -> bool: return a.center().distance_to(home) < b.center().distance_to(home))
 	if kind == Defs.GEAR_PRESS and halls.any(func(h: Building) -> bool: return h.lode_left() > 0.05):
 		# (clockwork-ai-v2: a Cog Press by a Clocktower with brass, never by a dry main: test_ai_expand [clock] laid the new
@@ -1461,6 +1461,12 @@ func _drive_spot(kind: String) -> Vector2i:
 ## Aviary; with no room by a Works, by the Clocktower; `spare`: a second one, only room for the Escapement and the Aviary.
 var _spring_heavy := false          # _spring_spot chose a spot with room for the Escapement AND the Heavy Works
 var _spring_users: Array = []       # ... and in which order its greedy count placed them (GearEcon.room_cells)
+
+
+## A screen direction (degrees, 0 = right, clockwise) as this side sees it: mirrored with its start (Game.start_flip), so
+## "below the Mainspring" on the first start is the mirror of it on the mirrored one (start-spots-fix).
+func _sdeg(deg: float) -> float:
+	return rad_to_deg(game.sym_dir(team, Vector2.from_angle(deg_to_rad(deg))).angle())
 
 
 func _spring_spot(spare := false) -> Vector2i:
@@ -1575,7 +1581,7 @@ func _jw_find(works: Array) -> Dictionary:
 			var c2 := GearEcon.room_spot(game, team, _works(), [sp])
 			if c2.x < 0:
 				for deg in [90.0, 270.0, 0.0, 180.0]:
-					c2 = GearNet.ring_spot(game, team, _works(), sp, deg, true)
+					c2 = GearNet.ring_spot(game, team, _works(), sp, _sdeg(deg), true)
 					if c2.x >= 0:
 						break
 			if c2.x >= 0:
@@ -1583,7 +1589,7 @@ func _jw_find(works: Array) -> Dictionary:
 	for w in works:
 		if may_spring and w.built and game.gear_net.spring_for(w) == null:
 			for deg in [90.0, 270.0, 0.0, 180.0]:
-				var c3 := GearNet.ring_spot(game, team, "mainspring", w, deg, true)
+				var c3 := GearNet.ring_spot(game, team, "mainspring", w, _sdeg(deg), true)
 				if c3.x >= 0:
 					return {"kind": "mainspring", "cell": c3}
 	return {}
@@ -2062,7 +2068,9 @@ func _flee_spot(w: Unit, centre: Vector2, army: Array, halls: Array, help: int) 
 	for p in cands:
 		if not game.passable(Vector2i(p / float(Game.T)), team):
 			continue
-		var score: float = minf(p.distance_to(centre), 500.0) - 0.35 * p.distance_to(w.position)
+		var score: float = minf(p.distance_to(centre), 500.0) - 0.35 * p.distance_to(w.position) + 0.001 * p.distance_to(centre)
+		# (the last term only breaks the ties of the 500 px cap: the farthest from the raid; it used to fall to whichever
+		# point a pixel's rounding put first, start-spots-fix)
 		if up != Vector2.INF and p == up:
 			score += 0.35 * p.distance_to(w.position) + 300.0       # (the walk up is not held against it)
 		for d in _danger_pts:
@@ -2640,7 +2648,7 @@ func _hall_first() -> bool:
 			_guards.clear()
 			if game.mlog:
 				game.mlog.add("%s is expanding to fresh %s (left at its best hall: %d%%), %d tiles from its main" % [game.mlog.who(team), "land" if _crown() else ("ore" if _clock() else "ground"),
-					int(round(_best_soil() * 100)), int(b.center().distance_to(Vector2(game.starts[team]) * Defs.TILE) / Defs.TILE)])
+					int(round(_best_soil() * 100)), int(b.center().distance_to(game.start_mid(team)) / Defs.TILE)])
 	return true
 
 
@@ -3622,7 +3630,7 @@ func _open_prey(rep: Unit, shut: Vector2) -> Vector2:
 	var foe := _foe()
 	if foe < 0:
 		return Vector2.INF
-	var their_main: Vector2 = Vector2(game.starts[foe]) * Defs.TILE if game.starts.size() > foe else rep.position
+	var their_main: Vector2 = game.start_mid(foe) if game.starts.size() > foe else rep.position
 	var spots: Array = []
 	for o in game.units:
 		if o.dead or o.off_field or not game.hostile(o.team, team) or not o.is_worker() or not game.is_visible_to(team, o.position):
@@ -3653,7 +3661,7 @@ func _prey_spot(from: Vector2) -> Vector2:
 	var foe := _foe()
 	if foe < 0:
 		return _enemy_base()
-	var their_main: Vector2 = Vector2(game.starts[foe]) * Defs.TILE if game.starts.size() > foe else from
+	var their_main: Vector2 = game.start_mid(foe) if game.starts.size() > foe else from
 	var best := Vector2.INF
 	var score := -INF
 	for o in game.units:
@@ -3841,7 +3849,7 @@ func _repair_wall() -> void:
 	var b: Building = hurt[0]
 	if not _repair_safe(b):
 		return
-	var home_h: int = int(game.height[game.idx(game.cell_of(Vector2(game.starts[team]) * Defs.TILE))])
+	var home_h: int = int(game.height[game.idx(game.cell_of(game.start_mid(team)))])
 	var best: Unit = null
 	var bd := 700.0
 	for u in game.workers(team):
@@ -3888,9 +3896,10 @@ func _ramp_bands() -> Array:
 		return out
 	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
 	var left := {}
-	for y in range(int(home.y) - 22, int(home.y) + 23):
-		for x in range(int(home.x) - 22, int(home.x) + 23):
-			var c := Vector2i(x, y)
+	var hk: Vector2 = game.sym_pt(team, home * Defs.TILE) / Defs.TILE       # (in this side's first-start frame: start-spots-fix)
+	for y in range(int(hk.y) - 22, int(hk.y) + 23):
+		for x in range(int(hk.x) - 22, int(hk.x) + 23):
+			var c: Vector2i = game.sym_rect(team, Vector2i(x, y), Vector2i.ONE)
 			if game.in_map(c) and game.ramp[game.idx(c)] == 1:
 				left[c] = true
 	while not left.is_empty():
@@ -3902,7 +3911,7 @@ func _ramp_bands() -> Array:
 			var c: Vector2i = todo.pop_back()
 			ramp_cells.append(c)
 			for dd2 in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-				var n: Vector2i = c + dd2
+				var n: Vector2i = c + _sv(dd2)
 				if left.has(n):
 					left.erase(n)
 					todo.append(n)
@@ -3910,7 +3919,7 @@ func _ramp_bands() -> Array:
 		for rc in ramp_cells:
 			for dy in range(-1, 2):
 				for dx in range(-1, 2):
-					var c: Vector2i = rc + Vector2i(dx, dy)
+					var c: Vector2i = rc + _sv(Vector2i(dx, dy))
 					if game.in_map(c) and game.height[game.idx(c)] == 1 and game.ramp[game.idx(c)] == 0 and game.is_free(c):
 						band[c] = true
 		if band.size() < 2:
@@ -3922,6 +3931,13 @@ func _ramp_bands() -> Array:
 		out.append({"ramp": ramp_cells, "band": band.keys(), "mid": mid})
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return (a["mid"] as Vector2).distance_to(home) < (b["mid"] as Vector2).distance_to(home))
 	return out
+
+
+## (start-spots-fix) A cell offset or step as this side reads it: mirrored with its start (Game.start_flip), so the
+## first start's side looks at cells in the very order it always did and a mirrored side in the mirrored order.
+func _sv(d: Vector2i) -> Vector2i:
+	var f: Vector2i = game._flip_of(team)
+	return Vector2i(-d.x if f.x == 1 else d.x, -d.y if f.y == 1 else d.y)
 
 
 ## Flood fill over the walkable cells (8 ways, no corner cutting, a gate counts as open when `gates_open`) from
@@ -3972,6 +3988,10 @@ func plan_cottage_wall() -> Dictionary:
 	for c in band:
 		band_set[c] = true
 	var mid: Vector2 = b0["mid"]
+	var mid_k := Vector2.ZERO           # (the ramp's middle in this side's first-start frame, as the first start reads it)
+	for rc in b0["ramp"]:
+		mid_k += Vector2(game.sym_rect(team, rc, Vector2i.ONE))
+	mid_k /= maxf(1.0, float((b0["ramp"] as Array).size()))
 	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
 	var csize: Vector2i = Defs.BUILDINGS["cottage"]["size"]
 	var minc: Vector2i = band[0]
@@ -4039,7 +4059,8 @@ func plan_cottage_wall() -> Dictionary:
 			# (only pieces that close a gap: a band cell nothing can reach, such as one that only
 			# touches the ramp's corner past the cliff and the Cottage, gets no palisade)
 			walls = cw_prune(b0["ramp"], fp, gates, walls)
-			var score := float(gates.size() + walls.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(tl) + Vector2(csize) * 0.5).distance_to(mid) + float(tx + ty * 1000) * 0.00001
+			var kt: Vector2i = game.sym_rect(team, tl, csize)        # (in this side's first-start frame: start-spots-fix)
+			var score := float(gates.size() + walls.size()) * 100.0 + (0.0 if _cw_touches(gates[0], fp) else 50.0) + (Vector2(kt) + Vector2(csize) * 0.5).distance_to(mid_k) + float(kt.x + kt.y * 1000) * 0.00001
 			if score < best_score:
 				best_score = score
 				var pieces: Array = []
@@ -4221,9 +4242,10 @@ func _wall_off() -> bool:
 		return false
 	var home := Vector2(game.starts[team]) + Vector2(2.5, 2.0)
 	var left := {}
-	for y in range(int(home.y) - 22, int(home.y) + 23):
-		for x in range(int(home.x) - 22, int(home.x) + 23):
-			var c := Vector2i(x, y)
+	var hk: Vector2 = game.sym_pt(team, home * Defs.TILE) / Defs.TILE       # (in this side's first-start frame: start-spots-fix)
+	for y in range(int(hk.y) - 22, int(hk.y) + 23):
+		for x in range(int(hk.x) - 22, int(hk.x) + 23):
+			var c: Vector2i = game.sym_rect(team, Vector2i(x, y), Vector2i.ONE)
 			if game.in_map(c) and game.ramp[game.idx(c)] == 1:
 				left[c] = true
 	var plan: Array = []         # [kind, cell]
@@ -4238,7 +4260,7 @@ func _wall_off() -> bool:
 			var c: Vector2i = todo.pop_back()
 			ramp_cells.append(c)
 			for dd2 in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-				var n: Vector2i = c + dd2
+				var n: Vector2i = c + _sv(dd2)
 				if left.has(n):
 					left.erase(n)
 					todo.append(n)
@@ -4246,7 +4268,7 @@ func _wall_off() -> bool:
 		for rc in ramp_cells:
 			for dy in range(-1, 2):
 				for dx in range(-1, 2):
-					var c: Vector2i = rc + Vector2i(dx, dy)
+					var c: Vector2i = rc + _sv(Vector2i(dx, dy))
 					if game.in_map(c) and game.height[game.idx(c)] == 1 and game.ramp[game.idx(c)] == 0 and game.is_free(c):
 						band[c] = true
 		if band.size() < 2:
@@ -4627,7 +4649,7 @@ func _keep_tech() -> void:
 	var keeps: Dictionary = game.ai_keep[team]
 	var main: Building = null
 	if game.starts.size() > team:
-		var home := Vector2(game.starts[team]) * Defs.TILE
+		var home: Vector2 = game.start_mid(team)
 		for h in _halls():
 			if h.built and (main == null or h.center().distance_to(home) < main.center().distance_to(home)):
 				main = h
@@ -4696,7 +4718,7 @@ func _find_spot_any(kind: String) -> Vector2i:
 func _find_spot_free(kind: String) -> Vector2i:
 	var halls: Array = _halls().filter(func(h: Building) -> bool: return h.built)
 	if game.starts.size() > team:
-		var home := Vector2(game.starts[team]) * Defs.TILE
+		var home: Vector2 = game.start_mid(team)
 		halls.sort_custom(func(a: Building, b: Building) -> bool: return a.center().distance_to(home) < b.center().distance_to(home))
 	for h in halls:
 		# (on the main's own plateau it looks a little farther: all of it is safe ground)
@@ -7338,7 +7360,7 @@ func _enemy_base() -> Vector2:
 				bd = dd
 				best = b.center()
 	if best == Vector2.INF:
-		return Vector2(game.starts[enemy]) * Defs.TILE
+		return game.start_mid(enemy)
 	return best
 
 

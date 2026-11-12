@@ -681,10 +681,11 @@ static func ring_spot(game: Game, t: int, kind: String, around: Building, deg: f
 	var want := deg_to_rad(deg)
 	var best := Vector2i(-1, -1)
 	var bs := INF
-	var h0 := game.cell_of(around.center())
+	# (start-spots-fix: the cells in side t's first-start frame, mirrored back: mirrored sides break ties the mirrored way)
+	var h0 := game.cell_of(game.sym_pt(t, around.center()))
 	for y in range(h0.y - 14, h0.y + 15):
 		for x in range(h0.x - 14, h0.x + 15):
-			var c := Vector2i(x, y)
+			var c := game.sym_rect(t, Vector2i(x, y), size)
 			if not game.in_map(c):
 				continue
 			var g := gpos(Vector2(c) * T + Vector2(size) * T * 0.5)

@@ -569,9 +569,9 @@ func foe_known() -> float:
 
 ## The enemy army seen on our side of the map lately (nearer our main than its own, or near one of our halls).
 func foe_near() -> float:
-	var me: Vector2 = Vector2(game.starts[ai.team]) * Defs.TILE
+	var me: Vector2 = game.start_mid(ai.team)
 	var foe: int = ai._foe()
-	var them: Vector2 = Vector2(game.starts[foe]) * Defs.TILE if foe >= 0 else Vector2.INF
+	var them: Vector2 = game.start_mid(foe) if foe >= 0 else Vector2.INF
 	var halls: Array = ai._halls()
 	var v := 0.0
 	for u in _seen:
@@ -1047,7 +1047,7 @@ func _loop() -> void:
 			pts.append(q)
 	# the foot of the enemy's ramp (outside its main, toward us)
 	var es := (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * T
-	var ramp: Vector2 = ai.scout._find_ramp(Vector2(game.starts[ai.team]) * T) if ai.scout != null and ai.scout._foe == foe else Vector2.INF
+	var ramp: Vector2 = ai.scout._find_ramp(game.start_mid(ai.team)) if ai.scout != null and ai.scout._foe == foe else Vector2.INF
 	if ramp != Vector2.INF:
 		var foot := _open_near(ramp + (ramp - es).normalized() * 4.0 * T)
 		if foot != Vector2.INF:

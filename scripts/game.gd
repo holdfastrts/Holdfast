@@ -163,7 +163,7 @@ var cam_slots: Array = [null, null, null, null, null, null, null]   # camera hot
 var _hash := {}
 var _path_queue: Array = []
 var _pq_on := false              # (the queue is being run: find_path keeps what it found for the rest of the run)
-var _pq_cache := {}              # Vector4i(from cell, to cell) -> [siege, the gates shut, the cells, whole]
+var _pq_cache := {}              # Vector4i(from cell (+ 4096 x the mirror flip), to cell) -> [siege, the gates shut, the cells, whole]
 var _pq_shut: Array = []         # (the gates the walker asking now has shut: Unit.compute_path)
 var _pq_hits := 0                # (paths shared, for the tools)
 var _end_t := 0.0
@@ -483,9 +483,9 @@ func _mark(c: Vector2i, size: Vector2i, v: int) -> void:
 				# (a building going up over a decoration hides it: _solidify, _cover_decos)
 				_region_dirty = true
 				if astar.region.size != Vector2i.ZERO:
-					astar.set_point_solid(cc, (v != 0 and v != 3 and v != 5) or rail_side.has(idx(cc)))
+					astar_set(cc, (v != 0 and v != 3 and v != 5) or rail_side.has(idx(cc)))
 				if astar_siege.region.size != Vector2i.ZERO:
-					astar_siege.set_point_solid(cc, v == 1 or v == 2 or rail_side.has(idx(cc)))
+					astar_set(cc, v == 1 or v == 2 or rail_side.has(idx(cc)), true)
 
 
 ## Gates: map index -> the team that owns it.
@@ -513,7 +513,7 @@ func set_gate_locked(b: Building, on: bool, force := false) -> String:
 		gate_team.erase(i)
 		b.gate_open = false
 		if astar.region.size != Vector2i.ZERO:
-			astar.set_point_solid(b.cell, true)
+			astar_set(b.cell, true)
 		# whoever meant to go through it finds another way
 		for u in units_near(b.center(), 600.0):
 			if not u.dead and not u.is_air() and b.crossing(u):
@@ -525,7 +525,7 @@ func set_gate_locked(b: Building, on: bool, force := false) -> String:
 		b.queue_redraw()
 		gate_team[i] = b.team
 		if astar.region.size != Vector2i.ZERO:
-			astar.set_point_solid(b.cell, rail_side.has(i))
+			astar_set(b.cell, rail_side.has(i))
 	_region_dirty = true
 	b._update_sprite()
 	b.queue_redraw()
@@ -870,7 +870,69 @@ func next_site(u: Unit) -> Building:
 	return best
 
 
+## (start-spots-fix) THE MIRRORED PATH GRIDS: the pathfinder breaks ties between equally short ways in a fixed screen
+## order, so on a mirrored map two mirrored walks took different ways (a Brood's grubs reached their Rootmaw a few
+## seconds apart on the two starts, every trip). A team carried onto the first start by a map mirror (start_flip) asks
+## a copy of the grid laid out mirrored, so its walks are the mirror images of the first start's. The copies are made
+## when first asked for and every change to the grid goes to them too (astar_set).
+var _mir_grids := {}        # Vector2i flip -> [AStarGrid2D like astar, like astar_siege]
+
+
+func _mir_c(c: Vector2i, f: Vector2i) -> Vector2i:
+	return Vector2i(W - 1 - c.x if f.x == 1 else c.x, H - 1 - c.y if f.y == 1 else c.y)
+
+
+func _new_grid_like(src: AStarGrid2D) -> AStarGrid2D:
+	var gr := AStarGrid2D.new()
+	gr.region = src.region
+	gr.cell_size = src.cell_size
+	gr.offset = src.offset
+	gr.diagonal_mode = src.diagonal_mode
+	gr.default_compute_heuristic = src.default_compute_heuristic
+	gr.default_estimate_heuristic = src.default_estimate_heuristic
+	gr.update()
+	return gr
+
+
+func _mir_grid(f: Vector2i) -> Array:
+	var got = _mir_grids.get(f)
+	if got != null:
+		return got
+	var a := _new_grid_like(astar)
+	var b := _new_grid_like(astar_siege)
+	for y in H:
+		for x in W:
+			var c := Vector2i(x, y)
+			if astar.is_point_solid(c):
+				a.set_point_solid(_mir_c(c, f), true)
+			if astar_siege.is_point_solid(c):
+				b.set_point_solid(_mir_c(c, f), true)
+	_mir_grids[f] = [a, b]
+	return _mir_grids[f]
+
+
+## Every change to the pathfinder's grid goes through here (to its mirrored copies too).
+func astar_set(c: Vector2i, solid_: bool, siege := false) -> void:
+	(astar_siege if siege else astar).set_point_solid(c, solid_)
+	for f in _mir_grids:
+		(_mir_grids[f][1 if siege else 0] as AStarGrid2D).set_point_solid(_mir_c(c, f), solid_)
+
+
+## A point path on the grid (or the siege grid) in team t's mirror (Game.start_flip): the cells mirrored, the way
+## found on the mirrored copy, the points carried back.
+func grid_path(t: int, from_c: Vector2i, to_c: Vector2i, partial: bool, siege := false) -> PackedVector2Array:
+	var f := _flip_of(t)
+	if f == Vector2i.ZERO:
+		return (astar_siege if siege else astar).get_point_path(from_c, to_c, partial)
+	var gr: AStarGrid2D = _mir_grid(f)[1 if siege else 0]
+	var pts := gr.get_point_path(_mir_c(from_c, f), _mir_c(to_c, f), partial)
+	for i in pts.size():
+		pts[i] = sym_pt(t, pts[i])
+	return pts
+
+
 func _setup_astar() -> void:
+	_mir_grids = {}
 	_setup_rails()
 	astar.region = Rect2i(0, 0, W, H)
 	astar.cell_size = Vector2(T, T)
@@ -2040,9 +2102,116 @@ func _paint_ramps(img: Image, area := Rect2i(0, 0, W, H)) -> void:
 						img.set_pixel((c.x - area.position.x) * T + px, (c.y - area.position.y) * T + py, col)
 
 
+## ---------------------------------------------------------------- the mirrored start
+## (start-spots-fix, docs/start_spots_fix.md) Every start on a mirrored map is laid out as the exact mirror of the
+## map's first start (the top-left-most one): each team gets the map symmetry that carries that first start onto its
+## own (start_flip: x flipped, y flipped), and every screen-order choice of the start (rows, tie-breaks, which side of
+## a footprint, snapping to the grid) is made in the first start's frame and mirrored back. A map that is not a mirror
+## (a campaign or editor map) keeps flip (0, 0) for everyone: the old layout.
+var start_flip: Array = []                # per team: Vector2i(1 if x is flipped, 1 if y is flipped)
+var start_canon: Array = []               # per team: the team on the first start of its mirror set (itself when flip is (0, 0))
+
+
+## The hall's middle of team t's start (world px): the one anchor for "our base" / "their main".
+func start_mid(t: int) -> Vector2:
+	if t < 0 or t >= starts.size():
+		return Vector2.INF
+	return (Vector2(starts[t]) + Vector2(MapGen.HALL) * 0.5) * T
+
+
+func _flip_of(t: int) -> Vector2i:
+	return start_flip[t] if t >= 0 and t < start_flip.size() else Vector2i.ZERO
+
+
+## A point carried between team t's frame and the first start's (the same both ways).
+func sym_pt(t: int, p: Vector2) -> Vector2:
+	var f := _flip_of(t)
+	return Vector2(W * T - p.x if f.x == 1 else p.x, H * T - p.y if f.y == 1 else p.y)
+
+
+## A direction carried the same way.
+func sym_dir(t: int, d: Vector2) -> Vector2:
+	var f := _flip_of(t)
+	return Vector2(-d.x if f.x == 1 else d.x, -d.y if f.y == 1 else d.y)
+
+
+## A cell offset carried the same way (a step round a cell).
+func sym_off(t: int, d: Vector2i) -> Vector2i:
+	var f := _flip_of(t)
+	return Vector2i(-d.x if f.x == 1 else d.x, -d.y if f.y == 1 else d.y)
+
+
+## A footprint's top-left cell (size `size`) carried the same way.
+func sym_rect(t: int, c: Vector2i, size: Vector2i) -> Vector2i:
+	var f := _flip_of(t)
+	return Vector2i(W - c.x - size.x if f.x == 1 else c.x, H - c.y - size.y if f.y == 1 else c.y)
+
+
+## cell_of(p) worked out in the first start's frame (a point on a cell's edge falls the mirrored way).
+func sym_cell(t: int, p: Vector2) -> Vector2i:
+	return sym_rect(t, cell_of(sym_pt(t, p)), Vector2i.ONE)
+
+
+## Which of the map's mirrors (x flip, y flip, both) hold for the terrain (height, cliff, ramp, water, solid).
+func _map_symmetries() -> Array:
+	var out: Array = []
+	var allow := W * H / 500           # (the ground: a stray cell or two does not undo a mirror)
+	var allow_solid := W * H / 50      # (trees and rocks: the 4-corner maps scatter a few on their own)
+	for f in [Vector2i(1, 1), Vector2i(1, 0), Vector2i(0, 1)]:
+		var off := 0
+		var off_solid := 0
+		for y in H:
+			for x in W:
+				var i := y * W + x
+				var j := (H - 1 - y if f.y == 1 else y) * W + (W - 1 - x if f.x == 1 else x)
+				if height[i] != height[j] or cliff[i] != cliff[j] or ramp[i] != ramp[j] or water[i] != water[j]:
+					off += 1
+				elif (solid[i] == 0) != (solid[j] == 0):
+					off_solid += 1
+			if off > allow or off_solid > allow_solid:
+				break
+		if off <= allow and off_solid <= allow_solid:
+			out.append(f)
+	return out
+
+
+func _compute_start_flip() -> void:
+	start_flip = []
+	start_canon = []
+	for t in starts.size():
+		start_flip.append(Vector2i.ZERO)
+		start_canon.append(t)
+	if starts.size() < 2 or height.size() != W * H:
+		return
+	# (each set of starts the map's mirrors carry onto one another has its own first start, the top-left-most: on a
+	# 4-player map with only the point mirror, two pairs)
+	var order: Array = range(mini(starts.size(), maxi(2, n_players())))
+	order.sort_custom(func(a: int, b: int) -> bool: return starts[a].y < starts[b].y or (starts[a].y == starts[b].y and starts[a].x < starts[b].x))
+	var syms := _map_symmetries()
+	var hs := MapGen.HALL
+	var done := {}
+	for a in order:
+		if done.has(a):
+			continue
+		done[a] = true
+		var first: Vector2i = starts[a]
+		for b in order:
+			if done.has(b):
+				continue
+			var s: Vector2i = starts[b]
+			for f in syms:
+				var m := Vector2i(W - first.x - hs.x if f.x == 1 else first.x, H - first.y - hs.y if f.y == 1 else first.y)
+				if absi(m.x - s.x) <= 1 and absi(m.y - s.y) <= 1:
+					start_flip[b] = f
+					start_canon[b] = a
+					done[b] = true
+					break
+
+
 func _start_positions() -> void:
 	if mission:
 		mission.before_start()       # (a campaign mission: its teams' hall spots)
+	_compute_start_flip()
 	for t in n_players():
 		if mission and not mission.standard_start(t):
 			continue                 # (a mission team that starts with only what the mission gives it)
@@ -2066,8 +2235,9 @@ func _start_positions() -> void:
 				sites.append(eb)
 				_update_swamp()
 		var hall_center := b.rect().get_center()
+		var hc0 := sym_pt(t, hall_center)        # (the row is laid in the first start's frame and mirrored back)
 		for i in int(f["start_workers"]):
-			var u := _add_unit(f["worker"], t, hall_center + Vector2(-60 + i * 30, 80 if starts[t].y < H / 2 else -80))
+			var u := _add_unit(f["worker"], t, sym_pt(t, hc0 + Vector2(-60 + i * 30, 80 if hc0.y < H * T * 0.5 else -80)))
 			var site := free_site(t, u.position)
 			if site:
 				u.cmd_gather(site)
@@ -2190,9 +2360,11 @@ func _find_start_spot(t: int, kind: String, hall: Building, placed: Array) -> Ve
 	var cands: Array = []
 	var keys := PackedInt64Array()
 	var r := int(reach) + 2
-	for y in range(int(hc.y) - r, int(hc.y) + r + 1):
-		for x in range(int(hc.x) - r, int(hc.x) + r + 1):
-			var cell := Vector2i(x, y)
+	# (the scan runs in the first start's frame and is mirrored back, so equal scores fall the mirrored way)
+	var hc0 := sym_pt(t, hall.rect().get_center()) / T
+	for y0 in range(int(hc0.y) - r, int(hc0.y) + r + 1):
+		for x0 in range(int(hc0.x) - r, int(hc0.x) + r + 1):
+			var cell := sym_rect(t, Vector2i(x0, y0), size)
 			var cc := Vector2(cell) + Vector2(size) * 0.5
 			var dd := cc.distance_to(hc)
 			if dd > reach or dd < 4.0:
@@ -2311,9 +2483,12 @@ func find_spot(t: int, kind: String, around: Building, min_d: int, max_d: int, p
 		for b in buildings:
 			if b.team == t and not b.dead and (b.d.has("battery") if kind == "ore_crusher" else b.kind == "ore_crusher"):
 				pair_at.append(b.center())
-	for y in range(int(c0.y) - max_d - 2, int(c0.y) + max_d + 2):
-		for x in range(int(c0.x) - max_d - 2, int(c0.x) + max_d + 2):
-			var cell := Vector2i(x, y)
+	# (start-spots-fix: the cells are looked at in the first start's frame and mirrored back (Game.start_flip), so on a
+	# mirrored map equal scores fall the mirrored way for the mirrored team)
+	var k0 := sym_pt(t, c0 * T) / T
+	for y in range(int(k0.y) - max_d - 2, int(k0.y) + max_d + 2):
+		for x in range(int(k0.x) - max_d - 2, int(k0.x) + max_d + 2):
+			var cell := sym_rect(t, Vector2i(x, y), size)
 			var cc := Vector2(cell) + Vector2(size) * 0.5
 			var dd := cc.distance_to(c0)
 			if dd < min_d or dd > max_d:
@@ -3117,6 +3292,7 @@ func net_set(e: Object, prop: String, v) -> void:
 
 
 var _serial := 0                 # Entity.serial of the last unit or building made
+var _tserial := {}                # team -> Unit.tserial of its last unit made
 ## A Tesla Cart or Tesla Locomotive has been made this match (or morphed into): until then
 ## in_field and in_overcharge, asked by every Clockwork unit, needn't look through the units.
 var tesla_made := false
@@ -3128,6 +3304,8 @@ func _add_unit(k: String, t: int, pos: Vector2) -> Unit:
 		tesla_made = true
 	_serial += 1
 	u.serial = _serial
+	_tserial[t] = int(_tserial.get(t, 0)) + 1
+	u.tserial = int(_tserial[t])        # (start-spots-fix: counted per side, so two mirrored sides' units match one for one)
 	u.setup(self, k, t, pos)
 	apply_drills(u)
 	world.add_child(u)
@@ -3450,7 +3628,9 @@ func remove_ghost(b: Building) -> void:
 
 ## The nearest free cell, preferring one on the open map (not a sealed pocket between
 ## buildings, where a unit put there could never walk out); a pocket only if there's nothing else.
-func nearest_free(c: Vector2i, max_r := 10) -> Vector2i:
+## `team`: look round in that side's first-start reading order (start-spots-fix: Game.start_flip), so equal distances
+## fall the mirrored way for a mirrored side; -1 the plain order.
+func nearest_free(c: Vector2i, max_r := 10, team := -1) -> Vector2i:
 	if is_free(c) and in_open_map(c):
 		return c
 	var pocket := Vector2i(-1, -1)
@@ -3461,7 +3641,7 @@ func nearest_free(c: Vector2i, max_r := 10) -> Vector2i:
 			for x in range(-r, r + 1):
 				if absi(x) != r and absi(y) != r:
 					continue
-				var cc := c + Vector2i(x, y)
+				var cc := c + sym_off(team, Vector2i(x, y))
 				if is_free(cc):
 					if not in_open_map(cc):
 						if pocket.x < 0:
@@ -3482,9 +3662,9 @@ func nearest_free(c: Vector2i, max_r := 10) -> Vector2i:
 ## by (a click on the rim of a plateau, which is a cliff cell, or on a tree on the high ground
 ## means the high ground; the nearest free cell by distance alone was as often the low ground
 ## below the cliff, and the units went all the way round to stand under it). Else nearest_free.
-func nearest_free_level(c: Vector2i, max_r := 8) -> Vector2i:
+func nearest_free_level(c: Vector2i, max_r := 8, team := -1) -> Vector2i:
 	if not in_map(c) or (is_free(c) and in_open_map(c)):
-		return nearest_free(c, max_r)
+		return nearest_free(c, max_r, team)
 	var lv := int(height[idx(c)])
 	for r in range(1, max_r + 1):
 		var best := Vector2i(-1, -1)
@@ -3493,7 +3673,7 @@ func nearest_free_level(c: Vector2i, max_r := 8) -> Vector2i:
 			for x in range(-r, r + 1):
 				if absi(x) != r and absi(y) != r:
 					continue
-				var cc := c + Vector2i(x, y)
+				var cc := c + sym_off(team, Vector2i(x, y))
 				if is_free(cc) and int(height[idx(cc)]) == lv and ramp[idx(cc)] == 0 and in_open_map(cc):
 					var dd := Vector2(x, y).length()
 					if dd < bd:
@@ -3501,7 +3681,7 @@ func nearest_free_level(c: Vector2i, max_r := 8) -> Vector2i:
 						best = cc
 		if best.x >= 0:
 			return best
-	return nearest_free(c, max_r)
+	return nearest_free(c, max_r, team)
 
 
 ## Walkable for everyone: open ground or a Farm's crop rows (not gates).
@@ -4562,13 +4742,16 @@ func ammo_line(t: int, key: String, b: Building = null) -> String:
 
 func spawn_trained(b: Building, k: String, kit: Dictionary = {}) -> void:
 	var r := b.rect()
-	var toward := b.rally if b.rally != Vector2.INF else r.get_center() + Vector2(0, r.size.y)
+	# (start-spots-fix: no rally: out on the side facing down the screen for the first start, its mirror for a mirrored
+	# side; the cells looked at in that side's first-start frame, so ties fall the mirrored way: Game.start_flip)
+	var toward := b.rally if b.rally != Vector2.INF else r.get_center() + sym_dir(b.team, Vector2(0, r.size.y))
 	# Spawn on the free cell around the building closest to the rally point.
 	var best := cell_of(r.get_center())
 	var bd := INF
-	for y in range(b.cell.y - 1, b.cell.y + b.size.y + 1):
-		for x in range(b.cell.x - 1, b.cell.x + b.size.x + 1):
-			var c := Vector2i(x, y)
+	var k0 := sym_rect(b.team, Vector2i(b.cell), b.size)
+	for y in range(k0.y - 1, k0.y + b.size.y + 1):
+		for x in range(k0.x - 1, k0.x + b.size.x + 1):
+			var c := sym_rect(b.team, Vector2i(x, y), Vector2i.ONE)
 			if is_free(c):
 				var dd := cell_center(c).distance_to(toward)
 				if not in_open_map(c):
@@ -5690,10 +5873,10 @@ func queue_path(u: Unit) -> void:
 
 ## `margin`: how far the straight stretches of the path keep from anything solid (px; about the
 ## unit's own half-width: a big Brute or a gun keeps further from corners than a man).
-func find_path(from: Vector2, to: Vector2, siege := false, margin := 7.0) -> PackedVector2Array:
+func find_path(from: Vector2, to: Vector2, siege := false, margin := 7.0, team := -1) -> PackedVector2Array:
 	# (a Farm's crop rows are walkable: a unit on them starts, or ends, right there)
-	var a := cell_of(from) if open_cell(cell_of(from)) else nearest_free(cell_of(from), 6)
-	var b := cell_of(to) if open_cell(cell_of(to)) else nearest_free_level(cell_of(to), 8)
+	var a := cell_of(from) if open_cell(cell_of(from)) else nearest_free(cell_of(from), 6, team)
+	var b := cell_of(to) if open_cell(cell_of(to)) else nearest_free_level(cell_of(to), 8, team)
 	var pt := Time.get_ticks_usec()
 	# (beside a ramp's rail: the pathfinder starts or ends at the nearest cell open to it, and
 	# the last step is walked from there; docs/ramp_funnel.md)
@@ -5705,19 +5888,20 @@ func find_path(from: Vector2, to: Vector2, siege := false, margin := 7.0) -> Pac
 	# enemy gates each walker shuts for itself, so the same two cells, the same gates shut and the same kind of walk give
 	# the same cells: a blob of Raptors sent to one spot from the same cells asks the pathfinder once. The smoothing
 	# below starts from each walker's own place, as before)
-	var ck := Vector4i(pa.x, pa.y, pb.x, pb.y)
+	var fk := _flip_of(team)
+	var ck := Vector4i(pa.x + fk.x * 4096, pa.y + fk.y * 4096, pb.x, pb.y)
 	var hit = _pq_cache.get(ck) if _pq_on else null
 	if hit != null and bool(hit[0]) == siege and hit[1] == _pq_shut:
 		pts = (hit[2] as PackedVector2Array).duplicate()
 		whole = hit[3]
 		_pq_hits += 1
 	else:
-		pts = astar.get_point_path(pa, pb, true)
+		pts = grid_path(team, pa, pb, true)
 		# (allow_partial_path: when b can't be reached the path ends at the reachable cell nearest to it)
 		whole = not pts.is_empty() and cell_of(pts[pts.size() - 1]) == pb
 		if not whole and siege:
 			# walled out: walk up to the wall (the unit then breaks it down)
-			var sp := astar_siege.get_point_path(path_cell(a, true), path_cell(b, true), false)
+			var sp := grid_path(team, path_cell(a, true), path_cell(b, true), false, true)
 			if not sp.is_empty():
 				pts = sp
 				whole = true
@@ -5809,8 +5993,14 @@ func approach_point(e: Entity, from: Vector2) -> Vector2:
 	if e.is_unit() and not (e is Unit and BroodRoot.has_fp(e)):      # (a ROOTED Brood creature: its footprint's ring, as a building's)
 		return e.global_position
 	var r := e.rect()
-	var c0 := cell_of(r.position) - Vector2i.ONE
-	var c1 := cell_of(r.end - Vector2(1, 1)) + Vector2i.ONE
+	# (start-spots-fix: the ring is looked at in the first start's frame of the thing's side and mirrored back, so equal
+	# distances fall the mirrored way on a mirrored start: Game.start_flip)
+	var t: int = e.team
+	var ra := sym_pt(t, r.position)
+	var rb := sym_pt(t, r.end)
+	var r0 := Rect2(Vector2(minf(ra.x, rb.x), minf(ra.y, rb.y)), (ra - rb).abs())
+	var c0 := cell_of(r0.position) - Vector2i.ONE
+	var c1 := cell_of(r0.end - Vector2(1, 1)) + Vector2i.ONE
 	var best := Vector2.INF
 	var bd := INF
 	var home := region_of(cell_of(from))
@@ -5818,7 +6008,7 @@ func approach_point(e: Entity, from: Vector2) -> Vector2:
 		for x in range(c0.x, c1.x + 1):
 			if x != c0.x and x != c1.x and y != c0.y and y != c1.y:
 				continue
-			var c := Vector2i(x, y)
+			var c := sym_rect(t, Vector2i(x, y), Vector2i.ONE)
 			if is_free(c):
 				var p := cell_center(c)
 				var dd := p.distance_to(from)
@@ -10424,7 +10614,7 @@ func center_of_team(t: int) -> Vector2:
 		if b.team == t and not b.dead:
 			c += b.center()
 			n += 1
-	return c / n if n > 0 else Vector2(starts[t]) * T
+	return c / n if n > 0 else start_mid(t)
 
 
 # ------------------------------------------------------------------ overlay (world space)

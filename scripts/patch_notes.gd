@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.23", "items": [
+		"FAIR STARTS: on every mirrored map the two starts are now exact mirror images. The workers' row, the starting Farm and Cog Press, the Brood Mother's nest, her Rootmaw, her grubs and her swamp stood a little differently on the second start (the first start's Brood earned up to a fifth less in its first minute). Every choice the game and the computers make by screen order (where a trained unit steps out, which of two equally short ways a unit walks, where a computer puts a building, its gears, its ramp wall, its Mound Turtles and Sires, or its guards round the Brood Mother) is now made the mirrored way on the mirrored start, and the computers aim at the middle of the enemy's hall, not its top-left corner.",
+		"THE BROOD'S GRUBS take their food at the Rootmaw's side, sideways to the way back to the Mother (it was always its left side on screen, which faced the Mother on one start and turned its back on her on the other), and a Rootmaw's load pays by its distance from the Mother measured the same way on both starts.",
+		"A computer's worker running from a raid picks the way out farthest from the raiders when several are as good.",
+	]},
 	{"v": "0.33.22", "items": [
 		"THE BROOD COMPUTER AGAINST ANOTHER BROOD, COACHED (docs/brood-v-brood-coach.md): two Hard Brood computers were filmed on five maps and each mistake fixed and replayed. It no longer takes the other Brood's Raptors for Horsemen: every Raptor wave used to set off its answer to a Horseman rush for the rest of the game (grubs off work, warriors on guard, no chase, waves held back), and in 16 measured games it now earns 9,600 by 8:00 with 51 grubs on average (5,500 and 34 before; 2,500-3,500 in the games the lockdown took).",
 		"It no longer reads the other Brood's normal opening (no production building, a turtle on new ground) as greed and rushes it at 1:40: against a Brood, greed is a third base early with little army. Its OPTIMAL plan no longer throws the dice for the Raptor rush against another Brood either (it lost or trailed 5 of 6 measured games).",

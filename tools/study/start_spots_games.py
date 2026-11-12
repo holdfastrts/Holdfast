@@ -3,7 +3,7 @@
 Clockwork v Clockwork, Hard OPTIMAL both sides, to 15:00) on the maps where the QA match study saw a start-spot edge,
 plus control maps. Measuring only: it runs tools/start_spots_match.gd (tools/qa_match.gd plus a base layout record) and
 changes no rule.
-    python3 tools/study/start_spots_games.py run OUT [--data DATA] [--jobs 2] [--rounds 4]
+    python3 tools/study/start_spots_games.py run OUT [--data DATA] [--jobs 2] [--rounds 4] [--facs brood,crown]
     python3 tools/study/start_spots_games.py list [--rounds 4]
 Round r plays every map x the three mirrors once (a cut run stays balanced). On NAMED maps the odd rounds SWAP: player
 index 0 is given side number 1, which MapGen.spot_order turns into the SECOND start spot, so the spot and the player index
@@ -96,6 +96,9 @@ if __name__ == "__main__":
     data = os.path.abspath(arg("--data", os.path.join(Q.ROOT, "docs/start_spots_study/data")))
     jobs = int(arg("--jobs", "2"))
     gl = queue(rounds)
+    if "--facs" in sys.argv:
+        keep = arg("--facs", "").split(",")
+        gl = [g for g in gl if g[2] and g[3][0][0] in keep]
     print("%d games" % len(gl), flush=True)
     from concurrent.futures import ThreadPoolExecutor
 

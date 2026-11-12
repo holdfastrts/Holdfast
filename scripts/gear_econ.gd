@@ -367,11 +367,12 @@ static func room_spot_n(game: Game, t: int, kind: String, must: Array, users: Ar
 	var over := float(Defs.GEAR["overlap"]) * T
 	var a0: Building = must[0]
 	var at: Vector2 = a0.center() if near == Vector2.INF else near
-	var h0 := game.cell_of(a0.center())
+	# (start-spots-fix: the cells in side t's first-start frame, mirrored back: mirrored sides break ties the mirrored way)
+	var h0 := game.cell_of(game.sym_pt(t, a0.center()))
 	var cands: Array = []
 	for y in range(h0.y - 14, h0.y + 15):
 		for x in range(h0.x - 14, h0.x + 15):
-			var c := Vector2i(x, y)
+			var c := game.sym_rect(t, Vector2i(x, y), size)
 			if not game.in_map(c):
 				continue
 			var gc := GearNet.gpos(Vector2(c) * T + Vector2(size) * T * 0.5)
@@ -435,11 +436,12 @@ static func room_cells(game: Game, t: int, kind: String, c: Vector2i, users: Arr
 		var us: Vector2i = Defs.BUILDINGS[uk]["size"]
 		var ur := GearNet.ring_r(uk, us, game.gear_big_for(t, uk))
 		var found := false
-		for y in range(c.y - 9, c.y + 10):
+		var k0 := game.sym_rect(t, c, size)          # (start-spots-fix: looked at in side t's first-start frame, mirrored back)
+		for y in range(k0.y - 9, k0.y + 10):
 			if found:
 				break
-			for x in range(c.x - 9, c.x + 10):
-				var c2 := Vector2i(x, y)
+			for x in range(k0.x - 9, k0.x + 10):
+				var c2 := game.sym_rect(t, Vector2i(x, y), us)
 				var g2 := GearNet.gpos(Vector2(c2) * T + Vector2(us) * T * 0.5)
 				var gap := g2.distance_to(gc) - ur - r
 				if gap < -over or gap > slack:

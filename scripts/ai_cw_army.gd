@@ -325,7 +325,7 @@ func _gather_point() -> Vector2:
 		gather_pt = game.center_of_team(team)
 		return gather_pt
 	var foe := _foe()
-	var their: Vector2 = Vector2(game.starts[foe]) * Defs.TILE if foe >= 0 else game.center_of_team(team)
+	var their: Vector2 = game.start_mid(foe) if foe >= 0 else game.center_of_team(team)
 	var best: Building = halls[0]
 	var bd := INF
 	for h in halls:
@@ -409,7 +409,7 @@ func _gather_home() -> Vector2:
 		mid += (h as Building).center()
 	mid /= float(halls.size())
 	var their: Vector2 = (Vector2(game.starts[_foe()]) + Vector2(2.5, 2.0)) * Defs.TILE
-	var path: PackedVector2Array = game.find_path(their, mid)
+	var path: PackedVector2Array = game.find_path(their, mid, false, 7.0, team)
 	var pick := Vector2.INF
 	var prev := their
 	for i in path.size():

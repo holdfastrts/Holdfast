@@ -1,0 +1,131 @@
+[00:22] P1 Crown walls off its ramp: 1 pieces.
+[00:22] P2 Crown walls off its ramp: 1 pieces.
+[01:46] P1 Crown's scout saw too little (the scout was killed): that proves nothing, so it builds no army for it and looks again soon.
+[01:46] P2 Crown's scout saw too little (the scout was killed): that proves nothing, so it builds no army for it and looks again soon.
+[02:31] P1 Crown follows its own Economy build order: 9 steps, then its milestones.
+[02:31] P1 Crown reads the enemy as UNKNOWN (no read yet) and picks Economy: an economic race.
+[02:31] P2 Crown follows its own Economy build order: 9 steps, then its milestones.
+[02:31] P2 Crown reads the enemy as UNKNOWN (no read yet) and picks Economy: an economic race.
+[02:31] P2 Crown expands while its base is still rich: more land, 18 tiles out.
+[02:32] P2 Crown plans a walled expansion.
+[02:32] P1 Crown expands while its base is still rich: more land, 18 tiles out.
+[02:33] P1 Crown plans a walled expansion.
+[04:38] P1 Crown posts its army down at its natural's gate: room for 6 Musketeers behind the palisade and 2 guns behind them.
+[04:45] P2 Crown puts its army first (0 against the 163 it reckons the enemy has): the labourers and the tech wait.
+[05:11] P2 Crown posts its army down at its natural's gate: room for 6 Musketeers behind the palisade and 2 guns behind them.
+[05:35] P2 Crown's opening is over: its milestones and its doctrine take over.
+[05:40] P2 Crown puts up its next milestone: Barracks 2.
+[05:43] P1 Crown puts its army first (0 against the 284 it reckons the enemy has): the labourers and the tech wait.
+[05:45] P2 Crown puts its army first (0 against the 288 it reckons the enemy has): the labourers and the tech wait.
+[05:52] P1 Crown's opening is over: its milestones and its doctrine take over.
+[05:58] P1 Crown moves its army along the palisade to where it is attacked (a line of 1 behind the wall).
+[06:39] P2 Crown moves its army along the palisade to where it is attacked (a line of 3 behind the wall).
+[06:44] P1 Crown puts its army first (220 against the 472 it reckons the enemy has): the labourers and the tech wait.
+[06:45] P2 Crown puts its army first (180 against the 451 it reckons the enemy has): the labourers and the tech wait.
+[06:45] P2 Crown puts up its next milestone: Barracks 3.
+[07:12] P1 Crown puts up its next milestone: Barracks 2.
+[07:26] P2 Crown moves its army along the palisade to where it is attacked (a line of 4 behind the wall).
+[07:28] P2 Crown puts up its next milestone: Barracks 4.
+[07:28] P1 Crown's Horseman goes after the enemy workers.
+[07:28] P2 Crown moves its army along the palisade to where it is attacked (a line of 4 behind the wall).
+[07:37] P1 Crown moves its army along the palisade to where it is attacked (a line of 4 behind the wall).
+[07:39] P2 Crown reads the enemy as DEFENSIVE (walls all round one base).
+[07:39] P2 Crown follows its own Siege push build order: 0 steps, then its milestones.
+[07:39] P2 Crown reads the enemy as DEFENSIVE (walls all round one base) and picks Siege push: a siege to break its defences.
+[07:39] P1 Crown moves its army along the palisade to where it is attacked (a line of 5 behind the wall).
+[07:45] P1 Crown moves its army along the palisade to where it is attacked (a line of 5 behind the wall).
+[07:48] P1 Crown moves its army along the palisade to where it is attacked (a line of 5 behind the wall).
+[07:55] P2 Crown expands while its base is still rich: more land, 18 tiles out.
+[07:55] P2 Crown plans a walled expansion.
+[07:56] P2 Crown puts up its next milestone: Armoury 1.
+[07:57] P1 Crown puts up its next milestone: Barracks 3.
+[07:57] P2 Crown's Horseman goes after the enemy workers.
+[08:24] P1 Crown goes down its ramp with its army.
+[08:24] P1 Crown sends out its first attack: 18 supply, 1 of them Horsemen.
+[08:25] P2 Crown goes down its ramp with its army.
+[08:35] P2 Crown expands while its base is still rich: more land, 18 tiles out.
+[08:36] P2 Crown plans a walled expansion.
+[08:37] P1 Crown puts up its next milestone: Church 1.
+[08:38] P1 Crown plans a walled expansion.
+[08:54] P2 Crown's scout saw too little (too little of its base): that proves nothing, so it builds no army for it and looks again soon.
+[09:04] P1 Crown puts up its next milestone: Barracks 4.
+[09:06] P1 Crown puts up its next milestone: Armoury 1.
+[09:07] P2 Crown puts up its next milestone: Foundry 2.
+[09:46] P2 Crown's siege push goes out: 26 supply, 3 guns behind a line of Musketeers.
+[09:57] P2 Crown holds the gate of its walled natural: against the force outside (300) its army (60) goes out only at 390.
+[10:08] P1 Crown moves its army along the palisade to where it is attacked (a line of 4 behind the wall).
+[10:19] P1 Crown moves its army along the palisade to where it is attacked (a line of 1 behind the wall).
+[10:25] P1 Crown moves its army along the palisade to where it is attacked (a line of 1 behind the wall).
+[10:26] P1 Crown's raiders break the palisade in their way.
+[10:27] P1 Crown's Horseman goes after the enemy workers.
+[10:31] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Palisade.
+[10:34] P1 Crown moves its army along the palisade to where it is attacked (a line of 2 behind the wall).
+[10:44] P2 Crown holds the gate of its walled natural: against the force outside (445) its army (545) goes out only at 580.
+[10:54] P1 Crown moves its army along the palisade to where it is attacked (a line of 6 behind the wall).
+[10:55] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Palisade.
+[10:56] P1 Crown moves its army along the palisade to where it is attacked (a line of 6 behind the wall).
+[11:07] P2 Crown's Horseman goes after the enemy workers.
+[11:22] P1 Crown puts its army first (1025 against the 1970 it reckons the enemy has): the labourers and the tech wait.
+[11:53] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Armoury.
+[11:55] P2 Crown's Horseman goes after the enemy workers.
+[11:55] P1 Crown moves its army along the palisade to where it is attacked (a line of 3 behind the wall).
+[11:58] P1 Crown puts up its next milestone: Foundry 2.
+[12:00] P2 Crown expands while its base is still rich: more land, 35 tiles out.
+[12:01] P2 Crown plans a walled expansion.
+[12:01] P1 Crown holds the gate of its walled natural: against the force outside (574) its army (360) goes out only at 747.
+[12:02] P1 Crown moves its army along the palisade to where it is attacked (a line of 3 behind the wall).
+[12:02] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Cottage.
+[12:06] P1 Crown moves its army along the palisade to where it is attacked (a line of 3 behind the wall).
+[12:08] P1 Crown moves its army along the palisade to where it is attacked (a line of 3 behind the wall).
+[12:10] P1 Crown moves its army along the palisade to where it is attacked (a line of 3 behind the wall).
+[12:11] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Powder Mill.
+[12:12] P1 Crown moves its army along the palisade to where it is attacked (a line of 3 behind the wall).
+[12:14] P1 Crown moves its army along the palisade to where it is attacked (a line of 4 behind the wall).
+[12:15] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Town Hall.
+[12:22] P1 Crown puts its army first (1265 against the 2305 it reckons the enemy has): the labourers and the tech wait.
+[12:31] P1 Crown holds the gate of its walled natural: against the force outside (1346) its army (695) goes out only at 1752.
+[12:41] P1 Crown puts up its next milestone: Armoury 1.
+[12:45] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[12:45] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[12:45] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Farm.
+[13:01] P1 Crown holds the gate of its walled natural: against the force outside (1366) its army (1055) goes out only at 1778.
+[13:02] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Barracks.
+[13:04] P1 Crown moves its army along the palisade to where it is attacked (a line of 15 behind the wall).
+[13:13] P1 Crown's Horseman goes after the enemy workers.
+[13:15] P2 Crown's raiders break the palisade in their way.
+[13:18] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Palisade.
+[13:25] P1 Crown moves its army along the palisade to where it is attacked (a line of 17 behind the wall).
+[13:31] P1 Crown expands to fresh land: its best base has only 20% left, so it goes 19 tiles out.
+[13:31] P1 Crown plans a walled expansion.
+[13:31] P1 Crown holds the gate of its walled natural: against the force outside (1041) its army (1175) goes out only at 1354.
+[13:33] P1 Crown puts up its next milestone: Barracks 4.
+[13:34] P1 Crown moves its army along the palisade to where it is attacked (a line of 16 behind the wall).
+[13:34] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Palisade.
+[13:40] P1 Crown puts up its next milestone: Armoury 1.
+[13:44] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Town Hall.
+[13:45] P1 Crown moves its army along the palisade to where it is attacked (a line of 17 behind the wall).
+[13:45] P2 Crown's raiders find the workers walled off and look elsewhere.
+[13:47] P1 Crown moves its army along the palisade to where it is attacked (a line of 18 behind the wall).
+[13:54] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[13:55] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[13:58] P2 Crown's line stands and its guns unlimber behind it, against the enemy's Barracks.
+[14:04] P1 Crown holds the gate of its walled natural: against the force outside (740) its army (865) goes out only at 963.
+[14:06] P1 Crown moves its army along the palisade to where it is attacked (a line of 16 behind the wall).
+[14:08] P1 Crown moves its army along the palisade to where it is attacked (a line of 15 behind the wall).
+[14:17] P1 Crown expands to fresh land: its best base has only 11% left, so it goes 35 tiles out.
+[14:18] P1 Crown plans a walled expansion.
+[14:18] P1 Crown moves its army along the palisade to where it is attacked (a line of 15 behind the wall).
+[14:23] P1 Crown puts up its next milestone: Armoury 1.
+[14:26] P1 Crown moves its army along the palisade to where it is attacked (a line of 15 behind the wall).
+[14:26] P2 Crown's raiders break the palisade in their way.
+[14:30] P2 Crown's Horseman goes after the enemy workers.
+[14:30] P1 Crown moves its army along the palisade to where it is attacked (a line of 15 behind the wall).
+[14:32] P1 Crown moves its army along the palisade to where it is attacked (a line of 15 behind the wall).
+[14:34] P1 Crown holds the gate of its walled natural: against the force outside (1079) its army (861) goes out only at 1404.
+[14:35] P1 Crown moves its army along the palisade to where it is attacked (a line of 16 behind the wall).
+[14:43] P1 Crown moves its army along the palisade to where it is attacked (a line of 16 behind the wall).
+[14:45] P1 Crown moves its army along the palisade to where it is attacked (a line of 16 behind the wall).
+[14:51] P1 Crown moves its army along the palisade to where it is attacked (a line of 16 behind the wall).
+[14:56] P2 Crown's raiders find the workers walled off and look elsewhere.
+[14:57] P1 Crown moves its army along the palisade to where it is attacked (a line of 17 behind the wall).
+[14:59] P1 Crown moves its army along the palisade to where it is attacked (a line of 17 behind the wall).
