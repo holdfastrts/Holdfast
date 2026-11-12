@@ -60,6 +60,27 @@ func _cohesion(wave: Array) -> bool:
 
 
 var ln: AICrownLine = null       # (crown-line-fight) the Crown's line (scripts/ai_crown_line.gd)
+var sc: AICrownScreen = null     # (crown-rider-screen) the riders ahead of the line and the picket (scripts/ai_crown_screen.gd)
+
+
+## (crown-rider-screen) the rider screen, Normal and up, with the line; `-- screen:off` plays as before.
+func screen() -> AICrownScreen:
+	if sc == null and on and difficulty >= 1 and line_ai() != null:
+		sc = AICrownScreen.new(self)
+	return sc
+
+
+func _screen_tick() -> void:
+	if difficulty >= 1 and screen() != null:
+		sc.tick()
+
+
+func _screen_has(u: Unit) -> bool:
+	return sc != null and sc.has(u)
+
+
+func _screen_rider() -> bool:
+	return sc != null and sc.wants_rider()
 
 
 ## (crown-line-fight) the line, Normal and up, every matchup; `-- line:off` plays as before.

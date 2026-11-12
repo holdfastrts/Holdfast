@@ -158,6 +158,32 @@ func _known(body: Array) -> Array:
 			if not got.has(o) and _foe_ok(o):
 				got[o] = true
 				foes.append(o)
+	# (crown-rider-screen: the riders ahead and on the flanks are the wave's eyes too, scripts/ai_crown_screen.gd)
+	var eyes: Array = ai.sc.eyes() if ai.get("sc") != null and ai.sc.active() else []
+	var bc := Vector2.ZERO
+	for u in body:
+		bc += u.position
+	bc /= maxf(1.0, float(body.size()))
+	screen_saw = false
+	for e in eyes:
+		if body.is_empty() or (e as Vector2).distance_to(bc) > SCREEN_R:
+			continue
+		for o in game.units_near(e, AICrownScreen.EYE_R):
+			if not _foe_ok(o):
+				continue
+			if not _far.has(o):
+				# (seen by a rider and not by the wave's own men: the screen's sighting)
+				var own := false
+				for u in body:
+					if u.position.distance_to(o.position) < float(u.d.get("sight", 8)) * Defs.TILE:
+						own = true
+						break
+				if not own:
+					_far[o] = true
+					screen_saw = true
+			if not got.has(o):
+				got[o] = true
+				foes.append(o)
 	for o in foes:
 		_mem[o] = [game.clock, o.position]
 	var seen: Dictionary = _mem.duplicate()
@@ -172,12 +198,24 @@ func _known(body: Array) -> Array:
 		if got.has(o):
 			continue
 		var p: Vector2 = seen[o][1]
+		if _far.has(o) and p.distance_to(bc) < SCREEN_R:
+			got[o] = true             # (seen by the screen lately, still on the wave's road)
+			foes.append(o)
+			continue
 		for u in body:
 			if p.distance_to(u.position) < SEE_R:
 				got[o] = true
 				foes.append(o)
 				break
+	for o in _far.keys():
+		if not _mem.has(o):
+			_far.erase(o)
 	return foes
+
+
+const SCREEN_R := 1300.0         # (px) (crown-rider-screen) an enemy the screen saw this near the body is "ahead"
+var _far := {}                   # enemy soldier -> true: seen by the screen's riders (scripts/ai_crown_screen.gd)
+var screen_saw := false          # (the coach) the screen's riders saw an enemy this think
 
 
 var _mem := {}                   # enemy soldier -> [clock, position] last seen by the wave
@@ -423,8 +461,12 @@ func _form(ground: Array, bc: Vector2, near_o: Unit, foes: Array) -> bool:
 		return false
 	forms += 1
 	var guns: int = ground.filter(func(u: Unit) -> bool: return is_gun(u)).size()
-	_say("'s wave forms its line before the enemy army ahead (%d): %d muskets in %d rank%s, %d gun%s behind" % [
-		int(_value(foes)), n, 2 if n >= rank2() else 1, "s" if n >= rank2() else "", guns, "" if guns == 1 else "s"])
+	var by_screen := foes.any(func(o) -> bool: return _far.has(o))
+	if by_screen and ai.get("sc") != null:
+		ai.sc.sightings += 1
+	_say("'s wave forms its line before the enemy army ahead (%d): %d muskets in %d rank%s, %d gun%s behind%s" % [
+		int(_value(foes)), n, 2 if n >= rank2() else 1, "s" if n >= rank2() else "", guns, "" if guns == 1 else "s",
+		" (its screen saw it %d px off)" % int(nd) if by_screen else ""])
 	return true
 
 

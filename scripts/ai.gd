@@ -4985,6 +4985,8 @@ func _produce() -> void:
 				k = hk
 			elif hk != "" and ch.wants_rider():
 				k = hk      # (THE OWNER'S DOCTRINE: a Horseman to scout the map comes first once the Breeder stands)
+			elif hk != "" and _screen_rider():
+				k = hk      # (crown-rider-screen: a rider for the line's screen or the picket, none free)
 			elif k == "":
 				k = hk
 			if k != "":
@@ -5201,7 +5203,24 @@ func _on_errand(u: Unit) -> bool:
 		return true             # (crown-ammo: walking to a reloading point, AICrownAmmo)
 	if not _drop.is_empty() and (u == _drop.get("b") or (_drop.get("men", []) as Array).has(u)):
 		return true
+	if _screen_has(u):
+		return true             # (crown-rider-screen: a rider on the line's screen or the picket, scripts/ai_crown_screen.gd)
 	return ch.is_scout(u)       # (a rider scout on its loop: scripts/ai_crown_hold.gd)
+
+
+## (crown-rider-screen) AICrown: the rider screen and the picket (scripts/ai_crown_screen.gd).
+func _screen_tick() -> void:
+	pass
+
+
+## (crown-rider-screen) AICrown: a rider on the screen or the picket.
+func _screen_has(_u: Unit) -> bool:
+	return false
+
+
+## (crown-rider-screen) AICrown: a Horseman wanted for the screen or the picket.
+func _screen_rider() -> bool:
+	return false
 
 
 func _army_supply(list: Array) -> int:
@@ -5274,6 +5293,7 @@ var hunt: AIHunt = null          # (rules-fixes 3: the winner hunts, scripts/ai_
 
 
 func _army() -> void:
+	_screen_tick()          # (crown-rider-screen: the Crown's riders ahead of its wave's line and the picket at home)
 	var army: Array = game.army(team).filter(func(u: Unit) -> bool: return not _raiders.has(u) and not _on_errand(u) and u.kind != "powder_wagon" and u.kind != Defs.GREAT_WINDER_KIND and u.order != "sacrifice")      # (a Great Winder walks behind it: _great_winder_follow)
 	# (the harass, scripts/ai_harass.gd: a soldier out alone far from home hunts the workers, never stands at a turtle)
 	var harass_ := hz()

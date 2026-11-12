@@ -1,0 +1,30 @@
+# crown-rider-screen (docs/crown_rider_screen.md): the AI STORY's sentences for the Crown computer's rider screen and
+# picket (scripts/ai_story_lines.gd). The placeholders keep their English order: the first %s is the player.
+
+> %s's wave sends %s Horseman/Horsemen ahead and to its flanks as a screen.
+pt A onda de %s envia %s cavaleiro(s) à frente e aos flancos como uma cortina de batedores.
+es La oleada de %s envía %s jinete(s) por delante y a los flancos como una cortina de exploradores.
+
+> %s's screen of riders pulls back to the flanks of its musket line.
+pt A cortina de cavaleiros de %s recua para os flancos da sua linha de mosquetes.
+es La cortina de jinetes de %s se retira a los flancos de su línea de mosquetes.
+
+> %s's screen rider rides down %s on the flank.
+pt Um cavaleiro da cortina de %s carrega sobre %s no flanco.
+es Un jinete de la cortina de %s carga contra %s en el flanco.
+
+> %s loses a screen rider.
+pt %s perde um cavaleiro da cortina.
+es %s pierde un jinete de la cortina.
+
+> %s sets a Horseman as a picket on the road ahead of its post.
+pt %s coloca um cavaleiro de vigia na estrada à frente da sua posição.
+es %s aposta un jinete de vigía en el camino por delante de su posición.
+
+> %s's picket sees a force coming (%s, %s soldiers) and rides back to warn the post.
+pt O vigia de %s vê uma força chegando (%s, %s soldados) e volta a galope para avisar a posição.
+es El vigía de %s ve llegar una fuerza (%s, %s soldados) y vuelve al galope para avisar a la posición.
+
+> %s loses its picket.
+pt %s perde o seu vigia.
+es %s pierde a su vigía.
