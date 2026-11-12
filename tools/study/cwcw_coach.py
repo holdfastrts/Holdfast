@@ -17,7 +17,8 @@ ERR = re.compile(r"(SCRIPT ERROR|USER ERROR|Invalid call|Nonexistent|Cannot call
 def games(seeds, maps):
     out = []
     for k in range(seeds):
-        for mi, m in enumerate(maps):
+        for m in maps:
+            mi = MAPS.index(m) if m in MAPS else 50 + maps.index(m)     # (the seed by the map's place in MAPS: a --maps subset plays the same seeds)
             out.append(("cwcw_%s_s%d" % (m, k), m, 2101 + 100 * k + mi))
     return out
 
