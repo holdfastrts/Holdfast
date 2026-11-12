@@ -237,11 +237,27 @@ least what it lost and sees no more than itself ahead.
   of the army at most (plan "mixed": one Spitter for two Raptors while the Venom Sire is beside her, but the Raptor line
   hatches faster).
 
+## Round 7: the measuring batch's first try (eight maps, seed 21) and the mirror's Rush
+
+The first measuring batch used one seed for eight maps, and OPTIMAL's dice come from the match seed: on every map seed
+21 made P1 pick the Rush on its NORMAL read and P2 the Economy plan. In the six games finished the Rush lost four
+(P2 won on Greenhold 12:35, Highmoor 12:01, Kestrel Rise 12:27, Twin Fords 10:29), trailed one (Hollowfen: 18,100
+earned to 22,900 at 15:00) and led one (Frostmere, on army). Each time its 10 Raptors at 2:51 met P2's rush evidence
+("8 fast warriors seen at 3:21": P2 turned Balanced, held its army home and laid warriors) and its Mother and Tyrant
+Sire, came home with half (125 of 250, 50 killed), "its rush failed: it builds up", and P1 was behind from there
+(income at 8:00 3,760-4,774 against 6,852-8,424 on the four lost maps). Against another Brood that sees it coming (its watching grub is in the enemy's main by 1:40), ten Raptors
+are not enough to hurt a Mother who gets up, a Tyrant Sire and a clutch of eggs.
+
+Fix 8 (scripts/ai_optimal.gd, `NORMAL["brood"]["brood"]`, data only): OPTIMAL no longer picks the Rush on a NORMAL
+read in the mirror (Balanced 2, Timing 2, Economy 1). The Rush is still a plan of its own (the owner can set it), and
+OPTIMAL still punishes a GREEDY Brood (a third base early) with it. The batch was restarted with a different seed for
+every game (31 to 46).
+
 (Measuring batch below.)
 
 ## What changed in the code (for the merges)
 
-Everything is in `scripts/ai_brood_new.gd` (the Brood computer), plus three AI STORY rows (`scripts/ai_story_lines.gd`)
+Everything is in `scripts/ai_brood_new.gd` (the Brood computer), one row of data in `scripts/ai_optimal.gd`, plus three AI STORY rows (`scripts/ai_story_lines.gd`)
 and their pt/es lines (`tools/i18n/49_spectator.txt`, built into `scripts/lang/`). Every new behaviour is gated by
 `_foe_is("brood")` (the enemy is a Brood) except fix 2, which can only change anything when an enemy Brood unit is on
 the field. No number of any unit, building or economy changed.
@@ -264,6 +280,7 @@ Shared functions changed (each a few lines, each marked "brood-v-brood-coach" in
 - `_nb_one_father` and `_nb_defend`: a Sire for whom `_nb_sire_stays` is true is not got up or put in the defence
   squad (fix 5).
 - `_nb_growth_keep`: against a Brood, no food is kept for her next stage while a big enemy army is at her (fix 5).
+- `scripts/ai_optimal.gd`, `NORMAL["brood"]["brood"]` (data only, the mirror's row): the Rush's weight removed (fix 8).
 
 The AI STORY gets three new lines: "%s turns its wave to meet an enemy army of %s heading for its Mother.", "%s's wave
 goes for the enemy Mother with %s creatures.", "%s's wave closes up before it meets an enemy army of %s." (pt and es

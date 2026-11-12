@@ -112,7 +112,10 @@ const NORMAL := {
 		"clockwork": {"balanced": 3.0, "economy": 2.0, "springer": 1.0}},
 	"brood": {"crown": {"balanced": 2.0, "spitter": 2.0, "brute": 2.0, "timing": 1.0},
 		"clockwork": {"timing": 2.0, "spitter": 2.0, "balanced": 2.0},
-		"brood": {"balanced": 2.0, "timing": 2.0, "economy": 1.0, "rush": 1.0}},
+		# (brood-v-brood-coach, docs/brood-v-brood-coach.md: no Rush in the mirror: its 10 Raptors at 2:51 met the other
+		# Brood's rush evidence, Raptors and Mother and came home with half, and the rusher was behind all game: it lost 4,
+		# trailed 1 and led 1 of 6 against Economy turned Balanced in the measuring batch's first seed)
+		"brood": {"balanced": 2.0, "timing": 2.0, "economy": 1.0}},
 }
 
 
