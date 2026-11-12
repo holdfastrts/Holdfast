@@ -238,3 +238,36 @@ least what it lost and sees no more than itself ahead.
   hatches faster).
 
 (Measuring batch below.)
+
+## What changed in the code (for the merges)
+
+Everything is in `scripts/ai_brood_new.gd` (the Brood computer), plus three AI STORY rows (`scripts/ai_story_lines.gd`)
+and their pt/es lines (`tools/i18n/49_spectator.txt`, built into `scripts/lang/`). Every new behaviour is gated by
+`_foe_is("brood")` (the enemy is a Brood) except fix 2, which can only change anything when an enemy Brood unit is on
+the field. No number of any unit, building or economy changed.
+
+New functions (no other job's code calls them):
+- `_nb_brood_greedy(halls, mil)`: the mirror's read of greed (fix 1).
+- `_nb_meet_army(q, mid, left)`: the meeting (fix 3).
+- `_nb_wave_gather(mid, left)`: the wave closes up (fix 6).
+- `_nb_queen_hunt(mid, left)`: the Queen hunt (fix 4).
+- `_nb_sire_stays(q, f)`: the laying Sire keeps his nest (fix 5).
+
+Shared functions changed (each a few lines, each marked "brood-v-brood-coach" in a comment):
+- `AIBroodNew.is_rider` (static): false for any unit of the Brood faction (fix 2). Only the Brood computer calls it.
+- `_nb_read`: a GREEDY read of an enemy Brood is kept only if `_nb_brood_greedy` says so, else it reads NORMAL
+  ("a standard opening", an existing translated phrase) (fix 1).
+- `_nb_wave_tick`: calls `_nb_wave_gather`, `_nb_meet_army` (returning early while they steer) and `_nb_queen_hunt`
+  before the written build's push; the "down to a quarter" retreat rule is held back against a Brood while the wave
+  has killed at least what it lost and sees no more than itself ahead (fix 7).
+- `_nb_join_fresh`: against a Brood the reinforcements' value is added to `_wave_v0` (fix 7).
+- `_nb_one_father` and `_nb_defend`: a Sire for whom `_nb_sire_stays` is true is not got up or put in the defence
+  squad (fix 5).
+- `_nb_growth_keep`: against a Brood, no food is kept for her next stage while a big enemy army is at her (fix 5).
+
+The AI STORY gets three new lines: "%s turns its wave to meet an enemy army of %s heading for its Mother.", "%s's wave
+goes for the enemy Mother with %s creatures.", "%s's wave closes up before it meets an enemy army of %s." (pt and es
+in tools/i18n/49_spectator.txt).
+
+The tool: `tools/shot_brood_mirror.gd` (new; `fa:`/`fb:` pick other factions for the check batches, then the lines have
+no Mother and the AI fields read -1 where that computer has none).

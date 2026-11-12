@@ -19,6 +19,8 @@ var end_t := 900.0
 var sa := "optimal"
 var sb := "optimal"
 var diff := "hard"
+var fa := "brood"                # fa:/fb: the factions (the other matchups' check batches: the same lines, no Mother)
+var fb := "brood"
 var shots := true
 var every := 30.0
 var t := 0.0
@@ -49,6 +51,8 @@ func _initialize() -> void:
 			"diff": diff = kv[1]
 			"shots": shots = kv[1] == "1"
 			"every": every = float(kv[1])
+			"fa": fa = kv[1]
+			"fb": fb = kv[1]
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -67,7 +71,7 @@ func _process(delta: float) -> bool:
 		var slots: Array = []
 		var plans := [sa, sb]
 		for i in 2:
-			slots.append({"who": diff, "faction": "brood", "colour": i, "side": i, "strategy": plans[i]})
+			slots.append({"who": diff, "faction": [fa, fb][i], "colour": i, "side": i, "strategy": plans[i]})
 		main.start({"map": map, "seed": seed_, "slots": slots})
 		return false
 	if main.game == null:
@@ -162,8 +166,10 @@ func _line(c: float, tm: int) -> String:
 	var a = _ai(tm)
 	var ai_s := "-"
 	if a:
-		ai_s = "plan %s att %s wave %d def %d attack_at %d seen_army %d" % [a.strategy, str(a._attacking), (a._wave as Array).size(),
-			(a._def as Array).size(), a._attack_at, int(a.seen_army)]
+		var wv = a.get("_wave")
+		var df = a.get("_def")
+		ai_s = "plan %s att %s wave %d def %d attack_at %d seen_army %d" % [a.strategy, str(a.get("_attacking")), (wv as Array).size() if wv is Array else -1,
+			(df as Array).size() if df is Array else -1, int(a.get("_attack_at")) if a.get("_attack_at") != null else -1, int(a.get("seen_army")) if a.get("seen_army") != null else -1]
 	return "%s P%d food %d spoils %d income %d sup %d/%d grubs %d eggs %d armyv %d %s | mother %s | rooted %s | killed %d lost %d | %s" % [
 		_mmss(c), tm, int(g.players[tm]["gold"]), int(g.players[tm]["res2"]), int(st["gold"]), g.supply_used(tm),
 		int(g.players[tm]["cap"]), grubs, eggs, army_v, str(kinds), qs, ",".join(rooted), int(st["value_killed"]), int(st["lost"]), ai_s]

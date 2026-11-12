@@ -4,6 +4,14 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.17", "items": [
+		"THE BROOD COMPUTER AGAINST ANOTHER BROOD, COACHED (docs/brood-v-brood-coach.md): two Hard Brood computers were filmed on five maps and each mistake fixed and replayed. It no longer takes the other Brood's Raptors for Horsemen: every Raptor wave used to set off its answer to a Horseman rush for the rest of the game (grubs off work, warriors on guard, no chase, waves held back), and its economy at 8:00 was a third of what it is now (about 9,500 earned and 54 grubs, was 2,500-3,500 and 12-25).",
+		"It no longer reads the other Brood's normal opening (no production building, a turtle on new ground) as greed and rushes it at 1:40: against a Brood, greed is a third base early with little army.",
+		"NO BASE TRADE: when the enemy Brood's army heads for its Mother while its own wave walks the other way, the wave turns and meets it; and a wave strung out along the road closes up before it meets an enemy army instead of arriving single file.",
+		"IT KILLS THE MOTHER: a wave with the upper hand at the enemy Brood's Mother goes for her instead of her fresh eggs, hatchlings and Sires (a Mother at a fifth of her health lived for minutes with a hundred Raptors round her).",
+		"ITS SIRE KEEPS LAYING: with eggs in her clutch and the food for them, the Sire of its quickest line stays on his nest when the enemy comes to the Mother (all three got up to fight and nothing could be laid while the food piled up), and it saves nothing for her growth while she is under attack.",
+		"A wave fed by reinforcements now counts them in what it lost (it fought on into a ramp for eight minutes and never pulled back), and a wave that is winning goes on instead of going home at a quarter of its size. Only against another Brood; no unit, building or economy number changed.",
+	]},
 	{"v": "0.33.16", "items": [
 		"THE KING'S STUDY (campaign): the Prologue's hub is now the King's study in Rome, painted in layers: the King in his chair lighting his pipe, old Cardinal Tomasz standing by, the war map on the desk and Saint Peter's in the window. The candles flicker, the pipe smokes and both men breathe. Point at the King, Tomasz, the map or Fairleigh's letter: it lights up and its name shows; the talks show their faces.",
 	]},
