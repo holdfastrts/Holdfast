@@ -27,7 +27,8 @@ const LINE_BACK := 2.6          # (tiles) the musket line stands this far behind
 const GUN_BACK := 5.0           # (tiles) the guns this far
 const LINE_GAP := 0.95          # (tiles) between muskets in the line
 const ROW_GAP := 0.9            # (tiles) between rows
-const ROW_LEN := 6              # muskets in a row
+const ROW_LEN := 6              # muskets in a row (at least: crown-line-fight, up to ROW_MAX in one row, see _row_len)
+const ROW_MAX := 12
 const LANE := 0.9               # (tiles) half the lane kept open in front of the gate
 const HOLD_KINDS := ["musketeer", "musketeer_armoured", "dismounted", "dismounted_armoured"]
 const GUN_KINDS := ["cannon", "mortar"]
@@ -677,8 +678,19 @@ func _spot_ok(p: Vector2) -> bool:
 
 ## The line's spots across the ramp's top, behind its wall, with a lane open in front of the gate (worked out again every
 ## 30 s: the wall and buildings change).
+## (crown-line-fight) The ramp post's muskets in ONE line across the ramp's top and along the lip either side of it, up to
+## ROW_MAX, before a second row: coached, Red Coast 1125 8:06 (Crown v Clockwork), eight Musketeers stood three deep behind
+## the ramp's gate (rows of ROW_LEN) while 1,140 of Clockwork burned the Cottage at the natural below; only the front row
+## reached. A line wide as its muskets (tools/study_line_ranks.gd: one rank up to 16) brings them all to the lip.
+func _row_len() -> int:
+	return clampi(_n_musk, ROW_LEN, ROW_MAX) if ai.has_method("line_ai") and ai.line_ai() != null and ai.ln.active() else ROW_LEN
+
+
+var _n_musk := 0                # the muskets the ramp post was last asked to place
+
+
 func _layout() -> void:
-	if game.clock - _spots_t < 30.0 and not _spots.is_empty():
+	if game.clock - _spots_t < 30.0 and not _spots.is_empty() and (_spots.size() >= _n_musk or _spots.size() >= _row_len() * 3):
 		return
 	_spots_t = game.clock
 	_spots.clear()
@@ -702,7 +714,7 @@ func _layout() -> void:
 		var back: float = LINE_BACK + ROW_GAP * row
 		var placed := 0
 		for k in 24:
-			if placed >= ROW_LEN:
+			if placed >= _row_len():
 				break
 			# (outwards from the middle, alternating sides)
 			var side: float = (float(k / 2) + 0.5) * LINE_GAP * (1.0 if k % 2 == 0 else -1.0)
@@ -723,6 +735,13 @@ func _layout() -> void:
 func place(units: Array) -> Array:
 	if not active():
 		return units
+	var nm0 := 0
+	for u in units:
+		if u.kind in HOLD_KINDS:
+			nm0 += 1
+	if nm0 > _n_musk + 2 or nm0 < _n_musk - 4:
+		_spots_t = -999.0       # (crown-line-fight: the row's length follows the muskets: laid again)
+	_n_musk = nm0
 	_layout()
 	var spots_m: Array = _spots
 	var spots_g: Array = _gun_spots
