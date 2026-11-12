@@ -497,8 +497,12 @@ var wall_first_on := not OS.get_cmdline_user_args().has("wallfirst:off")
 func wall_first() -> bool:
 	if not on or not wall_first_on or difficulty < 1 or xw == null or not xw.active() or not owner_on():
 		return false
-	if _defending() or army_lags() or army_grows():
-		return false            # (crown-v-brood-coach: the soldiers before the ring while the army is short against the Brood)
+	if _defending() or army_lags():
+		return false
+	# (crown-v-brood-coach round 6: NOT held for the army as round 4 tried: with the ring late the army had no gate post at
+	# the natural and held the main's ramp top while the Brood ate the natural below (Amberfall Vale, 7:20-9:08: "against
+	# the force below (375) its army (639) goes down only at 750"); a closed palisade with the line behind it traded 2 to 1
+	# (Greenhold 9:41-9:53). Only two Musketeers' gold is kept from it while a Barracks is idle: brood_wall_keep)
 	if game.workers(team).size() < WALL_FIRST_LABS and not _wall_hall_waited():
 		return false            # (the labourers' ramp first, as the owner's: 26 at 4:00, then his ring)
 	return xw.keep() > 0

@@ -173,7 +173,28 @@ Replay (`r5_gh`, `r5_hf`) and the round's check (`quick`, 4 of the measure games
 
 ## 6. The fixes in the code
 
-(filled in at the end)
+Each is against the Brood only (`_foe_is("brood")`) unless said, on Normal and up, and has a study switch to play the
+old way (`-- name:off` on the command line).
+
+| # | fix | where | switch | the mistake it answers |
+|---|---|---|---|---|
+| 1 | THE RIDERS HUNT THE GRUBS, NOT THE MOTHER: the Horseman rush rides as a raiding party (the shared raid and AIHarass's micro: kite the slow, pull back from what can catch it, come again), three riders together, the Musketeers kept home (the plan's attack step is done when the party is out; their wave waits); Raptors at the riders do not end the rush while the riders are whole (`_rush_kites`); the spot the raid was chased off is left 45 s and another Rootmaw is raided (`raid_spot_bad`, AIHarass.work_line, `_prey_spot`); the Mother's ground last, and there the raid waits 6 tiles out where the grubs walk in, never at her | `scripts/ai.gd` hooks `_rush_with_wave`, `_raid_group_min`, `_rush_kites`, `_raid_chased`, `raid_spot_bad`; `scripts/ai_crown.gd` "THE RIDERS HUNT THE GRUBS"; `scripts/ai_harass.gd` work_line | `rushraid:off` | round 1, 1 |
+| 2 | AFTER THE RIDERS, THE OWNER'S ECONOMY: a rush that is over (failed, or succeeded and done hunting) hands the plan to Economy (labourers non-stop to two halls, the walled natural, its milestones), not Balanced; the Breeder's riders keep scouting and raiding | `AICrown._after_rush_brood` | `afterrush:off` | round 1, 2 |
+| 3 | THE GOLD ON THE FIELD: the milestones are held as when the army lags (no Church, Armoury or research; a Barracks or Foundry only when every one of its kind is busy) while the army is under the Brood army it reckons or a Barracks / Foundry stands idle for gold; the research waits while the army is under 0.6 of the reckoning | `AICrown.brood_spend_army`, `_mid_tick`, `_research` | `broodspend:off` | round 1, 3 |
+| 4 | A GUN FOR EVERY 4 MUSKETEERS: the Barracks wait for a Field Cannon's gold while a Foundry may cast one and the line has more than 4 Musketeers a gun (CANNONS_FIRST's massing, kept on) | `AI._gun_share`, `AICrown._gun_share` (GUN_SHARE_BROOD 4) | `broodspend:off` | round 1, 3 |
+| 5 | THE RUSH'S OWN OPENING: the second Farm at 9 labourers (not after the first rider), labourers uncapped, the Powder Mill and the second hall behind the raid | `PLANS["rush"]["bo_brood"]` | - | round 2 |
+| 6 | THE HALL NEVER STOPS IN THE RUSH: up to 16 labourers the hall keeps one coming while the riders are trained; the Barracks train riders only while the rush is on (no Musketeer without powder beside them) | `AICrown._soldiers_first`, `_rush_horse_only`, `AI._produce` hook | `rushlabs:off` | round 2 |
+| 7 | THE FARMS' POSTS BEFORE THE POWDER: with a Farm post free and 30 powder banked, the Mills get one hand per 5 labourers; (all matchups) a bank three times the want sends two hands back at a time, and a hand is added only while a Barracks or Foundry trains | `AICrown._mill_cap`, `_mill_feedback` | `millfeed:off` | round 3 |
+| 8 | THE ARMY GROWS WITH THE ECONOMY: from 5:30, while the army is under the smaller of 0.85 of the Brood army it reckons and 40 a labourer, a hall trains a labourer only when every Barracks is busy, and two Musketeers' gold is kept from the natural's palisade while a Barracks is idle (round 4 also held the natural's ring back for the army; round 6 undid that part) | `AICrown.army_grows`, `_army_due`, `brood_wall_keep` | `armygrow:off` | round 4 |
+| 9 | THE GATE POST TURNS TO AN ENEMY INSIDE: (all matchups) a threat nearer the walled natural's hall than its gate is met the usual way when the army at home is worth as much | `AICrownHold._inside_natural`, `hold_top` | `gatepost:off` (the whole post) | round 1, 4 |
+
+The AI STORY has rows for the new match log lines (`scripts/ai_story_lines.gd`, pt and es in
+`tools/i18n/49_spectator.txt`): the riders chased off a Rootmaw, the rush handing over to the Economy plan, the gate post
+turning to an enemy inside the wall.
+
+Tests changed: `tools/test_ai_optimal.gd` (the Powder Mill behind the raid may come after the second hall: the riders ride
+at ~4:00 now that the labourers keep coming) and `tools/test_crown_build_order.gd` (against the Brood the rush is a raiding
+party, and its opening goes on to the Mill and the hall after it).
 
 ## 7. Numbers
 
