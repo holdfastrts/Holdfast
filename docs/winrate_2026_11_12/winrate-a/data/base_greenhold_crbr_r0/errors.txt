@@ -1,0 +1,2 @@
+2 error lines
+    2  SCRIPT ERROR: Left operand of 'is' is a previously freed instance.  at: Unit._pick_pistol (res://scripts/unit.gd:966)
