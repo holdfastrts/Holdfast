@@ -364,7 +364,7 @@ func _nb_observe(q: Unit) -> void:
 				riders_out += 1
 			if _in_my_land(q, u.position):
 				riders_land += 1
-		if u.position.distance_to(q.position) < 24.0 * Defs.TILE:
+		if u.position.distance_to(_qp(q)) < 24.0 * Defs.TILE:
 			home += v
 			if not is_rider(u) and u.kind != "dismounted":
 				home_foot += v          # (an Officer is a Horseman off his horse: the riders' business, not a rush)
@@ -611,7 +611,7 @@ func _rider_short() -> bool:
 
 ## In its land: near its Mother, one of its rooted Rootmaws or one of its grubs.
 func _in_my_land(q: Unit, p: Vector2) -> bool:
-	if q != null and p.distance_to(q.position) < HOME_R * Defs.TILE:
+	if q != null and p.distance_to(_qp(q)) < HOME_R * Defs.TILE:
 		return true
 	for u in game.units_near(p, RIDER_LAND_R * Defs.TILE):
 		if u.team == team and not u.dead and (u.kind == "grub" or (u.kind == BroodNew.MAW and BroodNew.rooted(u))):
@@ -688,11 +688,11 @@ func _nb_defend_riders(q: Unit, army: Array, group: Array) -> bool:
 		if u.team == team and not u.dead and u.kind == BroodNew.MAW and BroodNew.rooted(u) \
 				and u.position.distance_to(at) < site.position.distance_to(at):
 			site = u
-	var guard: Vector2 = q.position + (at - q.position).normalized() * (BroodNew.drawn_r(q) + 40.0)
+	var guard: Vector2 = _qp(q) + (at - _qp(q)).normalized() * (BroodNew.drawn_r(q) + 40.0)
 	if site != q and _fight_wins(avail, group, 0.4):
 		guard = site.position + (at - site.position).normalized() * (site.radius + 30.0)
 	if not _nb_on_map(guard) or not game._walkable(game.cell_of(guard)):
-		guard = q.position + Vector2(0, BroodNew.drawn_r(q) + 40.0)
+		guard = _qp(q) + game.sym_dir(team, Vector2(0, BroodNew.drawn_r(q) + 40.0))
 	_rider_guard = guard
 	_rally = guard
 	# (strong: worth 2.5 times the riders or more: it pushes them off its land, a wider reach and leash: two riders kited a
@@ -725,13 +725,13 @@ func _nb_defend_riders(q: Unit, army: Array, group: Array) -> bool:
 	if game.clock - _rider_def_t > 20.0:
 		_rider_def_t = game.clock
 		say("guards its grubs with %d (%d) against %d riders at %s: no chase past %d tiles" % [avail.size(), int(_value_of(avail)), group.filter(func(o) -> bool: return is_rider(o)).size(),
-			"the Mother" if site == q or guard.distance_to(q.position) < 6.0 * Defs.TILE else "its %s" % String(Defs.UNITS[site.kind]["name"]), int(RIDER_LEASH)])
+			"the Mother" if site == q or guard.distance_to(_qp(q)) < 6.0 * Defs.TILE else "its %s" % String(Defs.UNITS[site.kind]["name"]), int(RIDER_LEASH)])
 	return true
 
 
 ## Every enemy fighter near the Mother (13 tiles) is a rider or an Officer.
 func _riders_only_near(q: Unit) -> bool:
-	for u in game.units_near(q.position, 13.0 * Defs.TILE):
+	for u in game.units_near(_qp(q), 13.0 * Defs.TILE):
 		if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_worker() \
 				and not is_rider(u) and u.kind != "dismounted":
 			return false
@@ -817,9 +817,9 @@ func _nb_scout(q: Unit) -> void:
 		if pick == null:
 			return
 		var st := (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE
-		var toward := (q.position - st).normalized()
+		var toward := (_qp(q) - st).normalized()
 		_scout_pts = [st + toward * 9.0 * Defs.TILE, st, st + toward.orthogonal() * 7.0 * Defs.TILE, st - toward * 6.0 * Defs.TILE,
-			st - toward.orthogonal() * 7.0 * Defs.TILE, q.position]
+			st - toward.orthogonal() * 7.0 * Defs.TILE, _qp(q)]
 		_scout_i = 0
 		_scout = pick
 		_scout_trips += 1
@@ -830,9 +830,9 @@ func _nb_scout(q: Unit) -> void:
 	# on the road: next point; home after the loop, after 100 s, or when hurt by soldiers
 	var hurt := _scout.hp < _scout.max_hp * 0.6
 	if hurt or game.clock - _scout_t0 > 100.0 or _scout_i >= _scout_pts.size():
-		if _scout.position.distance_to(q.position) > 10.0 * Defs.TILE:
-			if _scout.order != "move" or _scout.path_goal.distance_to(q.position) > 200.0:
-				_scout.cmd_move(q.position)
+		if _scout.position.distance_to(_qp(q)) > 10.0 * Defs.TILE:
+			if _scout.order != "move" or _scout.path_goal.distance_to(_qp(q)) > 200.0:
+				_scout.cmd_move(_qp(q))
 			return
 		_scout.remove_meta("ai_scout")
 		_scout.cmd_stop()        # (home: back to work; WORK finds a grub a Rootmaw)
@@ -936,11 +936,11 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 			# (brood-anti-riders: the first watcher walks up into its main once on the way, while its ramp is still open: a
 			# Horse Breeder and no Powder Mill there is the rider rush, read a minute and more before the riders come)
 			if _watch_n == 1:
-				var tw := (q.position - st).normalized()
+				var tw := (_qp(q) - st).normalized()
 				_peek_pts = [st, st + tw.orthogonal() * 6.0 * Defs.TILE, st - tw * 5.0 * Defs.TILE, st - tw.orthogonal() * 6.0 * Defs.TILE]
 				_watch_peek = true
 		else:
-			var toward := (q.position - st).normalized()
+			var toward := (_qp(q) - st).normalized()
 			_scout_pts = [st + toward * 8.0 * Defs.TILE, st + toward.orthogonal() * 7.0 * Defs.TILE, st - toward * 6.0 * Defs.TILE,
 				st - toward.orthogonal() * 7.0 * Defs.TILE, st]
 		pick.auto_work = false
@@ -960,11 +960,11 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 			if _scout.hp < _scout.max_hp * 0.7:
 				_watch_peek = false
 				_watch_back = Vector2.INF
-				_scout.cmd_move(q.position)
+				_scout.cmd_move(_qp(q))
 			else:
 				# (brood-anti-riders: not hurt, it backs off a little and comes back to its watch: going home it left the
 				# foot of the ramp empty for a minute and more, and the riders left unseen)
-				_watch_back = _scout.position + (q.position - _scout.position).normalized() * 10.0 * Defs.TILE
+				_watch_back = _scout.position + (_qp(q) - _scout.position).normalized() * 10.0 * Defs.TILE
 				_watch_back_t = game.clock
 				_scout.cmd_move(_watch_back)
 			return
@@ -978,7 +978,7 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 		if _scout.hp < _scout.max_hp * 0.7:
 			_watch_back = Vector2.INF
 			_watch_peek = false
-			_scout.cmd_move(q.position)
+			_scout.cmd_move(_qp(q))
 		elif not threat and game.clock - _watch_back_t > 5.0:
 			_watch_back = Vector2.INF
 			_watch_flee = false
@@ -986,17 +986,17 @@ func _nb_watch_scout(q: Unit, foe: int) -> void:
 		elif threat and (_scout.position.distance_to(_watch_back) < 1.5 * Defs.TILE or _scout.order == "idle"):
 			_watch_back = Vector2.INF          # (still hunted there: home)
 			_watch_peek = false
-			_scout.cmd_move(q.position)
+			_scout.cmd_move(_qp(q))
 		return
 	else:
-		if _scout.position.distance_to(q.position) < 10.0 * Defs.TILE or _scout.order == "idle":
+		if _scout.position.distance_to(_qp(q)) < 10.0 * Defs.TILE or _scout.order == "idle":
 			_scout.auto_work = true
 			_scout.cmd_stop()          # (home: back to work)
 			_scout = null
 			_watch_flee = false
 			_watch_next = game.clock + (20.0 if _foe_is("crown") and game.clock < RIDER_READ_BY and rider_read_t < 0.0 else WATCH_GAP)      # (brood-anti-riders: home unhurt before the riders are read: the next goes soon; Dune Sea, the foot was empty from 3:00 to 4:00 and the riders left at 3:37 unseen)
 		elif _scout.order != "move":
-			_scout.cmd_move(q.position)
+			_scout.cmd_move(_qp(q))
 		return
 	# on watch: to and fro (the Crown's ramp foot), or round its main
 	if _watch_peek:
@@ -1040,7 +1040,7 @@ func _find_foe_foot(foe: int, q: Unit) -> void:
 				if not game.in_map(f) or int(game.height[game.idx(f)]) == h0:
 					continue
 				var fp := (Vector2(f) + Vector2(0.5, 0.5)) * Defs.TILE
-				var d := fp.distance_to(q.position)
+				var d := fp.distance_to(_qp(q))
 				if d < bd:
 					bd = d
 					best = fp
@@ -1067,12 +1067,12 @@ func _nb_alarm(q: Unit) -> void:
 		if u.order != "gather" or u == _scout or _pulled.has(u):
 			continue
 		var m = u.home_mine
-		if m == null or not is_instance_valid(m) or (m as Unit).position.distance_to(q.position) < 14.0 * Defs.TILE:
+		if m == null or not is_instance_valid(m) or (m as Unit).position.distance_to(_qp(q)) < 14.0 * Defs.TILE:
 			continue
 		if _foe_near((m as Unit).position, 9.0 * Defs.TILE) or _foe_near(u.position, 6.0 * Defs.TILE):
 			_pulled[u] = [m, game.clock]
 			u.auto_work = false
-			u.cmd_move(q.position)
+			u.cmd_move(_qp(q))
 	# (pulled grubs go back to work: _nb_pull_back)
 	# a turtle in front of the natural
 	if _front_t != null and (not is_instance_valid(_front_t) or _front_t.dead):
@@ -1107,7 +1107,7 @@ func _nb_alarm(q: Unit) -> void:
 	var pick: Unit = null
 	var kept := 0
 	for t in _nb_mine(BroodNew.TURTLE):
-		if BroodNew.rooted(t) and t.position.distance_to(q.position) < far and not held.has(t) \
+		if BroodNew.rooted(t) and t.position.distance_to(_qp(q)) < far and not held.has(t) \
 				and (pick == null or t.position.distance_to(spot) < pick.position.distance_to(spot)):
 			# (brood-layout, the owner's Thornwood log 2026-11-04 3:23-3:42: never a turtle whose swamp is the only swamp
 			# of live rooted Rootmaws: they would go dry and uproot; unless it is dying anyway)
@@ -1138,7 +1138,7 @@ var _gang_t := -99.0
 func _nb_grubs_vs_riders(q: Unit) -> void:
 	_nb_pull_back(q)
 	var riders: Array = []
-	for u in game.units_near(q.position, (HOME_R + 14.0) * Defs.TILE):
+	for u in game.units_near(_qp(q), (HOME_R + 14.0) * Defs.TILE):
 		if game.hostile(u.team, team) and not u.dead and not u.off_field and is_rider(u) and game.is_visible_to(team, u.position):
 			riders.append(u)
 	if riders.is_empty():
@@ -1150,7 +1150,7 @@ func _nb_grubs_vs_riders(q: Unit) -> void:
 	var flee_r := (RIDER_FLEE if raid else RIDER_R) * Defs.TILE
 	var guard_v := 0.0
 	for u in _nb_army_units():
-		if u.position.distance_to(q.position) < 18.0 * Defs.TILE and u.moult_t < 0.0 and u.kind != "hatchlings":
+		if u.position.distance_to(_qp(q)) < 18.0 * Defs.TILE and u.moult_t < 0.0 and u.kind != "hatchlings":
 			guard_v += float(Game.unit_value(u))
 	for r in riders:
 		var near: Array = []
@@ -1167,7 +1167,7 @@ func _nb_grubs_vs_riders(q: Unit) -> void:
 						near.append(u)
 		if raid and guard_v >= 200.0:
 			# (grubs working by the warriors' guard are covered: only a rider right at them makes them run)
-			var gp: Vector2 = _rider_guard if _rider_guard != Vector2.INF else q.position
+			var gp: Vector2 = _rider_guard if _rider_guard != Vector2.INF else _qp(q)
 			near = near.filter(func(u: Unit) -> bool: return u.position.distance_to(r.position) < RIDER_R * Defs.TILE \
 				or u.position.distance_to(gp) > 10.0 * Defs.TILE)
 		if near.is_empty():
@@ -1205,16 +1205,16 @@ func _nb_grubs_vs_riders(q: Unit) -> void:
 ## else the nearest of its warriors in a group, a rooted Mound Turtle or the Mother, not past the rider.
 func _nb_safe_for_grubs(q: Unit, from: Vector2) -> Vector2:
 	if _riders_on():
-		var g2 := _rider_guard if _rider_guard != Vector2.INF and _rider_guard.distance_to(from) > 4.0 * Defs.TILE else q.position
+		var g2 := _rider_guard if _rider_guard != Vector2.INF and _rider_guard.distance_to(from) > 4.0 * Defs.TILE else _qp(q)
 		var nearby := 0
 		for u in game.units_near(g2, 6.0 * Defs.TILE):
 			if u.team == team and not u.dead and not u.is_worker() and u.has_attack() and not u._k_nb:
 				nearby += 1
-		if nearby >= 3 or g2 == q.position:
+		if nearby >= 3 or g2 == _qp(q):
 			return g2
-		return q.position
-	var best: Vector2 = q.position
-	var bd := q.position.distance_to(from) * 1.3
+		return _qp(q)
+	var best: Vector2 = _qp(q)
+	var bd := _qp(q).distance_to(from) * 1.3
 	for u in game.units_near(from, 16.0 * Defs.TILE):
 		if u.team != team or u.dead:
 			continue
@@ -1273,7 +1273,7 @@ func _front_may_root_here() -> bool:
 func _nb_front_spot(q: Unit):
 	var nat: Unit = null
 	for u in BroodNew.expansions(game, q):
-		if nat == null or u.position.distance_to(q.position) < nat.position.distance_to(q.position):
+		if nat == null or u.position.distance_to(_qp(q)) < nat.position.distance_to(_qp(q)):
 			nat = u
 	if nat == null:
 		return null
@@ -1318,7 +1318,7 @@ func _nb_mother_up(q: Unit) -> String:
 	var at := 0.0
 	var strikes := false
 	var riders_at := true            # (only riders at her)
-	for u in game.units_near(q.position, 14.0 * Defs.TILE):
+	for u in game.units_near(_qp(q), 14.0 * Defs.TILE):
 		if not game.hostile(u.team, team) or u.dead or u.off_field or u.is_air() or not u.has_attack():
 			continue
 		if q.edge_distance(u.position) > 8.0 * Defs.TILE and u.target != q:
@@ -1336,13 +1336,13 @@ func _nb_mother_up(q: Unit) -> String:
 	var mine := 0.0
 	var fighting := false
 	for u in _nb_army_units():
-		if u.position.distance_to(q.position) < 14.0 * Defs.TILE:
+		if u.position.distance_to(_qp(q)) < 14.0 * Defs.TILE:
 			mine += float(Game.unit_value(u))
 			if is_instance_valid(u.target) and not u.target.dead:
 				fighting = true
 	for fk in BroodNew.FATHERS:
 		var f := BroodNew.father(game, team, fk)
-		if f and f.tesla_mode == "packed" and is_instance_valid(f.target) and f.position.distance_to(q.position) < 14.0 * Defs.TILE:
+		if f and f.tesla_mode == "packed" and is_instance_valid(f.target) and f.position.distance_to(_qp(q)) < 14.0 * Defs.TILE:
 			fighting = true
 			mine += float(Game.unit_value(f))
 	if riders_at and mine >= at * 0.5:
@@ -1414,10 +1414,10 @@ func _nb_far_have(q: Unit) -> int:
 	var n := 0
 	var far := float(Defs.NB["expansion_tiles"]) * Defs.TILE
 	for u in game.units:
-		if u.team == team and not u.dead and u.kind == BroodNew.TURTLE and u.position.distance_to(q.position) >= far * 0.9:
+		if u.team == team and not u.dead and u.kind == BroodNew.TURTLE and u.position.distance_to(_qp(q)) >= far * 0.9:
 			n += 1
 		elif u.team == team and not u.dead and u.kind == "grub" and u.order == "nb_morph" and String(u.nb.get("mk", "")) == BroodNew.TURTLE \
-				and u.order_point.distance_to(q.position) >= far * 0.9:
+				and u.order_point.distance_to(_qp(q)) >= far * 0.9:
 			n += 1
 	return n
 
@@ -1507,10 +1507,10 @@ func _nb_morphs_go(q: Unit) -> void:
 		best.give({"o": "nb_morph", "k": k, "p": spot})      # (it pays at once: BroodRoot.start_morph)
 		if BroodNew.is_father(k):
 			say("a grub goes to grow the %s" % BroodRoot.lure_name(k))
-		elif k == BroodNew.TURTLE and (spot as Vector2).distance_to(q.position) >= float(Defs.NB["expansion_tiles"]) * Defs.TILE * 0.9:
+		elif k == BroodNew.TURTLE and (spot as Vector2).distance_to(_qp(q)) >= float(Defs.NB["expansion_tiles"]) * Defs.TILE * 0.9:
 			_far_sent[str((spot as Vector2).round())] = game.clock
 			_far_last = game.clock
-			say("a grub goes to root a Mound Turtle on new ground, %d tiles out" % int((spot as Vector2).distance_to(q.position) / Defs.TILE))
+			say("a grub goes to root a Mound Turtle on new ground, %d tiles out" % int((spot as Vector2).distance_to(_qp(q)) / Defs.TILE))
 
 
 ## Room for one more Rootmaw (0.24.7: its 8-tile circles leave 2 or 3 round her and one round each turtle; with none
@@ -1543,7 +1543,7 @@ func _nb_far_spots(q: Unit, reach := 0.0) -> Array:
 			continue
 		if game.clock - float(_far_sent.get(str(p.round()), -999.0)) < 180.0:
 			continue          # (tried lately: the grub did not get there)
-		if p.distance_to(q.position) > (reach if reach > 0.0 else (28.0 if _eco() and not BroodNew.expansions(game, q).is_empty() else 30.0)) * Defs.TILE:
+		if p.distance_to(_qp(q)) > (reach if reach > 0.0 else (28.0 if _eco() and not BroodNew.expansions(game, q).is_empty() else 30.0)) * Defs.TILE:
 			continue          # (too far to guard: near the enemy's side)
 		if _foe_near(p, 12.0 * Defs.TILE):
 			continue
@@ -1569,7 +1569,7 @@ func _nb_eco_sites(q: Unit) -> Array:
 	var out: Array = []
 	for s in es.nb_cands.get(team, []):
 		var feet := BroodRoot.feet_at(BroodNew.TURTLE, s["tc"])
-		if q.position.distance_to(feet) < far or counted.any(func(o: Unit) -> bool: return o.position.distance_to(feet) < far):
+		if _qp(q).distance_to(feet) < far or counted.any(func(o: Unit) -> bool: return o.position.distance_to(feet) < far):
 			continue
 		var taken := false
 		for u in game.units_near(feet, 7.0 * Defs.TILE):
@@ -1639,7 +1639,7 @@ func _nb_turtle_spot(q: Unit, me: Unit):
 
 
 func _nb_turtle_spot_go(q: Unit, me: Unit):
-	var home := BroodRoot.home_region(game, q.position)
+	var home := BroodRoot.home_region(game, _qp(q))
 	# (start-spots-fix: the ring is laid in this side's first-start frame, as the first start always laid it, and each spot
 	# mirrored back: BroodRoot.feet_k / sym_snap)
 	var qk := BroodRoot.feet_k(game, team, q)
@@ -1681,7 +1681,7 @@ func _nb_supply_turtle_spot_go(q: Unit, me: Unit):
 	for t in _nb_mine(BroodNew.TURTLE):
 		if t != me and BroodNew.rooted(t):
 			centres.append(BroodRoot.feet_k(game, team, t))
-	var qreg := game.region_of(game.cell_of(q.position))
+	var qreg := game.region_of(game.cell_of(_qp(q)))
 	var qk := BroodRoot.feet_k(game, team, q)
 	var best = null
 	var bs := INF
@@ -1709,7 +1709,7 @@ func _nb_supply_turtle_spot_go(q: Unit, me: Unit):
 				if ok:
 					bs = s
 					best = p
-		if best != null and cpos == q.position:
+		if best != null and cpos == _qp(q):
 			break          # (round the Mother found one: the nearest is good enough)
 	return best
 
@@ -1717,7 +1717,7 @@ func _nb_supply_turtle_spot_go(q: Unit, me: Unit):
 ## A father's nest: beside the Mother, three quarters of his reach out (clear of her nest and of the other fathers'),
 ## the spot nearest him.
 func _nb_father_spot(q: Unit, me: Unit, k: String = BroodNew.FATHER):
-	var home := BroodRoot.home_region(game, q.position)
+	var home := BroodRoot.home_region(game, _qp(q))
 	var reach := float(Defs.NB["father_r"]) * Defs.TILE
 	var qk := BroodRoot.feet_k(game, team, q)        # (start-spots-fix: in this side's first-start frame, mirrored back)
 	var from: Vector2 = BroodRoot.feet_k(game, team, me) if me != null else qk + Vector2(0, reach)
@@ -1927,10 +1927,10 @@ func _nb_find_spot(q: Unit, m: Unit):
 func _nb_find_spot_go(q: Unit, m: Unit):
 	# (start-spots-fix: the rings are laid in this side's first-start frame, as the first start always laid them, and each
 	# spot mirrored back: BroodRoot.feet_k / sym_snap)
-	var centres: Array = [[q.position, [8.0, 11.0, 14.0, 17.0, 20.0], BroodRoot.feet_k(game, team, q)]]
+	var centres: Array = [[_qp(q), [8.0, 11.0, 14.0, 17.0, 20.0], BroodRoot.feet_k(game, team, q)]]
 	var far := float(Defs.NB["expansion_tiles"]) * Defs.TILE * 0.9
 	for t in _nb_mine(BroodNew.TURTLE):
-		if BroodNew.rooted(t) and t.position.distance_to(q.position) >= far:
+		if BroodNew.rooted(t) and t.position.distance_to(_qp(q)) >= far:
 			centres.append([t.position, [4.5, 6.0, 7.5, 8.5], BroodRoot.feet_k(game, team, t)])
 	var qk := BroodRoot.feet_k(game, team, q)
 	var from: Vector2 = BroodRoot.feet_k(game, team, m) if m != null else qk
@@ -2016,7 +2016,7 @@ func _nb_father(q: Unit) -> void:
 func _nb_one_father(q: Unit, f: Unit) -> void:
 	if f in _wave or BroodRoot.in_cocoon(f) or _def.has(f):
 		return          # (in the defence squad: _nb_defend gets him up and sends him; he roots again after)
-	var d := f.position.distance_to(q.position)
+	var d := f.position.distance_to(_qp(q))
 	var reach := float(Defs.NB["father_r"]) * Defs.TILE
 	var threat := _nb_threat(q) != Vector2.INF
 	if f.tesla_mode == "deployed":
@@ -2028,7 +2028,7 @@ func _nb_one_father(q: Unit, f: Unit) -> void:
 	if f.tesla_mode == "packed" and d > 14.0 * Defs.TILE and f.order != "move" and f.order != "nb_root":
 		# (on a leash: an enemy he chased off from her could lead him across the map, and while he is away her
 		# warrior eggs wait for him; seen in a 0.18.0 match, the Tyrannosaur 62 tiles off with 1,600 food banked)
-		f.cmd_move(q.position)
+		f.cmd_move(_qp(q))
 		return
 	if f.tesla_mode == "packed" and f.target != null and not _nb_sires_needed(q):
 		f.cmd_stop()          # (a fight he picked up by himself, nothing at the Mother: back to his nest)
@@ -2038,7 +2038,7 @@ func _nb_one_father(q: Unit, f: Unit) -> void:
 	if spot != null:
 		_root_to(f, spot)
 	elif d > 14.0 * Defs.TILE and f.order != "move":
-		f.cmd_move(q.position)       # (on a leash: by her, never off after a scout)
+		f.cmd_move(_qp(q))       # (on a leash: by her, never off after a scout)
 
 
 # ------------------------------------------------------------------ eggs
@@ -2209,7 +2209,7 @@ func _nb_feed_raptors(q: Unit) -> bool:
 	var short := _nb_spoils_want(q) - _spoils()
 	if short <= 0.0:
 		return false
-	var spare := _nb_mine("raptor").filter(func(u: Unit) -> bool: return u.position.distance_to(q.position) < 16.0 * Defs.TILE \
+	var spare := _nb_mine("raptor").filter(func(u: Unit) -> bool: return u.position.distance_to(_qp(q)) < 16.0 * Defs.TILE \
 		and not _wave.has(u)).size() - maxi(2, int(plan["home_guard"]))
 	return float(spare) * float(Game.sacrifice_value("raptor")) < short
 
@@ -2218,7 +2218,7 @@ func _nb_essence(q: Unit) -> void:
 	var want := _nb_spoils_want(q)
 	var have := _spoils()
 	var grubs := _nb_mine("grub")
-	var bodies := game.corpses.filter(func(c) -> bool: return is_instance_valid(c) and c.position.distance_to(q.position) < 22.0 * Defs.TILE)
+	var bodies := game.corpses.filter(func(c) -> bool: return is_instance_valid(c) and c.position.distance_to(_qp(q)) < 22.0 * Defs.TILE)
 	var harvesting := grubs.filter(func(u: Unit) -> bool: return u.order == "harvest")
 	if not bodies.is_empty() and _nb_threat(q) == Vector2.INF:
 		for u in grubs:
@@ -2234,7 +2234,7 @@ func _nb_essence(q: Unit) -> void:
 	if have >= want or game.clock < _nb_offer_t or _nb_threat(q) != Vector2.INF or _rush_on() \
 			or (int(plan["grubs0"]) > 0 and not _first_out):          # (a rush keeps every Raptor for its first wave)
 		return
-	var raptors := _nb_mine("raptor").filter(func(u: Unit) -> bool: return u.position.distance_to(q.position) < 16.0 * Defs.TILE \
+	var raptors := _nb_mine("raptor").filter(func(u: Unit) -> bool: return u.position.distance_to(_qp(q)) < 16.0 * Defs.TILE \
 		and u.target == null and u.order != "sacrifice" and not _wave.has(u) and u != _scout)      # (at home, not fighting)
 	if raptors.size() <= maxi(2, int(plan["home_guard"])):
 		return
@@ -2405,7 +2405,7 @@ func _nb_mature(q: Unit) -> void:
 			if n >= each or (grown * 2 >= young.size() + grown and not all_up):
 				break
 			if u.moult_t >= 0.0 or (u.target != null and is_instance_valid(u.target)) or in_wave(u) or u == _scout \
-					or u.position.distance_to(q.position) > 22.0 * Defs.TILE:
+					or u.position.distance_to(_qp(q)) > 22.0 * Defs.TILE:
 				continue
 			var p := BroodMature.price(game, team, u.kind)
 			if _food() - int(p[0]) < MATURE_KEEP + _morph_keep or _spoils() - float(p[1]) < _nb_spoils_keep(q) or BroodMature.problem(u) != "":
@@ -2518,7 +2518,7 @@ func _value_of(list: Array) -> float:
 
 ## An enemy near the Mother (13 tiles), or Vector2.INF.
 func _nb_threat(q: Unit) -> Vector2:
-	for u in game.units_near(q.position, 13.0 * Defs.TILE):
+	for u in game.units_near(_qp(q), 13.0 * Defs.TILE):
 		if game.hostile(u.team, team) and not u.dead and not u.off_field:
 			return u.position
 	return Vector2.INF
@@ -2527,7 +2527,7 @@ func _nb_threat(q: Unit) -> Vector2:
 ## The attack at her is more than a scout or a lone rider (its Sires get up for it).
 func _nb_threat_big(q: Unit) -> bool:
 	var v := 0.0
-	for u in game.units_near(q.position, 14.0 * Defs.TILE):
+	for u in game.units_near(_qp(q), 14.0 * Defs.TILE):
 		if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_worker():
 			v += float(Game.unit_value(u))
 	return v >= 120.0
@@ -2540,7 +2540,7 @@ func _nb_sires_needed(q: Unit) -> bool:
 	if not _nb_threat_big(q):
 		return false
 	var v := 0.0
-	for u in game.units_near(q.position, 14.0 * Defs.TILE):
+	for u in game.units_near(_qp(q), 14.0 * Defs.TILE):
 		if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_worker() and not is_rider(u):
 			v += float(Game.unit_value(u))
 	return v >= 120.0 and _foe_near_home > _value_of(_nb_army_units()) * 0.8
@@ -2554,27 +2554,27 @@ func _nb_stage_point(q: Unit) -> Vector2:
 		# (brood-anti-riders: riders about: the army waits by the grubs, where the riders hunt, not out at the natural)
 		if _rider_guard != Vector2.INF and game.clock - _rider_land_t < RIDER_CALM:
 			return _rider_guard
-		var to: Vector2 = (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE if foe >= 0 else q.position + Vector2(0, 1)
-		var gp: Vector2 = q.position + (to - q.position).normalized() * (BroodNew.drawn_r(q) + 60.0)
+		var to: Vector2 = (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE if foe >= 0 else _qp(q) + game.sym_dir(team, Vector2(0, 1))
+		var gp: Vector2 = _qp(q) + (to - _qp(q)).normalized() * (BroodNew.drawn_r(q) + 60.0)
 		if _nb_on_map(gp) and game._walkable(game.cell_of(gp)):
 			return gp
 	if _eco() and _alarm_on() and not _attacking:
 		# (the alarm: the army waits at the natural, where an attack lands first, a little toward where it was seen)
 		var nat: Unit = null
 		for u in BroodNew.expansions(game, q):
-			if nat == null or u.position.distance_to(q.position) < nat.position.distance_to(q.position):
+			if nat == null or u.position.distance_to(_qp(q)) < nat.position.distance_to(_qp(q)):
 				nat = u
 		if nat != null:
 			var p: Vector2 = nat.position + (alarm_at - nat.position).normalized() * 3.0 * Defs.TILE
 			if _nb_on_map(p) and game._walkable(game.cell_of(p)):
 				return p
-			return nat.position + Vector2(0, nat.radius + 40.0)
-	var tgt: Vector2 = q.position + Vector2(0, BroodNew.drawn_r(q) + 110.0)
+			return BroodRoot.anchor(game, nat) + game.sym_dir(team, Vector2(0, nat.radius + 40.0))
+	var tgt: Vector2 = _qp(q) + game.sym_dir(team, Vector2(0, BroodNew.drawn_r(q) + 110.0))
 	if foe >= 0:
 		var st := (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE
-		var p: Vector2 = q.position + (st - q.position).normalized() * 9.0 * Defs.TILE
+		var p: Vector2 = _qp(q) + (st - _qp(q)).normalized() * 9.0 * Defs.TILE
 		var c := game.cell_of(p)
-		if _nb_on_map(p) and game._walkable(c) and game.region_of(c) == BroodRoot.home_region(game, q.position):
+		if _nb_on_map(p) and game._walkable(c) and game.region_of(c) == BroodRoot.home_region(game, _qp(q)):
 			tgt = p
 	return tgt
 
@@ -2585,12 +2585,12 @@ func _nb_wave_goal(q: Unit) -> Vector2:
 	if foe < 0:
 		return Vector2.INF
 	var best := (Vector2(game.starts[foe]) + Vector2(2.5, 2.0)) * Defs.TILE
-	var bd := best.distance_to(q.position)
+	var bd := best.distance_to(_qp(q))
 	for b in _foe_blds:
 		if is_instance_valid(b) and not b.dead and b.team == foe and not (b.kind in ["wall", "gate", "palisade", "tower"]):
 			# (not a wall piece: claws on a wall under musket fire was round 3's costliest mistake; a hall, a farm, an
 			# expansion: the army goes round to them and fights what comes out)
-			var d: float = (_foe_blds[b] as Vector2).distance_to(q.position)
+			var d: float = (_foe_blds[b] as Vector2).distance_to(_qp(q))
 			if d < bd:
 				bd = d
 				best = _foe_blds[b]
@@ -3071,7 +3071,7 @@ func _kinds_of(list: Array) -> String:
 ## The ground the Mother roots on at home (her footprint at her stage, one tile round it): a Sire never nests there,
 ## even while she is up fighting, or she could not root again when it is calm.
 func _nb_mother_ground(q: Unit) -> Rect2:
-	var home: Vector2 = _q_guard.get("home", q.position)
+	var home: Vector2 = _q_guard.get("home", _qp(q))
 	return BroodRoot.rect_for(BroodNew.QUEEN, home, BroodRoot.scale_of(q)).grow(Defs.TILE)
 
 
@@ -3109,18 +3109,18 @@ func _def_on() -> bool:
 
 ## The enemies at home its creatures see (fighters only; flyers only when it has Hatchlings to hit them).
 func _nb_home_foes(q: Unit) -> Array:
-	var sites: Array = [q.position]
+	var sites: Array = [_qp(q)]
 	for u in game.units:
 		if u.team == team and not u.dead and BroodNew.ROOTERS.has(u.kind) and BroodNew.rooted(u) and u != q:
 			sites.append(u.position)
 	var anti_air := BroodNew.count_of(game, team, "hatchlings") > 0
 	var out: Array = []
-	for u in game.units_near(q.position, (HOME_R + 40.0) * Defs.TILE):
+	for u in game.units_near(_qp(q), (HOME_R + 40.0) * Defs.TILE):
 		if u.dead or u.off_field or u.team < 0 or not game.hostile(u.team, team) or not u.has_attack() or u.is_worker():
 			continue
 		if u.kind == BroodNew.EGG or (u.is_air() and not anti_air) or not game.is_visible_to(team, u.position):
 			continue
-		if u.position.distance_to(q.position) < HOME_R * Defs.TILE:
+		if u.position.distance_to(_qp(q)) < HOME_R * Defs.TILE:
 			out.append(u)
 			continue
 		for s in sites:
@@ -3134,7 +3134,7 @@ func _nb_home_foes(q: Unit) -> Array:
 func _nb_cluster(q: Unit, foes: Array) -> Array:
 	var first: Unit = null
 	for u in foes:
-		if first == null or u.position.distance_to(q.position) < first.position.distance_to(q.position):
+		if first == null or u.position.distance_to(_qp(q)) < first.position.distance_to(_qp(q)):
 			first = u
 	if first == null:
 		return []
@@ -3200,7 +3200,7 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 		return _nb_defend_riders(q, army, group)          # (brood-anti-riders: mostly riders: guard the grubs, no chase)
 	var at := _mid(group)
 	var e := _value_of(group)
-	var at_mother := at.distance_to(q.position) < 14.0 * Defs.TILE
+	var at_mother := at.distance_to(_qp(q)) < 14.0 * Defs.TILE
 	var air := group.any(func(f) -> bool: return (f as Unit).is_air())
 	var avail := army.filter(func(u: Unit) -> bool: return u.moult_t < 0.0 and not held.has(u) and (u.kind != "hatchlings" or air))
 	if _def_on():
@@ -3212,7 +3212,7 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 		for u in avail:
 			if _def.has(u):
 				continue
-			if u.position.distance_to(at) < JOIN_R * Defs.TILE or (at_mother and u.position.distance_to(q.position) < 16.0 * Defs.TILE):
+			if u.position.distance_to(at) < JOIN_R * Defs.TILE or (at_mother and u.position.distance_to(_qp(q)) < 16.0 * Defs.TILE):
 				join.append(u)
 			elif u.position.distance_to(_rally) < 9.0 * Defs.TILE:
 				at_rally.append(u)
@@ -3233,11 +3233,11 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 			if not _sire_out.has(su):
 				_sire_out[su] = game.clock
 			var riders_only := group.all(func(o) -> bool: return is_rider(o))
-			if riders_only or su.position.distance_to(q.position) > SIRE_LEASH * Defs.TILE or game.clock - float(_sire_out[su]) > SIRE_OUT:
+			if riders_only or su.position.distance_to(_qp(q)) > SIRE_LEASH * Defs.TILE or game.clock - float(_sire_out[su]) > SIRE_OUT:
 				_def.erase(su)
 				_sire_out.erase(su)
 				_sire_home_t[su] = game.clock
-				su.cmd_move(q.position)          # (_nb_one_father roots him on his nest again)
+				su.cmd_move(_qp(q))          # (_nb_one_father roots him on his nest again)
 				say("the %s goes back to his nest (%s)" % [String(Defs.UNITS[su.kind]["name"]), "only riders left" if riders_only else "too far from her"])
 		# losing it away from the Mother: back to her (a lost fight is lost ground, not the army)
 		if not at_mother and not _fight_wins(_def, group, 1.0) and not _fight_wins(avail, group, 1.0):
@@ -3249,7 +3249,7 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 			var cu := u as Unit
 			if cu.tesla_mode == "deployed":
 				continue
-			var far: bool = cu.position.distance_to(at) > DEF_LEASH * Defs.TILE and cu.position.distance_to(q.position) > HOME_R * Defs.TILE
+			var far: bool = cu.position.distance_to(at) > DEF_LEASH * Defs.TILE and cu.position.distance_to(_qp(q)) > HOME_R * Defs.TILE
 			if far or (cu.target == null and (cu.order == "idle" or cu.order == "hold" or cu.order == "move")):
 				cu.cmd_move(at, true)
 		return true
@@ -3262,7 +3262,7 @@ func _nb_defend(q: Unit, army: Array) -> bool:
 			if squad.size() >= 2 and _fight_wins(squad, group):
 				break
 		var all_riders := group.all(func(o) -> bool: return is_rider(o))
-		if not _fight_wins(squad, group) and at.distance_to(q.position) < 22.0 * Defs.TILE and not all_riders:
+		if not _fight_wins(squad, group) and at.distance_to(_qp(q)) < 22.0 * Defs.TILE and not all_riders:
 			var f := BroodNew.father(game, team, BroodNew.FATHER)
 			if f and not BroodRoot.in_cocoon(f) and not BroodResearch.busy(f) and not _wave.has(f) and game.clock - float(_sire_home_t.get(f, -999.0)) > 40.0:
 				squad.append(f)       # (the Tyrant Sire: 1,000 health, a terrible bite; he roots again after)
@@ -3301,10 +3301,10 @@ func in_defence(u: Unit) -> bool:
 
 ## The rally when an attack at home is too strong to meet: on the Mother's far side from it.
 func _nb_fallback(q: Unit, from: Vector2) -> Vector2:
-	var p: Vector2 = q.position + (q.position - from).normalized() * (BroodNew.drawn_r(q) + 70.0)
+	var p: Vector2 = _qp(q) + (_qp(q) - from).normalized() * (BroodNew.drawn_r(q) + 70.0)
 	if _nb_on_map(p) and game._walkable(game.cell_of(p)):
 		return p
-	return q.position + Vector2(0, BroodNew.drawn_r(q) + 70.0)
+	return _qp(q) + game.sym_dir(team, Vector2(0, BroodNew.drawn_r(q) + 70.0))
 
 
 func _nb_stand_down(_q: Unit) -> void:
@@ -3437,3 +3437,10 @@ func _maw_foes(m: Unit) -> Array:
 		if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_air() and not u.is_worker():
 			out.append(u)
 	return out
+
+
+## (start-spots-fix) The Mother's place for the computer's sums: her feet as the first start of its mirror set reads them,
+## carried back (BroodRoot.anchor; for that first start, her feet). Her footprint hangs from her feet ON SCREEN, so the plain
+## feet put a mirrored side's posts and rally points on the other side of her nest.
+func _qp(q: Unit) -> Vector2:
+	return BroodRoot.anchor(game, q)

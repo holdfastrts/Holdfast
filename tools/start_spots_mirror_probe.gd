@@ -5,7 +5,9 @@ extends SceneTree
 ## (Game.sym_pt); the first moment a pair stands apart (more than `tol` px, or a different job or load) is printed with
 ## both, then each side's income every 30 s and the ratio at 1:00 / 2:00 / 3:00. On a fair start the pairs move as one
 ## until the sides first meet (the scouts) and the incomes match.
-##   godot --headless --fixed-fps 30 --script res://tools/start_spots_mirror_probe.gd -- map:greenhold seed:2 fac:brood [end:180] [tol:4] [swap:1]
+## `diff:1`: also every 5 s what one side has that the other has not (buildings and rooted creatures by kind and place,
+## carried back through the mirror; units by kind and count), printed when it changes.
+##   godot --headless --fixed-fps 30 --script res://tools/start_spots_mirror_probe.gd -- map:greenhold seed:2 fac:brood [end:180] [tol:4] [swap:1] [diff:1]
 var main: Node
 var g: Game
 var map := "greenhold"
@@ -19,6 +21,9 @@ var next_look := 0.0
 var next_inc := 30.0
 var first_gap := ""
 var inc := {}
+var diff := false
+var next_diff := 0.0
+var last_diff := ""
 
 
 func _initialize() -> void:
@@ -33,6 +38,7 @@ func _initialize() -> void:
 			"end": end_t = float(kv[1])
 			"tol": tol = float(kv[1])
 			"swap": swap = kv[1] == "1"
+			"diff": diff = kv[1] == "1"
 	Settings.load_all()
 	Settings.device = "pc"
 	Settings.apply()
@@ -72,6 +78,27 @@ func _look() -> void:
 			return
 
 
+## What side tm has, carried into its first-start frame: places of buildings and rooted creatures, counts of the rest.
+func _snap(tm: int) -> Array:
+	var out: Array = []
+	var n := {}
+	for b in g.buildings:
+		if b.team == tm and not b.dead:
+			var c: Vector2 = g.sym_pt(tm, b.rect().get_center())
+			out.append("%s@%d,%d" % [b.kind, int(c.x / Game.T), int(c.y / Game.T)])
+	for u in g.units:
+		if u.team == tm and not u.dead:
+			if BroodRoot.has_fp(u):
+				var c2: Vector2 = g.sym_pt(tm, BroodRoot.rect_of(u).get_center())
+				out.append("%s@%d,%d" % [u.kind, int(c2.x / Game.T), int(c2.y / Game.T)])
+			else:
+				n[u.kind] = int(n.get(u.kind, 0)) + 1
+	for k in n:
+		out.append("%s x%d" % [k, n[k]])
+	out.sort()
+	return out
+
+
 func _process(delta: float) -> bool:
 	t += delta
 	if t > 0.2 and main.game == null:
@@ -90,6 +117,14 @@ func _process(delta: float) -> bool:
 		_look()
 		if first_gap != "":
 			print("MIRROR first gap at ", first_gap)
+	if diff and g.clock >= next_diff:
+		next_diff += 5.0
+		var a := _snap(0)
+		var b := _snap(1)
+		var line := "only side 0 %s | only side 1 %s" % [str(a.filter(func(x): return not b.has(x))), str(b.filter(func(x): return not a.has(x)))]
+		if line != last_diff:
+			print("MIRROR %5.0f s %s" % [g.clock, line])
+			last_diff = line
 	if g.clock >= next_inc:
 		var ia := int(g.stats[0]["gold"])
 		var ib := int(g.stats[1]["gold"])
