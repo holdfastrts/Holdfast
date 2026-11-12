@@ -205,4 +205,23 @@ func _run() -> void:
 	CampaignMenu.briefing(main, "p01_leaf")
 	await process_frame
 	check("the briefing has START", main.menu.find_child("Briefing_Start", true, false) != null)
+	# the Clockwork and Brood hubs (layered paintings: Hollweg's workshop, Lindqvist's station), opened for the test
+	for it in [["clockmaker", "hollweg", "clock"], ["explorer", "lindqvist", "specimen"]]:
+		Campaign.open_all = true
+		CampaignMenu.line = it[0]
+		CampaignMenu.show(main)
+		await process_frame
+		var hs: HubScene = null
+		for n in main.menu.find_children("*", "HubScene", true, false):
+			hs = n
+		check("the %s hub is a layered painting" % it[0], hs != null and hs.ok() and hs._tex.has(it[1]))
+		var who: Button = main.menu.find_child("Hotspot_" + it[1], true, false)
+		check("the %s hub: its person and objects" % it[0], who != null and main.menu.find_child("HotspotList_" + it[2], true, false) != null)
+		if who:
+			who.pressed.emit()
+			await process_frame
+			var tt: Label = main.menu.find_child("TalkText", true, false)
+			check("the %s hub: the person talks" % it[0], tt != null and tt.text != "" and tt.text != "...")
+		Campaign.open_all = false
+	CampaignMenu.line = ""
 	_finish()

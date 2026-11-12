@@ -78,18 +78,6 @@ es El Explorador
 pt Um explorador católico desce às profundezas da terra e encontra a Ninhada. (Sendo escrita.)
 es Un explorador católico baja a las profundidades de la tierra y encuentra la Nidada. (Se está escribiendo.)
 
-> The Explorer's Ship
-pt O Navio do Explorador
-es El Barco del Explorador
-
-> A ship's cabin lit by a lantern: charts of caverns, a crucifix, a cage of strange eggs.
-pt Uma cabine de navio à luz de lanterna: cartas de cavernas, um crucifixo, uma gaiola de ovos estranhos.
-es Un camarote a la luz de un farol: cartas de cavernas, un crucifijo, una jaula de huevos extraños.
-
-> CHARTS
-pt CARTAS
-es CARTAS
-
 > The Clockmaker
 pt O Relojoeiro
 es El Relojero
@@ -98,18 +86,120 @@ es El Relojero
 pt Um relojoeiro passa a temer o seu próprio Mecanismo. (Sendo escrita.)
 es Un relojero empieza a temer a su propio Mecanismo. (Se está escribiendo.)
 
-> The Clockmaker's Workshop
-pt A Oficina do Relojoeiro
-es El Taller del Relojero
-
-> A workshop of gears and springs; a half-built Clock Soldier on the bench, a priest at the door.
-pt Uma oficina de engrenagens e molas; um Soldado-Relógio meio montado na bancada, um padre à porta.
-es Un taller de engranajes y muelles; un Soldado Reloj a medio montar en el banco, un cura en la puerta.
-
-> PLANS
-pt PLANOS
-es PLANOS
-
 > Upgrades between missions will be bought here. (Not decided yet: a placeholder.)
 pt Aqui se comprarão melhorias entre as missões. (Ainda não decidido: provisório.)
 es Aquí se comprarán mejoras entre misiones. (Aún no decidido: provisional.)
+
+# The Clockwork and Brood hubs (layered paintings, 2026-11-12; docs/campaign_hub_art.md). PLACEHOLDER lines: the
+# owner writes the dialogue.
+> Hollweg's Workshop
+pt A Oficina de Hollweg
+es El Taller de Hollweg
+
+> Meister Hollweg's workshop in Nuremberg by lantern light: the brass map of the world on its table, the great clock of the Guild.
+pt A oficina de Mestre Hollweg em Nuremberg, à luz de lanternas: o mapa de latão do mundo sobre a mesa, o grande relógio da Guilda.
+es El taller del maestro Hollweg en Núremberg, a la luz de los faroles: el mapa de latón del mundo sobre su mesa, el gran reloj del Gremio.
+
+> BRASS MAP
+pt MAPA DE LATÃO
+es MAPA DE LATÓN
+
+> MEISTER HOLLWEG
+pt MESTRE HOLLWEG
+es MAESTRO HOLLWEG
+
+> THE GREAT CLOCK
+pt O GRANDE RELÓGIO
+es EL GRAN RELOJ
+
+> THE AUTOMATON
+pt O AUTÔMATO
+es EL AUTÓMATA
+
+> Meister Hollweg
+pt Mestre Hollweg
+es Maestro Hollweg
+
+> The great clock
+pt O grande relógio
+es El gran reloj
+
+> The automaton
+pt O autômato
+es El autómata
+
+> Mind your sleeve near the table. The map turns, and every ring of it is a road, a river or a sea.
+pt Cuidado com a manga perto da mesa. O mapa gira, e cada anel dele é uma estrada, um rio ou um mar.
+es Cuidado con la manga cerca de la mesa. El mapa gira, y cada anillo es un camino, un río o un mar.
+
+> The Crown pays the Guild for patience. My machines have more of it than any soldier.
+pt A Coroa paga a Guilda pela paciência. Minhas máquinas têm mais dela do que qualquer soldado.
+es La Corona paga al Gremio por su paciencia. Mis máquinas tienen más que cualquier soldado.
+
+> The great clock of the Guild of the Escapement. It has not lost a second in forty years.
+pt O grande relógio da Guilda do Escape. Não perdeu um segundo em quarenta anos.
+es El gran reloj del Gremio del Escape. No ha perdido un segundo en cuarenta años.
+
+> Hollweg says a city could be kept the same way.
+pt Hollweg diz que uma cidade poderia ser regida do mesmo jeito.
+es Hollweg dice que una ciudad podría llevarse del mismo modo.
+
+> A labouring automaton, half finished. Its hands are a smith's; its face is left blank.
+pt Um autômato de trabalho, meio acabado. As mãos são de ferreiro; o rosto ficou em branco.
+es Un autómata de labor, a medio acabar. Sus manos son de herrero; su rostro está en blanco.
+
+> Lindqvist's Station
+pt A Estação de Lindqvist
+es La Estación de Lindqvist
+
+> Dr. Lindqvist's research station on the Amazon: the specimen chart of the plateau on the table, the jars glowing green, rain on the forest outside.
+pt A estação de pesquisa do Dr. Lindqvist na Amazônia: a carta de espécimes do planalto sobre a mesa, os frascos brilhando em verde, chuva na floresta lá fora.
+es La estación de investigación del Dr. Lindqvist en el Amazonas: la carta de especímenes de la meseta sobre la mesa, los frascos brillando en verde, lluvia sobre la selva.
+
+> SPECIMEN CHART
+pt CARTA DE ESPÉCIMES
+es CARTA DE ESPECÍMENES
+
+> DR. LINDQVIST
+pt DR. LINDQVIST
+es DR. LINDQVIST
+
+> THE EGG
+pt O OVO
+es EL HUEVO
+
+> THE SPECIMEN JAR
+pt O FRASCO DE ESPÉCIME
+es EL FRASCO DEL ESPÉCIMEN
+
+> Dr. Lindqvist
+pt Dr. Lindqvist
+es Dr. Lindqvist
+
+> The egg
+pt O ovo
+es El huevo
+
+> The specimen jar
+pt O frasco de espécime
+es El frasco del espécimen
+
+> Do not tap the glass. It sleeps, and I would like it to go on sleeping.
+pt Não bata no vidro. Ele dorme, e eu gostaria que continuasse dormindo.
+es No golpee el cristal. Duerme, y me gustaría que siguiera durmiendo.
+
+> The Academy wants specimens. I want to understand them. The plateau will give us both.
+pt A Academia quer espécimes. Eu quero entendê-los. O planalto nos dará as duas coisas.
+es La Academia quiere especímenes. Yo quiero entenderlos. La meseta nos dará ambas cosas.
+
+> An egg from the plateau under a bell jar, warm to the touch.
+pt Um ovo do planalto sob uma redoma de vidro, morno ao toque.
+es Un huevo de la meseta bajo una campana de cristal, tibio al tacto.
+
+> Lindqvist writes down its weight every morning. It grows.
+pt Lindqvist anota o peso dele toda manhã. Ele cresce.
+es Lindqvist anota su peso cada mañana. Crece.
+
+> A young creature in spirits, coiled like a question. The label says only: Plateau, specimen four.
+pt Uma criatura jovem em álcool, enrolada como uma pergunta. O rótulo diz apenas: Planalto, espécime quatro.
+es Una criatura joven en alcohol, enroscada como una pregunta. La etiqueta dice solo: Meseta, espécimen cuatro.

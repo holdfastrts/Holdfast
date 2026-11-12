@@ -1,0 +1,108 @@
+{
+ "room": "res://campaign/hub/nuremberg_room.jpg",
+ "size": [
+  1672,
+  941
+ ],
+ "layers": [
+  {
+   "id": "hollweg_shadow",
+   "shadow": [
+    1560,
+    710,
+    78,
+    13
+   ]
+  },
+  {
+   "id": "hollweg",
+   "image": "res://campaign/hub/nuremberg_hollweg.png",
+   "pos": [
+    1469,
+    382
+   ],
+   "size": [
+    169,
+    344
+   ]
+  }
+ ],
+ "fx": {
+  "lamps": [
+   [
+    306,
+    382,
+    46,
+    [
+     1.0,
+     0.7,
+     0.32
+    ]
+   ],
+   [
+    1426,
+    404,
+    44,
+    [
+     1.0,
+     0.7,
+     0.32
+    ]
+   ]
+  ],
+  "glints": [
+   {
+    "ellipse": [
+     950,
+     560,
+     460,
+     68
+    ],
+    "period": 9.0,
+    "color": [
+     1.0,
+     0.86,
+     0.5
+    ],
+    "size": 13
+   },
+   {
+    "ellipse": [
+     950,
+     560,
+     404,
+     52
+    ],
+    "period": -14.0,
+    "color": [
+     1.0,
+     0.82,
+     0.45
+    ],
+    "size": 9
+   },
+   {
+    "ellipse": [
+     1108,
+     170,
+     50,
+     50
+    ],
+    "period": 60.0,
+    "color": [
+     1.0,
+     0.9,
+     0.6
+    ],
+    "size": 6
+   }
+  ],
+  "breathe": {
+   "hollweg": 0.005
+  }
+ },
+ "focus": [
+  1.0,
+  0.5
+ ]
+}

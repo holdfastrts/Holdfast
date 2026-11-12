@@ -14,6 +14,11 @@ const MODE_LABEL := {"solo": "SOLO", "coop": "CO-OP", "versus": "VERSUS"}
 static var _cache := {}
 
 
+## Tests and the hub pictures (tools/shot_hub.gd): every storyline opens, so the Clockwork and Brood hubs can be
+## looked at before their acts unlock. Never set by the game itself.
+static var open_all := false
+
+
 static func _json(path: String) -> Dictionary:
 	if _cache.has(path):
 		return _cache[path]
@@ -55,6 +60,8 @@ static func storyline_of(id: String) -> Dictionary:
 
 ## Is this storyline open? (Its "requires" mission is done, or it has none.)
 static func storyline_open(sl: Dictionary, p: Dictionary = {}) -> bool:
+	if open_all:
+		return true
 	if p.is_empty():
 		p = progress()
 	var req := String(sl.get("requires", ""))

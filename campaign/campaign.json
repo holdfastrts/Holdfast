@@ -153,21 +153,58 @@
 			"about": "A Catholic explorer goes down into the deep earth and finds the Brood. (Being written.)",
 			"missions": [],
 			"hub": {
-				"title": "The Explorer's Ship",
+				"title": "Lindqvist's Station",
 				"still": {
-					"caption": "A ship's cabin lit by a lantern: charts of caverns, a crucifix, a cage of strange eggs."
+					"caption": "Dr. Lindqvist's research station on the Amazon: the specimen chart of the plateau on the table, the jars glowing green, rain on the forest outside."
 				},
 				"colour": 2,
 				"hotspots": [
 					{
 						"id": "war_table",
 						"kind": "war_table",
-						"label": "CHARTS",
+						"label": "SPECIMEN CHART",
 						"rect": [
-							0.1,
-							0.35,
-							0.3,
-							0.3
+							0.179,
+							0.635,
+							0.592,
+							0.207
+						]
+					},
+					{
+						"id": "lindqvist",
+						"kind": "talk",
+						"label": "DR. LINDQVIST",
+						"talk": "lindqvist",
+						"layer": "lindqvist",
+						"rect": [
+							0.804,
+							0.293,
+							0.153,
+							0.68
+						]
+					},
+					{
+						"id": "egg",
+						"kind": "talk",
+						"label": "THE EGG",
+						"talk": "egg",
+						"rect": [
+							0.562,
+							0.414,
+							0.072,
+							0.213
+						]
+					},
+					{
+						"id": "specimen",
+						"kind": "talk",
+						"label": "THE SPECIMEN JAR",
+						"talk": "specimen",
+						"rect": [
+							0.057,
+							0.303,
+							0.072,
+							0.266
 						]
 					},
 					{
@@ -176,14 +213,56 @@
 						"label": "ARMOURY",
 						"room": "armoury",
 						"rect": [
-							0.7,
-							0.3,
-							0.2,
-							0.3
-						]
+							0,
+							0,
+							0.1,
+							0.1
+						],
+						"list_only": true
 					}
 				],
-				"talks": {}
+				"talks": {
+					"lindqvist": {
+						"name": "Dr. Lindqvist",
+						"colour": 2,
+						"portrait": "res://campaign/hub/station_lindqvist_face.png",
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"Do not tap the glass. It sleeps, and I would like it to go on sleeping.",
+									"The Academy wants specimens. I want to understand them. The plateau will give us both."
+								]
+							}
+						]
+					},
+					"egg": {
+						"name": "The egg",
+						"colour": 2,
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"An egg from the plateau under a bell jar, warm to the touch.",
+									"Lindqvist writes down its weight every morning. It grows."
+								]
+							}
+						]
+					},
+					"specimen": {
+						"name": "The specimen jar",
+						"colour": 2,
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"A young creature in spirits, coiled like a question. The label says only: Plateau, specimen four."
+								]
+							}
+						]
+					}
+				},
+				"scene": "res://campaign/hub/station.json"
 			}
 		},
 		{
@@ -193,21 +272,58 @@
 			"about": "A clockmaker grows afraid of his own Clockwork. (Being written.)",
 			"missions": [],
 			"hub": {
-				"title": "The Clockmaker's Workshop",
+				"title": "Hollweg's Workshop",
 				"still": {
-					"caption": "A workshop of gears and springs; a half-built Clock Soldier on the bench, a priest at the door."
+					"caption": "Meister Hollweg's workshop in Nuremberg by lantern light: the brass map of the world on its table, the great clock of the Guild."
 				},
 				"colour": 5,
 				"hotspots": [
 					{
 						"id": "war_table",
 						"kind": "war_table",
-						"label": "PLANS",
+						"label": "BRASS MAP",
 						"rect": [
-							0.1,
-							0.35,
-							0.3,
-							0.3
+							0.263,
+							0.508,
+							0.61,
+							0.172
+						]
+					},
+					{
+						"id": "hollweg",
+						"kind": "talk",
+						"label": "MEISTER HOLLWEG",
+						"talk": "hollweg",
+						"layer": "hollweg",
+						"rect": [
+							0.879,
+							0.406,
+							0.101,
+							0.366
+						]
+					},
+					{
+						"id": "clock",
+						"kind": "talk",
+						"label": "THE GREAT CLOCK",
+						"talk": "clock",
+						"rect": [
+							0.592,
+							0.011,
+							0.156,
+							0.468
+						]
+					},
+					{
+						"id": "automaton",
+						"kind": "talk",
+						"label": "THE AUTOMATON",
+						"talk": "automaton",
+						"rect": [
+							0.0,
+							0.213,
+							0.081,
+							0.244
 						]
 					},
 					{
@@ -216,14 +332,56 @@
 						"label": "ARMOURY",
 						"room": "armoury",
 						"rect": [
-							0.7,
-							0.3,
-							0.2,
-							0.3
-						]
+							0,
+							0,
+							0.1,
+							0.1
+						],
+						"list_only": true
 					}
 				],
-				"talks": {}
+				"talks": {
+					"hollweg": {
+						"name": "Meister Hollweg",
+						"colour": 5,
+						"portrait": "res://campaign/hub/nuremberg_hollweg_face.png",
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"Mind your sleeve near the table. The map turns, and every ring of it is a road, a river or a sea.",
+									"The Crown pays the Guild for patience. My machines have more of it than any soldier."
+								]
+							}
+						]
+					},
+					"clock": {
+						"name": "The great clock",
+						"colour": 5,
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"The great clock of the Guild of the Escapement. It has not lost a second in forty years.",
+									"Hollweg says a city could be kept the same way."
+								]
+							}
+						]
+					},
+					"automaton": {
+						"name": "The automaton",
+						"colour": 5,
+						"entries": [
+							{
+								"after": "",
+								"lines": [
+									"A labouring automaton, half finished. Its hands are a smith's; its face is left blank."
+								]
+							}
+						]
+					}
+				},
+				"scene": "res://campaign/hub/nuremberg.json"
 			}
 		}
 	],
