@@ -559,6 +559,7 @@ func _bo_tick() -> void:
 		_end_build("the last step")
 		return
 	_train_workers()
+	_cc_bank()              # (crown-v-clockwork-coach: against the Crown the cogs a waiting step does not need go to soldiers)
 
 
 ## (clockwork-army: MASS SOONER, the owner 2026-11-05: "it could have started massing army a bit sooner") In the Economy and
@@ -1201,3 +1202,53 @@ func _lode_value(c: Vector2i) -> float:
 	if sites_on and Defs.gear_mode and not game.base_sites.has(_site_alias.get(c, c)):
 		return game.lode_at_spot(c, _f()["hall"]) * 16.0
 	return super(c)
+
+
+# ------------------------------------------------------------------ crown-v-clockwork-coach (docs/crown-v-clockwork-coach.md)
+
+## Every enemy is the Crown: the coached rules of this matchup only. `-- crcw:off` plays it as before the job.
+var cc_on := not OS.get_cmdline_user_args().has("crcw:off")
+
+
+func cc_vs_crown() -> bool:
+	var es: Array = game.enemies_of(team)
+	if es.is_empty():
+		return false
+	for t in es:
+		if game.faction_of(t) != "crown":
+			return false
+	return true
+
+
+## THE BANK WORKS. In a written build that is not the Economy or Balanced opening (those mass with _bo_mass), a step
+## waiting for Tension or a building lets the cogs pile up: the Springer timing had 1,186 cogs in the bank at 5:00 with an
+## army of one Springer (Dune Sea, seed 1107), the Heavy Works push 450-550. Against the Crown, once the cogs free of every
+## waiting step's price stay over CC_BANK for CC_BANK_T s, every idle Light Works trains a Clock Soldier (the soldiers the
+## plan's own "clock_soldier N" step will want anyway; the Winders come first: _train_workers ran before).
+const CC_BANK := 350
+const CC_BANK_T := 15.0
+var _cc_bank_t := -1.0
+
+
+func _cc_bank() -> void:
+	if not cc_on or difficulty < 1 or _eco_plan() or not cc_vs_crown():
+		return
+	var free := _free() - maxi(0, _reserve)       # (a heavy machine's cogs kept by _b_keep stay kept)
+	if free < CC_BANK:
+		_cc_bank_t = -1.0
+		return
+	if _cc_bank_t < 0.0:
+		_cc_bank_t = game.clock
+	if game.clock - _cc_bank_t < CC_BANK_T:
+		return
+	var cost := int(Defs.UNITS["clock_soldier"]["cost"])
+	var n := 0
+	for w in _mine(_works()):
+		if free < cost + CC_BANK / 2 or not w.built or not (w.queue as Array).is_empty():
+			continue
+		if game.can_train(w, "clock_soldier") == "" and game.train(w, "clock_soldier") == "":
+			n += 1
+			free -= cost
+	if n > 0:
+		note("the bank works: %d cogs no step was waiting for: %d Clock Soldiers from the idle Light Works" % [free + n * cost, n])
+		_cc_bank_t = game.clock

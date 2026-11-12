@@ -195,6 +195,29 @@ const PLANS := {
 			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 17}},
 			{"do": "attack", "n": 22, "at": {"army": 22}},
 		],
+		# (crown-v-clockwork-coach: against the Clockwork, whose economy opening has its second Clocktower up by ~3:00, the
+		# timing on one hall went out at 7:10-7:35 with 18-19 labourers into 30 Winders on three halls (the Crown earned
+		# 0.6-0.7 of its income at 8:00 in every game). The same timing, from TWO halls: the walled natural behind the Mill
+		# and the second Farm, then the Foundry, the Breeder and the second Barracks; the labourers go to "labs_clock" (the
+		# Barracks keeps a guard of 8 supply until the Breeder, then trains for the wave: uncapped from 2:00 it held the
+		# labourers at 19 at 6:00 and the natural's Farms unworked, tools/test_crcw_coach.gd). The
+		# natural's Farms and Mill come from the shared economy rules while it runs (_cc_econ: an opening lays no Farm by
+		# itself, and a first try left the natural's soil at 100% for the whole game))
+		"bo_clock": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "army", "k": "musketeer", "cap": 8},
+			{"do": "hall", "n": 2, "at": {"labs": 12}},
+			{"do": "build", "k": "foundry", "at": {"labs": 14}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 17}},
+			{"do": "army", "k": "musketeer", "cap": 0},
+			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 19}},
+			{"do": "attack", "n": 22, "at": {"army": 22}},
+		],
+		"labs_clock": 34,      # (two halls: four Farms of 8 hands and the Mill; 26 left the natural's Farms unworked, its soil at 100%)
 		"mid": [["foundry", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {}], ["armoury", 1, {"labs": 20}],
 			["church", 1, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 28}], ["foundry", 2, {"labs": 40, "halls": 3}]],
 		"s": {"wave": 22, "step": 8, "timing": 0.0, "expand": 0.6}},
@@ -375,8 +398,9 @@ func _ready() -> void:
 		scout.next_trip = OWNER_SCOUT_AT
 		scout.min_workers = 4
 	var bo_key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"      # (a plan may open otherwise against the Brood)
+	bo_key = _cc_bo_key(bo_key)
 	_bo_plan = (plan[bo_key] as Array).duplicate(true) if difficulty >= 1 else []
-	bo_lab_cap = int(plan.get("labs", 99))
+	bo_lab_cap = _cc_lab_cap(bo_key)
 	if _bo_plan.is_empty():
 		bo_done = true                         # (Easy: no build order, the shared rules from the start)
 	_attack_at = int(_s("wave"))
@@ -411,8 +435,9 @@ func opt_switch(k: String) -> bool:
 		var key := "bo_brood" if plan.has("bo_brood") and _foe_is("brood") else "bo"
 		if plan.has("bo_opt") and opt != null and _opened_from == "optimal":
 			key = "bo_opt"         # (the build's own version for a pick from the common opening: the Rush's punish)
+		key = _cc_bo_key(key)
 		_bo_plan = _bo_plan.slice(0, bo_i) + (plan[key] as Array).duplicate(true)
-		bo_lab_cap = int(plan.get("labs", 99))
+		bo_lab_cap = _cc_lab_cap(key)
 		if not _def_on:
 			bo_army = false
 			bo_army_cap = 0
@@ -519,8 +544,8 @@ var wall_first_on := not OS.get_cmdline_user_args().has("wallfirst:off")
 
 
 func wall_first() -> bool:
-	if not on or not wall_first_on or difficulty < 1 or xw == null or not xw.active() or not owner_on():
-		return false
+	if not on or not wall_first_on or difficulty < 1 or xw == null or not xw.active() or not (owner_on() or _cc_walls()):
+		return false            # (crown-v-clockwork-coach: the two-hall Timing's natural wall comes first too)
 	if _defending() or army_lags():
 		return false
 	if game.workers(team).size() < WALL_FIRST_LABS and not _wall_hall_waited():
@@ -580,6 +605,8 @@ func _army_due() -> bool:
 		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
 	if not short and army_lags():
 		short = true            # (ai-followups: far behind the enemy's army: the soldiers before more labourers)
+		if _cc_labs_due():
+			short = false       # (crown-v-clockwork-coach: the halls' Farms worked first while the army holds half)
 	if not short and blind_guard() and not brood_army_off:
 		# (crown-v-brood: against the Brood the army also keeps up with the Brood army it reckons, HOLD_SHARE of it: behind the
 		# walls and on the high ground that line holds; the owner's Redrock game had 300-1,000 against 5,000)
@@ -640,6 +667,7 @@ func _think_stage(i: int) -> void:
 			game.players[team]["gold"] += held
 			held = 0
 			_bo_tick()
+			_cc_econ()          # (crown-v-clockwork-coach: the natural's Farms in the two-hall Timing opening)
 			_tend_wall()        # (the ramp wall's crew kept at it, as the shared _build_up does)
 			_lap("ai/build", pt)
 		2:
@@ -1572,7 +1600,7 @@ func _cannon_check() -> void:
 
 
 func _riders_wait() -> bool:
-	return rider_waits()
+	return rider_waits() or _cc_guns_first()
 
 
 ## THE FIRST GUN'S WAIT: against the Brood, until the first Field Cannon is out or ordered, once the Foundry and the
@@ -1795,7 +1823,10 @@ func _mid_tick() -> void:
 		if (gun_hold or guns_short) and not (k == "barracks" or k == "foundry" or k == "horse_breeder"):
 			continue
 		if lags and not _mid_ok_lagging(k):
-			continue            # (ai-followups: the army far behind: no tech, and no more Barracks than the gold keeps busy)            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
+			continue            # (ai-followups: the army far behind: no tech, and no more Barracks than the gold keeps busy)
+		if _cc_rush_hold(k, army) or _cc_tech_hold(k):
+			continue            # (crown-v-clockwork-coach: a Clockwork rush read: soldiers before the milestones; the Farms
+			                    # before the tech)            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
 			# first AI.CANNONS_FIRST Field Cannons too)
 		var at: Dictionary = m[2]
 		if labs < int(at.get("labs", 0)) or halls < int(at.get("halls", 0)) or army < int(at.get("army", 0)):
@@ -2477,6 +2508,8 @@ const OWNER_WALL_AFTER := 45.0
 
 
 func owner_walls() -> bool:
+	if _cc_walls():
+		return true             # (crown-v-clockwork-coach: the two-hall Timing walls its natural as the owner's plans do)
 	if not owner_on():
 		return false
 	for h in _halls():
@@ -2791,3 +2824,191 @@ func _owner_tick() -> void:
 	if bo_done:
 		_hall_farm()
 		_spread_wagons()
+
+
+# ------------------------------------------------------------------ crown-v-clockwork-coach (docs/crown-v-clockwork-coach.md)
+
+## Every enemy is the Clockwork (a 1v1 against it, or a team of Clockworks): the coached rules of this matchup only.
+func cc_vs_clock() -> bool:
+	var es: Array = game.enemies_of(team)
+	if es.is_empty():
+		return false
+	for t in es:
+		if game.faction_of(t) != "clockwork":
+			return false
+	return true
+
+
+var cc_on := not OS.get_cmdline_user_args().has("crcw:off")      # (`-- crcw:off` plays this matchup as before the job)
+
+
+## A plan's own opening against the Clockwork ("bo_clock": the Timing attack from two halls), else the key given.
+var cc_two := OS.get_cmdline_user_args().has("crcw:twohall")     # (`-- crcw:twohall`: the Timing from two halls, round 2-5's
+                        # opening; off by default: the measuring batch, docs/crown-v-clockwork-coach.md "Round 6")
+
+
+func _cc_bo_key(key: String) -> String:
+	if cc_on and cc_two and key == "bo" and plan.has("bo_clock") and cc_vs_clock():
+		return "bo_clock"
+	return key
+
+
+func _cc_lab_cap(key: String) -> int:
+	_cc_bo = key
+	if key == "bo_clock" and plan.has("labs_clock"):
+		return int(plan["labs_clock"])
+	return int(plan.get("labs", 99))
+
+
+
+## The opening's own gold first (bo_reserve out of reach), then the shared economy rules (AI._econ_build: the Farms on the
+## freshest soil, the Mill), once a second hall stands: only for the Timing attack from two halls against the Clockwork.
+func _cc_econ() -> void:
+	if not cc_on or not _cc_two_halls() or _halls().filter(func(h: Building) -> bool: return h.built).size() < 2:
+		return
+	var held: int = clampi(bo_reserve, 0, int(game.players[team]["gold"]))
+	game.players[team]["gold"] -= held
+	var r0 := _reserve
+	_econ_build()
+	_reserve = r0
+	game.players[team]["gold"] += held
+
+
+var _cc_bo := ""        # the opening key in play ("bo_clock" for the Timing attack from two halls)
+
+
+func _cc_two_halls() -> bool:
+	return _cc_bo == "bo_clock" and not bo_done
+
+
+## SOLDIERS BEFORE THE MILESTONES WHEN A RUSH IS READ. Greenhold (seed 1138, the Crown on the Economy plan): the scout read
+## AGGRESSIVE at 4:46 (7 supply of Clock Soldiers out), the plan switched to Balanced, whose opening steps all stood already,
+## so the milestones took over at once and bought the Foundry, the second Barracks and the Horse Breeder at 4:52-5:16 with
+## an army of 0: the first Musketeer came at 5:31, the army was 60 at 6:00 against 965. Against the Clockwork, while a rush
+## is read (or defended) and the army is under CC_RUSH_ARMY supply, every milestone but the first Barracks waits.
+const CC_RUSH_ARMY := 8
+var _cc_rush_said := -99.0
+
+
+func _cc_rush_hold(k: String, army: int) -> bool:
+	if not cc_on or not cc_vs_clock() or army >= CC_RUSH_ARMY:
+		return false
+	if not (_def_on or _defending() or (scout != null and scout.verdict == "rush")):
+		return false
+	if k == "barracks" and _mine("barracks").is_empty():
+		return false
+	if game.clock - _cc_rush_said > 45.0:
+		_cc_rush_said = game.clock
+		say("milestone %s waits: a rush is read and the army has %d supply (it wants %d first)" % [String(Defs.BUILDINGS[k]["name"]), army, CC_RUSH_ARMY])
+	return true
+
+
+## THE TWO-HALL TIMING WALLS ITS NATURAL. The natural of the first two-hall run was planned at 3:18 and never laid (only
+## the owner's plans wall at once: AIExpandWall.brood_walls asks owner_walls); the Clockwork's first push of 1,245 came
+## at 6:05 and took its Farm, its Mill and the hall by 9:58 (Greenhold, seed 1101). The owner's rule: the walled natural.
+func _cc_walls() -> bool:
+	return cc_on and _cc_bo == "bo_clock" and strategy == "timing" and cc_vs_clock() and _halls().filter(func(h: Building) -> bool: return h.built).size() >= 2
+
+
+## THE WAVE STAYS OUT FOR A SMALL RAID. Any armed enemy by any building of ours called the whole army home, the wave too
+## (AI._army: _defend, unless the army is 100 supply or more). Kestrel Rise (seed 1131): the first attack took the
+## Clockwork's new Clocktower at 8:11 with the Clockwork's army down to 350 against its 1,455, and walked home for one or
+## two Clock Soldiers harassing its labourers; the Clockwork rebuilt and won. Against the Clockwork a raid worth less than
+## CC_RAID_SHARE of the wave and less than CC_RAID_MAX is left to the soldiers at home (the wave's units are not called
+## back), unless a hall is about to fall (under CC_HALL_LOW of its health with enemies at it).
+const CC_RAID_SHARE := 0.4
+const CC_RAID_MAX := 500.0
+const CC_HALL_LOW := 0.5
+var _cc_wave_said := -99.0
+var cc_wave_kept := 0           # (tests) thinks a wave stayed out while raiders were at home
+
+
+func _cc_keep_wave(army: Array, spots: Array) -> Array:
+	if not cc_on or not cc_vs_clock() or not _attacking or _wave_set.is_empty() or difficulty < 1:
+		return army
+	var wave: Array = army.filter(func(u: Unit) -> bool: return _wave_set.has(u))
+	if wave.is_empty():
+		return army
+	var wv := 0.0
+	for u in wave:
+		wv += _unit_value(u)
+	var raid := 0.0
+	for sp in spots:
+		raid += float(_assess(sp)["value"])
+	if raid >= wv * CC_RAID_SHARE or raid >= CC_RAID_MAX:
+		return army
+	for h in _halls():
+		if h.built and float(h.hp) < float(h.max_hp) * CC_HALL_LOW and game.units_near(h.center(), 260.0).any(func(o: Unit) -> bool: return game.hostile(o.team, team) and not o.dead and not o.is_worker()):
+			return army
+	cc_wave_kept += 1
+	if game.clock - _cc_wave_said > 60.0:
+		_cc_wave_said = game.clock
+		if raid <= 0.0:
+			say("its wave stays out: only scouts by its buildings at home (the wave is worth %d)" % int(wv))
+		else:
+			say("its wave stays out: a raid worth %d at home is left to the soldiers there (the wave is worth %d)" % [int(raid), int(wv)])
+	# (the wave's own think does not run while the threat holds the army's think: an idle one walks on to the target)
+	_wave_target = _enemy_base()
+	for u in wave:
+		if u.order == "idle" and u.wall_flee_t <= 0.0 and u.siege_t <= 0.0:
+			u.cmd_move(_wave_target + Vector2(randf_range(-60, 60), randf_range(-60, 60)), true)
+	return army.filter(func(u: Unit) -> bool: return not _wave_set.has(u))
+
+
+## THE GUNS GET THE HORSES. Greenhold (seed 1101, round 4): the Foundry stood at 5:15, the Breeder at 5:24, and the first
+## Field Cannon came at 13:25: the horses went to five riders (the Barracks train one now and then, and each Officer
+## trained for it takes the next horse), while 21 Musketeers fought 55 Clock Soldiers. Canister is the answer to a mass of
+## melee machines (the owner's rule: 3 Field Cannons before any Mortar). Against the Clockwork, once one rider is out and a
+## Foundry stands, the Barracks train no more riders until AI.CANNONS_FIRST Field Cannons are out or queued.
+func _cc_guns_first() -> bool:
+	if not cc_on or difficulty < 1 or not cc_vs_clock() or _rush_open():
+		return false
+	if not _mine("foundry").any(func(f: Building) -> bool: return f.built):
+		return false
+	var army := game.army(team)
+	if not army.any(func(u: Unit) -> bool: return u.kind == "cuirassier"):
+		return false            # (the first rider: the map scout)
+	var guns := army.filter(func(u: Unit) -> bool: return u.kind == "cannon").size()
+	for f in _mine("foundry"):
+		guns += (f.queue as Array).count("cannon")
+	return guns < CANNONS_FIRST
+
+
+## THE FARMS BEFORE "THE ARMY FIRST" (round 6). Against the Clockwork the army keeps 60% of the enemy army it reckons (90%
+## after a GREEDY read answered by an attacking plan: AICrown.army_lags), or the labourers wait. The Clockwork's army grows
+## faster than the Crown's on one hall, so the labourers never came again: 18-19 from 5:00 to 8:00 and 19-22 at 10:00 in the
+## Timing games, the natural laid at 7:30-8:20 and its soil at 100% to the end, the main's soil spent at 9-10 minutes and
+## the income flat for whole minutes. Against the Clockwork, while the labourers are fewer than CC_LABS_HALL a built hall
+## (its two Farms and the Mill's share; CC_LABS_MAX at most) and the army is worth CC_LABS_ARMY of the reckoning or more,
+## the hall keeps training labourers whatever the army lags; not while a rush is defended.
+const CC_LABS_HALL := 16
+const CC_LABS_MAX := 40
+const CC_LABS_ARMY := 0.5
+var _cc_labs_said := -99.0
+
+
+func _cc_labs_due() -> bool:
+	if not cc_on or difficulty < 1 or not cc_vs_clock() or _defending():
+		return false
+	var halls := _halls().filter(func(h: Building) -> bool: return h.built and _land(h) > 0.0).size()
+	var want := mini(CC_LABS_MAX, CC_LABS_HALL * halls)
+	var labs := game.workers(team).size()
+	if labs >= want:
+		return false
+	var est := foe_reckon()
+	if float(game.army_value(team)) < est * CC_LABS_ARMY:
+		return false
+	if game.clock - _cc_labs_said > 60.0:
+		_cc_labs_said = game.clock
+		say("the Farms first: %d labourers for %d halls (it wants %d) while its army (%d) holds half the %d it reckons" % [labs, halls, want, game.army_value(team), int(est)])
+	return true
+
+
+## ... AND BEFORE THE TECH: the Armoury and the Church (and the Marching Band's research there) wait while the halls lack
+## labourers as above (the coached Timing game bought the Armoury at 8:09 with 21 labourers and the Church at 9:22 while its
+## main's soil ran out and the natural stood unworked).
+func _cc_tech_hold(k: String) -> bool:
+	if not (k == "armoury" or k == "church") or not cc_on or difficulty < 1 or not cc_vs_clock():
+		return false
+	var halls := _halls().filter(func(h: Building) -> bool: return h.built and _land(h) > 0.0).size()
+	return game.workers(team).size() < mini(CC_LABS_MAX, CC_LABS_HALL * halls)

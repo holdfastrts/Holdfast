@@ -1,0 +1,22 @@
+# crown-v-clockwork-coach (docs/crown-v-clockwork-coach.md): the AI STORY's sentences for the coached Crown v Clockwork
+# rules (scripts/ai_story_lines.gd). The placeholders keep their English order: the first %s is the player.
+
+> %s's wave stays out: only scouts are by its buildings at home.
+pt A onda de %s continua lá fora: só há batedores junto às suas construções em casa.
+es La oleada de %s sigue fuera: solo hay exploradores junto a sus edificios en casa.
+
+> %s's wave stays out: a raid worth %s at home is left to the soldiers there (the wave is worth %s).
+pt A onda de %s continua lá fora: um ataque de %s em casa fica para os soldados que estão lá (a onda vale %s).
+es La oleada de %s sigue fuera: un ataque de %s en casa queda para los soldados que están allí (la oleada vale %s).
+
+> %s keeps training labourers for its Farms (%s for %s halls, it wants %s) while its army holds half the enemy's.
+pt %s continua treinando trabalhadores para as suas Fazendas (%s para %s centros, quer %s) enquanto o seu exército vale metade do inimigo.
+es %s sigue entrenando trabajadores para sus Granjas (%s para %s centros, quiere %s) mientras su ejército vale la mitad del enemigo.
+
+> %s holds its %s back: a rush is read, soldiers first.
+pt %s segura o seu %s: um ataque rápido foi lido, soldados primeiro.
+es %s retiene su %s: se ha leído un ataque rápido, soldados primero.
+
+> %s puts %s idle cogs into %s Clock Soldiers (no step of its build was waiting for them).
+pt %s põe %s engrenagens paradas em %s Soldados-Relógio (nenhum passo da sua abertura esperava por elas).
+es %s pone %s engranajes parados en %s Soldados Reloj (ningún paso de su apertura los esperaba).

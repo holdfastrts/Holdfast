@@ -4,6 +4,13 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.18", "items": [
+		"CROWN AGAINST CLOCKWORK, COACHED (both computers, Hard): the Crown computer's attack no longer walks home from a won fight because one or two Clockwork raiders reached its base: a small raid is left to the soldiers at home and the wave presses on.",
+		"ITS GUNS GET THE HORSES: against the Clockwork, once its scout rider is out, the Crown computer's horses go to Field Cannons (canister against the Clock Soldiers) before more riders. Its first gun came at 13:25 in a coached game; now from about 4:30 to 8:40.",
+		"THE FARMS BEFORE THE CATCH-UP: against the Clockwork the Crown computer keeps training labourers for its halls' Farms while its army holds half of the enemy's, and buys no Armoury or Church before (its labourers stopped at 19 to 22 and its natural's fields lay unworked). A Clockwork rush read now means soldiers before the Foundry, the second Barracks and the Horse Breeder, and its Musketeers keep the main's cliff edge over a natural whose wall is not yet half closed.",
+		"THE CLOCKWORK COMPUTER COUNTS THE CROWN RIGHT: it reckons a Crown army at its real size (its first pushes went out half as big as the Crown's army and died under the ramp), and in its Springer timing and Heavy Works openings the cogs no step is waiting for train Clock Soldiers (1,186 cogs once sat in the bank at 5:00 with one Springer for an army).",
+		"WATCHING COMPUTERS: the AI STORY says when the Crown's wave stays out, when it trains labourers for its Farms, when a rush read holds its buildings back, and when the Clockwork puts idle cogs into soldiers.",
+	]},
 	{"v": "0.33.17", "items": [
 		"THE CROWN COMPUTER AGAINST A CROWN, COACHED AND FILMED: its waves march as one. A wave strung out on the way (riders ahead, Musketeers and guns behind, reinforcements walking alone) stops, its head waits and the rest walks up to it, and it forms up before an enemy army it sees instead of walking into the enemy's line in a column.",
 		"ITS GUNS SHELL THE HALL: at a walled enemy base its Field Cannons and Mortars go to a spot outside the wall, out of reach of the shooters they see and in range of the Town Hall, and fire at the hall itself instead of breaking palisade after palisade. When the wall is too well held, the musket line stands back out of reach while the guns shell it, rather than going home.",

@@ -57,7 +57,10 @@ const MASS_SINCE := 0.0         # (the opening's steady production: AIClockwork.
 ## seen still count on top, _rooted_seen.)
 const TABLES := {
 	"brood": [[0.0, 0.0], [180.0, 150.0], [300.0, 700.0], [360.0, 1000.0], [420.0, 1100.0], [480.0, 1300.0], [540.0, 1600.0], [600.0, 1900.0], [720.0, 2700.0], [840.0, 3100.0]],
-	"crown": [[0.0, 0.0], [180.0, 50.0], [300.0, 150.0], [360.0, 250.0], [420.0, 400.0], [480.0, 600.0], [600.0, 900.0], [720.0, 1400.0]],
+	# (crown-v-clockwork-coach: the Hard Crown's army since crown-ai-v2, the lower quartile of 16 coached games before their
+	# first fight: 6:00 480, 7:00 800-850. The old row (6:00 250, 7:00 400) sent first pushes of 8 Clock Soldiers worth 560
+	# at a Crown army of 760 they reckoned at 211: 350 lost for 110, Kestrel Rise 6:04)
+	"crown": [[0.0, 0.0], [180.0, 60.0], [240.0, 200.0], [300.0, 330.0], [360.0, 480.0], [420.0, 800.0], [480.0, 1000.0], [600.0, 1200.0], [720.0, 1500.0]],
 	"clockwork": [[0.0, 0.0], [240.0, 70.0], [300.0, 400.0], [360.0, 800.0], [480.0, 1500.0], [600.0, 2500.0], [720.0, 3500.0]],
 }
 

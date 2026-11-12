@@ -63,6 +63,12 @@ const RULES := [
 	["^the sentry peeks up the walled ramp", "%s's sentry peeks up the enemy's walled ramp now and then to see behind the wall.", 1, "scout"],
 	# ---- the Crown: the army first (ai-followups, scripts/ai_crown.gd army_lags)
 	["^'s plan: the army first: (\\d+) of army against the (\\d+)", "%s puts its army first (%s against the %s it reckons the enemy has): the labourers and the tech wait.", 2, "army"],
+	# ---- crown-v-clockwork-coach (docs/crown-v-clockwork-coach.md): the Crown against the Clockwork, the Clockwork against the Crown
+	["^'s plan: its wave stays out: only scouts", "%s's wave stays out: only scouts are by its buildings at home.", 1, "army"],
+	["^'s plan: its wave stays out: a raid worth (\\d+) at home is left to the soldiers there \\(the wave is worth (\\d+)\\)", "%s's wave stays out: a raid worth %s at home is left to the soldiers there (the wave is worth %s).", 2, "army"],
+	["^'s plan: the Farms first: (\\d+) labourers for (\\d+) halls \\(it wants (\\d+)\\)", "%s keeps training labourers for its Farms (%s for %s halls, it wants %s) while its army holds half the enemy's.", 2, "army"],
+	["^'s plan: milestone (.+?) waits: a rush is read", "%s holds its %s back: a rush is read, soldiers first.", 2, "army"],
+	["^'s Clockwork: the bank works: (\\d+) cogs no step was waiting for: (\\d+) Clock Soldiers", "%s puts %s idle cogs into %s Clock Soldiers (no step of its build was waiting for them).", 1, "army"],
 	["^'s plan: milestone (.+?) waits: the army is far behind", "%s's %s waits: its army comes first.", 1, "tech"],
 	["^'s Clockwork: plays the (?:Economy|Balanced): the opening build", "%s opens for its economy: Winders non-stop and a fast second Clocktower, no army before it without a reason.", 3, "plan"],
 	["^'s Clockwork: rush evidence", "%s saw a rush coming: a Light Works and Clock Soldiers first, then back to its economy.", 3, "defence"],
