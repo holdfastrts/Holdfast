@@ -1109,6 +1109,8 @@ func _scouts() -> void:
 		want = 0       # (a Horseman rush or the raid party that is the rush: every rider rides with it)
 	while scouts.size() > want:
 		_release(scouts.keys()[scouts.size() - 1], "")
+	if scouts.size() < want and ai.has_method("screen_short") and ai.screen_short():
+		want = scouts.size()     # (crown-rider-screen: a wave's screen short of riders comes first)
 	if scouts.size() < want:
 		_pick(want)
 	for u in scouts.keys():

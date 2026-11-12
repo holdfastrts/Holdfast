@@ -29,7 +29,7 @@ const KEEP := 360.0              # (px) a screen rider keeps this far from the n
 const EYE_R := 300.0             # (px) a rider's eyes for the line (a Horseman sees 8 tiles = 256 px)
 const DANGER_R := 400.0          # (px) enemies this near a rider are weighed
 const HURT := 0.5                # a rider below this share of its hit points leaves the screen
-const PICK_HP := 0.7             # ... and none is picked below this
+const PICK_HP := 0.6             # ... and none is picked below this
 const COOL := 60.0               # (s) a rider sent home is not picked again for this long
 const ROUTE_EVERY := 3.0         # (s) the wave's road looked up again this often
 const FLANK_R := 480.0           # (px) at contact: prey this near a rider's flank post
@@ -39,7 +39,8 @@ const PICKET_D := 520.0          # (px) the picket this far forward of the post 
 const PICKET_WARN := 150.0       # value of an armed force the picket rides back for
 const PICKET_BACK := 25.0        # (s) the picket stays back at least this long
 const PICKET_EVERY := 20.0       # (s) the picket's spot worked out again this often
-const TRAIN_MAX := 3             # Horsemen the screen and the picket ask the Barracks for (alive and in training)
+const TRAIN_FREE := 3            # the screen and the picket want this many sound Horsemen free for them (the loop's scout too) ...
+const TRAIN_MAX := 5             # ... and the Barracks trains for them only while fewer than this are alive and in training
 
 var ai = null
 var game: Game = null
@@ -124,7 +125,9 @@ func tick() -> void:
 		_release_all("")
 		_drop_picket()
 		return
+	_train()
 	var wave := _wave()
+	short = false
 	if wave.is_empty():
 		_release_all("the wave is home")
 	else:
@@ -173,8 +176,12 @@ func _free(u: Unit, from_wave: bool) -> bool:
 	return in_wave if from_wave else not in_wave
 
 
+var short := false                # a wave out and its screen short of riders (AICrownHold's loop picks no new scout)
+
+
 func _screen(wave: Array) -> void:
 	var want := _want(wave)
+	short = riders.size() < want
 	if riders.size() < want:
 		var head := _head(wave)
 		var pool: Array = []
@@ -195,6 +202,14 @@ func _screen(wave: Array) -> void:
 					pool.append(u)
 		if pool.size() < want - riders.size() and _ok(picket) and ai._threat() == Vector2.INF:
 			pool.append(picket)          # (the wave out: the picket rides with it)
+		if dbg and pool.is_empty() and game.clock - _dbg_p > 10.0:
+			_dbg_p = game.clock
+			for u in game.army(ai.team):
+				if u.kind == "cuirassier" and not u.dead:
+					print("[screen %d] no rider: hp %.2f cool %s raid %s det %s coming %s errand %s scout %s patch %s harass %s dr %s wave %s order %s" % [int(game.clock),
+						u.hp / u.max_hp, _cool.has(u), ai._raiders.has(u), ai._det.has(u), ai._horse_coming(u), ai._on_errand(u),
+						ai.ch.scouts.has(u), ai._patch.has(u), ai.harass != null and ai.harass.has(u), ai.get("dr") != null and ai.dr.has(u),
+						ai._wave_set.has(u), u.order])
 		var took := 0
 		for u in pool:
 			if riders.size() >= want:
@@ -217,7 +232,7 @@ func _screen(wave: Array) -> void:
 		_roles()
 	var ln: AICrownLine = ai.ln
 	var contact: bool = ln.st in ["fight", "back"]
-	if contact and _flank_post.is_empty():
+	if contact and _flank_post.is_empty() and not riders.is_empty():
 		pulled += 1
 		_say("'s screen pulls back to the line's flanks at contact", "pull", 10.0)
 	if not contact:
@@ -593,6 +608,11 @@ func _picket_spot() -> void:
 	_pk["spot"] = _open(at, pp[0])
 
 
+## The Horseman rush (or the raid party that is the rush) wants every rider (as AICrownHold's scouts: none then).
+func _rush_riders() -> bool:
+	return ai._rush_state == "ongoing" or (ai.opening == "breeder" and ai.strategy == "rush") or ai._rush_open()
+
+
 func _drop_picket() -> void:
 	if _ok(picket):
 		var post: Vector2 = ai._post_spot()
@@ -604,7 +624,7 @@ func _drop_picket() -> void:
 func _picket_tick() -> void:
 	_picket_spot()
 	var spot: Vector2 = _pk["spot"]
-	if spot == Vector2.INF or ai._rush_state == "ongoing" or ai.peaceful:
+	if spot == Vector2.INF or _rush_riders() or ai.peaceful:
 		_drop_picket()
 		return
 	if picket == null:
@@ -616,6 +636,7 @@ func _picket_tick() -> void:
 			return
 		picket = best
 		_pk["state"] = "out"
+		_pk["warned"] = false
 		_say("sets a Horseman as a picket on the road %d px out from its post" % int(PICKET_D), "picket", 60.0)
 	var u: Unit = picket
 	if u.hp < u.max_hp * HURT:
@@ -634,8 +655,9 @@ func _picket_tick() -> void:
 		v += float(Game.unit_value(o))
 		n += 1
 	var dg0: Array = _danger(u)
-	if (v >= PICKET_WARN or (v > 0.0 and int(dg0[1]) > 0)) and _pk["state"] == "out":
+	if v >= PICKET_WARN and not bool(_pk.get("warned", false)):
 		_pk["state"] = "back"
+		_pk["warned"] = true
 		_pk["until"] = game.clock + PICKET_BACK
 		warns.append([snappedf(game.clock, 0.1), int(v)])
 		_say("'s picket sees a force coming (%d: %d soldiers) and rides back to the post" % [int(v), n])
@@ -649,6 +671,7 @@ func _picket_tick() -> void:
 				u.cmd_move(back)
 			return
 		_pk["state"] = "out"
+		_pk["warned"] = false
 	if int(dg0[1]) > 0:
 		_pk["state"] = "back"
 		_pk["until"] = game.clock + 8.0
@@ -663,10 +686,53 @@ func _picket_tick() -> void:
 
 # ============================================================ the Barracks
 
+## The screen's own Horseman (every TRAIN_EVERY s, when wants_rider): the shared training reaches the screen's turn only
+## when the Barracks are not held for the guns' gold; the screen trains one itself, with gold to spare (TRAIN_SPARE over
+## its price), not while the hall plan keeps its gold or the enemy is at home.
+const TRAIN_EVERY := 1.0
+const TRAIN_SPARE := 40
+var _train_t := -99.0
+var trained := 0
+
+
+func _train() -> void:
+	if game.clock - _train_t < TRAIN_EVERY:
+		return
+	_train_t = game.clock
+	if not wants_rider() or ai._keeping() or ai._threat() != Vector2.INF:
+		return
+	for b in ai._mine("barracks"):
+		if not b.built or (b.queue as Array).size() >= 2:
+			continue
+		var hk: String = ai._soldier_key(b, "cuirassier")
+		if dbg:
+			print("[screen %d] train: key '%s' (%s) gold %d keeping %s" % [int(game.clock), hk, game.can_train(b, Defs.train_key("cuirassier", false)), ai._gold(), ai._keeping()])
+		if hk == "" or ai._gold() < int(game.unit_price(ai.team, hk)[0]) + TRAIN_SPARE:
+			continue
+		if game.train(b, hk) == "":
+			trained += 1
+			_say("trains a Horseman for its screen and picket", "train", 30.0)
+			return
+
 ## A Horseman to train for the screen and the picket (AI._produce): the plan has a Horse Breeder, the army is a real one,
 ## and none is free; TRAIN_MAX at most (alive and in training).
+var dbg := OS.get_cmdline_user_args().has("screen:debug")
+var _dbg_t := -99.0
+var _why := ""
+var _dbg_p := -99.0
+
+
 func wants_rider() -> bool:
-	if not active() or game.clock < 240.0 or ai._rush_open() or ai._rush_state == "ongoing":
+	var r := _wants_rider()
+	if dbg and game.clock - _dbg_t > 20.0:
+		_dbg_t = game.clock
+		print("[screen %d t%d] wants_rider %s (%s) riders %d picket %s" % [int(game.clock), ai.team, r, _why, riders.size(), picket != null])
+	return r
+
+
+func _wants_rider() -> bool:
+	if not active() or game.clock < 240.0 or _rush_riders():
+		_why = "inactive/early/rush"
 		return false
 	if ai._mine("horse_breeder").filter(func(b: Building) -> bool: return b.built).is_empty():
 		return false
@@ -678,14 +744,16 @@ func wants_rider() -> bool:
 			continue
 		if u.kind == "cuirassier":
 			n += 1
-			if has(u) or _free(u, false) or _free(u, true):
+			if u.hp >= u.max_hp * PICK_HP and (has(u) or _free(u, false) or _free(u, true) or (ai.ch != null and ai.ch.scouts.has(u))):
 				free += 1
 		elif AICrownLine.shooter(u):
 			sup += int(u.d["supply"])
 	for b in ai._mine("barracks"):
 		n += (b.queue as Array).count("cuirassier")
 		if (b.queue as Array).has("cuirassier"):
+			_why = "queued"
 			return false
-	if sup < 12 or n >= TRAIN_MAX:
+	_why = "n %d free %d sup %d" % [n, free, sup]
+	if sup < 8 or n >= TRAIN_MAX or free >= TRAIN_FREE:
 		return false
-	return free < 3
+	return true

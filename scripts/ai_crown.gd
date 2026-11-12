@@ -83,6 +83,11 @@ func _screen_rider() -> bool:
 	return sc != null and sc.wants_rider()
 
 
+## (AICrownHold's rider scouts) a wave out with its screen short of riders: the loop takes no new scout meanwhile.
+func screen_short() -> bool:
+	return sc != null and sc.short
+
+
 ## (crown-line-fight) the line, Normal and up, every matchup; `-- line:off` plays as before.
 func line_ai() -> AICrownLine:
 	if ln == null and on and difficulty >= 1:

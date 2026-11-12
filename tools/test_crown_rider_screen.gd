@@ -185,7 +185,7 @@ func _run() -> void:
 		# a force comes: it rides back
 		var pk = sc.picket
 		var w0: int = sc.warns.size()
-		var ahead: Vector2 = pk.position + (pk.position - post).normalized() * 330.0
+		var ahead: Vector2 = pk.position + (pk.position - post).normalized() * 290.0
 		var comers: Array = []
 		for i in 5:
 			var c := _spawn("musketeer", 1, ahead + Vector2((i % 3) * 26, (i / 3) * 26))

@@ -159,6 +159,7 @@ const RULES := [
 	["^'s screen rider is lost", "%s loses a screen rider.", 1, "attack"],
 	["^'s screen rider (?:backs off|rides back)", "", 1, "attack"],
 	["^'s screen rides home", "", 1, "attack"],
+	["^trains a Horseman for its screen", "", 1, "attack"],
 	["^sets a Horseman as a picket", "%s sets a Horseman as a picket on the road ahead of its post.", 1, "defend"],
 	["^'s picket sees a force coming \\((\\d+): (\\d+) soldiers\\)", "%s's picket sees a force coming (%s, %s soldiers) and rides back to warn the post.", 2, "defend"],
 	["^'s picket is lost", "%s loses its picket.", 1, "defend"],
