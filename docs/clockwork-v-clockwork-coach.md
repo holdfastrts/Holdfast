@@ -89,3 +89,49 @@ against the Crown's Musketeers on a ramp: 8 Clock Soldiers ran up a Crown ramp a
 
 The fix (CwPush._climb_ok): a COMMITTED push against the Clockwork, worth 4 times what stands up there, goes on up.
 `-- cwclimb:off` plays it as before.
+
+### 4. The march waited for the Great Winder
+
+Seen: Hollowfen 3 (round 2), 10:02-11:32: P1's committed push of 30-38 (2,885-3,500 value) stood at P2's natural, its
+anchor still for 90 s (picture r2_hollowfen_1032_waits_for_gw.jpg). The push's state line: "[great_winder (29, 13) off
+2275 order sweep]": its Great Winder was at home, sweeping wrecks 2,275 px away.
+
+The decision: since clockwork-ai-v2 the Great Winder joins the push at once wherever it is (CwPush._join) and sweeps the
+wrecks near it between fights (AIClockwork.gw_tend). CwPush._march waits ("lag") until every Ballista and the Great Winder
+is within HEAVY_LAG (320 px) of its spot behind the front. A Great Winder sweeping at home never comes.
+
+The fix (CwPush.gw_nowait_on, one line in _march): the march never waits for the Great Winder (unarmed, it catches up).
+In every matchup (it is a plain fault, not the mirror's). `-- cwgwlag:off` plays it as before.
+
+### 5. ... nor for long for its Ballistas
+
+Seen: Hollowfen 3 (round 2), 13:32-14:02: P1's committed push, all 60 of its front at its anchor, stood still in the open
+(picture r2_hollowfen_1402_waits_for_ballistas.jpg). "[ballista (99, 74) off 559 order amove]": its two Ballistas were
+shooting a building 550 px off the way (the attack order of the last goal).
+
+The fix (CwPush._lag_wait): a committed push against the Clockwork waits for its Ballistas 12 s at most; then the lagging
+ones are walked to their spot with a plain move (they stop shooting elsewhere) and the march goes on.
+
+### 6. Hunting, no regrouping
+
+Seen: Greenhold 1 (round 3), 13:03-13:33: hunting (the enemy had no army), P1's front of 57 had 13 at its anchor; the march
+waits until 60% of the front is at the anchor, so after each building the whole army walked back together before the next.
+
+The fix (one condition in CwPush._march): hunting, the anchor goes on at once.
+
+### 7. Going out into an equal army on its gears (both sides, the middle game)
+
+Seen: Dune Sea 2 (round 3): "goes out: worth 3,015 against the 765 it reckons" (9:49; the enemy had about 2,200 at home),
+"worth 4,445 against the 1,225 it reckons" (12:43; the enemy had 49 units, 3,920, on its gears: the push lost half and
+pulled back at 13:40), "worth 5,435 against the 1,395 it reckons" (14:50; the enemy had about 2,940).
+
+The decision: the army goes out worth 1.25 times the enemy army it reckons (ai_cw_army.may_launch). The reckoning is what it
+saw lately, but never less than the table of what an enemy of that age has, less HALF OF EVERYTHING IT HAS KILLED SINCE
+0:00. The table (3,500 at 12:00) is the army of an enemy that has lost units too, and the Clockwork enemy rebuilds about
+1,400 of army a minute at 12:00. By the middle game everything killed had wiped the table out.
+
+The fix (ai_cw_army._killed_for_reckon, one changed line in reckon): against the Clockwork only what it killed in the last
+150 s counts for the push going out. The push's "clearly ahead" check (the commit, which finishes won games) still counts
+everything killed (reckon(true)). `-- cwreckon:off` plays it as before.
+The mirror table itself was checked against the real armies of the first 21 measured games (median at 5:00 630, 6:00 1,040,
+8:00 1,670, 10:00 2,380, 12:00 3,070; the table 400, 800, 1,500, 2,500, 3,500): close enough from 8:00, left as it is.
