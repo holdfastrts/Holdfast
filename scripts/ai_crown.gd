@@ -1782,8 +1782,9 @@ func _mid_tick() -> void:
 			continue
 		if lags and not _mid_ok_lagging(k):
 			continue            # (ai-followups: the army far behind: no tech, and no more Barracks than the gold keeps busy)
-		if _cc_rush_hold(k, army):
-			continue            # (crown-v-clockwork-coach: a Clockwork rush read: soldiers before the milestones)            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
+		if _cc_rush_hold(k, army) or _cc_tech_hold(k):
+			continue            # (crown-v-clockwork-coach: a Clockwork rush read: soldiers before the milestones; the Farms
+			                    # before the tech)            # (crown-owner-eco: the gun's gold holds the tech back, not the production; crown-hold: the
 			# first AI.CANNONS_FIRST Field Cannons too)
 		var at: Dictionary = m[2]
 		if labs < int(at.get("labs", 0)) or halls < int(at.get("halls", 0)) or army < int(at.get("army", 0)):
@@ -2956,3 +2957,13 @@ func _cc_labs_due() -> bool:
 		_cc_labs_said = game.clock
 		say("the Farms first: %d labourers for %d halls (it wants %d) while its army (%d) holds half the %d it reckons" % [labs, halls, want, game.army_value(team), int(est)])
 	return true
+
+
+## ... AND BEFORE THE TECH: the Armoury and the Church (and the Marching Band's research there) wait while the halls lack
+## labourers as above (the coached Timing game bought the Armoury at 8:09 with 21 labourers and the Church at 9:22 while its
+## main's soil ran out and the natural stood unworked).
+func _cc_tech_hold(k: String) -> bool:
+	if not (k == "armoury" or k == "church") or not cc_on or difficulty < 1 or not cc_vs_clock():
+		return false
+	var halls := _halls().filter(func(h: Building) -> bool: return h.built and _land(h) > 0.0).size()
+	return game.workers(team).size() < mini(CC_LABS_MAX, CC_LABS_HALL * halls)

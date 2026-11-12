@@ -148,3 +148,23 @@ functions only gained a call or a term:
 
 Tools: tools/shot_ai_match.gd gained `pa:`/`pb:` (the plans; the default stays "balanced") and `every:N`;
 tools/study/crcw_coach.py and crcw_coach_report.py are new; tools/test_crcw_coach.gd is the matchup's test.
+
+## Round 6: the measuring batch says no to the two-hall Timing; the Farms before "the army first"
+
+The first measuring batch with rounds 2-5 (6 of the 16 games played before it was stopped, "after A", data
+docs/crown-v-clockwork-coach/data/afterA/): the Crown won or led 0 of 6 (before: 2 of the same 6), its income 0.57 of
+the Clockwork's at 8:00 and 10:00 (before 0.66 / 0.63 on all 16), its army at 8:00 437 (before 1,056) against 1,740.
+The two halls paid from 10:00 on (Greenhold 14,820 against 9,760 at 14:00) but the window from 5:00 to 8:00, with an
+army of 240-480, was where the games were lost: the Clockwork's first push comes at 5:40-6:15 with 560-1,245 and took the
+natural (Kestrel Rise, Frostmere: "lost" where the one-hall Timing had led). A coach's verdict: the timing is the
+Crown's strength in this matchup (its one-hall army of 1,300-1,900 at 8:00 wins the first big fight in most games); what
+loses afterwards is the economy behind it. So:
+
+- **CR-1 is off by default** (`-- crcw:twohall` plays it, for a study): the Timing attack opens on one hall as before.
+- **CR-1' THE FARMS BEFORE "THE ARMY FIRST"** (`AICrown._cc_labs_due`, asked by `_army_due`): against the Clockwork,
+  "the army first" (army_lags: 60% of the enemy army it reckons, 90% after a GREEDY read answered by an attacking plan)
+  stopped the labourers for good, because the Clockwork's army grows faster than a one-hall Crown's: 18-19 labourers from
+  5:00 to 8:00 and 19-22 at 10:00, the natural's soil at 100% to the end. Now, while the labourers are fewer than 16 a
+  built hall with land (40 at most) and the army is worth half the reckoning or more, the halls keep training labourers.
+- CR-3, CR-4, CR-5 and CR-6 stay (each matters with one hall too: the wave stays out, the cliff edge until the gate post,
+  the guns get the horses, soldiers when a rush is read).
