@@ -193,6 +193,8 @@ func _run() -> void:
 	var sh2 := _shape(ms, (fc - _shape(ms, Vector2.RIGHT)[2]).normalized())
 	var face2: Vector2 = (fc - sh2[2]).normalized()
 	sh2 = _shape(ms, face2)
+	var perp2 := Vector2(-face2.y, face2.x)
+	print("   (across, along): %s; the line said %s" % [str(ms.map(func(p: Vector2) -> String: return "%d,%d" % [int((p - sh2[2]).dot(perp2)), int((p - sh2[2]).dot(face2))])), str(ln.said.slice(-2))])
 	print("   at contact (%.0f s): %d muskets across %d px, depth %d px" % [g.clock, ms.size(), int(sh2[0]), int(sh2[1])])
 	check(sh2[0] > 1.5 * maxf(sh2[1], 10.0), "at contact the muskets stand in a line across (across %d, depth %d)" % [int(sh2[0]), int(sh2[1])])
 	check(not gs.is_empty() and gs.all(func(p: Vector2) -> bool: return (p - sh2[2]).dot(face2) < 0.0),

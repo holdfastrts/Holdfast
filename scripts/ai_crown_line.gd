@@ -32,6 +32,7 @@ const ROW_GAP := 0.9            # (tiles) between the ranks
 const FLANK := 1.6              # (tiles) the melee beyond each end of the front rank
 const GUN_BACK := 2.6           # (tiles) the Field Cannons behind the front rank
 const GUN_GAP := 1.7            # (tiles) between guns
+const GUN_MIN_BACK := 1.2       # (tiles) a gun at least this far behind the front rank sets up where it stands
 const MORTAR_BACK := 6.0        # (tiles) the Mortars behind the front rank (their least range is 5 tiles)
 const SEE_R := 760.0            # (px) an armed enemy this near the wave's body is "ahead"
 const SEE_SHARE := 0.25         # ... when worth this share of the wave
@@ -70,6 +71,7 @@ var forms := 0                   # (tests) lines formed on the march
 var def_lines := 0               # (tests) defence lines
 var falls := 0                   # (tests) lines that fell back in order
 var steps := 0                   # (tests) steps of a formed line with its guns
+var deploys := 0                 # (tests) lines deployed at a contact met unformed
 
 # the wave's line
 var st := ""                     # "" (marching), "form", "advance", "fight", "back", "close"
@@ -131,9 +133,18 @@ func _known(body: Array) -> Array:
 			if not got.has(o) and _foe_ok(o):
 				got[o] = true
 				foes.append(o)
-	var seen: Dictionary = ai.ch._seen if ai.ch != null else {}
-	for o in seen:
-		if got.has(o) or not is_instance_valid(o) or o.dead or o.off_field or game.clock - float(seen[o][0]) > KNOWN_T:
+	for o in foes:
+		_mem[o] = [game.clock, o.position]
+	var seen: Dictionary = _mem.duplicate()
+	if ai.ch != null:
+		for o in ai.ch._seen:
+			if not seen.has(o) or float(seen[o][0]) < float(ai.ch._seen[o][0]):
+				seen[o] = ai.ch._seen[o]
+	for o in seen.keys():
+		if not is_instance_valid(o) or o.dead or o.off_field or game.clock - float(seen[o][0]) > KNOWN_T:
+			_mem.erase(o)
+			continue
+		if got.has(o):
 			continue
 		var p: Vector2 = seen[o][1]
 		for u in body:
@@ -144,12 +155,17 @@ func _known(body: Array) -> Array:
 	return foes
 
 
+var _mem := {}                   # enemy soldier -> [clock, position] last seen by the wave
+
+
 ## Where we know an enemy is: where it stands when in sight, else where it was last seen.
 func _pos(o: Unit) -> Vector2:
 	if game.is_visible_to(ai.team, o.position):
 		return o.position
-	var seen: Dictionary = ai.ch._seen if ai.ch != null else {}
-	return seen[o][1] if seen.has(o) else o.position
+	var a: Array = _mem.get(o, [-99.0, o.position])
+	if ai.ch != null and ai.ch._seen.has(o) and float(ai.ch._seen[o][0]) > float(a[0]):
+		return ai.ch._seen[o][1]
+	return a[1]
 
 
 func _foe_ok(o: Unit) -> bool:
@@ -161,12 +177,12 @@ func _foe_ok(o: Unit) -> bool:
 
 ## Lays the line: the front rank's middle `c`, facing `face`; `units` the men and guns to place. attack: the shooters go on
 ## an attack-move (they stop to fire at what comes in reach). Returns the number of shooters placed.
-func lay(units: Array, c: Vector2, face: Vector2, attack: bool) -> int:
+func lay(units: Array, c: Vector2, face: Vector2, attack: bool, least := LINE_MIN) -> int:
 	var shooters: Array = units.filter(func(u) -> bool: return _ok(u) and shooter(u))
 	var guns: Array = units.filter(func(u) -> bool: return _ok(u) and is_gun(u))
 	var melee: Array = units.filter(func(u) -> bool: return _ok(u) and not shooter(u) and not is_gun(u))
 	_spot.clear()
-	if shooters.size() < LINE_MIN:
+	if shooters.size() < least:
 		return 0
 	var T := float(Defs.TILE)
 	face = face.normalized()
@@ -378,7 +394,10 @@ func _form(ground: Array, bc: Vector2, near_o: Unit, foes: Array) -> bool:
 
 
 func _forming(ground: Array, target: Vector2, contact: bool, foes: Array) -> bool:
-	var share := settle(_face, st == "form" or _guns_reach(foes))
+	var reach := _guns_reach(foes)
+	if reach and st == "step":
+		_guns_down()                         # (the enemy came into the guns' reach mid-step: they set up behind the line now)
+	var share := settle(_face, st == "form" or reach)
 	if contact:
 		return _fight_begin(ground)         # (they came to us: the line shoots where it stands)
 	if foes.is_empty() and game.clock - _t0 > 4.0:
@@ -423,6 +442,27 @@ func _step(foes: Array) -> void:
 	_c += _face * adv
 
 
+## The fight is on (or the enemy in the guns' reach) while the guns roll with the line: a gun behind the front rank sets up
+## where it stands; one level with it or ahead goes back behind it first.
+func _guns_down() -> void:
+	if _face == Vector2.ZERO or _c == Vector2.INF:
+		return
+	var T := float(Defs.TILE)
+	var perp := Vector2(-_face.y, _face.x)
+	for u in _spot.keys():
+		if not _ok(u) or not is_gun(u) or u.tesla_mode != "packed":
+			continue
+		var back: float = (u.position - _c).dot(_face)
+		if back < -GUN_MIN_BACK * T:
+			_spot[u] = u.position
+			u.cmd_deploy()
+		else:
+			var side: float = clampf((u.position - _c).dot(perp), -3.0 * T, 3.0 * T)
+			var p: Vector2 = _same_level(_c - _face * (GUN_BACK * T) + perp * side, game.level_of(_c), _c)
+			_spot[u] = p
+			u.cmd_move(p)
+
+
 ## The guns at their spots (or none).
 func _guns_at_spots() -> bool:
 	for u in _spot:
@@ -440,6 +480,11 @@ func _guns_reach(foes: Array) -> bool:
 
 
 func _fight_begin(ground: Array) -> bool:
+	var unprepared := st in ["", "close"]
+	if unprepared:
+		_deploy(ground)
+	else:
+		_guns_down()
 	st = "fight"
 	_t0 = game.clock
 	_reach_t = game.clock
@@ -458,7 +503,42 @@ func _fight_begin(ground: Array) -> bool:
 	return false
 
 
+## Contact without a line formed (an enemy met at a turn of the road, out of a ramp's foot): the shooters already firing
+## stay where they are; the rest deploy into a line through them, across the enemy's direction (an attack-move: they stop to
+## fire as they come in reach), the melee on the flanks, the guns behind.
+func _deploy(ground: Array) -> void:
+	var shooters: Array = ground.filter(func(u: Unit) -> bool: return shooter(u))
+	var fc := Vector2.ZERO
+	var nf := 0
+	for u in shooters:
+		for o in game.units_near(u.position, 420.0):
+			if _foe_ok(o):
+				fc += o.position
+				nf += 1
+	if nf == 0 or shooters.size() < LINE_MIN:
+		return
+	fc /= nf
+	var front: Unit = shooters[0]
+	for u in shooters:
+		if u.position.distance_to(fc) < front.position.distance_to(fc):
+			front = u
+	_face = (fc - front.position).normalized()
+	if _face == Vector2.ZERO:
+		return
+	var busy := func(u: Unit) -> bool: return shooter(u) and u.target != null and is_instance_valid(u.target) \
+			and u.target.position.distance_to(u.position) < float(u.d.get("range", 190)) + 20.0
+	var free: Array = ground.filter(func(u: Unit) -> bool: return not busy.call(u))
+	_c = _same_level(front.position - _face * 24.0, game.level_of(front.position), front.position)
+	if free.filter(func(u: Unit) -> bool: return shooter(u)).size() < 2:
+		return
+	var n := lay(free, _c, _face, true, LINE_MIN - 2)
+	if n > 0:
+		deploys += 1
+		_say("'s wave meets the enemy before its line is formed: %d muskets deploy into a line through the %d already firing" % [n, shooters.size() - n])
+
+
 func _fight(ground: Array, target: Vector2, foes: Array, contact: bool) -> bool:
+	settle(_face)
 	if foes.is_empty():
 		_say("'s line has won the field: it forms up again and goes on")
 		return _reset(ground, target, "")
