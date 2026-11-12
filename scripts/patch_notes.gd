@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.26", "items": [
+		"THE CLOCK SOLDIER MARCHES ON REAL LEGS: its walk in all eight directions is the owner's new painted march (short, stubby steps with the feet planted), replacing the legs made in code that barely moved, so it no longer slides over the ground. It steps faster to match its speed. Its SHIELD FORWARD walk keeps the old legs for now.",
+		"THE RAPTOR RUNS TOWARD YOU AND AWAY FROM YOU on painted legs: its run facing down and up the screen is new art with the legs clearly taking turns (the crest and spines still take the player's colour). Its diagonal runs are unchanged for now.",
+	]},
 	{"v": "0.33.25", "items": [
 		"THE CROWN COMPUTER SCREENS ITS LINE WITH HORSEMEN (docs/crown_rider_screen.md): when its wave marches, two to four Horsemen ride ahead of it along its road and out on its flanks. What they see, its line knows: the wave halts out of reach and forms its line of Musketeers with the guns behind, facing the enemy, before it walks into it (before, the enemy was first seen at contact, a musket's sight). The riders keep out of reach of what can catch or shoot them; at contact they pull back round the ends of the line, out of its fire, and work the flanks: enemy workers, the hurt, stragglers and scouts, and what comes at the guns.",
 		"At home a Horseman stands as a PICKET on the road in front of the army's post (the natural's gate, the cliff edge or the ramp's top) and rides back with a warning when an enemy force comes. The Barracks train a rider for the screen and the picket when none is free. The Horseman rush, the raids and the Balloon harass keep their own riders; no unit or economy number changed.",

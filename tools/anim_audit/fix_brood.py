@@ -112,6 +112,8 @@ TEAM_PAINT = ["assets/buildings/brood_queen.png", "assets/buildings/clutch_mound
 
 def team_paint(rel):
     p = os.path.join(ROOT, rel)
+    if not os.path.exists(p):
+        return                          # (the old Brood's Queen building is gone since 0.18.0)
     a = load(p)
     r, g, b = [a[..., i].astype(int) for i in range(3)]
     rgb = a[..., :3].astype(float) / 255.0
@@ -142,6 +144,8 @@ def main():
     for rel in TEAM_PAINT:
         team_paint(rel)
     for kind in KINDS:
+        if not re.search(r'\t"%s": \{"cell"' % kind, open(os.path.join(ROOT, "scripts/art_data.gd")).read()):
+            continue                    # (an old Brood creature, gone since 0.18.0)
         for key in sorted(unit(kind)["frames"]):
             if os.path.exists(path(kind, key)):
                 snap_keys(path(kind, key))
