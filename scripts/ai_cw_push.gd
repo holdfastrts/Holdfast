@@ -461,7 +461,7 @@ func _march() -> void:
 		if h.position.distance_to(anchor - dir * back) > HEAVY_LAG:
 			lag = true
 	lag = _lag_wait(lag, heavies, dir)
-	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0
+	var arrived := path_i >= path.size() or anchor.distance_to(goal) < 160.0 or _goal_in_reach()
 	_leash(front)
 	if at and not lag and not arrived and _main_goal() and anchor.distance_to(goal) < 1100.0 and ((not committed and _value(units) < foe_mem() * float(cfg.get("main_k", MAIN_K))) or _value(units) < float(cfg.get("main_min", 0.0)) * (COMMIT_MAIN if committed else 1.0)):
 		# THE MAIN WAITS: the enemy's main (its army's home) only with the strength for it: the push holds here, on the ground
@@ -1206,3 +1206,18 @@ func _lag_wait(lag: bool, heavies: Array, dir: Vector2) -> bool:
 			_order(h, anchor - dir * BACK_BAL, false, 60.0)
 	_note_once("lagwait", "does not wait for its Ballistas any more: they walk to it, the march goes on", 30.0)
 	return false
+
+
+## (clockwork-v-clockwork-coach) THE GOAL IN REACH IS THE GOAL REACHED. Committed against the Clockwork, a building goal
+## within GOAL_NEAR of the anchor counts as reached: the whole push breaks it (and goes for its menders) at once. The march
+## waits for 60% of the front at its anchor, and with the goal that near, half the front was already at it, shooting it on
+## its attack-move: the anchor stood 360 px short of a Clocktower for two minutes with 32 soldiers, 16 at the anchor
+## (Kestrel Rise mirror, round 3, 8:32-10:18). `-- cwreach:off` plays it as before.
+const GOAL_NEAR := 420.0
+var reach_on := not OS.get_cmdline_user_args().has("cwreach:off")
+
+
+func _goal_in_reach() -> bool:
+	if not reach_on or not committed or foe < 0 or game.faction_of(foe) != "clockwork":
+		return false
+	return goal_e is Building and is_instance_valid(goal_e) and not goal_e.dead and anchor.distance_to(goal) < GOAL_NEAR
