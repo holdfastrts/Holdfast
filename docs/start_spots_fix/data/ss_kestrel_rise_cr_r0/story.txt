@@ -1,0 +1,74 @@
+[00:23] P1 Crown walls off its ramp: 1 pieces.
+[00:23] P2 Crown walls off its ramp: 1 pieces.
+[01:04] P1 Crown's scout saw too little (the scout was blocked): that proves nothing, so it builds no army for it and looks again soon.
+[01:04] P2 Crown's scout saw too little (the scout was blocked): that proves nothing, so it builds no army for it and looks again soon.
+[01:50] P1 Crown follows its own Dragoon raids build order: 8 steps, then its milestones.
+[01:50] P1 Crown reads the enemy as UNKNOWN (no read yet) and picks Dragoon raids: raids on its workers.
+[01:50] P2 Crown follows its own Dragoon raids build order: 8 steps, then its milestones.
+[01:50] P2 Crown reads the enemy as UNKNOWN (no read yet) and picks Dragoon raids: raids on its workers.
+[03:53] P2 Crown expands while its base is still rich: more land, 20 tiles out.
+[03:53] P2 Crown's opening is over: its milestones and its doctrine take over.
+[03:53] P2 Crown plans a walled expansion.
+[03:56] P1 Crown expands while its base is still rich: more land, 20 tiles out.
+[03:56] P1 Crown's opening is over: its milestones and its doctrine take over.
+[03:56] P1 Crown plans a walled expansion.
+[03:58] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[04:13] P1 Crown's Horseman goes after the enemy workers.
+[04:35] P2 Crown holds the top of its ramp: against the force below (115) its army (120) goes down only at 150.
+[04:38] P1 Crown reads the enemy as GREEDY (a second base and little army).
+[04:38] P1 Crown follows its own Timing attack build order: 0 steps, then its milestones.
+[04:38] P1 Crown reads the enemy as GREEDY (a second base and little army) and picks Timing attack: Horsemen are no answer to Musketeers: a timing attack.
+[04:46] P2 Crown reads the enemy as GREEDY (a second base and little army).
+[04:46] P2 Crown follows its own Timing attack build order: 0 steps, then its milestones.
+[04:46] P2 Crown reads the enemy as GREEDY (a second base and little army) and picks Timing attack: Horsemen are no answer to Musketeers: a timing attack.
+[04:52] P1 Crown puts up its next milestone: Foundry 1.
+[05:02] P2 Crown puts up its next milestone: Barracks 2.
+[05:52] P2 Crown's Horseman goes after the enemy workers.
+[06:01] P2 Crown reads the enemy as NORMAL (a standard opening).
+[06:01] P2 Crown reads the enemy as NORMAL (a standard opening) and keeps Timing attack: what it plays already answers it.
+[07:10] P2 Crown's Horseman goes after the enemy workers.
+[08:02] P1 Crown's Horseman goes after the enemy workers.
+[08:10] P1 Crown reads the enemy as NORMAL (a standard opening).
+[08:10] P1 Crown reads the enemy as NORMAL (a standard opening) and keeps Timing attack: what it plays already answers it.
+[08:12] P2 Crown's Horseman goes after the enemy workers.
+[08:21] P2 Crown's Horseman goes after the enemy workers.
+[08:23] P1 Crown puts up its next milestone: Armoury 1.
+[08:38] P1 Crown's Horseman goes after the enemy workers.
+[08:39] P2 Crown's scout saw too little (the scout was driven off): that proves nothing, so it builds no army for it and looks again soon.
+[08:44] P1 Crown goes down its ramp with its army.
+[08:44] P1 Crown sends out its first attack: 19 supply, 1 of them Horsemen.
+[09:03] P2 Crown puts up its next milestone: Armoury 1.
+[09:25] P1 Crown expands while its base is still rich: more land, 18 tiles out.
+[09:36] P1 Crown's scout saw too little (the scout was driven off): that proves nothing, so it builds no army for it and looks again soon.
+[09:40] P2 Crown goes down its ramp with its army.
+[09:40] P2 Crown sends out its first attack: 19 supply, 1 of them Horsemen.
+[09:43] P1 Crown puts its army first (775 against the 880 it reckons the enemy has): the labourers and the tech wait.
+[09:46] P2 Crown puts up its next milestone: Barracks 3.
+[09:56] P1 Crown holds the top of its ramp: against the force below (115) its army (144) goes down only at 150.
+[09:56] P1 Crown moves its musket line to the cliff edge above its Town Hall.
+[09:59] P2 Crown's Horseman goes after the enemy workers.
+[10:26] P1 Crown holds the top of its ramp: against the force below (404) its army (264) goes down only at 527.
+[10:50] P2 Crown expands while its base is still rich: more land, 18 tiles out.
+[10:51] P2 Crown plans a walled expansion.
+[10:53] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[10:54] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[10:59] P1 Crown holds the top of its ramp: against the force below (373) its army (355) goes down only at 486.
+[11:02] P1 Crown moves its musket line to the cliff edge above its Farm.
+[11:29] P1 Crown holds the top of its ramp: against the force below (376) its army (355) goes down only at 490.
+[11:30] P2 Crown expands while its base is still rich: more land, 35 tiles out.
+[11:31] P2 Crown plans a walled expansion.
+[11:59] P1 Crown holds the top of its ramp: against the force below (369) its army (261) goes down only at 481.
+[12:02] P2 Crown puts up its next milestone: Foundry 2.
+[12:29] P1 Crown holds the top of its ramp: against the force below (489) its army (261) goes down only at 637.
+[12:45] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[12:45] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[12:48] P2 Crown breaks through at the enemy's gate.
+[12:59] P1 Crown holds the top of its ramp: against the force below (604) its army (261) goes down only at 787.
+[13:02] P2 Crown reads the enemy as NORMAL (a standard opening).
+[13:02] P2 Crown reads the enemy as NORMAL (a standard opening) and keeps Timing attack: what it plays already answers it.
+[14:05] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[14:06] P1 Crown lost a base: it keeps off that ground until it is clear of enemies.
+[14:12] P2 Crown's Horseman goes after the enemy workers.
+[14:24] P2 Crown's Horseman goes after the enemy workers.
+[14:33] P2 Crown's Horseman goes after the enemy workers.
+[14:51] P2 Crown expands while its base is still rich: more land, 39 tiles out.
