@@ -1,0 +1,71 @@
+[00:00] P1 Brood takes new ground: a Mound Turtle roots 27 tiles out.
+[00:00] P2 Brood takes new ground: a Mound Turtle roots 25 tiles out.
+[01:41] P1 Brood reads the enemy as NORMAL (a standard opening).
+[01:41] P1 Brood reads the enemy as NORMAL (a standard opening) and picks Economy: an economic race.
+[01:41] P2 Brood reads the enemy as NORMAL (a standard opening).
+[01:41] P2 Brood reads the enemy as NORMAL (a standard opening) and picks Economy: an economic race.
+[02:17] P2 Brood sends a grub to grow a Tyrant Lure.
+[02:19] P1 Brood sends a grub to grow a Tyrant Lure.
+[03:36] P2 Brood takes new ground: a Mound Turtle roots 29 tiles out.
+[03:36] P1 Brood takes new ground: a Mound Turtle roots 30 tiles out.
+[04:35] P1 Brood grows its Mother to stage 2.
+[04:36] P2 Brood grows its Mother to stage 2.
+[04:55] P1 Brood researches Bigger Clutch.
+[05:00] P2 Brood researches Bigger Clutch.
+[05:06] P1 Brood sends a grub to grow a Venom Lure.
+[05:07] P2 Brood sends a grub to grow a Venom Lure.
+[05:50] P1 Brood takes new ground: a Mound Turtle roots 30 tiles out.
+[05:50] P2 Brood takes new ground: a Mound Turtle roots 29 tiles out.
+[05:52] P1 Brood researches Pack Hunt.
+[06:22] P2 Brood researches Pack Hunt.
+[06:35] P2 Brood takes new ground: a Mound Turtle roots 39 tiles out.
+[06:38] P2 Brood sends a grub to grow a Storm Lure.
+[06:59] P2 Brood grows its Mother to stage 3.
+[07:15] P1 Brood grows its Mother to stage 3.
+[08:00] P2 Brood researches Fog Bank.
+[08:00] P2 Brood researches Quick Roots.
+[08:10] P1 Brood takes new ground: a Mound Turtle roots 30 tiles out.
+[08:24] P1 Brood attacks with 92 supply.
+[08:30] P2 Brood attacks with 82 supply.
+[08:43] P2 Brood researches Miasma Cloud.
+[09:06] P1 Brood pulls its wave back: only 1020 of 4385 is left.
+[09:17] P1 Brood sounds the alarm: an enemy army of 620 is on the move. Warriors gather, grubs pull back.
+[09:17] P1 Brood gets a Mound Turtle up to root in front of its natural.
+[09:19] P1 Brood defends its home with 3 against 150.
+[09:30] P1 Brood defends its home with 2 against 100.
+[09:33] P1 Brood defends its home with 3 against 90.
+[09:35] P1 Brood defends its home with 3 against 50.
+[09:37] P2 Brood pulls its wave back: only 1025 of 5030 is left.
+[09:38] P2 Brood sounds the alarm: an enemy army of 1515 is on the move. Warriors gather, grubs pull back.
+[09:38] P2 Brood gets a Mound Turtle up to root in front of its natural.
+[09:50] P1 Brood roots a Mound Turtle in front of its natural.
+[10:16] P1 Brood researches Bigger Clutch.
+[10:32] P2 Brood takes new ground: a Mound Turtle roots 31 tiles out.
+[10:34] P2 Brood roots a Mound Turtle in front of its natural.
+[10:34] P1 Brood attacks with 130 supply.
+[10:47] P2 Brood defends its home with 102 against 350.
+[11:21] P2 Brood defends its home with 2 against 25.
+[11:30] P1 Brood pulls its wave back: only 1575 of 6595 is left.
+[11:31] P1 Brood sounds the alarm: an enemy army of 960 is on the move. Warriors gather, grubs pull back.
+[12:28] P2 Brood attacks with 110 supply.
+[12:29] P2 Brood researches Bigger Clutch.
+[12:30] P1 Brood attacks with 130 supply.
+[12:36] P2 Brood's wave closes up before it meets an enemy army of 1875.
+[12:50] P2 Brood pulls its wave back: only 1320 of 4335 is left.
+[12:51] P2 Brood sounds the alarm: an enemy army of 1575 is on the move. Warriors gather, grubs pull back.
+[12:54] P2 Brood defends its home with 4 against 125.
+[12:56] P2 Brood pulls its defenders back to the Mother.
+[13:04] P2 Brood defends its home with 34 against 1225.
+[13:25] P2 Brood pulls its defenders back to the Mother.
+[13:28] P2 Brood defends its Mother with 20 against 475.
+[13:52] P2 Brood pulls its defenders back to the Mother.
+[13:52] P2 Brood defends its Mother with 3 against 1025.
+[13:54] P2 Brood pulls its defenders back to the Mother.
+[13:54] P2 Brood defends its Mother with 3 against 1100.
+[13:56] P2 Brood sends a grub to grow a Tyrant Lure.
+[13:57] P2 Brood sends a grub to grow a Venom Lure.
+[13:58] P2 Brood sends a grub to grow a Venom Lure.
+[13:59] P2 Brood sends a grub to grow a Venom Lure.
+[14:02] P2 Brood sends a grub to grow a Venom Lure.
+[14:06] P2 Brood sends a grub to grow a Venom Lure.
+[14:27] P1 Brood's wave goes for the enemy Mother with 59 creatures.

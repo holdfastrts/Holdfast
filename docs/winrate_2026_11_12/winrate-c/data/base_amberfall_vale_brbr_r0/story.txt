@@ -1,0 +1,62 @@
+[00:00] P1 Brood takes new ground: a Mound Turtle roots 27 tiles out.
+[00:00] P2 Brood takes new ground: a Mound Turtle roots 25 tiles out.
+[01:38] P1 Brood reads the enemy as NORMAL (a standard opening).
+[01:38] P1 Brood reads the enemy as NORMAL (a standard opening) and keeps Balanced: a normal game.
+[02:13] P2 Brood sends a grub to grow a Tyrant Lure.
+[02:14] P1 Brood sends a grub to grow a Tyrant Lure.
+[03:00] P2 Brood reads the enemy as UNKNOWN (no read yet) and keeps Balanced: a normal game.
+[04:02] P1 Brood takes new ground: a Mound Turtle roots 39 tiles out.
+[04:24] P1 Brood grows its Mother to stage 2.
+[04:32] P2 Brood grows its Mother to stage 2.
+[04:40] P1 Brood researches Bigger Clutch.
+[04:45] P2 Brood researches Bigger Clutch.
+[04:48] P1 Brood sends a grub to grow a Venom Lure.
+[04:54] P2 Brood sends a grub to grow a Venom Lure.
+[05:20] P2 Brood takes new ground: a Mound Turtle roots 38 tiles out.
+[05:31] P1 Brood researches Pack Hunt.
+[06:01] P2 Brood researches Pack Hunt.
+[06:06] P2 Brood takes new ground: a Mound Turtle roots 38 tiles out.
+[06:10] P1 Brood researches Slither.
+[06:30] P1 Brood attacks with 29 supply.
+[06:37] P2 Brood attacks with 44 supply.
+[06:37] P2 Brood reads the enemy as NORMAL (a standard opening).
+[06:37] P2 Brood reads the enemy as NORMAL (a standard opening) and keeps Balanced: what it plays already answers it.
+[07:00] P1 Brood pulls its wave back: only 780 of 1565 is left.
+[07:01] P1 Brood sounds the alarm: an enemy army of 1195 is on the move. Warriors gather, grubs pull back.
+[07:12] P1 Brood defends its home with 2 against 50.
+[07:15] P1 Brood gets a Mound Turtle up to root in front of its natural.
+[07:19] P1 Brood defends its home with 2 against 100.
+[07:19] P2 Brood's wave closes up before it meets an enemy army of 805.
+[07:31] P1 Brood defends its home with 3 against 200.
+[07:35] P1 Brood defends its home with 3 against 50.
+[07:42] P2 Brood pulls its wave back: only 640 of 2585 is left.
+[07:43] P1 Brood roots a Mound Turtle in front of its natural.
+[07:43] P2 Brood sounds the alarm: an enemy army of 1360 is on the move. Warriors gather, grubs pull back.
+[07:43] P2 Brood gets a Mound Turtle up to root in front of its natural.
+[08:00] P1 Brood takes new ground: a Mound Turtle roots 39 tiles out.
+[08:15] P2 Brood roots a Mound Turtle in front of its natural.
+[09:00] P1 Brood attacks with 106 supply.
+[09:04] P2 Brood attacks with 80 supply.
+[09:09] P1 Brood takes new ground: a Mound Turtle roots 15 tiles out.
+[09:16] P1 Brood grows its Mother to stage 3.
+[09:36] P2 Brood pulls its wave back: only 800 of 3385 is left.
+[09:37] P2 Brood sounds the alarm: an enemy army of 1000 is on the move. Warriors gather, grubs pull back.
+[09:40] P2 Brood defends its home with 2 against 25.
+[09:46] P2 Brood pulls its defenders back to the Mother.
+[09:48] P2 Brood defends its home with 19 against 765.
+[10:25] P1 Brood pulls its wave back: only 220 of 4575 is left.
+[10:27] P1 Brood sounds the alarm: an enemy army of 525 is on the move. Warriors gather, grubs pull back.
+[10:47] P2 Brood grows its Mother to stage 3.
+[11:39] P1 Brood researches Bigger Clutch.
+[11:41] P2 Brood attacks with 99 supply.
+[11:46] P1 Brood attacks with 133 supply.
+[11:47] P2 Brood researches Bigger Clutch.
+[12:04] P2 Brood pulls its wave back: only 660 of 3135 is left.
+[12:05] P2 Brood sounds the alarm: an enemy army of 2815 is on the move. Warriors gather, grubs pull back.
+[12:14] P2 Brood defends its home with 8 against 200.
+[12:15] P2 Brood pulls its defenders back to the Mother.
+[12:28] P2 Brood defends its Mother with 31 against 2205.
+[12:30] P2 Brood sends a grub to grow a Storm Lure.
+[12:54] P1 Brood's wave goes for the enemy Mother with 35 creatures.
+[12:58] P2 Brood sends a grub to grow a Tyrant Lure.
+[13:11] P2 Brood defends its Mother with 1 against 1105.
