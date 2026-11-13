@@ -1344,7 +1344,35 @@
   ],
   "feather": 14,
   "match": true,
-  "_why": "audit 2026-11-13 problem 5: the venom jets from the Spitters' mouths (owner's ChatGPT smoothing pass)"
+  "_why": "audit 2026-11-13 problem 5: the venom jets from the Spitters' mouths (owner's ChatGPT smoothing pass); the old pixels kept round the Venom Sire, whose ChatGPT jet came out of its eye",
+  "keep": [
+   [
+    [
+     955,
+     362
+    ],
+    [
+     1000,
+     358
+    ],
+    [
+     1115,
+     420
+    ],
+    [
+     1112,
+     452
+    ],
+    [
+     1010,
+     452
+    ],
+    [
+     955,
+     420
+    ]
+   ]
+  ]
  },
  {
   "src": "art/menu_fix/f41_gpt_smooth.png",
@@ -1376,5 +1404,158 @@
   "match": true,
   "not_green": true,
   "_why": "audit 2026-11-13 problem 12: the sky without the crackle texture (owner's ChatGPT smoothing pass)"
+ },
+ {
+  "src": "@out",
+  "poly": [
+   [
+    970,
+    302
+   ],
+   [
+    1000,
+    296
+   ],
+   [
+    1062,
+    314
+   ],
+   [
+    1110,
+    336
+   ],
+   [
+    1112,
+    368
+   ],
+   [
+    1066,
+    362
+   ],
+   [
+    1006,
+    340
+   ],
+   [
+    972,
+    332
+   ]
+  ],
+  "feather": 8,
+  "_why": "the top-left venom jet started from a frond, not a mouth: hillside over it (the Mother's claws cleaned out of the copied ground first)",
+  "clone": [
+   [
+    [
+     [
+      996,
+      258
+     ],
+     [
+      1092,
+      258
+     ],
+     [
+      1092,
+      314
+     ],
+     [
+      996,
+      314
+     ]
+    ],
+    -100,
+    8
+   ],
+   [
+    [
+     [
+      960,
+      298
+     ],
+     [
+      1112,
+      298
+     ],
+     [
+      1112,
+      376
+     ],
+     [
+      960,
+      376
+     ]
+    ],
+    0,
+    -44
+   ]
+  ]
+ },
+ {
+  "src": "@out",
+  "clone": [
+   [
+    [
+     [
+      680,
+      550
+     ],
+     [
+      812,
+      550
+     ],
+     [
+      812,
+      700
+     ],
+     [
+      680,
+      700
+     ]
+    ],
+    -265,
+    0
+   ]
+  ],
+  "poly": [
+   [
+    700,
+    575
+   ],
+   [
+    740,
+    566
+   ],
+   [
+    790,
+    568
+   ],
+   [
+    806,
+    590
+   ],
+   [
+    800,
+    630
+   ],
+   [
+    770,
+    660
+   ],
+   [
+    730,
+    668
+   ],
+   [
+    700,
+    650
+   ],
+   [
+    690,
+    610
+   ]
+  ],
+  "feather": 14,
+  "opacity": 0.85,
+  "_why": "square-by-square check 2026-11-13: one more copied Brood head and crest (old clone patches 9 and 13) under the charge's smoke"
  }
 ]

@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.6", "items": [
+		"THE MAIN MENU PAINTING: the venom that came out of the Venom Sire's eye is gone (its old look is back), the top venom jet that started from a fern is gone, and one more copied Brood head on the slope is now under the cavalry's dust.",
+	]},
 	{"v": "0.34.5", "items": [
 		"THE MAIN MENU PAINTING: from the owner's ChatGPT smoothing pass only three parts were taken (the rest of its answer changed too much): the cross's glow without the seam line, the Spitters' venom jets now coming from their mouths, and the bright sky without the crackled texture.",
 	]},
