@@ -117,7 +117,10 @@
   ECON COACHING MERGED 2026-11-13: econ-coach-clockwork 0.34.1 (alone 0.75 -> 1.20 of the bench at 15:00, games 0.66 -> 0.90,
   results within noise; docs/econ-coach-clockwork.md), econ-coach-crown 0.34.2 (spent Farms pulled down when they block a
   fresh hall, free Farm posts first; Economy plan alone reaches the bench by 10:00; in games the gap is the plans OPTIMAL
-  picks; docs/econ-coach-crown.md). econ-coach-brood still running. Flaky/stale after the merges: test_ai_cw_horse_raid
+  picks; docs/econ-coach-crown.md), econ-coach-brood 0.34.3 (games 0.66/0.79/0.76 -> 0.70/0.84/0.81 of the bench at 5/8/10 min;
+  v the Clockwork +25% income at 8:00, wins or leads 4 -> 7 of 12; its alone tool is tools/econ_ai_alone_brood.gd;
+  docs/econ-coach-brood.md). ALL THREE MERGED; the AI and Brood tests all pass after it. GROUND SYSTEM job started
+  2026-11-13 11:20 UTC (cloud job ground-system, branch, Settings experiment, merge on "DONE: ground-system:"). Flaky/stale after the merges: test_ai_cw_horse_raid
   (different check each run), test_ai_scout_sentry (passes alone), test_ai_rush / _rush_followup (Crown v Brood, known),
   test_crown_dragoon_raid's [plan] check (fails before the Crown merge too).
   OWNER 2026-11-13 08:03 on the coaching's questions: (1) spent Farms/Presses counting against the limit: WAIT FOR THE
