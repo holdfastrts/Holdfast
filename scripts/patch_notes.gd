@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.5", "items": [
+		"THE MAIN MENU PAINTING: from the owner's ChatGPT smoothing pass only three parts were taken (the rest of its answer changed too much): the cross's glow without the seam line, the Spitters' venom jets now coming from their mouths, and the bright sky without the crackled texture.",
+	]},
 	{"v": "0.34.4", "items": [
 		"THE MAIN MENU PAINTING, CLEANED UP AGAIN: no more copied Brood heads on the slope (the cavalry's dust there now), no ghost rider beside the armoured horseman, no third hand on the wounded man, the half-washed figure behind the kneeling musketeer is now plain musket smoke, the wounded man's legs are a natural length, and the two guns stand side by side: the far one firing with its own carriage, the near one being reloaded in front of it.",
 	]},

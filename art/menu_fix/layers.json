@@ -1277,5 +1277,104 @@
    0.78
   ],
   "_why": "audit 2026-11-13 problem 2: the nearer gun, abreast of the firing one (which now shows its own carriage)"
+ },
+ {
+  "src": "art/menu_fix/f41_gpt_smooth.png",
+  "box": [
+   0,
+   0,
+   1672,
+   941
+  ],
+  "poly": [
+   [
+    158,
+    318
+   ],
+   [
+    290,
+    318
+   ],
+   [
+    290,
+    445
+   ],
+   [
+    158,
+    445
+   ]
+  ],
+  "feather": 12,
+  "match": true,
+  "_why": "audit 2026-11-13 problem 4: the cross's glow without the seam (owner's ChatGPT smoothing pass)"
+ },
+ {
+  "src": "art/menu_fix/f41_gpt_smooth.png",
+  "box": [
+   0,
+   0,
+   1672,
+   941
+  ],
+  "poly": [
+   [
+    955,
+    300
+   ],
+   [
+    1100,
+    296
+   ],
+   [
+    1310,
+    330
+   ],
+   [
+    1312,
+    480
+   ],
+   [
+    1170,
+    482
+   ],
+   [
+    960,
+    420
+   ]
+  ],
+  "feather": 14,
+  "match": true,
+  "_why": "audit 2026-11-13 problem 5: the venom jets from the Spitters' mouths (owner's ChatGPT smoothing pass)"
+ },
+ {
+  "src": "art/menu_fix/f41_gpt_smooth.png",
+  "box": [
+   0,
+   0,
+   1672,
+   941
+  ],
+  "poly": [
+   [
+    880,
+    0
+   ],
+   [
+    1672,
+    0
+   ],
+   [
+    1672,
+    290
+   ],
+   [
+    880,
+    290
+   ]
+  ],
+  "feather": 16,
+  "match": true,
+  "not_green": true,
+  "_why": "audit 2026-11-13 problem 12: the sky without the crackle texture (owner's ChatGPT smoothing pass)"
  }
 ]

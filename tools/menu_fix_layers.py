@@ -82,8 +82,21 @@ for L in json.load(open("art/menu_fix/layers.json")):
         a0 = np.asarray(m).copy()
         a0[:yb][~br[:yb]] = 0
         m = Image.fromarray(a0)
+    if L.get("not_green"):      # only where neither picture is green (a sky behind the Brood Mother's spikes)
+        def green(p):
+            return (p[..., 1] > p[..., 0] * 0.95) & (p[..., 1] > p[..., 2] * 1.15)
+        from scipy import ndimage
+        g = ndimage.binary_dilation(green(src) | green(out), iterations=4)
+        a0 = np.asarray(m).copy()
+        a0[g] = 0
+        m = Image.fromarray(a0)
     m = m.filter(ImageFilter.GaussianBlur(L.get("feather", 10)))
     a = (np.asarray(m).astype(float) / 255.0)[..., None] * L.get("opacity", 1.0)   # a see-through layer (dust over a part)
     moved = np.roll(np.roll(src, dy, 0), dx, 1)
+    if L.get("match"):          # a repaint whose colours drifted: its mean and spread per channel matched to the painting's
+        w = a[..., 0] > 0.5
+        for c in range(3):
+            s, o = moved[..., c][w], out[..., c][w]
+            moved[..., c] = (moved[..., c] - s.mean()) * (o.std() / max(s.std(), 1e-3)) + o.mean()
     out = out * (1 - a) + moved * a
 Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(sys.argv[1])
