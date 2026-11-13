@@ -119,7 +119,17 @@ below; not run.
 | Balloon harass | 0.58 -> 0.66 | 0.56 -> 0.64 | 0.68 -> 0.71 | 0.76 -> 0.79 |
 | Timing attack | 0.57 -> 0.57 | 0.56 -> 0.60 | 0.57 -> 0.62 | 0.72 -> 0.76 |
 
-(Other maps and the OPTIMAL runs: docs/econ-coach-crown/alone/*.json, the same tool; single runs, a few percent of noise.)
+| other maps and OPTIMAL (bench = Greenhold's; "before" = `farmrecycle:off postsfirst:off`) | 5:00 | 8:00 | 10:00 | 15:00 |
+|---|---|---|---|---|
+| Economy, Dune Sea | 0.79 -> 0.88 | 0.91 -> 1.03 | 1.00 -> 1.07 | 1.14 -> 1.09 |
+| Economy, Hollowfen | 0.70 -> 0.88 | 0.87 -> 0.99 | 0.94 -> 0.97 | 1.20 -> 1.00 |
+| Economy, Frostfang | 0.88 -> 0.79 | 0.87 -> 0.95 | 0.90 -> 1.02 | 1.00 -> 1.03 |
+| Balanced, Dune Sea | 0.62 -> 0.80 | 0.79 -> 0.92 | 0.91 -> 0.98 | 1.15 -> 1.06 |
+| OPTIMAL v an idle Brood (plays Balanced) | 0.62 -> 0.72 | 0.67 -> 0.87 | 0.76 -> 0.94 | 0.96 -> 1.04 |
+| OPTIMAL v an idle Crown (plays Timing) | 0.64 -> 0.65 | 0.60 -> 0.57 | 0.57 -> 0.54 | 0.67 -> 0.64 |
+
+(docs/econ-coach-crown/alone/before and after: one JSON a run. Single runs, a few percent of noise; the 15:00 column is
+the least sure: alone, the Economy and Balanced plans are at the 200 supply cap with 100-120 labourers by then.)
 Each plan against what it can reach: the Economy plan reaches the bench (less its builders' labour early); the Balanced
 plan now nearly does; the army plans keep their identity (fewer labourers, an army out early) and reach 0.6-0.8 by 8:00.
 
