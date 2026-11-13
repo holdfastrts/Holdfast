@@ -248,6 +248,14 @@ static func build(s: NetSession, view = null) -> Dictionary:
 		if sfp != v.spot_fp or key:
 			v.spot_fp = sfp
 			m["nbs"] = srows
+	# THE GROUND SYSTEM (docs/ground_system.md): the soil and brass on the map, every made tile in a keyframe ("gk"), else the
+	# tiles whose freshness changed a step (of 32) since this view last got them ("gd"), every 10th snapshot
+	if g.ground_layer and not g.ground_layer.guest and (key or s.snap_n % 10 == 0):
+		var grows := g.ground_layer.net_rows(v.ground_sent, key)
+		if key:
+			m["gk"] = grows
+		elif not grows.is_empty():
+			m["gd"] = grows
 	if Defs.cw_roster and (not g.cw_consists.is_empty() or s.snap_n % 10 == 0):
 		m["cpl"] = CwConsist.net_rows(s, g)     # coupled rail trains (lists of ids; the host moves the cars)
 	if not g.line_net.rails.trains.is_empty() or s.snap_n % 10 == 0:
@@ -409,6 +417,21 @@ static func merge(list: Array) -> Dictionary:
 		for f in sm.get("fx", []):
 			if recent or f[0] == "c" or f[0] == "f" or (f[0] == "g" and bool(f[3][8])):     # (a "+N", a lasting cloud's edge: kept)
 				shots.append(f)
+	# (THE GROUND SYSTEM: the newest keyframe's tiles, then every change after it, in order)
+	var gk = null
+	var gd := PackedInt32Array()
+	for sm in list:
+		if (sm as Dictionary).has("gk"):
+			gk = sm["gk"]
+			gd = PackedInt32Array()
+		if (sm as Dictionary).has("gd"):
+			gd.append_array(PackedInt32Array(sm["gd"]))
+	last.erase("gk")
+	last.erase("gd")
+	if gk != null:
+		last["gk"] = gk
+	if not gd.is_empty():
+		last["gd"] = gd
 	for id in gone_ids:
 		urows.erase(id)
 		brows.erase(id)
@@ -511,6 +534,11 @@ static func apply(s: NetSession, m: Dictionary) -> void:
 		g.line_net.load_rows(m["ln"])
 	if m.has("kg"):
 		apply_kegs(g, m["kg"])
+	if (m.has("gk") or m.has("gd")) and g.land():
+		if m.has("gk"):
+			g.ground_layer.net_apply(PackedInt32Array(m["gk"]), true)
+		if m.has("gd"):
+			g.ground_layer.net_apply(PackedInt32Array(m["gd"]), false)
 	if m.has("nbs"):
 		g.nb_spots.clear()
 		for r in m["nbs"]:

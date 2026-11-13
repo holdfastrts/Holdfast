@@ -18,7 +18,8 @@ extends SceneTree
 ## store never stops them.
 ##
 ##   godot --headless --fixed-fps 30 --script res://tools/econ_bench.gd -- <faction> [minutes=20] [map=greenhold]
-##       [seed=1] [exp=240,480] [press=big|small] [out=<file.json>]
+##       [seed=1] [exp=240,480] [press=big|small] [ground=0|1] [out=<file.json>]
+## ground=1: THE GROUND SYSTEM on (docs/ground_system.md); spent Farms / Presses still come down (_recycle).
 ##
 ## Prints a line a minute and a final RESULT line (JSON): per minute the primary and secondary earned that minute and
 ## cumulative, workers, workers at work, halls / Rootmaws, the primary resource left (soil, brass, ground), spending.
@@ -32,7 +33,7 @@ var main: Node
 var g: Game
 var ai
 var fac := "crown"
-var opts := {"minutes": "20", "map": "greenhold", "seed": "1", "exp": "240,480", "press": "big", "out": ""}
+var opts := {"minutes": "20", "map": "greenhold", "seed": "1", "exp": "240,480", "press": "big", "out": "", "ground": "0"}
 var t := 0.0
 var started := false
 var next_min := 60.0
@@ -61,6 +62,14 @@ func _initialize() -> void:
 			opts[kv[0]] = kv[1]
 		else:
 			fac = a
+	# (THE GROUND SYSTEM's numbers for a study: land.district=13 land.r.farm=10 land.r.cog_press=11 land.soil=9000...)
+	for k in opts.keys():
+		if String(k).begins_with("land."):
+			var path := String(k).substr(5).split(".")
+			if path.size() == 1:
+				Defs.LAND[path[0]] = float(opts[k]) if String(opts[k]).is_valid_float() else (String(opts[k]) == "true")
+			else:
+				(Defs.LAND[path[0]] as Dictionary)[path[1]] = float(opts[k])
 	for s in String(opts["exp"]).split(","):
 		if s != "" and s != "auto":
 			exp_times.append(float(s))
@@ -72,7 +81,7 @@ func _process(delta: float) -> bool:
 	if t > 0.2 and main.game == null:
 		seed(int(opts["seed"]))
 		var other := "crown" if fac != "crown" else "clockwork"
-		main.start({"map": opts["map"], "seed": int(opts["seed"]), "slots": [
+		main.start({"map": opts["map"], "seed": int(opts["seed"]), "ground": String(opts["ground"]) == "1", "slots": [
 			{"who": "hard", "faction": fac, "colour": 0, "side": 0, "strategy": "balanced"},
 			{"who": "you", "faction": other, "colour": 1, "side": 1, "strategy": "balanced"}]})
 		g = main.game
@@ -307,6 +316,9 @@ func _recycle() -> void:
 		if b.team != 0 or b.dead or not b.built or not Defs.is_econ(b.kind) or b.kind == "mainspring":
 			continue
 		if b.barren():
+			if g.ground_layer:
+				var hh := g.nearest_hall(b.center(), 0)
+				print("  (ground) %d s: a spent %s at %s pulled down, its hall's district %s" % [int(g.clock), b.kind, str(b.cell), str(g.ground_layer.district(hh)) if hh else "-"])
 			_first("recycled_" + b.kind)
 			g._remove_quietly(b)       # (pulled down; nobody hurt, nothing paid back)
 
@@ -536,7 +548,7 @@ func _row() -> void:
 
 func _finish() -> void:
 	var res := {"faction": fac, "map": opts["map"], "seed": int(opts["seed"]), "exp": exp_times, "press": opts["press"],
-		"version": ProjectSettings.get_setting("application/config/version", "dev"), "rows": rows, "firsts": firsts,
+		"ground": Defs.ground_on, "version": ProjectSettings.get_setting("application/config/version", "dev"), "rows": rows, "firsts": firsts,
 		"wall_s": (Time.get_ticks_msec() - wall0) / 1000.0}
 	var js := JSON.stringify(res)
 	print("RESULT " + js)
