@@ -20,3 +20,43 @@ es %d%% de un lugar nuevo
 > This %s's ground already feeds %d %s (spent ones don't count). Build by another one.
 pt O solo desta %s já alimenta %d %s (os gastos não contam). Construa junto a outra.
 es El suelo de esta %s ya alimenta %d %s (los gastados no cuentan). Construye junto a otra.
+
+> FRESH SPOT
+pt LUGAR NOVO
+es LUGAR NUEVO
+
+> GOOD SPOT
+pt BOM LUGAR
+es BUEN LUGAR
+
+> HALF SPENT
+pt MEIO GASTO
+es MEDIO GASTADO
+
+> POOR SPOT
+pt LUGAR FRACO
+es LUGAR POBRE
+
+> SPENT
+pt GASTO
+es GASTADO
+
+> of a whole circle of fresh soil
+pt de um círculo inteiro de solo novo
+es de un círculo entero de suelo nuevo
+
+> of a whole circle of fresh brass
+pt de um círculo inteiro de latão novo
+es de un círculo entero de latón nuevo
+
+> BEST SPOT  %d%%
+pt MELHOR LUGAR  %d%%
+es MEJOR LUGAR  %d%%
+
+> the best spot left by your halls
+pt o melhor lugar que resta junto às suas sedes
+es el mejor lugar que queda junto a tus sedes
+
+> ground running low: expand to a new hall
+pt o solo está acabando: expanda para uma nova sede
+es el suelo se acaba: expándete a una nueva sede

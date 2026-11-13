@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.4": ["O SISTEMA DO SOLO (experimento), mais claro ao colocar uma Fazenda ou Prensa de Engrenagens: o rótulo fica ao lado do prédio (\\\"49%  BOM LUGAR\\\", \\\"de um círculo inteiro de solo novo\\\" e uma barra), o melhor lugar que resta junto às suas sedes fica contornado em dourado com uma seta até ele, um aviso diz quando o solo está acabando e é hora de expandir, e o terreno sem solo nenhum aparece escuro em vez de vermelho."],
 	"0.35.3": ["O SISTEMA DO SOLO (experimento): um jogador da Ninhada agora vê os círculos livres de Bocarraiz ao enraizar com o sistema do solo ligado (ficavam escondidos quando ele estava ligado)."],
 	"0.35.2": ["A PINTURA DO MENU PRINCIPAL: o trecho vazio de lama na frente do Mecanismo agora tem mais um Soldado-Relógio avançando sobre a Coroa, de escudo erguido."],
 	"0.35.1": ["A PINTURA DO MENU PRINCIPAL: o exército do Mecanismo se vira para a Coroa: novos Soldados-Relógio (um avançando com a espada na frente, um com a espada erguida, um entrando por trás) onde havia Saltadores, e um Saltador pulando sobre a ponte."],

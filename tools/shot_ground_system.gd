@@ -76,7 +76,8 @@ func _snap(name: String) -> void:
 	await _frames(20)
 	var img: Image = root.get_viewport().get_texture().get_image()
 	img.save_png("%s/%s.png" % [out, name])
-	print("shot ", name)
+	var gv = main.game.ground_view if main.game else null
+	print("shot ", name, ("  ghost %.2f best %s %.2f" % [float(gv.ghost_share[1]), str(gv.best_cell), gv.best_share]) if gv and gv.placing_drinker() else "")
 
 
 func _place(g: Game, kind: String, cell: Vector2i) -> void:

@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.4": ["EL SISTEMA DEL SUELO (experimento), más claro al colocar una Granja o Prensa de Engranajes: la etiqueta va junto al edificio (\\\"49%  BUEN LUGAR\\\", \\\"de un círculo entero de suelo nuevo\\\" y una barra), el mejor lugar que queda junto a tus sedes aparece rodeado en dorado con una flecha hacia él, un aviso dice cuándo el suelo se acaba y conviene expandirse, y el terreno sin suelo se ve oscuro en vez de rojo."],
 	"0.35.3": ["EL SISTEMA DEL SUELO (experimento): un jugador de la Nidada ahora ve los círculos libres de Bocarraíz al enraizar con el sistema del suelo activado (quedaban ocultos cuando estaba activado)."],
 	"0.35.2": ["LA PINTURA DEL MENÚ PRINCIPAL: el trozo vacío de barro en el frente del Mecanismo ahora tiene otro Soldado Reloj avanzando sobre la Corona, con el escudo en alto."],
 	"0.35.1": ["LA PINTURA DEL MENÚ PRINCIPAL: el ejército del Mecanismo se vuelve hacia la Corona: nuevos Soldados Reloj (uno embistiendo con la espada al frente, uno con la espada en alto, uno empujando por detrás) donde había Saltadores, y un Saltador saltando sobre el puente."],

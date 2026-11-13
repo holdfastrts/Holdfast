@@ -188,3 +188,15 @@ ballista.gd:328 `has_tag` on a target that died mid-splash, not touched by this 
 - A game batch: `python3 tools/study/qa_matches.py run OUT --data DATA --only ground --extra ground:1` (ON) and the same
   without `--extra` (OFF), then `python3 tools/study/ground_games.py OFF_DATA ON_DATA`.
 - Pictures: `xvfb-run -a godot --rendering-driver opengl3 --resolution 1600x900 --fixed-fps 30 --script res://tools/shot_ground_system.gd -- out:/abs/dir`.
+
+## Placing, made clearer (owner 2026-11-13 18:33: "make it as clear and intuitive as possible"; 0.35.4)
+
+- The label sits BESIDE the building being placed (right, or left near the screen's edge), never over a far edge of the
+  circle: "49%  GOOD SPOT", "of a whole circle of fresh soil" (or brass) and a bar filled to the share, in the spot's colour.
+- Words for the share (GroundView.verdict): FRESH SPOT 70%+, GOOD SPOT 45%+, HALF SPENT 25%+, POOR SPOT 8%+, SPENT
+  (a circle never lies wholly on soil next to its hall: a fresh hall's best Farm spot holds about 70-80%).
+- BEST SPOT: the best legal spot in the viewer's districts (explored ground) is outlined in gold with "BEST SPOT 49%"
+  and a dotted gold arrow from the ghost, when it holds at least 5 points more than where the ghost is.
+- A third line in gold: "the best spot left by your halls" when the ghost is on it; "ground running low: expand to a new
+  hall" when even the best spot holds under 35%.
+- Tiles of the circle with no ground of its kind (outside every district) are dark, not red: red means spent.

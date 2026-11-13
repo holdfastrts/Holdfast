@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.4", "items": [
+		"THE GROUND SYSTEM (experiment), clearer while placing a Farm or Cog Press: the label sits beside the building (\"49%  GOOD SPOT\", \"of a whole circle of fresh soil\" and a bar), the best spot left by your halls is outlined in gold with an arrow to it, a hint says when the ground is running low and you should expand, and ground with no soil at all shows dark instead of red.",
+	]},
 	{"v": "0.35.3", "items": [
 		"THE GROUND SYSTEM (experiment): a Brood player now sees the free Rootmaw circles while rooting with the ground system on (they were hidden once it was on).",
 	]},
