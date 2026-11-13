@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.33", "items": [
+		"The main menu painting: the ghost of the old creature's spikes that still showed in the sky behind the Brood Mother's head is gone.",
+	]},
 	{"v": "0.33.32", "items": [
 		"THE MAIN MENU PAINTING, FINISHED FIXES: the Brood Mother on the hill is now the Brood Mother of the game, a huge four-legged lizard with her venom-green mane, horns and glowing eggs (she was a leafy dragon melting into the trees), and the Clockwork army is its real units: Clock Soldiers with sword and shield, Springers on their coil springs with screw drills, tall Pendulums with their blades, under red gear banners (swords floated in the air and robots melted into each other).",
 	]},
