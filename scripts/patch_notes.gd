@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.41", "items": [
+		"The main menu painting: the armoured horseman fell back into the smoke beside the sergeant, leaving the slope for the Brood, and the field cannon with its gunner and linstock was drawn back a little and shows whole again.",
+	]},
 	{"v": "0.33.40", "items": [
 		"The main menu painting: the stray hand by the healing missionary is gone; he tends the wounded man on the stretcher, with musket smoke drifting low beside them.",
 	]},

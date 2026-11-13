@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.33.41": ["La pintura del menú principal: el jinete acorazado retrocedió al humo junto al sargento, dejando la ladera a la Camada, y el cañón de campaña con su artillero y el botafuego retrocedió un poco y vuelve a verse entero."],
 	"0.33.40": ["La pintura del menú principal: la mano suelta junto al misionero que atiende a los heridos ha desaparecido; él cura al herido de la camilla, con el humo de los mosquetes pasando bajo a su lado."],
 	"0.33.39": ["La pintura del menú principal: el sacerdote con la cruz dorada ahora muestra el rostro, mirándola; la caballería carga ladera arriba por delante de la línea de mosquetes en vez de meterse en su fuego; y el humo sobre la primera fila está limpio."],
 	"0.33.38": ["La pintura del menú principal: el segundo sacerdote, demasiado grande, ya no está y un soldado herido se sienta ahora junto al misionero mientras le vendan el brazo; la línea de mosqueteros detrás de ellos vuelve a verse, un tercer mosquetero se arrodilla y dispara en la primera fila, y el jinete acorazado recupera su espada."],
