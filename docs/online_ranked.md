@@ -306,7 +306,9 @@ Friendly online (room codes) and single player send nothing to our servers excep
   host's planned sites).
 - Last run (0.34.0, this machine): `tools/test_ranked.sh` RANKED ALL OK (the match host: 2,582 pictures checked, 412
   enemy rows, 0 leaks; the cheater: 1 foreign order refused, 1 foreign unit stripped, 32 of 73 orders dropped as a
-  flood, flagged; the fair player clean; ratings 1500 -> 1662 / 1338 after the first placement match).
+  flood, flagged; the fair player clean; ratings 1500 -> 1662 / 1338 after the first placement match). `test_online.sh`
+  1v1: HOST and GUEST ALL OK; `coop`: all OK but `guest_ground_attack_hits_body`, which fails the same way on main
+  (0.33.30, checked): not from this work.
 
 ## Open (the next steps)
 
