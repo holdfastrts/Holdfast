@@ -2284,7 +2284,22 @@ var rush_labs_off := OS.get_cmdline_user_args().has("rushlabs:off")
 
 
 func _labs_on_in_rush() -> bool:
-	return not rush_labs_off and game.workers(team).size() < RUSH_LABS
+	return not rush_labs_off and game.workers(team).size() < _rush_labs()
+
+
+## THE RUSH SATURATES ITS MAIN (econ-coach-crown, docs/econ-coach-crown.md): RUSH_LABS (16, the owner's own rush at 4:00) held
+## the hall while the riders rode, with Farm posts empty: the punish's labourers stood at 18 at 5:00 and 28 at 8:00 in the
+## win-rate games, its income 0.60-0.69 of the bench. A labourer on a free Farm post pays its 50 gold back in under a minute,
+## so the hall keeps one coming up to the main's posts (its Farms and Mill, built) and RUSH_SPARE more (the builder, the
+## scout), never under RUSH_LABS. The riders still come first from every idle Barracks. `-- rushsat:off` as before.
+const RUSH_SPARE := 2
+var rush_sat_off := OS.get_cmdline_user_args().has("rushsat:off")
+
+
+func _rush_labs() -> int:
+	if rush_sat_off:
+		return RUSH_LABS
+	return maxi(RUSH_LABS, _posts() + RUSH_SPARE)
 
 
 func _rush_horse_only() -> bool:

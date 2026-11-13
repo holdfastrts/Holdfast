@@ -168,7 +168,34 @@ func _side(tm: int) -> Dictionary:
 		"res2": int(st.get("res2_in", 0.0)), "out": not _alive(tm), "gw_cogs": _gw_sum(tm),
 		"idle_w": g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size(),
 		"idle_w_avg": snappedf(float(_idle_w[tm][0]) / maxf(1.0, float(_idle_w[tm][1])), 0.1),
-		"push": _push_phase(tm)}
+		"push": _push_phase(tm), "crown": _crown_econ(tm, a)}
+
+
+## (econ-coach-crown) the Crown's economy in detail: built Farms on live soil and spent ones, Mills, the posts they offer,
+## the labourers on Farms and Mills, the computer's labourer cap and the seconds its labourers waited for the army
+func _crown_econ(tm: int, a) -> Dictionary:
+	if g.faction_of(tm) != "crown":
+		return {}
+	var d := {"farms": 0, "farms_spent": 0, "mills": 0, "posts": 0, "on_farms": 0, "on_mills": 0}
+	for b in g.buildings:
+		if b.team != tm or b.dead or not b.built:
+			continue
+		if b.kind == "farm":
+			if b.soil_left() <= 0.0:
+				d["farms_spent"] += 1
+				continue
+			d["farms"] += 1
+			d["posts"] += b.crew_max()
+			d["on_farms"] += b.working_crew()
+		elif b.kind == "powder_mill":
+			d["mills"] += 1
+			d["posts"] += b.crew_max()
+			d["on_mills"] += b.working_crew()
+	if a != null and a.has_method("owner_lab_cap"):
+		d["lab_cap"] = a.owner_lab_cap()
+		d["lag_s"] = int(a.lag_time)
+		d["farms_pulled"] = int(a.get("farms_pulled") if a.get("farms_pulled") != null else 0)
+	return d
 
 
 ## (clockwork-ai-v2) cogs the side's Great Winders have swept so far
