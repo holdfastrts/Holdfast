@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.3", "items": [
+		"THE GROUND SYSTEM (experiment): a Brood player now sees the free Rootmaw circles while rooting with the ground system on (they were hidden once it was on).",
+	]},
 	{"v": "0.35.2", "items": [
 		"THE MAIN MENU PAINTING: the empty patch of mud in the Clockwork front now holds another Clock Soldier advancing on the Crown, shield up.",
 	]},

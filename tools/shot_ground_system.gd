@@ -156,10 +156,76 @@ func _run() -> void:
 	var ct := g.halls_of(0)[0] as Building
 	g.camera.position = ct.center() + Vector2(0, 40)
 	g.camera.zoom = Vector2(0.62, 0.62)
-	var spot := GearEcon.room_spot(g, 0, "cog_press", [ct], [], ct.center(), true, 8)
+	var spot := _cell_holding(g, "cog_press", ct.center(), 0.95)
+	if spot.x < 0:
+		spot = GearEcon.room_spot(g, 0, "cog_press", [ct], [], ct.center(), true, 8)
 	if spot.x >= 0:
 		_place(g, "cog_press", spot)
 		await _snap("clock_press")
+	if press:                               # a Press half over the drawn-down brass (owner 2026-11-13: all 3 factions)
+		var half_c := _cell_holding(g, "cog_press", press.center(), 0.4)
+		if half_c.x >= 0:
+			_place(g, "cog_press", half_c)
+			await _snap("clock_press_overlap")
+	var wc := g.find_spot(0, Defs.CW_WORKS, ct, 4, 12, "near")
+	if wc.x >= 0:
+		_place(g, Defs.CW_WORKS, wc)
+		await _snap("clock_works")
+	g.controls.mode = ""
+	await _end()
+	# ---- the Brood: no ground layer of its own; its Rootmaw circles (free spots) show while it roots something
+	g = await _start("brood", "crown")
+	# (no Rootmaw circle exists at the start: a Hard Brood computer plays our side for 5 minutes, both sides peaceful)
+	for a in g.ais:
+		a.peaceful = true
+	var bai: AI = AIBroodNew.new()
+	bai.game = g
+	bai.team = 0
+	bai.difficulty = 3
+	bai.strategy = "economy"
+	bai.peaceful = true
+	g.add_child(bai)
+	g.ais.append(bai)
+	g.process_mode = Node.PROCESS_MODE_INHERIT
+	RenderingServer.render_loop_enabled = false
+	await _frames(30 * 300)
+	RenderingServer.render_loop_enabled = true
+	g.ais.erase(bai)
+	bai.queue_free()
+	g.process_mode = Node.PROCESS_MODE_DISABLED
+	print("brood: ", g.nb_spots.size(), " Rootmaw circles")
+	var mother: Unit = null
+	for u in g.units:
+		if u.team == 0 and u.kind == "brood_mother" and not u.dead:
+			mother = u
+	var mp: Vector2 = mother.position if mother else g.camera.position
+	for u in g.units:                       # one Rootmaw uprooted: its drunk ground stays behind as a free circle
+		if u.team == 0 and u.kind == "rootmaw" and not u.dead and BroodNew.rooted(u):
+			BroodNew.uproot(u, false)
+			break
+	g.camera.position = mp + Vector2(0, 40)
+	g.camera.zoom = Vector2(0.5, 0.5)
+	g.controls.mode = "nb_root"
+	g.controls.place_kind = "rootmaw"
+	g.controls.nb_morph = true
+	var gc := BroodRoot.cell_for("rootmaw", mp + Vector2(220, 60), 1.0)
+	var gd := INF
+	for dy in range(-30, 31, 2):           # a spot a Rootmaw may root on (green ghost), nearest the Mother
+		for dx in range(-30, 31, 2):
+			var q := mp + Vector2(dx, dy) * float(Game.T)
+			var cc := BroodRoot.cell_for("rootmaw", q, 1.0)
+			if BroodRoot.place_problem(g, 0, "rootmaw", BroodRoot.feet_at("rootmaw", cc, 1.0), null, false, 1.0) == "":
+				var d := q.distance_to(mp)
+				if d < gd:
+					gd = d
+					gc = cc
+	g.controls.ghost_cell = gc
+	g.ground_view._process(1.0)
+	g.ground_view.queue_redraw()
+	g.queue_redraw()
+	if g.overlay:
+		g.overlay.queue_redraw()        # (the rooting ghost and its Rootmaw circle: BroodRoot.draw_overlay)
+	await _snap("brood_rootmaw")
 	g.controls.mode = ""
 	await _end()
 	quit()

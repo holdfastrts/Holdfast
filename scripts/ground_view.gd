@@ -119,8 +119,9 @@ func _draw() -> void:
 				draw_arc(b.center(), GroundLayer.district_r(GroundLayer.hall_res(b.kind)) * T, 0, TAU, 96, Color(1, 1, 1, 0.25 * a + 0.08), 1.5)
 		if placing_drinker():
 			_draw_ghost_circle(gl, T, a)
-	elif game.human >= 0 and BroodNew.on(game, game.human):
-		# the Brood: the free Rootmaw circles left on the map (rooted ones show their own ground bars)
+	if game.human >= 0 and BroodNew.on(game, game.human):
+		# the Brood: the free Rootmaw circles left on the map (rooted ones show their own ground bars); also with THE GROUND
+		# SYSTEM on (it lays no Brood ground: an elif here hid these circles from a Brood player once it was on)
 		for id in game.nb_spots:
 			var s: Dictionary = game.nb_spots[id]
 			if int(s.get("maw", 0)) != 0:
