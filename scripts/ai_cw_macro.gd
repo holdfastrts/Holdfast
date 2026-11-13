@@ -19,6 +19,8 @@ extends RefCounted
 const MAX_WINDERS := 54          # Winders at most (Hard; the escorts included): the rest of the 200 supply is the army's
 const PRESS_SAFE := 360.0        # no press by a Clocktower with an enemy soldier this near (as BuildsEco)
 const LODE_FRESH := 0.15         # a Clocktower with at least this share of its brass still wants its presses
+const BIG_HALLS := 3             # Cog Presses on the BIG ring while it has no more Clocktowers than this standing...
+const BIG_SUPPLY := 140          # ... and less supply than this (later the small ring's better cogs a Winder count more)
 
 var ai = null
 var game: Game = null
@@ -79,7 +81,7 @@ func want(base: int) -> int:
 	var pre := 0
 	for h in ai._halls():
 		if not h.built:
-			pre += int(Defs.GEAR["press"]["small"]["crew"])
+			pre += int(Defs.GEAR["press"]["big" if want_big() else "small"]["crew"])
 	var w := posts() + esc + 1 + pre
 	var k := float(ai._s("workers"))
 	if k < 1.0:
@@ -114,6 +116,70 @@ func _fill_posts() -> void:
 		if game.train(h, wk) == "":
 			short -= 1
 			say("fill", "macro: Winders for the empty posts while the opening build runs (%d posts empty)" % empty_posts())
+
+
+## THE BIG RING for its presses (econ-coach-clockwork, fix 4): the shared rule laid a big press only with spare Winders
+## standing, and with Winders trained for the posts there never were: every computer press was small, two to a Clocktower,
+## 26 posts on two bases where the bench's big presses give 38: at most 72% of the bench's cogs a minute until the third
+## Clocktower. The big ring costs 25 cogs and 4 s more and takes 8 Winders (10 cogs a second) for the small one's 5 (7.2):
+## worth it while Winders are cheap to add, so the first BIG_HALLS Clocktowers' presses go big, the later ones small (at
+## the supply cap the small ring's 86 cogs a Winder a minute beat the big one's 75).
+func want_big() -> bool:
+	if ai.difficulty < 2 or not Defs.gear_mode:
+		return false
+	var built: int = ai._halls().filter(func(h: Building) -> bool: return h.built).size()
+	return built <= BIG_HALLS and game.supply_used(team) < BIG_SUPPLY
+
+
+## A press by Clocktower h: the big ring if wanted and there is room for it, else the small one. The site or null.
+func lay_press(h: Building) -> Building:
+	var kind := Defs.GEAR_PRESS
+	var big := want_big()
+	game.set_gear_pick(team, kind, big)
+	if big and ai._free() < game.build_price(team, kind):
+		big = false
+		game.set_gear_pick(team, kind, false)
+	var c: Vector2i = GearEcon.room_spot(game, team, kind, [h], [], Vector2.INF, true)
+	if c.x < 0 and big:
+		big = false
+		game.set_gear_pick(team, kind, false)
+		c = GearEcon.room_spot(game, team, kind, [h], [], Vector2.INF, true)
+	if c.x < 0 or ai._free() < game.build_price(team, kind):
+		game.set_gear_pick(team, kind, false)
+		return null
+	var b: Building = ai._lay(kind, c, big)
+	game.set_gear_pick(team, kind, false)
+	return b
+
+
+## Presses its Clocktower h has (not spent).
+func presses_of(h: Building) -> int:
+	var n := 0
+	for b in ai._mine(Defs.GEAR_PRESS):
+		if game.lode_hall(b) == h and not b.barren():
+			n += 1
+	return n
+
+
+## After the opening (AIClockwork._econ_build, before the shared rules): the freshest standing Clocktower short of its
+## presses gets one (big while want_big), one going up at a time (two with Winders idle: presses_more). True when it laid one.
+func presses_after() -> bool:
+	if ai.difficulty < 2 or not Defs.gear_mode:
+		return false
+	var kind := Defs.GEAR_PRESS
+	if ai._busy_building(kind) or game.econ_count(team, kind) >= game.econ_limit(team, kind):
+		return false
+	var cost: int = game.build_price(team, kind)
+	if ai._gold() < cost or (ai._keeping() and ai._gold() - cost < ai._hall_keep()):
+		return false
+	var halls: Array = ai._halls().filter(func(h: Building) -> bool: return h.built and h.lode_left() >= LODE_FRESH)
+	halls.sort_custom(func(a: Building, b: Building) -> bool: return a.lode_left() > b.lode_left())
+	for h in halls:
+		if presses_of(h) >= Defs.econ_per_hall("clockwork", kind) or ai._enemy_near(h.center(), PRESS_SAFE):
+			continue
+		if lay_press(h) != null:
+			return true
+	return false
 
 
 func _idle_workers() -> int:
@@ -152,11 +218,7 @@ func _presses() -> void:
 			continue
 		if ai._enemy_near(h.center(), PRESS_SAFE):
 			continue
-		game.set_gear_pick(team, kind, false)
-		var c: Vector2i = GearEcon.room_spot(game, team, kind, [h], [], Vector2.INF, true)
-		if c.x < 0:
-			continue
-		var b2: Building = ai._lay(kind, c, false)
+		var b2: Building = lay_press(h)
 		if b2 != null:
 			ai.note("macro: lays a Cog Press by a Clocktower with %d of its 2 (%d%% brass left) while the opening build runs" % [n, int(h.lode_left() * 100.0)])
 			return
@@ -183,9 +245,7 @@ func presses_more() -> void:
 				n += 1
 		if n >= Defs.econ_per_hall("clockwork", kind) or ai._enemy_near(h.center(), PRESS_SAFE):
 			continue
-		game.set_gear_pick(team, kind, false)
-		var c: Vector2i = GearEcon.room_spot(game, team, kind, [h], [], Vector2.INF, true)
-		if c.x >= 0 and ai._lay(kind, c, false) != null:
+		if lay_press(h) != null:
 			say("more", "macro: a second Cog Press at once for the idle Winders (%d idle)" % _idle_workers())
 			return
 

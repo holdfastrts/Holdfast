@@ -140,10 +140,14 @@ func _press_new(i: int) -> Dictionary:
 	for h in halls:
 		if ai._enemy_near(h.center(), PRESS_SAFE):
 			continue            # (the enemy is at that Clocktower: not now)
-		var c: Vector2i = GearEcon.room_spot(game, team, kind, [h], [], Vector2.INF, true)
-		if c.x < 0:
-			continue
-		var b: Building = ai._lay(kind, c, false)
+		var b: Building = null
+		if ai.macro != null:
+			b = ai.macro.lay_press(h)      # (econ-coach-clockwork: the big ring while it pays)
+		else:
+			var c: Vector2i = GearEcon.room_spot(game, team, kind, [h], [], Vector2.INF, true)
+			if c.x < 0:
+				continue
+			b = ai._lay(kind, c, false)
 		if b != null:
 			ai._placed[i] = b
 			say("lays a Cog Press by its %s Clocktower at %d supply (step %d: press_new)" % ["new" if h != halls[-1] or halls.size() == 1 else "old", game.supply_used(team), i + 1])

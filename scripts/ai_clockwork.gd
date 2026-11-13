@@ -331,6 +331,8 @@ func _s(key: String) -> Variant:
 
 func _econ_build() -> void:
 	if not bo_on:
+		if macro != null and macro.presses_after():
+			return              # (econ-coach-clockwork: the presses, big ring first; the shared rules next think)
 		super._econ_build()
 		if macro != null:
 			macro.presses_more()        # (econ-coach-clockwork: a second press at once for idle Winders)

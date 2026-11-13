@@ -155,7 +155,10 @@ func _row() -> void:
 		"working": working, "posts": _posts(), "press_big": pb, "press_small": ps, "press_spent": pspent, "mainspring": ms,
 		"halls": hb, "halls_all": g.halls_of(0, false).size(), "bank": int(g.players[0]["gold"]), "supply": g.supply_used(0),
 		"cap": int(g.players[0]["cap"]), "army": int(army), "orders": orders, "plan": String(ai.strategy) if ai else "",
-		"bo": bool(ai.get("bo_on")) if ai else false}
+		"bo": bool(ai.get("bo_on")) if ai else false,
+		"escorts": (ai._escort as Array).size() if ai else 0,
+		"idle_free": ws.filter(func(u: Unit) -> bool: return u.order == "idle" and ai and not (ai._escort as Array).has(u)).size(),
+		"big_pick": g.gear_big_for(0, Defs.GEAR_PRESS)}
 	for k in acc:
 		row[k] = int(acc[k])
 	_reset_acc()
