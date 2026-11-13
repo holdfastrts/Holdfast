@@ -46,11 +46,28 @@ func _rush_spot(g: Game) -> Vector2:
 	var bd := INF
 	for u in g.units:
 		if is_instance_valid(u) and not u.dead and u.team == 1 and u.kind in ["raptor", "brute", "spitter", "tyrant_challenger"]:
-			var dd := u.position.distance_to(hall)
+			var dd: float = u.position.distance_to(hall)
 			if dd < bd:
 				bd = dd
 				best = u.position
 	return best
+
+
+func _anims(g: Game) -> Dictionary:
+	var c := {}
+	for u in g.units:
+		if is_instance_valid(u) and not u.dead and u.kind == "raptor" and g.view_rect.has_point(u.position):
+			var k := "%s_%s%s ph=%s" % [u.anim, u.anim_dir, "F" if u.anim_flip else "", u.phase]
+			c[k] = int(c.get(k, 0)) + 1
+	return c
+
+
+## The Brood Mother (her swamp round her).
+func _mother(g: Game) -> Vector2:
+	for u in g.units:
+		if is_instance_valid(u) and not u.dead and u.kind == BroodNew.QUEEN:
+			return u.position + Vector2(-250, 0)
+	return Vector2.INF
 
 
 func _run() -> void:
@@ -68,13 +85,14 @@ func _run() -> void:
 	while g.clock < at + 60.0 and not g.over:
 		await process_frame
 		if g.clock >= at + n * 15.0 and n < 4:
-			var p := _rush_spot(g)
+			var p := _rush_spot(g) if n % 2 == 0 else _mother(g)
 			if p.is_finite():
 				Engine.time_scale = 0.0001
 				get_root().get_tree().paused = false
 				g.camera.position = p
 				g.camera.zoom = Vector2(2.0, 2.0)
 				spots.append([g.clock, p])
+				print("LIVE %.1f %s" % [g.clock, _anims(g)])
 				await _shot("live_%d.png" % n)
 				Engine.time_scale = 6.0
 			n += 1
@@ -89,9 +107,13 @@ func _run() -> void:
 	g = main.game
 	var rp = g.replay
 	for i in spots.size():
-		rp.seek(float(spots[i][0]))
+		rp.seek(float(spots[i][0]) - 1.5)
+		rp.set_playing(true)
+		while g.clock < float(spots[i][0]):
+			await process_frame
 		rp.set_playing(false)
 		g.camera.position = spots[i][1]
 		g.camera.zoom = Vector2(2.0, 2.0)
 		await _shot("replay_%d.png" % i)
+		print("REPLAY %.1f %s" % [g.clock, _anims(g)])
 	quit(0)

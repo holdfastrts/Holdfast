@@ -99,6 +99,12 @@ func _process(_delta: float) -> void:
 	if _resume:
 		_resume = false
 		get_tree().paused = not playing
+	if get_tree().paused and ff_to < 0.0 and game and game.camera:
+		# (paused, nothing is stepped: units the camera comes to take their pose as they are now, replay-render)
+		var key := Rect2(game.camera.get_screen_center_position(), game.camera.zoom)
+		if key != _pose_view:
+			_pose_view = key
+			NetPuppet.pose_in_view(game)
 	if ff_to >= 0.0:
 		changed.emit()           # (the bar shows the seek going)
 
@@ -694,6 +700,7 @@ func _ff_end() -> void:
 	playing = _was_playing
 	get_tree().paused = true     # (the frame's other ticks, already counted at FF, don't run: it stops on the time)
 	_resume = true
+	_pose_view = Rect2()         # (the jump's units in view take their pose: replay-render)
 	changed.emit()
 
 

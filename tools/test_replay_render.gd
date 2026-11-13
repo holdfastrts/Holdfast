@@ -21,6 +21,7 @@ var fb := "brood"
 var map := "mirewood"
 var seed_ := 766992866
 var shots := ""
+var secs := 230.0
 var failed := 0
 var t := 0.0
 var _spawned := false
@@ -39,6 +40,8 @@ func _initialize() -> void:
 			fb = a.substr(2)
 		elif a.begins_with("map:"):
 			map = a.substr(4)
+		elif a.begins_with("secs:"):
+			secs = float(a.substr(5))
 		elif a.begins_with("shots:"):
 			shots = a.substr(6)
 	Settings.load_all()
@@ -93,19 +96,18 @@ func _spawn() -> void:
 		var fac := g.faction_of(tm)
 		var home := _hall(tm)
 		var foe := _hall(1 - tm)
-		var c: Vector2 = mid.lerp(home.center(), 0.3) if home else mid
+		var c: Vector2 = mid.lerp(home.center(), 0.8) if home else mid
 		var i := 0
 		for k in Defs.UNITS:
 			if String(Defs.UNITS[k].get("faction", "")) != fac or not live_kind(k):
 				continue
 			_kinds[k] = true
-			for j in 3:
-				# (three of each: one stands, two go at the enemy's hall)
+			for j in 2:
+				# (two of each, by their own hall: the computer takes them into its army)
 				var cell := g.nearest_free(g.cell_of(c + Vector2.from_angle(i * 0.9) * (60.0 + 10.0 * i)), 12)
-				var u: Unit = g._add_unit(k, tm, g.cell_center(cell))
+				g._add_unit(k, tm, g.cell_center(cell))
 				i += 1
-				if foe and u.has_attack() and j > 0:
-					u.cmd_move(foe.center(), true)
+
 	g.input_cmd = false
 	print("SPAWNED %d kinds: %s" % [_kinds.size(), ", ".join(PackedStringArray(_kinds.keys()))])
 
@@ -116,9 +118,9 @@ func _play() -> void:
 		Settings.replay_rec = rec_mode
 		ReplayFile.ensure_dir()
 		main.start({"map": map, "seed": seed_, "slots": [
-			{"who": "hard", "faction": fa, "colour": 0, "side": 0, "strategy": "rush"},
+			{"who": "hard", "faction": fa, "colour": 0, "side": 0, "strategy": "balanced"},
 			{"who": "hard", "faction": fb, "colour": 3, "side": 1, "strategy": "rush"}]})
-		Engine.time_scale = 4.0
+		Engine.time_scale = 8.0
 		return
 	if main.game == null:
 		return
@@ -134,12 +136,20 @@ func _play() -> void:
 				if not seen.has(u.anim):
 					seen.append(u.anim)
 				_live[u.kind] = seen
-	if g.clock >= 34.0 or g.over:
+	if g.clock >= secs or g.over:
 		Engine.time_scale = 1.0
 		g.rec.finish(g.winner if g.over else -1)
 		var newest: Dictionary = ReplayFile.list()[0]
 		print("RECORDED %s (%s), %.1f s" % [String(newest["path"]).get_file(), rec_mode, g.clock])
+		stage = "wait"
+		if g.over:
+			# (the end screen comes up a moment after the end: let it, then leave it as a player would)
+			for i in 240:
+				await process_frame
+				if main.ui_layer.get_children().any(func(c) -> bool: return c.has_signal("watch_replay")):
+					break
 		main._to_menu()
+		await process_frame
 		main.start_replay(String(newest["path"]))
 		stage = "watch"
 
@@ -171,21 +181,168 @@ func _watch() -> void:
 	if rp == null:
 		_end()
 		return
-	var at: float = maxf(float(rp.length) - 8.0, 1.0)
-	rp.seek(at)
+	# watched as the owner did: from the start at 8x, looking at the fight every WATCH_EVERY s of match time
+	rp.seek(float(rp.start_t))
 	rp.set_playing(true)
-	for round_i in 2:
-		await _frames(4 if round_i == 0 else 1)
-		if round_i == 1:
-			var c0: float = g.clock
-			var f0 := 0
-			while g.clock < c0 + 2.0 and f0 < 600:
-				f0 += 1
-				await process_frame
-		_check_units("t%d" % round_i, drawn)
-		if drawn:
-			await _pixel_checks("t%d" % round_i)
+	rp.set_speed(8.0)
+	var next := 20.0
+	var guard := 0
+	while guard < 20000:
+		guard += 1
+		await process_frame
+		if g.clock >= next or bool(rp.at_end):
+			var last := bool(rp.at_end)
+			rp.set_speed(1.0)
+			await _moment("t%03d" % int(g.clock), drawn)
+			next = g.clock + WATCH_EVERY
+			if last or bool(rp.at_end):
+				break
+			rp.set_playing(true)
+			rp.set_speed(8.0)
+	# and after a jump back
+	rp.seek(float(rp.length) * 0.6)
+	rp.set_playing(true)
+	await _frames(20)
+	await _moment("seek", drawn)
 	_end()
+
+
+const WATCH_EVERY := 15.0
+
+
+## Pause, look at the fight (else the busiest spot), check every unit on screen.
+func _moment(tag: String, drawn: bool) -> void:
+	var rp = g.replay
+	await _frames(6)           # (a few ticks at 1x: the units in view take their strips)
+	var end := bool(rp.at_end)
+	rp.set_playing(false)
+	g.camera.position = _busy_spot()
+	g.camera.zoom = Vector2(1.6, 1.6)
+	await _frames(3)
+	if not bool(rp.at_end):
+		rp.set_playing(true)       # (one more tick in view, then still)
+		await _frames(3)
+		rp.set_playing(false)
+	_check_units(tag, drawn)
+	if drawn:
+		await _bodies(tag)
+
+
+## Where the most units of both sides are near each other (the fight), else the most units.
+func _busy_spot() -> Vector2:
+	var best := g.camera.position
+	var bn := -1
+	var us := _units()
+	for u in us:
+		var n := 0
+		var both := {}
+		for v in us:
+			if v.position.distance_to(u.position) < 260.0:
+				n += 1
+				both[v.team] = true
+		n += 100 if both.size() > 1 else 0
+		if n > bn:
+			bn = n
+			best = u.position
+	return best
+
+
+static var _opaque := {}      # "texture id:frame" -> its opaque pixels
+
+
+func _opaque_px(s: Sprite2D) -> int:
+	var k := "%d:%d" % [s.texture.get_instance_id(), s.frame]
+	if _opaque.has(k):
+		return _opaque[k]
+	var img := s.texture.get_image()
+	var n := 0
+	if img:
+		if img.is_compressed():
+			img.decompress()
+		var fw := img.get_width() / maxi(s.hframes, 1)
+		var x0 := (s.frame % maxi(s.hframes, 1)) * fw
+		for y in img.get_height():
+			for x in range(x0, x0 + fw):
+				if img.get_pixel(x, y).a > 0.5:
+					n += 1
+	_opaque[k] = n
+	return n
+
+
+## Every unit's body on screen is really drawn: the picture with every unit sprite and without them differ over it by
+## a fair share of its frame's opaque pixels (as many screen pixels as the zoom makes them).
+func _bodies(tag: String) -> void:
+	var vp := root.get_viewport()
+	var vis := vp.get_visible_rect().size
+	# (the HUD's layers off and every unit looked at drawn over the world: a unit standing behind the Mother or a
+	# building, or under a panel, is not "missing")
+	var layers: Array = []
+	for cl in root.find_children("*", "CanvasLayer", true, false):
+		if (cl as CanvasLayer).visible:
+			layers.append(cl)
+			(cl as CanvasLayer).visible = false
+	# (only units clear of one another; everything else on the field hidden for the two pictures: buildings, rooted
+	# creatures, units not looked at. Nothing can stand in front of a unit looked at, so no body means not drawn.)
+	var cands: Array = []
+	for u in _units():
+		if BroodNew.rooted(u) or BroodRoot.in_cocoon(u):
+			continue          # (a rooted Brood creature is drawn in the building layer: BroodNew.draw)
+		var r: Rect2 = vp.get_canvas_transform() * u.sprite.get_global_transform() * u.sprite.get_rect()
+		r = r.abs()
+		if Rect2(Vector2(8, 8), vis - Vector2(16, 16)).encloses(r):
+			cands.append([u, r])
+	var looked: Array = []
+	for e in cands:
+		var clear := true
+		for f in cands:
+			if f != e and (e[1] as Rect2).intersects(f[1]):
+				clear = false
+				break
+		if clear:
+			looked.append(e)
+	var hidden: Array = []
+	var keep := {}
+	for e in looked:
+		keep[e[0]] = true
+	for n in g.world.get_children():
+		if n is CanvasItem and (n as CanvasItem).visible and not keep.has(n) and (n is Unit or n is Building):
+			hidden.append(n)
+			(n as CanvasItem).visible = false
+	await _frames(2)
+	var with := await _shot()
+	var k2 := Vector2(with.get_size()) / vis
+	for i in looked.size():
+		var r: Rect2 = looked[i][1]
+		looked[i] = [looked[i][0], Rect2(r.position * k2, r.size * k2)]
+	for e in looked:
+		(e[0] as Unit).sprite.visible = false
+	await _frames(2)
+	var without := await _shot()
+	for e in looked:
+		(e[0] as Unit).sprite.visible = true
+	for n in hidden:
+		if is_instance_valid(n):
+			(n as CanvasItem).visible = true
+	for cl in layers:
+		(cl as CanvasLayer).visible = true
+	var none: Array = []
+	for e in looked:
+		var u: Unit = e[0]
+		var r: Rect2 = e[1]
+		var diff := 0
+		for y in range(maxi(int(r.position.y), 0), mini(int(r.end.y), with.get_height())):
+			for x in range(maxi(int(r.position.x), 0), mini(int(r.end.x), with.get_width())):
+				var a := with.get_pixel(x, y)
+				var b := without.get_pixel(x, y)
+				if absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) > 0.12:
+					diff += 1
+		var want := _opaque_px(u.sprite) * absf(u.sprite.global_scale.x * u.sprite.global_scale.y) * g.camera.zoom.x * g.camera.zoom.y * k2.x * k2.y
+		if diff < want * 0.25:
+			none.append("%s#%d (%s_%s, %d of %d px)" % [u.kind, u.net_id, u.anim, u.anim_dir, diff, int(want)])
+	check("%s_bodies_drawn" % tag, none.is_empty(), "%d units looked at; no body: %s" % [looked.size(), str(none)])
+	if shots != "":
+		DirAccess.make_dir_recursive_absolute(shots)
+		with.save_png(shots.path_join("%s_%s.png" % [rec_mode, tag]))
 
 
 ## The sprite of every unit in the viewer: shown, the right strip, the frame size of its art.
@@ -216,55 +373,16 @@ func _check_units(tag: String, drawn: bool) -> void:
 					why = "frame %d px wide (hframes %d of a %d px strip %s), the art's cell is %d" % [fw, s.hframes, s.texture.get_width(), s.texture.resource_path.get_file(), cell.x]
 				elif s.frame >= s.hframes * s.vframes:
 					why = "frame %d of %d" % [s.frame, s.hframes]
+		if why == "" and not BroodNew.rooted(u) and g.view_rect.has_point(u.position):
+			# (its pose is what it is doing now: not a picture left over from before a pause or a jump)
+			var want := String(u._anim_name())
+			var sa := String(u._anim_art) if u._anim_art != "" else String(u.art)
+			var drawn_want := ArtData.UNITS.has(sa) and (ArtData.UNITS[sa]["frames"] as Dictionary).keys().any(func(k) -> bool: return String(k).begins_with(want + "_"))
+			if want != u.anim and drawn_want and want != "mount":
+				why = "pose %s, doing %s" % [u.anim, want]
 		if why != "":
 			bad[u.kind] = "%s (%s)" % [why, u.anim]
 	check("%s_sprites" % tag, bad.is_empty(), "%d units; wrong: %s" % [n, str(bad)])
-
-
-## One unit of each kind on screen: the picture with its sprite and without it differ round it (its body is drawn).
-func _pixel_checks(tag: String) -> void:
-	var by_kind := {}
-	for u in _units():
-		if not by_kind.has(u.kind):
-			by_kind[u.kind] = u
-	var none: Array = []
-	var cam: Camera2D = g.camera
-	rp_pause(true)
-	for k in by_kind:
-		var u: Unit = by_kind[k]
-		if not is_instance_valid(u) or u.dead:
-			continue
-		if u._k_nb and (u.nb as Dictionary).has("fpx"):
-			continue          # (a rooted Brood creature is drawn in the building layer: BroodNew.draw)
-		cam.position = u.global_position
-		cam.zoom = Vector2(2.0, 2.0)
-		await _frames(2)
-		var vr := root.get_viewport().get_canvas_transform() * u.sprite.get_global_transform() * u.sprite.get_rect()
-		vr = vr.abs().intersection(Rect2(Vector2.ZERO, root.get_viewport().get_visible_rect().size))
-		var with := await _shot()
-		u.sprite.visible = false
-		await _frames(1)
-		var without := await _shot()
-		u.sprite.visible = true
-		var vis := root.get_viewport().get_visible_rect().size
-		var c := Vector2i(with.get_size() / 2)
-		var k2 := Vector2(with.get_size()) / vis
-		vr = Rect2(vr.position * k2, vr.size * k2)
-		var diff := 0
-		for y in range(int(vr.position.y), mini(int(vr.end.y), with.get_height())):
-			for x in range(int(vr.position.x), mini(int(vr.end.x), with.get_width())):
-				var a := with.get_pixel(x, y)
-				var b := without.get_pixel(x, y)
-				if absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) > 0.15:
-					diff += 1
-		if diff < 40:
-			none.append("%s (%d px, %s)" % [k, diff, u.anim])
-		if shots != "":
-			DirAccess.make_dir_recursive_absolute(shots)
-			var img := with.get_region(Rect2i(c - Vector2i(160, 120), Vector2i(320, 200)))
-			img.save_png(shots.path_join("%s_%s_%s.png" % [rec_mode, tag, k]))
-	rp_pause(false)
-	check("%s_bodies_drawn" % tag, none.is_empty(), "%d kinds looked at; no body: %s" % [by_kind.size(), str(none)])
 
 
 func rp_pause(on: bool) -> void:
