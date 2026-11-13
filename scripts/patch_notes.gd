@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.32", "items": [
+		"THE CROWN COMPUTER WORKS ITS FARMS (docs/econ-coach-crown.md): its Town Halls no longer stand idle while its Farms have posts nobody works. The next labourers' gold is kept from the other spending while Farm posts are free, a labourer comes before the next building of its plan, and its army-size rule no longer holds the labourers back then; it still puts the soldiers first while a rush is defended, enemies are at its buildings or labourers, or its army is far behind the enemy's. Alone its Balanced plan now earns 0.95 of the economy's design by 8:00 (was 0.79) and its Siege push 0.79 (was 0.59); in computer games it earns 5-14% more against the Clockwork and in the mirror.",
+		"The Crown computer pulls down a Farm on spent soil when it blocks the two Farms of a hall on fresh soil (a spent Farm still counts against the limit of two Farms a Town Hall), as a player would.",
+	]},
 	{"v": "0.33.31", "items": [
 		"THE MAIN MENU PAINTING, FIRST FIXES: the Crown's gunner now fires his cannon properly, standing beside it with a linstock (he was aiming the gun like a musket), and the armoured horseman has a proper face and swings his sword at the reptiles (a stray sword lay in one of them). The Clockwork front and the Brood Mother are being repainted next.",
 	]},

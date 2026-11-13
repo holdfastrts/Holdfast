@@ -716,7 +716,7 @@ var _posts_first_last := -1.0
 
 
 func _posts_first() -> bool:
-	if posts_first_off or not on or not bo_done or difficulty < 1 or _defending() or _threat() != Vector2.INF:
+	if posts_first_off or not on or not bo_done or difficulty < 1 or _defending() or _threat() != Vector2.INF or _raided():
 		return false
 	if scout != null and scout.verdict == "rush" and game.clock < 420.0:
 		return false
@@ -738,7 +738,7 @@ func _posts_first() -> bool:
 ## Foundry and the Horse Breeder steps). The plan's own labourer count (bo_lab_cap: the Timing attack's 19) and its riders-
 ## or soldiers-first steps (_soldiers_first) still rule.
 func _bo_posts_first() -> bool:
-	if posts_first_off or not on or difficulty < 1 or _defending() or _threat() != Vector2.INF:
+	if posts_first_off or not on or difficulty < 1 or _defending() or _threat() != Vector2.INF or _raided():
 		return false
 	if scout != null and scout.verdict == "rush" and game.clock < 420.0:
 		return false
@@ -747,6 +747,27 @@ func _bo_posts_first() -> bool:
 		if f.built and not f.barren():
 			free += maxi(0, f.crew_max() - f.crew.size())
 	return free - _labs_queued() >= POSTS_FREE
+
+
+## (econ-coach-crown) an armed enemy seen by our labourers (a raid, the mirror's raid_answer's case): the soldiers' gold is
+## not kept for labourers then (test_crown_mirror: a Musketeer queued for the raider within 12 s). Looked at once a second.
+const RAID_SEEN_R := 260.0
+var _raided_t := -99.0
+var _raided_v := false
+
+
+func _raided() -> bool:
+	if game.clock - _raided_t < 1.0:
+		return _raided_v
+	_raided_t = game.clock
+	_raided_v = false
+	for w in game.workers(team):
+		for o in game.units_near(w.position, RAID_SEEN_R):
+			if not o.dead and game.hostile(o.team, team) and not o.is_worker() and o.armed() and not o.off_field \
+					and game.is_visible_to(team, o.position):
+				_raided_v = true
+				return true
+	return false
 
 
 func _plan_tech() -> bool:
@@ -2348,9 +2369,11 @@ func _labs_on_in_rush() -> bool:
 ## the hall while the riders rode, with Farm posts empty: the punish's labourers stood at 18 at 5:00 and 28 at 8:00 in the
 ## win-rate games, its income 0.60-0.69 of the bench. A labourer on a free Farm post pays its 50 gold back in under a minute,
 ## so the hall keeps one coming up to the main's posts (its Farms and Mill, built) and RUSH_SPARE more (the builder, the
-## scout), never under RUSH_LABS. The riders still come first from every idle Barracks. `-- rushsat:off` as before.
+## scout), never under RUSH_LABS. The riders still come first from every idle Barracks.
 const RUSH_SPARE := 2
-var rush_sat_off := OS.get_cmdline_user_args().has("rushsat:off")
+## MEASURED, NOT KEPT AS THE DEFAULT (12 Crown v Brood games): the main's posts were full already (2 Farms, 16 posts, 15-16
+## labourers at 4:00; the gold, all on riders, was what held the hall), so it changed nothing: `-- rushsat:on`.
+var rush_sat_off := not OS.get_cmdline_user_args().has("rushsat:on")
 
 
 func _rush_labs() -> int:
