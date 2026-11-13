@@ -15,7 +15,7 @@ func _initialize() -> void:
 	check(GameName.is_log_header("Holdfast v0.14.90 match log  (2026-10-27 10:00:00)"), "an old Holdfast match log header reads")
 	check(GameName.is_log_header("Working Title for RTS v0.33.29 match log  (2026-11-12 10:00:00)"), "an old Working Title match log header reads")
 	check(GameName.title() == "Triumviwar", "the name is Triumviwar (owner, 2026-11-13)")
-	check(GameName.heading() == "TRIUMVIWAR: IS ALL LOST?", "the big heading carries the subtitle: " + GameName.heading())
+	check(GameName.heading() == "TRIUMVIWAR", "the big heading is the name alone, no subtitle (owner 2026-11-13 20:32): " + GameName.heading())
 	check(not GameName.is_log_header("[00:12] P1 Crown says: gg"), "a timeline line is not a header")
 	var cfg := ConfigFile.new()
 	check(cfg.load("res://export_presets.cfg") == OK, "export_presets.cfg parses")

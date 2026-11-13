@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.7": ["O nome do jogo agora é só TRIUMVIWAR (o subtítulo \"Is All Lost?\" saiu), e a nova casa é https://triumviwar.github.io/ (o app Android Triumviwar.apk e o programa do Windows Triumviwar_windows.zip estão lá). Na versão web as configurações e jogos salvos começam do zero porque o endereço mudou; no computador ou celular eles continuam."],
 	"0.35.6": ["Um novo ícone para o jogo inteiro, não só para a Coroa: a coroa dourada da Coroa, a engrenagem de latão da Mecânica e o olho verde da Ninhada juntos (aba do navegador, página de carregamento, programa do Windows e app Android)."],
 	"0.35.5": ["Preparando o novo endereço do jogo, triumviwar.github.io: o programa do Windows e o app Android procuram atualizações lá primeiro (o endereço antigo ainda responde até a mudança), e os downloads agora são Triumviwar.apk e Triumviwar_windows.zip."],
 	"0.35.4": ["O SISTEMA DO SOLO (experimento), mais claro ao colocar uma Fazenda ou Prensa de Engrenagens: o rótulo fica ao lado do prédio (\\\"49%  BOM LUGAR\\\", \\\"de um círculo inteiro de solo novo\\\" e uma barra), o melhor lugar que resta junto às suas sedes fica contornado em dourado com uma seta até ele, um aviso diz quando o solo está acabando e é hora de expandir, e o terreno sem solo nenhum aparece escuro em vez de vermelho."],

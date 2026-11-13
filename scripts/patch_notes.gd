@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.7", "items": [
+		"The game's name is now just TRIUMVIWAR (the subtitle \"Is All Lost?\" is gone), and its new home is https://triumviwar.github.io/ (the Android app Triumviwar.apk and the Windows program Triumviwar_windows.zip are there). On the web build your settings and saves start fresh, because the address changed; on a computer or phone they carry over.",
+	]},
 	{"v": "0.35.6", "items": [
 		"A new game icon for the whole game, not just the Crown: the Crown's gold crown, the Clockwork's brass gear and the Brood's green eye together (browser tab, loading page, Windows program and Android app).",
 	]},
