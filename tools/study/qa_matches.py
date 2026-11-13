@@ -111,7 +111,17 @@ def crown(pair=""):
     return [g for g in parity() if "cr" in (g[0].split("_")[-2][:2], g[0].split("_")[-2][2:])]
 
 
+# (crown-v-cw-plan-study, docs/crown_v_cw_plan_study.md) Crown v Clockwork on every 2-player map, the base rounds'
+# tags and seeds: `--only crcw19r0` (round 0, 19 games), `crcw19r1` (round 1), `crcw38` (both)
+def crcw_all(rounds=(0, 1)):
+    return [g for r in rounds for g in base(r) if g[0].split("_")[-2] == "crcw"]
+
+
 def queue(only=""):
+    if only == "crcw38":
+        return crcw_all()
+    if only in ("crcw19r0", "crcw19r1"):
+        return crcw_all((int(only[-1]),))
     if only == "crown":
         return crown()
     if only in ("crcw", "crbr", "crcr"):
