@@ -146,7 +146,11 @@ func _run() -> void:
 		after["w0"], after["lost"], after["killed"], after["soldiers"], after["sent"], after["spread"], after["ramp"], after["home"]])
 	check(int(after["lost"]) < int(before["lost"]) or int(after["killed"]) > int(before["killed"]) or int(after["lost"]) <= 2,
 		"round 5 loses fewer Winders or kills more riders (lost %d -> %d, killed %d -> %d)" % [before["lost"], after["lost"], before["killed"], after["killed"]])
-	check(int(after["sent"]) >= 2 or int(after["soldiers"]) < 2 or int(after["lost"]) <= 0, "a group of Clock Soldiers comes to the press (%d)" % after["sent"])
+	# (econ-coach-clockwork: or the Winders beat the raid by themselves: with every post of the press filled, round 5's group
+	# of Winders killed all the riders before the soldiers got there, losing 3-6 to the old 10-14; seeds 5 and 7)
+	var beaten: bool = int(after["killed"]) >= riders and int(after["lost"]) < int(before["lost"])
+	check(int(after["sent"]) >= 2 or int(after["soldiers"]) < 2 or int(after["lost"]) <= 0 or beaten,
+		"a group of Clock Soldiers comes to the press (%d)%s" % [after["sent"], " (or the Winders beat the raid: all %d riders killed, %d lost)" % [riders, after["lost"]] if beaten else ""])
 	check(int(after["lost"]) < int(after["w0"]) / 2, "the raid does not take half the Winders (%d of %d)" % [after["lost"], after["w0"]])
 	if int(after["home"]) >= 12:
 		check(int(after["ramp"]) >= 3, "with %d Clock Soldiers at home a ramp post stands after the raid (%d)" % [after["home"], after["ramp"]])
