@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.5", "items": [
+		"Getting ready for the game's new address, triumviwar.github.io: the Windows program and Android app look for updates there first (the old address still answers until the move), and the downloads are now Triumviwar.apk and Triumviwar_windows.zip.",
+	]},
 	{"v": "0.35.4", "items": [
 		"THE GROUND SYSTEM (experiment), clearer while placing a Farm or Cog Press: the label sits beside the building (\"49%  GOOD SPOT\", \"of a whole circle of fresh soil\" and a bar), the best spot left by your halls is outlined in gold with an arrow to it, a hint says when the ground is running low and you should expand, and ground with no soil at all shows dark instead of red.",
 	]},

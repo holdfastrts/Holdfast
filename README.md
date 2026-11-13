@@ -1,12 +1,12 @@
 # Triumviwar: Is All Lost?
 
-*(a working title: the game was called Holdfast until October 2026, but that name belongs to another game; the web address, the app file and the repository keep the old name for now so links and installs keep working)*
+*(the game was called Holdfast until November 2026, but that name belongs to another game; the old address, holdfastrts.github.io/Holdfast/, stops working once the organization is renamed)*
 
-**Play in your browser (version 0.35.4): https://holdfastrts.github.io/Holdfast/**
+**Play in your browser (version 0.35.5): https://triumviwar.github.io/**
 
-**Windows program: https://holdfastrts.github.io/Holdfast/Holdfast_windows.zip** (rebuilt on every push; unzip it and run Holdfast.exe; if Windows warns "Windows protected your PC", click More info, then Run anyway)
+**Windows program: https://triumviwar.github.io/Triumviwar_windows.zip** (rebuilt on every push; unzip it and run Triumviwar.exe; if Windows warns "Windows protected your PC", click More info, then Run anyway)
 
-**Android app: https://holdfastrts.github.io/Holdfast/Holdfast.apk** (rebuilt on every push; allow installs from your browser, then install over the old one to update)
+**Android app: https://triumviwar.github.io/Triumviwar.apk** (rebuilt on every push; allow installs from your browser, then install over the old one to update)
 
 If the game ever closes on its own, the next start shows a crash report with a COPY button: the end of the engine log, with a line for every autosave, so the moment it died can be found.
 

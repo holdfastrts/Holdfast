@@ -32,7 +32,7 @@ const PROJECT = opt("project", path.resolve(HERE, "../.."));
 const MAX_MATCHES = Number(opt("max-matches", process.env.LADDER_MAX_MATCHES || 4));
 const OUT = path.resolve(opt("out", process.env.LADDER_OUT || path.join(HERE, "data")));
 const SECRET = process.env.LADDER_SECRET || "";
-const APPEAL = process.env.LADDER_APPEAL || "https://github.com/holdfastrts/holdfast/issues (title: Ranked ban appeal)";
+const APPEAL = process.env.LADDER_APPEAL || "https://github.com/triumviwar/triumviwar.github.io/issues (title: Ranked ban appeal)";
 const EXTRA = (process.env.LADDER_SERVER_ARGS || "").split(" ").filter(Boolean);   // (tests: fogaudit, maxsecs:...)
 const MAPS = (process.env.LADDER_MAPS || "random_1v1").split(",").map((s) => s.trim()).filter(Boolean);
 const FACTIONS = ["crown", "brood", "clockwork", "random"];

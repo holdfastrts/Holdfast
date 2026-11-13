@@ -5,8 +5,12 @@ extends Node
 ## this copy, the main menu shows a box: a new version is out, with DOWNLOAD (the site's file for this system) and
 ## LATER. The web build never asks (the page is always the newest).
 
-const SITE := "https://holdfastrts.github.io/Holdfast/"
-const FILES := {"Windows": "Holdfast_windows.zip", "Android": "Holdfast.apk"}
+## The site moved (owner 2026-11-13: the organization and repository renamed to triumviwar / triumviwar.github.io):
+## the new address first, the old one if the new one does not answer (before the rename, or while GitHub moves it).
+const SITES := ["https://triumviwar.github.io/", "https://holdfastrts.github.io/Holdfast/"]
+const SITE := "https://triumviwar.github.io/"
+const FILES := {"Windows": "Triumviwar_windows.zip", "Android": "Triumviwar.apk"}
+static var from_site := SITE      # the address that answered (the download goes there)
 
 static var latest := ""            # what the site said ("" = not known yet / no answer)
 static var asked := false          # (once a run)
@@ -24,22 +28,33 @@ static func ask(parent: Node, done: Callable) -> void:
 	if asked or not wanted():
 		return
 	asked = true
+	_ask_site(parent, done, 0)
+
+
+static func _ask_site(parent: Node, done: Callable, n: int) -> void:
+	if n >= SITES.size() or not is_instance_valid(parent):
+		return
 	_req = HTTPRequest.new()
 	_req.timeout = 8.0
 	parent.add_child(_req)
 	_req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
+		var ok := false
 		if result == HTTPRequest.RESULT_SUCCESS and code == 200:
 			var j = JSON.parse_string(body.get_string_from_utf8())
 			if j is Dictionary and j.has("version"):
+				ok = true
+				from_site = String(SITES[n])
 				latest = String(j["version"])
 				done.call()
 		if is_instance_valid(_req):
-			_req.queue_free())
-	if _req.request(SITE + "version.json?t=%d" % Time.get_unix_time_from_system()) != OK:
+			_req.queue_free()
+		if not ok:
+			_ask_site(parent, done, n + 1))
+	if _req.request(String(SITES[n]) + "version.json?t=%d" % Time.get_unix_time_from_system()) != OK:
 		_req.queue_free()
+		_ask_site(parent, done, n + 1)
 
 
-## The site's version is newer than `mine` (numbers compared part by part: 0.24.31 < 0.25.0).
 static func newer(site: String, mine: String) -> bool:
 	var a := site.split(".")
 	var b := mine.split(".")
@@ -57,4 +72,7 @@ static func show_box(mine: String) -> bool:
 
 
 static func download_url() -> String:
-	return SITE + String(FILES.get(OS.get_name(), ""))
+	var f := String(FILES.get(OS.get_name(), ""))
+	if from_site != SITE:
+		f = f.replace("Triumviwar", "Holdfast")     # (the old site still serves the old file names)
+	return from_site + f
