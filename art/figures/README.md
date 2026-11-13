@@ -34,7 +34,7 @@ Sources: src_clockwork_soldiers_chatgpt.png, src_clockwork_springers_chatgpt.png
 
 | file | what |
 |---|---|
-| clockwork_cs_guard_left.png | Clock Soldier, three-quarter left, shield up, sword back |
+| clockwork_cs_guard_left.png | Clock Soldier, three-quarter left, shield up, sword back (in the menu painting, the gap in the front) |
 | clockwork_cs_lunge_left.png | Clock Soldier lunging left, sword thrust forward (in the menu painting, front right) |
 | clockwork_cs_swing_left.png | Clock Soldier, sword raised over its head (in the menu painting, top right) |
 | clockwork_cs_back_left.png | Clock Soldier from behind, walking left (in the menu painting, in the crowd) |

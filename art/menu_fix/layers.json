@@ -1782,5 +1782,109 @@
   ],
   "_why": "owner 2026-11-13: the Clockwork all faced the viewer and had too many Springers: ChatGPT figures (art/figures/) turned to the Crown: a Clock Soldier lunging, over the right-edge Springer",
   "fringe": 3
+ },
+ {
+  "sprite": "art/figures/clockwork_cs_guard_left.png",
+  "at": [
+   1385,
+   818
+  ],
+  "height": 150,
+  "tone": [
+   0.86,
+   0.8,
+   0.74
+  ],
+  "fringe": 3,
+  "_why": "owner 2026-11-13: an empty patch of mud in the Clockwork front: a Clock Soldier advancing left, shield up"
+ },
+ {
+  "src": "art/menu_fix/f42_springer_poses.png",
+  "box": [
+   0,
+   0,
+   1672,
+   941
+  ],
+  "poly": [
+   [
+    1395,
+    786
+   ],
+   [
+    1418,
+    786
+   ],
+   [
+    1425,
+    805
+   ],
+   [
+    1450,
+    808
+   ],
+   [
+    1465,
+    835
+   ],
+   [
+    1490,
+    850
+   ],
+   [
+    1520,
+    878
+   ],
+   [
+    1510,
+    890
+   ],
+   [
+    1475,
+    872
+   ],
+   [
+    1455,
+    865
+   ],
+   [
+    1450,
+    941
+   ],
+   [
+    1395,
+    941
+   ],
+   [
+    1385,
+    870
+   ],
+   [
+    1360,
+    880
+   ],
+   [
+    1340,
+    905
+   ],
+   [
+    1335,
+    895
+   ],
+   [
+    1355,
+    860
+   ],
+   [
+    1378,
+    840
+   ],
+   [
+    1380,
+    808
+   ]
+  ],
+  "feather": 2,
+  "_why": "the bottom Springer stays in front of the new Clock Soldier"
  }
 ]

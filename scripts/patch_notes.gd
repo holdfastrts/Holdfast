@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.2", "items": [
+		"THE MAIN MENU PAINTING: the empty patch of mud in the Clockwork front now holds another Clock Soldier advancing on the Crown, shield up.",
+	]},
 	{"v": "0.35.1", "items": [
 		"THE MAIN MENU PAINTING: the Clockwork army turns toward the Crown: new Clock Soldiers (one lunging at the front, one with its sword raised, one pushing in from behind) where Springers stood, and a Springer leaping over the bridge.",
 	]},
