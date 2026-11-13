@@ -1486,7 +1486,7 @@ func _nb_short(by_rate := true) -> bool:
 		                    # minute, when every 50 food is a grub: the first turtle at 0:32 cost a minute of grubs)
 	if bb != null:
 		ahead += bb.supply_ahead()          # (the written build: its Spitters hatch three to an egg)
-	if supply_rate_on and by_rate:
+	if supply_rate_on and by_rate and game.clock >= supply_from:
 		ahead = maxi(ahead, _supply_need_soon())
 	if int(plan["grubs0"]) > 0 and not _first_out:
 		ahead = int(plan.get("ahead0", 3))          # (the Extreme rush: the turtle right after the Sire, so its Raptors never wait for supply)
@@ -1503,21 +1503,35 @@ func _nb_short(by_rate := true) -> bool:
 const SUPPLY_LEAD := 36.0           # s from a turtle's order to its supply (at home; new ground walks longer)
 const SUPPLY_EGG := 1.5          # (supply an egg once warriors are laid: a grub 1, a pair 2; grubs only before the Tyrant Sire)
 var supply_rate_on := not OS.get_cmdline_user_args().has("nbsupply:off")
+var supply_from := _arg_f("nbsupplyfrom:", 240.0)        # (before this the old rule: early on a turtle and its grub cost more grubs
+                                                       # than the eggs a block holds back: alone, from 0:00 it cost 4% at 5:00)
+
+
+static func _arg_f(key: String, dflt: float) -> float:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with(key):
+			return float(a.substr(key.length()))
+	return dflt
 var _inc_t := -1.0
 var _inc_food := 0.0
 var inc_rate := 0.0                  # food a second lately (its own count of what came in)
 
 
-func _supply_need_soon() -> int:
-	var q := BroodNew.queen(game, team)
-	if q == null:
-		return 0
+## Its own count of the food coming in (food a second over the last ~20 s).
+func _track_income() -> void:
 	var got := float(game.stats[team]["gold"])
 	if _inc_t < 0.0 or game.clock - _inc_t >= 20.0:
 		if _inc_t >= 0.0:
 			inc_rate = (got - _inc_food) / maxf(1.0, game.clock - _inc_t)
 		_inc_t = game.clock
 		_inc_food = got
+
+
+func _supply_need_soon() -> int:
+	var q := BroodNew.queen(game, team)
+	if q == null:
+		return 0
+	_track_income()
 	var lay_s := float(BroodNew.egg_rate(game, team)) / float(Defs.NB["egg_time"])        # eggs a second she can lay
 	var buy_s := maxf(inc_rate, 3.0) / 50.0                                                # eggs a second the food pays for
 	var lead := SUPPLY_LEAD + (12.0 if _eco() and _nb_far_have(q) < _nb_far_wanted() else 0.0)
@@ -1611,8 +1625,8 @@ func _nb_morphs_go(q: Unit) -> void:
 				spot = fp[0]
 	elif _nb_next_father(q) != "":
 		k = _nb_next_father(q)
-	elif _under_armed() and _army_supply_now() < 30 and maws >= 4:
-		pass          # (brood-ai-tune: under-armed, warriors before more ground: round B g07 had 3 Raptors from 4:00 to 8:00
+	elif _under_armed() and _army_supply_now() < 30 and maws >= 4 and not (soft_share_on and grubs + 1 >= _nb_want_grubs() and maws < _nb_wanted_maws()):
+		pass          # (fix 2: but a Rootmaw when its grubs (one egg in three, _nb_lay) have filled the ones it has)          # (brood-ai-tune: under-armed, warriors before more ground: round B g07 had 3 Raptors from 4:00 to 8:00
 		              # while every 100 food went into Rootmaws and turtles on new ground and the Crown's army reached 1,360)
 	elif maws < _nb_wanted_maws() and (maws < 3 or not _nb_saving_growth(q)) and _nb_maw_room(q):
 		# (brood-ai-tune: no "100 food in hand" gate any more: the rushes spent every 50 food on Raptors, so their third
