@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.44", "items": [
+		"The main menu painting: the reloading cannon is bigger, in the front of the battle, and the soldier kneeling under the first cannon is gone.",
+	]},
 	{"v": "0.33.43", "items": [
 		"The main menu painting: a second field cannon joins the first, its loader at the muzzle ramming the next shot home while a gunner crouches at the trail.",
 	]},

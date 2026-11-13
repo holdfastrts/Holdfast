@@ -9,4 +9,4 @@ oil-painting style ... of image N, ONE ... facing ..., the background ONE flat s
 
 | file | what | used in |
 |---|---|---|
-| crown_cannon_reload.png | Crown field cannon pointing right, loader at the muzzle ramming, a gunner crouched at the trail (after the game's reload animation) | main menu, second cannon (0.33.43) |
+| crown_cannon_reload.png | Crown field cannon pointing right, loader at the muzzle ramming, a gunner crouched at the trail (after the game's reload animation) | main menu, second cannon, front (0.33.43-44) |
