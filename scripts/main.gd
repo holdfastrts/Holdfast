@@ -2025,7 +2025,12 @@ func make_map_preview(id: String, slots: Array) -> Control:
 	return prv
 
 
+## The faction's emblem (owner 2026-11-13: the crown, the gear and the eye of the game icon, art/ui/faction_icons_chatgpt.png),
+## else its hall's picture.
 func _faction_icon(f: String) -> Texture2D:
+	var p := "res://assets/icons/faction_%s.png" % Defs.base_faction(f)
+	if ResourceLoader.exists(p):
+		return load(p)
 	return load("res://assets/icons/%s.png" % Defs.FACTIONS[f].get("card", Defs.FACTIONS[f]["hall"]))
 
 

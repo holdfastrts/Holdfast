@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.8": ["Los botones de facción en las salas de escaramuza y en línea muestran el nuevo emblema de cada facción: la corona dorada de la Corona, el engranaje de latón de la Mecánica y el ojo verde de la Nidada (ya no sus sedes)."],
 	"0.35.7": ["El nombre del juego ahora es solo TRIUMVIWAR (el subtítulo \"Is All Lost?\" se fue), y su nueva casa es https://triumviwar.github.io/ (la app de Android Triumviwar.apk y el programa de Windows Triumviwar_windows.zip están allí). En la versión web los ajustes y partidas guardadas empiezan de cero porque la dirección cambió; en el ordenador o el móvil se conservan."],
 	"0.35.6": ["Un nuevo icono para todo el juego, no solo para la Corona: la corona dorada de la Corona, el engranaje de latón de la Mecánica y el ojo verde de la Nidada juntos (pestaña del navegador, página de carga, programa de Windows y app de Android)."],
 	"0.35.5": ["Preparando la nueva dirección del juego, triumviwar.github.io: el programa de Windows y la app de Android buscan actualizaciones allí primero (la dirección antigua todavía responde hasta el cambio), y las descargas ahora son Triumviwar.apk y Triumviwar_windows.zip."],
