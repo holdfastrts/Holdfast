@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.6": ["Un nuevo icono para todo el juego, no solo para la Corona: la corona dorada de la Corona, el engranaje de latón de la Mecánica y el ojo verde de la Nidada juntos (pestaña del navegador, página de carga, programa de Windows y app de Android)."],
 	"0.35.5": ["Preparando la nueva dirección del juego, triumviwar.github.io: el programa de Windows y la app de Android buscan actualizaciones allí primero (la dirección antigua todavía responde hasta el cambio), y las descargas ahora son Triumviwar.apk y Triumviwar_windows.zip."],
 	"0.35.4": ["EL SISTEMA DEL SUELO (experimento), más claro al colocar una Granja o Prensa de Engranajes: la etiqueta va junto al edificio (\\\"49%  BUEN LUGAR\\\", \\\"de un círculo entero de suelo nuevo\\\" y una barra), el mejor lugar que queda junto a tus sedes aparece rodeado en dorado con una flecha hacia él, un aviso dice cuándo el suelo se acaba y conviene expandirse, y el terreno sin suelo se ve oscuro en vez de rojo."],
 	"0.35.3": ["EL SISTEMA DEL SUELO (experimento): un jugador de la Nidada ahora ve los círculos libres de Bocarraíz al enraizar con el sistema del suelo activado (quedaban ocultos cuando estaba activado)."],

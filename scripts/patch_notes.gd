@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.6", "items": [
+		"A new game icon for the whole game, not just the Crown: the Crown's gold crown, the Clockwork's brass gear and the Brood's green eye together (browser tab, loading page, Windows program and Android app).",
+	]},
 	{"v": "0.35.5", "items": [
 		"Getting ready for the game's new address, triumviwar.github.io: the Windows program and Android app look for updates there first (the old address still answers until the move), and the downloads are now Triumviwar.apk and Triumviwar_windows.zip.",
 	]},
