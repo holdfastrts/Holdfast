@@ -25,6 +25,9 @@ around the body's middle until its colours and shading match: cw_palette.find_ca
 their own first (upright) frame's cap as the template for the rest of their row (the same drawing). In the death the
 body tips over: the search turns about the body's own axis, starting from the angle the code guide tipped it by
 (DEATH_TILT); a frame where the cap is hidden (attack E, 3rd frame: the raised arm took its place) gets none.
+WALK (0.33.26): the owner's eight ChatGPT walk sheets (WALK_VIEWS), not the walk rows of the sheets above; the SW and NW
+views' sliver of red body between the legs is painted brass (stray_team). Afterwards run tools/anim_audit/fix_clockwork.py
+(the speck clean-up); tools/soldier_guide/shield.py keeps building guard_walk from the old code walk.
   python3 tools/import_clock_soldier.py"""
 import os
 import sys
@@ -42,6 +45,12 @@ SHEETS = {  # anim: (file, columns, align by first frame of the row)
     'attack': ('clock_soldier_attack_final.png', 6, True),
     'death': ('clock_soldier_death_final.png', 7, True),
 }
+# The WALK in every view is the owner's ChatGPT answer to docs/art_redraw_queue.md requests 5S..5NW (2026-11-12): one
+# sheet per view (one row of 6 frames on navy, real steps), replacing the code-made legs (walk_code.py, rig.py,
+# soldier_guide/west.py) of clock_soldier_walk_mix.png / clock_soldier_walk_west.png. Each view's frames are first shrunk
+# so their median height (cap to soles) is that view's idle height in its own idle sheet, then go through the rest like
+# the sheets (the cap search in cw_palette matches the idle's cap at that size).
+WALK_VIEWS = 'clock_soldier_walk_%s_chatgpt.png'
 WEST_SHEETS = {  # the same anims, frame counts and timings, rows SW W NW
     'idle': ('clock_soldier_idle_west_chatgpt.png', 4, False),
     'walk': ('clock_soldier_walk_west.png', 6, False),
@@ -118,6 +127,11 @@ def bottom(o):
     return float(ys.max() + 1)
 
 
+def fig_h(o):
+    ys = np.nonzero((o[..., 3] > 0).any(1))[0]
+    return float(ys.max() - ys.min() + 1)
+
+
 def shrink(img, scale):
     """Box-filter downscale with premultiplied alpha, then hard alpha (tools/import_art.py)."""
     h, w = img.shape[:2]
@@ -158,6 +172,31 @@ def palette(frames):
                 fl[i] = (o2, ax, ay)
 
 
+def stray_team(strip, cw):
+    """Team-key reds away from the cap (a frame's biggest key patch): the walk sheets' SW and NW views show a sliver of
+    the red body's underside between the legs, which the palette leaves red and snap_team then makes the team key (a
+    blue soldier would get red hips). Each such pixel takes the mean colour of its non-key neighbours (the brass
+    round it)."""
+    n = strip.shape[1] // cw
+    out = strip.copy()
+    for i in range(n):
+        c = out[:, i * cw:(i + 1) * cw]
+        r, g, b = [c[..., j].astype(int) for j in range(3)]
+        key = (c[..., 3] > 0) & (g < 20) & (b < 20) & ((np.abs(r - 255) < 20) | (np.abs(r - 150) < 20))
+        lab, k = ndi.label(key, structure=np.ones((3, 3)))
+        if k <= 1:
+            continue
+        sz = ndi.sum(key, lab, range(1, k + 1))
+        stray = key & (lab != 1 + int(np.argmax(sz)))
+        ok = (c[..., 3] > 0) & ~key
+        for y, x in zip(*np.nonzero(stray)):
+            y0, y1, x0, x1 = max(0, y - 2), y + 3, max(0, x - 2), x + 3
+            m = ok[y0:y1, x0:x1]
+            if m.any():
+                c[y, x, :3] = c[y0:y1, x0:x1, :3][m].mean(0).astype(np.uint8)
+    return out
+
+
 def lend_cap(strip, cw):
     """A frame the painting left without the cap (the E attack's overhead frame: ChatGPT drew the raised arm where the
     head is, so no player colour shows on the frame before the blow): the cap of the frame before it (its team-key
@@ -182,8 +221,11 @@ def lend_cap(strip, cw):
 def main():
     # 1. cut and key every frame, note its anchor (feet bottom, body x) in the cell
     frames = {}      # (anim, dir) -> [(rgba, ax, ay)]
+    idle_src_h = {}  # dir -> the idle's median height in its sheet (source px)
     for sheets, dirs in ((SHEETS, DIRS), (WEST_SHEETS, WEST_DIRS)):
         for anim, (f, cols, by_first) in sheets.items():
+            if anim == 'walk' and WALK_VIEWS:
+                continue                     # (below, per view, once the idle heights are known)
             cells = keyed_cells(SRC + f, cols, len(dirs))
             for row, d in enumerate(dirs):
                 out = []
@@ -199,6 +241,19 @@ def main():
                         ax, ay = first
                     out.append((o, ax, ay))
                 frames[(anim, d)] = out
+    if WALK_VIEWS:
+        for d in DIRS + WEST_DIRS:
+            hi = np.median([fig_h(o) for o, _, _ in frames[('idle', d)]])
+            cells = keyed_cells(SRC + WALK_VIEWS % d, 6, 1)
+            fl = [cells[(0, c)] for c in range(6) if (cells[(0, c)][..., 3] > 0).any()]
+            assert len(fl) == 6, 'walk %s: %d frames' % (d, len(fl))
+            k = hi / float(np.median([fig_h(o) for o in fl]))
+            out = []
+            for o in fl:
+                o = shrink(o, k)
+                out.append((o, red_x(o), bottom(o)))
+            frames[('walk', d)] = out
+            print('walk %s: sheet x%.3f to the idle sheet' % (d, k))
     # 2. the scale: the S idle S_IDLE_H px tall; a west row: its idle as tall as the matching east row's
     def idle_h(d):
         hs = []
@@ -239,6 +294,8 @@ def main():
             s = cw_palette.snap_team(s)
             strip[:s.shape[0], i * cw:i * cw + s.shape[1]] = s
         strip = lend_cap(strip, cw)
+        if anim == 'walk' and WALK_VIEWS:
+            strip = stray_team(strip, cw)
         Image.fromarray(strip, 'RGBA').save(DST + '%s_%s.png' % (anim, d))
     print('clock_soldier: scale %.3f (west %s), cell %dx%d, anchor (%d, %d)' % (
         SC['s'], ' '.join('%s %.3f' % (d, SC[d]) for d in WEST_DIRS), cw, ch, half, up))

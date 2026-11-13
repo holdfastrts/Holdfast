@@ -7,7 +7,7 @@ sys.path.insert(0, __import__("os").path.dirname(__file__))
 import gait_lib as g
 
 P = {"*": {"legH": 8, "legw": 3, "boot_L": 4, "boot_h": 2, "amp": 4, "lift": 3, "knee": 2, "hip": 2, "spread": 2, "skip_bright": True}}
-PASS = g.Pass("raptor", (58, 30), P, dirs=("s", "se", "ne", "n"))
+PASS = g.Pass("raptor", (58, 30), P, dirs=("se", "ne"))
 if __name__ == "__main__":
     PASS.run()
     if "--contact" in sys.argv:

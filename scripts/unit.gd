@@ -7095,10 +7095,14 @@ const HOVER_FPS := {"hatchlings": 10.0, "storm_challenger": 7.0}
 ## strips' frame counts are as drawn, so the cadence is the only thing code can change).
 const WALK_FPS_ART := {"musketeer": 12.0, "musketeer_armoured": 12.0, "dismounted": 12.0,
 		"dismounted_armoured": 12.0, "windup_soldier": 12.0, "arc_thrower": 10.0,
-		"thresher": 10.0, "clock_soldier": 10.0, "springer": 9.0, "cuckoo": 10.0, "ticking_owl": 7.0,
+		"thresher": 10.0, "springer": 9.0, "cuckoo": 10.0, "ticking_owl": 7.0,
 		# the Pendulum's long strides (90 sheet px a step at 0.284: one 8-frame cycle carries it 51 px, 1.1 s at 46);
 		# the Netter's quick trot (its stubby legs step faster than the ground goes by: as fast as reads)
 		"pendulum": 7.2, "netter": 14.0,
+		# the Clock Soldier's ChatGPT march (2026-11-12): short stubby steps, ~11 px between the feet at the widest, so
+		# a 6-frame cycle (two steps) covers ~22-27 px: at 15 fps (0.4 s) its 68 px/s carry it 27 px (it was 10 fps
+		# for the old code legs, which skated 41 px a cycle)
+		"clock_soldier": 15.0,
 		# the Raptor runs at 108 px/s on a 6-frame cycle: at 8 fps its planted feet slid ~10 px a frame, at 12 ~6
 		# (docs/animation_audit_brood.md)
 		"raptor": 12.0,

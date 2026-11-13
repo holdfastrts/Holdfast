@@ -1,5 +1,8 @@
 """Clock Soldier SHIELD FORWARD (docs/clock_soldier_shield.md): the stance's idle and walk strips, built in code from the
 game's own painted strips (assets/units/clock_soldier/idle_<d>.png, walk_<d>.png) until ChatGPT paints them.
+The walk since 0.33.26 is the owner's ChatGPT walk (tools/import_clock_soldier.py): its arm and shield swing frame by frame,
+so the fixed wipe ellipses below no longer fit it; the guard walk is still built from the OLD code-legged walk, kept in
+art/redraws/clock_soldier_walk_code_src/walk_<d>.png (WALK_SRC), until SHIELD FORWARD gets its own ChatGPT walk.
 
 How: the painted shield is cut out of the W idle (the one view where it faces us whole), the shield on the soldier's arm
 is wiped off each frame (an ellipse per view, filled from the body pixels next to it where it covered the body), and the
@@ -33,7 +36,12 @@ V = {
 }
 
 
+WALK_SRC = 'art/redraws/clock_soldier_walk_code_src/'
+
+
 def load(name):
+    if name.startswith('walk_'):
+        return np.array(Image.open(WALK_SRC + name).convert('RGBA')).astype(np.float32)
     return np.array(Image.open(D + name).convert('RGBA')).astype(np.float32)
 
 

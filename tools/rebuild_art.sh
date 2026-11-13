@@ -128,7 +128,8 @@ python3 tools/import_gait_windup_soldier.py
 # RETIRED 2026-10-26: the Winder's code-built walk legs (the new Winder's walk is ChatGPT's own; import_winder_v2.py below)
 # python3 tools/import_gait_winder.py
 python3 tools/import_gait_musketeer_armoured.py
-python3 tools/import_gait_raptor.py
+python3 tools/import_gait_raptor.py        # (SE and NE only since 0.33.26)
+python3 tools/import_raptor_walk_sn.py    # the Raptor's S and N run from the owner's ChatGPT sheets (after the gait pass, before fix_brood)
 python3 tools/anim_audit/fix_brood.py     # Brood strips: raptor/grub up-down walks on the anchor, Skywing attack_e frame 1, team reds (docs/animation_audit_brood.md)
 python3 tools/import_crown_legs.py        # labourer's new walk legs under the Armoured Musketeer (all views) and the Musketeer (s, n)
 python3 tools/anim_audit/fix_crown.py    # Crown animation audit fixes (docs/animation_audit_crown.md): Officers' walk on the ground,
