@@ -114,6 +114,17 @@
   RANKED page, queue, results, leaderboard. Capacity ~3-4 matches a core, ~0.8 GB each; Oracle Always Free ARM to start.
   Owner's steps to go live in the doc. Tests: tools/test_ranked.sh, test_net_fog.gd, test_online.sh (coop's
   guest_ground_attack_hits_body fails on main too).
+  ECON COACHING MERGED 2026-11-13: econ-coach-clockwork 0.34.1 (alone 0.75 -> 1.20 of the bench at 15:00, games 0.66 -> 0.90,
+  results within noise; docs/econ-coach-clockwork.md), econ-coach-crown 0.34.2 (spent Farms pulled down when they block a
+  fresh hall, free Farm posts first; Economy plan alone reaches the bench by 10:00; in games the gap is the plans OPTIMAL
+  picks; docs/econ-coach-crown.md). econ-coach-brood still running. Flaky/stale after the merges: test_ai_cw_horse_raid
+  (different check each run), test_ai_scout_sentry (passes alone), test_ai_rush / _rush_followup (Crown v Brood, known),
+  test_crown_dragoon_raid's [plan] check (fails before the Crown merge too).
+  OWNER 2026-11-13 08:03 on the coaching's questions: (1) spent Farms/Presses counting against the limit: WAIT FOR THE
+  GROUND SYSTEM; (2) Crown OPTIMAL v a greedy Clockwork, Timing or Economy race: decide ON DATA (study job
+  crown-v-cw-plan-study, greedyclock:economy/balanced v default, docs/crown_v_cw_plan_study.md, recommendation only);
+  (3) the 200 SUPPLY CAP STAYS: with every expansion taken the late game is about taking better fights and remaking
+  armies; NO cog/gold sink.
   GROUND SYSTEM (owner, DECIDED 2026-11-13 01:34-01:40; docs/ground_system.md): every economy building drinks from a
   CIRCLE of ground like the Rootmaw; spent ground shown RED while placing; overlap with spent ground gives a proportional
   yield; ground exists only in a DISTRICT PER HALL (fixed amount each); the layer shows FAINTLY while placing ANY building
