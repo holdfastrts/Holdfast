@@ -191,6 +191,20 @@ func _crown_econ(tm: int, a) -> Dictionary:
 			d["mills"] += 1
 			d["posts"] += b.crew_max()
 			d["on_mills"] += b.working_crew()
+	var others := {}
+	for w in g.workers(tm):
+		var site = w.home_mine
+		if w.order == "gather" and site is Building and ((site as Building).kind == "farm" or (site as Building).kind == "powder_mill"):
+			continue
+		var k := String(w.order)
+		if a != null and a._fled.has(w):
+			k = "fled"
+		elif a != null and a.scout != null and a.scout.is_scout(w):
+			k = "scout"
+		elif k == "gather" and site is Building:
+			k = "gather_" + (site as Building).kind
+		others[k] = int(others.get(k, 0)) + 1
+	d["others"] = others
 	if a != null and a.has_method("owner_lab_cap"):
 		d["lab_cap"] = a.owner_lab_cap()
 		d["lag_s"] = int(a.lag_time)

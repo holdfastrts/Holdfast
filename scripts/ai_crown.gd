@@ -675,6 +675,8 @@ func _army_due() -> bool:
 	var short: bool = _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) < int(share * game.workers(team).size())
 	if short and owner_labs(game.workers(team).size()):
 		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
+	if short and _posts_first():
+		short = false           # (econ-coach-crown: free Farm posts first; the survival checks below still count)
 	if not short and army_lags():
 		short = true            # (ai-followups: far behind the enemy's army: the soldiers before more labourers)
 		if _cc_labs_due():
@@ -690,6 +692,39 @@ func _army_due() -> bool:
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
 		return false            # (supply-blocked: the Cottage, not the soldiers)
 	return _mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty())
+
+
+## FREE FARM POSTS FIRST (econ-coach-crown, docs/econ-coach-crown.md): "an army the size of the economy" (above) stopped the
+## halls whenever a Barracks stood idle and the army was under the plan's share of the labourers, also while built Farms had
+## posts nobody worked. In the games the Crown had 9-12 Farm posts empty at 7:00-8:00 (26-28 labourers for 32 Farm posts)
+## and trained 3.3 labourers a minute from two halls that can train 10; a Farm hand pays his 50 gold back in 42 s (71 gold
+## a minute: no Farm grows by itself). So while POSTS_FREE or more Farm posts on live soil stand empty (less the labourers in
+## training) the halls keep training; the army's survival checks stay over it: a rush defended, enemies at our buildings, a
+## rush read in the first 7 minutes, the army far behind the enemy's it reckons (army_lags), behind the Brood's (army_behind)
+## or not growing with the economy against it (army_grows). Not in the build orders (each plan's opening keeps its count).
+## `-- postsfirst:off` as before.
+const POSTS_FREE := 2
+var posts_first_off := OS.get_cmdline_user_args().has("postsfirst:off")
+var posts_first_t := 0.0         # (the report) seconds it let the halls train for free Farm posts
+var _posts_first_last := -1.0
+
+
+func _posts_first() -> bool:
+	if posts_first_off or not on or not bo_done or difficulty < 1 or _defending() or _threat() != Vector2.INF:
+		return false
+	if scout != null and scout.verdict == "rush" and game.clock < 420.0:
+		return false
+	var free := 0
+	for f in _mine("farm"):
+		if f.built and not f.barren():
+			free += maxi(0, f.crew_max() - f.crew.size())
+	free -= _labs_queued()
+	if free < POSTS_FREE:
+		return false
+	if _posts_first_last >= 0.0 and game.clock - _posts_first_last < 2.0:
+		posts_first_t += game.clock - _posts_first_last
+	_posts_first_last = game.clock
+	return true
 
 
 func _plan_tech() -> bool:
