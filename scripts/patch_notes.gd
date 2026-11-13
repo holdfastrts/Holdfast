@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.0", "items": [
+		"THE GROUND SYSTEM, an experiment (Settings > EXPERIMENTAL > GROUND SYSTEM, off by default; from the next match). The Crown's soil and the Clockwork's brass now lie on the map, tile by tile, in a district round every hall. A Farm or a Cog Press drinks from a circle of ground round it: its yield is what that circle still holds, so a circle over spent ground pays less, and two of your own circles that overlap share the ground they cover (no free income from stacking). Nothing is ever renewed: spent ground stays spent, tearing a Farm down does not bring its soil back, and expanding is still the way to fresh ground.",
+		"While you place any building the ground shows faintly (fresh green to spent red), so you can keep a Barracks or a wall off your best soil; a Farm or Cog Press being placed shows its own circle stronger, with a \"62% of a fresh spot\" number. A slider sets how strongly the faint layer is drawn, and the minimap shows it too while placing. With the system on, a spent Farm or Press no longer counts against its hall's limit, and the limit is the district's, so a fresh hall is never left without its two Farms. The computers place their economy buildings on the best ground and pull down spent ones. Today's game is unchanged with the setting off.",
+	]},
 	{"v": "0.34.3", "items": [
 		"THE BROOD COMPUTER PLAYS ITS ECONOMY BETTER (no unit, building or price changed): it roots its second Rootmaw at once, before the turtle on its natural; when it is only short of warriors against what it has seen (no enemy at the Mother), one egg in three is still a grub, so its economy keeps growing; and once it has read a rider opening and has half the warriors it wants, it lays a grub for every warrior until the riders are seen coming. Against the Clockwork computer it earns about a quarter more by 8:00, and about 7% more over all its games.",
 	]},
