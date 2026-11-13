@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """ECONOMY PARITY charts (docs/economy_parity.md): the bench curves before and after, and the AI games' income.
-    python3 tools/study/econ_parity_chart.py [AFTER_GAMES_DATA_DIR] [BEFORE_GAMES_DATA_DIR]
+    python3 tools/study/econ_parity_chart.py [AFTER_GAMES_DATA_DIR] [BEFORE_GAMES_DATA_DIR]   (this study: docs/economy_parity/games/after and the win-rate study's same 72 tags)
 Writes docs/economy_parity/curves.png. Faction colours: the owner's (Crown purple, Clockwork red, Brood green), checked
 for colour-blind separation; before = dashed, after = solid, every line labelled at its end."""
 import json, os, sys

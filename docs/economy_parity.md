@@ -12,7 +12,24 @@ job (no Crown buff). docs/exhaust_economy.md's rules (no trickle, spent means sp
 small, 10 -> 8.9 big, and a Clocktower's raw brass 9,000 -> 8,000. The Brood was measured and left alone (a FOOD_BONUS
 cut was tried and taken back: section 4). Nothing of the Crown changed. **The owner must approve before it is merged** (section 8).
 
-__SUMMARY__
+## In short
+
+1. **By design the three economies were already close.** A new bench (each faction alone, the same ideal build) gives,
+   as shares of the Crown's earnings at 5 / 8 / 10 / 15 minutes: Clockwork 1.06 / 1.04 / 1.06 / 1.02 (1.24 at 3:00), Brood
+   on its natural expansion clock 1.00 / 0.92 / 1.00 / 0.96 on Greenhold and 0.79 / 0.75 / 0.83 / 0.84 on Hollowfen.
+2. **The games' big gaps are the computers'**: the Crown computer gets 53-58% of its economy's design (it expands late
+   and rarely, keeps spent Farms under its hall limit, and spreads its labourers thin), the Clockwork computer 72-91%,
+   the Brood's 56-68%.
+3. **Applied** (owner's rule: nerf the others): the Clockwork -11% (Cog Press 7.2 -> 6.4, 10 -> 8.9; brass 9,000 ->
+   8,000 so a base runs out when it did). Bench after: 0.95 / 0.93 / 0.95 / 0.92 of the Crown, still ahead at 3:00 (1.11).
+   **The Brood was not nerfed**: FOOD_BONUS 1.0 was tried and put it 20-28% under the Crown on Hollowfen.
+4. **In 72 Hard games each way** the Clockwork earns 11-14% less; the Crown/Clockwork income gap goes from 1.33-1.57 to
+   1.18-1.38 and the Clockwork no longer wins against the Crown (0-12-0 draws, was 0-8-4); but the Brood now wins or leads 8
+   of 12 against the Clockwork (was 4). Crown v Brood is unchanged (0 won or led).
+5. **Pace**: first expansion 3:30-6:00, first contact ~6:00, first big fight ~9:00, ~145 supply at 15:00, most games still
+   going at 15:00. It plays like **Warcraft III with a StarCraft II opening**; the nerf slows only the Clockwork's side.
+6. **The owner decides** (section 8): merge the Clockwork cut (or a smaller one), a Brood ground-price brake, the Crown
+   computer's economy fixes (the real lever for parity in games), and how much slower the whole game should be.
 
 ## 1. The bench: the design, not the computer
 
@@ -36,7 +53,7 @@ faction alone on a map (the other slot is an idle dummy) with a SCRIPTED IDEAL B
 **Common value**: primary + secondary at 1 : 1 (gold + powder, cogs + Tension, biomass + spoils): a Musketeer is 60 gold +
 10 powder, a Clock Soldier 70 cogs, a Springer 100 cogs + 25 Tension, a Raptor egg 50 biomass for two: a unit of any
 resource buys about the same fighting value. Secondary resources are taken out of the pool every second, so a full store
-never stops them. Map Greenhold, seed 1 (a second map, Dune Sea, in section 2.3).
+never stops them. Map Greenhold, seed 1 (a second map, Hollowfen, in section 2.3). The Brood has no secondary income here (spoils come from bodies).
 
 ### The Brood's clock
 
@@ -211,15 +228,111 @@ about twice the Crown's army, half of the Crown's gold being in buildings; here:
 
 ## 6. The computer games (Hard OPTIMAL v Hard OPTIMAL, 15:00)
 
-__GAMES__
+72 games each side of the change: 6 maps (Greenhold, Dune Sea, Frostfang, Ashford Crossing, Hollowfen, Cinder Steps) x
+the 6 pairings x 2 rounds (the sides swapped), 12 games a pairing, the qa-matches tags and seeds (`--only parity`).
+BEFORE = the same 72 tags from the win-rate study now running on main 0.33.25 (branches winrate-a/b/c; same version and
+computers, so the only difference is this branch's two numbers). AFTER = this branch (data
+docs/economy_parity/games/after/). No game crashed or stalled; no script error. (Single games are noisy: the qa study
+found the same map and seed agree on the result about 2 times in 3; read the totals.)
+
+| matchup (first-named's view) | W-D-L before | after | won or led before / after | income ratio 5:00 / 8:00 / 10:00 / 15:00 before | after | army ratio 8:00 before / after | decided length before / after |
+|---|---|---|---|---|---|---|---|
+| Crown v Brood | 0-5-7 | 0-5-7 | 0 / 0 | 1.08 / 0.86 / 0.86 / 0.80 | 1.08 / 0.84 / 0.83 / 0.72 | 0.87 / 0.75 | 13:13 / 12:33 |
+| Crown v Clockwork | 0-8-4 | 0-12-0 | 1 / 2 | 0.63 / 0.66 / 0.61 / 0.55 | **0.70 / 0.76 / 0.72 / 0.75** | 1.22 / 1.55 | 13:47 / none |
+| Brood v Clockwork | 3-3-6 | **6-5-1** | 4 / **8** | 0.60 / 0.64 / 0.75 / 0.87 | 0.67 / 0.79 / 1.03 / 1.16 | 0.73 / 3.02 | 12:41 / 14:02 |
+| Crown mirror (P1) | 0-12-0 | 0-11-1 | 3 / 0 | 0.94 / 0.88 / 0.87 / 0.85 | 1.00 / 0.97 / 0.92 / 0.72 | 0.91 / 1.14 | none / 14:15 |
+| Brood mirror (P1) | 5-7-0 | 6-6-0 | 8 / 9 | 1.07 / 1.13 / 1.14 / 1.10 | 1.07 / 1.13 / 1.16 / 1.11 | 1.57 / 1.51 | 11:18 / 12:49 |
+| Clockwork mirror (P1) | 4-6-2 | 4-6-2 | 7 / 7 | 1.04 / 1.03 / 1.03 / 1.13 | 1.01 / 1.00 / 1.02 / 1.04 | 1.40 / 1.39 | 13:18 / 13:57 |
+
+Income earned, all games (primary):
+
+| | 5:00 | 8:00 | 10:00 | 15:00 |
+|---|---|---|---|---|
+| Crown before / after (unchanged) | 2,605 / 2,557 | 5,336 / 5,312 | 7,915 / 7,931 | 14,430 / 14,541 |
+| Clockwork before / after | 3,972 / **3,425 (-14%)** | 8,393 / **7,309 (-13%)** | 11,536 / **10,239 (-11%)** | 19,220 / **17,177 (-11%)** |
+| Brood before / after (unchanged) | 2,885 / 2,889 | 7,255 / 7,306 | 10,658 / 11,032 | 20,380 / 19,892 |
+| Clockwork / Crown before / after | 1.52 / 1.34 | 1.57 / 1.38 | 1.46 / 1.29 | 1.33 / 1.18 |
+| Brood / Crown before / after | 1.11 / 1.13 | 1.36 / 1.38 | 1.35 / 1.39 | 1.41 / 1.37 |
+
+**What it shows.**
+- The Clockwork earns 11-14% less in the games, as on the bench; the Crown-Clockwork income gap shrinks from 1.33-1.57 to
+  1.18-1.38. **In the Crown v Clockwork games the Crown's income ratio rose from 0.55-0.66 to 0.70-0.76**; the Clockwork
+  won none (4 before), every game a draw; the Crown still won none and led 2 (was 1). Its army at 8:00 ratio rose
+  (1.22 -> 1.55; the Crown computer's army is the bigger one at 8:00 in this pairing, the Clockwork's comes later).
+- **The cost of the nerf is Brood v Clockwork**: the Brood won 6 and led 8 of 12 (was 3 and 4), the Clockwork lost 1 (was 6
+  wins). The Brood already edged the Clockwork in the qa study (14-22-2); now it does clearly. If that is not wanted, the
+  Clockwork needs its income back against the Brood, or the Brood a brake (section 5c); see section 8.
+- The Crown still earns the least by far (0.72-0.85 of the Brood, 0.73-0.85 of the Clockwork after) and still never beats
+  the Brood: as section 3 says, the rest of the gap is the Crown computer.
+- Mirrors: unchanged within noise (the P1 spot's share as before).
 
 ## 7. The pace
 
-__PACE__
+Medians over the 72 games (both sides of the change, the same in all but noise):
+
+| | before (0.33.25) | after |
+|---|---|---|
+| first attack (the computer's own first sortie) | 6:00 | 6:05 |
+| first arrival (300+ army value in an enemy base) | 6:30 | 6:40 |
+| first big fight (the two armies together lose 500+ value, or 20+ units, in a minute) | 9:00 | 9:00 |
+| first expansion: Crown / Brood (third ground) / Clockwork | 5:00 / 6:00 / 3:30 | 6:00 / 6:00 / 4:00 |
+| 100 supply: Crown / Brood / Clockwork | 12:00 / 8:00 / 12:00 | 13:00 / 8:00 / 13:00 |
+| 150 supply reached by 15:00 (sides of 48) | Crown 6, Brood 35, Clockwork 3 | 4, 35, 1 |
+| biggest army supply at 15:00 (median of the bigger side) | 146 | 145 |
+| games decided by 15:00 | 31 of 72 (median 12:57) | 27 of 72 (13:39) |
+
+The earliest pressure is the Brood's (first attack 2:55 in Brood v Clockwork, its Raptors), the latest the Crown mirror's
+(8:30-8:50). The game slowed only a little: the Clockwork's supply 100 came a minute later, fewer games ended by 15:00.
+
+**Which RTS it resembles** (the other games' numbers are common knowledge of their usual competitive 1v1 play, NOT
+measured here, and only approximate):
+
+| | first expansion | first contact | first big fight | max army | usual game length |
+|---|---|---|---|---|---|
+| StarCraft II | natural 0:30-1:30, third 2:30-4:00 | 2:30-4:00 (harass) | 6:00-9:00 | 200 supply at ~10:00-12:00 | 10-15 min |
+| Age of Empires II | a second Town Center in Castle Age, 18:00+ (often never) | 7:00-10:00 (Dark/Feudal raids) | 15:00-20:00 | 200 pop rarely before 30:00 | 25-40 min |
+| Warcraft III | 4:00-8:00, often none | 2:00-4:00 (heroes, creeps, harass) | 6:00-10:00 | 100 food (upkeep from 50) | 15-25 min |
+| Company of Heroes | no bases: map points from 0:30 | 1:00-2:00 | constant small fights, big at 10:00+ | small squads | 20-40 min |
+| Beyond All Reason | continuous build-out, no worker bases | 2:00-4:00 (raids) | 10:00-15:00 | hundreds of units | 20-45 min |
+| **Holdfast (Hard computers, now)** | 3:30-6:00 | 3:00-6:30 | **9:00** | 145 supply at 15:00 (cap 200, mostly not reached) | most games still going at 15:00; decided ones ~13:00 |
+
+**Answer**: the opening (first expansion 4-6 min, first pressure 3-6 min) is close to **StarCraft II's** tempo but about
+half its macro speed (an army of 100 supply at 8-13 min where StarCraft II reaches 200 by 10-12). The middle and the length
+(the first big fight at ~9 min, armies of 100-150, most games past 15 min) are closest to **Warcraft III**. So: Warcraft III's
+pace with StarCraft II's opening. A slower game like Age of Empires II or Company of Heroes would need far bigger changes
+than this (slower worker production, costlier halls, smaller incomes for every faction), not a two-faction nerf: this job's
+nerf makes the Clockwork's side of the game ~12% slower and leaves the rest as it was.
 
 ## 8. What the owner must decide
 
-__DECIDE__
+1. **Merge the Clockwork nerf?** (applied on this branch: Cog Press 6.4 / 8.9, 8,000 brass.) By design it puts the
+   Clockwork at 0.91-0.95 of the Crown (was 1.01-1.06), early lead kept. In the games the Crown-Clockwork gap shrinks
+   (1.33-1.57 -> 1.18-1.38) but the Brood now beats the Clockwork more often (won or led 8 of 12, was 4). Alternatives:
+   a smaller cut (7.2 -> 6.8, 10 -> 9.5, 8,500 brass: about -5%, the design back to ~1.0), or keep the cut and give the
+   Brood a brake (2).
+2. **The Brood**: no income nerf (by design it is even with the Crown on Greenhold and 13-25% under on Hollowfen; FOOD_BONUS
+   1.0 was tried and taken back). If its army per resource (section 5) still proves too strong once the Crown computer is
+   better, the proposal is a quiet price on its ground: the Mound Turtle 100 -> 125 or the Rootmaw 75 -> 100. Not applied.
+3. **The Crown computer** (the real source of the gaps; Claude's proposal, NOT done here, a separate job): expand on time
+   (second hall by 4:00, third by 8:00, as the bench and the Clockwork computer do), **pull down spent Farms**
+   (AI._recycle_spent skips "farm"), keep labourers on the Farms. And a rule question for the owner: should a Farm on
+   spent soil still count against "2 Farms a Town Hall"? (A human who does not demolish it is capped too; Mills and Presses
+   have the same rule, but the computer recycles those.)
+4. **A slower game overall**: this branch slows only the Clockwork. For the whole game, the lever is shared by everyone:
+   e.g. every worker's training 12 -> 15 s and the Mother's egg 6 -> 7.5 s (the speed bases fill), or every yield -15%
+   (the Crown's too: not a buff, a slowdown). Not proposed as numbers until the owner says how slow (the Warcraft III /
+   StarCraft II table in section 7 is the menu).
+5. **The bench's schedule**: the Brood was benched on its own clock (1:00 / 6:00 / 10:00, its computers' medians), the
+   others on 4:00 / 8:00 / 12:00. If the owner prefers one clock for all, the Brood is 0.58-0.80 of the Crown on it
+   (its home holds two Rootmaws).
+
+Tests: test_exhaust (the old numbers pinned: updated), test_gear_rules (the card's numbers: updated), test_gear_econ,
+test_gear_press, test_clockwork_eco, test_clockwork_builds_a, test_clockwork_builds_b, test_clockwork_springer_timing,
+test_brood_new, test_brood_builds, test_brood_fixes, test_brood_far, test_ai_brood, test_ai_wall_vs_rush all pass.
+**test_ai_expand**'s Clockwork case (a POOR Clockwork on nearly spent brass must still earn in the last minute) failed once
+in two runs on the branch and passed on main: with less income before its brass ran out it once spent its last cogs on a
+Mainspring and could not pay a Cog Press at the new tower (0 cogs, 0 income). A Clockwork-computer priority to look at
+(a press before a Mainspring when broke), made likelier by the nerf.
 
 ## How to run it
 
