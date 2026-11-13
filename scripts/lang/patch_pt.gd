@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.34.8": ["A PINTURA DO MENU PRINCIPAL: o Soldado-Relógio que estava de pé sobre a mola de um Saltador agora tem pernas de Soldado-Relógio, e a mancha ao lado do Mecanismo caído (onde ficava a broca do Saltador que salta) voltou a ser só lama pisada."],
 	"0.34.7": ["A PINTURA DO MENU PRINCIPAL: os Saltadores da frente não são mais cópias de uma só pose: o do meio está saltando, com a mola esticada e o corpo lançado para cima, e o de baixo se inclina no seu salto."],
 	"0.34.6": ["A PINTURA DO MENU PRINCIPAL: o veneno que saía do olho do Sire Tirano sumiu (ele voltou a ser como era), o jato de veneno de cima que começava numa samambaia sumiu, e mais uma cabeça copiada da Ninhada na encosta ficou sob a poeira da cavalaria."],
 	"0.34.5": ["A PINTURA DO MENU PRINCIPAL: da passada de suavização do ChatGPT feita pelo dono foram usadas só três partes (o resto da resposta mudava demais): o brilho da cruz sem a linha de emenda, os jatos de veneno dos Cuspidores saindo agora das bocas e o céu claro sem a textura craquelada."],

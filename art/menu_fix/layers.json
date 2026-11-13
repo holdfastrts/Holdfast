@@ -1586,5 +1586,93 @@
   ],
   "feather": 3,
   "_why": "owner 2026-11-13: the Springers too alike: the middle one launches (spring uncoiled), the bottom one leans into its bounce (tools/menu_springer_poses.py, made from 0.34.6's painting)"
+ },
+ {
+  "src": "@out",
+  "clone": [
+   [
+    [
+     [
+      1384,
+      730
+     ],
+     [
+      1456,
+      730
+     ],
+     [
+      1456,
+      794
+     ],
+     [
+      1384,
+      794
+     ]
+    ],
+    -115,
+    62
+   ]
+  ],
+  "poly": [
+   [
+    1396,
+    736
+   ],
+   [
+    1430,
+    732
+   ],
+   [
+    1452,
+    744
+   ],
+   [
+    1452,
+    784
+   ],
+   [
+    1420,
+    794
+   ],
+   [
+    1394,
+    788
+   ],
+   [
+    1388,
+    762
+   ]
+  ],
+  "feather": 6,
+  "_why": "owner 2026-11-13: the smear left where the launching Springer's drill used to lie over the fallen Clockwork: plain trodden mud"
+ },
+ {
+  "src": "art/menu_fix/f43_hybrid_legs.png",
+  "box": [
+   0,
+   0,
+   1672,
+   941
+  ],
+  "poly": [
+   [
+    1236,
+    594
+   ],
+   [
+    1312,
+    594
+   ],
+   [
+    1312,
+    660
+   ],
+   [
+    1236,
+    660
+   ]
+  ],
+  "feather": 3,
+  "_why": "owner 2026-11-13: a Clock Soldier standing on a Springer's spring: the spring out, Clock Soldier legs in (tools/menu_hybrid_legs.py)"
  }
 ]

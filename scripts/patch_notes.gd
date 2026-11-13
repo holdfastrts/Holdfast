@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.8", "items": [
+		"THE MAIN MENU PAINTING: the Clock Soldier that stood on a Springer's spring now has a Clock Soldier's legs, and the smear left beside the fallen Clockwork (where the launching Springer's drill used to lie) is plain trodden mud again.",
+	]},
 	{"v": "0.34.7", "items": [
 		"THE MAIN MENU PAINTING: the Springers in front are no longer copies of one pose: the middle one is launching, its spring uncoiled and its body thrown up, and the one at the bottom leans into its bounce.",
 	]},

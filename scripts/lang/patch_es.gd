@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.34.8": ["LA PINTURA DEL MENÚ PRINCIPAL: el Soldado Reloj que estaba de pie sobre el resorte de un Saltador ahora tiene piernas de Soldado Reloj, y la mancha junto al Mecanismo caído (donde estaba el taladro del Saltador que salta) vuelve a ser solo barro pisado."],
 	"0.34.7": ["LA PINTURA DEL MENÚ PRINCIPAL: los Saltadores del frente ya no son copias de una sola pose: el del medio está saltando, con el resorte estirado y el cuerpo lanzado hacia arriba, y el de abajo se inclina en su salto."],
 	"0.34.6": ["LA PINTURA DEL MENÚ PRINCIPAL: el veneno que salía del ojo del Señor Tirano desapareció (volvió a ser como era), el chorro de veneno de arriba que empezaba en un helecho desapareció, y otra cabeza copiada de la Nidada en la ladera quedó bajo el polvo de la caballería."],
 	"0.34.5": ["LA PINTURA DEL MENÚ PRINCIPAL: de la pasada de suavizado de ChatGPT hecha por el dueño solo se tomaron tres partes (el resto de la respuesta cambiaba demasiado): el brillo de la cruz sin la línea de unión, los chorros de veneno de los Escupidores saliendo ahora de sus bocas y el cielo claro sin la textura agrietada."],
