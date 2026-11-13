@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.12", "items": [
+		"FIX (web build): the little arrows and symbols that showed as empty boxes (before AI STORY, PRODUCTION, ARMY & STRUCTURES, \"All players\", and the replay's pause button) are drawn again: the game now carries its own symbol font, as the browser has none to borrow.",
+	]},
 	{"v": "0.35.11", "items": [
 		"FIX: cancelling part of a planned wall (one piece, or one stretch of a wall with bends) cancels only that part: the rest stays planned and your Labourers keep building it (it used to drop the whole wall).",
 	]},

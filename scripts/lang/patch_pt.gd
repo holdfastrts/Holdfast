@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.12": ["CORREÇÃO (versão web): as pequenas setas e símbolos que apareciam como caixas vazias (antes de HISTÓRIA DA IA, PRODUÇÃO, EXÉRCITO E ESTRUTURAS, \"Todos os jogadores\" e no botão de pausa do replay) voltam a aparecer: o jogo agora traz a sua própria fonte de símbolos, já que o navegador não tem uma para emprestar."],
 	"0.35.11": ["CORREÇÃO: cancelar parte de um muro planejado (uma peça, ou um trecho de um muro com curvas) cancela só essa parte: o resto continua planejado e os seus Operários seguem construindo (antes caía o muro inteiro)."],
 	"0.35.10": ["CORREÇÃO: VER MAPA depois da partida mantém os anéis de engrenagem do Mecanismo desenhados onde quer que você mova a câmera (eles sumiam fora do lugar onde a partida acabou)."],
 	"0.35.9": ["As facções agora são só COROA, MECANISMO e NINHADA em todo lugar (sem o artigo na frente): salas de jogo, a tela de jogo, o relatório da batalha, as páginas de ajuda e o registro da partida."],
