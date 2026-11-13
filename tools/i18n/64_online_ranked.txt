@@ -1,0 +1,149 @@
+# Ranked play (docs/online_ranked.md): the RANKED page, the queue, the leaderboard, the result on the battle report
+
+> RANKED
+pt RANQUEADA
+es CLASIFICATORIA
+
+> LEADERBOARD
+pt CLASSIFICAÇÃO
+es CLASIFICACIÓN
+
+> Signing in...
+pt Entrando...
+es Iniciando sesión...
+
+> SEARCHING FOR AN OPPONENT
+pt PROCURANDO UM ADVERSÁRIO
+es BUSCANDO UN RIVAL
+
+> MATCH FOUND
+pt PARTIDA ENCONTRADA
+es PARTIDA ENCONTRADA
+
+> MATCH FOUND: starting the match server...
+pt PARTIDA ENCONTRADA: iniciando o servidor da partida...
+es PARTIDA ENCONTRADA: iniciando el servidor de la partida...
+
+> Connecting to the match server...
+pt Conectando ao servidor da partida...
+es Conectando con el servidor de la partida...
+
+> FIND A MATCH
+pt ENCONTRAR PARTIDA
+es BUSCAR PARTIDA
+
+> LADDER ADDRESS
+pt ENDEREÇO DO RANKING
+es DIRECCIÓN DE LA CLASIFICACIÓN
+
+> SIGN IN AGAIN
+pt ENTRAR DE NOVO
+es INICIAR SESIÓN DE NUEVO
+
+> EUROPE
+pt EUROPA
+es EUROPA
+
+> N. AMERICA
+pt AM. DO NORTE
+es NORTEAMÉRICA
+
+> S. AMERICA
+pt AM. DO SUL
+es SUDAMÉRICA
+
+> ASIA
+pt ÁSIA
+es ASIA
+
+> ALL
+pt TODOS
+es TODOS
+
+> Ranked 1v1 on our servers: the match runs on a server, not on either player's device, so neither side can see through the fog or fake a result. Your rating moves with every match (the first 5 are placement matches).
+pt 1v1 ranqueada nos nossos servidores: a partida roda num servidor, não no aparelho de um dos jogadores, então nenhum lado pode ver através da névoa nem forjar um resultado. Sua pontuação muda a cada partida (as 5 primeiras são de colocação).
+es 1v1 clasificatoria en nuestros servidores: la partida se juega en un servidor, no en el dispositivo de ningún jugador, así que ningún bando puede ver a través de la niebla ni falsear un resultado. Tu puntuación cambia con cada partida (las 5 primeras son de clasificación).
+
+> You play %s. A match is found for a rating close to yours; the wider the wait, the wider the search.
+pt Você joga de %s. A partida é com alguém de pontuação perto da sua; quanto mais espera, mais ampla a busca.
+es Juegas con %s. La partida se busca con alguien de puntuación cercana a la tuya; cuanto más esperas, más amplia es la búsqueda.
+
+> PLACEMENT: %d matches left
+pt COLOCAÇÃO: faltam %d partidas
+es CLASIFICACIÓN: quedan %d partidas
+
+> RATING %d
+pt PONTUAÇÃO %d
+es PUNTUACIÓN %d
+
+> %d won, %d lost
+pt %d vitórias, %d derrotas
+es %d ganadas, %d perdidas
+
+> Against %s (%s, rating %d)
+pt Contra %s (%s, pontuação %d)
+es Contra %s (%s, puntuación %d)
+
+> You: placement, %d matches left
+pt Você: colocação, faltam %d partidas
+es Tú: clasificación, quedan %d partidas
+
+> You: #%s, rating %d
+pt Você: nº %s, pontuação %d
+es Tú: n.º %s, puntuación %d
+
+> Nobody has finished their placement matches yet.
+pt Ninguém terminou as partidas de colocação ainda.
+es Nadie ha terminado aún sus partidas de clasificación.
+
+> RANKED: waiting for the server's result...
+pt RANQUEADA: esperando o resultado do servidor...
+es CLASIFICATORIA: esperando el resultado del servidor...
+
+> RANKED: %s
+pt RANQUEADA: %s
+es CLASIFICATORIA: %s
+
+> NO RESULT
+pt SEM RESULTADO
+es SIN RESULTADO
+
+> You are banned from ranked play %s: %s. To appeal: %s
+pt Você está banido das partidas ranqueadas %s: %s. Para recorrer: %s
+es Tienes prohibido jugar clasificatorias %s: %s. Para apelar: %s
+
+> for good
+pt para sempre
+es para siempre
+
+> until %s
+pt até %s
+es hasta el %s
+
+> The match could not start: %s
+pt A partida não pôde começar: %s
+es La partida no pudo empezar: %s
+
+> Can't reach the ranked server.
+pt Não foi possível alcançar o servidor ranqueado.
+es No se puede llegar al servidor clasificatorio.
+
+> The ranked server said no (%d).
+pt O servidor ranqueado recusou (%d).
+es El servidor clasificatorio se negó (%d).
+
+> Something went wrong.
+pt Algo deu errado.
+es Algo salió mal.
+
+> Too many orders at once: some were dropped.
+pt Ordens demais de uma vez: algumas foram descartadas.
+es Demasiadas órdenes a la vez: se descartaron algunas.
+
+> This ranked match refused you: %s.
+pt Esta partida ranqueada recusou você: %s.
+es Esta partida clasificatoria te rechazó: %s.
+
+> Player %d is in.
+pt O jogador %d entrou.
+es El jugador %d ha entrado.

@@ -25,6 +25,13 @@
 
 ## Current work
 
+- RANKED ONLINE, PROTOTYPE (owner, DECIDED 2026-11-13 01:04; job online-ranked, 0.34.0, docs/online_ranked.md): our
+  server runs every ranked match (tools/server/match_server.gd, headless, both players guests via the relay with signed
+  tickets: LadderTicket), Steam players only (SteamID64 = account; Identity: Steam via GodotSteam, not in the repo, or a
+  DEV sign-in for tests), the ladder service tools/ladder/ (Node + SQLite: queue, Glicko-2, placement 5, seasons, bans,
+  reports, admin.mjs), RANKED / queue / LEADERBOARD in ui/ranked_menu.gd. Snapshots are cut PER SIDE (NetView; keyframes
+  no longer send unseen enemies, friendly online too). Tests: tools/test_ranked.sh, tools/test_net_fog.gd. Not live: the
+  owner's steps are in the doc.
 - CROWN: FOUNDRY BEFORE THE SECOND BARRACKS, ALWAYS (owner, DECIDED 2026-11-03 22:33), in every plan and matchup (the Horseman
   rush is done with 1 Barracks). The Horse Breeder comes either way (cannons need horses). Canister hits flyers, round shot
   has the longest range (430). Riders are an addition when the scout sees drops/leaps, enemy artillery, a greedy enemy or
@@ -99,7 +106,20 @@
   with a StarCraft II opening. Also running: online-ranked (OWNER 01:04: SERVER-AUTHORITATIVE ranked matches, Steam-only
   ladder, bans by SteamID64 + optional Steam game ban; prototype + docs/online_ranked.md). Main menu painting: hallucination
   fixes by crop repaints (art/menu_fix/, tools/menu_fix_composite.py): gunner and horseman done 0.33.31, the Clockwork
-  front and the Brood Mother redone with unit references (waiting on the owner's pictures).
+  front and the Brood Mother DONE 0.33.32 (one repaint of the right side, art/menu_fix/f34_right_fixed.png, a stray sword inpainted).
+  RANKED ONLINE MERGED 0.34.0 (2026-11-13; docs/online_ranked.md): SERVER-AUTHORITATIVE ranked 1v1 (a headless match
+  host, tools/server/match_server.gd; both players guests), keyframes fog-filtered per side (friendly online too), Steam
+  identity (scripts/net/identity.gd; GodotSteam only in the Steam build; DEV sign-in for tests), the ladder service
+  (tools/ladder/: queue, Glicko-2, seasons, bans by SteamID64 + optional Steam game ban, refused-order logs, admin CLI),
+  RANKED page, queue, results, leaderboard. Capacity ~3-4 matches a core, ~0.8 GB each; Oracle Always Free ARM to start.
+  Owner's steps to go live in the doc. Tests: tools/test_ranked.sh, test_net_fog.gd, test_online.sh (coop's
+  guest_ground_attack_hits_body fails on main too).
+  GROUND SYSTEM (owner, DECIDED 2026-11-13 01:34-01:40; docs/ground_system.md): every economy building drinks from a
+  CIRCLE of ground like the Rootmaw; spent ground shown RED while placing; overlap with spent ground gives a proportional
+  yield; ground exists only in a DISTRICT PER HALL (fixed amount each); the layer shows FAINTLY while placing ANY building
+  (owner 01:37: placement strategy), the economy building being placed its own circle stronger. Build it AFTER the three econ-coach jobs merge, as a
+  Settings experiment, benched and with the computers coached on it. (Why: today's Farm limit counts spent Farms empire-wide,
+  so a fresh hall can stand farmless; the owner: tearing a Farm down never renews the soil.)
   ART 2026-11-12/13: the Clockwork and Brood campaign hubs (hubs-cw-brood 0.33.26: Hollweg's workshop, Lindqvist's
   station), the Clock Soldier's 8-way walk and the Raptor's S/N run (walks-raptor-clock 0.33.27), the rebels' back
   views, Varenne's calm idles, the pikeman's S/SE pike (rebel-art-2 0.33.28), the Raptor's SE (Claude's composite of two

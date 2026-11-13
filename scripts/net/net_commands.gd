@@ -171,6 +171,8 @@ static func _apply(s: NetSession, team: int, c: Dictionary) -> String:
 		var a = args[i]
 		if a is Array:
 			args[i] = a.filter(func(x) -> bool: return is_instance_valid(x) and x is Entity and x.team == team and not x.dead)
+			var foreign := (a as Array).filter(func(x) -> bool: return is_instance_valid(x) and x is Entity and x.team != team and not x.dead).size()
+			s.note_foreign(game.net_cmd_peer, foreign)      # (someone else's units in the list: a cheat's mark, docs/online_ranked.md)
 		elif not (is_instance_valid(a) and a is Entity and a.team == team and not a.dead):
 			return "not yours"
 	_clean_refs(args)

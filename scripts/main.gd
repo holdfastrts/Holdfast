@@ -674,6 +674,15 @@ func show_tutorial() -> void:
 	TutorialMenu.show(self)
 
 
+## RANKED: sign in, the queue, the leaderboard (ui/ranked_menu.gd; docs/online_ranked.md).
+func show_ranked(start_state := "") -> void:
+	var root := _page()
+	var rm := RankedMenu.new()
+	rm.main = self
+	root.add_child(rm)
+	rm.build(start_state)
+
+
 func show_online() -> void:
 	var root := _page()
 	var mm := MultiplayerMenu.new()
@@ -847,6 +856,9 @@ func show_editor_menu() -> void:
 
 
 var sandbox_lobby := false
+var last_replay := ""                 # the last finished match's replay file ("" none)
+var ladder: LadderClient              # RANKED: the ladder service's client (kept while the game runs: its sign-in)
+var ranked_match := ""                # RANKED: the match being played (its result is asked for at the end)
 var _editor: MapEditor
 
 
@@ -3019,6 +3031,7 @@ func _on_end(winner: int) -> void:
 			rp_path = game.net.rp_path
 	elif game.net and not game.net.is_host and game.net.rp_path != "":
 		rp_path = game.net.rp_path                  # (REPLAY RECORDING OFF: no view of its own, the host's whole replay came)
+	last_replay = rp_path            # (a dedicated match host keeps it as the match's evidence: tools/server/match_server.gd)
 	await get_tree().create_timer(1.2, true, false, true).timeout
 	if game == null:
 		return
@@ -3050,6 +3063,9 @@ func show_battle_report(winner: int, rp_path: String) -> void:
 		_to_menu()
 		start_replay(path))
 	ui_layer.add_child(o)
+	if ranked_match != "":
+		ui_layer.add_child(RankedMenu.result_panel(self, ranked_match))     # (the ladder's result and the rating change)
+		ranked_match = ""
 
 
 ## VIEW MAP on the battle report: the report steps aside, the whole map is shown (no fog) and

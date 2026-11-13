@@ -34,6 +34,21 @@ var known := {}                   # host: the ids the last snapshot listed
 var sent_slow := {}               # host: id -> hash of the values last sent whole (unchanged: a short row or none)
 var sent_fast := {}               # host: id -> where it was / its health when last sent (unchanged too: no row)
 var was_seen := {}                # host: ids a guest could see at the last snapshot (NetSnapshot._seen_by)
+var vknown := {}                  # host: what the guests hold (NetView.vknown: the session as its own single view)
+var strict := false               # host, ranked: the enemy's bank and battle report stay unsent until the end (NetView)
+var leaks := 0                    # (tests)
+## Host, ranked: a guest may send at most FLOOD_MAX orders in any second (more: refused unrun, counted); 0 = no limit
+## (a friendly room). `audit` counts per relay id what a cheat would leave behind: orders for units that are not its own
+## (refused, or stripped from a list), malformed or unknown orders, floods (docs/online_ranked.md "Anti-cheat").
+const FLOOD_MAX := 40
+var flood_max := 0
+var audit := {}                   # host: relay id -> {"cmds", "refused", "impossible", "foreign", "flood", "why": {reason: n}}
+var _flood := {}                  # host: relay id -> [second it counts, orders in it]
+const IMPOSSIBLE := ["no team", "not yours", "bad args", "bad property", "no callables"]
+var fog_audit := false            # host (tests, the match host's fogaudit): check every picture against the side's sight
+var fog_stats := {"pictures": 0, "enemy_rows": 0, "leaks": 0, "keyframes": 0}
+var views: Array = []             # host: one NetView per side the guests play (each gets its own fog-filtered picture)
+var _views_n := -1
 ## Host: seconds between snapshots, from SNAP_FAST (15 a second, every 2 game ticks) to SNAP_EVERY (10, every 3), by what
 ## they cost to make here and their size (SNAP_BYTES a second at most):
 ## they may take SNAP_BUDGET of the time (a big battle on a phone: fewer, a small game on a computer: more).
@@ -262,8 +277,20 @@ func _process(delta: float) -> void:
 	_cmd_tick = -1
 	snap_n += 1
 	var t0 := Time.get_ticks_usec()
-	var snap := NetSnapshot.build(self)
-	var bytes := link.send(snap, 0)
+	var bytes := 0
+	var vs := side_views()
+	if vs.size() <= 1:
+		var snap := NetSnapshot.build(self, vs[0] if vs.size() == 1 else null)
+		bytes = link.send(snap, 0)
+	else:
+		for v in vs:
+			var before: Dictionary = v.was_seen.duplicate() if fog_audit else {}
+			var snap2 := NetSnapshot.build(self, v)
+			if fog_audit:
+				_fog_audit(v, before, snap2)
+			for pr in v.peers:
+				bytes += link.send(snap2, int(pr))
+	fx = []
 	var us := Time.get_ticks_usec() - t0
 	mstat["snaps"] += 1
 	mstat["bytes"] += bytes
@@ -279,6 +306,61 @@ func _process(delta: float) -> void:
 	snap_every = clampf(maxf(_build_ms / 1000.0 / SNAP_BUDGET, _bytes_avg / SNAP_BYTES), SNAP_FAST, SNAP_EVERY)
 	if snap_fixed > 0.0:
 		snap_every = snap_fixed
+
+
+## The session as its own view (NetSnapshot.build(s) with no NetView: a replay recorder, a test): all guests' sides.
+func view_eyes() -> Array:
+	return guest_sides()
+
+
+## Host: one NetView per side the guests (still here) play, so each gets only what its own side can see (a 1v1 between
+## two guests on a dedicated host, or a three-way match, must not pool their sight).
+func side_views() -> Array:
+	var n := peer_team.size() * 8 + lost_peers.size()
+	if n == _views_n:
+		return views
+	_views_n = n
+	var by_side := {}
+	for v in views:
+		by_side[int(v.sides[0])] = v
+	var out: Array = []
+	for pr in _live_peers():
+		var sd := int(game.sides[int(peer_team[pr])])
+		var v: NetView = by_side.get(sd)
+		if v == null:
+			v = NetView.new()
+			v.sides = [sd]
+			by_side[sd] = v
+		v.strict = strict
+		if not out.has(v):
+			v.peers = []
+			out.append(v)
+		v.peers.append(int(pr))
+	views = out
+	return views
+
+
+## Host, fog_audit: every enemy row in this side's picture must be one it sees now (or the last row of one leaving its
+## sight); every enemy building one it sees some of; a keyframe's ids only what it holds (tools/test_ranked.sh).
+func _fog_audit(v: NetView, before: Dictionary, m: Dictionary) -> void:
+	var ev := NetSnapshot._eye_vis(game, v.sides)
+	fog_stats["pictures"] += 1
+	if m.has("ids"):
+		fog_stats["keyframes"] += 1
+	for row in m["u"]:
+		if NetSnapshot._ours(game, int(row[2]), v.sides):
+			continue
+		fog_stats["enemy_rows"] += 1
+		var u = by_id.get(int(row[0]))
+		if not before.has(int(row[0])) and not (u != null and is_instance_valid(u) and NetSnapshot._seen_by(game, u, v.sides, ev)):
+			fog_stats["leaks"] += 1
+	for row in m["b"]:
+		if NetSnapshot._ours(game, int(row[2]), v.sides):
+			continue
+		fog_stats["enemy_rows"] += 1
+		var b = by_id.get(int(row[0]))
+		if b == null or not is_instance_valid(b) or b.ghost or not NetSnapshot._bld_seen(game, b, ev):
+			fog_stats["leaks"] += 1
 
 
 ## Host: the sides the guests (still here) play: a snapshot leaves out the enemy units none of them can see.
@@ -1083,7 +1165,12 @@ func _on_message(from: int, m: Dictionary) -> void:
 		"cmd":
 			if not is_host:
 				return
-			var why := NetCommands.apply(self, from, m)
+			var why := ""
+			if _flooding(from, now):
+				why = "flood"
+			else:
+				why = NetCommands.apply(self, from, m)
+			_audit(from, why)
 			acks[from] = int(m.get("s", 0))
 			var ab: Array = applied_by.get(from, [0, 0])
 			if why == "":
@@ -1162,6 +1249,47 @@ func _on_message(from: int, m: Dictionary) -> void:
 					_log("%s's window was hidden %.0f s" % [_who(team), float(m.get("secs", 0.0))])
 
 
+## Host: does this order go over the guest's limit (flood_max orders in a second)?
+func _flooding(from: int, now: int) -> bool:
+	if flood_max <= 0:
+		return false
+	var sec := now / 1000
+	var f: Array = _flood.get(from, [sec, 0])
+	if int(f[0]) != sec:
+		f = [sec, 0]
+	f[1] = int(f[1]) + 1
+	_flood[from] = f
+	return int(f[1]) > flood_max
+
+
+func _audit_of(from: int) -> Dictionary:
+	if not audit.has(from):
+		audit[from] = {"cmds": 0, "refused": 0, "impossible": 0, "foreign": 0, "flood": 0, "why": {}}
+	return audit[from]
+
+
+func _audit(from: int, why: String) -> void:
+	var a := _audit_of(from)
+	a["cmds"] += 1
+	if why == "":
+		return
+	a["refused"] += 1
+	if why == "flood":
+		a["flood"] += 1
+	elif IMPOSSIBLE.has(why) or why.begins_with("unknown"):
+		a["impossible"] += 1
+	var w: Dictionary = a["why"]
+	var k := why.substr(0, 40)
+	if w.size() < 24 or w.has(k):
+		w[k] = int(w.get(k, 0)) + 1
+
+
+## Host (NetCommands): an order from this relay id named units that are not its own (taken out of the list, not refused).
+func note_foreign(from: int, n: int) -> void:
+	if n > 0:
+		_audit_of(from)["foreign"] += n
+
+
 ## Host: the words a guest sees for an order it refused. A game's own reason ("Not enough gold.") as it is; the checks
 ## of the funnel (NetCommands._apply) in the player's words.
 static func refusal_text(why: String) -> String:
@@ -1172,6 +1300,8 @@ static func refusal_text(why: String) -> String:
 			return "That order was refused: its target is gone."
 		"no team", "bad args", "bad property", "no callables":
 			return "That order was refused by the host."
+		"flood":
+			return "Too many orders at once: some were dropped."
 	if why.begins_with("unknown"):
 		return "That order can't be given online yet."
 	if why.length() > 0 and why[0] == why[0].to_upper():

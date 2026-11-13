@@ -95,11 +95,13 @@ static func check_lists(u: Unit, b: Building) -> String:
 
 # ------------------------------------------------------------------ host
 
-static func build(s: NetSession) -> Dictionary:
+static func build(s: NetSession, view = null) -> Dictionary:
+	var v = s if view == null else view        # (what this side has been sent: a NetView, or the session itself)
 	var g := s.game
 	var key := s.snap_n % KEY_EVERY == 1
 	var halves := s.snap_every < 0.08          # (fast snapshots: each unit's whole row every other one)
-	var eyes := s.guest_sides()                 # the sides the guests play: what they can see
+	var eyes: Array = v.view_eyes()            # the sides this picture is for: what they can see
+	var eye_vis := _eye_vis(g, eyes)           # their players' sight (empty: sees all)
 	var cur := {}
 	var brows: Array = []
 	var urows: Array = []
@@ -119,6 +121,12 @@ static func build(s: NetSession) -> Dictionary:
 		var e: Entity = cur[id]
 		if e is Building:
 			var b: Building = e
+			if not _ours(g, b.team, eyes):
+				# another side's building: never its planned sites; the rest only while this side sees some of it (a
+				# building it saw and left stays on its screen as last seen, under the grey fog: FogMemory)
+				if b.ghost or not _bld_seen(g, b, eye_vis):
+					continue
+			v.vknown[id] = [b, true, b.team, b.cell, b.size]
 			var hp := snappedf(b.hp, 0.1)
 			var slow := bld_vals(b)
 			slow.append(ref(s, b.rally_target))
@@ -131,25 +139,28 @@ static func build(s: NetSession) -> Dictionary:
 			slow.append(crew)
 			var hs := hash(slow)
 			var row: Array = [id, b.kind, b.team, b.cell, hp, 0]
-			if key or int(s.sent_slow.get(id, 0)) != hs:
+			if key or int(v.sent_slow.get(id, 0)) != hs:
 				row.append_array(slow)
-				s.sent_slow[id] = hs
-			elif s.sent_fast.get(id) == hp:
+				v.sent_slow[id] = hs
+			elif v.sent_fast.get(id) == hp:
 				continue               # (nothing changed)
-			s.sent_fast[id] = hp
+			v.sent_fast[id] = hp
 			brows.append(row)
 		else:
 			var u: Unit = e
-			if not key and not _seen_by(g, u, eyes):
-				if not s.was_seen.has(id):
-					continue           # (fogged for every guest: its row waits until it comes into sight)
-				s.was_seen.erase(id)    # (just gone out of sight: one last row, where it went)
+			# an enemy no guest of this side can see is not sent, keyframes included (it is sent again as it comes into
+			# sight); one going out of sight sends one last row, where it went (its picture stays there, under the fog)
+			if not _seen_by(g, u, eyes, eye_vis):
+				if not v.was_seen.has(id):
+					continue           # (fogged for this side: its row waits until it comes into sight)
+				v.was_seen.erase(id)
 			else:
-				s.was_seen[id] = true
+				v.was_seen[id] = true
+			v.vknown[id] = [u, false, u.team, u.position, Vector2i.ONE]
 			var fast: Array = [u.position.snapped(Vector2(0.1, 0.1)), snappedf(u.hp, 0.1), snappedf(u.facing.angle(), 0.02)]
-			if halves and not key and (id + s.snap_n) % 2 == 1 and s.sent_slow.has(id):
-				if s.sent_fast.get(id) != fast:
-					s.sent_fast[id] = fast
+			if halves and not key and (id + s.snap_n) % 2 == 1 and v.sent_slow.has(id):
+				if v.sent_fast.get(id) != fast:
+					v.sent_fast[id] = fast
 					urows.append([id, u.kind, u.team, fast[0], fast[1], fast[2]])
 				continue               # (its whole row is looked at in the next one)
 			var slow := unit_vals(u)
@@ -168,35 +179,54 @@ static func build(s: NetSession) -> Dictionary:
 			slow.append(pas)
 			var hs := hash(slow)
 			var row: Array = [id, u.kind, u.team, fast[0], fast[1], fast[2]]
-			if key or int(s.sent_slow.get(id, 0)) != hs:
+			if key or int(v.sent_slow.get(id, 0)) != hs:
 				row.append_array(slow)
-				s.sent_slow[id] = hs
-			elif s.sent_fast.get(id) == fast:
+				v.sent_slow[id] = hs
+			elif v.sent_fast.get(id) == fast:
 				continue               # (it stood still and nothing changed)
-			s.sent_fast[id] = fast
+			v.sent_fast[id] = fast
 			urows.append(row)
+	# gone: what this side holds that is no longer there. Another side's thing that went while this side did not see its
+	# last known spot waits until it looks there again (no news of a death in the fog), and then just goes (no death shown)
 	var gone: Array = []
-	for id in s.known:
-		if not cur.has(id):
-			var old = s.known[id]
-			var died: bool = is_instance_valid(old) and old.dead
-			gone.append([id, old is Building if is_instance_valid(old) else int(id) < 0, died])
-			s.sent_slow.erase(id)
-			s.sent_fast.erase(id)
-			s.was_seen.erase(id)
+	for id in v.vknown.keys():
+		if cur.has(id):
+			continue
+		var info: Array = v.vknown[id]
+		var ours := _ours(g, int(info[2]), eyes)
+		var looking := ours or _spot_seen(g, info, eye_vis)
+		if not looking:
+			continue
+		var old = info[0]
+		var died: bool = is_instance_valid(old) and old.dead     # (long gone in the fog: freed, so no death is shown)
+		gone.append([id, bool(info[1]), died])
+		v.vknown.erase(id)
+		v.sent_slow.erase(id)
+		v.sent_fast.erase(id)
+		v.was_seen.erase(id)
 	s.known = cur
 	s.by_id = cur
+	var nu := 0
+	for id in v.vknown:
+		if not bool(v.vknown[id][1]):
+			nu += 1
+	var strict: bool = bool(v.get("strict")) and not g.over
 	var pl: Array = []
 	for t in g.n_players():
-		pl.append(g.players[t].duplicate(true))
+		var pd: Dictionary = g.players[t].duplicate(true)
+		if strict and not _ours(g, t, eyes):
+			for k in HIDDEN_BANK:
+				if pd.has(k):
+					pd[k] = 0          # (ranked: the enemy's bank is not this side's business)
+		pl.append(pd)
 	var m := {"t": "snap", "n": s.snap_n, "clk": snappedf(g.clock, 0.01), "ack": s.acks.duplicate(), "u": urows, "b": brows,
 		"gone": gone, "pl": pl, "en": g.energy, "ore": g.ore_rate, "asm": g.asm_mult, "wind": g.wind_e,
-		"elim": g.eliminated, "over": g.over, "win": g.winner, "cnt": [n_units, g.buildings.size()]}
+		"elim": g.eliminated, "over": g.over, "win": g.winner, "cnt": [nu, v.vknown.size() - nu]}
 	if key:
-		m["ids"] = PackedInt32Array(cur.keys())
+		m["ids"] = PackedInt32Array(v.vknown.keys())
 	var fp := g.line_net.fingerprint()
-	if fp != s.line_fp or s.snap_n % 20 == 0:
-		s.line_fp = fp
+	if fp != v.line_fp or s.snap_n % 20 == 0:
+		v.line_fp = fp
 		m["ln"] = g.line_net.save()            # the Clockwork Line (pipe segments), sent when it changes
 	# powder kegs on the ground (PowderKeg): [x, y, team, shots, hp], sent when they change (and now and then)
 	var krows: Array = []
@@ -204,29 +234,32 @@ static func build(s: NetSession) -> Dictionary:
 		if not k.dead:
 			krows.append([snappedf(k.position.x, 0.1), snappedf(k.position.y, 0.1), k.team, snappedf(k.powder, 0.1), snappedf(k.hp, 0.1)])
 	var kfp := hash(krows)
-	if kfp != s.keg_fp or key or s.snap_n % 20 == 0:
-		s.keg_fp = kfp
+	if kfp != v.keg_fp or key or s.snap_n % 20 == 0:
+		v.keg_fp = kfp
 		m["kg"] = krows
 	# the Rootmaws' ground (Game.nb_spots: [id, x, y, food left, its Rootmaw's serial]), sent when it changes by a whole
 	# unit of food (and in keyframes): the guest's cards, tooltips, labels and match log read it
-	if not g.nb_spots.is_empty() or s.spot_fp != -1:
+	if not g.nb_spots.is_empty() or v.spot_fp != -1:
 		var srows: Array = []
 		for id in g.nb_spots:
 			var sp: Dictionary = g.nb_spots[id]
 			srows.append([int(id), snappedf((sp["p"] as Vector2).x, 0.1), snappedf((sp["p"] as Vector2).y, 0.1), floorf(float(sp["left"])), int(sp.get("maw", 0))])
 		var sfp := hash(srows)
-		if sfp != s.spot_fp or key:
-			s.spot_fp = sfp
+		if sfp != v.spot_fp or key:
+			v.spot_fp = sfp
 			m["nbs"] = srows
 	if Defs.cw_roster and (not g.cw_consists.is_empty() or s.snap_n % 10 == 0):
 		m["cpl"] = CwConsist.net_rows(s, g)     # coupled rail trains (lists of ids; the host moves the cars)
 	if not g.line_net.rails.trains.is_empty() or s.snap_n % 10 == 0:
 		m["tr"] = g.line_net.rails.view_rows()  # the trains (they move every snapshot)
 	if not s.fx.is_empty():
-		m["fx"] = s.fx
-		s.fx = []
-	if g.over or s.snap_n % 10 == 0:
-		m["stats"] = g.stats           # (about once a second: income, the battle report)
+		var fx := _fx_for(g, s.fx, eyes, eye_vis)
+		if not fx.is_empty():
+			m["fx"] = fx
+		if view == null:
+			s.fx = []                  # (per side views: the session empties it once every side's picture is made)
+	if g.over or (s.snap_n % 10 == 0 and not strict):
+		m["stats"] = g.stats           # (about once a second: income, the battle report; ranked: at the end)
 		m["acc"] = s.applied_by.duplicate(true)     # (each guest: its orders run and refused, for its match log)
 	if s.paused():
 		m["pz"] = [s.pause_by, s.away]
@@ -258,15 +291,96 @@ static func apply_kegs(g: Game, rows: Array) -> void:
 			have[i].remove()
 
 
-## Can a guest see this unit? Its own side's always; another's where a guest's side sees (as the guest's fog will).
-static func _seen_by(g: Game, u: Unit, eyes: Array) -> bool:
-	if eyes.is_empty() or (u.team >= 0 and eyes.has(int(g.sides[u.team]))):
-		return true
-	var i := g.idx(g.cell_of(u.position))
+## The players' bank values a ranked side does not get of its enemies (NetView.strict).
+const HIDDEN_BANK := ["gold", "res2", "gold_f", "repair_f", "gold_x", "cap"]
+
+
+## Is this team on one of the sides the picture is for (or is the picture for everyone)?
+static func _ours(g: Game, team: int, eyes: Array) -> bool:
+	return eyes.is_empty() or (team >= 0 and team < g.sides.size() and eyes.has(int(g.sides[team])))
+
+
+## The sight maps (Game.vis) of every player on the picture's sides; empty when it sees all.
+static func _eye_vis(g: Game, eyes: Array) -> Array:
+	var out: Array = []
+	if eyes.is_empty():
+		return out
 	for t in g.n_players():
-		if eyes.has(int(g.sides[t])) and (g.vis[t] as PackedByteArray)[i] == 1:
+		if eyes.has(int(g.sides[t])):
+			out.append(g.vis[t])
+	return out
+
+
+static func _cell_seen(g: Game, i: int, eye_vis: Array) -> bool:
+	for vv in eye_vis:
+		if (vv as PackedByteArray)[i] == 1:
 			return true
 	return false
+
+
+## Can a guest see this unit? Its own side's always; another's where a guest's side sees (as the guest's fog will).
+static func _seen_by(g: Game, u: Unit, eyes: Array, eye_vis = null) -> bool:
+	if _ours(g, u.team, eyes):
+		return true
+	if eye_vis == null:
+		eye_vis = _eye_vis(g, eyes)
+	return _cell_seen(g, g.idx(g.cell_of(u.position)), eye_vis)
+
+
+## Does the picture's side see any of this building now?
+static func _bld_seen(g: Game, b: Building, eye_vis: Array) -> bool:
+	if eye_vis.is_empty():
+		return true
+	for y in range(b.cell.y, b.cell.y + b.size.y):
+		for x in range(b.cell.x, b.cell.x + b.size.x):
+			var c := Vector2i(x, y)
+			if g.in_map(c) and _cell_seen(g, g.idx(c), eye_vis):
+				return true
+	return false
+
+
+## Does the picture's side see where it last knew this thing to be (NetView.vknown info)?
+static func _spot_seen(g: Game, info: Array, eye_vis: Array) -> bool:
+	if eye_vis.is_empty():
+		return true
+	if bool(info[1]):
+		var c: Vector2i = info[3]
+		var sz: Vector2i = info[4]
+		for y in range(c.y, c.y + sz.y):
+			for x in range(c.x, c.x + sz.x):
+				var cc := Vector2i(x, y)
+				if g.in_map(cc) and _cell_seen(g, g.idx(cc), eye_vis):
+					return true
+		return false
+	return _cell_seen(g, g.idx(g.cell_of(info[3])), eye_vis)
+
+
+## The effects a side gets: those it could see happen (a shot: either end in sight). Its own floats, all marks of its
+## own and allies, others' marks only where it sees.
+static func _fx_for(g: Game, list: Array, eyes: Array, eye_vis: Array) -> Array:
+	if eye_vis.is_empty():
+		return list
+	var out: Array = []
+	for f in list:
+		var p: Vector2 = f[2]
+		var ok := _cell_seen(g, g.idx(g.cell_of(g.on_map(p))), eye_vis)
+		match String(f[0]):
+			"s":
+				ok = ok or _cell_seen(g, g.idx(g.cell_of(g.on_map(f[3]))), eye_vis)
+			"b":
+				ok = ok or _cell_seen(g, g.idx(g.cell_of(g.on_map(f[3]))), eye_vis)
+			"f":
+				ok = _ours(g, int(f[3]), eyes)
+			"g":
+				var mt := int((f[3] as Array)[11])
+				ok = ok or _ours(g, mt, eyes)
+			"k":
+				ok = ok or _ours(g, int(f[4]), eyes)
+			"c", "h":
+				ok = true              # (a body's health or its tearing: the guest's copies of the bodies on the ground follow)
+		if ok:
+			out.append(f)
+	return out
 
 
 # ------------------------------------------------------------------ guest

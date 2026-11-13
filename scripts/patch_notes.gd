@@ -4,6 +4,54 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.0", "items": [
+		"RANKED PLAY, A WORKING PROTOTYPE (docs/online_ranked.md): ranked 1v1 matches run on OUR SERVER, not on either player's device, so neither side can see through the fog or fake a result. Sign in with Steam, pick a faction and FIND A MATCH; a rating close to yours is found, the server starts the match and both players join it. Glicko-2 ratings, 5 placement matches, seasons, a LEADERBOARD (all and by faction) and the rating change on the battle report. The RANKED button shows on the ONLINE page only where there is a Steam sign-in (Android and the web keep the friendly online with room codes). It is not live yet: the owner's steps to put it online are in the doc.",
+		"FAIR FOG ONLINE: every 3 seconds the host used to send a guest the whole enemy army, even the units it could not see (a modified game could have shown them). Now a player is only ever sent the enemies its side sees, the enemy buildings it sees, and the shots and explosions in its sight, in friendly online too.",
+		"Cheats leave marks: on a ranked server, orders for units that are not yours are refused, someone else's units slipped into your orders are left out, and more than 40 orders in a second are dropped; each is counted against the account, and the admins can ban it (our own ban list, and Steam's game ban).",
+		"A Brood player can surrender: giving up used to destroy only buildings, and the Brood has none, so the match went on. Now the Mother falls too.",
+	]},
+	{"v": "0.33.45", "items": [
+		"The main menu painting: both field cannons drew back to the left, into the open ground by the musketeers, so the loader no longer stands among the Clockwork.",
+	]},
+	{"v": "0.33.44", "items": [
+		"The main menu painting: the reloading cannon is bigger, in the front of the battle, and the soldier kneeling under the first cannon is gone.",
+	]},
+	{"v": "0.33.43", "items": [
+		"The main menu painting: a second field cannon joins the first, its loader at the muzzle ramming the next shot home while a gunner crouches at the trail.",
+	]},
+	{"v": "0.33.42", "items": [
+		"The main menu painting: the field cannon and its gunner moved to the middle of the battle, firing at the Clockwork, and the soldiers crowding it are gone.",
+	]},
+	{"v": "0.33.41", "items": [
+		"The main menu painting: the armoured horseman fell back into the smoke beside the sergeant, leaving the slope for the Brood, and the field cannon with its gunner and linstock was drawn back a little and shows whole again.",
+	]},
+	{"v": "0.33.40", "items": [
+		"The main menu painting: the stray hand by the healing missionary is gone; he tends the wounded man on the stretcher, with musket smoke drifting low beside them.",
+	]},
+	{"v": "0.33.39", "items": [
+		"The main menu painting: the priest with the golden cross now shows his face, looking up at it; the cavalry charges up the slope ahead of the musket line instead of into its fire; and the smoke over the front rank is clean.",
+	]},
+	{"v": "0.33.38", "items": [
+		"The main menu painting: the oversized second priest is gone and a wounded soldier now sits beside the missionary having his arm bandaged; the musketeer line behind them shows again, a third musketeer kneels and fires in the front rank, and the armoured horseman has his sword back.",
+	]},
+	{"v": "0.33.37", "items": [
+		"The main menu painting: a full line of the Crown's musketeers now fires behind the priests, the officer's horse charges whole, two more musketeers kneel and fire in the front rank, and a sergeant points the way with his halberd.",
+	]},
+	{"v": "0.33.36", "items": [
+		"The main menu painting: the priest with the golden cross now stands on the ground among the soldiers, in front of the musketeers and just behind the missionaries, and the cross no longer sits behind the menu buttons.",
+	]},
+	{"v": "0.33.35", "items": [
+		"The main menu painting: the missionaries and the wounded moved down to the front edge, so the Crown's musketeer line firing behind them is in full view again.",
+	]},
+	{"v": "0.33.34", "items": [
+		"THE MAIN MENU PAINTING: THE CHURCH GOES TO WAR WITH THE CROWN. A priest raises a great golden cross over the army, shining against the storm, and missionaries kneel in the foreground tending the wounded, one lying on a stretcher by a lantern. The field cannon and its gunner moved forward to fire on the Clockwork by the bridge.",
+	]},
+	{"v": "0.33.33", "items": [
+		"The main menu painting: the ghost of the old creature's spikes that still showed in the sky behind the Brood Mother's head is gone.",
+	]},
+	{"v": "0.33.32", "items": [
+		"THE MAIN MENU PAINTING, FINISHED FIXES: the Brood Mother on the hill is now the Brood Mother of the game, a huge four-legged lizard with her venom-green mane, horns and glowing eggs (she was a leafy dragon melting into the trees), and the Clockwork army is its real units: Clock Soldiers with sword and shield, Springers on their coil springs with screw drills, tall Pendulums with their blades, under red gear banners (swords floated in the air and robots melted into each other).",
+	]},
 	{"v": "0.33.31", "items": [
 		"THE MAIN MENU PAINTING, FIRST FIXES: the Crown's gunner now fires his cannon properly, standing beside it with a linstock (he was aiming the gun like a musket), and the armoured horseman has a proper face and swings his sword at the reptiles (a stray sword lay in one of them). The Clockwork front and the Brood Mother are being repainted next.",
 	]},

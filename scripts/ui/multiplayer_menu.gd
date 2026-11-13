@@ -120,6 +120,11 @@ func _draw_entry() -> void:
 	join.disabled = not _relay_set()
 	jrow.add_child(join)
 	v.add_child(jrow)
+	if Identity.available():
+		# RANKED (docs/online_ranked.md): on our servers, Steam players only (or a test server's DEV sign-in)
+		var rk: Button = main._button("RANKED", func() -> void: main.show_ranked())
+		rk.custom_minimum_size = Vector2(0, 60)
+		v.add_child(rk)
 	var back: Button = main._button("BACK", func() -> void: main.show_menu())
 	main._set_back(back)
 	back.custom_minimum_size = Vector2(240, 58)
