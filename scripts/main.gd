@@ -847,6 +847,7 @@ func show_editor_menu() -> void:
 
 
 var sandbox_lobby := false
+var last_replay := ""                 # the last finished match's replay file ("" none)
 var _editor: MapEditor
 
 
@@ -3019,6 +3020,7 @@ func _on_end(winner: int) -> void:
 			rp_path = game.net.rp_path
 	elif game.net and not game.net.is_host and game.net.rp_path != "":
 		rp_path = game.net.rp_path                  # (REPLAY RECORDING OFF: no view of its own, the host's whole replay came)
+	last_replay = rp_path            # (a dedicated match host keeps it as the match's evidence: tools/server/match_server.gd)
 	await get_tree().create_timer(1.2, true, false, true).timeout
 	if game == null:
 		return

@@ -1406,6 +1406,14 @@ func _start_foreign(s: NetSession) -> void:
 	if foe:
 		print("GUEST tries to stop the host's unit %d (must be refused)" % foe.net_id)
 		foe.cmd_stop()
+	else:
+		# (since 0.34.0 the guest holds no enemy it can't see, keyframes included: it orders an id it doesn't own, as a
+		# cheat would, and the host must refuse it the same way)
+		var oid := 1
+		while s.by_id.has(oid) and is_instance_valid(s.by_id[oid]) and s.by_id[oid].team == g.human:
+			oid += 1
+		print("GUEST orders id %d, not its own (must be refused)" % oid)
+		s.send_cmd({"o": oid, "f": "cmd_stop", "a": []})
 	step = 5
 	step_t = 0.0
 

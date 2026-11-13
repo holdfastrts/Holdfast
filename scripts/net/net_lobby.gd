@@ -56,6 +56,12 @@ var _ping_k := 0
 var _ping_out := {}
 var _no_answer := false
 var _deny_ms := -99999
+## RANKED (docs/online_ranked.md): a dedicated match host (tools/server/match_server.gd) seats only the two players the
+## ladder matched, each by its signed ticket ({"secret", "match", "seats": {steamid: slot}}); a guest says its ticket
+## in its "hi". Empty: a friendly room (anyone with the code may sit).
+var ranked := {}
+var ticket := ""                          # guest: the ladder's ticket for this match ("" in a friendly room)
+var seated_ids := {}                      # host, ranked: slot -> the SteamID64 its ticket proved
 
 
 ## Host a game: `relay` is the relay's address, `room` a code (NetLink.new_code()).
@@ -334,7 +340,7 @@ func _on_opened(_id: int) -> void:
 		status = "Room %s is open. Tell your friend the code." % code
 	else:
 		status = "Joined room %s. Waiting for the host..." % code
-		link.send({"t": "hi", "ver": version})
+		link.send(_hi())
 		_hi_t = HI_EVERY
 		_wait_t = 0.0
 	online = true
@@ -349,7 +355,7 @@ func _process(delta: float) -> void:
 		_wait_t += delta
 		if _hi_t <= 0.0:
 			_hi_t = HI_EVERY
-			link.send({"t": "hi", "ver": version})
+			link.send(_hi())
 		if _wait_t >= NO_ANSWER and not _no_answer:
 			_no_answer = true
 			status = "No answer from the host yet. Check the room code, and that the host's room is still open. Still trying..."
@@ -405,6 +411,9 @@ func _on_message(from: int, m: Dictionary) -> void:
 			if String(m.get("ver", "")) != version:
 				link.send({"t": "refuse", "m": "The host plays version %s, you play %s. Both need the same version." % [version, m.get("ver", "?")]}, from)
 				return
+			if not ranked.is_empty():
+				_ranked_hi(from, String(m.get("tk", "")))
+				return
 			for s in slots:
 				if s["who"] == "remote" and int(s.get("peer", -1)) == from:
 					_send_lobby()            # (seated, but its room never came: again)
@@ -418,8 +427,8 @@ func _on_message(from: int, m: Dictionary) -> void:
 					return
 			link.send({"t": "refuse", "m": "The room is full."}, from)
 		"set":
-			if not is_host:
-				return
+			if not is_host or not ranked.is_empty():
+				return                  # (ranked: the ladder fixed each player's faction)
 			var seat := -1
 			for i in slots.size():
 				if slots[i]["who"] == "remote" and int(slots[i].get("peer", -1)) == from:
@@ -492,6 +501,32 @@ func _on_message(from: int, m: Dictionary) -> void:
 			started = true
 			c["net"] = {"role": "guest", "lobby": self}
 			start_now.emit(c)
+
+
+func _hi() -> Dictionary:
+	var h := {"t": "hi", "ver": version}
+	if ticket != "":
+		h["tk"] = ticket
+	return h
+
+
+## Host, ranked: seat a guest by its ticket (the ladder's signature over the match, the player and the slot), or
+## refuse it. A ticket for another match, a forged or an expired one, or a slot already taken by someone else: refused.
+func _ranked_hi(from: int, tk: String) -> void:
+	var t := LadderTicket.check(tk, String(ranked.get("secret", "")), String(ranked.get("match", "")))
+	if t.has("error"):
+		link.send({"t": "refuse", "m": "This ranked match refused you: %s." % t["error"]}, from)
+		print("[ranked] refused relay id %d: %s" % [from, t["error"]])
+		return
+	var seat := int(t["seat"])
+	if seat < 0 or seat >= slots.size() or String(ranked.get("seats", {}).get(String(t["sid"]), "")) != str(seat):
+		link.send({"t": "refuse", "m": "This ranked match refused you: not one of its players."}, from)
+		return
+	slots[seat]["peer"] = from         # (the same player again from a new connection: the newer one sits)
+	seated_ids[seat] = String(t["sid"])
+	status = "Player %d is in." % (seat + 1)
+	changed.emit()
+	_send_lobby()
 
 
 ## Guest: choose my faction.

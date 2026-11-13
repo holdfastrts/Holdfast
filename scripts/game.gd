@@ -95,6 +95,7 @@ var _swamp_t := 0.0
 var _notify_t := 0
 var difficulty := 1
 var demo := false                        # AI controls both sides
+var dedicated := false                   # a dedicated match host (tools/server/match_server.gd): no player here, every side a guest (demo too)
 var start_edge_layout := true            # the starting economy buildings hug the edge of the main (false: the old "behind the hall" spot; tests compare)
 var edit_mode := false                   # the map editor: just the ground, no players
 var sandbox := false                     # the sandbox: spawn anything, any player
@@ -3225,7 +3226,7 @@ func mark_seen(team: int, p: Vector2) -> bool:
 ## A float_text "+N" for an income the owner of `team` collects: shown only to that side (as the Farm's harvest and the
 ## grub's drop); online, the host sends it to a guest playing that side.
 func own_float(team: int, p: Vector2, txt: String, col: Color) -> void:
-	if team == human and not demo:
+	if team == human and not demo and not dedicated:
 		float_text(p, txt, col)
 	elif net != null and not puppet and net.peer_team.values().has(team):
 		net.note_float(team, p, txt, col)
@@ -3588,7 +3589,7 @@ func site_failed(b: Building, why := "blocked") -> void:
 		_notify_t = Time.get_ticks_msec()
 		hud.toast("Can't build there: the spot is blocked." if why == "blocked" else "Can't build there: it can't be reached.", true)
 		Sfx.announce(faction_of(t), "bad_place", 4.0)
-	elif t != human and not demo and why != "abandoned":
+	elif (t != human or dedicated) and (not demo or dedicated) and why != "abandoned":
 		tell(t, "Can't build there: the spot is blocked." if why == "blocked" else "Can't build there: it can't be reached.")
 	if mlog:
 		var wl: String = {"blocked": "the spot was blocked", "unreachable": "it couldn't be reached", "abandoned": "nobody was coming to start it"}.get(why, why)
@@ -5635,7 +5636,7 @@ func notify(msg: String, quiet := false) -> void:
 ## A message for the player of team t: on this screen if it is ours; online, the host sends it to the guest who plays
 ## t (a guest's order refused, a guest's unit that can't do what it was told). Nobody else's: nothing.
 func tell(t: int, msg: String, quiet := false) -> void:
-	if t == human and net_cmd_team < 0:
+	if t == human and net_cmd_team < 0 and not dedicated:
 		notify(msg, quiet)
 	elif net != null and not puppet:
 		net.tell(t, msg, quiet)
