@@ -21,6 +21,18 @@ for L in json.load(open("art/menu_fix/layers.json")):
         im = Image.open(L["src"]).convert("RGB").resize((x1 - x0, y1 - y0), Image.LANCZOS)
         src = orig.copy()
         src[y0:y1, x0:x1] = np.asarray(im).astype(float)
+    for poly, cx, cy in L.get("clone", []):   # cover a figure with the source's own texture from (cx, cy) away
+        cm = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(cm).polygon([tuple(p) for p in poly], fill=255)
+        ca = (np.asarray(cm.filter(ImageFilter.GaussianBlur(6))).astype(float) / 255.0)[..., None]
+        shifted = np.roll(np.roll(src, -cy, 0), -cx, 1)
+        src = src * (1 - ca) + shifted * ca
+    if L.get("inpaint"):         # figures to take out of the source (a too-small drummer): painted over from around them
+        import cv2
+        hm = np.zeros(src.shape[:2], np.uint8)
+        for poly in L["inpaint"]:
+            cv2.fillPoly(hm, [np.array(poly, np.int32)], 255)
+        src = cv2.inpaint(np.clip(src, 0, 255).astype(np.uint8), hm, 9, cv2.INPAINT_TELEA).astype(float)
     dx, dy = L.get("dx", 0), L.get("dy", 0)
     m = Image.new("L", (W, H), 0)
     ImageDraw.Draw(m).polygon([(x + dx, y + dy) for x, y in L["poly"]], fill=255)
