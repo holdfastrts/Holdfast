@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.9": ["As facções agora são só COROA, MECANISMO e NINHADA em todo lugar (sem o artigo na frente): salas de jogo, a tela de jogo, o relatório da batalha, as páginas de ajuda e o registro da partida."],
 	"0.35.8": ["Os botões de facção nos lobbies de escaramuça e online mostram o novo emblema de cada facção: a coroa dourada da Coroa, a engrenagem de latão da Mecânica e o olho verde da Ninhada (não mais as suas sedes)."],
 	"0.35.7": ["O nome do jogo agora é só TRIUMVIWAR (o subtítulo \"Is All Lost?\" saiu), e a nova casa é https://triumviwar.github.io/ (o app Android Triumviwar.apk e o programa do Windows Triumviwar_windows.zip estão lá). Na versão web as configurações e jogos salvos começam do zero porque o endereço mudou; no computador ou celular eles continuam."],
 	"0.35.6": ["Um novo ícone para o jogo inteiro, não só para a Coroa: a coroa dourada da Coroa, a engrenagem de latão da Mecânica e o olho verde da Ninhada juntos (aba do navegador, página de carregamento, programa do Windows e app Android)."],

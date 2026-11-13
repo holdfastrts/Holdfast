@@ -214,7 +214,7 @@ func _side_name(t: int) -> String:
 
 
 func _short(t: int) -> String:
-	var fac: String = Defs.FACTIONS[game.faction_of(t)]["name"].replace("The ", "")
+	var fac: String = Defs.FACTIONS[game.faction_of(t)]["name"]
 	return ("YOU · " if not game.demo and t == game.human else game.team_name(t).to_upper() + " · ") + fac.to_upper()
 
 

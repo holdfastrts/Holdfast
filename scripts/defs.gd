@@ -888,7 +888,7 @@ const TESLA_CHAIN := {"jumps": 1, "falloff": 0.4, "reach": 70.0}
 
 const FACTIONS := {
 	"crown": {
-		"name": "The Crown", "hall": "town_hall", "worker": "labourer", "supply": "cottage",
+		"name": "Crown", "hall": "town_hall", "worker": "labourer", "supply": "cottage",
 		"build": ["town_hall", "cottage", "farm", "horse_breeder", "powder_mill", "wall", "gate", "barracks", "armoury", "foundry", "church"],
 		"start_workers": 4, "start_gold": 300, "ready": true, "max_supply": 200,
 		"res": ["Gold", "Powder"], "econ": {"farm": 2, "powder_mill": 1},
@@ -898,14 +898,14 @@ const FACTIONS := {
 	"brood": {
 		# (since 0.18.0 the only Brood is the creature Brood, scripts/brood_new.gd: no buildings, so no hall, supply
 		# building, build list or economy buildings; "card" is its picture on the faction cards and menus)
-		"name": "The Brood", "hall": "", "worker": "grub", "supply": "", "card": "brood_mother",
+		"name": "Brood", "hall": "", "worker": "grub", "supply": "", "card": "brood_mother",
 		"build": [], "start_workers": 5, "ready": true, "max_supply": 200,
 		"res": ["Biomass", "Spoils"], "econ": {},
 		"start": [],
 		"about": "A swarm of reptiles with no buildings. The Brood Mother lays every egg and is the Brood's life: kill her and it is out. Grubs carry food from Rootmaws to her (the farther, the richer) and turn into rooting creatures: Rootmaws, Mound Turtles for supply and the Sires that father her warriors. Rooted creatures are its buildings; uprooted they walk. Spoils come from the fallen and from offerings. Supply cap 200.",
 	},
 	"clockwork": {
-		"name": "The Clockwork", "hall": "clocktower", "worker": "winder", "supply": "spring_tower",
+		"name": "Clockwork", "hall": "clocktower", "worker": "winder", "supply": "spring_tower",
 		"build": ["clocktower", "spring_tower", "boiler", "ore_crusher", "charging_pylon", "assembly_works", "engine_hall", "capacitor_works", "pressure_relay", "rail_yard"],
 		"start_workers": 4, "ready": true, "max_supply": 200,
 		# (gear mode: 2 Cog Presses and 1 Mainspring per Clocktower, the owner 2026-10-30; "econ_line": the shelved Line's

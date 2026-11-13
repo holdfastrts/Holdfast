@@ -45,7 +45,7 @@ Targets: units on their own (idle, holding, or on an attack-move) go for enemy f
 High ground: units below a cliff can't see up onto it, and ramps are the only way up. Rivers can only be crossed at the fords.
 
 Skirmish: up to four players. Each computer player has a PLAN (Balanced, Rush, Economy, Timing attack, Air rush or Extreme rush for the Brood, or Random). Give players the same TEAM number to make them allies. BRUTAL AI never stops, micro-manages every fight and cheats (+50% income).""",
-	"CROWN": """THE CROWN: shot, shell and black powder.
+	"CROWN": """CROWN: shot, shell and black powder.
 
 Labourers work Farms (up to 8 each, each hoeing his own stretch of the crop rows): a farm ripens into a 380-gold harvest, about every 40 s with a full crew. The Powder Mill (up to 6 labourers) grinds saltpetre into black powder (musketeers, balloons and wagons cost some). Each Town Hall allows 2 Farms and 1 Powder Mill nearby. The Horse Breeder is no economy building: it trains horses (HORSE: 40 gold, 15 s, no supply; RALLY sends them on) and unlocks Horsemen; build as many as you like, anywhere.
 
@@ -68,7 +68,7 @@ The Marching Band (Armoury, needs a Barracks): unarmed musicians who march behin
 Foundry: Field Cannons, Mortars, Powder Wagons and Observation Balloons: only a pilot aboard, they carry 4 Musketeers or Labourers. LOAD them (they walk under it and climb in; Musketeers shoot from the basket and refill from its 40-shot powder store), then UNLOAD anywhere, over cliffs too. Stopped within 2 tiles of a Powder Wagon, Mill, Barracks or Town Hall, the pilot hauls powder kegs up on a rope (RESTOCK flies it to one). Round shot flies over to where it's aimed, then ploughs through everyone in its line past that spot, your own men too: a selected cannon shows that stretch, red over your men (it holds fire on its own while they're there; canister never holds). The Mortar must DEPLOY to fire; it lobs shells over men and walls 5 to 11 tiles away that burst over a wide area (friends too).
 
 Church: one Missionary, who bandages wounded soldiers back to full health and raises fallen Musketeers, Horsemen and Officers from their bodies by himself (6 s): back at half health under the cross for 30 s; fall again under the cross and he's gone for good. He goes to bodies first, the most worthwhile (dearer soldiers and veterans) and soonest lost, nearer ones before far ones, skipping any he can't reach in time; then the worst-hurt wounded by their worth. Two Missionaries never go for the same one. The Missionary can't be hurt unless he wanders near enemy buildings.""",
-	"BROOD": """THE BROOD: swarm, swamp and hunger.
+	"BROOD": """BROOD: swarm, swamp and hunger.
 
 The Brood has no buildings, only creatures. The Brood Mother is its heart: kill her and that side is out. Only she lays eggs, walking or rooted: pick a creature on her card. ROOT her for armour, less damage, healing and swamp round her; rooted she cannot attack, so get her up (UPROOT) to fight off a raid. GROW her, rooted, for more eggs and faster laying (stage 2, then stage 3).
 
@@ -85,7 +85,7 @@ Spoils: grubs on HARVEST wrap the fallen, friend or foe, and carry them to the M
 The Mist Toad is a slow, fragile caster whose energy (faster on swamp) pays for FOG (F: a fog bank for 12 s; shots fired from or into it miss half the time, and units inside see 2 tiles) and TONGUE (T: marks one enemy for 3 s, they see the crosshair, then drags it to the Toad's feet, a flyer too; heavy engines like the Steam Walker, the Brood Mother and the Sires are only staggered). Hatchlings, two or three to an egg, are a fast flock that bites only flyers; a Storm Challenger swoops on flyers and the ground alike. Supply cap 200.
 
 FOG and MIASMA (a green cloud that heals the Brood inside) are research at the Venom Sire, cheap and quick: a new Mist Toad has only TONGUE until then.""",
-	"CLOCKWORK": """THE CLOCKWORK: gears, steam and lightning.
+	"CLOCKWORK": """CLOCKWORK: gears, steam and lightning.
 
 THE GEAR FIELD: every Clockwork building sits on a ring of ground gears that must mesh with your field. You pick its ring when you place it, and only then: SMALL GEAR or BIG GEAR (the G key, or the button on the card while placing; each kind remembers your last pick). A big ring costs 25 cogs more, takes 4 s longer to build and needs more room: it may not cut into another ring. It changes the building: a Cog Press takes up to 8 Winders for 10 cogs a second (small: 5 for 7.2), a Mainspring 6 Winders and stores 400 Tension (small: 3 and 200), a Ratchet Turret fires slow heavy screws, better against armour, and the Light Works, the Escapement and the Clock Aviary work slower (small: faster). The Heavy Works, where the Pendulums and the Spring Ballistas are assembled, always sits on a BIG ring (the heavy torque). Anything that costs Tension is made only at a building with a Mainspring in its gear network: Tension flows through every meshed ring, so the Mainspring may stand anywhere in your town (two Clocktowers whose networks touch share it). Those buildings stand on a brass floor plate, and a small spring mark over it shows that a Mainspring feeds it Tension (hover the mark to read it). Each Ratchet Turret claims a circle of ground 4 tiles round it: two turrets' circles may not overlap. The ` key, or GEAR VIEW on a Clockwork building's card, shows the whole network.
 
@@ -764,8 +764,7 @@ func _faction_card(f: String) -> Control:
 	v.add_theme_constant_override("separation", 4)
 	p.add_child(v)
 	var img := TextureRect.new()
-	img.texture = load("res://assets/icons/%s.png" % Defs.FACTIONS[f]["card"]) if Defs.FACTIONS[f].has("card") \
-		else load("res://assets/buildings/%s_built.png" % Defs.FACTIONS[f]["hall"])
+	img.texture = _faction_icon(f)       # (the faction's emblem, owner 2026-11-13; it was its hall's picture)
 	img.custom_minimum_size = Vector2(140, 130)
 	img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -1414,7 +1413,7 @@ func show_music() -> void:
 	cols.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(cols)
 	var titles := Music.titles()
-	for f in [["crown", "THE CROWN"], ["brood", "THE BROOD"], ["clock", "THE CLOCKWORK"]]:
+	for f in [["crown", "CROWN"], ["brood", "BROOD"], ["clock", "CLOCKWORK"]]:
 		var col := VBoxContainer.new()
 		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		col.add_theme_constant_override("separation", 6)
