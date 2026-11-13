@@ -24,6 +24,10 @@ def main():
         p = os.path.join(D, name + "_fixed.png")
         if not os.path.exists(p):
             continue
+        use = None
+        if isinstance(b, dict):     # {"box": [...], "use": [x0, y0, x1, y1]}: only that part of the repaint is laid in
+            use = b.get("use")
+            b = b["box"]
         x0, y0, x1, y1 = b
         w, h = x1 - x0, y1 - y0
         fx = np.asarray(Image.open(p).convert("RGB").resize((w, h), Image.LANCZOS)).astype(float)
@@ -46,6 +50,14 @@ def main():
             if x1 == base.width: a[:, -FEATHER:] = a[:, -FEATHER - 1:-FEATHER]
             if y1 == base.height: a[-FEATHER:, :] = a[-FEATHER - 1:-FEATHER, :]
             m = Image.fromarray(a)
+        if use is not None:
+            a2 = np.asarray(m).copy()
+            ux0, uy0, ux1, uy1 = use
+            a2[:, :max(0, ux0 - x0)] = 0
+            a2[:, max(0, ux1 - x0):] = 0
+            a2[:max(0, uy0 - y0), :] = 0
+            a2[max(0, uy1 - y0):, :] = 0
+            m = Image.fromarray(a2)
         m = m.filter(ImageFilter.GaussianBlur(FEATHER / 2.5))
         a = (np.asarray(m).astype(float) / 255.0)[..., None]
         out[y0:y1, x0:x1] = orig * (1 - a) + np.clip(fx, 0, 255) * a
@@ -66,7 +78,8 @@ def main():
         os.makedirs(dd, exist_ok=True)
         im.save(os.path.join(dd, "battle_fixed.png"))
         for name in used:
-            x0, y0, x1, y1 = boxes[name]
+            bb0 = boxes[name]
+            x0, y0, x1, y1 = bb0["box"] if isinstance(bb0, dict) else bb0
             pad = 60
             bb = (max(0, x0 - pad), max(0, y0 - pad), min(im.width, x1 + pad), min(im.height, y1 + pad))
             w2 = Image.new("RGB", ((bb[2] - bb[0]) * 2, bb[3] - bb[1]))
