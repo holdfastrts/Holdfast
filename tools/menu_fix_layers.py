@@ -16,6 +16,8 @@ orig = out.copy()
 for L in json.load(open("art/menu_fix/layers.json")):
     if L.get("src") == "@base":
         src = orig.copy()
+    elif L.get("src") == "@out":      # what has been composed so far (to move a finished figure)
+        src = out.copy()
     else:
         x0, y0, x1, y1 = L["box"]
         im = Image.open(L["src"]).convert("RGB").resize((x1 - x0, y1 - y0), Image.LANCZOS)
