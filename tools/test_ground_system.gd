@@ -171,6 +171,8 @@ func _run() -> void:
 	copy.load(sv)
 	var same := copy.kind == gl.kind and copy.full == gl.full and copy.left == gl.left
 	check("a save round-trips exactly", same, "%d tiles, %d chars" % [int(sv["n"]), str(sv).length()])
+	var cap := SaveGame.capture(g, {"ground": true}, true)
+	check("a saved game (and a MIXED replay's keyframe) carries the layer", cap.has("ground") and int(cap["ground"]["n"]) == int(sv["n"]))
 	var sent := {}
 	var rows := gl.net_rows(sent, true)
 	var guest := GroundLayer.new(g)

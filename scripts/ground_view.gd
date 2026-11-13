@@ -102,8 +102,13 @@ func _draw() -> void:
 	var a := Settings.ground_alpha
 	var gl := game.ground_layer
 	if gl != null and tex != null:
-		# the faint layer over every district (fainter still while an economy building shows its own circle)
-		draw_texture_rect(tex, Rect2(Vector2.ZERO, Vector2(gl.w, gl.h) * T), false, Color(1, 1, 1, a * (0.28 if placing_drinker() else 0.4)))
+		# the faint layer over every district, tile by tile (fainter still while an economy building shows its own circle)
+		var fa := a * (0.28 if placing_drinker() else 0.4)
+		var seen_all := game.sees_all() or game.explored.size() != gl.w * gl.h
+		for i in gl.kind.size():
+			if gl.kind[i] == GroundLayer.NONE or (not seen_all and game.explored[i] == 0):
+				continue
+			draw_rect(Rect2(Vector2(i % gl.w, i / gl.w) * T, Vector2(T, T)), Color(tint(gl.fresh(i)), fa))
 		# the circles of the viewer's own economy buildings (thin), and his halls' districts (thinner)
 		for b in game.buildings:
 			if b.dead or b.team != game.human:
