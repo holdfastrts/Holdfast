@@ -45,6 +45,7 @@ func _free_sfx() -> void:
 	Sfx.me._said.clear()
 	Sfx.me._duck_until = 0
 	Sfx.me._voice.stop()
+	Sfx.me.clear_voices()          # (the fight sounds' voice pool, 0.35.15)
 
 
 func heard() -> Dictionary:

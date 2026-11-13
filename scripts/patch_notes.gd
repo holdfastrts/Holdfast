@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.15", "items": [
+		"FIX: sound in big late battles no longer crackles and stutters. Each sound used to share one player with every other copy of itself, so a new Clock Soldier blow or musket shot cut the copies still ringing short and changed their pitch and loudness mid-sound (about two thirds of the fight sounds were cut off). Now every sound plays to its end on its own voice, at most 24 at once and 4 copies of one sound; when it is full the quietest, nearly finished sound gives way.",
+		"Web build: a bigger sound buffer (about 85 ms), so the sound no longer runs dry when a big battle slows the game to 20 frames a second.",
+	]},
 	{"v": "0.35.14", "items": [
 		"Watching a game: box select takes all the units of the side with the most in the box, a double click picks every one of that kind on screen, and each player's line shows income per minute, army value and workers (as in replays). The Spring Ballista's crew stand at its back in the north views. The Springer's screw is 30% smaller, the Pendulum drawn 30% bigger.",
 	]},
