@@ -13,7 +13,41 @@ base = Image.open("art/menu_fix/battle_current.png").convert("RGB")
 W, H = base.size
 out = np.asarray(base).astype(float)
 orig = out.copy()
+def sprite(L, out):
+    """A figure painted alone on flat magenta (owner 2026-11-13: compose the painting like the hubs): keyed with
+    tools/hub_key.py, scaled to "height", its bottom centre at "at", optional "flip" and "tone", with a soft shadow."""
+    sys.path.insert(0, "tools")
+    from hub_key import key
+    fig, _box = key(Image.open(L["sprite"]))
+    if L.get("flip"):
+        fig = fig.transpose(Image.FLIP_LEFT_RIGHT)
+    k = L["height"] / fig.height
+    fig = fig.resize((max(1, round(fig.width * k)), max(1, round(fig.height * k))), Image.LANCZOS)
+    a = np.asarray(fig).astype(float)
+    a[..., :3] *= np.array(L.get("tone", [1, 1, 1]))
+    x = round(L["at"][0] - fig.width / 2)
+    y = round(L["at"][1] - fig.height)
+    if L.get("shadow", True):
+        sh = Image.new("L", (W, H), 0)
+        cx, cy, rw = L["at"][0], L["at"][1], fig.width * 0.45
+        ImageDraw.Draw(sh).ellipse([cx - rw, cy - rw * 0.12, cx + rw, cy + rw * 0.12], fill=110)
+        sa = (np.asarray(sh.filter(ImageFilter.GaussianBlur(6))).astype(float) / 255.0)[..., None]
+        out = out * (1 - sa * 0.6)
+    al = a[..., 3:4] / 255.0
+    x0, y0 = max(x, 0), max(y, 0)
+    x1, y1 = min(x + fig.width, W), min(y + fig.height, H)
+    sub = out[y0:y1, x0:x1]
+    fa = a[y0 - y:y1 - y, x0 - x:x1 - x]
+    fal = al[y0 - y:y1 - y, x0 - x:x1 - x]
+    out[y0:y1, x0:x1] = sub * (1 - fal) + np.clip(fa[..., :3], 0, 255) * fal
+    return out
+
+
 for L in json.load(open("art/menu_fix/layers.json")):
+    if "sprite" in L:
+        if __import__("os").path.exists(L["sprite"]):
+            out = sprite(L, out)
+        continue
     if L.get("src") == "@base":
         src = orig.copy()
     elif L.get("src") == "@out":      # what has been composed so far (to move a finished figure)
