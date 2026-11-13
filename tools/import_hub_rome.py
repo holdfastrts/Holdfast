@@ -16,11 +16,12 @@ import sys
 
 import numpy as np
 from PIL import Image, ImageDraw
-from scipy import ndimage
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import hub_key  # noqa: E402
 
 SRC = "art/campaign/hub/rome_%s_chatgpt.png"
 OUT = "campaign/hub"
-BG = np.array([250.0, 2.0, 250.0])
 
 # Where the figures go, in the room's pixels: the layer's own scale and its top-left corner. The King's lion
 # armrests land on the room chair's arms; Tomasz stands on the clear floor on the left, turned to the King.
@@ -39,42 +40,7 @@ SMOKE_BOX = {"king": (700, 150, 840, 330)}
 
 
 def key(img, name=""):
-    """RGBA: the magenta background connected to the border made transparent, soft over 2 px, de-spilled."""
-    px = np.asarray(img.convert("RGB")).astype(float)
-    if name in SMOKE_BOX:
-        x0, y0, x1, y1 = SMOKE_BOX[name]
-        sub = px[y0:y1, x0:x1]
-        pink = (np.minimum(sub[..., 0], sub[..., 2]) - sub[..., 1] > 25) & (sub[..., 0] > 110)
-        sub[pink] = BG
-    r, g, b = px[..., 0], px[..., 1], px[..., 2]
-    m = np.minimum(r, b) - g                       # magenta-ness
-    bgish = m > 110
-    lab, _n = ndimage.label(bgish)
-    border = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
-    bg = np.isin(lab, list(border))
-    # pockets of background shut in by the figure (between the King's hand, pipe and face): pure magenta, keyed too
-    means = ndimage.mean(m, lab, range(1, _n + 1))
-    sizes = ndimage.sum(bgish, lab, range(1, _n + 1))
-    pockets = [i + 1 for i in range(_n) if means[i] > 170 and sizes[i] > 20 and (i + 1) not in border]
-    bg |= np.isin(lab, pockets)
-    fg = ~bg
-    # alpha: 1 inside, a ramp on the 2-pixel rim by how magenta it is
-    rim = fg & ndimage.binary_dilation(bg, iterations=2)
-    a = np.where(fg, 1.0, 0.0)
-    ramp = np.clip((200.0 - m) / 120.0, 0.0, 1.0)
-    a[rim] = ramp[rim]
-    # unmix the background out of the rim: c = a f + (1 - a) BG
-    out = px.copy()
-    aa = np.maximum(a, 0.05)[..., None]
-    un = (px - (1.0 - aa) * BG) / aa
-    out[rim] = np.clip(un[rim], 0, 255)
-    # whatever is still magenta-ish on the rim loses its tint
-    tint = rim & (np.minimum(out[..., 0], out[..., 2]) - out[..., 1] > 60)
-    out[tint, 2] = np.minimum(out[tint, 2], out[tint, 1] + 40)
-    out[tint, 0] = np.minimum(out[tint, 0], out[tint, 1] + 60)
-    rgba = np.dstack([out, a * 255.0]).astype(np.uint8)
-    im = Image.fromarray(rgba, "RGBA")
-    return im.crop(im.getbbox()), im.getbbox()
+    return hub_key.key(img, [SMOKE_BOX[name]] if name in SMOKE_BOX else [])
 
 
 def desk(room):

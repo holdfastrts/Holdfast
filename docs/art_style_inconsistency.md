@@ -585,6 +585,23 @@ The painted smoke wisp was erased from the King (it had come out pink over the m
 the chair, covered by the code smoke. A redraw is optional; if the owner wants it painted, ask ChatGPT for the King
 without smoke.
 
+## The Clockwork and Brood hubs' life (code, hubs-cw-brood; scripts/campaign/hub_scene.gd, docs/campaign_hub_art.md)
+
+Hollweg's workshop (Nuremberg) and Lindqvist's station (Amazon) are the owner's ChatGPT paintings in layers, cut by
+tools/import_hub_nuremberg.py / import_hub_station.py (tools/hub_key.py). CODE over them:
+- THE LANTERNS AND THE DESK LAMP ("lamps"): soft round halos that waver, a small bright core.
+- THE JARS' GREEN GLOW ("glows", the station; Lindqvist's own jar too): soft green halos swelling and fading slowly.
+- THE BRASS GLINTS ("glints", the workshop): a gleam with a short trail running round the brass map's outer and inner
+  rings (two ellipses, opposite ways) and once a minute round the great clock's face. The rings themselves do NOT
+  turn: a real turn needs the ring painted on its own (ask ChatGPT for the brass map's outer ring as a separate
+  flat ring, seen from straight above, on magenta; it could then be turned and squashed into the table's ellipse).
+- MIST AND RAIN at the station's window ("mist"): wide soft banks drifting and thin pale streaks, clipped to the window.
+- The floor shadows (blurred ellipses) and the breathing, as in Rome.
+- PAINT EDITS: the room's empty stool in the workshop is PAINTED OUT (inpainted, the floor's grain copied back over
+  it; Hollweg's own stool stands in its place); the magenta that showed through Lindqvist's jar is turned into the
+  jar's green glass (same brightness); loose hair against the magenta is unmixed and held to warm colours. A cleaner
+  workshop without the stool, or Lindqvist on magenta with an opaque jar, would remove both edits.
+
 ## The tutorial's pointer and ticks (code, 0.30.0; scripts/campaign/mission_ui.gd Pointer, tutorial_menu.gd Tick; docs/tutorial.md)
 
 - THE POINTER (MissionUi.Pointer): where a lesson's teacher points. On the map: a gold ellipse pulsing on the ground (an

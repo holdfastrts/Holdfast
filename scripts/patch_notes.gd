@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.26", "items": [
+		"TWO NEW CAMPAIGN HUBS, painted (docs/campaign_hub_art.md): the Clockwork's is MEISTER HOLLWEG'S WORKSHOP in Nuremberg, the clockmaker on his stool beside the round brass map of the world, the lanterns flickering, gleams running round the map's brass rings and across the great clock's face; the Brood's is DR. LINDQVIST'S RESEARCH STATION on the Amazon, the naturalist holding up a glowing jar beside the specimen chart of the plateau, the jars glowing green, mist and rain at the window. Point at them: the person lights up; the war table (the brass map, the specimen chart), the person and two objects in each room can be clicked. The lines they say are placeholders. Both storylines still open after the Prologue.",
+	]},
 	{"v": "0.33.25", "items": [
 		"THE CROWN COMPUTER SCREENS ITS LINE WITH HORSEMEN (docs/crown_rider_screen.md): when its wave marches, two to four Horsemen ride ahead of it along its road and out on its flanks. What they see, its line knows: the wave halts out of reach and forms its line of Musketeers with the guns behind, facing the enemy, before it walks into it (before, the enemy was first seen at contact, a musket's sight). The riders keep out of reach of what can catch or shoot them; at contact they pull back round the ends of the line, out of its fire, and work the flanks: enemy workers, the hurt, stragglers and scouts, and what comes at the guns.",
 		"At home a Horseman stands as a PICKET on the road in front of the army's post (the natural's gate, the cliff edge or the ramp's top) and rides back with a warning when an enemy force comes. The Barracks train a rider for the screen and the picket when none is free. The Horseman rush, the raids and the Balloon harass keep their own riders; no unit or economy number changed.",
