@@ -174,6 +174,7 @@ func set_playing(on: bool) -> void:
 		seek(start_t)
 	playing = on
 	_freeze(not on)
+	_pose_view = Rect2()       # (paused: the units in view take their pose as they are, replay-render)
 	changed.emit()
 
 

@@ -6457,8 +6457,8 @@ func _heal(delta: float) -> Vector2:
 			pt._heal_back_on()
 			_heal_back_on()
 		return Vector2.ZERO
-	var p := order_target as Unit
-	if p == null or not is_instance_valid(p) or p.dead or p.off_field or p.cross_t > 0.0 or p.hp >= p.max_hp:
+	var p: Unit = order_target as Unit if is_instance_valid(order_target) else null     # (a patient freed meanwhile: replay-render)
+	if p == null or p.dead or p.off_field or p.cross_t > 0.0 or p.hp >= p.max_hp:
 		cmd_stop()
 		return Vector2.ZERO
 	if position.distance_to(p.position) < radius + p.radius + 10.0:

@@ -117,6 +117,7 @@ func set_playing(on: bool) -> void:
 	playing = on
 	if ff_to < 0.0:
 		get_tree().paused = not on
+	_pose_view = Rect2()       # (paused: the units in view take their pose as they are, replay-render)
 	changed.emit()
 
 

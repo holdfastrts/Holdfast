@@ -138,9 +138,9 @@ func _play() -> void:
 				_live[u.kind] = seen
 	if g.clock >= secs or g.over:
 		Engine.time_scale = 1.0
+		var rec_file: String = g.rec.path         # (this match's own file: another test may be recording beside it)
 		g.rec.finish(g.winner if g.over else -1)
-		var newest: Dictionary = ReplayFile.list()[0]
-		print("RECORDED %s (%s), %.1f s" % [String(newest["path"]).get_file(), rec_mode, g.clock])
+		print("RECORDED %s (%s), %.1f s" % [rec_file.get_file(), rec_mode, g.clock])
 		stage = "wait"
 		if g.over:
 			# (the end screen comes up a moment after the end: let it, then leave it as a player would)
@@ -150,7 +150,7 @@ func _play() -> void:
 					break
 		main._to_menu()
 		await process_frame
-		main.start_replay(String(newest["path"]))
+		main.start_replay(rec_file)
 		stage = "watch"
 
 
@@ -223,6 +223,7 @@ func _moment(tag: String, drawn: bool) -> void:
 		rp.set_playing(true)       # (one more tick in view, then still)
 		await _frames(3)
 		rp.set_playing(false)
+	await _frames(3)           # (paused: the viewer poses the units in view, NetPuppet.pose_in_view)
 	_check_units(tag, drawn)
 	if drawn:
 		await _bodies(tag)
@@ -274,61 +275,96 @@ func _opaque_px(s: Sprite2D) -> int:
 func _bodies(tag: String) -> void:
 	var vp := root.get_viewport()
 	var vis := vp.get_visible_rect().size
-	# (the HUD's layers off and every unit looked at drawn over the world: a unit standing behind the Mother or a
-	# building, or under a panel, is not "missing")
+	# (the HUD's layers off; the units looked at in groups of ones clear of each other, everything else on the field hidden
+	# for each group's two pictures: buildings, rooted creatures, the other units. Nothing stands in front of a unit
+	# looked at, so a unit with no body there is one that is not drawn.)
 	var layers: Array = []
 	for cl in root.find_children("*", "CanvasLayer", true, false):
 		if (cl as CanvasLayer).visible:
 			layers.append(cl)
 			(cl as CanvasLayer).visible = false
-	# (only units clear of one another; everything else on the field hidden for the two pictures: buildings, rooted
-	# creatures, units not looked at. Nothing can stand in front of a unit looked at, so no body means not drawn.)
+	var ct := vp.get_canvas_transform()
+	var big: Array = []          # (rooted creatures' pictures: drawn in the building layer, a unit behind one is hidden)
+	for u in g.units:
+		if is_instance_valid(u) and not u.dead and (BroodNew.rooted(u) or BroodRoot.in_cocoon(u)):
+			big.append((ct * BroodRoot.body_rect(u)).abs())
 	var cands: Array = []
 	for u in _units():
 		if BroodNew.rooted(u) or BroodRoot.in_cocoon(u):
 			continue          # (a rooted Brood creature is drawn in the building layer: BroodNew.draw)
-		var r: Rect2 = vp.get_canvas_transform() * u.sprite.get_global_transform() * u.sprite.get_rect()
+		var r: Rect2 = ct * u.sprite.get_global_transform() * u.sprite.get_rect()
 		r = r.abs()
-		if Rect2(Vector2(8, 8), vis - Vector2(16, 16)).encloses(r):
+		if Rect2(Vector2(8, 8), vis - Vector2(16, 16)).encloses(r) and not big.any(func(b: Rect2) -> bool: return b.intersects(r)):
 			cands.append([u, r])
-	var looked: Array = []
+	var groups: Array = []
 	for e in cands:
-		var clear := true
-		for f in cands:
-			if f != e and (e[1] as Rect2).intersects(f[1]):
-				clear = false
+		var put := false
+		for gr in groups:
+			if (gr as Array).all(func(f) -> bool: return not (e[1] as Rect2).intersects(f[1])):
+				gr.append(e)
+				put = true
 				break
-		if clear:
-			looked.append(e)
-	var hidden: Array = []
+		if not put:
+			groups.append([e])
+	var shown: Array = []
+	var alpha := {}
+	for n in g.units + g.buildings + g.world.get_children():
+		if is_instance_valid(n) and n is CanvasItem and (n as CanvasItem).visible and not shown.has(n):
+			shown.append(n)      # (trees and the other things standing on the map too)
+			alpha[n] = (n as CanvasItem).modulate.a
+	var none: Array = []
+	var looked_n := 0
+	var again: Array = []
+	for gr in groups.slice(0, 12):
+		looked_n += (gr as Array).size()
+		again.append_array(await _measure(gr, shown, vis, alpha))
+	for e in again:
+		# (looked at again on its own: a unit missed in its group's pictures, every other thing hidden)
+		if not is_instance_valid(e[0]) or (e[0] as Unit).dead:
+			continue
+		var still: Array = await _measure([e], shown, vis, alpha)
+		if not still.is_empty():
+			var u: Unit = e[0]
+			none.append("%s#%d (%s_%s, %s)" % [u.kind, u.net_id, u.anim, u.anim_dir, still[0][2]])
+	for n in shown:
+		if is_instance_valid(n):
+			(n as CanvasItem).modulate.a = alpha.get(n, 1.0)
+	for cl in layers:
+		(cl as CanvasLayer).visible = true
+	check("%s_bodies_drawn" % tag, none.is_empty(), "%d units looked at; no body: %s" % [looked_n, str(none)])
+	if shots != "":
+		await _frames(2)
+		var img := await _shot()
+		DirAccess.make_dir_recursive_absolute(shots)
+		img.save_png(shots.path_join("%s_%s.png" % [rec_mode, tag]))
+
+
+## The units of group `gr` ([unit, screen rect]) alone on the field, with and without their sprites: the ones whose body
+## made too little difference ([unit, rect, "n of m px"]).
+func _measure(gr: Array, shown: Array, vis: Vector2, alpha: Dictionary) -> Array:
 	var keep := {}
-	for e in looked:
+	for e in gr:
 		keep[e[0]] = true
-	for n in g.world.get_children():
-		if n is CanvasItem and (n as CanvasItem).visible and not keep.has(n) and (n is Unit or n is Building):
-			hidden.append(n)
-			(n as CanvasItem).visible = false
+	for n in shown:
+		if is_instance_valid(n):
+			# (see-through rather than hidden: the fog sets each unit's visible again a few times a second)
+			(n as CanvasItem).modulate.a = 1.0 if keep.has(n) and alpha.get(n, 1.0) > 0.0 else 0.0
 	await _frames(2)
 	var with := await _shot()
 	var k2 := Vector2(with.get_size()) / vis
-	for i in looked.size():
-		var r: Rect2 = looked[i][1]
-		looked[i] = [looked[i][0], Rect2(r.position * k2, r.size * k2)]
-	for e in looked:
-		(e[0] as Unit).sprite.visible = false
+	for e in gr:
+		if is_instance_valid(e[0]):
+			(e[0] as Unit).sprite.visible = false
 	await _frames(2)
 	var without := await _shot()
-	for e in looked:
-		(e[0] as Unit).sprite.visible = true
-	for n in hidden:
-		if is_instance_valid(n):
-			(n as CanvasItem).visible = true
-	for cl in layers:
-		(cl as CanvasLayer).visible = true
-	var none: Array = []
-	for e in looked:
+	var out: Array = []
+	for e in gr:
+		if not is_instance_valid(e[0]):
+			continue
 		var u: Unit = e[0]
-		var r: Rect2 = e[1]
+		u.sprite.visible = true
+		var r0: Rect2 = e[1]
+		var r := Rect2(r0.position * k2, r0.size * k2)
 		var diff := 0
 		for y in range(maxi(int(r.position.y), 0), mini(int(r.end.y), with.get_height())):
 			for x in range(maxi(int(r.position.x), 0), mini(int(r.end.x), with.get_width())):
@@ -337,12 +373,9 @@ func _bodies(tag: String) -> void:
 				if absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) > 0.12:
 					diff += 1
 		var want := _opaque_px(u.sprite) * absf(u.sprite.global_scale.x * u.sprite.global_scale.y) * g.camera.zoom.x * g.camera.zoom.y * k2.x * k2.y
-		if diff < want * 0.25:
-			none.append("%s#%d (%s_%s, %d of %d px)" % [u.kind, u.net_id, u.anim, u.anim_dir, diff, int(want)])
-	check("%s_bodies_drawn" % tag, none.is_empty(), "%d units looked at; no body: %s" % [looked.size(), str(none)])
-	if shots != "":
-		DirAccess.make_dir_recursive_absolute(shots)
-		with.save_png(shots.path_join("%s_%s.png" % [rec_mode, tag]))
+		if diff < want * 0.15:
+			out.append([u, r0, "%d of %d px" % [diff, int(want)]])
+	return out
 
 
 ## The sprite of every unit in the viewer: shown, the right strip, the frame size of its art.
@@ -362,7 +395,7 @@ func _check_units(tag: String, drawn: bool) -> void:
 			why = "strip %s" % s.texture.resource_path
 		elif absf(s.scale.x) < 0.5 * asc or s.scale.y < 0.5 * asc:
 			why = "scale %s" % str(s.scale)
-		elif u.modulate.a * s.modulate.a * s.self_modulate.a < 0.3:
+		elif u.modulate.a * s.modulate.a * s.self_modulate.a < 0.3 and not BroodNew.rooted(u):      # (rooting: cross-faded)
 			why = "alpha %.2f" % (u.modulate.a * s.modulate.a * s.self_modulate.a)
 		else:
 			var sa := String(u._anim_art) if u._anim_art != "" else String(u.art)
