@@ -34,6 +34,9 @@ const BuildsEco := preload("res://scripts/ai_cw_eco.gd")
 var bte = null
 var eco_on := BuildsEco.on()
 ## (clockwork-army: the army as ONE army, scripts/ai_cw_army.gd, docs/clockwork_army.md; `-- cwarmy:off` plays the old)
+const CwMacro := preload("res://scripts/ai_cw_macro.gd")
+var macro = null                # (econ-coach-clockwork: scripts/ai_cw_macro.gd; `-- cwmacro:off` plays as before)
+
 const CwArmy := preload("res://scripts/ai_cw_army.gd")
 var army_g = null
 var harass_on := not OS.get_cmdline_user_args().has("cwharass:off")      # (clockwork-ai-v2: `-- cwharass:off` as 0.33.11)
@@ -163,6 +166,8 @@ var _bo_t := 0.0
 
 func _ready() -> void:
 	super()
+	if game != null and game.faction_of(team) == "clockwork" and CwMacro.on():
+		macro = CwMacro.new(self)
 	if game != null and game.faction_of(team) == "clockwork" and CwArmy.wanted(self):
 		army_g = CwArmy.new(self)
 	if strategy == "springer" and not cw_on:
@@ -260,7 +265,13 @@ func opt_switch(k: String) -> bool:
 		push = old_push
 	_mark_existing()
 	bo_on = true
+	_opt_picks += 1
 	_bo_cap_t = -1.0 if was_on else game.clock + OPT_BO_CAP      # (a build begun after the opening owns the gold so long at most)
+	if macro != null and was_on and _opt_picks >= 2:
+		# (econ-coach-clockwork) a SECOND switch while a written build still ran had no cap at all: Hollowfen, the Clock
+		# Soldier rush (picked from the opening) switched to the Springer timing at 5:17, whose steps then waited on a Swift
+		# for ten minutes with 13 Winders' posts and 1,000+ cogs in the bank
+		_bo_cap_t = game.clock + OPT_BO_CAP
 	if scout != null:
 		scout.enabled = difficulty >= 1 and not peaceful      # (OPTIMAL keeps reading while its build runs)
 	note("plays the %s from here: the opening build (%d steps, %d done already)" % [String(STRATEGIES[strategy]["name"]), steps.size(), done.count(true)])
@@ -321,6 +332,16 @@ func _s(key: String) -> Variant:
 func _econ_build() -> void:
 	if not bo_on:
 		super._econ_build()
+		if macro != null:
+			macro.presses_more()        # (econ-coach-clockwork: a second press at once for idle Winders)
+
+
+## (econ-coach-clockwork) The Winders the shared rules train after the opening: every post plus the escorts and a builder,
+## not the old 32 that counted the escorts in (scripts/ai_cw_macro.gd).
+func _lab_want(want: int) -> int:
+	if macro != null:
+		return macro.want(want)
+	return super._lab_want(want)
 
 
 func _produce() -> void:
@@ -337,6 +358,8 @@ func _research() -> void:
 
 func _supply() -> void:
 	if not bo_on:
+		if macro != null and macro.supply():
+			return              # (econ-coach-clockwork: Regulators ahead of every Clocktower and Works making units)
 		super._supply()
 
 
@@ -449,8 +472,8 @@ var _stuck_t := 0.0
 
 
 func _stuck_hand_over() -> bool:
-	if not stuck_on or difficulty < 1 or not _foe_is("brood"):
-		return false
+	if not stuck_on or difficulty < 1 or not (_foe_is("brood") or macro != null):
+		return false            # (econ-coach-clockwork: against every faction, not only the Brood)
 	var n := done.count(true)
 	if n != _stuck_n:
 		_stuck_n = n
@@ -625,6 +648,7 @@ func scout_from_army() -> Unit:
 
 const OPT_BO_CAP := 300.0       # (s) OPTIMAL's switched build: its written steps for this long at most, then the shared rules
 var _bo_cap_t := -1.0
+var _opt_picks := 0
 
 
 func _bo_tick() -> void:
@@ -676,6 +700,8 @@ func _bo_tick() -> void:
 		_end_build("the last step")
 		return
 	_train_workers()
+	if macro != null:
+		macro.bo_tick()         # (econ-coach-clockwork: empty posts filled, a standing Clocktower's presses, under any build)
 	_cc_bank()              # (crown-v-clockwork-coach: against the Crown the cogs a waiting step does not need go to soldiers)
 
 
