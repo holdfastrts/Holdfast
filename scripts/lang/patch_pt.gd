@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.33.38": ["A pintura do menu principal: o segundo padre, grande demais, saiu e um soldado ferido agora está sentado ao lado do missionário com o braço sendo enfaixado; a linha de mosqueteiros atrás deles volta a aparecer, um terceiro mosqueteiro ajoelha-se e dispara na fila da frente, e o cavaleiro de armadura tem a espada de volta."],
 	"0.33.37": ["A pintura do menu principal: uma linha inteira de mosqueteiros da Coroa agora dispara atrás dos padres, o cavalo do oficial carrega inteiro, mais dois mosqueteiros ajoelham-se e disparam na fila da frente, e um sargento aponta o caminho com a sua alabarda."],
 	"0.33.36": ["A pintura do menu principal: o padre com a cruz dourada agora está de pé no chão entre os soldados, à frente dos mosqueteiros e logo atrás dos missionários, e a cruz não fica mais atrás dos botões do menu."],
 	"0.33.35": ["A pintura do menu principal: os missionários e os feridos desceram para a borda da frente, e a linha de mosqueteiros da Coroa disparando atrás deles volta a ficar à vista."],

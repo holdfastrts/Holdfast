@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.38", "items": [
+		"The main menu painting: the oversized second priest is gone and a wounded soldier now sits beside the missionary having his arm bandaged; the musketeer line behind them shows again, a third musketeer kneels and fires in the front rank, and the armoured horseman has his sword back.",
+	]},
 	{"v": "0.33.37", "items": [
 		"The main menu painting: a full line of the Crown's musketeers now fires behind the priests, the officer's horse charges whole, two more musketeers kneel and fire in the front rank, and a sergeant points the way with his halberd.",
 	]},
