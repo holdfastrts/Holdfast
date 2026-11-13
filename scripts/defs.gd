@@ -386,6 +386,18 @@ static var gear_mode := true
 ## band of a turning Clockwork ring are carried round with it. Set per match from the setting (Settings.gear_turn) and kept
 ## in the match's setup (cfg "gear_turn"), so a continued match, an online guest and a replay agree.
 static var gear_turn := true
+## THE GROUND SYSTEM (the owner's experiment, 2026-11-13; scripts/ground_layer.gd, docs/ground_system.md): the Crown's soil
+## and the Clockwork's brass lie on the map in a district round each hall; a Farm / Cog Press drinks from a circle round it
+## (yield = the share of its circle's ground still there). Set per match from the setting (Settings.ground_system) and kept
+## in the match's setup (cfg "ground"); off by default (the game as before).
+static var ground_on := false
+## The ground system's numbers (docs/ground_system.md "The numbers"; LAND, as GROUND is ATTACK GROUND): tiles unless the key says otherwise.
+##   district: radius of a Town Hall's district (its soil; the economy buildings stand within ECON_RANGE of a hall);
+##   district_brass: a Clocktower's (its brass: the presses mesh near the tower, so its district is a little tighter);
+##   soil / brass: what a fresh district holds (the old hall reserve, SOIL_RESERVE / LODE "clocktower");
+##   r: the circle each drinker drinks from; bite: a Cog Press's draws are paid in chunks of this much.
+static var LAND := {"district": 11.0, "soil": 9000.0, "brass": 9000.0, "r": {"farm": 10.0, "cog_press": 10.0}, "bite": 2.0,
+	"spot_w": 40.0, "spot_min": 0.1, "local": true, "district_brass": 9.0}
 ## THE MARCHING BAND (the owner's idea 2026-10-30, a real Crown unit since 0.33.0 (the owner, 2026-11-05);
 ## scripts/marching_band.gd, docs/marching_band.md): the Crown's band of drums, pipes and fife that plays area buffs.
 ## Trained at the Armoury; a new band is a Drummer; the FIFER and the PIPER are Armoury research (RESEARCH "band_fife",

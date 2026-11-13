@@ -94,6 +94,15 @@ def parity():
     return [g for r in (0, 1) for g in base(r) if g[1] in PARITY_MAPS]
 
 
+# (ground-system, docs/ground_system.md) a quick ON-vs-OFF set on three maps of different kinds, every pairing, both
+# rounds (12 games a pairing x 3 maps): `--only ground`
+GROUND_MAPS = ["greenhold", "frostfang", "hollowfen"]
+
+
+def ground():
+    return [g for r in (0, 1) for g in base(r) if g[1] in GROUND_MAPS]
+
+
 # (econ-coach-crown, docs/econ-coach-crown.md) the parity games with a Crown side: Crown v Brood, Crown v Clockwork and the
 # Crown mirror, 12 a pairing: `--only crown` (`--only crcw` / `crbr` / `crcr`: one pairing)
 def crown(pair=""):
@@ -111,6 +120,8 @@ def queue(only=""):
         return cw()
     if only == "parity":
         return parity()
+    if only == "ground":
+        return ground()
     q = []
     if only in ("", "base"):
         q += base(0) + base(1)

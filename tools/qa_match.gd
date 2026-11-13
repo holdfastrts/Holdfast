@@ -39,6 +39,8 @@ var _gw_cogs: Array = []        # (clockwork-ai-v2) per player: Great Winder id 
 var _idle_w: Array = []         # (clockwork-ai-v2) per player: [sum of idle workers over the 5 s looks, looks]
 
 
+var ground := false
+
 func _initialize() -> void:
 	var spec := "crown/optimal/0,brood/optimal/1"
 	for a in OS.get_cmdline_user_args():
@@ -52,6 +54,7 @@ func _initialize() -> void:
 			"out": out = kv[1]
 			"diff": diff = kv[1]
 			"slots": spec = kv[1]
+			"ground": ground = kv[1] == "1"     # (THE GROUND SYSTEM on: docs/ground_system.md)
 	for s in spec.split(","):
 		var p := s.split("/")
 		slots.append([p[0], p[1] if p.size() > 1 else "optimal", int(p[2]) if p.size() > 2 else slots.size()])
@@ -84,7 +87,7 @@ func _process(delta: float) -> bool:
 		var sl: Array = []
 		for i in n:
 			sl.append({"who": diff, "faction": slots[i][0], "colour": i, "side": slots[i][2], "strategy": slots[i][1]})
-		main.start({"map": map, "seed": seed_, "slots": sl})
+		main.start({"map": map, "seed": seed_, "slots": sl, "ground": ground})
 		return false
 	if main.game == null:
 		return false

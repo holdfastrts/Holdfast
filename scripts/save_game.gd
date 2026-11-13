@@ -187,6 +187,8 @@ static func capture(game: Game, cfg: Dictionary, replay := false) -> Dictionary:
 		"brood": Defs.BROOD_FORMAT, "buildings": [], "units": []}
 	if game.factions.has("brood"):
 		d["nb"] = BroodNew.save(game)              # (the Brood: the Rootmaws' ground)
+	if game.ground_layer:
+		d["ground"] = game.ground_layer.save()     # (THE GROUND SYSTEM: the soil and brass on the map, docs/ground_system.md)
 	for ai in game.ais:
 		d["ai"].append({"team": ai.team, "walled": ai._walled, "attack_at": ai._attack_at, "strategy": ai.strategy,
 			"failed": ai._failed, "regroup": ai._regroup_until, "opening": ai.opening,
@@ -555,6 +557,8 @@ static func restore(game: Game, d: Dictionary) -> void:
 	for sc in d.get("soil_scars", []):
 		var sk := String(sc[2]) if sc.size() > 2 else "town_hall"
 		game.soil_scars.append([_to_v2(sc[0]), float(sc[1]), sk, float(sc[3]) if sc.size() > 3 else float(Defs.LODE.get(sk, 0.0))])
+	if d.has("ground") and game.land():
+		game.ground_layer.load(d["ground"])       # (after the halls: laying them made fresh districts, the save's ground wins)
 	for b in game.buildings:
 		if b.kind == "farm":
 			b._update_sprite()      # (its tired-soil tint needs the halls back first)

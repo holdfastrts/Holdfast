@@ -11,7 +11,7 @@ extends SceneTree
 
 const PC_IDS := ["language", "device", "grid_keys", "layout", "tooltips", "build_grid", "replays_keep", "relay_url",
 	"replay_rec", "window_full", "ui_size", "mini_alpha", "powder_smoke", "area_marks", "expansion_spots", "health_bars", "charge_bars",
-	"music", "sound", "ambience", "music_player", "gear_turn", "cw_lab", "patch_notes", "anim_viewer", "reset",
+	"music", "sound", "ambience", "music_player", "gear_turn", "ground_system", "ground_alpha", "cw_lab", "patch_notes", "anim_viewer", "reset",
 	"narrator", "narrator_volume", "narrator_rate"]
 
 var main

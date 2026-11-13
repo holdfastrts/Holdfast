@@ -1,0 +1,22 @@
+# THE GROUND SYSTEM (ground-system, docs/ground_system.md): the experiment's Settings row, its slider and hint, the
+# placing label, and the district-limit message.
+
+> GROUND SYSTEM (experiment)
+pt SISTEMA DO SOLO (experimento)
+es SISTEMA DEL SUELO (experimento)
+
+> GROUND LAYER WHILE PLACING
+pt CAMADA DO SOLO AO CONSTRUIR
+es CAPA DEL SUELO AL CONSTRUIR
+
+> The Crown's soil and the Clockwork's brass lie on the map round each hall. A Farm or Cog Press drinks from a circle round it: spent ground shows red while you place, and a circle over spent ground pays less.
+pt O solo da Coroa e o latão da Mecânica ficam no mapa em volta de cada sede. Uma Fazenda ou Prensa de Engrenagens bebe de um círculo ao seu redor: o terreno gasto aparece vermelho ao construir, e um círculo sobre terreno gasto rende menos.
+es El suelo de la Corona y el latón de la Mecánica están en el mapa alrededor de cada sede. Una Granja o Prensa de Engranajes bebe de un círculo a su alrededor: el terreno gastado se ve rojo al construir, y un círculo sobre terreno gastado rinde menos.
+
+> %d%% of a fresh spot
+pt %d%% de um lugar novo
+es %d%% de un lugar nuevo
+
+> This %s's ground already feeds %d %s (spent ones don't count). Build by another one.
+pt O solo desta %s já alimenta %d %s (os gastos não contam). Construa junto a outra.
+es El suelo de esta %s ya alimenta %d %s (los gastados no cuentan). Construye junto a otra.

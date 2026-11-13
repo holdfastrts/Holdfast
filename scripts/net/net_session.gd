@@ -89,6 +89,7 @@ var count_diff_snaps := 0
 var line_fp := -1                 # host: fingerprint of the Line in the last snapshot that carried it
 var keg_fp := -1                  # host: fingerprint of the powder kegs on the ground (PowderKeg) last sent
 var spot_fp := -1                 # host: fingerprint of the Rootmaws' ground (Game.nb_spots, whole food) last sent
+var ground_sent := {}             # host: THE GROUND SYSTEM, tile -> the row last sent (GroundLayer.net_rows)
 var _last_snap_ms := 0
 # The start: both sides hold the 3-2-1 countdown until every guest's match has loaded (a phone loads slower
 # than the host), then the host says GO and both count down together. READY_WAIT: start anyway after that.

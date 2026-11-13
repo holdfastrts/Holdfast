@@ -174,6 +174,16 @@ var winner := -1
 var clock := 0.0
 var stats: Array = []
 var soil_scars: Array = []               # [centre, soil left, hall kind, lode left] where a Town Hall, Hive or Clocktower fell
+var ground_layer: GroundLayer = null      # THE GROUND SYSTEM (Defs.ground_on; scripts/ground_layer.gd): null while it is off
+
+
+## The ground layer (made the first time it is asked for in a match with the ground system on; null when it is off).
+func land() -> GroundLayer:
+	if not Defs.ground_on:
+		return null
+	if ground_layer == null and W > 0 and H > 0:
+		ground_layer = GroundLayer.new(self)
+	return ground_layer
 var _sample_t := 0.0
 var mlog: MatchLog              # the playtest log (copied from the end screen)
 var ai_story: AIStory = null    # watching computers or a replay: the AI STORY panel's feed and the narrator (ai_story.gd)
@@ -339,6 +349,11 @@ func _ready() -> void:
 			exp_spots.spots = []      # (a campaign mission whose story has no use for them: "expansion_spots": false)
 		exp_spots.z_index = -18
 		add_child(exp_spots)
+		if Defs.ground_on:
+			# THE GROUND SYSTEM: the layer tinted while placing (scripts/ground_view.gd)
+			ground_view = GroundView.new()
+			ground_view.game = self
+			add_child(ground_view)
 	if edit_mode:
 		fog_sprite.visible = false
 		camera.position = Vector2(W, H) * T * 0.5
@@ -475,6 +490,8 @@ var solid_log: Array = []
 ## units of the gate's side and its allies can actually step on one).
 func _mark(c: Vector2i, size: Vector2i, v: int) -> void:
 	_unknown_dirty = true                 # (what each player knows stands where: worked out again)
+	if ground_layer:
+		ground_layer.covers_changed()     # (a footprint covers or uncovers ground: the circles are measured again)
 	solid_log.append(Rect2i(c, size))     # (CrownSites' caches drop what lay near it)
 	for y in size.y:
 		for x in size.x:
@@ -2479,6 +2496,7 @@ func find_spot(t: int, kind: String, around: Building, min_d: int, max_d: int, p
 	var keys := PackedInt64Array()
 	var cells: Array[Vector2i] = []
 	var pair := kind == "boiler" or (kind == "ore_crusher" and econ_count(t, "boiler") > 0)
+	var ground_score := GroundLayer.drinks(kind) and land() != null
 	var pair_at: Array[Vector2] = []
 	if pair:
 		for b in buildings:
@@ -2518,6 +2536,13 @@ func find_spot(t: int, kind: String, around: Building, min_d: int, max_d: int, p
 				# tucked behind the hall, away from the middle of the map (like minerals
 				# behind a command centre), and close to it
 				score = dd - (cc.distance_to(mid) - c0.distance_to(mid)) * 1.5
+			if ground_score:
+				# THE GROUND SYSTEM: a Farm / Cog Press goes where its circle holds the most (a spot half spent scores as
+				# if it were LAND "spot_w" / 2 tiles farther), never where it would hold next to nothing
+				var gq := ground_layer.quick(kind, cell)
+				if gq < float(Defs.LAND["spot_min"]):
+					continue
+				score += (1.0 - gq) * float(Defs.LAND["spot_w"])
 			if pair:
 				# Boilers and crushers close together (once there's a Boiler; the starting crusher
 				# goes behind the hall): a battery fades on a long road, and a Boiler's Winders
@@ -2760,6 +2785,8 @@ func draw_lode(b: Building, v: float) -> float:
 			h.lode = maxf(0.0, h.lode - pay)
 			_lode_check(h)
 		return pay
+	if b.kind == "cog_press" and Defs.ground_on and land():
+		return ground_layer.draw_bit(b, v)      # (THE GROUND SYSTEM: from the press's own circle of brass)
 	var fresh := 0.0
 	if h:
 		fresh = minf(h.lode, v)
@@ -2773,6 +2800,8 @@ func lode_pay(b: Building, v: float) -> float:
 	var h := lode_hall(b)
 	if b.kind == "powder_mill":
 		return v * Defs.second_share(h.lode / h.lode_full() if h else 0.0, Defs.POWDER_FLOOR)
+	if b.kind == "cog_press" and Defs.ground_on and land():
+		return v if ground_layer.held(b) > 0.0 else 0.0
 	var fresh := minf(h.lode, v) if h else 0.0
 	return fresh + (v - fresh) * Defs.LODE_SPENT
 
@@ -2867,6 +2896,13 @@ func soil_hall(farm: Building) -> Building:
 ## A Farm's harvest: draws its yield from its hall's soil; spent soil pays nothing (barren).
 ## Adds the gold and returns what it paid.
 func harvest(farm: Building) -> int:
+	if Defs.ground_on and land():
+		# THE GROUND SYSTEM: a full harvest while its circle holds soil, drawn evenly from that ground (the last one only
+		# what is left): a circle half over spent ground holds half as much, so it pays half as long (the Rootmaw's rule)
+		var got := int(round(ground_layer.draw(farm, float(Defs.FARM_YIELD))))
+		if got > 0:
+			add_gold(farm.team, got)
+		return got
 	var h := soil_hall(farm)
 	var fresh := 0.0
 	if h:
@@ -2882,6 +2918,8 @@ func harvest(farm: Building) -> int:
 
 ## What a Farm's next harvest would pay (no side effects).
 func harvest_value(farm: Building) -> int:
+	if Defs.ground_on and land():
+		return int(round(minf(float(Defs.FARM_YIELD), ground_layer.held(farm))))
 	var h := soil_hall(farm)
 	var fresh := minf(h.soil, float(Defs.FARM_YIELD)) if h else 0.0
 	return int(round(fresh + (Defs.FARM_YIELD - fresh) * Defs.SOIL_TIRED))
@@ -2979,6 +3017,9 @@ func dropoff_hall(p: Vector2, t: int) -> Building:
 
 
 func econ_count(t: int, kind: String) -> int:
+	if GroundLayer.drinks(kind):
+		# THE GROUND SYSTEM: a Farm / Cog Press on spent ground no longer counts against the limit (docs/ground_system.md)
+		return buildings.filter(func(b: Building) -> bool: return b.team == t and b.kind == kind and not b.dead and not (b.built and b.barren())).size()
 	return buildings.filter(func(b: Building) -> bool: return b.team == t and b.kind == kind and not b.dead).size()
 
 
@@ -3062,6 +3103,8 @@ func set_split(t: int, name: String) -> void:
 
 
 func _economy(delta: float) -> void:
+	if ground_layer:
+		ground_layer.tick(delta)       # (THE GROUND SYSTEM: the halls' soil / brass read their districts once a second)
 	for t in n_players():
 		if faction_of(t) != "clockwork":
 			continue
@@ -3181,6 +3224,7 @@ func near_enemy_building(t: int, p: Vector2, tiles: float) -> bool:
 
 var _floats: Array = []           # [position, text, colour, time left]
 var exp_spots: ExpansionSpots         # the best expansion spots tinted on the ground (null in the editor)
+var ground_view: GroundView = null    # THE GROUND SYSTEM: the layer while placing (null while it is off)
 var ground_marks: GroundMarks         # AREA MARKS on the ground (area_mark; scripts/ground_marks.gd)
 var swipe_marks: GroundMarks          # the Pendulum's smear, over the units
 
@@ -3330,6 +3374,8 @@ func _add_building(k: String, t: int, c: Vector2i, complete: bool, ghost := fals
 	buildings.append(b)
 	if k == "town_hall" or k == "clocktower":
 		_take_scar(b)
+		if Defs.ground_on and land():
+			ground_layer.found(b)          # (THE GROUND SYSTEM: its district's new tiles get their ground)
 	if b.ghost:
 		_reserve_ghost(b, true)
 		if not sees_all() and hidden_ghost(b, fog_team()):
@@ -3975,6 +4021,8 @@ func on_building_died(b: Building) -> void:
 	if (b.kind == "town_hall" or b.kind == "clocktower") and b.built and (b.soil < b.reserve() or (b.lode_full() > 0.0 and b.lode < b.lode_full())):
 		soil_scars.append([b.center(), b.soil, b.kind, b.lode])
 	_mark(b.cell, b.size, 0)
+	if ground_layer:
+		ground_layer.forget(b)
 	gate_team.erase(idx(b.cell))
 	selection.erase(b)
 	buildings.erase(b)
@@ -5085,7 +5133,25 @@ func placement_problem(t: int, k: String, c: Vector2i, ai := false, limits_check
 				break
 		if not near:
 			return "Must be near your %s." % Defs.BUILDINGS[faction_hall(t)]["name"]
+		if GroundLayer.drinks(k) and bool(Defs.LAND["local"]):
+			# THE GROUND SYSTEM: the limit is the DISTRICT's (its nearest hall's), and spent ones don't count
+			var hall := nearest_hall(mid, t)
+			if hall and _district_live(t, k, hall) >= Defs.econ_per_hall(faction_of(t), k):
+				return "This %s's ground already feeds %d %s (spent ones don't count). Build by another one." % [Defs.BUILDINGS[faction_hall(t)]["name"],
+					Defs.econ_per_hall(faction_of(t), k), Defs.BUILDINGS[k]["name"] + ("s" if Defs.econ_per_hall(faction_of(t), k) > 1 else "")]
 	return ""
+
+
+## THE GROUND SYSTEM: a side's Farms / Cog Presses of kind k whose nearest hall is `hall`, going up or still drinking
+## (a spent one does not count).
+func _district_live(t: int, k: String, hall: Building) -> int:
+	var n := 0
+	for b in buildings:
+		if b.team != t or b.kind != k or b.dead or (b.built and b.barren()):
+			continue
+		if nearest_hall(b.center(), t) == hall:
+			n += 1
+	return n
 
 
 ## A pipe of the Line under a building at c (shelved: Defs.line_mode). By sight: another
@@ -10790,6 +10856,8 @@ func _draw_mine_labels() -> void:
 	WorkerLabels.draw_all(self, font)
 	if exp_spots:
 		exp_spots.draw_labels(overlay)          # ("OPTIMAL EXPANSION SPOT" / "EXPANSION SPOT" on the gold spots)
+	if ground_view:
+		ground_view.draw_labels(overlay)        # (THE GROUND SYSTEM: "62% of a fresh spot" over a Farm / Cog Press being placed)
 	for fl in _floats:
 		var a: float = minf(float(fl[3]), 1.0)
 		var w2: float = font.get_string_size(fl[1], HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x

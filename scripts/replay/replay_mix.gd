@@ -335,6 +335,8 @@ func _correct(kd: Dictionary) -> void:
 	n_corrections += 1
 	last_drift = []
 	_set_players(d)
+	if d.has("ground") and game.land():
+		game.ground_layer.load(d["ground"])      # (THE GROUND SYSTEM: the keyframe's soil and brass, exactly)
 	var live := {}
 	for e in game.buildings + game.units:
 		if is_instance_valid(e) and not e.dead and e.net_id != 0:

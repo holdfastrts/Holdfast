@@ -370,6 +370,7 @@ static func room_spot_n(game: Game, t: int, kind: String, must: Array, users: Ar
 	# (start-spots-fix: the cells in side t's first-start frame, mirrored back: mirrored sides break ties the mirrored way)
 	var h0 := game.cell_of(game.sym_pt(t, a0.center()))
 	var cands: Array = []
+	var gl: GroundLayer = game.land() if GroundLayer.drinks(kind) else null      # (THE GROUND SYSTEM: a press on good brass)
 	for y in range(h0.y - 14, h0.y + 15):
 		for x in range(h0.x - 14, h0.x + 15):
 			var c := game.sym_rect(t, Vector2i(x, y), size)
@@ -385,7 +386,13 @@ static func room_spot_n(game: Game, t: int, kind: String, must: Array, users: Ar
 					break
 				gaps += absf(gap)
 			if ok:
-				cands.append([(Vector2(c) * T + Vector2(size) * T * 0.5).distance_to(at) / T + gaps / T, c])
+				var gs := 0.0
+				if gl != null:
+					var gq := gl.quick(kind, c)
+					if gq < float(Defs.LAND["spot_min"]):
+						continue          # (its circle would hold next to nothing)
+					gs = (1.0 - gq) * float(Defs.LAND["spot_w"])
+				cands.append([(Vector2(c) * T + Vector2(size) * T * 0.5).distance_to(at) / T + gaps / T + gs, c])
 	cands.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
 	var best := Vector2i(-1, -1)
 	var best_room := -1

@@ -50,6 +50,7 @@ func _initialize() -> void:
 			opts[kv[0]] = kv[1]
 		elif a in ["brood", "crown", "clockwork"]:
 			fac = a
+	GroundLayer.study_args(opts)      # (THE GROUND SYSTEM: land.<key>=<n> for a study)
 	wall0 = Time.get_ticks_msec()
 
 
@@ -63,7 +64,7 @@ func _process(delta: float) -> bool:
 		var mine := {"who": "hard", "faction": fac, "colour": 0, "side": 0, "strategy": String(opts["plan"])}
 		var foe := {"who": "hard" if real else "you", "faction": String(opts["vs"]) if real else other, "colour": 1, "side": 1,
 			"strategy": String(opts["vsplan"]) if real else "balanced"}
-		main.start({"map": opts["map"], "seed": int(opts["seed"]), "slots": [foe, mine] if me == 1 else [mine, foe]})
+		main.start({"map": opts["map"], "seed": int(opts["seed"]), "ground": String(opts.get("ground", "0")) == "1", "slots": [foe, mine] if me == 1 else [mine, foe]})
 		g = main.game
 		for a in g.ais:
 			if a.team == me:

@@ -1223,6 +1223,22 @@ func settings_rows(tab: String) -> Array:
 			rows.append(_tag(_next_match(_toggle_row("TURNING GEARS (experiment)", func() -> bool: return Settings.gear_turn, func() -> void:
 				Settings.gear_turn = not Settings.gear_turn       # (from the next match: a match keeps the rule it started with)
 				Settings.save_all())), "gear_turn"))
+			rows.append(_tag(_next_match(_toggle_row("GROUND SYSTEM (experiment)", func() -> bool: return Settings.ground_system, func() -> void:
+				Settings.ground_system = not Settings.ground_system
+				Settings.save_all())), "ground_system"))
+			rows.append(_hint("The Crown's soil and the Clockwork's brass lie on the map round each hall. A Farm or Cog Press drinks from a circle round it: spent ground shows red while you place, and a circle over spent ground pays less."))
+			var gal := _row("GROUND LAYER WHILE PLACING")
+			var gas := HSlider.new()
+			gas.min_value = 0.1
+			gas.max_value = 1.0
+			gas.step = 0.05
+			gas.value = Settings.ground_alpha
+			gas.custom_minimum_size = Vector2(220, 44)
+			gas.value_changed.connect(func(x: float) -> void:
+				Settings.ground_alpha = x
+				Settings.save_all())
+			gal.add_child(gas)
+			rows.append(_tag(gal, "ground_alpha"))
 			rows.append(_tag(_next_match(_toggle_row("CLOCKWORK LAB", func() -> bool: return Settings.cw_lab, func() -> void:
 				Settings.cw_lab = not Settings.cw_lab
 				Settings.save_all())), "cw_lab"))
@@ -2792,6 +2808,10 @@ func start(cfg: Dictionary = {}) -> void:
 	if not cfg.has("gear_turn") and not watching and not cfg.has("resume"):
 		cfg["gear_turn"] = Settings.gear_turn
 	Defs.gear_turn = bool(cfg.get("gear_turn", false))
+	# THE GROUND SYSTEM (the experiment, docs/ground_system.md): the same way (a setup from before it existed: off)
+	if not cfg.has("ground") and not watching and not cfg.has("resume"):
+		cfg["ground"] = Settings.ground_system
+	Defs.ground_on = bool(cfg.get("ground", false))
 	# (THE MARCHING BAND was an experiment with its own switch until 0.33.0: an old setup's "marching_band" is ignored, the
 	# band is always the Crown's now)
 	# a random map is picked here (among the pool's maps that hold everyone), so colours can

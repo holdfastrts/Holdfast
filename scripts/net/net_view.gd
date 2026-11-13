@@ -15,6 +15,7 @@ var vknown := {}                  # id -> [entity, is_building, team, cell or pl
 var line_fp := -1
 var keg_fp := -1
 var spot_fp := -1
+var ground_sent := {}             # THE GROUND SYSTEM: tile -> the row last sent (GroundLayer.net_rows)
 var leaks := 0                    # (tests: rows about an enemy this view could not see; must stay 0)
 
 
