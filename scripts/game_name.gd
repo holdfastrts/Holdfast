@@ -6,11 +6,14 @@ class_name GameName
 ## "Pocket RTS" so settings, replays and saves carry over.
 ##
 ## The match log's first line is "<name> vX.Y.Z match log"; old logs start "Holdfast vX.Y.Z match log"
-## (the name until 0.14.102): is_log_header() accepts both.
+## (the name until 0.14.102) or "Working Title for RTS vX.Y.Z match log" (until 0.33.29): is_log_header() accepts all.
 
-const FALLBACK := "Working Title for RTS"
+const FALLBACK := "Triumviwar"
+## The subtitle (owner, 2026-11-13: "Triumviwar: Is All Lost?"), shown with the name on the big headings only (the main
+## menu, the device page); the window, the app, logs and replays use the short name.
+const SUBTITLE := "Is All Lost?"
 ## Earlier names, for reading old match logs and replays.
-const OLD_NAMES := ["Holdfast"]
+const OLD_NAMES := ["Working Title for RTS", "Holdfast"]
 
 
 static func title() -> String:
@@ -19,7 +22,7 @@ static func title() -> String:
 
 ## The name for big headings (the main menu, the device page).
 static func heading() -> String:
-	return title().to_upper()
+	return (title() + ": " + SUBTITLE).to_upper()
 
 
 ## True for the first line of a match log, under the current name or an old one.

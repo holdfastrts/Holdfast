@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.30", "items": [
+		"THE GAME HAS ITS NAME: TRIUMVIWAR: IS ALL LOST? Three powers at war, and the King's question. The main menu shows the whole title; the window, the app, match logs and replays say Triumviwar. Your settings, saves and replays carry over, and old match logs still read.",
+	]},
 	{"v": "0.33.29", "items": [
 		"THE RAPTOR RUNS ON PAINTED LEGS IN EVERY DIRECTION: its diagonal runs (down-right and up-right on the screen, and their mirrors) are now new painted art too, with the legs taking turns, instead of the stick legs made in code. The crest and spines still take the player's colour.",
 	]},
