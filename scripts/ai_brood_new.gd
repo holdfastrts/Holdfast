@@ -1469,7 +1469,7 @@ var _first_out := false         # (the first wave has left)
 
 ## Supply ahead of need: one more Mound Turtle while the supply is within a few of the cap (more ahead later, when she
 ## lays faster), counting the ones on their way (cocoons, grubs going to turn into one, turtles walking to their spot).
-func _nb_short() -> bool:
+func _nb_short(by_rate := true) -> bool:
 	var cap := int(game.players[team]["cap"])
 	if cap >= game.max_supply(team):
 		return false
@@ -1486,9 +1486,45 @@ func _nb_short() -> bool:
 		                    # minute, when every 50 food is a grub: the first turtle at 0:32 cost a minute of grubs)
 	if bb != null:
 		ahead += bb.supply_ahead()          # (the written build: its Spitters hatch three to an egg)
+	if supply_rate_on and by_rate:
+		ahead = maxi(ahead, _supply_need_soon())
 	if int(plan["grubs0"]) > 0 and not _first_out:
 		ahead = int(plan.get("ahead0", 3))          # (the Extreme rush: the turtle right after the Sire, so its Raptors never wait for supply)
 	return game.supply_used(team) + ahead >= cap + coming
+
+
+## ECON-COACH-BROOD (docs/econ-coach-brood.md, fix 1): supply ahead by HER LAYING, not by the clock. The old rule (3 +
+## a minute's worth) was 6 at 3:00 and 8 at 5:00, while a turtle takes ~40 s from the order to its supply (the grub's
+## walk, 25 s in its cocoon, rooting) and she lays faster every stage, Sire and expansion: alone on Greenhold the
+## Economy plan stood at its cap in 25-36% of the looks from 4:00 to 6:00 with eggs in her clutch (the games: 22-29%).
+## Now: what she can lay in that time (her rate, or the food coming in when that is slower), each egg 1.5 supply once
+## warriors are laid (a grub 1, a pair 2; 1 before the Tyrant Sire), plus half what her stocked eggs and the bank could
+## lay at once.
+const SUPPLY_LEAD := 36.0           # s from a turtle's order to its supply (at home; new ground walks longer)
+const SUPPLY_EGG := 1.5          # (supply an egg once warriors are laid: a grub 1, a pair 2; grubs only before the Tyrant Sire)
+var supply_rate_on := not OS.get_cmdline_user_args().has("nbsupply:off")
+var _inc_t := -1.0
+var _inc_food := 0.0
+var inc_rate := 0.0                  # food a second lately (its own count of what came in)
+
+
+func _supply_need_soon() -> int:
+	var q := BroodNew.queen(game, team)
+	if q == null:
+		return 0
+	var got := float(game.stats[team]["gold"])
+	if _inc_t < 0.0 or game.clock - _inc_t >= 20.0:
+		if _inc_t >= 0.0:
+			inc_rate = (got - _inc_food) / maxf(1.0, game.clock - _inc_t)
+		_inc_t = game.clock
+		_inc_food = got
+	var lay_s := float(BroodNew.egg_rate(game, team)) / float(Defs.NB["egg_time"])        # eggs a second she can lay
+	var buy_s := maxf(inc_rate, 3.0) / 50.0                                                # eggs a second the food pays for
+	var lead := SUPPLY_LEAD + (12.0 if _eco() and _nb_far_have(q) < _nb_far_wanted() else 0.0)
+	var per := SUPPLY_EGG if BroodNew.father_near(game, team, BroodNew.FATHER) else 1.0
+	var flow := minf(lay_s, buy_s) * lead * per
+	var burst := mini(int(q.nb.get("eggs", 0)), maxi(0, _food() - 100) / 50) * per
+	return int(ceil(flow + burst * 0.5)) + 1
 
 
 ## Far turtles wanted by now (the plan's expansions), none while a rush is on.
@@ -1499,6 +1535,11 @@ func _nb_far_wanted() -> int:
 	for e in plan["far"]:
 		if game.clock >= float(e[0]):
 			n = int(e[1])
+	if maw_first_on and game.clock < 60.0 and n > 0 and _nb_far_have(BroodNew.queen(game, team)) == 0 \
+			and BroodNew.count_of(game, team, BroodNew.MAW) + _morphing_into(BroodNew.MAW) < 2:
+		n = 0          # (econ-coach-brood fix 3: the second Rootmaw before the natural's turtle. At 0:00 her swamp is not
+		               # down yet, no Rootmaw spot was found and the eco plans' 100 went on the turtle: the second Rootmaw
+		               # rooted at 0:50 on food that came in meanwhile; the bench's at 0:20)
 	if _eco() and _nb_egg_bound():
 		n = maxi(n, mini(_nb_far_have(BroodNew.queen(game, team)) + 1, int(Defs.NB["expansion_max"])))
 		# (brood-ai-tune: eggs hold it back: the next turtle on new ground now, +15% laying each, up to 3)
@@ -1522,6 +1563,16 @@ func _nb_far_have(q: Unit) -> int:
 ## the same ROOT placement checks as the player's ghost (BroodRoot.place_problem, keeping its ramps clear), and the
 ## grub nearest it.
 var _morph_keep := 0             # food kept for the structure-unit it saves for (a grub on its way has paid already)
+var morph_pair_on := not OS.get_cmdline_user_args().has("nbpair:off")
+var maw_first_on := not OS.get_cmdline_user_args().has("nbmawfirst:off")
+
+
+func _morphing_into(k: String) -> int:
+	var n := 0
+	for u in game.units:
+		if u.team == team and not u.dead and u.kind == "grub" and u.order == "nb_morph" and String(u.nb.get("mk", "")) == k:
+			n += 1
+	return n
 
 
 func _nb_morphs(q: Unit) -> void:
@@ -1538,8 +1589,12 @@ func _nb_morphs_go(q: Unit) -> void:
 			walking += 1
 	# one at a time; a second only with food to spare (brood-eco: with the owner's economy the food came faster than one
 	# grub at a time could turn it into turtles, and 900+ food sat for minutes at the supply cap)
-	if walking >= 2 or (walking == 1 and _food() - _morph_keep < 400):
+	# (econ-coach-brood fix 3: a Rootmaw, or a turtle when supply is short, may go while ONE other walks: at 0:00 the eco
+	# plans send a grub 22 tiles to the natural and the second Rootmaw waited for it, rooted at 0:50 with eggs full)
+	var second_ok := walking == 1 and morph_pair_on
+	if walking >= 2 or (walking == 1 and _food() - _morph_keep < 400 and not second_ok):
 		return
+	var only_pair := walking == 1 and _food() - _morph_keep < 400
 	var grubs := BroodNew.count_of(game, team, "grub")
 	var maws := BroodNew.count_of(game, team, BroodNew.MAW)
 	var k := ""
@@ -1569,7 +1624,7 @@ func _nb_morphs_go(q: Unit) -> void:
 			k = BroodNew.TURTLE
 			spot = picks[0]
 	if k == "" and maws < _nb_wanted_maws() and not _nb_saving_growth(q) and not _nb_maw_room(q) and not (_under_armed() and _army_supply_now() < 30) \
-			and _nb_far_have(q) < 6:
+			and _nb_far_have(q) < 6 and not (maw_first_on and game.clock < 30.0):          # (fix 3: at 0:00 there is no room only because her swamp is not down yet)
 		var more := _nb_far_spots(q, 40.0)    # (0.24.7: no room left for a Rootmaw: one more turtle on new ground makes room,
 		                                      # farther out than the planned expansions)
 		if not more.is_empty():
@@ -1580,6 +1635,11 @@ func _nb_morphs_go(q: Unit) -> void:
 		spot = null
 	if k == "" or grubs < 3:
 		return
+	if only_pair:
+		if k == BroodNew.TURTLE and _nb_short():
+			spot = null          # (the second at once: a supply turtle at home, the quickest supply)
+		elif k != BroodNew.MAW:
+			return               # (the second at once: only a Rootmaw or a supply turtle)
 	var why := BroodRoot.morph_problem(game, team, k)
 	if why != "":
 		if why.begins_with("Not enough") and _food() < int(game.unit_price(team, k)[0]):
@@ -1616,7 +1676,7 @@ var _room := true
 
 
 func _nb_maw_room(q: Unit) -> bool:
-	if game.clock - _room_t >= 5.0:
+	if game.clock - _room_t >= (5.0 if game.clock > 30.0 or not maw_first_on else 1.0):
 		_room_t = game.clock
 		_room = _nb_find_spot(q, null) != null
 	return _room
@@ -2345,6 +2405,12 @@ func _nb_essence(q: Unit) -> void:
 			return
 
 
+const SOFT_EVERY := 2               # (fix 2: under a soft danger a grub after every SOFT_EVERY warrior eggs)
+var soft_share_on := not OS.get_cmdline_user_args().has("nbsoft:off")
+var _soft_g := 0
+var _soft_w := 0
+
+
 ## Her eggs: grubs and warriors only (the structure-units come from grubs: _nb_morphs).
 func _nb_lay(q: Unit) -> void:
 	var eggs := int(q.nb.get("eggs", 0))
@@ -2356,8 +2422,9 @@ func _nb_lay(q: Unit) -> void:
 	var k := ""
 	# saving up for a structure-unit the economy needs: warriors only out of what is above its price
 	var keep := _morph_keep          # (the structure-unit it saves for, or the one a grub is walking to: _nb_morphs)
-	if _nb_short():
-		keep = maxi(keep, 100)
+	if _nb_short(false):
+		keep = maxi(keep, 100)          # (the eggs wait for a turtle only when the old, near rule says so: fix 1's earlier
+		                                # turtle is paid like any morph, _morph_keep; holding 100 more for it cost grubs)
 	elif BroodNew.count_of(game, team, BroodNew.FATHER) == 0 and grubs >= int(plan["sire_g"]) - 1:
 		keep = maxi(keep, int(Defs.UNITS[BroodNew.FATHER]["cost"]))          # (the Tyrant Sire's lure first)
 	keep = maxi(keep, _nb_growth_keep(q) + (_morph_keep if _nb_growth_keep(q) > 0 else 0))
@@ -2385,6 +2452,15 @@ func _nb_lay(q: Unit) -> void:
 		curve = 0.0          # (the written build: its Sire's food first, the grub curve after him)
 	if grubs < want_grubs and (grubs < 6 or not any_father or (grubs < curve and not danger) or food - keep >= 200):
 		k = "grub"
+	# ECON-COACH-BROOD fix 2: a SOFT danger (the alarm, or under-armed against what it saw: no enemy at the Mother, no
+	# rush or riders it is short against) no longer stops the grubs: one egg in three stays a grub while it is under
+	# its curve. Against the Clockwork the under-armed floor (up to 800 by 6:40) kept the computer at 14-18 grubs and 3-4
+	# Rootmaws from 4:00 to 9:00 after its rush (the qa games: 4,726 earned by 8:00, the mirror 8,741); its army never
+	# caught the floor because the income behind it never grew.
+	var soft := danger and _nb_threat(q) == Vector2.INF and not _rush_short() and not rider_short
+	if k == "" and soft and soft_share_on and grubs < want_grubs and grubs < curve and _soft_g * SOFT_EVERY < _soft_w \
+			and food - mini(keep, _morph_keep) >= 50:
+		k = "grub"
 	# SPOILS FROM RAPTORS (the owner, 07:15: the Storm line and the Air rush are paid by offering Raptors up): while the
 	# spoils wanted now are short and too few spare Raptors stand at home to offer, a Raptor egg comes before the grub
 	# curve (with 12 grubs or more); _nb_essence offers them up as they hatch
@@ -2397,9 +2473,14 @@ func _nb_lay(q: Unit) -> void:
 			k = "grub"
 		else:
 			return
-	if k == "grub" and food - 50 < keep - (_nb_growth_keep(q) if grubs * 10 < want_grubs * 7 else 0) and grubs >= 6:
+	if k == "grub" and food - 50 < keep - (_nb_growth_keep(q) if grubs * 10 < want_grubs * 7 else 0) and grubs >= 6 \
+			and not (soft and soft_share_on and food >= 50 + mini(keep, _morph_keep)):
 		return          # (the workforce is far short: grubs come before her growth's savings)
-	BroodNew.lay(game, q, k)
+	if BroodNew.lay(game, q, k) == "" and soft:
+		if k == "grub":
+			_soft_g += 1
+		else:
+			_soft_w += 1
 
 
 ## Grubs wanted: a crew for each rooted Rootmaw (and those on their way), a couple to turn into things; held at the
