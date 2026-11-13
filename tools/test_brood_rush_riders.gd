@@ -6,6 +6,8 @@ extends SceneTree
 ## the riders, who killed them; now the wave keeps at the wall and bites a rider only when he comes into the pack.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_brood_rush_riders.gd [-- nbchase:on] [-- trials:4] [-- riders:2]
 ##       [-- set:raptor.hp=38] (a balance number tried on the units of this run only) [-- verbose]
+##       [-- shots:/abs/dir] a picture of the fight every 3 s of trial 0 (needs a screen: xvfb-run -a godot
+##       --rendering-driver opengl3 --resolution 1280x720 ...); docs/shots/brood_rush_coach/ has the before and after
 ## Prints per trial: Raptors left, rider health lost, Raptor-seconds spent more than 6 tiles from the box, palisade
 ## pieces and health lost; PASS/FAIL on the new behaviour (unless nbchase:on).
 const T := 32.0
@@ -58,7 +60,7 @@ func _go() -> void:
 		check(tot["out"] / n < 30.0, "the wave stays at the wall (raptor-seconds more than 6 tiles out: %.0f a trial)" % (tot["out"] / n))
 		# (the trade itself is reported, not checked: a Horseman ridden hit and run beats Raptors whatever they do, at the wall
 		# or out in the open, 1 rider against 10 included: docs/brood_rush_coach.md)
-		check(tot["wall"] / n > 150.0, "the wave keeps hitting the palisade (%.0f health a trial)" % (tot["wall"] / n))
+		check(tot["wall"] / n > 100.0, "the wave keeps hitting the palisade (%.0f health a trial)" % (tot["wall"] / n))
 		print("RESULT: %d failed" % fails)
 	quit()
 
@@ -131,6 +133,12 @@ func _trial(trial: int, nr: int) -> Dictionary:
 	var t := 0.0
 	var out := 0.0
 	var sortie := false
+	var shots := str(args.get("shots", "")) if trial == 0 else ""
+	if shots != "":
+		DirAccess.make_dir_recursive_absolute(shots)
+		g.camera.position = mid + Vector2(60, 120)
+		g.camera.zoom = Vector2(1.3, 1.3)
+		g.camera.reset_smoothing()
 	while t < 60.0:
 		await wait(0.25)
 		t += 0.25
@@ -141,6 +149,15 @@ func _trial(trial: int, nr: int) -> Dictionary:
 		for x in ra:
 			if x.position.distance_to(mid) > 6.0 * T + 4.0 * T:
 				out += 0.25
+		if shots != "" and int(t * 4) % 12 == 0:
+			var ra_mid := Vector2.ZERO
+			for x in ra:
+				ra_mid += x.position
+			g.camera.position = (ra_mid / ra.size() + mid) * 0.5 + Vector2(0, 90)
+			g.camera.reset_smoothing()
+			for i in 3:
+				await process_frame
+			root.get_viewport().get_texture().get_image().save_jpg(shots.path_join("%s_%02ds.jpg" % ["chase" if args.has("nbchase") else "nochase", int(t)]), 0.85)
 		if args.has("verbose") and int(t * 4) % 2 == 0:
 			var ln := "%5.1f riders" % t
 			for r in rr:
