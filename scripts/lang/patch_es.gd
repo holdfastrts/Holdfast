@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.33.43": ["La pintura del menú principal: un segundo cañón de campaña se une al primero, su cargador en la boca de la pieza atacando el próximo disparo mientras un artillero se agacha junto a la contera."],
 	"0.33.42": ["La pintura del menú principal: el cañón de campaña y su artillero pasaron al centro de la batalla, disparando contra el Mecanismo, y los soldados que lo apretujaban ya no están."],
 	"0.33.41": ["La pintura del menú principal: el jinete acorazado retrocedió al humo junto al sargento, dejando la ladera a la Camada, y el cañón de campaña con su artillero y el botafuego retrocedió un poco y vuelve a verse entero."],
 	"0.33.40": ["La pintura del menú principal: la mano suelta junto al misionero que atiende a los heridos ha desaparecido; él cura al herido de la camilla, con el humo de los mosquetes pasando bajo a su lado."],

@@ -815,5 +815,18 @@
   "dx": 600,
   "feather": 7,
   "dy": 10
+ },
+ {
+  "sprite": "art/figures/crown_cannon_reload.png",
+  "at": [
+   1080,
+   915
+  ],
+  "height": 170,
+  "tone": [
+   0.92,
+   0.86,
+   0.78
+  ]
  }
 ]
