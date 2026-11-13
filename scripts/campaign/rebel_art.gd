@@ -26,8 +26,8 @@ const ART := {
 		"reload_s": 6, "reload_se": 6, "reload_e": 8, "reload_ne": 6, "reload_n": 4,
 		"walk_s": 3, "walk_se": 4, "walk_e": 5, "walk_ne": 4, "walk_n": 3,
 		}},
-	"rebel_pikeman": {"cell": Vector2i(128, 56), "anchor": Vector2(64, 54), "frames": {
-		"attack_s": 5, "attack_se": 5, "attack_e": 5, "attack_ne": 5, "attack_n": 5,
+	"rebel_pikeman": {"cell": Vector2i(102, 62), "anchor": Vector2(51, 54), "frames": {
+		"attack_s": 3, "attack_se": 3, "attack_e": 4, "attack_ne": 4, "attack_n": 5,
 		"brace_s": 1, "brace_se": 1, "brace_e": 1, "brace_ne": 1, "brace_n": 1,
 		"death_s": 3, "death_se": 3, "death_e": 3, "death_ne": 3, "death_n": 3,
 		"idle_s": 2, "idle_se": 2, "idle_e": 2, "idle_ne": 2, "idle_n": 2,
@@ -37,8 +37,8 @@ const ART := {
 		"build_s": 3, "build_se": 2, "build_e": 2, "build_ne": 3, "build_n": 2,
 		"death_s": 3, "death_se": 3, "death_e": 3, "death_ne": 3, "death_n": 3,
 		"idle_s": 2, "idle_se": 2, "idle_e": 2, "idle_ne": 2, "idle_n": 2,
-		"mine_s": 6, "mine_se": 4, "mine_e": 6, "mine_ne": 6, "mine_n": 2,
-		"walk_s": 3, "walk_se": 3, "walk_e": 3, "walk_ne": 3, "walk_n": 2,
+		"mine_s": 6, "mine_se": 4, "mine_e": 6, "mine_ne": 6, "mine_n": 6,
+		"walk_s": 3, "walk_se": 3, "walk_e": 3, "walk_ne": 3, "walk_n": 4,
 		}},
 	"rebel_varenne": {"cell": Vector2i(76, 37), "anchor": Vector2(38, 35), "frames": {
 		"aim_s": 1, "aim_se": 1, "aim_e": 1, "aim_ne": 1, "aim_n": 1,
@@ -47,7 +47,7 @@ const ART := {
 		"idle_s": 2, "idle_se": 2, "idle_e": 2, "idle_ne": 2, "idle_n": 2,
 		"melee_s": 3, "melee_se": 3, "melee_e": 3, "melee_ne": 2, "melee_n": 2,
 		"shout_s": 3, "shout_se": 3, "shout_e": 3, "shout_ne": 3, "shout_n": 2,
-		"walk_s": 3, "walk_se": 3, "walk_e": 3, "walk_ne": 3, "walk_n": 3,
+		"walk_s": 3, "walk_se": 3, "walk_e": 3, "walk_ne": 3, "walk_n": 2,
 		}},
 	## REBELS-END
 }

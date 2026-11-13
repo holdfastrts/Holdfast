@@ -8,12 +8,36 @@ Pictures: `tools/shot_rebel_art.gd` -> docs/shots/rebel_art/.
 | role (Rebels.ROLES) | plays as | sheet | strips | cell / anchor |
 | --- | --- | --- | --- | --- |
 | militia | Musketeer | militia_chatgpt.png | assets/units/rebel_militia/ | 86 x 37 / (43, 35) |
-| pikeman | Pikeman | pikeman_chatgpt.png | assets/units/rebel_pikeman/ | 128 x 56 / (64, 54) |
-| torch | Labourer + torch | torchbearer_chatgpt.png | assets/units/rebel_torch/ | 120 x 51 / (60, 49) |
-| varenne | dismounted Officer | varenne_chatgpt.png | assets/units/rebel_varenne/ | 76 x 37 / (38, 35) |
+| pikeman | Pikeman | pikeman_chatgpt.png + the pike redraws | assets/units/rebel_pikeman/ | 102 x 62 / (51, 54) |
+| torch | Labourer + torch | torchbearer_chatgpt.png + torchbearer_n | assets/units/rebel_torch/ | 120 x 51 / (60, 49) |
+| varenne | dismounted Officer | varenne_chatgpt.png + varenne_n, varenne_idles | assets/units/rebel_varenne/ | 76 x 37 / (38, 35) |
 
 The cells are as big as the widest frame needs around the anchor (the pike levelled, the torch thrust, a body lying with
-its burning torch); soles are always 2 px above the cell's bottom, on the anchor row.
+its burning torch); soles are on the anchor row, 2 px above the cell's bottom, except the pikeman's: his pike points down
+past his boots when he faces south (s, se), so his cell has 8 px below the anchor.
+
+## The redraws (rebel-art-2, 0.33.26)
+
+The owner's later sheets (art/campaign/rebels/, flat grey ground like the first four) draw a few rows again for some
+directions; `import_rebels.py` (REDRAWS) cuts them and their frames REPLACE those rows of the main sheet before the
+game's animations are built, so a rerun reproduces everything. Their men stand apart (no splitting needed). Each figure
+is placed by a box on its body's middle x and its soles (the lowest row with 6+ dark pixels; on the south pike sheet the
+lowest row 30+ px wide, since the pike reaches below the boots). Scale: Varenne and the torch-bearer as the main sheets
+(idle hat to soles 31 and 30 game px); the pikeman's levelled men match the main sheet's levelled men (27 game px: the
+crouch; their hat widths agree, ~9.5 px).
+
+| sheet | used for | not used |
+| --- | --- | --- |
+| torchbearer_n_chatgpt.png (from behind) | torch n: idle (frames 1-2 of 5), walk (4), mine = setting fire (3) + thrust (3), death (3) | idle frames 3-5 |
+| varenne_n_chatgpt.png (from behind) | Varenne n: idle 2, walk (the first 2: the 3rd turns side-on), shout 2, aim/fire (pistol), melee (sabre), death 3 | the bottom line (meant as calm idles for s/se/e/ne, drawn as back views again) |
+| varenne_idles_chatgpt.png | Varenne idle s, se, e, ne (2 each, calm, hands down) | |
+| pikeman_thrust_chatgpt.png | pikeman brace e, ne (top row) and attack e, ne (the 2 x 2 groups) | the n men (they face us, not a back view), nw and w (the game mirrors e and ne) |
+| pikeman_thrust_s_chatgpt.png | pikeman brace s, se (top row) and attack s, se (3 each) | |
+
+The thrust frames are ordered by reach (the farthest drawn pixel from the body): least reach first, the full lunge, then
+the second longest as the recovery (the 2 x 2 groups give no order). Looked at by eye (docs/shots/rebel_art/
+redraws_rebel_art_2.png, 4x): the sheet's own faults kept: the levelled e pike (top row) is longer than the pikes of
+the e thrust men, and one ne thrust man holds his pike steeper than the other three (he is the lunge frame).
 
 ## How the sheets were cut
 
@@ -47,16 +71,17 @@ its burning torch); soles are always 2 px above the cell's bottom, on the anchor
 | militia | melee | the aim frame pushed 3, 5, 2 px forward (a bayonet thrust) | STAND-IN: the sheet has no bayonet row |
 | militia | aimup, fireup | the aim and fire rows | STAND-IN: no aiming up (the mission has no flyers) |
 | pikeman | idle, walk, death | rows 1, 2, 6 | |
-| pikeman | brace | row 3, its last man | the other men's pikes run over the next man and are cut off |
-| pikeman | attack | row 4's last man drawn back 7 and 4 px, then lunging 1, 5, 2 px | STAND-IN (moved, not redrawn), for the same reason |
+| pikeman | brace s, se, e, ne | the redraws (levelled pike) | |
+| pikeman | attack s, se, e, ne | the redraws (3 or 4 frames by reach) | |
+| pikeman | brace n | row 3, its last man | STAND-IN: the redraw's n men face us |
+| pikeman | attack n | row 4's last man drawn back 7 and 4 px, then lunging 1, 5, 2 px | STAND-IN (moved, not redrawn) |
 | pikeman | (row 5, without his pike) | unused | |
 | torch | idle, walk, death | rows 1, 2, 6 | |
 | torch | mine (setting fire; played while he burns a building: Rebels.tick sets `torch_burning`, Unit._anim_name) | rows 3 + 4: torch raised, then thrust in | |
 | torch | build | row 5 (the crouch with the flask) | STAND-IN: rebels never build |
-| torch | walk n | row 2's second n frame twice (a 1 px bob) | STAND-IN: the sheet's n walk has no torch in frame 1 and two in frame 3 |
-| torch | mine n | the idle n frames (torch held up) | STAND-IN: the n set-fire frames lose the torch or put it on his head |
+| torch | idle n, walk n, mine n, death n | torchbearer_n_chatgpt.png (from behind) | (build n: the main sheet's crouch) |
 | torch | mine se | row 3's first se frame + row 4 | STAND-IN: the se group's 2nd and 3rd frames throw the torch away (a lone torch) |
-| varenne | idle, walk, death | rows 1, 2, 6 | |
+| varenne | idle, walk, death | rows 1, 2, 6 | idle s/se/e/ne from varenne_idles; every n row from varenne_n |
 | varenne | aim / fire | row 4 (pistol): the first frame / the rest | e and ne have the flash, s, se and n none |
 | varenne | melee | row 5 (sabre) | |
 | varenne | shout | row 3 | strips only (`shout_<dir>`): no animation plays it yet; a mission pose for later |
@@ -66,19 +91,27 @@ rebel_torch strips.
 
 ## Problems in the sheets (a ChatGPT redraw would fix them)
 
-1. The S, SE and NE groups are mostly SIDE VIEWS facing east (pikeman: every row but idle; militia: aim, fire, walk;
+Status after rebel-art-2 (0.33.26): problem 2 FIXED (Varenne's n group is a back view, his idles calm), problem 3
+FIXED, problem 4 FIXED for s, se, e, ne (n is still the moved stand-in), problem 1 FIXED for the pikeman's brace and
+thrust (s, se face us now); the rest below is still open.
+
+1. The S, SE and NE groups are mostly SIDE VIEWS facing east (pikeman: every row but idle and the pike rows (redrawn); militia: aim, fire, walk;
    torch-bearer: walk and set fire). Walking south the men are seen side-on. The Crown's own Musketeer sheet has the
    same layout (the owner's sheets were drawn over it), so it matches the Crown, but a real south view would read better.
-2. Varenne's N group is drawn FACING SOUTH (his face, a raised fist): walking or standing north he shows his face. His
+2. FIXED (varenne_n, varenne_idles). Varenne's N group was drawn FACING SOUTH (his face, a raised fist): walking or standing north he shows his face. His
    idle in se / e / ne / n raises his fist (a shout) instead of standing.
-3. The torch-bearer's N group: the torch comes and goes (walk frame 1 has none, frame 3 has two; set fire frames lose
+3. FIXED (torchbearer_n). The torch-bearer's N group: the torch comes and goes (walk frame 1 has none, frame 3 has two; set fire frames lose
    it or put the flame on his hat); the SE set-fire row throws the torch away.
-4. The pikeman's brace and thrust rows: the men overlap, each pike runs over the next man's body, so only the last man
+4. FIXED except n (pikeman_thrust, pikeman_thrust_s). The pikeman's brace and thrust rows: the men overlap, each pike runs over the next man's body, so only the last man
    of each group keeps a whole pike (the game uses that man, moved).
 5. Death strips: the lying body is centred on the man's spot like the standing frames (the sheets give no common
    ground point), so the body slides half a body sideways as he falls.
 
-### Ready prompts (one request each)
+Still a stand-in: the pikeman's n brace and thrust (a back view with the pike levelled away from us would fix it),
+the torch-bearer's se setting fire (row 3's first frame + the thrust row), the militia's bayonet and aiming up, the
+torch-bearer's build (the crouch), and the side views of problem 1 in the other rows.
+
+### Ready prompts (one request each; A and B are done, C done but for the north view)
 
 **A. Torch-bearer, north (back) view**: references: `art/campaign/rebels/torchbearer_chatgpt.png`,
 `art/crown/musketeer.png`.
@@ -110,6 +143,12 @@ rebel_torch strips.
 > to the right.
 
 ## Checks
+
+rebel-art-2 (0.33.26): `tools/test_campaign_m1.gd` 0 failures (every animation in all five directions for each role),
+`tools/test_campaign.gd` 0 failures, a boot with no SCRIPT ERROR; the pictures below retaken; `redraws_rebel_art_2.png`
+shows every strip the redraws made.
+
+rebel-art (0.33.13):
 
 - `tools/test_campaign_m1.gd`: 0 failures (the rebel pikeman wears `rebel_pikeman`; new checks: every animation the
   stand-in plays is drawn for each role, in all five directions). `tools/test_campaign.gd`: 0 failures. A boot with no
