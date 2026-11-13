@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.32", "items": [
+		"THE BROOD COMPUTER PLAYS ITS ECONOMY BETTER (no unit, building or price changed): it roots its second Rootmaw at once, before the turtle on its natural; when it is only short of warriors against what it has seen (no enemy at the Mother), one egg in three is still a grub, so its economy keeps growing; and once it has read a rider opening and has half the warriors it wants, it lays a grub for every warrior until the riders are seen coming. Against the Clockwork computer it earns about a quarter more by 8:00, and about 7% more over all its games.",
+	]},
 	{"v": "0.33.31", "items": [
 		"THE MAIN MENU PAINTING, FIRST FIXES: the Crown's gunner now fires his cannon properly, standing beside it with a linstock (he was aiming the gun like a musket), and the armoured horseman has a proper face and swings his sword at the reptiles (a stray sword lay in one of them). The Clockwork front and the Brood Mother are being repainted next.",
 	]},
