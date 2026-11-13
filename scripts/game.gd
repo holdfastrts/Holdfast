@@ -9766,6 +9766,11 @@ func _tick_game(delta: float) -> void:
 	anim_crowd = anim_steps > (55 if anim_crowd else 80)
 	anim_steps = 0
 	if over or edit_mode:
+		if map_view and gear_net:
+			# VIEW MAP after the match (owner 2026-11-13: "the clockwork gears disappear"): the tick stops, so the view
+			# rect and the rings it draws followed the camera no more; keep them following it (the rings stand still)
+			update_view_rect()
+			gear_net.held()
 		return
 	if Defs.cw_roster:
 		CwUnits.tick_game(self, delta)

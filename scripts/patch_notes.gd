@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.10", "items": [
+		"FIX: VIEW MAP after a match keeps the Clockwork's gear rings drawn wherever you move the camera (they vanished outside the spot where the match ended).",
+	]},
 	{"v": "0.35.9", "items": [
 		"The factions are just CROWN, CLOCKWORK and BROOD everywhere (no \"The\" in front): lobbies, the game screen, the battle report, the help pages and the match log.",
 	]},
