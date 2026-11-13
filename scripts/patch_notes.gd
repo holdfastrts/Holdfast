@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.13", "items": [
+		"Spectating: the PRODUCTION and ARMY & STRUCTURES icons have tooltips, and a click selects them and moves the camera to one (click again for the next one).",
+	]},
 	{"v": "0.35.12", "items": [
 		"FIX (web build): the little arrows and symbols that showed as empty boxes (before AI STORY, PRODUCTION, ARMY & STRUCTURES, \"All players\", and the replay's pause button) are drawn again: the game now carries its own symbol font, as the browser has none to borrow.",
 	]},
