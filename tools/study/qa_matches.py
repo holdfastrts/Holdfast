@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """QA MATCHES (qa-matches, docs/qa_2026_11_08_matches.md): Hard computer v Hard computer up to 15:00 with
 tools/qa_match.gd, measured. A measuring tool: it changes no rule.
-    python3 tools/study/qa_matches.py run OUT --data DATA [--jobs 2] [--end 900] [--only base|plans|multi|cw|pairs:crbr,crcw] [--root DIR] [--cwlog] [--reverse]
+    python3 tools/study/qa_matches.py run OUT --data DATA [--jobs 2] [--end 900] [--only base|plans|multi|cw] [--root DIR] [--cwlog] [--reverse]
     python3 tools/study/qa_matches.py list            (the queue, in order)
 The queue, in order (a cut run still has balanced data):
   base round 0 and 1: every 2-player map x the six pairings (Crown v Brood, Crown v Clockwork, Brood v Clockwork and the
@@ -85,13 +85,20 @@ def cw():
     return [g for g in base(0) + base(1) if g[1] in CW_MAPS and "cw" in g[0].split("_")[-2]]
 
 
+# (economy-parity, docs/economy_parity.md) six maps of all kinds, every pairing, both rounds (the sides swapped): 12
+# games a pairing, the same tags and seeds as the base rounds: `--only parity`
+PARITY_MAPS = ["greenhold", "dune_sea", "frostfang", "ashford_crossing", "hollowfen", "cinder_steps"]
+
+
+def parity():
+    return [g for r in (0, 1) for g in base(r) if g[1] in PARITY_MAPS]
+
+
 def queue(only=""):
-    if only.startswith("pairs:"):
-        # (winrate-a/b/c, 2026-11-12) only these pairings of the two base rounds, e.g. pairs:crbr,crcw (same tags and seeds)
-        want = only[6:].split(",")
-        return [g for g in base(0) + base(1) if g[0].split("_")[-2] in want]
     if only == "cw":
         return cw()
+    if only == "parity":
+        return parity()
     q = []
     if only in ("", "base"):
         q += base(0) + base(1)
