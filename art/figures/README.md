@@ -27,3 +27,17 @@ crops in art/menu_fix/iso/ (crown_cross_bearer, crown_healing_priest, crown_musk
 crown_sergeant, crown_cavalry_charge, crown_armoured_horseman, crown_cannon_fire, crown_banners_pikes, brood_mother,
 brood_pterodactyl, clockwork_clock_soldier, clockwork_springers, clockwork_pendulums, clockwork_catapult) and an empty
 battlefield plate (scene_battlefield_empty.png), so the painting can be recomposed from clean layers.
+
+## Clockwork figures turned to the left (owner's ChatGPT sheets, 2026-11-13)
+
+Sources: src_clockwork_soldiers_chatgpt.png, src_clockwork_springers_chatgpt.png (split one file a figure, each on magenta).
+
+| file | what |
+|---|---|
+| clockwork_cs_guard_left.png | Clock Soldier, three-quarter left, shield up, sword back |
+| clockwork_cs_lunge_left.png | Clock Soldier lunging left, sword thrust forward (in the menu painting, front right) |
+| clockwork_cs_swing_left.png | Clock Soldier, sword raised over its head (in the menu painting, top right) |
+| clockwork_cs_back_left.png | Clock Soldier from behind, walking left (in the menu painting, in the crowd) |
+| clockwork_springer_leap_left.png | Springer leaping left, spring stretched (in the menu painting, over the bridge) |
+| clockwork_springer_crouch_left.png | Springer crouched to jump, spring squashed |
+| clockwork_springer_strike_left.png | Springer landing, one drill stabbing down-left |

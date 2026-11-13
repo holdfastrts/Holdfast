@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.1", "items": [
+		"THE MAIN MENU PAINTING: the Clockwork army turns toward the Crown: new Clock Soldiers (one lunging at the front, one with its sword raised, one pushing in from behind) where Springers stood, and a Springer leaping over the bridge.",
+	]},
 	{"v": "0.35.0", "items": [
 		"THE GROUND SYSTEM, an experiment (Settings > EXPERIMENTAL > GROUND SYSTEM, off by default; from the next match). The Crown's soil and the Clockwork's brass now lie on the map, tile by tile, in a district round every hall. A Farm or a Cog Press drinks from a circle of ground round it: its yield is what that circle still holds, so a circle over spent ground pays less, and two of your own circles that overlap share the ground they cover (no free income from stacking). Nothing is ever renewed: spent ground stays spent, tearing a Farm down does not bring its soil back, and expanding is still the way to fresh ground.",
 		"While you place any building the ground shows faintly (fresh green to spent red), so you can keep a Barracks or a wall off your best soil; a Farm or Cog Press being placed shows its own circle stronger, with a \"62% of a fresh spot\" number. A slider sets how strongly the faint layer is drawn, and the minimap shows it too while placing. With the system on, a spent Farm or Press no longer counts against its hall's limit, and the limit is the district's, so a fresh hall is never left without its two Farms. The computers place their economy buildings on the best ground and pull down spent ones. Today's game is unchanged with the setting off.",

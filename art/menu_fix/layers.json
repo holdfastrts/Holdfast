@@ -1674,5 +1674,113 @@
   ],
   "feather": 3,
   "_why": "owner 2026-11-13: a Clock Soldier standing on a Springer's spring: the spring out, Clock Soldier legs in (tools/menu_hybrid_legs.py)"
+ },
+ {
+  "src": "@out",
+  "clone": [
+   [
+    [
+     [
+      1540,
+      840
+     ],
+     [
+      1672,
+      840
+     ],
+     [
+      1672,
+      941
+     ],
+     [
+      1540,
+      941
+     ]
+    ],
+    -330,
+    0
+   ]
+  ],
+  "poly": [
+   [
+    1548,
+    850
+   ],
+   [
+    1672,
+    846
+   ],
+   [
+    1672,
+    941
+   ],
+   [
+    1544,
+    941
+   ]
+  ],
+  "feather": 8,
+  "_why": "owner 2026-11-13: the right-edge Springer's lower half under trodden mud, so only the new Clock Soldier stands there"
+ },
+ {
+  "sprite": "art/figures/clockwork_springer_leap_left.png",
+  "at": [
+   1180,
+   578
+  ],
+  "height": 150,
+  "tone": [
+   0.86,
+   0.8,
+   0.74
+  ],
+  "shadow": false,
+  "_why": "owner 2026-11-13: the Clockwork all faced the viewer and had too many Springers: ChatGPT figures (art/figures/) turned to the Crown: a Springer leaping over the bridge",
+  "fringe": 3
+ },
+ {
+  "sprite": "art/figures/clockwork_cs_back_left.png",
+  "at": [
+   1345,
+   690
+  ],
+  "height": 105,
+  "tone": [
+   0.8,
+   0.74,
+   0.68
+  ],
+  "_why": "owner 2026-11-13: the Clockwork all faced the viewer and had too many Springers: ChatGPT figures (art/figures/) turned to the Crown: a Clock Soldier from behind, pushing in",
+  "fringe": 3
+ },
+ {
+  "sprite": "art/figures/clockwork_cs_swing_left.png",
+  "at": [
+   1605,
+   738
+  ],
+  "height": 200,
+  "tone": [
+   0.86,
+   0.8,
+   0.74
+  ],
+  "_why": "owner 2026-11-13: the Clockwork all faced the viewer and had too many Springers: ChatGPT figures (art/figures/) turned to the Crown: a Clock Soldier over the top-right Springer",
+  "fringe": 3
+ },
+ {
+  "sprite": "art/figures/clockwork_cs_lunge_left.png",
+  "at": [
+   1585,
+   968
+  ],
+  "height": 285,
+  "tone": [
+   0.92,
+   0.86,
+   0.8
+  ],
+  "_why": "owner 2026-11-13: the Clockwork all faced the viewer and had too many Springers: ChatGPT figures (art/figures/) turned to the Crown: a Clock Soldier lunging, over the right-edge Springer",
+  "fringe": 3
  }
 ]

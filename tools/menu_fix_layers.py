@@ -18,7 +18,7 @@ def sprite(L, out):
     tools/hub_key.py, scaled to "height", its bottom centre at "at", optional "flip" and "tone", with a soft shadow."""
     sys.path.insert(0, "tools")
     from hub_key import key
-    fig, _box = key(Image.open(L["sprite"]))
+    fig, _box = key(Image.open(L["sprite"]), fringe=L.get("fringe", 0))   # fringe: unmix magenta from soft edges
     if L.get("flip"):
         fig = fig.transpose(Image.FLIP_LEFT_RIGHT)
     k = L["height"] / fig.height
