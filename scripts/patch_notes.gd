@@ -4,6 +4,12 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.0", "items": [
+		"RANKED PLAY, A WORKING PROTOTYPE (docs/online_ranked.md): ranked 1v1 matches run on OUR SERVER, not on either player's device, so neither side can see through the fog or fake a result. Sign in with Steam, pick a faction and FIND A MATCH; a rating close to yours is found, the server starts the match and both players join it. Glicko-2 ratings, 5 placement matches, seasons, a LEADERBOARD (all and by faction) and the rating change on the battle report. The RANKED button shows on the ONLINE page only where there is a Steam sign-in (Android and the web keep the friendly online with room codes). It is not live yet: the owner's steps to put it online are in the doc.",
+		"FAIR FOG ONLINE: every 3 seconds the host used to send a guest the whole enemy army, even the units it could not see (a modified game could have shown them). Now a player is only ever sent the enemies its side sees, the enemy buildings it sees, and the shots and explosions in its sight, in friendly online too.",
+		"Cheats leave marks: on a ranked server, orders for units that are not yours are refused, someone else's units slipped into your orders are left out, and more than 40 orders in a second are dropped; each is counted against the account, and the admins can ban it (our own ban list, and Steam's game ban).",
+		"A Brood player can surrender: giving up used to destroy only buildings, and the Brood has none, so the match went on. Now the Mother falls too.",
+	]},
 	{"v": "0.33.30", "items": [
 		"THE GAME HAS ITS NAME: TRIUMVIWAR: IS ALL LOST? Three powers at war, and the King's question. The main menu shows the whole title; the window, the app, match logs and replays say Triumviwar. Your settings, saves and replays carry over, and old match logs still read.",
 	]},

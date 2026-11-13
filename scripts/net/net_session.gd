@@ -45,6 +45,8 @@ var flood_max := 0
 var audit := {}                   # host: relay id -> {"cmds", "refused", "impossible", "foreign", "flood", "why": {reason: n}}
 var _flood := {}                  # host: relay id -> [second it counts, orders in it]
 const IMPOSSIBLE := ["no team", "not yours", "bad args", "bad property", "no callables"]
+var fog_audit := false            # host (tests, the match host's fogaudit): check every picture against the side's sight
+var fog_stats := {"pictures": 0, "enemy_rows": 0, "leaks": 0, "keyframes": 0}
 var views: Array = []             # host: one NetView per side the guests play (each gets its own fog-filtered picture)
 var _views_n := -1
 ## Host: seconds between snapshots, from SNAP_FAST (15 a second, every 2 game ticks) to SNAP_EVERY (10, every 3), by what
@@ -282,7 +284,10 @@ func _process(delta: float) -> void:
 		bytes = link.send(snap, 0)
 	else:
 		for v in vs:
+			var before: Dictionary = v.was_seen.duplicate() if fog_audit else {}
 			var snap2 := NetSnapshot.build(self, v)
+			if fog_audit:
+				_fog_audit(v, before, snap2)
 			for pr in v.peers:
 				bytes += link.send(snap2, int(pr))
 	fx = []
@@ -333,6 +338,29 @@ func side_views() -> Array:
 		v.peers.append(int(pr))
 	views = out
 	return views
+
+
+## Host, fog_audit: every enemy row in this side's picture must be one it sees now (or the last row of one leaving its
+## sight); every enemy building one it sees some of; a keyframe's ids only what it holds (tools/test_ranked.sh).
+func _fog_audit(v: NetView, before: Dictionary, m: Dictionary) -> void:
+	var ev := NetSnapshot._eye_vis(game, v.sides)
+	fog_stats["pictures"] += 1
+	if m.has("ids"):
+		fog_stats["keyframes"] += 1
+	for row in m["u"]:
+		if NetSnapshot._ours(game, int(row[2]), v.sides):
+			continue
+		fog_stats["enemy_rows"] += 1
+		var u = by_id.get(int(row[0]))
+		if not before.has(int(row[0])) and not (u != null and is_instance_valid(u) and NetSnapshot._seen_by(game, u, v.sides, ev)):
+			fog_stats["leaks"] += 1
+	for row in m["b"]:
+		if NetSnapshot._ours(game, int(row[2]), v.sides):
+			continue
+		fog_stats["enemy_rows"] += 1
+		var b = by_id.get(int(row[0]))
+		if b == null or not is_instance_valid(b) or b.ghost or not NetSnapshot._bld_seen(game, b, ev):
+			fog_stats["leaks"] += 1
 
 
 ## Host: the sides the guests (still here) play: a snapshot leaves out the enemy units none of them can see.

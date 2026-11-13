@@ -6,7 +6,7 @@ extends SceneTree
 ##   godot --headless --path <project> --script res://tools/server/match_server.gd -- \
 ##       relay:ws://127.0.0.1:8799 room:R7K2Q9XW match:m_123 secret:<shared secret> \
 ##       ladder:http://127.0.0.1:8790 map:hollowfen seed:12345 f0:crown f1:brood sid0:7656... sid1:7656... \
-##       [out:<dir for result + replay>] [maxsecs:3600] [noshow:90]
+##       [out:<dir for result + replay>] [maxsecs:3600] [noshow:90] [fogaudit]
 ## The ladder service (tools/ladder/ladder.mjs) starts it for every match it makes; it can be run by hand for tests.
 ## It joins the relay as the room's HOST: an outbound connection, so a match host needs no open port, no certificate and
 ## works behind any NAT; the relay already carries wss:// to browsers and phones (why not our own WebSocket: see the doc).
@@ -23,9 +23,9 @@ var _end_t := 0.0
 var _posted := false
 var _post_done := false
 var _http: HTTPRequest
-var _cpu_ms := 0.0                  # this process's frame time spent (Performance monitors), over the match
+var _cpu_ms := 0.0                  # this process's processor time (ms) when it was first measured
 var _cpu_peak := 0.0                # the busiest second (ms of work in one second of real time)
-var _cpu_sec := 0.0
+var _cpu_sec := 0.0                 # ...and at the last whole second
 var _sec_t := 0.0
 var _real := 0.0
 var _forfeit := -1
@@ -71,6 +71,8 @@ func _process(delta: float) -> bool:
 			_playing()
 		"ending":
 			_ending(delta)
+		"posting":
+			pass                 # (waiting for the ladder's answer: _on_posted)
 		"done":
 			return true
 	return false
@@ -88,6 +90,7 @@ func _open_room() -> void:
 	lobby.ranked = {"secret": args["secret"], "match": args["match"], "seats": {String(args["sid0"]): "0", String(args["sid1"]): "1"}}
 	lobby.same_delay = false        # (no player here: no host's orders to hold back)
 	lobby.host(String(args["relay"]), String(args["room"]))
+	lobby.link.opened.connect(func(_id: int) -> void: _post("/internal/ready", {"match": String(args["match"])}, null))
 	lobby.map = String(args.get("map", "random_1v1"))
 	lobby.slots = [
 		{"who": "remote", "faction": String(args.get("f0", "random")), "colour": 0, "side": 0, "peer": -1},
@@ -120,6 +123,7 @@ func _start() -> void:
 	var s: NetSession = g.net
 	s.strict = true                   # (the enemy's bank and battle report: not before the end)
 	s.flood_max = NetSession.FLOOD_MAX
+	s.fog_audit = args.has("fogaudit")   # (tests: every picture checked against the side's sight)
 	if g.hud:
 		g.hud.start_countdown(3.0)    # (the 3-2-1 here too, held until both guests have loaded: NetSession "go")
 		g.hud.count_hold = true
@@ -127,6 +131,8 @@ func _start() -> void:
 	g.ended.connect(_on_ended)
 	phase = "playing"
 	t = 0.0
+	_cpu_sec = 0.0                    # (the processor time is measured from here: the match, not the wait for players)
+	_sec_t = 1.0
 	print("[server] match started: %s, %s v %s, seed %d" % [g.map_id, g.faction_of(0), g.faction_of(1), int(cfg["seed"])])
 
 
@@ -180,7 +186,7 @@ func _finish(r: Dictionary) -> void:
 	if _posted:
 		return
 	_posted = true
-	phase = "done" if not args.has("ladder") else "ending"
+	phase = "done" if not args.has("ladder") else "posting"
 	r["match"] = String(args["match"])
 	r["version"] = String(ProjectSettings.get_setting("application/config/version", "dev"))
 	r["players"] = [{"sid": String(args["sid0"]), "seat": 0, "faction": String(args.get("f0", ""))},
@@ -207,8 +213,10 @@ func _finish(r: Dictionary) -> void:
 			if team >= 0:
 				aud[str(team)] = g.net.audit[pr]
 	r["audit"] = aud
-	r["cpu"] = {"ms_per_s": snappedf(_cpu_ms / maxf(_real, 0.001), 0.1), "peak_ms_per_s": snappedf(_cpu_peak, 0.1),
-		"real_s": snappedf(_real, 0.1)}
+	if g != null and g.net != null and g.net.fog_audit:
+		r["fog"] = g.net.fog_stats
+	r["cpu"] = {"ms_per_s": snappedf((_cpu_sec - _cpu_ms) / maxf(_real, 0.001), 0.1), "peak_ms_per_s": snappedf(_cpu_peak, 0.1),
+		"real_s": snappedf(_real, 0.1), "rss_mb": _rss_mb()}
 	var body := JSON.stringify(r)
 	var f := FileAccess.open(out_dir.path_join("%s.json" % args["match"]), FileAccess.WRITE)
 	if f:
@@ -216,14 +224,28 @@ func _finish(r: Dictionary) -> void:
 		f.close()
 	print("[server] RESULT ", body)
 	if args.has("ladder"):
-		var url := String(args["ladder"]).rstrip("/") + "/internal/result"
-		var sig := LadderTicket.signature(body, String(args["secret"]))
-		var err := _http.request(url, ["Content-Type: application/json", "X-Ladder-Sig: " + sig], HTTPClient.METHOD_POST, body)
-		if err != OK:
-			print("[server] could not reach the ladder (%d): the result stays in %s" % [err, out_dir])
+		if not _post("/internal/result", r, _http):
+			print("[server] could not reach the ladder: the result stays in %s" % out_dir)
 			_done()
 	else:
 		_done()
+
+
+## A signed message to the ladder (X-Ladder-Sig: HMAC-SHA256 of the body with the shared secret). `h`: the request node
+## whose answer matters (the result's); null: a note sent on its own (the room is open).
+func _post(path: String, d: Dictionary, h: HTTPRequest) -> bool:
+	if not args.has("ladder"):
+		return true
+	if h == null:
+		h = HTTPRequest.new()
+		h.timeout = 10.0
+		root.add_child(h)
+		h.request_completed.connect(func(_a, code: int, _b, _c) -> void:
+			print("[server] ladder noted %s (%d)" % [path, code])
+			h.queue_free())
+	var body := JSON.stringify(d)
+	var sig := LadderTicket.signature(body, String(args["secret"]))
+	return h.request(String(args["ladder"]).rstrip("/") + path, ["Content-Type: application/json", "X-Ladder-Sig: " + sig], HTTPClient.METHOD_POST, body) == OK
 
 
 func _on_posted(_res: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
@@ -243,14 +265,41 @@ func _done() -> void:
 
 # ------------------------------------------------------------------ measuring
 
-## The work this process did (Godot's frame-time monitors: game ticks and frames), per second of real time.
+## The processor time this process used (/proc/self/stat on Linux: user + system), per second of real time.
 func _cpu_tick(delta: float) -> void:
-	var ms := (Performance.get_monitor(Performance.TIME_PROCESS) + Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)) * 1000.0
-	_cpu_ms += ms
-	_cpu_sec += ms
 	_sec_t += delta
-	if _sec_t >= 1.0:
-		_cpu_peak = maxf(_cpu_peak, _cpu_sec / _sec_t)
-		_cpu_sec = 0.0
-		_sec_t = 0.0
+	if _sec_t < 1.0:
+		return
+	var c := _proc_cpu_ms()
+	if c < 0.0:
+		return
+	if _cpu_sec > 0.0:
+		_cpu_peak = maxf(_cpu_peak, (c - _cpu_sec) / _sec_t)
+	else:
+		_cpu_ms = c                 # (the start: what loading took is not the match's)
+		_real = 0.0
+	_cpu_sec = c
+	_sec_t = 0.0
+
+
+static func _rss_mb() -> int:
+	var f := FileAccess.open("/proc/self/status", FileAccess.READ)
+	if f == null:
+		return int(OS.get_static_memory_usage() / 1048576)
+	while not f.eof_reached():
+		var l := f.get_line()
+		if l.begins_with("VmRSS:"):
+			return int(l.split(":")[1].strip_edges().split(" ")[0]) / 1024
+	return 0
+
+
+static func _proc_cpu_ms() -> float:
+	if not FileAccess.file_exists("/proc/self/stat"):
+		return -1.0
+	var f := FileAccess.open("/proc/self/stat", FileAccess.READ)      # (its size says 0: read it as a line)
+	if f == null:
+		return -1.0
+	var st := f.get_line()
+	var parts := st.substr(st.rfind(")") + 2).split(" ")
+	return (float(parts[11]) + float(parts[12])) * 10.0
 

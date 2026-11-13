@@ -33,6 +33,7 @@ const MAX_MATCHES = Number(opt("max-matches", process.env.LADDER_MAX_MATCHES || 
 const OUT = path.resolve(opt("out", process.env.LADDER_OUT || path.join(HERE, "data")));
 const SECRET = process.env.LADDER_SECRET || "";
 const APPEAL = process.env.LADDER_APPEAL || "https://github.com/holdfastrts/holdfast/issues (title: Ranked ban appeal)";
+const EXTRA = (process.env.LADDER_SERVER_ARGS || "").split(" ").filter(Boolean);   // (tests: fogaudit, maxsecs:...)
 const MAPS = (process.env.LADDER_MAPS || "random_1v1").split(",").map((s) => s.trim()).filter(Boolean);
 const FACTIONS = ["crown", "brood", "clockwork", "random"];
 const VERSION_FILE = path.join(PROJECT, "project.godot");
@@ -82,7 +83,7 @@ function startMatch(a, b) {
   store.newMatch(m);
   const args = ["--headless", "--path", PROJECT, "--script", "res://tools/server/match_server.gd", "--",
     `relay:${RELAY}`, `room:${m.room}`, `match:${id}`, `secret:${SECRET}`, `ladder:http://127.0.0.1:${PORT}`,
-    `map:${m.map}`, `seed:${m.seed}`, `f0:${m.f0}`, `f1:${m.f1}`, `sid0:${m.sid0}`, `sid1:${m.sid1}`, `out:${OUT}`];
+    `map:${m.map}`, `seed:${m.seed}`, `f0:${m.f0}`, `f1:${m.f1}`, `sid0:${m.sid0}`, `sid1:${m.sid1}`, `out:${OUT}`, ...EXTRA];
   const p = spawn(GODOT, args, { stdio: ["ignore", "pipe", "pipe"] });
   procs.set(id, p);
   const tag = `[match ${id}]`;
@@ -96,7 +97,7 @@ function startMatch(a, b) {
   });
   for (const [seat, me, them] of [[0, a, b], [1, b, a]]) {
     const p2 = store.player(them.sid);
-    found.set(me.sid, { match: id, seat, ticket: makeTicket(id, me.sid, seat), relay: RELAY_PUBLIC, room: m.room,
+    found.set(me.sid, { ready: false, match: id, seat, ticket: makeTicket(id, me.sid, seat), relay: RELAY_PUBLIC, room: m.room,
       map: m.map, opponent: { name: p2?.name || "?", faction: them.faction, rating: Math.round(them.rating) } });
   }
   log(`match ${id}: ${a.sid} (${a.faction}) v ${b.sid} (${b.faction}), room ${m.room}`);
@@ -129,6 +130,7 @@ async function route(req, res) {
   const url = new URL(req.url, "http://x");
   const p = url.pathname;
   if (req.method === "OPTIONS") return send(res, 204, {});
+  if (p === "/" ) return send(res, 200, { service: "Triumviwar ladder", ok: true });
   if (p === "/health") return send(res, 200, { ok: true, dev: DEV, steam: steamReady(steam), matches: procs.size, queue: queue.size });
   if (p === "/login" && req.method === "POST") {
     let d; try { d = JSON.parse(await readBody(req)); } catch { return send(res, 400, { error: "bad request" }); }
@@ -152,6 +154,14 @@ async function route(req, res) {
     const sid = me(req);
     return send(res, 200, { season: store.season().name, faction: f, rows: rows.map(({ sid: _s, ...r }) => r),
       you: sid ? { ...profile(sid), rank_here: rows.find((r) => r.sid === sid)?.rank || null } : null });
+  }
+  if (p === "/internal/ready" && req.method === "POST") {
+    const body = await readBody(req);
+    if (!sameSig(hmac(body), String(req.headers["x-ladder-sig"] || ""))) return send(res, 403, { error: "bad signature" });
+    const id = String(JSON.parse(body).match || "");
+    for (const f of found.values()) if (f.match === id) f.ready = true;
+    log(`${id}: the match host's room is open`);
+    return send(res, 200, { ok: true });
   }
   if (p === "/internal/result" && req.method === "POST") {
     const body = await readBody(req);
@@ -181,7 +191,7 @@ async function route(req, res) {
   if (p === "/queue" && req.method === "DELETE") { queue.delete(sid); return send(res, 200, { state: "idle" }); }
   if (p === "/queue") {
     const f = found.get(sid);
-    if (f && !f.over) return send(res, 200, { state: "found", ...f });
+    if (f && !f.over) return send(res, 200, f.ready ? { state: "found", ...f } : { state: "starting", opponent: f.opponent });
     const q = queue.get(sid);
     return send(res, 200, q ? { state: "searching", secs: now() - q.joined, players: queue.size } : { state: "idle" });
   }

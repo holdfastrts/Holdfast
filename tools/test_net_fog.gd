@@ -33,6 +33,7 @@ var fx_seen := 0
 var fx_leaks := 0
 var ever := [{}, {}]                 # per side: every id ever sent to it
 var bad_examples: Array = []
+var old_leaks := 0
 
 
 func check(name: String, ok: bool, detail := "") -> void:
@@ -69,10 +70,10 @@ func _process(delta: float) -> bool:
 		if frames % 2 == 0:
 			_snap()
 		if g.clock >= secs or g.over:
-			_report()
 			stage = 9
+			_report()
 		return false
-	return stage == 9
+	return false
 
 
 func _setup() -> void:
@@ -105,6 +106,12 @@ func _setup() -> void:
 
 func _snap() -> void:
 	hs.snap_n += 1
+	# effects as the game notes them online (NetSession.note_effect): a puff at some units of each side, seen or not
+	var k := 0
+	for u in g.units:
+		if not u.dead and k < 12 and (u.net_id + hs.snap_n) % 7 == 0:
+			hs.fx.append(["e", "dust", u.position, 1.0])
+			k += 1
 	var vs := hs.side_views()
 	if vs.size() != 2:
 		check("one picture per side", false, "%d views" % vs.size())
@@ -150,6 +157,9 @@ func _check_picture(v: NetView, side: int, before: Dictionary, m: Dictionary) ->
 				bad_examples.append("side %d got building %d (%s), unseen" % [side, id, row[1]])
 	if m.has("ids"):
 		keyframes += 1
+		for u in g.units:
+			if not u.dead and not NetSnapshot._ours(g, u.team, eyes) and not NetSnapshot._seen_by(g, u, eyes, ev):
+				old_leaks += 1        # (what a 0.33 keyframe sent: every unit whole, unseen enemies too)
 		for id in m["ids"]:
 			if not sent.has(int(id)):
 				id_leaks += 1
@@ -170,6 +180,7 @@ func _check_picture(v: NetView, side: int, before: Dictionary, m: Dictionary) ->
 
 func _report() -> void:
 	print("FOG game %.0f s on %s: %d unit rows (%d of enemies), %d enemy building rows, %d keyframes per side, %d effects" % [g.clock, g.map_id, unit_rows, enemy_unit_rows, enemy_bld_rows, keyframes / 2, fx_seen])
+	print("FOG the 0.33 keyframes would have sent %d rows of enemies the side could not see (%d per keyframe)" % [old_leaks, old_leaks / maxi(keyframes, 1)])
 	for e in bad_examples:
 		print("  ", e)
 	check("the sides met (enemy units were sent at all)", enemy_unit_rows > 0, "%d rows" % enemy_unit_rows)
@@ -177,7 +188,7 @@ func _report() -> void:
 	check("a keyframe's id list names only what the side was sent", id_leaks == 0, "%d ids" % id_leaks)
 	check("strict: the enemy's bank is never sent", bank_leaks == 0, "%d" % bank_leaks)
 	check("strict: no battle report before the end", stats_leaks == 0, "%d" % stats_leaks)
-	check("effects only where the side sees", fx_leaks == 0, "%d of %d" % [fx_leaks, fx_seen])
+	check("effects only where the side sees", fx_seen > 0 and fx_leaks == 0, "%d of %d" % [fx_leaks, fx_seen])
 	check("the guest holds exactly what the host listed after each keyframe", gs.count_diff_max == 0, "worst %d, %d snapshots off" % [gs.count_diff_max, gs.count_diff_snaps])
 	print("FOG %s" % ("ALL OK" if fails == 0 else "SOME FAILED (%d)" % fails))
 	quit(0 if fails == 0 else 1)

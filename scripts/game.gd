@@ -10733,6 +10733,12 @@ func player_surrender(team := -1) -> void:
 	for b in buildings.duplicate():
 		if b.team == team:
 			b.take_damage(99999, null)
+	if BroodNew.on(self, team):
+		var q = BroodNew.queen(self, team)      # (the Brood has no buildings to fall: it lives while its Mother does)
+		if q != null and is_instance_valid(q) and not q.dead:
+			q.take_damage(99999, null)
+			if not q.dead:
+				q.die()
 
 
 func _note_surrender(team: int) -> void:
