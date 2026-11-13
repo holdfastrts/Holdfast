@@ -37,6 +37,9 @@ const GREEDY_CLOCK := {"timing": 3.0, "economy": 1.0, "balloon": 1.0}
 ## (study switch, tools/measure_crown_opening.gd: `-- greedybrood:economy` (or siege, or another plan) makes the Crown
 ## answer a greedy Brood with that plan instead of the riders, to measure them; docs/crown_optimal_opening.md)
 static var GREEDY_BROOD_TRY := _arg("greedybrood:")
+## (econ-coach-crown, study switch: `-- greedyclock:economy` answers a greedy Clockwork with that plan, to measure the picks'
+## economies against each other; docs/econ-coach-crown.md)
+static var GREEDY_CLOCK_TRY := _arg("greedyclock:")
 
 
 static func _arg(pre: String) -> String:
@@ -156,6 +159,8 @@ func choose(read: String) -> Array:
 				"brood":
 					return ["brute", "a siege to break its defences"]
 		"NORMAL":
+			if fac == "crown" and f == "brood" and _lean_only():
+				return ["economy", "an economic race"]       # (econ-coach-crown: the lean was no read; see _lean_only)
 			if st != "opening" or not picks.is_empty():
 				return []        # (a normal read later keeps what it plays: the dice are thrown once, no flip-flop)
 			var w: Dictionary = (NORMAL.get(fac, {}) as Dictionary).get(f, {"balanced": 1.0})
@@ -201,13 +206,15 @@ func _punish(f: String, t: float) -> Array:
 				# army" is the read of 35 of 38 Brood games, its standard opening as much as its greed; the riders answered every
 				# one and the Crown won or led none (QA study). The Economy race was tried on half of them (RIDERS_V_BROOD 0.5)
 				# and did no better: the owner's rule, the Horse Breeder, again; the knob is kept)
-				if t < BREEDER_BY and _rng.randf() < riders_v_brood:
+				if t < BREEDER_BY and _rng.randf() < riders_v_brood and _true_greed_brood():
 					return ["rush", "punish the greed: the Horse Breeder at once, the riders before its army"]
 				if t < BREEDER_BY:
 					return ["economy", "out-expand it: its early ground is its usual opening"]
 				return ["economy", "too late for the riders: out-expand it"]
 			if f == "clockwork" and early and _rng.randf() < RIDERS_V_CLOCK:
 				return ["rush", "punish the greed before its army is up"]
+			if f == "clockwork" and GREEDY_CLOCK_TRY != "":
+				return [GREEDY_CLOCK_TRY, _normal_why(GREEDY_CLOCK_TRY)]     # (study switch, econ-coach-crown)
 			if f == "clockwork":
 				# (coached: the one-hall Timing attack lost the race to a Clockwork economy, 9,500 to 16,600 earned by 12:00
 				# on Highmoor. crown-ai-v2: Balanced's waves, picked here in 24 of 38 QA games, won or led 2 of 33; in the plan
@@ -239,6 +246,45 @@ func _punish(f: String, t: float) -> Array:
 				return ["spitter" if f == "crown" else "timing", "a timing attack before its economy pays off"]
 			return ["economy", "too late to punish: out-expand it"]
 	return []
+
+
+## THE RIDERS ONLY FOR A TRULY GREEDY BROOD (econ-coach-crown, docs/econ-coach-crown.md): the Brood's standard opening, the
+## Mother and one Mound Turtle on new ground at 0:00 (every Brood plan but the rushes), read "a second base and little army"
+## in 35 of 38 games, and the Horseman rush that answered it failed 33 of 38 times (docs/winrate_2026_11_12.md), the riders
+## costing the Crown its economy (16 labourers held, the Breeder and Horsemen before the second hall). The owner's rule stays
+## (v a greedy Brood the Horse Breeder to punish) for a TRUE greed: more than its standard opening, two grounds beyond the
+## Mother's (TRUE_GREED_HALLS halls in the scout's count) or TRUE_GREED_MAWS Rootmaws seen. Else it out-expands it, as the
+## rule's own fallback did.
+## MEASURED AND NOT KEPT AS THE DEFAULT (econ-coach-crown, 11 games against the 11 of the win-rate study): the Economy race
+## earned +20% by 8:00-10:00 (0.60 -> 0.73 of the bench) but stood with 0-60 of army till 6:00, the Brood's economy was left
+## alone and its army at 8:00 doubled (1,000-2,600 against 800-1,500), and the Crown lost 8 where it had lost 6. The riders'
+## worth against the Brood is in the BROOD's economy, not the Crown's: the owner's rule plays every greedy read again; this
+## stays a study switch, `-- truegreed:on`.
+const TRUE_GREED_HALLS := 3
+const TRUE_GREED_MAWS := 5
+var true_greed_off := not OS.get_cmdline_user_args().has("truegreed:on")
+
+
+func _true_greed_brood() -> bool:
+	if true_greed_off or ai.scout == null:
+		return true
+	var r: Dictionary = ai.scout._evaluate()
+	var halls := int(r.get("halls", 0))
+	var econ := int(r.get("econ", 0))
+	var truly := halls >= TRUE_GREED_HALLS or econ >= TRUE_GREED_MAWS
+	say("the Brood's greed checked: %d grounds, %d Rootmaws seen: %s" % [halls, econ, "more than its usual opening" if truly else "its usual opening"])
+	return truly
+
+
+## LEANED, NOT BOUND (econ-coach-crown): the lean to the Horseman rush before the scout (the matchup, 20-35% of the Crown's
+## games against the Brood) no longer uses up the opening's switch: a read of the Brood that is not a true greed (NORMAL,
+## or its usual far turtle) turns it to the Economy race once, while the Breeder is the only rider building yet (BREEDER_BY).
+## A study switch with truegreed:on (measured with it, not the default): `-- leanfree:on`.
+var lean_free_off := not OS.get_cmdline_user_args().has("leanfree:on")
+
+
+func _lean_only() -> bool:
+	return not lean_free_off and picks.size() == 1 and String(picks[0][2]) == "LEAN" and current == "rush" and game.clock < BREEDER_BY
 
 
 ## (crown-v-crown-coach) THE TIMING KEEPS ITS TIMING in the Crown mirror: a greedy read after TOO_LATE turned the Timing
@@ -326,7 +372,8 @@ func _lean_chance(f: String, dist: float) -> float:
 
 
 func lean_said(plan: String) -> void:
-	switched["opening"] = true
+	if lean_free_off or fac != "crown" or foe() != "brood":
+		switched["opening"] = true       # (econ-coach-crown: the Crown's lean against the Brood leaves the switch to the read)
 	current = plan
 	picks.append([0.0, "opening", "LEAN", plan, "the matchup"])
 	say("leans to %s before it scouts (%s)" % [plan_name(plan), "Horsemen are good against the Brood's grubs"])

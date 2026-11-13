@@ -94,7 +94,19 @@ def parity():
     return [g for r in (0, 1) for g in base(r) if g[1] in PARITY_MAPS]
 
 
+# (econ-coach-crown, docs/econ-coach-crown.md) the parity games with a Crown side: Crown v Brood, Crown v Clockwork and the
+# Crown mirror, 12 a pairing: `--only crown` (`--only crcw` / `crbr` / `crcr`: one pairing)
+def crown(pair=""):
+    if pair:
+        return [g for g in parity() if g[0].split("_")[-2] == pair]
+    return [g for g in parity() if "cr" in (g[0].split("_")[-2][:2], g[0].split("_")[-2][2:])]
+
+
 def queue(only=""):
+    if only == "crown":
+        return crown()
+    if only in ("crcw", "crbr", "crcr"):
+        return crown(only)
     if only == "cw":
         return cw()
     if only == "parity":
@@ -179,6 +191,8 @@ if __name__ == "__main__":
     out = os.path.abspath(sys.argv[2])
     RUN_ROOT = os.path.abspath(arg("--root", ROOT))     # (another checkout to run: a "before" worktree)
     KEEP_CW = "--cwlog" in sys.argv
+    if "--extra" in sys.argv:
+        EXTRA = arg("--extra", "").split(",")      # (econ-coach-crown) study switches for every game, e.g. greedyclock:economy
     data = os.path.abspath(arg("--data", os.path.join(ROOT, "docs/qa_2026_11_08_matches/data")))
     jobs = int(arg("--jobs", "2"))
     end = int(arg("--end", "900"))

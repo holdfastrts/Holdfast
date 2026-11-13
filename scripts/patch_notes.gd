@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.2", "items": [
+		"THE CROWN COMPUTER WORKS ITS FARMS (docs/econ-coach-crown.md): its Town Halls no longer stand idle while its Farms have posts nobody works. The next labourers' gold is kept from the other spending while Farm posts are free, a labourer comes before the next building of its plan, and its army-size rule no longer holds the labourers back then; it still puts the soldiers first while a rush is defended, enemies are at its buildings or labourers, or its army is far behind the enemy's. Alone its Balanced plan now earns 0.95 of the economy's design by 8:00 (was 0.79) and its Siege push 0.79 (was 0.59); in computer games it earns 5-14% more against the Clockwork and in the mirror.",
+		"The Crown computer pulls down a Farm on spent soil when it blocks the two Farms of a hall on fresh soil (a spent Farm still counts against the limit of two Farms a Town Hall), as a player would.",
+	]},
 	{"v": "0.34.1", "items": [
 		"THE CLOCKWORK COMPUTER WORKS ITS ECONOMY (Hard and Brutal): it trains a Winder for every post of its Cog Presses and Mainsprings, plus the Winders that walk with its army (it stopped at 32 before, with presses standing half empty from the eighth minute); every Clocktower gets its presses whatever plan it plays (a rush or a timing plan could leave a new Clocktower without one for minutes); its first three Clocktowers' presses go on the big ring (not against the Brood); and its Regulators go up ahead of every Clocktower and Works. It earns about a third more by 15:00. No rule or number of the game changed.",
 	]},

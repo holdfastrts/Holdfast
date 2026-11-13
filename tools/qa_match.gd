@@ -168,7 +168,83 @@ func _side(tm: int) -> Dictionary:
 		"res2": int(st.get("res2_in", 0.0)), "out": not _alive(tm), "gw_cogs": _gw_sum(tm),
 		"idle_w": g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size(),
 		"idle_w_avg": snappedf(float(_idle_w[tm][0]) / maxf(1.0, float(_idle_w[tm][1])), 0.1),
-		"push": _push_phase(tm)}
+		"push": _push_phase(tm), "crown": _crown_econ(tm, a)}
+
+
+## (econ-coach-crown) every 5 s, when built Farms have 2+ free posts and a built hall trains nothing: why (the gold under a
+## labourer's price, the army share's hold, the build order, or another hold); counted per minute in "crown"."why"
+var _why := {}
+
+
+func _crown_why(tm: int) -> void:
+	var a = _ai(tm)
+	if a == null:
+		return
+	var free := 0
+	for b in g.buildings:
+		if b.team == tm and not b.dead and b.built and b.kind == "farm" and b.soil_left() > 0.0:
+			free += maxi(0, b.crew_max() - b.crew.size())
+	var idle_hall := false
+	for h in g.halls_of(tm):
+		if h.built and h.queue.is_empty():
+			idle_hall = true
+	var w: Dictionary = _why.get(tm, {})
+	w["looks"] = int(w.get("looks", 0)) + 1
+	if free < 2 or not idle_hall:
+		_why[tm] = w
+		return
+	var k := "hold"
+	if a.has_method("bo_owns") and a.bo_owns():
+		k = "bo"
+	elif int(g.players[tm]["gold"]) < 50:
+		k = "gold"
+	elif a.has_method("_army_due") and a._army_due():
+		k = "army_due"
+	w[k] = int(w.get(k, 0)) + 1
+	_why[tm] = w
+
+
+## (econ-coach-crown) the Crown's economy in detail: built Farms on live soil and spent ones, Mills, the posts they offer,
+## the labourers on Farms and Mills, the computer's labourer cap and the seconds its labourers waited for the army
+func _crown_econ(tm: int, a) -> Dictionary:
+	if g.faction_of(tm) != "crown":
+		return {}
+	var d := {"farms": 0, "farms_spent": 0, "mills": 0, "posts": 0, "on_farms": 0, "on_mills": 0}
+	for b in g.buildings:
+		if b.team != tm or b.dead or not b.built:
+			continue
+		if b.kind == "farm":
+			if b.soil_left() <= 0.0:
+				d["farms_spent"] += 1
+				continue
+			d["farms"] += 1
+			d["posts"] += b.crew_max()
+			d["on_farms"] += b.working_crew()
+		elif b.kind == "powder_mill":
+			d["mills"] += 1
+			d["posts"] += b.crew_max()
+			d["on_mills"] += b.working_crew()
+	var others := {}
+	for w in g.workers(tm):
+		var site = w.home_mine
+		if w.order == "gather" and site is Building and ((site as Building).kind == "farm" or (site as Building).kind == "powder_mill"):
+			continue
+		var k := String(w.order)
+		if a != null and a._fled.has(w):
+			k = "fled"
+		elif a != null and a.scout != null and a.scout.is_scout(w):
+			k = "scout"
+		elif k == "gather" and site is Building:
+			k = "gather_" + (site as Building).kind
+		others[k] = int(others.get(k, 0)) + 1
+	d["others"] = others
+	d["why"] = _why.get(tm, {})
+	_why[tm] = {}
+	if a != null and a.has_method("owner_lab_cap"):
+		d["lab_cap"] = a.owner_lab_cap()
+		d["lag_s"] = int(a.lag_time)
+		d["farms_pulled"] = int(a.get("farms_pulled") if a.get("farms_pulled") != null else 0)
+	return d
 
 
 ## (clockwork-ai-v2) cogs the side's Great Winders have swept so far
@@ -233,6 +309,8 @@ func _every5() -> void:
 		if g.clock > 240.0:
 			_idle_w[tm][0] += g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size()
 			_idle_w[tm][1] += 1
+		if g.faction_of(tm) == "crown":
+			_crown_why(tm)
 		# halls lost (Crown / Clockwork halls; the Brood: its Queen and expansion count)
 		var seen: Dictionary = _halls_seen[tm]
 		var now := {}

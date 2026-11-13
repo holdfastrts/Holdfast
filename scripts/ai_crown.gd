@@ -653,6 +653,12 @@ func _econ_keep(for_army := false) -> int:
 	var k := super(for_army)
 	if on and _lab_short and _army_due():
 		k = maxi(0, k - int(Defs.UNITS[_f()["worker"]]["cost"]))
+	if _posts_first() and not _army_due():
+		# (econ-coach-crown, FREE FARM POSTS FIRST: the halls' next labourers keep their gold from the buildings and the
+		# soldiers of the other think stages, past ECON_FIRST_UNTIL too: in the games the halls stood idle for want of 50
+		# gold while Farm posts were free, a harvest's 380 spent before the next look at the labourers)
+		var idle := _halls().filter(func(h: Building) -> bool: return h.built and h.queue.is_empty()).size()
+		k = maxi(k, LAB_COST * idle)
 	return k
 
 
@@ -675,6 +681,8 @@ func _army_due() -> bool:
 	var short: bool = _army_supply(game.army(team)) + (bl.aboard_supply() if bl != null else 0) < int(share * game.workers(team).size())
 	if short and owner_labs(game.workers(team).size()):
 		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
+	if short and _posts_first():
+		short = false           # (econ-coach-crown: free Farm posts first; the survival checks below still count)
 	if not short and army_lags():
 		short = true            # (ai-followups: far behind the enemy's army: the soldiers before more labourers)
 		if _cc_labs_due():
@@ -690,6 +698,76 @@ func _army_due() -> bool:
 	if game.supply_used(team) >= int(game.players[team]["cap"]) - 1:
 		return false            # (supply-blocked: the Cottage, not the soldiers)
 	return _mine("barracks").any(func(b: Building) -> bool: return b.built and b.queue.is_empty())
+
+
+## FREE FARM POSTS FIRST (econ-coach-crown, docs/econ-coach-crown.md): "an army the size of the economy" (above) stopped the
+## halls whenever a Barracks stood idle and the army was under the plan's share of the labourers, also while built Farms had
+## posts nobody worked. In the games the Crown had 9-12 Farm posts empty at 7:00-8:00 (26-28 labourers for 32 Farm posts)
+## and trained 3.3 labourers a minute from two halls that can train 10; a Farm hand pays his 50 gold back in 42 s (71 gold
+## a minute: no Farm grows by itself). So while POSTS_FREE or more Farm posts on live soil stand empty (less the labourers in
+## training) the halls keep training; the army's survival checks stay over it: a rush defended, enemies at our buildings, a
+## rush read in the first 7 minutes, the army far behind the enemy's it reckons (army_lags), behind the Brood's (army_behind)
+## or not growing with the economy against it (army_grows). Not in the build orders (each plan's opening keeps its count).
+## `-- postsfirst:off` as before.
+const POSTS_FREE := 2
+var posts_first_off := OS.get_cmdline_user_args().has("postsfirst:off")
+var posts_first_t := 0.0         # (the report) seconds it let the halls train for free Farm posts
+var _posts_first_last := -1.0
+
+
+func _posts_first() -> bool:
+	if posts_first_off or not on or not bo_done or difficulty < 1 or _defending() or _threat() != Vector2.INF or _raided():
+		return false
+	if scout != null and scout.verdict == "rush" and game.clock < 420.0:
+		return false
+	var free := 0
+	for f in _mine("farm"):
+		if f.built and not f.barren():
+			free += maxi(0, f.crew_max() - f.crew.size())
+	free -= _labs_queued()
+	if free < POSTS_FREE:
+		return false
+	if _posts_first_last >= 0.0 and game.clock - _posts_first_last < 2.0:
+		posts_first_t += game.clock - _posts_first_last
+	_posts_first_last = game.clock
+	return true
+
+
+## (econ-coach-crown) ... and in the build orders: the next step's gold (bo_reserve) no longer comes before a labourer for a free
+## Farm post (the Economy plan's halls stood idle on "bo" from 4:00 to 7:00 with 8-10 Farm posts empty, its gold kept for the
+## Foundry and the Horse Breeder steps). The plan's own labourer count (bo_lab_cap: the Timing attack's 19) and its riders-
+## or soldiers-first steps (_soldiers_first) still rule.
+func _bo_posts_first() -> bool:
+	if posts_first_off or not on or difficulty < 1 or _defending() or _threat() != Vector2.INF or _raided():
+		return false
+	if scout != null and scout.verdict == "rush" and game.clock < 420.0:
+		return false
+	var free := 0
+	for f in _mine("farm"):
+		if f.built and not f.barren():
+			free += maxi(0, f.crew_max() - f.crew.size())
+	return free - _labs_queued() >= POSTS_FREE
+
+
+## (econ-coach-crown) an armed enemy seen by our labourers (a raid, the mirror's raid_answer's case): the soldiers' gold is
+## not kept for labourers then (test_crown_mirror: a Musketeer queued for the raider within 12 s). Looked at once a second.
+const RAID_SEEN_R := 260.0
+var _raided_t := -99.0
+var _raided_v := false
+
+
+func _raided() -> bool:
+	if game.clock - _raided_t < 1.0:
+		return _raided_v
+	_raided_t = game.clock
+	_raided_v = false
+	for w in game.workers(team):
+		for o in game.units_near(w.position, RAID_SEEN_R):
+			if not o.dead and game.hostile(o.team, team) and not o.is_worker() and o.armed() and not o.off_field \
+					and game.is_visible_to(team, o.position):
+				_raided_v = true
+				return true
+	return false
 
 
 func _plan_tech() -> bool:
@@ -795,7 +873,7 @@ func _bo_labs() -> void:
 	var queued := 0
 	for h in _halls():
 		queued += h.queue.count(_f()["worker"])
-	var free := _gold() - bo_reserve
+	var free := _gold() - (0 if _bo_posts_first() else bo_reserve)
 	if _soldiers_first():
 		return
 	var wall_keep := WALL_LAB_KEEP if wall_throttle() else 0
@@ -2284,7 +2362,24 @@ var rush_labs_off := OS.get_cmdline_user_args().has("rushlabs:off")
 
 
 func _labs_on_in_rush() -> bool:
-	return not rush_labs_off and game.workers(team).size() < RUSH_LABS
+	return not rush_labs_off and game.workers(team).size() < _rush_labs()
+
+
+## THE RUSH SATURATES ITS MAIN (econ-coach-crown, docs/econ-coach-crown.md): RUSH_LABS (16, the owner's own rush at 4:00) held
+## the hall while the riders rode, with Farm posts empty: the punish's labourers stood at 18 at 5:00 and 28 at 8:00 in the
+## win-rate games, its income 0.60-0.69 of the bench. A labourer on a free Farm post pays its 50 gold back in under a minute,
+## so the hall keeps one coming up to the main's posts (its Farms and Mill, built) and RUSH_SPARE more (the builder, the
+## scout), never under RUSH_LABS. The riders still come first from every idle Barracks.
+const RUSH_SPARE := 2
+## MEASURED, NOT KEPT AS THE DEFAULT (12 Crown v Brood games): the main's posts were full already (2 Farms, 16 posts, 15-16
+## labourers at 4:00; the gold, all on riders, was what held the hall), so it changed nothing: `-- rushsat:on`.
+var rush_sat_off := not OS.get_cmdline_user_args().has("rushsat:on")
+
+
+func _rush_labs() -> int:
+	if rush_sat_off:
+		return RUSH_LABS
+	return maxi(RUSH_LABS, _posts() + RUSH_SPARE)
 
 
 func _rush_horse_only() -> bool:
@@ -2892,6 +2987,41 @@ func _hall_farm() -> int:
 			return 0
 		return cost
 	return 0
+
+
+## SPENT FARMS COME DOWN (econ-coach-crown, docs/econ-coach-crown.md): a Farm on spent soil pays nothing but still counts
+## against "2 Farms a Town Hall" (Game.econ_count), and the shared AI._recycle_spent pulls down only spent Mills (and
+## Presses), so with its main spent and fresh halls up the Crown could lay only 4 Farms where 6 would work (the economy
+## bench saw a third hall stand with no Farm). A player demolishes the barren Farm: so does the computer, one at a time,
+## when the limit is full and a hall on fresh soil (DRY_LAND or more) has fewer than its two Farms. (The rule question,
+## whether a spent Farm should count at all, is the owner's: docs/econ-coach-crown.md.) `-- farmrecycle:off` as before.
+var farm_recycle_off := OS.get_cmdline_user_args().has("farmrecycle:off")
+var farms_pulled := 0            # (the report) spent Farms pulled down
+
+
+func _recycle_spent() -> void:
+	super()
+	if not on or farm_recycle_off or difficulty < 1:
+		return
+	if game.econ_count(team, "farm") < game.econ_limit(team, "farm"):
+		return
+	var spent := _mine("farm").filter(func(b: Building) -> bool: return b.built and b.soil_left() <= 0.0)
+	if spent.is_empty():
+		return
+	var per := Defs.econ_per_hall("crown", "farm")
+	for h in _halls():
+		if not h.built or _land(h) < DRY_LAND:
+			continue
+		var live := 0
+		for f in _mine("farm"):
+			if game.soil_hall(f) == h and f.soil_left() > 0.0:
+				live += 1
+		if live < per:
+			game.demolish(spent[0])
+			farms_pulled += 1
+			if game.mlog:
+				game.mlog.add("%s pulled down a Farm on spent soil (fresh soil by another hall)" % game.mlog.who(team))
+			return
 
 
 ## THE SUPPLY THE PRODUCTION EATS WHILE A COTTAGE GOES UP (SUPPLY_LEAD s), plus two: the halls' labourers, the Barracks'
