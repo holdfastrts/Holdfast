@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.35", "items": [
+		"The main menu painting: the missionaries and the wounded moved down to the front edge, so the Crown's musketeer line firing behind them is in full view again.",
+	]},
 	{"v": "0.33.34", "items": [
 		"THE MAIN MENU PAINTING: THE CHURCH GOES TO WAR WITH THE CROWN. A priest raises a great golden cross over the army, shining against the storm, and missionaries kneel in the foreground tending the wounded, one lying on a stretcher by a lantern. The field cannon and its gunner moved forward to fire on the Clockwork by the bridge.",
 	]},

@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.33.35": ["A pintura do menu principal: os missionários e os feridos desceram para a borda da frente, e a linha de mosqueteiros da Coroa disparando atrás deles volta a ficar à vista."],
 	"0.33.34": ["A PINTURA DO MENU PRINCIPAL: A IGREJA VAI À GUERRA COM A COROA. Um padre ergue uma grande cruz dourada sobre o exército, brilhando contra a tempestade, e missionários ajoelham-se em primeiro plano cuidando dos feridos, um deles deitado numa maca ao lado de uma lanterna. O canhão de campanha e o seu artilheiro avançaram para disparar contra o Mecanismo junto à ponte."],
 	"0.33.33": ["A pintura do menu principal: o fantasma dos espinhos da criatura antiga, que ainda aparecia no céu atrás da cabeça da Mãe da Ninhada, sumiu."],
 	"0.33.32": ["A PINTURA DO MENU PRINCIPAL, CORREÇÕES CONCLUÍDAS: a Mãe da Ninhada no morro agora é a Mãe da Ninhada do jogo, um lagarto enorme de quatro patas com a sua juba verde-veneno, chifres e ovos brilhantes (era um dragão de folhas que se desfazia nas árvores), e o exército do Mecanismo são as suas unidades de verdade: Soldados-Relógio com espada e escudo, Molas sobre as suas molas espirais com brocas de parafuso, Pêndulos altos com as suas lâminas, sob estandartes vermelhos com a engrenagem (havia espadas flutuando no ar e robôs que se fundiam uns nos outros)."],
