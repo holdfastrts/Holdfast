@@ -63,13 +63,7 @@ func _initialize() -> void:
 		else:
 			fac = a
 	# (THE GROUND SYSTEM's numbers for a study: land.district=13 land.r.farm=10 land.r.cog_press=11 land.soil=9000...)
-	for k in opts.keys():
-		if String(k).begins_with("land."):
-			var path := String(k).substr(5).split(".")
-			if path.size() == 1:
-				Defs.LAND[path[0]] = float(opts[k]) if String(opts[k]).is_valid_float() else (String(opts[k]) == "true")
-			else:
-				(Defs.LAND[path[0]] as Dictionary)[path[1]] = float(opts[k])
+	GroundLayer.study_args(opts)
 	for s in String(opts["exp"]).split(","):
 		if s != "" and s != "auto":
 			exp_times.append(float(s))

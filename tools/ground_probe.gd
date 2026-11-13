@@ -30,7 +30,7 @@ func _process(delta: float) -> bool:
 	if t > 0.2 and main.game == null:
 		seed(int(opts["seed"]))
 		main.start({"map": opts["map"], "seed": int(opts["seed"]), "ground": true, "slots": [
-			{"who": "hard", "faction": fac, "colour": 0, "side": 0, "strategy": "balanced"},
+			{"who": "hard", "faction": fac, "colour": 0, "side": 0, "strategy": String(opts.get("plan", "optimal"))},
 			{"who": "you", "faction": "crown" if fac != "crown" else "clockwork", "colour": 1, "side": 1}]})
 		g = main.game
 		for a in g.ais:
@@ -52,9 +52,13 @@ func _process(delta: float) -> bool:
 func report() -> void:
 	var gl := g.ground_layer
 	print("--- %d s" % int(g.clock))
+	var dk := "farm" if fac == "crown" else "cog_press"
+	print("  %s count %d limit %d" % [dk, g.econ_count(0, dk), g.econ_limit(0, dk)])
 	for h in g.halls_of(0):
 		var d := gl.district(h)
-		print("  hall %s at %s: district %d / %d" % [h.kind, str(h.cell), int(d[0]), int(d[1])])
+		var sp := g.find_spot(0, dk, h, 4, Defs.ECON_RANGE - 2, "behind", true)
+		print("  hall %s at %s: district %d / %d, live %s here %d, a spot %s (%s)" % [h.kind, str(h.cell), int(d[0]), int(d[1]), dk, g._district_live(0, dk, h), str(sp),
+			g.placement_problem(0, dk, sp) if sp.x >= 0 else "none"])
 	for b in g.buildings:
 		if b.team == 0 and not b.dead and GroundLayer.drink_res(b.kind) != GroundLayer.NONE:
 			var hall := g.nearest_hall(b.center(), 0)

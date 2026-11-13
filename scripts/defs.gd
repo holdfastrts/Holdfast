@@ -392,11 +392,12 @@ static var gear_turn := true
 ## in the match's setup (cfg "ground"); off by default (the game as before).
 static var ground_on := false
 ## The ground system's numbers (docs/ground_system.md "The numbers"; LAND, as GROUND is ATTACK GROUND): tiles unless the key says otherwise.
-##   district: radius of a hall's district (its ground; the economy buildings stand within ECON_RANGE of it too);
+##   district: radius of a Town Hall's district (its soil; the economy buildings stand within ECON_RANGE of a hall);
+##   district_brass: a Clocktower's (its brass: the presses mesh near the tower, so its district is a little tighter);
 ##   soil / brass: what a fresh district holds (the old hall reserve, SOIL_RESERVE / LODE "clocktower");
 ##   r: the circle each drinker drinks from; bite: a Cog Press's draws are paid in chunks of this much.
 static var LAND := {"district": 11.0, "soil": 9000.0, "brass": 9000.0, "r": {"farm": 10.0, "cog_press": 10.0}, "bite": 2.0,
-	"spot_w": 40.0, "spot_min": 0.1, "local": true}
+	"spot_w": 40.0, "spot_min": 0.1, "local": true, "district_brass": 9.0}
 ## THE MARCHING BAND (the owner's idea 2026-10-30, a real Crown unit since 0.33.0 (the owner, 2026-11-05);
 ## scripts/marching_band.gd, docs/marching_band.md): the Crown's band of drums, pipes and fife that plays area buffs.
 ## Trained at the Armoury; a new band is a Drummer; the FIFER and the PIPER are Armoury research (RESEARCH "band_fife",

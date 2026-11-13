@@ -111,7 +111,7 @@ func _draw() -> void:
 			if GroundLayer.drink_res(b.kind) != GroundLayer.NONE:
 				draw_arc(b.center(), GroundLayer.radius(b.kind) * T, 0, TAU, 64, Color(tint(b.soil_left() if b.kind == "farm" else b.lode_left()), 0.5 * a + 0.15), 2.0)
 			elif GroundLayer.hall_res(b.kind) != GroundLayer.NONE:
-				draw_arc(b.center(), float(Defs.LAND["district"]) * T, 0, TAU, 96, Color(1, 1, 1, 0.25 * a + 0.08), 1.5)
+				draw_arc(b.center(), GroundLayer.district_r(GroundLayer.hall_res(b.kind)) * T, 0, TAU, 96, Color(1, 1, 1, 0.25 * a + 0.08), 1.5)
 		if placing_drinker():
 			_draw_ghost_circle(gl, T, a)
 	elif game.human >= 0 and BroodNew.on(game, game.human):

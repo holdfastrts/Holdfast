@@ -64,6 +64,25 @@ static func drinks(k: String) -> bool:
 	return Defs.ground_on and drink_res(k) != NONE
 
 
+## Radius (tiles) of a hall's district of this ground (LAND "district"; the Clockwork's brass may have its own,
+## "district_brass").
+static func district_r(res: int) -> float:
+	if res == BRASS and Defs.LAND.has("district_brass"):
+		return float(Defs.LAND["district_brass"])
+	return float(Defs.LAND["district"])
+
+
+## A study's numbers from a tool's command line (land.district=11 land.r.farm=10 land.spot_min=0.1 ...).
+static func study_args(opts: Dictionary) -> void:
+	for k in opts.keys():
+		if String(k).begins_with("land."):
+			var path := String(k).substr(5).split(".")
+			if path.size() == 1:
+				Defs.LAND[path[0]] = float(opts[k]) if String(opts[k]).is_valid_float() else (String(opts[k]) == "true")
+			else:
+				(Defs.LAND[path[0]] as Dictionary)[path[1]] = float(opts[k])
+
+
 ## Radius (tiles) of the circle a building of this kind drinks from.
 static func radius(k: String) -> float:
 	return float((Defs.LAND["r"] as Dictionary).get(k, 8.0))
@@ -136,7 +155,7 @@ func found(b: Building) -> void:
 	var res := hall_res(b.kind)
 	if res == NONE:
 		return
-	var tiles := disc(mid_of(b.cell, b.size), float(Defs.LAND["district"]))
+	var tiles := disc(mid_of(b.cell, b.size), district_r(res))
 	var land := 0
 	for i in tiles:
 		if g.solid[i] != 1:
@@ -159,7 +178,7 @@ func district(b: Building) -> Array:
 	var res := hall_res(b.kind)
 	var lt := 0.0
 	var ft := 0.0
-	for i in disc(b.center() / Defs.TILE, float(Defs.LAND["district"])):
+	for i in disc(b.center() / Defs.TILE, district_r(res)):
 		if kind[i] == res:
 			lt += left[i]
 			ft += full[i]

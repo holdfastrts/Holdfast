@@ -3199,6 +3199,8 @@ func _lode_value(c: Vector2i) -> float:
 ## Crown / Clockwork: a Mill (Crusher) on spent saltpetre (ore) is pulled down when the limit
 ## leaves no room for one by a hall that still has fresh saltpetre (ore) and none working it.
 func _recycle_spent() -> void:
+	if Defs.ground_on and _ground_recycle():
+		return
 	for kind in ["powder_mill", "ore_crusher", "ore_drill", Defs.GEAR_PRESS]:
 		if Defs.BUILDINGS[kind]["faction"] != game.faction_of(team) or not Defs.is_econ(kind) or game.econ_count(team, kind) < game.econ_limit(team, kind):
 			continue
@@ -3223,6 +3225,27 @@ func _recycle_spent() -> void:
 				if game.mlog:
 					game.mlog.add("%s pulled down a %s by spent %s (fresh %s by another hall)" % [game.mlog.who(team), Defs.BUILDINGS[kind]["name"], dep, dep])
 				return
+
+
+## THE GROUND SYSTEM (docs/ground_system.md): a Farm / Cog Press whose circle is spent pays nothing and no longer counts
+## against the limit, but it still stands where a new one could drink the rest of its hall's ground: pulled down (one at a
+## time, as a player would) while its hall's district still holds some (Defs.LAND "spot_min" of a fresh one). True when it
+## pulled one down.
+func _ground_recycle() -> bool:
+	for kind in ["farm", Defs.GEAR_PRESS]:
+		if Defs.BUILDINGS[kind]["faction"] != game.faction_of(team):
+			continue
+		for b in _mine(kind):
+			if not b.built or not b.barren():
+				continue
+			var h := game.nearest_hall(b.center(), team)
+			if h == null or (h.soil_left() if kind == "farm" else h.lode_left()) < float(Defs.LAND["spot_min"]):
+				continue
+			game.demolish(b)
+			if game.mlog:
+				game.mlog.add("%s pulled down a %s on spent ground (its hall's district still holds some)" % [game.mlog.who(team), Defs.BUILDINGS[kind]["name"]])
+			return true
+	return false
 
 
 ## Take more ground: a new hall at a free spot on our side of the map, 18-30 tiles from one
