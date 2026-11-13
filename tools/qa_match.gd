@@ -171,6 +171,39 @@ func _side(tm: int) -> Dictionary:
 		"push": _push_phase(tm), "crown": _crown_econ(tm, a)}
 
 
+## (econ-coach-crown) every 5 s, when built Farms have 2+ free posts and a built hall trains nothing: why (the gold under a
+## labourer's price, the army share's hold, the build order, or another hold); counted per minute in "crown"."why"
+var _why := {}
+
+
+func _crown_why(tm: int) -> void:
+	var a = _ai(tm)
+	if a == null:
+		return
+	var free := 0
+	for b in g.buildings:
+		if b.team == tm and not b.dead and b.built and b.kind == "farm" and b.soil_left() > 0.0:
+			free += maxi(0, b.crew_max() - b.crew.size())
+	var idle_hall := false
+	for h in g.halls_of(tm):
+		if h.built and h.queue.is_empty():
+			idle_hall = true
+	var w: Dictionary = _why.get(tm, {})
+	w["looks"] = int(w.get("looks", 0)) + 1
+	if free < 2 or not idle_hall:
+		_why[tm] = w
+		return
+	var k := "hold"
+	if a.has_method("bo_owns") and a.bo_owns():
+		k = "bo"
+	elif int(g.players[tm]["gold"]) < 50:
+		k = "gold"
+	elif a.has_method("_army_due") and a._army_due():
+		k = "army_due"
+	w[k] = int(w.get(k, 0)) + 1
+	_why[tm] = w
+
+
 ## (econ-coach-crown) the Crown's economy in detail: built Farms on live soil and spent ones, Mills, the posts they offer,
 ## the labourers on Farms and Mills, the computer's labourer cap and the seconds its labourers waited for the army
 func _crown_econ(tm: int, a) -> Dictionary:
@@ -205,6 +238,8 @@ func _crown_econ(tm: int, a) -> Dictionary:
 			k = "gather_" + (site as Building).kind
 		others[k] = int(others.get(k, 0)) + 1
 	d["others"] = others
+	d["why"] = _why.get(tm, {})
+	_why[tm] = {}
 	if a != null and a.has_method("owner_lab_cap"):
 		d["lab_cap"] = a.owner_lab_cap()
 		d["lag_s"] = int(a.lag_time)
@@ -274,6 +309,8 @@ func _every5() -> void:
 		if g.clock > 240.0:
 			_idle_w[tm][0] += g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size()
 			_idle_w[tm][1] += 1
+		if g.faction_of(tm) == "crown":
+			_crown_why(tm)
 		# halls lost (Crown / Clockwork halls; the Brood: its Queen and expansion count)
 		var seen: Dictionary = _halls_seen[tm]
 		var now := {}

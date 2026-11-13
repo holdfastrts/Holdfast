@@ -653,6 +653,12 @@ func _econ_keep(for_army := false) -> int:
 	var k := super(for_army)
 	if on and _lab_short and _army_due():
 		k = maxi(0, k - int(Defs.UNITS[_f()["worker"]]["cost"]))
+	if _posts_first() and not _army_due():
+		# (econ-coach-crown, FREE FARM POSTS FIRST: the halls' next labourers keep their gold from the buildings and the
+		# soldiers of the other think stages, past ECON_FIRST_UNTIL too: in the games the halls stood idle for want of 50
+		# gold while Farm posts were free, a harvest's 380 spent before the next look at the labourers)
+		var idle := _halls().filter(func(h: Building) -> bool: return h.built and h.queue.is_empty()).size()
+		k = maxi(k, LAB_COST * idle)
 	return k
 
 
@@ -725,6 +731,22 @@ func _posts_first() -> bool:
 		posts_first_t += game.clock - _posts_first_last
 	_posts_first_last = game.clock
 	return true
+
+
+## (econ-coach-crown) ... and in the build orders: the next step's gold (bo_reserve) no longer comes before a labourer for a free
+## Farm post (the Economy plan's halls stood idle on "bo" from 4:00 to 7:00 with 8-10 Farm posts empty, its gold kept for the
+## Foundry and the Horse Breeder steps). The plan's own labourer count (bo_lab_cap: the Timing attack's 19) and its riders-
+## or soldiers-first steps (_soldiers_first) still rule.
+func _bo_posts_first() -> bool:
+	if posts_first_off or not on or difficulty < 1 or _defending() or _threat() != Vector2.INF:
+		return false
+	if scout != null and scout.verdict == "rush" and game.clock < 420.0:
+		return false
+	var free := 0
+	for f in _mine("farm"):
+		if f.built and not f.barren():
+			free += maxi(0, f.crew_max() - f.crew.size())
+	return free - _labs_queued() >= POSTS_FREE
 
 
 func _plan_tech() -> bool:
@@ -830,7 +852,7 @@ func _bo_labs() -> void:
 	var queued := 0
 	for h in _halls():
 		queued += h.queue.count(_f()["worker"])
-	var free := _gold() - bo_reserve
+	var free := _gold() - (0 if _bo_posts_first() else bo_reserve)
 	if _soldiers_first():
 		return
 	var wall_keep := WALL_LAB_KEEP if wall_throttle() else 0
