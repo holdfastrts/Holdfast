@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.3", "items": [
+		"THE BROOD COMPUTER PLAYS ITS ECONOMY BETTER (no unit, building or price changed): it roots its second Rootmaw at once, before the turtle on its natural; when it is only short of warriors against what it has seen (no enemy at the Mother), one egg in three is still a grub, so its economy keeps growing; and once it has read a rider opening and has half the warriors it wants, it lays a grub for every warrior until the riders are seen coming. Against the Clockwork computer it earns about a quarter more by 8:00, and about 7% more over all its games.",
+	]},
 	{"v": "0.34.2", "items": [
 		"THE CROWN COMPUTER WORKS ITS FARMS (docs/econ-coach-crown.md): its Town Halls no longer stand idle while its Farms have posts nobody works. The next labourers' gold is kept from the other spending while Farm posts are free, a labourer comes before the next building of its plan, and its army-size rule no longer holds the labourers back then; it still puts the soldiers first while a rush is defended, enemies are at its buildings or labourers, or its army is far behind the enemy's. Alone its Balanced plan now earns 0.95 of the economy's design by 8:00 (was 0.79) and its Siege push 0.79 (was 0.59); in computer games it earns 5-14% more against the Clockwork and in the mirror.",
 		"The Crown computer pulls down a Farm on spent soil when it blocks the two Farms of a hall on fresh soil (a spent Farm still counts against the limit of two Farms a Town Hall), as a player would.",
