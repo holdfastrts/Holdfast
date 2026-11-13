@@ -38,6 +38,7 @@ def load(root, cfg, rnd=None):
         reads = [x for x in g.get("reads", []) if x["p"] == c and "read" in x]
         picks = [x for x in g.get("reads", []) if x["p"] == c and "pick" in x]
         cw_picks = [x for x in g.get("reads", []) if x["p"] == w and "pick" in x]
+        cw_reads = [x["read"] for x in g.get("reads", []) if x["p"] == w and "read" in x]
         gp = [x for x in picks if "GREEDY" in x["pick"]]
         greedy_t = gp[0]["t"] if gp else None
         greedy_plan = gp[0]["pick"].split("->")[1].strip().split(" ")[0] if gp else ""
@@ -56,7 +57,10 @@ def load(root, cfg, rnd=None):
                "halls_c": halls[c], "halls_w": halls[w], "greedy": greedy_t is not None, "greedy_t": greedy_t,
                "greedy_plan": greedy_plan, "any_greedy_read": any(x["read"] == "GREEDY" for x in reads),
                "first_read": reads[0]["read"] if reads else "", "cplans": ">".join(cplans), "wplans": ">".join(wplans),
-               "w_after": ">".join(w_after), "picks": [x["pick"] for x in picks], "cw_picks": [x["pick"] for x in cw_picks]}
+               "w_after": ">".join(w_after), "picks": [x["pick"] for x in picks], "cw_picks": [x["pick"] for x in cw_picks],
+               "cw_greedy_read": "GREEDY" in cw_reads, "cw_aggr_read": "AGGRESSIVE" in cw_reads,
+               "cw_plans_picked": [x["pick"].split("->")[1].strip().split(" ")[0] for x in sorted(cw_picks, key=lambda x: x["t"])],
+               "cw_final_plan": g["final"][w].get("plan", "")}
         for m in (5, 8, 10, 12, 15):
             for k, p in (("c", c), ("w", w)):
                 r = at.get((p, m))
@@ -122,6 +126,19 @@ def table(root, rnd):
         a, n = mean([r["halls10_c"] for r in rs]); b, _ = mean([r["halls10_w"] for r in rs])
         cells.append("%.1f / %.1f" % (a, b) if n else "-")
         print("| %s | %s |" % (c, " | ".join(cells)))
+    print("\n## What the Clockwork did: its reads of the Crown and its OPTIMAL picks\n")
+    print("| run | CW read the Crown GREEDY | read it AGGRESSIVE | CW plans picked (all picks) | CW plan at the end |")
+    print("|---|---|---|---|---|")
+    for c, rows in data.items():
+        rs = list(rows.values())
+        pk, fp = {}, {}
+        for r in rs:
+            for x in r["cw_plans_picked"]:
+                pk[x] = pk.get(x, 0) + 1
+            fp[r["cw_final_plan"]] = fp.get(r["cw_final_plan"], 0) + 1
+        print("| %s | %d | %d | %s | %s |" % (c, sum(r["cw_greedy_read"] for r in rs), sum(r["cw_aggr_read"] for r in rs),
+              ", ".join("%s %d" % kv for kv in sorted(pk.items(), key=lambda x: -x[1])),
+              ", ".join("%s %d" % kv for kv in sorted(fp.items(), key=lambda x: -x[1]))))
     # the games where the greedy answer fired, split
     print("\n## Only the games where the greedy answer fired (in that run)\n")
     print("| run | games | W-D-L | won or led | Crown inc 8:00 | 10:00 | CW inc 10:00 | army 10:00 C / CW | halls lost C / CW |")
