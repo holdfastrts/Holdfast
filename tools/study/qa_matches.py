@@ -94,7 +94,15 @@ def parity():
     return [g for r in (0, 1) for g in base(r) if g[1] in PARITY_MAPS]
 
 
+# (econ-coach-crown, docs/econ-coach-crown.md) the parity games with a Crown side: Crown v Brood, Crown v Clockwork and the
+# Crown mirror, 12 a pairing: `--only crown`
+def crown():
+    return [g for g in parity() if "cr" in (g[0].split("_")[-2][:2], g[0].split("_")[-2][2:])]
+
+
 def queue(only=""):
+    if only == "crown":
+        return crown()
     if only == "cw":
         return cw()
     if only == "parity":

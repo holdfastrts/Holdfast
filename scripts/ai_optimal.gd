@@ -156,6 +156,8 @@ func choose(read: String) -> Array:
 				"brood":
 					return ["brute", "a siege to break its defences"]
 		"NORMAL":
+			if fac == "crown" and f == "brood" and _lean_only():
+				return ["economy", "an economic race"]       # (econ-coach-crown: the lean was no read; see _lean_only)
 			if st != "opening" or not picks.is_empty():
 				return []        # (a normal read later keeps what it plays: the dice are thrown once, no flip-flop)
 			var w: Dictionary = (NORMAL.get(fac, {}) as Dictionary).get(f, {"balanced": 1.0})
@@ -201,7 +203,7 @@ func _punish(f: String, t: float) -> Array:
 				# army" is the read of 35 of 38 Brood games, its standard opening as much as its greed; the riders answered every
 				# one and the Crown won or led none (QA study). The Economy race was tried on half of them (RIDERS_V_BROOD 0.5)
 				# and did no better: the owner's rule, the Horse Breeder, again; the knob is kept)
-				if t < BREEDER_BY and _rng.randf() < riders_v_brood:
+				if t < BREEDER_BY and _rng.randf() < riders_v_brood and _true_greed_brood():
 					return ["rush", "punish the greed: the Horse Breeder at once, the riders before its army"]
 				if t < BREEDER_BY:
 					return ["economy", "out-expand it: its early ground is its usual opening"]
@@ -239,6 +241,40 @@ func _punish(f: String, t: float) -> Array:
 				return ["spitter" if f == "crown" else "timing", "a timing attack before its economy pays off"]
 			return ["economy", "too late to punish: out-expand it"]
 	return []
+
+
+## THE RIDERS ONLY FOR A TRULY GREEDY BROOD (econ-coach-crown, docs/econ-coach-crown.md): the Brood's standard opening, the
+## Mother and one Mound Turtle on new ground at 0:00 (every Brood plan but the rushes), read "a second base and little army"
+## in 35 of 38 games, and the Horseman rush that answered it failed 33 of 38 times (docs/winrate_2026_11_12.md), the riders
+## costing the Crown its economy (16 labourers held, the Breeder and Horsemen before the second hall). The owner's rule stays
+## (v a greedy Brood the Horse Breeder to punish) for a TRUE greed: more than its standard opening, two grounds beyond the
+## Mother's (TRUE_GREED_HALLS halls in the scout's count) or TRUE_GREED_MAWS Rootmaws seen. Else it out-expands it, as the
+## rule's own fallback did. `-- truegreed:off` as before (every greedy read of the Brood is punished).
+const TRUE_GREED_HALLS := 3
+const TRUE_GREED_MAWS := 5
+var true_greed_off := OS.get_cmdline_user_args().has("truegreed:off")
+
+
+func _true_greed_brood() -> bool:
+	if true_greed_off or ai.scout == null:
+		return true
+	var r: Dictionary = ai.scout._evaluate()
+	var halls := int(r.get("halls", 0))
+	var econ := int(r.get("econ", 0))
+	var truly := halls >= TRUE_GREED_HALLS or econ >= TRUE_GREED_MAWS
+	say("the Brood's greed checked: %d grounds, %d Rootmaws seen: %s" % [halls, econ, "more than its usual opening" if truly else "its usual opening"])
+	return truly
+
+
+## LEANED, NOT BOUND (econ-coach-crown): the lean to the Horseman rush before the scout (the matchup, 20-35% of the Crown's
+## games against the Brood) no longer uses up the opening's switch: a read of the Brood that is not a true greed (NORMAL,
+## or its usual far turtle) turns it to the Economy race once, while the Breeder is the only rider building yet (BREEDER_BY).
+## `-- leanfree:off` as before.
+var lean_free_off := OS.get_cmdline_user_args().has("leanfree:off")
+
+
+func _lean_only() -> bool:
+	return not lean_free_off and picks.size() == 1 and String(picks[0][2]) == "LEAN" and current == "rush" and game.clock < BREEDER_BY
 
 
 ## (crown-v-crown-coach) THE TIMING KEEPS ITS TIMING in the Crown mirror: a greedy read after TOO_LATE turned the Timing
@@ -326,7 +362,8 @@ func _lean_chance(f: String, dist: float) -> float:
 
 
 func lean_said(plan: String) -> void:
-	switched["opening"] = true
+	if lean_free_off or fac != "crown" or foe() != "brood":
+		switched["opening"] = true       # (econ-coach-crown: the Crown's lean against the Brood leaves the switch to the read)
 	current = plan
 	picks.append([0.0, "opening", "LEAN", plan, "the matchup"])
 	say("leans to %s before it scouts (%s)" % [plan_name(plan), "Horsemen are good against the Brood's grubs"])

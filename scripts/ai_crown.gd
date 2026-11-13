@@ -2894,6 +2894,41 @@ func _hall_farm() -> int:
 	return 0
 
 
+## SPENT FARMS COME DOWN (econ-coach-crown, docs/econ-coach-crown.md): a Farm on spent soil pays nothing but still counts
+## against "2 Farms a Town Hall" (Game.econ_count), and the shared AI._recycle_spent pulls down only spent Mills (and
+## Presses), so with its main spent and fresh halls up the Crown could lay only 4 Farms where 6 would work (the economy
+## bench saw a third hall stand with no Farm). A player demolishes the barren Farm: so does the computer, one at a time,
+## when the limit is full and a hall on fresh soil (DRY_LAND or more) has fewer than its two Farms. (The rule question,
+## whether a spent Farm should count at all, is the owner's: docs/econ-coach-crown.md.) `-- farmrecycle:off` as before.
+var farm_recycle_off := OS.get_cmdline_user_args().has("farmrecycle:off")
+var farms_pulled := 0            # (the report) spent Farms pulled down
+
+
+func _recycle_spent() -> void:
+	super()
+	if not on or farm_recycle_off or difficulty < 1:
+		return
+	if game.econ_count(team, "farm") < game.econ_limit(team, "farm"):
+		return
+	var spent := _mine("farm").filter(func(b: Building) -> bool: return b.built and b.soil_left() <= 0.0)
+	if spent.is_empty():
+		return
+	var per := Defs.econ_per_hall("crown", "farm")
+	for h in _halls():
+		if not h.built or _land(h) < DRY_LAND:
+			continue
+		var live := 0
+		for f in _mine("farm"):
+			if game.soil_hall(f) == h and f.soil_left() > 0.0:
+				live += 1
+		if live < per:
+			game.demolish(spent[0])
+			farms_pulled += 1
+			if game.mlog:
+				game.mlog.add("%s pulled down a Farm on spent soil (fresh soil by another hall)" % game.mlog.who(team))
+			return
+
+
 ## THE SUPPLY THE PRODUCTION EATS WHILE A COTTAGE GOES UP (SUPPLY_LEAD s), plus two: the halls' labourers, the Barracks'
 ## soldiers, the Breeder's Horsemen (3 supply in 22 s), the Foundry's guns. In the opening at least the old margin (two,
 ## two a Barracks, one a hall after the first), and only that while a rush is being held (_def_on). Every plan's opening uses it (crown-optimal-opening: the Siege push's
