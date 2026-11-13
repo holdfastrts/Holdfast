@@ -1,4 +1,4 @@
-# Coaching the Clockwork computer's economy (job econ-coach-clockwork)
+# Coaching the Clockwork computer's economy (job econ-coach-clockwork, 0.34.1)
 
 The owner (2026-11-13 01:18): "The computers reach only part of what their faction could earn ... This must be corrected with
 AI coaching before we ever touch balance. The AI must be 100% or as close as possible to what it could do, so we have a
@@ -208,8 +208,9 @@ totals.)
   others), held by the threat checks of the shared expansion rule (AI._hall_first / _more_halls), which this job left alone.
 - **Rule questions for the owner (proposed, NOT applied)**:
   1. A Cog Press on spent brass counts against "2 per Clocktower" until it is pulled down, like the Crown's Farms
-     (economy_parity section 8.3): should a spent press free its place by itself? The computer pulls them down; a player who
-     does not know to is capped.
+     (economy_parity section 8.3). The owner's GROUND SYSTEM (decided 2026-11-13, docs/ground_system.md, to be built after
+     the three econ-coach jobs) answers it for every faction: when it comes, the Clockwork computer's press rules
+     (scripts/ai_cw_macro.gd: presses_after, lay_press) are the place to coach it onto the new ground.
   2. With the computers now working their economies, the Clockwork alone banks thousands at the 200 supply cap: is the cap
      the brake the owner wants, or should the late game have a cog sink (research, a costlier upkeep)? Only once the other
      two computers are coached (econ-coach-crown, econ-coach-brood), so the three can be compared.

@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.1", "items": [
+		"THE CLOCKWORK COMPUTER WORKS ITS ECONOMY (Hard and Brutal): it trains a Winder for every post of its Cog Presses and Mainsprings, plus the Winders that walk with its army (it stopped at 32 before, with presses standing half empty from the eighth minute); every Clocktower gets its presses whatever plan it plays (a rush or a timing plan could leave a new Clocktower without one for minutes); its first three Clocktowers' presses go on the big ring (not against the Brood); and its Regulators go up ahead of every Clocktower and Works. It earns about a third more by 15:00. No rule or number of the game changed.",
+	]},
 	{"v": "0.34.0", "items": [
 		"RANKED PLAY, A WORKING PROTOTYPE (docs/online_ranked.md): ranked 1v1 matches run on OUR SERVER, not on either player's device, so neither side can see through the fog or fake a result. Sign in with Steam, pick a faction and FIND A MATCH; a rating close to yours is found, the server starts the match and both players join it. Glicko-2 ratings, 5 placement matches, seasons, a LEADERBOARD (all and by faction) and the rating change on the battle report. The RANKED button shows on the ONLINE page only where there is a Steam sign-in (Android and the web keep the friendly online with room codes). It is not live yet: the owner's steps to put it online are in the doc.",
 		"FAIR FOG ONLINE: every 3 seconds the host used to send a guest the whole enemy army, even the units it could not see (a modified game could have shown them). Now a player is only ever sent the enemies its side sees, the enemy buildings it sees, and the shots and explosions in its sight, in friendly online too.",
