@@ -127,6 +127,11 @@ func _fill_posts() -> void:
 func want_big() -> bool:
 	if ai.difficulty < 2 or not Defs.gear_mode:
 		return false
+	if ai._foe_is("brood"):
+		# (against the Brood the small ring: its Raptors come early, and the big ring's 25 cogs and three more Winders a press
+		# came out of the army: army at 8:00 1,607 -> 1,246 in the 12 Brood games, won or led 11 -> 8 of 12, while the
+		# Crown and mirror games gained by it)
+		return false
 	var built: int = ai._halls().filter(func(h: Building) -> bool: return h.built).size()
 	return built <= BIG_HALLS and game.supply_used(team) < BIG_SUPPLY
 
