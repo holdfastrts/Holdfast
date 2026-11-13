@@ -1,0 +1,23 @@
+# Ground system: Hard OPTIMAL games, the setting OFF vs ON (36 off, 36 on)
+
+| matchup (P1 view) | W-D-L off | W-D-L on | income ratio P1/P2 10:00 off / on | median length off / on |
+|---|---|---|---|---|
+| cr v br | 1-4-1 | 3-0-3 | 1.06 / 1.11 | 15:00 / 14:06 |
+| cr v cw | 0-5-1 | 0-6-0 | 1.00 / 0.94 | 15:00 / 15:00 |
+| br v cw | 6-0-0 | 3-2-1 | 1.18 / 1.20 | 13:32 / 13:37 |
+| cr v cr | 0-6-0 | 0-6-0 | 1.00 / 0.95 | 15:00 / 15:00 |
+| br v br | 1-5-0 | 3-3-0 | 1.11 / 1.10 | 15:00 / 14:30 |
+| cw v cw | 0-6-0 | 3-3-0 | 1.05 / 1.13 | 15:00 / 14:21 |
+
+Income earned (all games pooled, both sides), primary:
+
+| | 5:00 | 8:00 | 10:00 | 15:00 |
+|---|---|---|---|---|
+| off | 3286 | 7500 | 11137 | 19958 |
+| on | 3265 | 7420 | 10674 | 18072 |
+
+off: 10 of 36 games decided; median length 15:00 (decided 13:24)
+
+on: 16 of 36 games decided; median length 15:00 (decided 13:19)
+off: 0 games with a logged error
+on: 1 games with a logged error

@@ -126,8 +126,30 @@ gains are kept); the Clockwork's late dip is it taking one hall later in a few r
 
 ### Real games (Hard OPTIMAL v Hard OPTIMAL, `qa_matches.py --only ground`, 3 maps x every pairing x 2 rounds)
 
-<!-- GROUND_GAMES_TABLE -->
-(the ON-vs-OFF game batch's table is pasted here when it finishes; tools/study/ground_games.py builds it.)
+36 games each (3 maps x every pairing x 2 rounds), ON vs OFF, Hard OPTIMAL v Hard OPTIMAL to 15:00 (noisy per game;
+read the totals). The income the two sides earn, pooled, is within a few percent on vs off at every point; with the
+system ON more games are DECIDED (the Crown gets its Farms placed and its districts don't strand a hall), which is why a
+few mirrors that were all draws off now have winners.
+
+| matchup (P1 view) | W-D-L off | W-D-L on | income P1/P2 10:00 off / on | median length off / on |
+|---|---|---|---|---|
+| Crown v Brood | 1-4-1 | 3-0-3 | 1.06 / 1.11 | 15:00 / 14:06 |
+| Crown v Clockwork | 0-5-1 | 0-6-0 | 1.00 / 0.94 | 15:00 / 15:00 |
+| Brood v Clockwork | 6-0-0 | 3-2-1 | 1.18 / 1.20 | 13:32 / 13:37 |
+| Crown mirror | 0-6-0 | 0-6-0 | 1.00 / 0.95 | 15:00 / 15:00 |
+| Brood mirror | 1-5-0 | 3-3-0 | 1.11 / 1.10 | 15:00 / 14:30 |
+| Clockwork mirror | 0-6-0 | 3-3-0 | 1.05 / 1.13 | 15:00 / 14:21 |
+
+Income earned, all games pooled, both sides (primary):
+
+| | 5:00 | 8:00 | 10:00 | 15:00 |
+|---|---|---|---|---|
+| off | 3,286 | 7,500 | 11,137 | 19,958 |
+| on | 3,265 | 7,420 | 10,674 | 18,072 |
+
+Decided: off 10 of 36, on 16 of 36 (median length 15:00 both; decided games ~13:20 both). No script error from the ground
+system; one unrelated pre-existing error surfaced (a Spring Ballista area shot in one Clockwork mirror,
+ballista.gd:328 `has_tag` on a target that died mid-splash, not touched by this job).
 
 ## Tests, pictures
 
