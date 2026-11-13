@@ -776,6 +776,310 @@
   "src": "@base",
   "poly": [
    [
+    838,
+    556
+   ],
+   [
+    915,
+    556
+   ],
+   [
+    915,
+    640
+   ],
+   [
+    838,
+    640
+   ]
+  ],
+  "feather": 6,
+  "_why": "audit 2026-11-13 problem 1: the original bridge end and fallen soldier instead of a copy of the heads above"
+ },
+ {
+  "src": "@out",
+  "clone": [
+   [
+    [
+     [
+      730,
+      560
+     ],
+     [
+      925,
+      560
+     ],
+     [
+      925,
+      730
+     ],
+     [
+      730,
+      730
+     ]
+    ],
+    -360,
+    -75
+   ]
+  ],
+  "poly": [
+   [
+    745,
+    600
+   ],
+   [
+    775,
+    575
+   ],
+   [
+    815,
+    580
+   ],
+   [
+    850,
+    602
+   ],
+   [
+    890,
+    628
+   ],
+   [
+    918,
+    650
+   ],
+   [
+    910,
+    690
+   ],
+   [
+    875,
+    705
+   ],
+   [
+    835,
+    700
+   ],
+   [
+    800,
+    712
+   ],
+   [
+    765,
+    700
+   ],
+   [
+    742,
+    665
+   ]
+  ],
+  "feather": 18,
+  "opacity": 0.7,
+  "_why": "audit 2026-11-13 problems 1 and 3: dust of the cavalry charge (the painting's own musket smoke) over the copied heads, the old sword and the ghost rider"
+ },
+ {
+  "src": "@out",
+  "clone": [
+   [
+    [
+     [
+      392,
+      612
+     ],
+     [
+      430,
+      612
+     ],
+     [
+      430,
+      672
+     ],
+     [
+      392,
+      672
+     ]
+    ],
+    0,
+    -48
+   ],
+   [
+    [
+     [
+      470,
+      560
+     ],
+     [
+      575,
+      560
+     ],
+     [
+      575,
+      680
+     ],
+     [
+      470,
+      680
+     ]
+    ],
+    -90,
+    0
+   ]
+  ],
+  "poly": [
+   [
+    480,
+    575
+   ],
+   [
+    525,
+    566
+   ],
+   [
+    566,
+    582
+   ],
+   [
+    560,
+    620
+   ],
+   [
+    552,
+    660
+   ],
+   [
+    515,
+    672
+   ],
+   [
+    482,
+    660
+   ]
+  ],
+  "feather": 10,
+  "opacity": 0.9,
+  "_why": "audit 2026-11-13 problem 3: the ghost rider carried along with the moved horseman, under the charge's smoke"
+ },
+ {
+  "src": "@out",
+  "clone": [
+   [
+    [
+     [
+      268,
+      700
+     ],
+     [
+      410,
+      700
+     ],
+     [
+      410,
+      835
+     ],
+     [
+      268,
+      835
+     ]
+    ],
+    170,
+    -140
+   ]
+  ],
+  "poly": [
+   [
+    282,
+    712
+   ],
+   [
+    340,
+    700
+   ],
+   [
+    400,
+    712
+   ],
+   [
+    408,
+    760
+   ],
+   [
+    392,
+    800
+   ],
+   [
+    340,
+    830
+   ],
+   [
+    292,
+    822
+   ],
+   [
+    276,
+    770
+   ]
+  ],
+  "feather": 14,
+  "opacity": 0.75,
+  "_why": "audit 2026-11-13 problem 9: the half-washed figure behind the kneeling musketeer, now plain musket smoke"
+ },
+ {
+  "src": "@out",
+  "clone": [
+   [
+    [
+     [
+      262,
+      826
+     ],
+     [
+      336,
+      826
+     ],
+     [
+      336,
+      880
+     ],
+     [
+      262,
+      880
+     ]
+    ],
+    0,
+    40
+   ]
+  ],
+  "poly": [
+   [
+    268,
+    832
+   ],
+   [
+    300,
+    826
+   ],
+   [
+    332,
+    850
+   ],
+   [
+    334,
+    876
+   ],
+   [
+    296,
+    880
+   ],
+   [
+    270,
+    862
+   ]
+  ],
+  "feather": 5,
+  "_why": "audit 2026-11-13 problem 6: a third hand on the wounded man (left over from the removed second priest)"
+ },
+ {
+  "src": "@base",
+  "poly": [
+   [
     78,
     628
    ],
@@ -817,16 +1121,161 @@
   "dy": 25
  },
  {
+  "src": "@base",
+  "poly": [
+   [
+    80,
+    690
+   ],
+   [
+    150,
+    656
+   ],
+   [
+    205,
+    686
+   ],
+   [
+    262,
+    698
+   ],
+   [
+    330,
+    686
+   ],
+   [
+    392,
+    700
+   ],
+   [
+    402,
+    760
+   ],
+   [
+    330,
+    772
+   ],
+   [
+    305,
+    772
+   ],
+   [
+    308,
+    822
+   ],
+   [
+    300,
+    882
+   ],
+   [
+    252,
+    902
+   ],
+   [
+    200,
+    888
+   ],
+   [
+    182,
+    846
+   ],
+   [
+    150,
+    872
+   ],
+   [
+    132,
+    842
+   ],
+   [
+    132,
+    800
+   ],
+   [
+    100,
+    790
+   ],
+   [
+    80,
+    760
+   ]
+  ],
+  "dx": 480,
+  "feather": 3,
+  "dy": 25,
+  "_why": "the firing gun in front of the reloading one"
+ },
+ {
+  "src": "@out",
+  "poly": [
+   [
+    512,
+    884
+   ],
+   [
+    562,
+    874
+   ],
+   [
+    642,
+    876
+   ],
+   [
+    666,
+    890
+   ],
+   [
+    666,
+    941
+   ],
+   [
+    506,
+    941
+   ],
+   [
+    500,
+    912
+   ]
+  ],
+  "feather": 10,
+  "_why": "audit 2026-11-13 problem 7: the wounded man's legs ran twice too long; the far part under the trodden ground",
+  "clone": [
+   [
+    [
+     [
+      490,
+      870
+     ],
+     [
+      680,
+      870
+     ],
+     [
+      680,
+      941
+     ],
+     [
+      490,
+      941
+     ]
+    ],
+    690,
+    0
+   ]
+  ]
+ },
+ {
   "sprite": "art/figures/crown_cannon_reload.png",
   "at": [
-   880,
-   960
+   945,
+   958
   ],
-  "height": 270,
+  "height": 240,
   "tone": [
    0.92,
    0.86,
    0.78
-  ]
+  ],
+  "_why": "audit 2026-11-13 problem 2: the nearer gun, abreast of the firing one (which now shows its own carriage)"
  }
 ]

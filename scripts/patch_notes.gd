@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.4", "items": [
+		"THE MAIN MENU PAINTING, CLEANED UP AGAIN: no more copied Brood heads on the slope (the cavalry's dust there now), no ghost rider beside the armoured horseman, no third hand on the wounded man, the half-washed figure behind the kneeling musketeer is now plain musket smoke, the wounded man's legs are a natural length, and the two guns stand side by side: the far one firing with its own carriage, the near one being reloaded in front of it.",
+	]},
 	{"v": "0.34.3", "items": [
 		"THE BROOD COMPUTER PLAYS ITS ECONOMY BETTER (no unit, building or price changed): it roots its second Rootmaw at once, before the turtle on its natural; when it is only short of warriors against what it has seen (no enemy at the Mother), one egg in three is still a grub, so its economy keeps growing; and once it has read a rider opening and has half the warriors it wants, it lays a grub for every warrior until the riders are seen coming. Against the Clockwork computer it earns about a quarter more by 8:00, and about 7% more over all its games.",
 	]},

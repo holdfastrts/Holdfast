@@ -2,7 +2,7 @@
 the previous cross carrier and the battle line we made before adding the priests"). Layers in art/menu_fix/layers.json:
   {"src": png (scaled to "box"), "box": [x0,y0,x1,y1] where the source sits in the painting, "poly": [[x,y],...] the part
    to take (painting coords), "dx"/"dy": move the taken part, "keep": [[poly], ...] base areas that stay on top,
-   "feather": px}
+   "feather": px, "opacity": 0-1}
 applied in order over assets/menu/battle.jpg's source (art/menu_fix/battle_current.png).
   python3 tools/menu_fix_layers.py OUT.png"""
 import json, sys
@@ -83,7 +83,7 @@ for L in json.load(open("art/menu_fix/layers.json")):
         a0[:yb][~br[:yb]] = 0
         m = Image.fromarray(a0)
     m = m.filter(ImageFilter.GaussianBlur(L.get("feather", 10)))
-    a = (np.asarray(m).astype(float) / 255.0)[..., None]
+    a = (np.asarray(m).astype(float) / 255.0)[..., None] * L.get("opacity", 1.0)   # a see-through layer (dust over a part)
     moved = np.roll(np.roll(src, dy, 0), dx, 1)
     out = out * (1 - a) + moved * a
 Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(sys.argv[1])
