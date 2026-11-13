@@ -812,14 +812,14 @@
     762
    ]
   ],
-  "dx": 600,
+  "dx": 480,
   "feather": 7,
-  "dy": 10
+  "dy": 25
  },
  {
   "sprite": "art/figures/crown_cannon_reload.png",
   "at": [
-   1010,
+   880,
    960
   ],
   "height": 270,

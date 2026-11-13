@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.33.45": ["La pintura del menú principal: los dos cañones de campaña retrocedieron a la izquierda, al terreno abierto junto a los mosqueteros, y el cargador ya no queda en medio del Mecanismo."],
 	"0.33.44": ["La pintura del menú principal: el cañón que se recarga es más grande, al frente de la batalla, y el soldado arrodillado bajo el primer cañón ya no está."],
 	"0.33.43": ["La pintura del menú principal: un segundo cañón de campaña se une al primero, su cargador en la boca de la pieza atacando el próximo disparo mientras un artillero se agacha junto a la contera."],
 	"0.33.42": ["La pintura del menú principal: el cañón de campaña y su artillero pasaron al centro de la batalla, disparando contra el Mecanismo, y los soldados que lo apretujaban ya no están."],
