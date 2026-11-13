@@ -2421,6 +2421,7 @@ func _nb_essence(q: Unit) -> void:
 
 const SOFT_EVERY := 2               # (fix 2: under a soft danger a grub after every SOFT_EVERY warrior eggs)
 var soft_share_on := not OS.get_cmdline_user_args().has("nbsoft:off")
+var rider_prep_on := not OS.get_cmdline_user_args().has("nbriderprep:off")
 var _soft_g := 0
 var _soft_w := 0
 
@@ -2471,8 +2472,13 @@ func _nb_lay(q: Unit) -> void:
 	# its curve. Against the Clockwork the under-armed floor (up to 800 by 6:40) kept the computer at 14-18 grubs and 3-4
 	# Rootmaws from 4:00 to 9:00 after its rush (the qa games: 4,726 earned by 8:00, the mirror 8,741); its army never
 	# caught the floor because the income behind it never grew.
-	var soft := danger and _nb_threat(q) == Vector2.INF and not _rush_short() and not rider_short
-	if k == "" and soft and soft_share_on and grubs < want_grubs and grubs < curve and _soft_g * SOFT_EVERY < _soft_w \
+	# FIX 5: riders READ but not seen coming yet (a Horse Breeder seen, no rider out of the enemy's main lately, none in its
+	# land: _rider_need's RIDER_PRE share) is soft too, one grub for one warrior egg: in a Greenhold game the read at 1:33
+	# laid only Raptors until 4:00 on 8-12 grubs with her clutch full, and the riders came at 4:25.
+	var rider_prep := rider_short and rider_prep_on and game.clock - _rider_land_t >= RIDER_CALM and game.clock - _rider_out_t >= 60.0
+	var soft := danger and _nb_threat(q) == Vector2.INF and not _rush_short() and (not rider_short or rider_prep)
+	var every := 1 if rider_prep else SOFT_EVERY
+	if k == "" and soft and soft_share_on and grubs < want_grubs and grubs < curve and _soft_g * every < _soft_w \
 			and food - mini(keep, _morph_keep) >= 50:
 		k = "grub"
 	# SPOILS FROM RAPTORS (the owner, 07:15: the Storm line and the Air rush are paid by offering Raptors up): while the
