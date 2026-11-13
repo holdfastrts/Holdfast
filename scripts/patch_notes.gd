@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.36", "items": [
+		"The main menu painting: the priest with the golden cross now stands on the ground among the soldiers, in front of the musketeers and just behind the missionaries, and the cross no longer sits behind the menu buttons.",
+	]},
 	{"v": "0.33.35", "items": [
 		"The main menu painting: the missionaries and the wounded moved down to the front edge, so the Crown's musketeer line firing behind them is in full view again.",
 	]},

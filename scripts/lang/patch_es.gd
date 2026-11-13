@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.33.36": ["La pintura del menú principal: el sacerdote con la cruz dorada ahora está de pie en el suelo entre los soldados, delante de los mosqueteros y justo detrás de los misioneros, y la cruz ya no queda detrás de los botones del menú."],
 	"0.33.35": ["La pintura del menú principal: los misioneros y los heridos bajaron al borde delantero, y la línea de mosqueteros de la Corona disparando detrás de ellos vuelve a verse entera."],
 	"0.33.34": ["LA PINTURA DEL MENÚ PRINCIPAL: LA IGLESIA VA A LA GUERRA CON LA CORONA. Un sacerdote alza una gran cruz dorada sobre el ejército, brillando contra la tormenta, y unos misioneros se arrodillan en primer plano atendiendo a los heridos, uno tendido en una camilla junto a un farol. El cañón de campaña y su artillero avanzaron para disparar contra el Mecanismo junto al puente."],
 	"0.33.33": ["La pintura del menú principal: el fantasma de las púas de la criatura antigua, que aún se veía en el cielo detrás de la cabeza de la Madre de la Camada, ha desaparecido."],
