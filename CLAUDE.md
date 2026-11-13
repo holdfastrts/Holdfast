@@ -91,6 +91,15 @@
   OWNER 2026-11-12 21:04: ALL ECONOMIES ABOUT EQUAL PER MINUTE, by NERFING the Clockwork and Brood (not buffing the
   Crown), a slower game; asked which RTS the pace resembles. Job economy-parity (branch, docs/economy_parity.md): a
   scripted bench, proposed nerfs applied ON THE BRANCH ONLY, games, the pace compared; DO NOT MERGE until the owner OKs.
+  RESULT (docs/economy_parity.md, bench on main, its balance numbers still only on the branch): by DESIGN the economies
+  are close (Clockwork 1.02-1.06 of the Crown, Brood 0.75-1.00); the COMPUTERS reach Crown ~55%, Brood ~60%, Clockwork
+  72-91% of their bench. OWNER 2026-11-13 01:18: COACH THE COMPUTERS TO ~100% OF THEIR ECONOMY BEFORE ANY BALANCE
+  CHANGE ("so we have a complete picture and then make decisions"): jobs econ-coach-crown, econ-coach-clockwork,
+  econ-coach-brood (AI only, no numbers; docs/econ-coach-<faction>.md); merge one at a time on DONE. Pace now: Warcraft III
+  with a StarCraft II opening. Also running: online-ranked (OWNER 01:04: SERVER-AUTHORITATIVE ranked matches, Steam-only
+  ladder, bans by SteamID64 + optional Steam game ban; prototype + docs/online_ranked.md). Main menu painting: hallucination
+  fixes by crop repaints (art/menu_fix/, tools/menu_fix_composite.py): gunner and horseman done 0.33.31, the Clockwork
+  front and the Brood Mother redone with unit references (waiting on the owner's pictures).
   ART 2026-11-12/13: the Clockwork and Brood campaign hubs (hubs-cw-brood 0.33.26: Hollweg's workshop, Lindqvist's
   station), the Clock Soldier's 8-way walk and the Raptor's S/N run (walks-raptor-clock 0.33.27), the rebels' back
   views, Varenne's calm idles, the pikeman's S/SE pike (rebel-art-2 0.33.28), the Raptor's SE (Claude's composite of two
