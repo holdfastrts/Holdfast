@@ -1,0 +1,34 @@
+| clock | side | plan | income | bank | workers | army | army kinds | halls | supply | units lost | buildings lost |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0:15 | P1 crown | optimal | 0 | 100 | 5 | 0 | {} | 1 | 6/10 | 0 | 0 |
+| 0:15 | P2 crown | optimal | 0 | 100 | 5 | 0 | {} | 1 | 6/10 | 0 | 0 |
+| 1:02 | P1 crown | optimal | 380 | 30 | 8 | 0 | {} | 1 | 9/18 | 0 | 0 |
+| 1:02 | P2 crown | optimal | 380 | 30 | 8 | 0 | {} | 1 | 9/18 | 0 | 0 |
+| 2:02 | P1 crown | balanced | 760 | 160 | 10 | 0 | {} | 1 | 12/18 | 0 | 0 |
+| 2:02 | P2 crown | dragoon | 760 | 60 | 10 | 0 | {} | 1 | 12/18 | 0 | 0 |
+| 3:04 | P1 crown | balanced | 1520 | 170 | 14 | 0 | {} | 2 | 16/36 | 0 | 0 |
+| 3:04 | P2 crown | dragoon | 1140 | 40 | 14 | 0 | {} | 1 | 16/26 | 0 | 0 |
+| 4:04 | P1 crown | balanced | 1900 | 20 | 18 | 0 | {} | 2 | 19/44 | 0 | 0 |
+| 4:04 | P2 crown | dragoon | 1900 | 50 | 14 | 0 | {} | 2 | 15/44 | 1 | 0 |
+| 5:04 | P1 crown | balanced | 2660 | 10 | 20 | 0 | {} | 2 | 21/52 | 1 | 0 |
+| 5:04 | P2 crown | dragoon | 2280 | 20 | 13 | 60 | {musketeer:1} | 2 | 15/52 | 2 | 0 |
+| 6:06 | P1 crown | balanced | 3420 | 15 | 24 | 75 | {dismounted:1} | 2 | 28/52 | 1 | 0 |
+| 6:06 | P2 crown | dragoon | 3040 | 15 | 13 | 235 | {musketeer:2,cuirassier:1} | 2 | 23/52 | 2 | 0 |
+| 7:06 | P1 crown | balanced | 4940 | 7 | 29 | 470 | {cuirassier:2,musketeer:4} | 2 | 49/60 | 1 | 0 |
+| 7:06 | P2 crown | dragoon | 3420 | 5 | 17 | 475 | {musketeer:6,cuirassier:1} | 2 | 28/52 | 2 | 0 |
+| 8:06 | P1 crown | balanced | 6460 | 31 | 35 | 1070 | {cuirassier:3,musketeer:8,cannon:1,dismounted:1} | 2 | 69/84 | 1 | 0 |
+| 8:06 | P2 crown | dragoon | 4560 | 15 | 20 | 995 | {musketeer:8,cuirassier:3,cannon:1} | 2 | 49/52 | 3 | 0 |
+| 9:06 | P1 crown | balanced | 8740 | 141 | 41 | 1540 | {musketeer:12,cuirassier:5,cannon:1,dismounted:1} | 2 | 84/100 | 3 | 0 |
+| 9:06 | P2 crown | dragoon | 5700 | 45 | 26 | 1285 | {musketeer:10,cuirassier:3,cannon:2} | 2 | 63/68 | 4 | 0 |
+| 10:06 | P1 crown | balanced | 9880 | 0 | 48 | 465 | {cuirassier:3,musketeer:2} | 3 | 67/126 | 17 | 0 |
+| 10:06 | P2 crown | dragoon | 7220 | 20 | 30 | 1290 | {musketeer:12,cuirassier:2,cannon:2} | 2 | 71/76 | 13 | 0 |
+| 11:06 | P1 crown | balanced | 11020 | 59 | 47 | 825 | {cuirassier:3,musketeer:8} | 3 | 71/126 | 18 | 0 |
+| 11:06 | P2 crown | dragoon | 9120 | 67 | 34 | 1360 | {musketeer:10,cuirassier:3,cannon:2,dismounted:1} | 3 | 79/94 | 18 | 0 |
+| 12:06 | P1 crown | balanced | 12920 | 1 | 53 | 1425 | {cuirassier:3,musketeer:18} | 3 | 96/126 | 19 | 0 |
+| 12:06 | P2 crown | dragoon | 9880 | 30 | 43 | 1280 | {cuirassier:4,musketeer:8,cannon:2} | 4 | 81/104 | 21 | 0 |
+| 13:06 | P1 crown | balanced | 16340 | 11 | 65 | 2200 | {cuirassier:7,musketeer:17,dismounted:5} | 3 | 132/142 | 25 | 0 |
+| 13:06 | P2 crown | dragoon | 10260 | 1 | 20 | 1240 | {dismounted:1,musketeer:8,cuirassier:3,cannon:2} | 4 | 60/112 | 45 | 0 |
+| 14:06 | P1 crown | balanced | 18880 | 82 | 54 | 2720 | {cuirassier:11,musketeer:23,dismounted:1} | 4 | 150/184 | 32 | 0 |
+| 14:06 | P2 crown | dragoon | 10260 | 1 | 5 | 930 | {cuirassier:2,musketeer:6,cannon:2} | 4 | 32/112 | 70 | 6 |
+| 14:51 | P1 crown | balanced | 20400 | 2 | 73 | 2520 | {cuirassier:12,musketeer:19} | 4 | 152/200 | 39 | 0 |
+| 14:51 | P2 crown | dragoon | 10260 | 1 | 5 | 930 | {cuirassier:2,musketeer:6,cannon:2} | 2 | 30/92 | 72 | 10 |
