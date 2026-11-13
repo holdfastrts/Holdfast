@@ -452,17 +452,57 @@ func q_of(i: int) -> int:
 	return (i << 8) | (int(kind[i]) << 5) | (0 if left[i] <= EPS else maxi(1, int(ceil(f * Q))))
 
 
-## Rows that changed since `sent` (a Dictionary index -> row the view last got; updated); all of them when `all`.
-func net_rows(sent: Dictionary, all: bool) -> PackedInt32Array:
+## Rows that changed since `sent` (a Dictionary index -> row the view last got; updated); every one it knows when `all`.
+## FOG (ranked, docs/online_ranked.md): `eye_vis` (NetSnapshot._eye_vis: the view's sides' sight, empty = sees all) keeps a
+## tile's news to the sides that see it now: a tile out of sight is sent only as it was last seen (in a keyframe), never
+## while an enemy drinks it unseen.
+func net_rows(sent: Dictionary, all: bool, eye_vis: Array = []) -> PackedInt32Array:
 	var out := PackedInt32Array()
 	for i in kind.size():
 		if kind[i] == NONE:
+			continue
+		if not eye_vis.is_empty() and not NetSnapshot._cell_seen(g, i, eye_vis):
+			if all and sent.has(i):
+				out.append(int(sent[i]))          # (as it was last seen)
 			continue
 		var r := q_of(i)
 		if all or int(sent.get(i, -1)) != r:
 			sent[i] = r
 			out.append(r)
 	return out
+
+
+## Rows as they go on the wire: the tile numbers as steps from the one before (rows come in tile order), deflated: a
+## keyframe's whole layer is a few hundred bytes.
+static func pack_rows(rows: PackedInt32Array) -> PackedByteArray:
+	var d := PackedInt32Array()
+	d.resize(rows.size())
+	var prev := 0
+	for j in rows.size():
+		var i := rows[j] >> 8
+		d[j] = ((i - prev) << 8) | (rows[j] & 255)
+		prev = i
+	var raw := d.to_byte_array()
+	var out := PackedByteArray()
+	out.resize(4)
+	out.encode_u32(0, raw.size())
+	out.append_array(raw.compress(FileAccess.COMPRESSION_DEFLATE))
+	return out
+
+
+static func unpack_rows(b) -> PackedInt32Array:
+	if b is PackedInt32Array:
+		return b
+	if not (b is PackedByteArray) or (b as PackedByteArray).size() < 4:
+		return PackedInt32Array()
+	var bb: PackedByteArray = b
+	var d := bb.slice(4).decompress(int(bb.decode_u32(0)), FileAccess.COMPRESSION_DEFLATE).to_int32_array()
+	var prev := 0
+	for j in d.size():
+		var i := prev + (d[j] >> 8)
+		d[j] = (i << 8) | (d[j] & 255)
+		prev = i
+	return d
 
 
 ## A guest takes rows (a keyframe's `all` rows first clears what it had).

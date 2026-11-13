@@ -3,7 +3,9 @@ extends SceneTree
 ## included. One process: a host game (two Hard computers) with two guests on opposite sides, as on a dedicated match
 ## host (NetSession.side_views: one picture per side), ranked's strict mode on; a guest's puppet game for side 1 is fed
 ## its pictures (it must hold exactly what the host said it holds, and nothing breaks).
-##   godot --headless --fixed-fps 30 --script res://tools/test_net_fog.gd [-- secs:300 map:twin_fords]
+##   godot --headless --fixed-fps 30 --script res://tools/test_net_fog.gd [-- secs:300 map:twin_fords ground:1]
+## ground:1 (THE GROUND SYSTEM, docs/ground_system.md; side 1 plays the Clockwork then): the soil and brass on the map too: its changes only for tiles the side sees,
+## and the guest's layer as the host's where it sees.
 ## Checks, every picture of both sides:
 ## - every enemy UNIT row: that side sees the unit now, or it is the one last row as it leaves sight (seen the picture
 ##   before); never one it has not seen (the 0.33 keyframes sent every enemy unit whole: a map hack's dream);
@@ -34,6 +36,10 @@ var fx_leaks := 0
 var ever := [{}, {}]                 # per side: every id ever sent to it
 var bad_examples: Array = []
 var old_leaks := 0
+var ground := false
+var ground_rows := 0
+var ground_bytes := 0
+var ground_leaks := 0
 
 
 func check(name: String, ok: bool, detail := "") -> void:
@@ -46,6 +52,8 @@ func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("secs:"):
 			secs = float(a.substr(5))
+		elif a == "ground:1":
+			ground = true
 		elif a.begins_with("map:"):
 			map = a.substr(4)
 	main = load("res://scenes/main.tscn").instantiate()
@@ -56,9 +64,9 @@ func _process(delta: float) -> bool:
 	t += delta
 	if stage == 0:
 		if t > 0.2 and main.game == null:
-			main.start({"map": map, "seed": 777123, "slots": [
+			main.start({"map": map, "seed": 777123, "ground": ground, "slots": [
 				{"who": "hard", "faction": "crown", "colour": 0, "side": 0, "strategy": "balanced"},
-				{"who": "hard", "faction": "brood", "colour": 1, "side": 1, "strategy": "rush"}]})
+				{"who": "hard", "faction": "clockwork" if ground else "brood", "colour": 1, "side": 1, "strategy": "rush"}]})
 			return false
 		if main.game == null:
 			return false
@@ -170,6 +178,15 @@ func _check_picture(v: NetView, side: int, before: Dictionary, m: Dictionary) ->
 				bank_leaks += 1
 	if m.has("stats") and not g.over:
 		stats_leaks += 1
+	for r in GroundLayer.unpack_rows(m.get("gd", PackedByteArray())):
+		ground_rows += 1
+		if not NetSnapshot._cell_seen(g, int(r) >> 8, ev):
+			ground_leaks += 1
+	if m.has("gk"):
+		ground_rows += GroundLayer.unpack_rows(m["gk"]).size()
+		ground_bytes += (m["gk"] as PackedByteArray).size()
+	if m.has("gd"):
+		ground_bytes += (m["gd"] as PackedByteArray).size()
 	for f in m.get("fx", []):
 		fx_seen += 1
 		if String(f[0]) == "e":
@@ -190,5 +207,15 @@ func _report() -> void:
 	check("strict: no battle report before the end", stats_leaks == 0, "%d" % stats_leaks)
 	check("effects only where the side sees", fx_seen > 0 and fx_leaks == 0, "%d of %d" % [fx_leaks, fx_seen])
 	check("the guest holds exactly what the host listed after each keyframe", gs.count_diff_max == 0, "worst %d, %d snapshots off" % [gs.count_diff_max, gs.count_diff_snaps])
+	if ground:
+		var worst := 0.0
+		var seen := 0
+		var ev := NetSnapshot._eye_vis(g, [1])
+		for i in g.ground_layer.kind.size():
+			if g.ground_layer.kind[i] != GroundLayer.NONE and NetSnapshot._cell_seen(g, i, ev):
+				seen += 1
+				worst = maxf(worst, absf(g.ground_layer.fresh(i) - pg.ground_layer.fresh(i)) if pg.ground_layer else 1.0)
+		check("ground: rows sent, never a change of a tile the side can't see", ground_rows > 0 and ground_leaks == 0, "%d rows (%d KB on the wire), %d unseen" % [ground_rows, ground_bytes / 1024, ground_leaks])
+		check("ground: the guest's layer is the host's where it sees (within 2/32)", seen > 0 and worst <= 2.0 / 31.0 + 0.001, "%d tiles, worst %.3f" % [seen, worst])
 	print("FOG %s" % ("ALL OK" if fails == 0 else "SOME FAILED (%d)" % fails))
 	quit(0 if fails == 0 else 1)
