@@ -7,8 +7,9 @@ extends SceneTree
 ##   standup  both sides attack-move into each other (the riders ride by: Defs.RIDE_BY, the Cyclone-like loop)
 ##   stand    the riders stand their ground (HOLD-less idle: they fight standing, no ride-by) and the Raptors come in
 ##   kite     hit and run by script (the owner's walk + attack)
-##   gate     the riders stand behind a gate gap in a palisade line; the Raptors attack-move at them
-##   wall     the Raptors hit a palisade (attack-move to a Cottage behind it) while 2 riders kite them from outside
+##   gate     the riders stand behind a one-cell gap in a palisade line (a gate the Raptors come through single file)
+## (the Raptors at a wall with riders hitting and running from outside, run by the Brood's own computer:
+## tools/test_brood_rush_riders.gd)
 ## Args: modes:standup,stand,kite  riders:2  raptors:10  trials:6  rideby:off  pack:1 (Pack Hunt researched)
 ##   set:raptor.hp=38,raptor.damage=7  (a balance number tried for this run only: Defs.UNITS[kind][stat])
 ##   godot --headless --fixed-fps 30 --script res://tools/test_raptor_rider_fight.gd -- modes:standup,kite riders:3
@@ -108,22 +109,16 @@ func _fight(mode: String, nr: int, nb: int, trial: int) -> Dictionary:
 	var c := _flat_spot(g)
 	var riders: Array = []
 	var raps: Array = []
-	var wall_y := c.y + 60.0
-	var home: Entity = null
-	if mode == "gate" or mode == "wall":
+	if mode == "gate":
 		# a palisade across the patch, 60 px south of the middle; for "gate" a 2-cell gap in it (the riders stand behind)
 		var a: Vector2i = g.cell_of(c + Vector2(-300, 60))
 		var b: Vector2i = g.cell_of(c + Vector2(300, 60))
 		for cell in g.line_cells(a, b):
-			if mode == "gate" and absi(cell.x - g.cell_of(c).x) <= 0:
+			if cell.x == g.cell_of(c).x:
 				continue
 			g._add_building("wall", 0, cell, true)
-		if mode == "wall":
-			home = g._add_building("cottage", 0, g.cell_of(c + Vector2(0, -90)), true)
 	for i in nr:
 		var rp := c + Vector2(-20 * (nr - 1) + i * 40, 0)
-		if mode == "wall":
-			rp = c + Vector2(-260 + i * 40, 160)
 		riders.append(g._add_unit("cuirassier", 0, rp))
 	for i in nb:
 		raps.append(g._add_unit("raptor", 1, c + Vector2(rng.randf_range(-70, 70), 220 + rng.randf_range(0, 50))))
@@ -146,7 +141,7 @@ func _fight(mode: String, nr: int, nb: int, trial: int) -> Dictionary:
 	for r in riders:
 		hp0 += r.hp
 	for u in raps:
-		u.cmd_move(c + Vector2(0, -60) if mode == "wall" else c, true)
+		u.cmd_move(c, true)
 	for r in riders:
 		if mode == "standup" or mode == "kite":
 			r.cmd_move(c + Vector2(0, 120), true)       # (both sides attack-move: a stand-up fight)
@@ -163,8 +158,6 @@ func _fight(mode: String, nr: int, nb: int, trial: int) -> Dictionary:
 		var ra := _alive(raps)
 		if rr.is_empty() or ra.is_empty():
 			break
-		if mode == "wall" and (home == null or not is_instance_valid(home) or home.dead):
-			break
 		for x in ra:
 			samples += 1
 			var dd := INF
@@ -172,7 +165,7 @@ func _fight(mode: String, nr: int, nb: int, trial: int) -> Dictionary:
 				dd = minf(dd, r.edge_distance(x.position) - x.radius)
 			if dd <= x._range():
 				reach += 1
-		if mode == "kite" or mode == "wall":
+		if mode == "kite":
 			# hit and run: a rider whose sabre is cooling and has a Raptor within 60 px rides away 2 tiles
 			for r in rr:
 				var near: Unit = null

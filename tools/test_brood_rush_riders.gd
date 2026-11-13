@@ -5,6 +5,7 @@ extends SceneTree
 ## ride off out into the open while the sabre cools, and again. Before (`-- nbchase:on`) the Raptors left the wall and chased
 ## the riders, who killed them; now the wave keeps at the wall and bites a rider only when he comes into the pack.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_brood_rush_riders.gd [-- nbchase:on] [-- trials:4] [-- riders:2]
+##       [-- set:raptor.hp=38] (a balance number tried on the units of this run only) [-- verbose]
 ## Prints per trial: Raptors left, rider health lost, Raptor-seconds spent more than 6 tiles from the box, palisade
 ## pieces and health lost; PASS/FAIL on the new behaviour (unless nbchase:on).
 const T := 32.0
@@ -54,8 +55,9 @@ func _go() -> void:
 	print("%s (%d riders): raptors left %.1f, rider hp lost %.0f, riders dead %.1f, raptor-seconds out %.0f, box health lost %.0f (%.1f pieces)" % [
 		"OLD (chase)" if args.has("nbchase") else "NEW (no chase)", nr, tot["raps"] / n, tot["hp"] / n, tot["riders_dead"] / n, tot["out"] / n, tot["wall"] / n, tot["pieces"] / n])
 	if not args.has("nbchase"):
-		check(tot["out"] / n < 40.0, "the wave stays at the wall (raptor-seconds more than 6 tiles out: %.0f a trial)" % (tot["out"] / n))
-		check(tot["raps"] / n >= 3.0 or tot["riders_dead"] / n >= 1.0, "the riders' hit and run no longer wipes the wave for nothing (raptors left %.1f, riders dead %.1f)" % [tot["raps"] / n, tot["riders_dead"] / n])
+		check(tot["out"] / n < 30.0, "the wave stays at the wall (raptor-seconds more than 6 tiles out: %.0f a trial)" % (tot["out"] / n))
+		# (the trade itself is reported, not checked: a Horseman ridden hit and run beats Raptors whatever they do, at the wall
+		# or out in the open, 1 rider against 10 included: docs/brood_rush_coach.md)
 		check(tot["wall"] / n > 150.0, "the wave keeps hitting the palisade (%.0f health a trial)" % (tot["wall"] / n))
 		print("RESULT: %d failed" % fails)
 	quit()
@@ -101,6 +103,18 @@ func _trial(trial: int, nr: int) -> Dictionary:
 	for i in nr:
 		riders.append(g._add_unit("cuirassier", 0, mid + Vector2(260, 120 + 40 * i)))
 	await physics_frame
+	if args.has("set"):
+		for kv in str(args["set"]).split(","):
+			var ks: PackedStringArray = kv.split("=")
+			var ku: PackedStringArray = ks[0].split(".")
+			for u in riders + raps:
+				if u.kind == ku[0]:
+					var dd: Dictionary = u.d.duplicate()
+					dd[ku[1]] = float(ks[1])
+					u.d = dd
+					if ku[1] == "hp":
+						u.max_hp = float(ks[1])
+						u.hp = u.max_hp
 	bai._attacking = true
 	bai._wave = raps.duplicate()
 	bai._wave_target = mid

@@ -1636,6 +1636,8 @@ func _nb_morphs_go(q: Unit) -> void:
 	elif _under_armed() and _army_supply_now() < 30 and maws >= 4 and not (soft_share_on and grubs + 1 >= _nb_want_grubs() and maws < _nb_wanted_maws()):
 		pass          # (fix 2: but a Rootmaw when its grubs (one egg in three, _nb_lay) have filled the ones it has)          # (brood-ai-tune: under-armed, warriors before more ground: round B g07 had 3 Raptors from 4:00 to 8:00
 		              # while every 100 food went into Rootmaws and turtles on new ground and the Crown's army reached 1,360)
+	elif _rebuilding():
+		pass          # (brood-rush-coach: grubs for the posts it has before more Rootmaws or new ground)
 	elif maws < _nb_wanted_maws() and (maws < 3 or not _nb_saving_growth(q)) and _nb_maw_room(q):
 		# (brood-ai-tune: no "100 food in hand" gate any more: the rushes spent every 50 food on Raptors, so their third
 		# Rootmaw waited from 2:00 to 8:30 and the grubs stood at 14; now the food is kept for it like any structure)
@@ -1645,7 +1647,7 @@ func _nb_morphs_go(q: Unit) -> void:
 		if not picks.is_empty():
 			k = BroodNew.TURTLE
 			spot = picks[0]
-	if k == "" and maws < _nb_wanted_maws() and not _nb_saving_growth(q) and not _nb_maw_room(q) and not (_under_armed() and _army_supply_now() < 30) \
+	if k == "" and maws < _nb_wanted_maws() and not _nb_saving_growth(q) and not _nb_maw_room(q) and not (_under_armed() and _army_supply_now() < 30) and not _rebuilding() \
 			and _nb_far_have(q) < 6 and not (maw_first_on and game.clock < 30.0):          # (fix 3: at 0:00 there is no room only because her swamp is not down yet)
 		var more := _nb_far_spots(q, 40.0)    # (0.24.7: no room left for a Rootmaw: one more turtle on new ground makes room,
 		                                      # farther out than the planned expansions)
@@ -3171,10 +3173,10 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 	# (brood-rush-coach: NO WALK HOME FROM RIDERS. When all the enemy fighters about are riders (112 against a Raptor's 96),
 	# a pull-back is a walk with its back to them: the owner's 2 Horsemen cut the Mirewood rush down from behind on its way
 	# home. The wave stays together where it is (at the wall it bites the riders who come in: _nb_wave_no_chase) and goes
-	# home only once it has made no headway for long. `-- nbchase:on` pulls back as before)
+	# home only once it is down to a quarter or has made no headway for long. `-- nbchase:on` pulls back as before)
 	var lost_fight := (left < _wave_v0 * 0.5 and ahead > left * 1.2) or quarter \
 			or (left < _wave_v0 * 0.7 and ahead > left * 1.6 and gained < lost * 0.5)
-	if lost_fight and no_chase_on and riders_only and ahead > 0.0 and not _foe_is("brood") and game.clock - _wave_t0 < 150.0:
+	if lost_fight and not quarter and no_chase_on and riders_only and ahead > 0.0 and not _foe_is("brood") and game.clock - _wave_t0 < 150.0:
 		lost_fight = false
 		if game.clock - _raid_stay_said > 20.0:
 			_raid_stay_said = game.clock
@@ -3653,6 +3655,21 @@ func _wave_end_nb(q: Unit, failed: bool) -> void:
 		                                             # lost all but 4 and the economy behind it never grew: two minutes to build)
 
 
+## (brood-rush-coach) THE REBUILD AFTER A RUSH: for REBUILD_FOR s after the hand-over to Balanced, while its Rootmaws
+## have more than REBUILD_EMPTY posts without a grub, the food goes to grubs first: no new Rootmaw or turtle on new ground
+## (a supply turtle when it is short, and a Sire, still come). The owner's Mirewood game and the computer games on Mirewood
+## stood at 8-15 grubs from 3:35 to 6:00 with 4-17 posts empty, a third of the food going into Rootmaws and turtles out on
+## new ground that nobody worked. `-- nbrebuild:off` plays it as before.
+const REBUILD_FOR := 150.0
+const REBUILD_EMPTY := 2
+var rebuild_on := not OS.get_cmdline_user_args().has("nbrebuild:off")
+var _rebuild_t := -999.0
+
+
+func _rebuilding() -> bool:
+	return rebuild_on and game.clock - _rebuild_t < REBUILD_FOR and BroodNew.count_of(game, team, "grub") + 2 + REBUILD_EMPTY <= _nb_want_grubs()
+
+
 ## A rush over (failed, or called off before it left): the Balanced plan from now on, expanding at once.
 func _rush_to_balanced(why: String) -> void:
 	strategy = "balanced"
@@ -3666,6 +3683,7 @@ func _rush_to_balanced(why: String) -> void:
 	# left round her for a third Rootmaw the economy stood at 2 Rootmaws and 14 grubs until 10:00: the expansions
 	# now come from the failed rush on, a minute and a half apart)
 	plan["far"] = [[game.clock, 1], [game.clock + 90.0, 2], [game.clock + 180.0, 3]]
+	_rebuild_t = game.clock
 	_attack_at = maxi(keep_wave, 20)
 	_retreat_until = game.clock + 90.0
 	_first_out = true
