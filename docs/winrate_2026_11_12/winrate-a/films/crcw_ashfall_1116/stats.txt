@@ -1,0 +1,118 @@
+0015 P1 clockwork balanced income 60 bank 240 workers 5 army 0 ({  }) rooted 0 halls 1 supply 6/10 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0015 P2 crown optimal income 0 bank 100 workers 5 army 0 ({  }) rooted 0 halls 1 supply 6/10 lost 0 bld_lost 0 at (0.0, 0.0)
+0030 P1 clockwork balanced income 149 bank 169 workers 6 army 0 ({  }) rooted 0 halls 1 supply 7/10 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0030 P2 crown optimal income 0 bank 0 workers 6 army 0 ({  }) rooted 0 halls 1 supply 7/18 lost 0 bld_lost 0 at (0.0, 0.0)
+0045 P1 clockwork balanced income 253 bank 73 workers 7 army 0 ({  }) rooted 0 halls 1 supply 8/10 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0045 P2 crown optimal income 0 bank 0 workers 7 army 0 ({  }) rooted 0 halls 1 supply 7/18 lost 0 bld_lost 0 at (0.0, 0.0)
+0102 P1 clockwork balanced income 376 bank 136 workers 9 army 0 ({  }) rooted 0 halls 1 supply 9/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0102 P2 crown optimal income 380 bank 30 workers 8 army 0 ({  }) rooted 0 halls 1 supply 9/18 lost 0 bld_lost 0 at (0.0, 0.0)
+0117 P1 clockwork balanced income 473 bank 113 workers 10 army 0 ({  }) rooted 0 halls 1 supply 11/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0117 P2 crown optimal income 380 bank 30 workers 9 army 0 ({  }) rooted 0 halls 1 supply 9/18 lost 0 bld_lost 0 at (0.0, 0.0)
+0132 P1 clockwork balanced income 656 bank 236 workers 11 army 0 ({  }) rooted 0 halls 1 supply 12/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0132 P2 crown timing income 380 bank 30 workers 8 army 0 ({  }) rooted 0 halls 1 supply 8/18 lost 1 bld_lost 0 at (0.0, 0.0)
+0147 P1 clockwork balanced income 872 bank 392 workers 12 army 0 ({  }) rooted 0 halls 1 supply 13/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0147 P2 crown timing income 760 bank 210 workers 8 army 0 ({  }) rooted 0 halls 1 supply 10/18 lost 1 bld_lost 0 at (0.0, 0.0)
+0204 P1 clockwork balanced income 1117 bank 27 workers 13 army 0 ({  }) rooted 0 halls 1 supply 14/20 lost 0 bld_lost 0 at (0.0, 0.0) push 
+0204 P2 crown timing income 760 bank 158 workers 9 army 0 ({  }) rooted 0 halls 1 supply 11/18 lost 1 bld_lost 0 at (0.0, 0.0)
+0219 P1 clockwork balanced income 1333 bank 43 workers 14 army 0 ({  }) rooted 0 halls 1 supply 14/20 lost 1 bld_lost 0 at (0.0, 0.0) push 
+0219 P2 crown timing income 760 bank 8 workers 11 army 0 ({  }) rooted 0 halls 1 supply 12/18 lost 1 bld_lost 0 at (0.0, 0.0)
+0234 P1 clockwork balanced income 1550 bank 40 workers 15 army 0 ({  }) rooted 0 halls 1 supply 16/20 lost 1 bld_lost 0 at (0.0, 0.0) push 
+0234 P2 crown timing income 1140 bank 338 workers 12 army 0 ({  }) rooted 0 halls 1 supply 13/26 lost 1 bld_lost 0 at (0.0, 0.0)
+0249 P1 clockwork balanced income 1766 bank 126 workers 16 army 0 ({  }) rooted 0 halls 1 supply 18/20 lost 1 bld_lost 0 at (0.0, 0.0) push 
+0249 P2 crown timing income 1140 bank 28 workers 13 army 0 ({  }) rooted 0 halls 1 supply 15/26 lost 1 bld_lost 0 at (0.0, 0.0)
+0304 P1 clockwork springer income 1983 bank 43 workers 17 army 70 ({ "clock_soldier": 1 }) rooted 0 halls 2 supply 18/40 lost 1 bld_lost 0 at (554.0, 911.0) push 
+0304 P2 crown timing income 1140 bank 28 workers 14 army 60 ({ "musketeer": 1 }) rooted 0 halls 1 supply 15/26 lost 1 bld_lost 0 at (2963.0, 2255.0)
+0319 P1 clockwork springer income 2199 bank 199 workers 18 army 70 ({ "clock_soldier": 1 }) rooted 0 halls 2 supply 19/40 lost 1 bld_lost 0 at (589.0, 1150.0) push 
+0319 P2 crown timing income 1520 bank 188 workers 14 army 60 ({ "musketeer": 1 }) rooted 0 halls 1 supply 19/26 lost 1 bld_lost 0 at (3045.0, 1992.0)
+0334 P1 clockwork springer income 2416 bank 416 workers 18 army 70 ({ "clock_soldier": 1 }) rooted 0 halls 2 supply 19/40 lost 1 bld_lost 0 at (587.0, 1154.0) push 
+0334 P2 crown timing income 1520 bank 28 workers 14 army 120 ({ "musketeer": 2 }) rooted 0 halls 1 supply 20/26 lost 1 bld_lost 0 at (2880.0, 2145.0)
+0349 P1 clockwork springer income 2632 bank 562 workers 18 army 70 ({ "clock_soldier": 1 }) rooted 0 halls 2 supply 20/40 lost 1 bld_lost 0 at (587.0, 1154.0) push 
+0349 P2 crown timing income 1900 bank 63 workers 15 army 180 ({ "musketeer": 3 }) rooted 0 halls 1 supply 24/26 lost 1 bld_lost 0 at (2977.0, 2100.0)
+0405 P1 clockwork springer income 2859 bank 499 workers 18 army 140 ({ "clock_soldier": 2 }) rooted 0 halls 2 supply 22/40 lost 1 bld_lost 0 at (567.0, 1044.0) push 
+0405 P2 crown timing income 1900 bank 13 workers 16 army 240 ({ "musketeer": 4 }) rooted 0 halls 1 supply 25/26 lost 1 bld_lost 0 at (3051.0, 1988.0)
+0420 P1 clockwork springer income 3075 bank 565 workers 18 army 280 ({ "clock_soldier": 4 }) rooted 0 halls 2 supply 22/40 lost 1 bld_lost 0 at (576.0, 1084.0) push 
+0420 P2 crown timing income 1900 bank 13 workers 17 army 355 ({ "musketeer": 4, "cuirassier": 1 }) rooted 0 halls 1 supply 25/34 lost 1 bld_lost 0 at (3039.0, 2042.0)
+0435 P1 clockwork springer income 3291 bank 541 workers 18 army 420 ({ "clock_soldier": 6 }) rooted 0 halls 2 supply 26/40 lost 1 bld_lost 0 at (593.0, 1157.0) push 
+0435 P2 crown timing income 2280 bank 13 workers 17 army 355 ({ "musketeer": 4, "cuirassier": 1 }) rooted 0 halls 1 supply 31/34 lost 1 bld_lost 0 at (3051.0, 1988.0)
+0450 P1 clockwork springer income 3507 bank 687 workers 18 army 420 ({ "clock_soldier": 6 }) rooted 0 halls 2 supply 27/40 lost 1 bld_lost 0 at (596.0, 1166.0) push 
+0450 P2 crown timing income 2280 bank 13 workers 18 army 415 ({ "musketeer": 5, "cuirassier": 1 }) rooted 0 halls 1 supply 31/34 lost 1 bld_lost 0 at (3046.0, 2013.0)
+0505 P1 clockwork springer income 3723 bank 733 workers 18 army 590 ({ "clock_soldier": 7, "springer": 1 }) rooted 0 halls 2 supply 30/40 lost 1 bld_lost 0 at (480.0, 921.0) push 
+0505 P2 crown timing income 2660 bank 143 workers 18 army 585 ({ "musketeer": 5, "cuirassier": 1, "cannon": 1 }) rooted 0 halls 1 supply 33/42 lost 1 bld_lost 0 at (3058.0, 1986.0)
+0520 P1 clockwork springer income 3939 bank 696 workers 18 army 760 ({ "clock_soldier": 8, "springer": 2 }) rooted 0 halls 2 supply 35/40 lost 1 bld_lost 0 at (1193.0, 1037.0) push march
+0520 P2 crown timing income 2660 bank 143 workers 18 army 645 ({ "musketeer": 6, "cuirassier": 1, "cannon": 1 }) rooted 0 halls 1 supply 32/42 lost 2 bld_lost 0 at (3060.0, 1994.0)
+0535 P1 clockwork springer income 4144 bank 511 workers 18 army 930 ({ "clock_soldier": 9, "springer": 3 }) rooted 0 halls 2 supply 40/40 lost 1 bld_lost 0 at (1870.0, 1607.0) push march
+0535 P2 crown timing income 3040 bank 53 workers 18 army 645 ({ "musketeer": 6, "cuirassier": 1, "cannon": 1 }) rooted 0 halls 1 supply 38/50 lost 2 bld_lost 0 at (3059.0, 1994.0)
+0550 P1 clockwork springer income 4352 bank 659 workers 19 army 1100 ({ "clock_soldier": 10, "springer": 4 }) rooted 0 halls 2 supply 40/40 lost 2 bld_lost 0 at (2167.0, 1566.0) push march
+0550 P2 crown timing income 3040 bank 53 workers 19 army 705 ({ "musketeer": 7, "cuirassier": 1, "cannon": 1 }) rooted 0 halls 1 supply 38/50 lost 2 bld_lost 0 at (3049.0, 2021.0)
+0605 P1 clockwork springer income 4562 bank 652 workers 20 army 1100 ({ "clock_soldier": 10, "springer": 4 }) rooted 0 halls 2 supply 43/50 lost 2 bld_lost 0 at (1289.0, 890.0) push march
+0605 P2 crown timing income 3420 bank 63 workers 19 army 705 ({ "musketeer": 7, "cuirassier": 1, "cannon": 1 }) rooted 0 halls 1 supply 42/50 lost 2 bld_lost 0 at (3058.0, 1997.0)
+0620 P1 clockwork springer income 4752 bank 32 workers 21 army 1240 ({ "clock_soldier": 12, "springer": 4 }) rooted 0 halls 2 supply 50/50 lost 2 bld_lost 0 at (1487.0, 988.0) push march
+0620 P2 crown timing income 3800 bank 68 workers 19 army 935 ({ "musketeer": 8, "cuirassier": 1, "cannon": 2 }) rooted 0 halls 1 supply 47/58 lost 2 bld_lost 0 at (3079.0, 1993.0)
+0635 P1 clockwork springer income 4967 bank 48 workers 24 army 1380 ({ "clock_soldier": 14, "springer": 4 }) rooted 0 halls 2 supply 53/60 lost 2 bld_lost 0 at (2201.0, 1783.0) push march
+0635 P2 crown timing income 3800 bank 8 workers 19 army 1055 ({ "musketeer": 10, "cuirassier": 1, "cannon": 2 }) rooted 0 halls 1 supply 48/58 lost 2 bld_lost 0 at (3076.0, 1996.0)
+0650 P1 clockwork springer income 5186 bank 107 workers 24 army 1575 ({ "clock_soldier": 15, "springer": 4, "netter": 1 }) rooted 0 halls 2 supply 54/60 lost 2 bld_lost 0 at (2240.0, 1719.0) push march
+0650 P2 crown timing income 4180 bank 68 workers 18 army 1115 ({ "musketeer": 11, "cuirassier": 1, "cannon": 2 }) rooted 0 halls 1 supply 53/66 lost 3 bld_lost 0 at (3027.0, 2102.0)
+0705 P1 clockwork springer income 5464 bank 61 workers 25 army 965 ({ "clock_soldier": 12, "netter": 1 }) rooted 0 halls 2 supply 46/70 lost 9 bld_lost 0 at (2388.0, 1709.0) push march
+0705 P2 crown timing income 4560 bank 28 workers 19 army 1290 ({ "musketeer": 12, "cuirassier": 2, "cannon": 2 }) rooted 0 halls 1 supply 60/66 lost 3 bld_lost 0 at (2952.0, 1922.0)
+0720 P1 clockwork springer income 5766 bank 350 workers 27 army 1020 ({ "clock_soldier": 11, "netter": 2 }) rooted 0 halls 2 supply 45/70 lost 10 bld_lost 0 at (2441.0, 1710.0) push march
+0720 P2 crown timing income 4560 bank 28 workers 18 army 1635 ({ "musketeer": 13, "cuirassier": 3, "cannon": 3 }) rooted 0 halls 1 supply 60/74 lost 3 bld_lost 0 at (2815.0, 2113.0)
+0735 P1 clockwork springer income 6069 bank 153 workers 28 army 1020 ({ "clock_soldier": 11, "netter": 2 }) rooted 0 halls 2 supply 43/70 lost 11 bld_lost 0 at (2443.0, 1702.0) push fight
+0735 P2 crown timing income 4940 bank 8 workers 18 army 1695 ({ "musketeer": 14, "cuirassier": 3, "cannon": 3 }) rooted 0 halls 1 supply 60/74 lost 3 bld_lost 0 at (2773.0, 2028.0)
+0750 P1 clockwork springer income 6462 bank 182 workers 25 army 880 ({ "clock_soldier": 9, "netter": 2 }) rooted 0 halls 2 supply 44/70 lost 16 bld_lost 0 at (2123.0, 1689.0) push back
+0750 P2 crown timing income 4940 bank 8 workers 18 army 1840 ({ "musketeer": 14, "cuirassier": 3, "cannon": 3, "mortar": 1 }) rooted 0 halls 1 supply 60/74 lost 3 bld_lost 0 at (2900.0, 1983.0)
+0805 P1 clockwork springer income 6877 bank 284 workers 27 army 950 ({ "clock_soldier": 10, "netter": 2 }) rooted 0 halls 2 supply 47/70 lost 16 bld_lost 0 at (1227.0, 1252.0) push back
+0805 P2 crown timing income 4940 bank 8 workers 18 army 1840 ({ "musketeer": 14, "cuirassier": 3, "cannon": 3, "mortar": 1 }) rooted 0 halls 2 supply 60/84 lost 3 bld_lost 0 at (2920.0, 1830.0)
+0820 P1 clockwork springer income 7292 bank 304 workers 28 army 1050 ({ "clock_soldier": 10, "netter": 2, "springer": 1 }) rooted 0 halls 2 supply 52/70 lost 16 bld_lost 0 at (728.0, 878.0) push 
+0820 P2 crown timing income 5320 bank 38 workers 17 army 1840 ({ "musketeer": 14, "cuirassier": 3, "cannon": 3, "mortar": 1 }) rooted 0 halls 2 supply 61/84 lost 3 bld_lost 0 at (2617.0, 1529.0)
+0835 P1 clockwork springer income 7677 bank 349 workers 28 army 1220 ({ "clock_soldier": 11, "netter": 2, "springer": 2 }) rooted 0 halls 3 supply 55/80 lost 16 bld_lost 0 at (1106.0, 1082.0) push 
+0835 P2 crown timing income 5700 bank 118 workers 17 army 1780 ({ "musketeer": 13, "cuirassier": 3, "cannon": 3, "mortar": 1 }) rooted 0 halls 2 supply 61/84 lost 5 bld_lost 0 at (1921.0, 1105.0)
+0850 P1 clockwork springer income 8055 bank 68 workers 28 army 1010 ({ "clock_soldier": 8, "netter": 2, "springer": 2 }) rooted 0 halls 3 supply 54/80 lost 21 bld_lost 0 at (1089.0, 1156.0) push 
+0850 P2 crown timing income 5700 bank 118 workers 19 army 1485 ({ "musketeer": 10, "cannon": 3, "cuirassier": 2, "mortar": 1 }) rooted 0 halls 2 supply 55/84 lost 9 bld_lost 0 at (1492.0, 1168.0)
+0909 P1 clockwork springer income 8540 bank 122 workers 30 army 900 ({ "clock_soldier": 5, "netter": 2, "springer": 3 }) rooted 0 halls 3 supply 53/80 lost 28 bld_lost 0 at (1187.0, 1020.0) push 
+0909 P2 crown timing income 5700 bank 118 workers 19 army 1370 ({ "musketeer": 10, "cannon": 3, "cuirassier": 1, "mortar": 1 }) rooted 0 halls 2 supply 52/92 lost 10 bld_lost 0 at (1492.0, 1151.0)
+0924 P1 clockwork springer income 8965 bank 183 workers 31 army 645 ({ "clock_soldier": 6, "netter": 1, "springer": 1 }) rooted 0 halls 3 supply 49/80 lost 32 bld_lost 0 at (1125.0, 968.0) push 
+0924 P2 crown timing income 5700 bank 118 workers 19 army 1255 ({ "musketeer": 10, "cannon": 3, "mortar": 1 }) rooted 0 halls 2 supply 49/92 lost 11 bld_lost 0 at (1514.0, 1143.0)
+0939 P1 clockwork springer income 9438 bank 191 workers 32 army 410 ({ "springer": 2, "clock_soldier": 3 }) rooted 0 halls 3 supply 49/80 lost 38 bld_lost 0 at (659.0, 560.0) push 
+0939 P2 crown timing income 6080 bank 23 workers 21 army 1255 ({ "musketeer": 10, "cannon": 3, "mortar": 1 }) rooted 0 halls 2 supply 58/92 lost 11 bld_lost 0 at (1279.0, 1060.0)
+0954 P1 clockwork springer income 9895 bank 300 workers 31 army 650 ({ "springer": 3, "clock_soldier": 5 }) rooted 0 halls 4 supply 52/90 lost 40 bld_lost 0 at (659.0, 780.0) push 
+0954 P2 crown timing income 6460 bank 23 workers 21 army 1390 ({ "musketeer": 11, "cannon": 3, "mortar": 1, "dismounted": 1 }) rooted 0 halls 2 supply 61/92 lost 13 bld_lost 0 at (1623.0, 1110.0)
+1009 P1 clockwork springer income 10110 bank 202 workers 32 army 480 ({ "springer": 2, "clock_soldier": 4 }) rooted 0 halls 4 supply 50/90 lost 44 bld_lost 0 at (1056.0, 925.0) push 
+1009 P2 crown timing income 6460 bank 23 workers 23 army 1490 ({ "musketeer": 12, "cannon": 3, "mortar": 1, "cuirassier": 1 }) rooted 0 halls 2 supply 59/92 lost 15 bld_lost 0 at (1654.0, 1256.0)
+1024 P1 clockwork springer income 10391 bank 224 workers 32 army 690 ({ "springer": 2, "clock_soldier": 7 }) rooted 0 halls 4 supply 52/90 lost 45 bld_lost 0 at (604.0, 857.0) push 
+1024 P2 crown timing income 6840 bank 3 workers 23 army 1370 ({ "musketeer": 10, "cannon": 3, "mortar": 1, "cuirassier": 1 }) rooted 0 halls 2 supply 57/92 lost 17 bld_lost 0 at (3065.0, 1980.0)
+1039 P1 clockwork springer income 10715 bank 153 workers 32 army 830 ({ "clock_soldier": 9, "springer": 2 }) rooted 0 halls 4 supply 53/90 lost 46 bld_lost 1 at (597.0, 1007.0) push 
+1039 P2 crown timing income 6840 bank 3 workers 23 army 1370 ({ "musketeer": 10, "cannon": 3, "mortar": 1, "cuirassier": 1 }) rooted 0 halls 2 supply 57/92 lost 17 bld_lost 0 at (2160.0, 1493.0)
+1054 P1 clockwork springer income 11034 bank 200 workers 32 army 970 ({ "clock_soldier": 11, "springer": 2 }) rooted 0 halls 4 supply 57/90 lost 46 bld_lost 1 at (623.0, 956.0) push 
+1054 P2 crown timing income 7220 bank 8 workers 23 army 1310 ({ "musketeer": 9, "cannon": 3, "mortar": 1, "cuirassier": 1 }) rooted 0 halls 3 supply 60/102 lost 18 bld_lost 0 at (2373.0, 1665.0)
+1109 P1 clockwork springer income 11406 bank 403 workers 32 army 1140 ({ "clock_soldier": 12, "springer": 3 }) rooted 0 halls 4 supply 59/90 lost 46 bld_lost 1 at (650.0, 934.0) push 
+1109 P2 crown timing income 7220 bank 8 workers 26 army 1310 ({ "musketeer": 9, "cannon": 3, "mortar": 1, "cuirassier": 1 }) rooted 0 halls 3 supply 60/102 lost 18 bld_lost 0 at (1626.0, 1336.0)
+1124 P1 clockwork springer income 11842 bank 109 workers 31 army 1280 ({ "clock_soldier": 14, "springer": 3 }) rooted 0 halls 4 supply 61/90 lost 48 bld_lost 2 at (806.0, 990.0) push 
+1124 P2 crown timing income 7600 bank 48 workers 26 army 1310 ({ "musketeer": 9, "cannon": 3, "mortar": 1, "cuirassier": 1 }) rooted 0 halls 3 supply 64/102 lost 18 bld_lost 0 at (1604.0, 1234.0)
+1140 P1 clockwork springer income 12318 bank 299 workers 32 army 1420 ({ "clock_soldier": 16, "springer": 3 }) rooted 0 halls 4 supply 63/90 lost 50 bld_lost 2 at (1198.0, 1068.0) push 
+1140 P2 crown timing income 7980 bank 3 workers 29 army 1310 ({ "musketeer": 9, "cannon": 3, "mortar": 1, "cuirassier": 1 }) rooted 0 halls 3 supply 71/102 lost 18 bld_lost 0 at (1470.0, 1185.0)
+1155 P1 clockwork springer income 12777 bank 106 workers 31 army 1240 ({ "clock_soldier": 12, "springer": 4 }) rooted 0 halls 4 supply 63/90 lost 57 bld_lost 2 at (1369.0, 1205.0) push 
+1155 P2 crown timing income 7980 bank 3 workers 32 army 1015 ({ "cannon": 3, "mortar": 1, "musketeer": 6 }) rooted 0 halls 3 supply 63/102 lost 24 bld_lost 0 at (1767.0, 1177.0)
+1210 P1 clockwork springer income 13204 bank 31 workers 30 army 1520 ({ "clock_soldier": 16, "springer": 4 }) rooted 0 halls 4 supply 66/90 lost 60 bld_lost 2 at (1084.0, 974.0) push 
+1210 P2 crown timing income 8360 bank 383 workers 33 army 985 ({ "cannon": 3, "musketeer": 6, "cuirassier": 1 }) rooted 0 halls 3 supply 60/102 lost 25 bld_lost 0 at (1383.0, 971.0)
+1225 P1 clockwork springer income 13647 bank 12 workers 31 army 1270 ({ "clock_soldier": 11, "springer": 5 }) rooted 0 halls 4 supply 61/90 lost 70 bld_lost 3 at (1154.0, 887.0) push 
+1225 P2 crown timing income 8740 bank 38 workers 33 army 685 ({ "cannon": 3, "musketeer": 1, "cuirassier": 1 }) rooted 0 halls 3 supply 62/102 lost 30 bld_lost 0 at (1453.0, 1105.0)
+1240 P1 clockwork springer income 14112 bank 56 workers 32 army 1200 ({ "springer": 5, "clock_soldier": 10 }) rooted 0 halls 4 supply 63/90 lost 74 bld_lost 3 at (1131.0, 970.0) push 
+1240 P2 crown timing income 9120 bank 13 workers 36 army 745 ({ "cannon": 3, "musketeer": 2, "cuirassier": 1 }) rooted 0 halls 4 supply 63/112 lost 31 bld_lost 0 at (3044.0, 1928.0)
+1256 P1 clockwork springer income 14602 bank 237 workers 32 army 1410 ({ "springer": 5, "clock_soldier": 13 }) rooted 0 halls 4 supply 65/90 lost 75 bld_lost 3 at (1118.0, 987.0) push 
+1256 P2 crown timing income 9880 bank 3 workers 40 army 755 ({ "cannon": 2, "musketeer": 5, "cuirassier": 1 }) rooted 0 halls 4 supply 67/112 lost 32 bld_lost 0 at (2927.0, 1966.0)
+1311 P1 clockwork springer income 15084 bank 275 workers 32 army 1690 ({ "springer": 5, "clock_soldier": 17 }) rooted 0 halls 4 supply 69/90 lost 75 bld_lost 3 at (1147.0, 991.0) push 
+1311 P2 crown timing income 10260 bank 83 workers 40 army 935 ({ "cannon": 2, "musketeer": 8, "cuirassier": 1 }) rooted 0 halls 4 supply 67/112 lost 32 bld_lost 0 at (2773.0, 1921.0)
+1326 P1 clockwork springer income 15565 bank 221 workers 32 army 1970 ({ "springer": 5, "clock_soldier": 21 }) rooted 0 halls 4 supply 76/90 lost 75 bld_lost 3 at (1644.0, 991.0) push march
+1326 P2 crown timing income 11020 bank 23 workers 40 army 995 ({ "cannon": 2, "musketeer": 9, "cuirassier": 1 }) rooted 0 halls 4 supply 77/112 lost 32 bld_lost 0 at (2775.0, 2376.0)
+1341 P1 clockwork springer income 16010 bank 294 workers 31 army 1950 ({ "clock_soldier": 25, "springer": 2 }) rooted 0 halls 4 supply 74/90 lost 79 bld_lost 3 at (2113.0, 1222.0) push march
+1341 P2 crown timing income 11400 bank 43 workers 40 army 1055 ({ "cannon": 2, "musketeer": 10, "cuirassier": 1 }) rooted 0 halls 4 supply 81/112 lost 35 bld_lost 0 at (2897.0, 1957.0)
+1356 P1 clockwork springer income 16473 bank 4 workers 30 army 2310 ({ "clock_soldier": 28, "springer": 2, "ballista": 1 }) rooted 0 halls 4 supply 76/100 lost 82 bld_lost 3 at (2709.0, 1566.0) push fight
+1356 P2 crown timing income 11780 bank 28 workers 40 army 995 ({ "cannon": 2, "musketeer": 9, "cuirassier": 1 }) rooted 0 halls 4 supply 84/112 lost 39 bld_lost 0 at (2637.0, 1732.0)
+1411 P1 clockwork springer income 16918 bank 40 workers 28 army 1400 ({ "springer": 2, "clock_soldier": 15, "ballista": 1 }) rooted 0 halls 4 supply 62/100 lost 102 bld_lost 3 at (1192.0, 977.0) push back
+1411 P2 crown timing income 12160 bank 13 workers 40 army 1280 ({ "cannon": 3, "musketeer": 9, "cuirassier": 2 }) rooted 0 halls 4 supply 85/112 lost 41 bld_lost 0 at (2684.0, 1720.0)
+1426 P1 clockwork springer income 17388 bank 30 workers 30 army 1750 ({ "springer": 2, "clock_soldier": 20, "ballista": 1 }) rooted 0 halls 4 supply 68/100 lost 103 bld_lost 3 at (1143.0, 975.0) push 
+1426 P2 crown timing income 12920 bank 43 workers 40 army 1575 ({ "cannon": 3, "musketeer": 12, "cuirassier": 3 }) rooted 0 halls 4 supply 94/112 lost 41 bld_lost 0 at (2612.0, 1619.0)
+1441 P1 clockwork springer income 17826 bank 92 workers 30 army 2030 ({ "springer": 2, "clock_soldier": 24, "ballista": 1 }) rooted 0 halls 4 supply 73/100 lost 103 bld_lost 3 at (1694.0, 997.0) push march
+1441 P2 crown timing income 13300 bank 93 workers 40 army 1960 ({ "cannon": 3, "musketeer": 16, "cuirassier": 3, "mortar": 1 }) rooted 0 halls 4 supply 97/112 lost 42 bld_lost 0 at (2081.0, 1204.0)
+1456 P1 clockwork springer income 18152 bank 0 workers 27 army 1400 ({ "springer": 2, "clock_soldier": 15, "ballista": 1 }) rooted 0 halls 4 supply 60/100 lost 121 bld_lost 4 at (1902.0, 1049.0) push fight
+1456 P2 crown timing income 13680 bank 13 workers 40 army 1585 ({ "cannon": 3, "musketeer": 13, "mortar": 1, "dismounted": 2 }) rooted 0 halls 4 supply 91/112 lost 48 bld_lost 0 at (2083.0, 1189.0)
