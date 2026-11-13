@@ -376,6 +376,8 @@ static func _fx_for(g: Game, list: Array, eyes: Array, eye_vis: Array) -> Array:
 				ok = ok or _ours(g, mt, eyes)
 			"k":
 				ok = ok or _ours(g, int(f[4]), eyes)
+			"c", "h":
+				ok = true              # (a body's health or its tearing: the guest's copies of the bodies on the ground follow)
 		if ok:
 			out.append(f)
 	return out

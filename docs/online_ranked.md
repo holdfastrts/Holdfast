@@ -135,7 +135,7 @@ in 240 game seconds (3,236 enemy rows, 120 keyframes a side, 14,822 effects); th
 unseen enemy rows in the same match. The end-to-end test checks every picture the real match host sends (`fogaudit`).
 
 Still sent whole to everyone (small, listed for honesty): the Clockwork Line's pipes and its trains, powder kegs on the
-ground and the Rootmaws' ground; the net ids an own unit points at (its target); the replay at the end has everything
+ground, the Rootmaws' ground and the bodies' health; the net ids an own unit points at (its target); the replay at the end has everything
 (the match is over). These can be cut per side later the same way.
 
 ## Identity (scripts/net/identity.gd)
@@ -216,23 +216,35 @@ Measured with `tools/server/capacity_bench.gd` (a Hard v Hard match standing in 
 server's two fog-filtered pictures 15 times a second; the computers' own thinking subtracted, a ranked host does not run
 it), on this cloud machine (x86, 2 cores, Godot 4.7 headless):
 
-CAPACITY_TABLE
+| Game minute | Hollowfen, Crown v Brood: units, host ms a second (share of a core) | Twin Fords, Clockwork v Crown: host ms a second |
+|---|---|---|
+| 1 | 20 units, 46 ms (4.6%) | 16 units, 51 ms (5.1%) |
+| 3 | 36, 74 ms (7.4%) | 31, 87 ms (8.7%) |
+| 5 | 73, 120 ms (12%) | 58, 148 ms (15%) |
+| 7 | 121, 182 ms (18%) | 87, 223 ms (22%) |
+| 9 | 173, 298 ms (30%) | 114, 309 ms (31%) |
+| 10 | 212, 358 ms (36%) | 113, 326 ms (33%), the busiest minute |
+| 11 | 214, 424 ms (42%), the busiest minute | 310 ms (31%) |
+| average over 12 minutes | **187 ms a second (19% of a core)** | **198 ms a second (20% of a core)** |
 
-The end-to-end test's match host (the first 80 s, real players' orders over the relay): CAPACITY_E2E.
+Of that, making the two players' pictures is 9 ms a second at the start and 40 to 60 ms late; each player receives 11
+to 45 KB a second (the host keeps it under 40 KB a second on average by sending fewer pictures when they are big).
+
+The end-to-end test's match host (the first 80 s, real players' orders over the relay): 64 ms of processor time a second on average and 169 ms in its busiest second, and **774 MB of memory** (the headless game still loads its pictures: trimming that is a clear saving for later).
 
 What this means: a match's cost grows with the armies (qa-perf found the same: 1.5 ms a game tick at 1:00, 11 to 14 ms
 at 10:00 to 15:00, 24 ms on the busiest map), so a core holds several early games but only a few late ones. Plan on
-**about CAP_PLAN matches at once per core** (late games set the limit), plus a few hundred MB of memory each.
+**about 3 to 4 matches at once per core** (2 if all of them were late and big at the same moment, 5 on average) (late games set the limit), plus about 0.8 GB of memory each.
 
 - **Oracle Cloud Always Free (Ampere A1)**: since 18 August 2026 2 ARM cores and 12 GB (it was 4 and 24). That is room
-  for about CAP_FREE matches at once with the ladder and the relay on the same machine: plenty for a launch with a few
+  for about 6 to 8 matches at once with the ladder and the relay on the same machine: plenty for a launch with a few
   hundred players (most are not in a match at the same time). Free machines can be hard to get in busy regions and may be
   reclaimed when idle; keep the database backed up (one file).
 - **Paid, when it grows**: a small ARM machine (e.g. Hetzner's CAX line, a few euros a month; Hetzner raised cloud prices
   in 2026, check the current list) holds the same per core; add machines with more match hosts and point the ladder at
   them (the next step for the code: a match host runner on each machine). The relay on Cloudflare Workers stays free up to
   100,000 requests a day (the WebSocket messages themselves bill differently on paid plans; check before growing).
-- Bandwidth: a picture stream is about PIC_KB KB/s per player late in a big game (below the 40 KB/s cap the host keeps).
+- Bandwidth: a picture stream is about 30 to 45 KB/s per player late in a big game (below the 40 KB/s cap the host keeps).
 
 ## Privacy policy (draft for the store page; the owner must review it, ideally with a lawyer)
 
@@ -288,8 +300,13 @@ Friendly online (room codes) and single player send nothing to our servers excep
   It also runs the ladder's own tests (`node tools/ladder/test_ladder.mjs`: Glicko-2, Steam with recorded answers, the
   game ban, tickets, the store) and the tickets across the two languages (`tools/test_ladder_ticket.gd`).
 - `tools/test_net_fog.gd`: the fog per side in one process (above).
-- The friendly online tests still pass (`tools/test_online.sh`; its guest now orders an id it doesn't own when no host
-  unit is in sight, since it no longer holds unseen ones).
+- The friendly online tests still pass: `tools/test_online.sh` (1v1 and coop; its guest now orders an id it doesn't own
+  when no host unit is in sight, since it no longer holds unseen ones), `tools/test_online_anim.gd`,
+  `tools/test_online_fix.gd` (its first check now asserts the opposite of before: a guest is never sent the enemy
+  host's planned sites).
+- Last run (0.34.0, this machine): `tools/test_ranked.sh` RANKED ALL OK (the match host: 2,582 pictures checked, 412
+  enemy rows, 0 leaks; the cheater: 1 foreign order refused, 1 foreign unit stripped, 32 of 73 orders dropped as a
+  flood, flagged; the fair player clean; ratings 1500 -> 1662 / 1338 after the first placement match).
 
 ## Open (the next steps)
 
