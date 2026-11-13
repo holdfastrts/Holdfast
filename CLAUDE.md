@@ -102,7 +102,8 @@
   front and the Brood Mother redone with unit references (waiting on the owner's pictures).
   GROUND SYSTEM (owner, DECIDED 2026-11-13 01:34-01:40; docs/ground_system.md): every economy building drinks from a
   CIRCLE of ground like the Rootmaw; spent ground shown RED while placing; overlap with spent ground gives a proportional
-  yield; ground exists only in a DISTRICT PER HALL (fixed amount each). Build it AFTER the three econ-coach jobs merge, as a
+  yield; ground exists only in a DISTRICT PER HALL (fixed amount each); the layer shows FAINTLY while placing ANY building
+  (owner 01:37: placement strategy), the economy building being placed its own circle stronger. Build it AFTER the three econ-coach jobs merge, as a
   Settings experiment, benched and with the computers coached on it. (Why: today's Farm limit counts spent Farms empire-wide,
   so a fresh hall can stand farmless; the owner: tearing a Farm down never renews the soil.)
   ART 2026-11-12/13: the Clockwork and Brood campaign hubs (hubs-cw-brood 0.33.26: Hollweg's workshop, Lindqvist's

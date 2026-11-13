@@ -29,7 +29,12 @@ down: a trap a player cannot see (docs/economy_parity.md section 3, item 2). The
   covers; its yield is the share of its circle's ground still there. Overlapping circles of one side **share** the tiles
   (no free income from stacking). Spent tiles stay spent (docs/exhaust_economy.md: exhausted means exhausted).
 - **Placing**: the circle is tinted green (full) to red (spent) and shows "62% of a fresh spot"; the minimap can show the
-  same layer. The building limit per hall becomes local (or goes away: to decide when built, measured with the bench).
+  same layer.
+- **The ground layer shows while placing ANY building** (owner, 2026-11-13 01:37: "it can affect building strategic
+  placement"), not only economy ones: a FAINT tint over the districts (where the ground is fresh or spent, and the circles
+  of the economy buildings already there), so a Barracks or a wall is not put on the best ground by mistake. Faint enough
+  not to distract; the economy building being placed shows its own circle stronger, with the "%" number. (A Settings
+  slider for its strength is the obvious extra.) The building limit per hall becomes local (or goes away: to decide when built, measured with the bench).
 - Saves, replays and online carry the layer (a compact grid; online sends changes).
 - Open for the build job: the exact radii and amounts per faction (measured so today's bench curves stay about the same),
   whether the Clockwork's spring life stays in the Clocktower, how the AI chooses spots (best ground in its districts),
