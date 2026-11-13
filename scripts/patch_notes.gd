@@ -4,6 +4,21 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.13", "items": [
+		"Spectating: the PRODUCTION and ARMY & STRUCTURES icons have tooltips, and a click selects them and moves the camera to one (click again for the next one).",
+	]},
+	{"v": "0.35.12", "items": [
+		"FIX (web build): the little arrows and symbols that showed as empty boxes (before AI STORY, PRODUCTION, ARMY & STRUCTURES, \"All players\", and the replay's pause button) are drawn again: the game now carries its own symbol font, as the browser has none to borrow.",
+	]},
+	{"v": "0.35.11", "items": [
+		"FIX: cancelling part of a planned wall (one piece, or one stretch of a wall with bends) cancels only that part: the rest stays planned and your Labourers keep building it (it used to drop the whole wall).",
+	]},
+	{"v": "0.35.10", "items": [
+		"FIX: VIEW MAP after a match keeps the Clockwork's gear rings drawn wherever you move the camera (they vanished outside the spot where the match ended).",
+	]},
+	{"v": "0.35.9", "items": [
+		"The factions are just CROWN, CLOCKWORK and BROOD everywhere (no \"The\" in front): lobbies, the game screen, the battle report, the help pages and the match log.",
+	]},
 	{"v": "0.35.8", "items": [
 		"The faction buttons in the skirmish and online lobbies show each faction's new emblem: the Crown's gold crown, the Clockwork's brass gear and the Brood's green eye (no longer their hall buildings).",
 	]},

@@ -112,7 +112,7 @@ func _ready() -> void:
 	_opened = strategy
 	_make_plan()
 	if game.mlog:
-		game.mlog.add("%s plays the Brood (%s)" % [game.mlog.who(team), STRATEGIES.get(plan_key(), STRATEGIES["balanced"])["name"]])
+		game.mlog.add("%s plays Brood (%s)" % [game.mlog.who(team), STRATEGIES.get(plan_key(), STRATEGIES["balanced"])["name"]])
 	if opt != null:
 		say("OPTIMAL: the common opening (Balanced's economy), a grub into the enemy's main early, then it picks its build from what it sees")
 

@@ -30,6 +30,7 @@ static var _bold: Font
 static func title_font() -> Font:
 	if _title == null:
 		var base: FontFile = load("res://assets/fonts/Cinzel.ttf")
+		_with_symbols(base)
 		var v := FontVariation.new()
 		v.base_font = base
 		v.variation_opentype = {"wght": 700}
@@ -37,15 +38,29 @@ static func title_font() -> Font:
 	return _title
 
 
+## The symbols our fonts lack (▸ ▾ ❚❚ ...) from a small DejaVu subset: the web build has no system fonts to fall back on,
+## so without it they show as boxes there (the owner, 2026-11-13).
+static func _with_symbols(f: Font) -> void:
+	if f == null:
+		return
+	var sym: Font = load("res://assets/fonts/SymbolsFallback.ttf")
+	if sym != null and not f.fallbacks.has(sym):
+		var fb := f.fallbacks.duplicate()
+		fb.append(sym)
+		f.fallbacks = fb
+
+
 static func body_font() -> Font:
 	if _body == null:
 		_body = load("res://assets/fonts/AlegreyaSans-Medium.ttf")
+		_with_symbols(_body)
 	return _body
 
 
 static func bold_font() -> Font:
 	if _bold == null:
 		_bold = load("res://assets/fonts/AlegreyaSans-Bold.ttf")
+		_with_symbols(_bold)
 	return _bold
 
 

@@ -4,6 +4,11 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.13": ["Como espectador: los iconos de PRODUCCIÓN y EJÉRCITO Y ESTRUCTURAS tienen descripciones, y un clic los selecciona y lleva la cámara a uno (clic otra vez para el siguiente)."],
+	"0.35.12": ["CORRECCIÓN (versión web): las pequeñas flechas y símbolos que se veían como cajas vacías (antes de HISTORIA DE LA IA, PRODUCCIÓN, EJÉRCITO Y ESTRUCTURAS, \"Todos los jugadores\" y en el botón de pausa de la repetición) vuelven a verse: el juego ahora lleva su propia fuente de símbolos, ya que el navegador no tiene una que prestar."],
+	"0.35.11": ["CORRECCIÓN: cancelar parte de un muro planeado (una pieza, o un tramo de un muro con giros) cancela solo esa parte: el resto sigue planeado y tus Peones siguen construyéndolo (antes caía el muro entero)."],
+	"0.35.10": ["CORRECCIÓN: VER MAPA tras la partida mantiene dibujados los anillos de engranajes del Mecanismo dondequiera que muevas la cámara (desaparecían fuera del lugar donde terminó la partida)."],
+	"0.35.9": ["Las facciones ahora son solo CORONA, MECANISMO y NIDADA en todas partes (sin el artículo delante): salas, la pantalla de juego, el informe de batalla, las páginas de ayuda y el registro de la partida."],
 	"0.35.8": ["Los botones de facción en las salas de escaramuza y en línea muestran el nuevo emblema de cada facción: la corona dorada de la Corona, el engranaje de latón de la Mecánica y el ojo verde de la Nidada (ya no sus sedes)."],
 	"0.35.7": ["El nombre del juego ahora es solo TRIUMVIWAR (el subtítulo \"Is All Lost?\" se fue), y su nueva casa es https://triumviwar.github.io/ (la app de Android Triumviwar.apk y el programa de Windows Triumviwar_windows.zip están allí). En la versión web los ajustes y partidas guardadas empiezan de cero porque la dirección cambió; en el ordenador o el móvil se conservan."],
 	"0.35.6": ["Un nuevo icono para todo el juego, no solo para la Corona: la corona dorada de la Corona, el engranaje de latón de la Mecánica y el ojo verde de la Nidada juntos (pestaña del navegador, página de carga, programa de Windows y app de Android)."],

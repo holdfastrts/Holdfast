@@ -857,12 +857,12 @@ var _prod_game: Game = null
 
 
 func _prod_items(t: int) -> Array:
-	var items: Array = []           # [icon, progress 0..1 or -1, colour]
+	var items: Array = []           # [icon, progress 0..1 or -1, colour, where (the building or creature), what (its key)]
 	for b in game.buildings:
 		if b.team != t or b.dead:
 			continue
 		if not b.built:
-			items.append([b.kind, b.progress, Color(0.95, 0.75, 0.3)])
+			items.append([b.kind, b.progress, Color(0.95, 0.75, 0.3), b, b.kind])
 			continue
 		var shq := NetPredict.shown_queue(game, b)
 		var q: Array = shq[0]
@@ -871,7 +871,7 @@ func _prod_items(t: int) -> Array:
 			var f := -1.0
 			if i == 0:
 				f = float(shq[2]) / Building.entry_time(q[i])
-			items.append([_research_icon(String(q[i]).substr(1)) if res else (_queue_icon(b, i) if i < b.queue.size() else String(q[i])), f, Color(0.75, 0.55, 1.0) if res else Color(0.4, 0.75, 1.0)])
+			items.append([_research_icon(String(q[i]).substr(1)) if res else (_queue_icon(b, i) if i < b.queue.size() else String(q[i])), f, Color(0.75, 0.55, 1.0) if res else Color(0.4, 0.75, 1.0), b, String(q[i])])
 	if BroodNew.on(game, t):
 		# THE BROOD has no buildings (the owner, 2026-10-31: its PRODUCTION list was empty): its eggs hatching, its
 		# young moulting into their mature forms, and the research of its Sires and Mother (and what waits after it)
@@ -880,16 +880,16 @@ func _prod_items(t: int) -> Array:
 				continue
 			if u.kind == BroodNew.EGG:
 				var yk := String(u.nb.get("k", "grub"))
-				items.append([yk, clampf(float(u.nb.get("t", 0.0)) / maxf(BroodNew.egg_time(yk), 0.1), 0.0, 1.0), Color(0.6, 0.9, 0.35)])
+				items.append([yk, clampf(float(u.nb.get("t", 0.0)) / maxf(BroodNew.egg_time(yk), 0.1), 0.0, 1.0), Color(0.6, 0.9, 0.35), u, yk])
 			elif u.moult_t >= 0.0 and BroodMature.mature_of(u.kind) != "":
-				items.append([BroodMature.mature_of(u.kind), BroodMature.frac(u), Color(0.95, 0.75, 0.3)])
+				items.append([BroodMature.mature_of(u.kind), BroodMature.frac(u), Color(0.95, 0.75, 0.3), u, BroodMature.mature_of(u.kind)])
 			if BroodResearch.busy(u):
 				var rp := BroodResearch.progress(u)
 				if Defs.RESEARCH.has(BroodResearch.current(u)):
-					items.append([_research_icon(BroodResearch.current(u)), float(rp.get("f", 0.0)), Color(0.75, 0.55, 1.0)])
+					items.append([_research_icon(BroodResearch.current(u)), float(rp.get("f", 0.0)), Color(0.75, 0.55, 1.0), u, "!" + BroodResearch.current(u)])
 				for rk in BroodResearch.queued(u):
 					if Defs.RESEARCH.has(rk):
-						items.append([_research_icon(rk), -1.0, Color(0.75, 0.55, 1.0)])
+						items.append([_research_icon(rk), -1.0, Color(0.75, 0.55, 1.0), u, "!" + rk])
 	return items
 
 
@@ -5222,6 +5222,10 @@ func _hover_at(p: Vector2) -> Dictionary:
 			return {"id": "stat:%s:%s" % [sr[1].get("icon", ""), sr[1].get("title", "")], "delay": TIP_CARD_DELAY, "stat": sr[1]}
 	if not _portrait_one.is_empty() and (_portrait_one["rect"] as Rect2).has_point(p) and is_instance_valid(_portrait_one["e"]):
 		return {"id": "por:%d" % (_portrait_one["e"] as Entity).get_instance_id(), "delay": TIP_CARD_DELAY, "por": _portrait_one["e"]}
+	if game.spectating() and not view_open:
+		var sh := spec_panels().hit(p)
+		if not sh.is_empty():
+			return {"id": "spec:%s:%d:%s" % [sh["panel"], int(sh["t"]), String(sh["key"])], "delay": TIP_CARD_DELAY, "spec": sh}
 	if _hud_has(p):
 		return {}
 	var wp: Vector2 = controls.to_world(p * ui_scale)
@@ -5259,6 +5263,8 @@ func _tip_of(c: Dictionary) -> Dictionary:
 		return _entity_tip(c["e"])
 	if c.has("grp"):
 		return bar.tip(int(c["grp"]))
+	if c.has("spec"):
+		return spec_panels().tip(c["spec"])
 	return {}
 
 
