@@ -107,6 +107,13 @@
   ladder, bans by SteamID64 + optional Steam game ban; prototype + docs/online_ranked.md). Main menu painting: hallucination
   fixes by crop repaints (art/menu_fix/, tools/menu_fix_composite.py): gunner and horseman done 0.33.31, the Clockwork
   front and the Brood Mother DONE 0.33.32 (one repaint of the right side, art/menu_fix/f34_right_fixed.png, a stray sword inpainted).
+  RANKED ONLINE MERGED 0.34.0 (2026-11-13; docs/online_ranked.md): SERVER-AUTHORITATIVE ranked 1v1 (a headless match
+  host, tools/server/match_server.gd; both players guests), keyframes fog-filtered per side (friendly online too), Steam
+  identity (scripts/net/identity.gd; GodotSteam only in the Steam build; DEV sign-in for tests), the ladder service
+  (tools/ladder/: queue, Glicko-2, seasons, bans by SteamID64 + optional Steam game ban, refused-order logs, admin CLI),
+  RANKED page, queue, results, leaderboard. Capacity ~3-4 matches a core, ~0.8 GB each; Oracle Always Free ARM to start.
+  Owner's steps to go live in the doc. Tests: tools/test_ranked.sh, test_net_fog.gd, test_online.sh (coop's
+  guest_ground_attack_hits_body fails on main too).
   GROUND SYSTEM (owner, DECIDED 2026-11-13 01:34-01:40; docs/ground_system.md): every economy building drinks from a
   CIRCLE of ground like the Rootmaw; spent ground shown RED while placing; overlap with spent ground gives a proportional
   yield; ground exists only in a DISTRICT PER HALL (fixed amount each); the layer shows FAINTLY while placing ANY building
