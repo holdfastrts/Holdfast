@@ -38,6 +38,12 @@ Use `ws://127.0.0.1:8787` as the relay address in the game to test with two wind
 The web build can only reach `wss://` addresses (it is served over https), the desktop and Android
 builds can use `ws://` too.
 
+## Ranked play
+
+Ranked matches use the same relay: a dedicated match host (`tools/server/match_server.gd`) opens the room as its
+host and both players join as guests with the ladder's signed tickets; room codes are 10 letters there. See
+`docs/online_ranked.md`.
+
 ## The protocol (for whoever changes it)
 
 `wss://<host>/room/<CODE>?role=host` creates the room, `?role=guest` joins it (up to 7 guests).

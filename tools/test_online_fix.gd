@@ -129,7 +129,9 @@ func _compare() -> void:
 			continue                                # (just placed: the next snapshot brings it)
 		checked_sites += 1
 		var p = gs.by_id.get(b.net_id)
-		if not is_instance_valid(p) or p.dead or not pg.buildings.has(p):
+		# (since 0.34.0 a guest is never sent another side's planned sites: the host here is the guest's enemy, so its
+		# sites must NOT be on the guest; docs/online_ranked.md "Fog". The guest's own sites: the single player checks)
+		if is_instance_valid(p) and not p.dead and pg.buildings.has(p):
 			lost_sites += 1
 	for id in g.nb_spots:
 		spots_seen += 1
@@ -141,7 +143,7 @@ func _compare() -> void:
 
 func _online_report() -> void:
 	print("INFO host %.0f s: %d units, %d buildings; host ghosts looked at %d" % [g.clock, g.units.size(), g.buildings.size(), checked_sites])
-	check("1 the guest never drops the host's sites", lost_sites == 0 and checked_sites > 0, "(%d of %d lost)" % [lost_sites, checked_sites])
+	check("1 the guest is never sent the enemy host's planned sites", lost_sites == 0 and checked_sites > 0, "(%d of %d sent)" % [lost_sites, checked_sites])
 	var per := ov_us / 1000.0 / maxi(ov_n, 1)
 	var per_s := ov_us / 1000.0 / maxf(g.clock - 30.0, 1.0)
 	var rate := ov_n / maxf(g.clock - 30.0, 1.0)

@@ -20,6 +20,9 @@ static var charge_bars := true        # SHOW CHARGE BARS: a thin charge bar over
 static var gear_turn := true          # TURNING GEARS (experiment, on for now): a Clockwork ring's band carries units round (GearTurn); from the next match
 static var mini_alpha := 0.6          # how solid the minimap is drawn (0.2 to 1)
 static var relay_url := "wss://pocketrts-relay.salgarellius-rts.workers.dev"   # online: the relay (tools/relay/README.md)
+static var ladder_url := ""           # RANKED: the ladder service (tools/ladder/ladder.mjs); "" = not set up (docs/online_ranked.md)
+static var ranked_dev_id := ""        # RANKED with the DEV sign-in (a test server only): a made-up SteamID64, kept
+static var ranked_faction := "random" # RANKED: the faction last queued with
 static var language := "en"           # "en", "pt" or "es" (Loc)
 static var cw_lab := false            # the Clockwork roster prototype in every Clockwork match (docs/clockwork_units_prototype.md)
 static var replays_keep := 30         # replays kept (the newest; KEEP ones are never deleted)
@@ -54,6 +57,9 @@ static func load_all() -> void:
 		relay_url = String(cfg.get_value("online", "relay_url", relay_url))
 		if relay_url.contains("YOURNAME") or relay_url.strip_edges() == "":
 			relay_url = "wss://pocketrts-relay.salgarellius-rts.workers.dev"     # (an old placeholder saved earlier)
+		ladder_url = String(cfg.get_value("online", "ladder_url", ladder_url))
+		ranked_dev_id = String(cfg.get_value("online", "ranked_dev_id", ""))
+		ranked_faction = String(cfg.get_value("online", "ranked_faction", "random"))
 		language = str(cfg.get_value("ui", "language", "en"))
 		cw_lab = bool(cfg.get_value("ui", "cw_lab", false))
 		replays_keep = clampi(int(cfg.get_value("ui", "replays_keep", 30)), 5, 200)
@@ -86,6 +92,9 @@ static func save_all() -> void:
 	cfg.set_value("ui", "gear_turn", gear_turn)
 	cfg.set_value("input", "mini_alpha", mini_alpha)
 	cfg.set_value("online", "relay_url", relay_url)
+	cfg.set_value("online", "ladder_url", ladder_url)
+	cfg.set_value("online", "ranked_dev_id", ranked_dev_id)
+	cfg.set_value("online", "ranked_faction", ranked_faction)
 	cfg.set_value("ui", "language", language)
 	cfg.set_value("ui", "cw_lab", cw_lab)
 	cfg.set_value("ui", "replays_keep", replays_keep)

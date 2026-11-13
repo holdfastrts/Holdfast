@@ -25,6 +25,13 @@
 
 ## Current work
 
+- RANKED ONLINE, PROTOTYPE (owner, DECIDED 2026-11-13 01:04; job online-ranked, 0.34.0, docs/online_ranked.md): our
+  server runs every ranked match (tools/server/match_server.gd, headless, both players guests via the relay with signed
+  tickets: LadderTicket), Steam players only (SteamID64 = account; Identity: Steam via GodotSteam, not in the repo, or a
+  DEV sign-in for tests), the ladder service tools/ladder/ (Node + SQLite: queue, Glicko-2, placement 5, seasons, bans,
+  reports, admin.mjs), RANKED / queue / LEADERBOARD in ui/ranked_menu.gd. Snapshots are cut PER SIDE (NetView; keyframes
+  no longer send unseen enemies, friendly online too). Tests: tools/test_ranked.sh, tools/test_net_fog.gd. Not live: the
+  owner's steps are in the doc.
 - CROWN: FOUNDRY BEFORE THE SECOND BARRACKS, ALWAYS (owner, DECIDED 2026-11-03 22:33), in every plan and matchup (the Horseman
   rush is done with 1 Barracks). The Horse Breeder comes either way (cannons need horses). Canister hits flyers, round shot
   has the longest range (430). Riders are an addition when the scout sees drops/leaps, enemy artillery, a greedy enemy or
