@@ -3152,6 +3152,7 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 	var left := _value_of(_wave)
 	var ahead := 0.0
 	var mid := Vector2.ZERO
+	var riders_only := true
 	for u in _wave:
 		mid += u.position
 	if not _wave.is_empty():
@@ -3159,18 +3160,32 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 		for u in game.units_near(mid, 12.0 * Defs.TILE):
 			if game.hostile(u.team, team) and not u.dead and not u.off_field and u.has_attack() and not u.is_worker() and game.is_visible_to(team, u.position):
 				ahead += float(Game.unit_value(u))
+				if not is_rider(u):
+					riders_only = false
 	var gained := int(game.stats[team]["value_killed"]) - _wave_kills0
 	var lost := _wave_v0 - left
 	# (brood-v-brood-coach: against another Brood a wave down to a quarter goes on while it has killed more than it lost:
 	# round 3's Kestrel Rise wave went home at 12:36 with 575 of 2,340 having killed 6,205 and 0 ahead, and the beaten
 	# side lived to 15:00)
 	var quarter := left < _wave_v0 * 0.25 and not (_foe_is("brood") and gained >= lost and ahead <= left)
-	if _wave.is_empty() or (left < _wave_v0 * 0.5 and ahead > left * 1.2) or quarter \
-			or (left < _wave_v0 * 0.7 and ahead > left * 1.6 and gained < lost * 0.5) \
+	# (brood-rush-coach: NO WALK HOME FROM RIDERS. When all the enemy fighters about are riders (112 against a Raptor's 96),
+	# a pull-back is a walk with its back to them: the owner's 2 Horsemen cut the Mirewood rush down from behind on its way
+	# home. The wave stays together where it is (at the wall it bites the riders who come in: _nb_wave_no_chase) and goes
+	# home only once it has made no headway for long. `-- nbchase:on` pulls back as before)
+	var lost_fight := (left < _wave_v0 * 0.5 and ahead > left * 1.2) or quarter \
+			or (left < _wave_v0 * 0.7 and ahead > left * 1.6 and gained < lost * 0.5)
+	if lost_fight and no_chase_on and riders_only and ahead > 0.0 and not _foe_is("brood") and game.clock - _wave_t0 < 150.0:
+		lost_fight = false
+		if game.clock - _raid_stay_said > 20.0:
+			_raid_stay_said = game.clock
+			say("its wave stays together: only riders about (%d), a walk home would be cut down from behind" % int(ahead))
+	if _wave.is_empty() or lost_fight \
 			or (game.clock - _wave_t0 > 150.0 and gained < lost * 0.5 and ahead > left):
 		say("pulls back: %d of %d left, %d ahead (killed %d)" % [int(left), int(_wave_v0), int(ahead), gained])
 		_wave_end_nb(q, gained < _wave_v0 * 0.6)
 		return
+	# THE RAID KEEPS AT ITS PREY (brood-rush-coach): riders who ride off are not chased out into the open
+	_nb_wave_no_chase(mid)
 	# THE MIRROR'S MEETING (brood-v-brood-coach): an enemy Brood army heading for its home while its wave walks the other
 	# way: the wave turns to meet it (no base trade)
 	if _nb_wave_gather(mid, left) or _nb_meet_army(q, mid, left):
@@ -3244,6 +3259,117 @@ func _nb_wave_tick(q: Unit, army: Array) -> void:
 			u.cmd_move(_wave_target, true)
 	_nb_join_fresh(army)
 	_nb_hold_rest(army)
+
+
+## THE RAID KEEPS AT ITS PREY (brood-rush-coach, docs/brood_rush_coach.md; the owner's Mirewood playtest 2026-11-13, v0.35.6:
+## a Hard RUSH's 10 Raptors at his ramp wall at 2:37 left the wall to chase his 2 Horsemen when they rode out, and the riders,
+## hitting and riding off (112 against the Raptor's 96), killed 5 and sent the rest home: "the correct decision for brood
+## would have been just keep at the walls and not chase down my horseman"). On a wave against a non-Brood enemy, a creature
+## biting a RIDER (Horseman, Cuirassier, Dragoon: is_rider) who is out of the pack (farther than RAID_IN tiles from the
+## wave's middle, fewer than RAID_SURROUND of the wave round him) and not clearly beatable (a lone rider under RAID_HURT of
+## his health, within RAID_LONE tiles of the pack) lets him go once he is out of its own reach: at a raid (an enemy building
+## within RAID_SITE tiles of the pack) it goes back to the nearest building or worker there; in the open it walks on with
+## the pack. A rider who comes back INTO the pack is bitten by every creature near him (RAID_BITE tiles). `-- nbchase:on`
+## plays it as before.
+const RAID_IN := 4.0           # tiles from the wave's middle: a rider this near is in the pack
+const RAID_SURROUND := 4       # creatures of the wave within RAID_BITE tiles of a rider: he is caught
+const RAID_BITE := 2.5         # tiles: creatures this near a rider in the pack go for him
+const RAID_HURT := 0.45        # a lone rider under this share of his health is worth the chase...
+const RAID_LONE := 8.0         # ... within this many tiles of the pack
+const RAID_SITE := 10.0        # tiles: an enemy building this near the pack makes the wave a raid
+const RAID_FOCUS := 2.5        # tiles: the creatures sent back go to a building this near the raid's spot
+var no_chase_on := not OS.get_cmdline_user_args().has("nbchase:on")
+var raid_letgo := 0            # (the test and the doc: creatures turned back from a rider)
+var raid_bites := 0            # (riders bitten in the pack)
+var _raid_said := -99.0
+var _raid_stay_said := -99.0
+
+
+func _nb_wave_no_chase(mid: Vector2) -> void:
+	if not no_chase_on or _wave.is_empty() or _foe_is("brood") or _nb_hunting:
+		return
+	var riders: Array = []
+	for u in game.units_near(mid, 16.0 * Defs.TILE):
+		if game.hostile(u.team, team) and not u.dead and not u.off_field and is_rider(u) and game.is_visible_to(team, u.position):
+			riders.append(u)
+	if riders.is_empty():
+		return
+	# the raid's spot: the enemy building nearest the pack's middle (the creatures sent back go to it or a piece beside it,
+	# so the pack stays in one place: a rider who comes to strike one meets them all)
+	var site := Vector2.INF
+	for b in game.buildings:
+		if not b.dead and not b.ghost and game.hostile(b.team, team) and b.edge_distance(mid) < RAID_SITE * Defs.TILE \
+				and (site == Vector2.INF or b.edge_distance(mid) < site.distance_to(mid)):
+			site = b.center()
+	var T := Defs.TILE
+	var in_pack := {}
+	for r in riders:
+		var ru := r as Unit
+		var round_him := 0
+		for u in _wave:
+			if (u as Unit).position.distance_to(ru.position) < RAID_BITE * T:
+				round_him += 1
+		var lone := true
+		for o in riders:
+			if o != r and (o as Unit).position.distance_to(ru.position) < 5.0 * T:
+				lone = false
+		var beatable := lone and ru.hp < ru.max_hp * RAID_HURT and ru.position.distance_to(mid) < RAID_LONE * T
+		in_pack[r] = ru.position.distance_to(mid) < RAID_IN * T or round_him >= RAID_SURROUND or beatable
+	var let_go := 0
+	for u in _wave:
+		var cu := u as Unit
+		if cu.dead or cu.moult_t >= 0.0 or not cu.has_attack():
+			continue
+		var tg = cu.target
+		var on_rider := is_instance_valid(tg) and tg is Unit and in_pack.has(tg)
+		if on_rider and not bool(in_pack[tg]):
+			if cu.phase != "" or (tg as Unit).edge_distance(cu.position) - cu.radius <= cu._range():
+				continue          # (in reach, biting: it finishes the bite)
+			# out of the pack and out of its reach: let him go
+			let_go += 1
+			var prey: Entity = _raid_prey(cu, site) if site != Vector2.INF else null
+			if prey != null:
+				cu.cmd_attack(prey)
+				cu.raid_bite = true          # (it bites a rider who comes within its reach there: Unit._raid_bite_tick)
+			else:
+				cu.cmd_move(_wave_target)          # (a plain walk on with the pack: no amove to pick him up again)
+			continue
+		if on_rider:
+			continue
+		# a rider in the pack beside it: bite him (the ones sent back to the wall or walking on too)
+		if cu.phase == "" and (cu.order == "attack" or cu.order == "move") and not (is_instance_valid(tg) and tg is Unit and (tg as Unit).has_attack()):
+			for r in riders:
+				if bool(in_pack[r]) and (r as Unit).position.distance_to(cu.position) < RAID_BITE * T:
+					cu.cmd_attack(r)
+					raid_bites += 1
+					break
+	if let_go > 0:
+		raid_letgo += let_go
+		if game.clock - _raid_said > 20.0:
+			_raid_said = game.clock
+			say("its wave lets the riders go (%d creatures turned back%s): no chase into the open" % [let_go, " to the raid" if site != Vector2.INF else ""])
+
+
+## What a raider turned back from a rider goes for: the nearest enemy building to it within RAID_FOCUS tiles of the raid's
+## spot (a wall piece when that is what stands there: the way in), or a worker nearer than that.
+func _raid_prey(u: Unit, site: Vector2) -> Entity:
+	var best: Entity = null
+	var bd := INF
+	for b in game.buildings:
+		if b.dead or b.ghost or not game.hostile(b.team, team) or b.edge_distance(site) > RAID_FOCUS * Defs.TILE:
+			continue
+		var d: float = b.edge_distance(u.position)
+		if d < bd:
+			bd = d
+			best = b
+	for w in game.units_near(u.position, 6.0 * Defs.TILE):
+		if w.dead or w.off_field or not game.hostile(w.team, team) or not w.is_worker() or not game.is_visible_to(team, w.position):
+			continue
+		var d: float = w.edge_distance(u.position) - 16.0          # (a worker a little before a building as near)
+		if d < bd and u._can_get_at(w):
+			bd = d
+			best = w
+	return best
 
 
 ## (clockwork-v-brood-coach, docs/clockwork-v-brood-coach.md, round 1) THE PACK MARCHES TOGETHER (against the Clockwork,
@@ -3509,6 +3635,7 @@ func _wave_end_nb(q: Unit, failed: bool) -> void:
 	var home := _nb_stage_point(q)
 	for u in _wave:
 		if is_instance_valid(u) and not u.dead:
+			u.raid_bite = false
 			u.cmd_move(home)
 	_wave.clear()
 	_attack_at += int(plan["step"])

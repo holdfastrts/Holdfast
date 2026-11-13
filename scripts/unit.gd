@@ -67,6 +67,11 @@ var _wall_chk := 0.0
 var _reach_t := 0.0             # (stuck chasing something) when it next asks whether it can get at it at all
 var _wall_look_t := 0.0         # (melee) when it next checks whether it's pressed against an enemy wall it must break
 var _detour: Building = null    # (melee, told to attack a man walled off from it) the wall piece it breaks first
+## (brood-rush-coach) a raider told to attack a building (the Brood computer's wave at a wall: AIBroodNew._nb_wave_no_chase)
+## bites an enemy fighter who comes within its reach, without leaving the building to chase him: _raid_bite_tick
+var raid_bite := false
+var _bite_e: Unit = null
+var _bite_t := 0.0
 var last_pos := Vector2.ZERO
 var repath_t := 0.0
 
@@ -3989,6 +3994,8 @@ func _tick_unit(delta: float) -> void:
 					cmd_stop()
 			else:
 				target = _attack_detour(delta)
+				if raid_bite and order_target is Building:
+					target = _raid_bite_tick(target, delta)
 				want = RideBy.steer(self, target, delta) if _rides_by else _engage(target, delta, true)
 		"gather":
 			want = _gather(delta)
@@ -4794,6 +4801,35 @@ func _walled_check(delta: float) -> void:
 		target = w if w else near
 	elif order == "amove" and not _walk_reaches_point(order_point):
 		target = near
+
+
+## (brood-rush-coach) A raider at a building (raid_bite) and an enemy fighter within its reach: it bites him where it stands
+## (the bite it has begun lands on him) and goes back to the building when he is out of reach; it never walks after him.
+func _raid_bite_tick(at: Entity, delta: float) -> Entity:
+	if is_instance_valid(_bite_e) and not _bite_e.dead and phase != "":
+		return _bite_e                # (a bite under way: on him)
+	_bite_t -= delta
+	if _bite_t <= 0.0:
+		_bite_t = 0.15
+		_bite_e = null
+		var best: Unit = null
+		var bd := INF
+		# (a lunge: a fighter up to RAID_LUNGE px past its reach, while it stands at the building: a Horseman's sabre reaches
+		# 26 px, a Raptor's bite 22, and a rider striking from the edge of his reach was never bitten back)
+		var lunge := RAID_LUNGE if at != null and at.edge_distance(position) - radius <= _range() + 24.0 else 0.0
+		for u in game.units_near(position, _range() + radius + 40.0 + lunge):
+			if u.dead or u.off_field or u.team < 0 or not game.hostile(u.team, team) or not u.has_attack() or u.is_worker() or u.is_air():
+				continue
+			var dd: float = u.edge_distance(position) - radius
+			if dd <= _range() + lunge and dd < bd and game.level_of(u.position) == game.level_of(position):
+				bd = dd
+				best = u
+		_bite_e = best
+	if is_instance_valid(_bite_e) and not _bite_e.dead and _bite_e.edge_distance(position) - radius <= _range() + RAID_LUNGE + 4.0 \
+			and (at == null or at.edge_distance(position) - radius <= _range() + RAID_LUNGE + 24.0):
+		return _bite_e
+	return at
+const RAID_LUNGE := 18.0
 
 
 ## Told to attack a man it can't walk up to (behind an enemy wall or shut gate): once at the
