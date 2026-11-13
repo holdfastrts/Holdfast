@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.11", "items": [
+		"FIX: cancelling part of a planned wall (one piece, or one stretch of a wall with bends) cancels only that part: the rest stays planned and your Labourers keep building it (it used to drop the whole wall).",
+	]},
 	{"v": "0.35.10", "items": [
 		"FIX: VIEW MAP after a match keeps the Clockwork's gear rings drawn wherever you move the camera (they vanished outside the spot where the match ended).",
 	]},

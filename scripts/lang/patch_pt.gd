@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.11": ["CORREÇÃO: cancelar parte de um muro planejado (uma peça, ou um trecho de um muro com curvas) cancela só essa parte: o resto continua planejado e os seus Operários seguem construindo (antes caía o muro inteiro)."],
 	"0.35.10": ["CORREÇÃO: VER MAPA depois da partida mantém os anéis de engrenagem do Mecanismo desenhados onde quer que você mova a câmera (eles sumiam fora do lugar onde a partida acabou)."],
 	"0.35.9": ["As facções agora são só COROA, MECANISMO e NINHADA em todo lugar (sem o artigo na frente): salas de jogo, a tela de jogo, o relatório da batalha, as páginas de ajuda e o registro da partida."],
 	"0.35.8": ["Os botões de facção nos lobbies de escaramuça e online mostram o novo emblema de cada facção: a coroa dourada da Coroa, a engrenagem de latão da Mecânica e o olho verde da Ninhada (não mais as suas sedes)."],

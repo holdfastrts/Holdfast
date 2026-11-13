@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.11": ["CORRECCIÓN: cancelar parte de un muro planeado (una pieza, o un tramo de un muro con giros) cancela solo esa parte: el resto sigue planeado y tus Peones siguen construyéndolo (antes caía el muro entero)."],
 	"0.35.10": ["CORRECCIÓN: VER MAPA tras la partida mantiene dibujados los anillos de engranajes del Mecanismo dondequiera que muevas la cámara (desaparecían fuera del lugar donde terminó la partida)."],
 	"0.35.9": ["Las facciones ahora son solo CORONA, MECANISMO y NIDADA en todas partes (sin el artículo delante): salas, la pantalla de juego, el informe de batalla, las páginas de ayuda y el registro de la partida."],
 	"0.35.8": ["Los botones de facción en las salas de escaramuza y en línea muestran el nuevo emblema de cada facción: la corona dorada de la Corona, el engranaje de latón de la Mecánica y el ojo verde de la Nidada (ya no sus sedes)."],
