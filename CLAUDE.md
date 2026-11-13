@@ -99,7 +99,7 @@
   with a StarCraft II opening. Also running: online-ranked (OWNER 01:04: SERVER-AUTHORITATIVE ranked matches, Steam-only
   ladder, bans by SteamID64 + optional Steam game ban; prototype + docs/online_ranked.md). Main menu painting: hallucination
   fixes by crop repaints (art/menu_fix/, tools/menu_fix_composite.py): gunner and horseman done 0.33.31, the Clockwork
-  front and the Brood Mother redone with unit references (waiting on the owner's pictures).
+  front and the Brood Mother DONE 0.33.32 (one repaint of the right side, art/menu_fix/f34_right_fixed.png, a stray sword inpainted).
   GROUND SYSTEM (owner, DECIDED 2026-11-13 01:34-01:40; docs/ground_system.md): every economy building drinks from a
   CIRCLE of ground like the Rootmaw; spent ground shown RED while placing; overlap with spent ground gives a proportional
   yield; ground exists only in a DISTRICT PER HALL (fixed amount each); the layer shows FAINTLY while placing ANY building

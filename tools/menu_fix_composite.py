@@ -2,7 +2,7 @@
 Each art/menu_fix/<name>_fixed.png is the repaint of the crop boxes.json[<name>] of art/menu_fix/battle_full.png (the
 original). It is scaled to the box, colour-matched to the original crop (per-channel mean/std on the outer ring, so the
 light stays the painting's), and laid in with a feathered edge (FEATHER px fading to the original) so no seam shows.
-Writes assets/menu/battle.jpg.  python3 tools/menu_fix_composite.py [--preview DIR]"""
+boxes.json "_erase_lines": [x0, y0, x1, y1, width] strokes inpainted afterwards (a stray sword). Writes assets/menu/battle.jpg.  python3 tools/menu_fix_composite.py [--preview DIR]"""
 import json
 import os
 import sys
@@ -19,6 +19,7 @@ def main():
     out = np.asarray(base).astype(float)
     boxes = json.load(open(os.path.join(D, "boxes.json")))
     used = []
+    erase = boxes.pop("_erase_lines", [])
     for name, b in boxes.items():
         p = os.path.join(D, name + "_fixed.png")
         if not os.path.exists(p):
@@ -50,6 +51,14 @@ def main():
         out[y0:y1, x0:x1] = orig * (1 - a) + np.clip(fx, 0, 255) * a
         used.append(name)
     im = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
+    if erase:     # stray bits the repaints kept (a sword with no hand): painted over from their surroundings
+        import cv2
+        a = np.asarray(im).copy()
+        mask = np.zeros(a.shape[:2], np.uint8)
+        for x0, y0, x1, y1, w in erase:
+            cv2.line(mask, (x0, y0), (x1, y1), 255, w)
+        a = cv2.inpaint(a, mask, 6, cv2.INPAINT_TELEA)
+        im = Image.fromarray(a)
     im.save("assets/menu/battle.jpg", quality=92)
     print("menu painting: blended", used)
     if "--preview" in sys.argv:
