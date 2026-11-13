@@ -186,6 +186,12 @@ func _run() -> void:
 	g.camera.position = b.position
 	await _frames(20)
 	await _snap("crew_push_ne", 0.0)
+	for mv in [["n", Vector2(0, -220)], ["nw", Vector2(-160, -160)]]:      # (owner 2026-11-13: the crew too far in the N/NE/NW views)
+		b.cmd_move(b.position + mv[1])
+		await _frames(50)
+		g.camera.position = b.position + Vector2(0, 20)
+		await _frames(20)
+		await _snap("crew_push_" + String(mv[0]), 0.0)
 	b.cmd_stop()
 	await _frames(30)
 	# ---- the line: Crown Cannons and Musketeers in a row east of it

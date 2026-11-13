@@ -153,11 +153,14 @@ static func crew_job(b: Unit) -> String:
 static func spot(b: Unit, i: int, n: int, job: String) -> Vector2:
 	var f := snap_face(b)
 	var r := Vector2(-f.y, f.x)
-	var stagger := _ell(-f, Vector2(STAGGER, STAGGER * 0.5)) * float(i % 2)     # (every other man a step further back: a crowd, not a fence)
+	# facing up the screen its back is drawn at its feet already: the crew stand much nearer (owner, 2026-11-13: in the N
+	# and NE/NW views "the winders are too far away from the ballista"): 0.35 of the distance facing N, ~0.55 diagonally
+	var near := 1.0 - 0.65 * maxf(0.0, -f.y)
+	var stagger := _ell(-f, Vector2(STAGGER, STAGGER * 0.5)) * float(i % 2) * near     # (every other man a step further back: a crowd, not a fence)
 	if job == "push":
 		var t := (float(i) - float(n - 1) * 0.5) * SPREAD
-		return _ell(-f, BACK) + r * t + stagger
-	return _ell(-f, REAR) + _ell(r, SIDE) - r * (float(i) * SPREAD) + stagger
+		return _ell(-f, BACK) * near + r * t + stagger
+	return _ell(-f, REAR) * near + _ell(r, SIDE) - r * (float(i) * SPREAD) + stagger
 
 
 ## Which way a crewman faces: the way the machine faces (pushing it, or turning a crank on its back).

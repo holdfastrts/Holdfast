@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.14": ["Viendo una partida: la selección con recuadro toma todas las unidades del bando con más unidades dentro, un doble clic toma todas las de ese tipo en pantalla, y la línea de cada jugador muestra los ingresos por minuto, el valor del ejército y los trabajadores (como en las repeticiones). La tripulación de la Balista de Resorte se pone detrás de ella en las vistas al norte. El tornillo del Springer es un 30% más pequeño y el Péndulo se dibuja un 30% más grande."],
 	"0.35.13": ["Como espectador: los iconos de PRODUCCIÓN y EJÉRCITO Y ESTRUCTURAS tienen descripciones, y un clic los selecciona y lleva la cámara a uno (clic otra vez para el siguiente)."],
 	"0.35.12": ["CORRECCIÓN (versión web): las pequeñas flechas y símbolos que se veían como cajas vacías (antes de HISTORIA DE LA IA, PRODUCCIÓN, EJÉRCITO Y ESTRUCTURAS, \"Todos los jugadores\" y en el botón de pausa de la repetición) vuelven a verse: el juego ahora lleva su propia fuente de símbolos, ya que el navegador no tiene una que prestar."],
 	"0.35.11": ["CORRECCIÓN: cancelar parte de un muro planeado (una pieza, o un tramo de un muro con giros) cancela solo esa parte: el resto sigue planeado y tus Peones siguen construyéndolo (antes caía el muro entero)."],

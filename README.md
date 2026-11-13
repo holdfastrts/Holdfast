@@ -2,7 +2,7 @@
 
 *(the game was called Holdfast until November 2026, but that name belongs to another game; the old address, holdfastrts.github.io/Holdfast/, stops working once the organization is renamed)*
 
-**Play in your browser (version 0.35.13): https://triumviwar.github.io/**
+**Play in your browser (version 0.35.14): https://triumviwar.github.io/**
 
 **Windows program: https://triumviwar.github.io/Triumviwar_windows.zip** (rebuilt on every push; unzip it and run Triumviwar.exe; if Windows warns "Windows protected your PC", click More info, then Run anyway)
 

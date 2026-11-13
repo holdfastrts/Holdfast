@@ -3258,6 +3258,8 @@ func _res_line(t: int) -> String:
 	var line := "P%d %s   %d %s · %d %s · %d/%d supply" % [t + 1, String(Defs.FACTIONS[fac]["name"]), int(pl["gold"]), names[0], r2, names[1], supply_of(t), int(pl["cap"])]
 	if game.replay:
 		line += "   ·   " + game.replay.obs_line(t)      # (a replay: income, army and workers, as an observer sees them)
+	else:       # (watching live, the same: owner 2026-11-13 "we should be able to see income per minute somewhere")
+		line += "   ·   " + Loc.t("income %d/min · army %d · %d workers") % [int(game.income_rates(t).x * 60.0), game.army_value(t), game.worker_count(t)]
 	return line
 
 

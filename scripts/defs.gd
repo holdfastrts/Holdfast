@@ -631,7 +631,7 @@ const TENSION_USERS := ["escapement", "cuckoo_house", "heavy_works"]
 ## too small to see; 0.75 is ~1.8x shot_scale); its sparks on impact stay at shot_scale. Looks only: the damage lands at once.
 const SPRINGER_JUMP := {"range": 160.0, "crouch": 0.35, "land": 0.2, "air": 0.3, "air_speed": 520.0, "peak": 20.0, "peak_per": 0.22,
 	"cooldown": 10.0, "search": 2, "ai_low": 0.4}
-const SPRINGER_SHOT := {"shot_scale": 0.42, "fly_scale": 0.75, "muzzle_scale": 0.5, "speed": 520.0,
+const SPRINGER_SHOT := {"shot_scale": 0.42, "fly_scale": 0.52, "muzzle_scale": 0.5, "speed": 520.0,
 	"tips": {"r": {"s": Vector2(-28, -13), "se": Vector2(-22, -11), "e": Vector2(24, -15), "ne": Vector2(25, -13), "n": Vector2(25, -11)},
 		"l": {"s": Vector2(27, -13), "se": Vector2(24, -12), "e": Vector2(22, -21), "ne": Vector2(-24, -18), "n": Vector2(-25, -12)}}}
 
@@ -1111,6 +1111,7 @@ const UNITS := {
 		"name": "Pendulum", "hp": 340, "armor": 2, "speed": 46, "cost": 200, "tension": 75, "time": 35.0, "supply": 4,
 		"sight": 8, "range": 32, "damage": 12, "cooldown": 0.76, "aim": 0.35, "radius": 20, "from": "heavy_works",
 		"building_bonus": 1.25, "requires": "escapement", "big_gear": true, "ground_only": true, "faction": "clockwork",
+		"art_scale": 1.3,      # (drawn 30% bigger: owner 2026-11-13 "too small currently"; its body radius unchanged)
 		"about": "A tall clock tower on long legs with two arms, each a heavy weight with a crescent blade: they sweep low in turn, like scythes at ankle height, and every blow cuts EVERY enemy on the ground in the wide arc in front of it (never your own units), light units hardest. Slow and tough; it cannot reach flyers. Made at the Heavy Works (once an Escapement works). Costs Tension.",
 	},
 	# TIER 3 (gear mode; Defs.NET): the NETTER, the STOPPER (the owner's "unit that stops one enemy", made of machinery: no

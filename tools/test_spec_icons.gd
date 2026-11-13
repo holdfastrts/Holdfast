@@ -82,5 +82,16 @@ func _run() -> void:
 		sp.press((ph[0] as Rect2).get_center())
 		var e = ph[1].get("e")
 		check(is_instance_valid(e) and g.selection.has(e), "clicking a production icon selects where it is made")
+	# box select while watching (owner, 2026-11-13: "if I box select I don't select all things, only 1")
+	var hall: Building = g.halls_of(0)[0]
+	g.camera.position = hall.center()
+	await process_frame
+	var xf := root.get_viewport().get_canvas_transform()
+	var c: Vector2 = xf * hall.center()
+	g.controls._box_from = c - Vector2(400, 300)
+	g.controls._box_to = c + Vector2(400, 300)
+	g.controls._finish_box()
+	var bs: Array = g.selection.filter(func(x): return is_instance_valid(x))
+	check(bs.size() >= 3 and bs.all(func(x): return x.team == 0), "a box round P1's hall takes all P1's units in it (%d)" % bs.size())
 	print("FAILS: %d" % fails)
 	quit(1 if fails else 0)
