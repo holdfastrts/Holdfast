@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.33.29", "items": [
+		"THE RAPTOR RUNS ON PAINTED LEGS IN EVERY DIRECTION: its diagonal runs (down-right and up-right on the screen, and their mirrors) are now new painted art too, with the legs taking turns, instead of the stick legs made in code. The crest and spines still take the player's colour.",
+	]},
 	{"v": "0.33.28", "items": [
 		"THE FREE ASSEMBLY'S NEW DRAWINGS (campaign mission 1): the torch-bearer seen from behind walks, stands, sets fire and falls with his one torch in his hand (it used to come and go, or sit on his hat); Etienne Varenne walking or standing north now shows his back, not his face, and he waits calmly with his hands down instead of raising his fist.",
 		"The rebel pikemen level their pikes and thrust with their own whole pike when they face south, south-east, east and north-east (they were one man moved back and forth), and facing south they now turn toward us instead of showing their side.",

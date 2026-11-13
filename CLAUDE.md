@@ -84,7 +84,17 @@
   OWNER 2026-11-12 20:47: WIN RATES IN ALL MATCHUPS, coached: study jobs winrate-a (Crown v Brood, Crown v Clockwork),
   winrate-b (Clockwork v Brood, Crown mirror), winrate-c (Clockwork and Brood mirrors): the 0.33.7 qa-matches design (19
   maps x 2 seeds, 15:00), 2 filmed games per pairing with coach's notes and proposals (no code changes); combine into
-  docs/winrate_2026_11_12.md.
+  docs/winrate_2026_11_12.md. MERGED 2026-11-13 (docs/winrate_2026_11_12.md has the table and the proposals, none
+  applied): the Crown computer 0 wins in 76 (v Brood 0-11-27, v Clockwork 0-30-8; its blind Horseman rush v every Brood
+  read as GREEDY fails 33 of 38); Clockwork v Brood now even (11-15-12); Clockwork mirror ends (20 decided, was 0); Crown
+  mirror 35 of 38 draws; Brood mirror leans to spot A on the named maps, Clockwork v Brood to spot A on the classic maps.
+  OWNER 2026-11-12 21:04: ALL ECONOMIES ABOUT EQUAL PER MINUTE, by NERFING the Clockwork and Brood (not buffing the
+  Crown), a slower game; asked which RTS the pace resembles. Job economy-parity (branch, docs/economy_parity.md): a
+  scripted bench, proposed nerfs applied ON THE BRANCH ONLY, games, the pace compared; DO NOT MERGE until the owner OKs.
+  ART 2026-11-12/13: the Clockwork and Brood campaign hubs (hubs-cw-brood 0.33.26: Hollweg's workshop, Lindqvist's
+  station), the Clock Soldier's 8-way walk and the Raptor's S/N run (walks-raptor-clock 0.33.27), the rebels' back
+  views, Varenne's calm idles, the pikeman's S/SE pike (rebel-art-2 0.33.28), the Raptor's SE (Claude's composite of two
+  sheets) and NE run (0.33.29): no code legs left in the Raptor's run.
 - CROWN HOLDS ITS WALLED NATURAL (owner's playtest 2026-11-06, Dune Sea; job crown-hold, 0.33.1, docs/crown_hold.md): the
   natural's GATE on the palisade stretch nearest the main's ramp foot (AIExpandWall._gate_by_ramp); once that wall is 70%
   closed with its gate up the army's HOME post is DOWN at the gate (AICrownHold section 7, the gate post; ramp post = main

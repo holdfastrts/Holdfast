@@ -579,7 +579,7 @@ Pixel art: hard square pixels, NO anti-aliasing, no blur, no glow; a dark outlin
 Background: one flat solid navy colour, exactly RGB 0, 22, 48 (#001630), nothing else on it: no labels, grid, ground or shadow. Layout: ONE row of 6 figures, left to right = frames 1 to 6, all on the same invisible ground line, each the same size as in image 1, at least 30 px of navy between them, none touching or cut by the edge. Landscape image 1536 x 1024 pixels. Deliver a PNG file (not a JPEG, not a screenshot).
 ```
 
-### Item 6: Raptor walk, S, SE, NE, N (one request per view; E is kept)
+### Item 6: Raptor walk, S, SE, NE, N (one request per view; E is kept) - DONE 0.33.27 (S, N) and 0.33.29 (SE composite, NE redo)
 
 S and N DONE 2026-11-12 (0.33.26, table item 11). SE and NE TO REDO: the answers came back as side views (the raptor seen from its flank, not three-quarter), so they were not imported. A composite SE (raptor_walk_se_chatgpt.png, best frames of raptor_walk_se_a/b) and a NE redo were added to art/redraws/ after this job was set; they are not imported yet (look at them before a next import).
 

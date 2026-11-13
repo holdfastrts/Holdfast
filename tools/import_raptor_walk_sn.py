@@ -30,7 +30,7 @@ CELL = (58, 30)
 ANCHOR = (29, 28)
 FRAMES = 6
 SCALE = 0.068
-VIEWS = ("s", "n")
+VIEWS = ("s", "se", "ne", "n")   # SE and NE: 2026-11-13 (SE is Claude's composite of two sheets, art/redraws/SOURCES.txt)
 KEY_MIN = 12
 
 
