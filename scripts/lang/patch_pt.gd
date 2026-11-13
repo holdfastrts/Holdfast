@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.34.7": ["A PINTURA DO MENU PRINCIPAL: os Saltadores da frente não são mais cópias de uma só pose: o do meio está saltando, com a mola esticada e o corpo lançado para cima, e o de baixo se inclina no seu salto."],
 	"0.34.6": ["A PINTURA DO MENU PRINCIPAL: o veneno que saía do olho do Sire Tirano sumiu (ele voltou a ser como era), o jato de veneno de cima que começava numa samambaia sumiu, e mais uma cabeça copiada da Ninhada na encosta ficou sob a poeira da cavalaria."],
 	"0.34.5": ["A PINTURA DO MENU PRINCIPAL: da passada de suavização do ChatGPT feita pelo dono foram usadas só três partes (o resto da resposta mudava demais): o brilho da cruz sem a linha de emenda, os jatos de veneno dos Cuspidores saindo agora das bocas e o céu claro sem a textura craquelada."],
 	"0.34.4": ["A PINTURA DO MENU PRINCIPAL, LIMPA DE NOVO: não há mais cabeças da Ninhada copiadas na encosta (agora a poeira da cavalaria), nem cavaleiro fantasma ao lado do cavaleiro de armadura, nem terceira mão no ferido; a figura meio apagada atrás do mosqueteiro ajoelhado agora é só fumaça de mosquete, as pernas do ferido têm um tamanho natural e os dois canhões estão lado a lado: o de trás disparando com a sua própria carreta, o da frente sendo recarregado diante dele."],

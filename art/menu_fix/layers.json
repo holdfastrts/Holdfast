@@ -1557,5 +1557,34 @@
   "feather": 14,
   "opacity": 0.85,
   "_why": "square-by-square check 2026-11-13: one more copied Brood head and crest (old clone patches 9 and 13) under the charge's smoke"
+ },
+ {
+  "src": "art/menu_fix/f42_springer_poses.png",
+  "box": [
+   0,
+   0,
+   1672,
+   941
+  ],
+  "poly": [
+   [
+    1340,
+    620
+   ],
+   [
+    1640,
+    620
+   ],
+   [
+    1640,
+    941
+   ],
+   [
+    1340,
+    941
+   ]
+  ],
+  "feather": 3,
+  "_why": "owner 2026-11-13: the Springers too alike: the middle one launches (spring uncoiled), the bottom one leans into its bounce (tools/menu_springer_poses.py, made from 0.34.6's painting)"
  }
 ]

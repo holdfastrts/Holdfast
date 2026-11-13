@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.34.7", "items": [
+		"THE MAIN MENU PAINTING: the Springers in front are no longer copies of one pose: the middle one is launching, its spring uncoiled and its body thrown up, and the one at the bottom leans into its bounce.",
+	]},
 	{"v": "0.34.6", "items": [
 		"THE MAIN MENU PAINTING: the venom that came out of the Tyrant Sire's eye is gone (its old look is back), the top venom jet that started from a fern is gone, and one more copied Brood head on the slope is now under the cavalry's dust.",
 	]},
