@@ -1502,7 +1502,9 @@ func _nb_short(by_rate := true) -> bool:
 ## lay at once.
 const SUPPLY_LEAD := 36.0           # s from a turtle's order to its supply (at home; new ground walks longer)
 const SUPPLY_EGG := 1.5          # (supply an egg once warriors are laid: a grub 1, a pair 2; grubs only before the Tyrant Sire)
-var supply_rate_on := not OS.get_cmdline_user_args().has("nbsupply:off")
+var supply_rate_on := OS.get_cmdline_user_args().has("nbsupply:on")      # (OFF by default: docs/econ-coach-brood.md fix 1:
+                                                                          # no blocks and +12% army at 8:00, but -1% income
+                                                                          # and the later Sires and her stage 3 came late)
 var supply_from := _arg_f("nbsupplyfrom:", 240.0)        # (before this the old rule: early on a turtle and its grub cost more grubs
                                                        # than the eggs a block holds back: alone, from 0:00 it cost 4% at 5:00)
 
@@ -1617,7 +1619,9 @@ func _nb_morphs_go(q: Unit) -> void:
 	if not tyrant and (grubs >= int(plan["sire_g"]) or game.clock > float(plan["sire_t"]) or _rush_on() or _alarm_on() \
 			or (_riders_on() and game.clock > float(plan["sire_t"]) - 45.0)) and maws >= 1:      # (brood-anti-riders: riders read: his lure 45 s before the plan's time, in time for Raptors at 3:00, not at the read)
 		k = BroodNew.FATHER         # (the first Sire: the warriors' line)
-	elif _nb_short():
+	elif _nb_short(false) or (_nb_short() and _nb_next_father(q) == "" and _nb_father_due(q) == ""):
+		# (fix 1: a turtle the laying rule asks for early waits for a Sire that is due; one the old, near rule asks for
+		# does not: in the Air plan's test the Venom Sire never came while the turtles kept their turn)
 		k = BroodNew.TURTLE
 		if _nb_far_have(q) < _nb_far_wanted() or (_food() >= 300 and _nb_far_have(q) < int(Defs.NB["expansion_max"]) + 2):
 			var fp := _nb_far_spots(q)          # (a turtle on new ground gives the same supply: forward first, when one is free and safe;
@@ -1625,6 +1629,10 @@ func _nb_morphs_go(q: Unit) -> void:
 				spot = fp[0]
 	elif _nb_next_father(q) != "":
 		k = _nb_next_father(q)
+	elif supply_rate_on and _nb_father_due(q) != "":
+		k = _nb_father_due(q)          # (fix 1: due but its food short: saved for (_morph_keep). Before, the supply blocks
+		                               # let the food pile up to his price; with no blocks the eggs took every 50 and the Air
+		                               # plan had no Venom Sire in 15 minutes)
 	elif _under_armed() and _army_supply_now() < 30 and maws >= 4 and not (soft_share_on and grubs + 1 >= _nb_want_grubs() and maws < _nb_wanted_maws()):
 		pass          # (fix 2: but a Rootmaw when its grubs (one egg in three, _nb_lay) have filled the ones it has)          # (brood-ai-tune: under-armed, warriors before more ground: round B g07 had 3 Raptors from 4:00 to 8:00
 		              # while every 100 food went into Rootmaws and turtles on new ground and the Crown's army reached 1,360)
@@ -1787,6 +1795,24 @@ func _nb_next_father(q: Unit) -> String:
 				return ""          # (wait for him: her stage 2 and his spoils come first)
 			continue
 		return f
+	return ""
+
+
+## A later Sire whose time has come (as _nb_next_father) but only his FOOD is short (fix 1: with turtles bought ahead by
+## the laying rule the food never reached a Sire's price, and the Air plan got no Venom Sire in 15 minutes).
+func _nb_father_due(q: Unit) -> String:
+	if BroodNew.count_of(game, team, BroodNew.FATHERS[0]) == 0 or BroodNew.count_of(game, team, BroodNew.MAW) < 2:
+		return ""
+	if _rush_on() and game.clock < 300.0 and not riders_about():
+		return ""
+	var storm_t := 0.0 if seen_air >= 2 else float(plan["storm"])
+	for f in [BroodNew.DILO, BroodNew.PTERO]:
+		var at := _sire_at(f) if f == BroodNew.DILO else minf(storm_t, _sire_at(f))
+		if game.clock < at or BroodNew.count_of(game, team, f) > 0 or BroodNew.stage(q) < BroodNew.father_stage(f):
+			continue
+		var why := BroodRoot.morph_problem(game, team, f)
+		if why == "" or why == "Not enough biomass.":
+			return f
 	return ""
 
 
@@ -2473,9 +2499,13 @@ func _nb_lay(q: Unit) -> void:
 	# Rootmaws from 4:00 to 9:00 after its rush (the qa games: 4,726 earned by 8:00, the mirror 8,741); its army never
 	# caught the floor because the income behind it never grew.
 	# FIX 5: riders READ but not seen coming yet (a Horse Breeder seen, no rider out of the enemy's main lately, none in its
-	# land: _rider_need's RIDER_PRE share) is soft too, one grub for one warrior egg: in a Greenhold game the read at 1:33
+	# land: _rider_need's RIDER_PRE share), and half the warriors it wants for them at home, is soft too, one grub for one
+	# warrior egg: in a Greenhold game the read at 1:33
 	# laid only Raptors until 4:00 on 8-12 grubs with her clutch full, and the riders came at 4:25.
-	var rider_prep := rider_short and rider_prep_on and game.clock - _rider_land_t >= RIDER_CALM and game.clock - _rider_out_t >= 60.0
+	var rider_prep := rider_short and rider_prep_on and game.clock - _rider_land_t >= RIDER_CALM and game.clock - _rider_out_t >= 60.0 \
+			and _value_of(_nb_army_units().filter(func(u: Unit) -> bool: return not _wave.has(u) and u.kind != "hatchlings")) >= _rider_need() * 0.5
+	# (the first half of the warriors it wants against the riders comes as before, warriors only: with one for one from
+	# the start, the scripted raid of test_brood_v_riders met fewer Raptors and the Mother got up)
 	var soft := danger and _nb_threat(q) == Vector2.INF and not _rush_short() and (not rider_short or rider_prep)
 	var every := 1 if rider_prep else SOFT_EVERY
 	if k == "" and soft and soft_share_on and grubs < want_grubs and grubs < curve and _soft_g * every < _soft_w \

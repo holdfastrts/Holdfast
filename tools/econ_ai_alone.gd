@@ -192,6 +192,10 @@ func _look() -> void:
 			lk["attacking"] = bool(ai._attacking)
 			lk["plan"] = String(ai.strategy)
 			lk["lost_grubs"] = int(g.stats[me].get("lost", 0))
+			lk["spoils"] = int(float(g.players[me]["res2"]))
+			lk["venom_why"] = BroodRoot.morph_problem(g, me, BroodNew.DILO)
+			lk["next_father"] = ai._nb_next_father(q)
+			lk["morph_keep"] = ai._morph_keep
 		_first("maws_%d" % maws)
 	lk["blocked"] = lk["cap"] < g.max_supply(me) and lk["supply"] + 2 >= lk["cap"]
 	looks.append(lk)

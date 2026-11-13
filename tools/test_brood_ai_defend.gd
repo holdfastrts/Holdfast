@@ -54,6 +54,9 @@ func _process(_delta: float) -> bool:
 			if a is AIBroodNew:
 				ai = a
 				bt = a.team
+				# (econ-coach-brood: the computer now roots its second Rootmaw at home before the natural's turtle, which
+				# fills its home ring by the Rootmaw part below; the opening is not what this test checks: the old order)
+				a.maw_first_on = false
 			else:
 				a.process_mode = Node.PROCESS_MODE_DISABLED
 		ft = 1 - bt
