@@ -147,3 +147,7 @@ harmonics" would give it more air).
 now 24 (open 3, skirmish 4, battle 9, calm 8), each ElevenLabs piece is in its role and FEATURED, Crown of Ashes is a
 menu piece and MENU_FIRST, every featured file loads as a non-looping Vorbis stream over 50 s, and the weighted pick
 gives a featured piece about 3x the plays of a generated one.
+`tools/test_music_featured.gd`: the menu's first overture is Crown of Ashes, no overture twice in a row, Crown of Ashes
+about 3x a round, every other overture still plays; in a match a calm piece never follows itself, Dawn Over the
+Colony plays ~3x as often as a generated calm piece, every generated one still plays. `tools/test_music_clock.gd`
+counts the Clockwork's 24 pieces. All pass, as do test_music_mix and test_band_music.
