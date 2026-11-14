@@ -72,7 +72,9 @@ a few times less. The extra 60 draw calls are the chevrons' batches.
   its place over the number, the number rule for a computers' game, a Crown, Clockwork and Brood player and a replay,
   save/load, an online guest (kills and chevrons through a snapshot, the guest's own number rule), 400 veterans.
   All pass. Also passing: test_unit_stats, test_i18n, test_files, test_orphan_imports, test_card_text, test_horses,
-  test_brood_controls, test_egg_tooltips.
+  test_brood_controls, test_egg_tooltips, test_brood_new (0 failures), test_content_all (0 FAIL, 10 WARN) and
+  test_replay (ALL OK). (test_brood_new, test_content_all and test_replay end with exit code 134, an abort while
+  Godot shuts down after the results are printed; it is not from this change's checks.)
 - `tools/shot_vet_chevrons.gd` writes `docs/shots/vet_chevrons/`: a line of Musketeers with 0-63 kills close and at the
   usual zoom (1, 2), every faction (3), an army zoomed out and at zoom 1 (4, 5), a field of bodies as a Crown player
   (6: chevrons, no numbers) and as a Brood player (7: chevrons over the numbers). `import_contact.png` is the cut
