@@ -1,8 +1,8 @@
-## THE MARCHING BAND's MUSIC (job band-music, docs/band_music.md): the six loops BandSound plays
+## THE MARCHING BAND's MUSIC (jobs band-music and band-music-v2, docs/band_music.md): the six loops BandSound plays
 ## (assets/audio/band/, made by tools/audio/make_band_music.py) are one tune in one key and tempo, so they must:
-##  - all be exactly BandSound.PHRASE long (16 bars of 4/4 at 98 beats a minute), the length the engine wraps its clock at;
+##  - all be exactly BandSound.PHRASE long (16 bars of 4/4 at 110 beats a minute: 1,540,800 samples), the length the engine wraps its clock at;
 ##  - loop without a click: played through the engine's own mixer across the loop point (seeked a second before the end),
-##    the sound never drops out and no step between two samples is bigger than the music's own (a gap or a jump would);
+##    the music goes on after the end and no step between two samples is bigger than the music's own (a jump would);
 ##  - stay in step: two parts started at the shared clock's place stay within a few ms of each other and of the clock,
 ##    over the loop point too.
 ##   xvfb-run -a godot --rendering-driver opengl3 --write-movie /tmp/band_test/out.png --fixed-fps 30 --resolution 320x180 \
@@ -31,7 +31,7 @@ func stream(f: String) -> AudioStream:
 
 
 func _run() -> void:
-	check("the loop is 16 bars of 4/4 at 98 a minute", is_equal_approx(BandSound.PHRASE, 16 * 4 * 60.0 / 98.0), str(BandSound.PHRASE))
+	check("the loop is 16 bars of 4/4 at 110 a minute (109.91: a whole number of drone cycles)", absf(BandSound.BPM - 110.0) < 0.15 and is_equal_approx(BandSound.PHRASE, BandSound.BARS * 4 * 60.0 / BandSound.BPM) and BandSound.BARS == 16, "%.4f s at %.3f" % [BandSound.PHRASE, BandSound.BPM])
 	check("the unit's phrase entry agrees", absf(float(Defs.MARCHING_BAND["phrase"]) - BandSound.PHRASE) < 0.01)
 	var files: Array = []
 	for ins in BandSound.PARTS:
@@ -74,21 +74,25 @@ func _run() -> void:
 			p.queue_free()
 			var n := fr.size()
 			var win := 441                       # 10 ms windows (at 44.1 kHz)
-			var lo := INF
+			var skip := 882                      # (the first 20 ms: playback starting mid-wave is a step of its own)
+			var after := 0.0                     # the RMS of the second after the loop point (the music goes on)
+			var na := 0
 			var steps: Array = []
 			var big := 0.0
-			for i in range(0, n - win, win):
-				var s := 0.0
-				for j in win:
-					s += fr[i + j].x * fr[i + j].x
-				lo = minf(lo, sqrt(s / win))
-			for i in range(1, n):
+			var seam := n - int(44100.0 * 1.0) if n > 44100 else n / 2
+			for i in range(maxi(seam + 2205, 0), n):
+				after += fr[i].x * fr[i].x
+				na += 1
+			after = sqrt(after / maxf(na, 1))
+			for i in range(skip, n):
 				var d := absf(fr[i].x - fr[i - 1].x)
 				steps.append(d)
 				big = maxf(big, d)
 			steps.sort()
 			var p99: float = steps[int(steps.size() * 0.995)] if steps.size() > 0 else 0.0
-			check("%s plays on through its loop point (no silence)" % f, n > 44100 and lo > 0.002, "%d frames, quietest 10 ms %.4f" % [n, lo])
+			# (rests in the score are fine: the snare rests in each phrase's last bar, so "never quiet" is not asked;
+			# what is asked is that the loop goes on playing after its end, without a click)
+			check("%s plays on through its loop point" % f, n > 44100 and after > 0.003, "%d frames, the second after it RMS %.4f" % [n, after])
 			check("%s: no click at the loop point (no jump past the music's own)" % f, big <= p99 * 4.0 + 0.02, "largest step %.4f, 99.5%% %.4f" % [big, p99])
 		# 2. in step: two parts started where the shared clock is stay together, over the loop point
 		var a := AudioStreamPlayer.new()

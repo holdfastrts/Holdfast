@@ -31,6 +31,23 @@ func make(facs: Array) -> Game:
 	return g
 
 
+func frames(n: int) -> void:
+	for i in n:
+		await process_frame
+
+
+## The band's duck on the Music bus now (dB; 0 when none).
+func music_duck() -> float:
+	var bus := AudioServer.get_bus_index("Music")
+	if bus < 0:
+		return 0.0
+	for i in AudioServer.get_bus_effect_count(bus):
+		var e := AudioServer.get_bus_effect(bus, i)
+		if e is AudioEffectAmplify and e.resource_name == "band_duck":
+			return (e as AudioEffectAmplify).volume_db
+	return 0.0
+
+
 func step(g: Game, secs: float) -> void:
 	var n := int(round(secs * 30.0))
 	for i in n:
@@ -314,6 +331,35 @@ func _run() -> void:
 				band_on += 1
 	check("a band near the middle: the BAND is heard (its three parts, in step), no lone musician", band_on == 3 and lone_on == 0 and bs.heard.size() == 3, "%d band, %d lone %s" % [band_on, lone_on, str(lv)])
 	check("a band's parts on the shared clock (no offset)", BandSound.PARTS.keys().all(func(k) -> bool: return is_equal_approx(float(bs.offsets()[BandSound.PARTS[k][0]]), 0.0)))
+	# THE GAME MUSIC GIVES WAY TO THE BAND (band-music-v2): ducked strongly while the band is centred, smoothly
+	if AudioServer.get_bus_index("Music") < 0:          # (the Music node makes the bus in a real game)
+		AudioServer.add_bus()
+		AudioServer.set_bus_name(AudioServer.bus_count - 1, "Music")
+	var dn := bs.duck_now()
+	check("the music gives way: a band in the middle of the screen ducks the game music %.0f dB" % BandSound.DUCK_DB, absf(dn.y - BandSound.DUCK_DB) < 0.6, str(dn))
+	await frames(48)
+	dn = bs.duck_now()
+	check("... reached smoothly within 1.6 s (%.0f dB a second, no jump)" % BandSound.DUCK_RATE, absf(dn.x - dn.y) < 0.3, str(dn))
+	check("... on the Music bus (an Amplify effect: the volume sliders untouched)", music_duck() < -10.0, "%.1f dB" % music_duck())
+	sf.band_solo("fife")
+	await frames(2)
+	dn = bs.duck_now()
+	check("... more during a solo (%.0f dB)" % BandSound.DUCK_SOLO_DB, absf(dn.y - BandSound.DUCK_SOLO_DB) < 0.8, str(dn))
+	sf.band["se"] = 0.0
+	sf.band["cd"] = 0.0
+	cam.position = at + Vector2(360, 0)
+	await frames(2)
+	dn = bs.duck_now()
+	check("... less with the band off to the side of the screen", dn.y > BandSound.DUCK_DB + 2.0 and dn.y < -1.0, str(dn))
+	cam.position = at + Vector2(4000, 0)
+	await frames(2)
+	dn = bs.duck_now()
+	check("the camera leaves: the music comes back up, smoothly (no jump)", dn.y == 0.0 and dn.x < -8.0, str(dn))
+	await frames(60)
+	dn = bs.duck_now()
+	check("... all the way within 2 s", dn.x > -0.1 and music_duck() > -0.1, "%s, bus %.1f dB" % [str(dn), music_duck()])
+	cam.position = at
+	await frames(2)
 	sd.take_damage(99999.0, null, Entity.BLOW_RANGED)
 	await step(g, 0.5)
 	lv = bs.levels()
