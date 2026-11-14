@@ -25,6 +25,13 @@
 
 ## Current work
 
+- ELEVENLABS MUSIC IN THE GAME (owner 2026-11-14; job music-elevenlabs, docs/music_elevenlabs.md): the owner's 12 ElevenLabs
+  pieces + the menu theme mastered (tools/music/master_elevenlabs.py: high-pass, sub-bass capped at 25%, -12.8 LUFS with
+  at most 3 dB of peak limiting, -1 dBTP, no compression) into crown/clock/brood _battle_12..16 / _peace_8..10 and
+  menu_11, one per role (open, skirmish, full battle, calm); Music.FEATURED picked 3x as often (WEIGHT), Crown of Ashes
+  (menu_11) heard FIRST at the menu (MENU_FIRST). Flat by the numbers, remake candidates with prompts in the doc: the
+  four Crown pieces and the Clockmaker's Waltz. Credits in docs/audio_credits.md. Also: tools/voice_clone/refs/ has 5
+  designed character voices; lines.txt "[ref refs/<name>_ref.wav]" switches voice (placeholder lines per character).
 - MUSIC STUDY v CLASSICAL PIECES (owner, 2026-11-14: the book of 50 famous pieces; job music-study, docs/music_study_classical.md, charts and per-piece numbers in docs/music_study/, tools tools/music/study_*.py, NO game music changed): the game's 73 pieces measured from their notes and .ogg files against the reference table (docs/music_classical_refs.md). Found: 0% of notes outside the key (real ~12%), loudness range 6.9 LU (real ~12), climax at the last chord, 80% of bars repeat the bar before's rhythm, almost no counter-melodies, too much sub-bass in the battles; the chord speed is fine and the phrases are not too square (less regular than the real pieces); the sides are told apart (Crown most). A demo rewrite of The Queen Stirs in docs/music_study/demos/. OWNER DECISIONS WAITING: which proposals to build (mix pass first?), a loudness-range target (8-10 LU proposed), the Clockwork winding down at the end, the Brood's irregular phrases, the drum-bed marches.
 - BAND MUSIC V2 (owner 2026-11-14 09:57-09:58; job band-music-v2, 0.37.4, branch band-music-v2, docs/band_music.md): Scotland
   the Brave note for note from the owner's reference score (not in the repo), 110 (109.91, whole drone cycles), in E; the

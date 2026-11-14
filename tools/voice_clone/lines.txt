@@ -3,3 +3,27 @@
 king_test_01 | My son, sit with me a while. The pipe is lit, and the night is long.
 king_test_02 | They called it freedom. I have seen what their freedom burns.
 king_test_03 | Rome stood when every other crown had fallen. Remember why.
+
+# ---- The campaign characters (voices designed in ElevenLabs, references in refs/, see refs/README.txt).
+# ---- Every line below is a PLACEHOLDER to try the voice: the owner writes the real dialogue.
+# ---- A [ref ...] line switches the voice for the lines after it.
+
+[ref refs/hollweg_ref.wav]
+# Meister Hollweg, the clockmaker (Clockwork narrator)
+hollweg_placeholder_01 | PLACEHOLDER. Every gear has its place, and every place its gear. That is the whole of my faith.
+
+[ref refs/explorer_ref.wav]
+# The Catholic explorer (Brood storyline)
+explorer_placeholder_01 | PLACEHOLDER. We crossed the river at dawn, and the jungle closed behind us like a door.
+
+[ref refs/varenne_ref.wav]
+# Etienne Varenne, rebel leader of the Free Assembly
+varenne_placeholder_01 | PLACEHOLDER. They will call us traitors. Let them. Tonight the fields are ours.
+
+[ref refs/fairleigh_ref.wav]
+# Lord Edmund Fairleigh, Governor of Virginia
+fairleigh_placeholder_01 | PLACEHOLDER. Load the guns, Captain. I will not ask the rabble twice.
+
+[ref refs/ruggieri_ref.wav]
+# Captain Matteo Ruggieri, the guns
+ruggieri_placeholder_01 | PLACEHOLDER. Canister! On my word, and not a breath before!

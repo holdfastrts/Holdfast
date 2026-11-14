@@ -2907,6 +2907,10 @@ def write_tracks():
              "const TRACKS := {"]
     for nm in TRACK_ORDER:
         lines.append('\t"%s": "%s",' % (nm, SONGS[nm]().title.replace('"', '\\"')))
+    # the owner's ElevenLabs pieces (not generated here: mastered by tools/music/master_elevenlabs.py)
+    import master_elevenlabs
+    for stem, _src, title, _where, _s in master_elevenlabs.PIECES:
+        lines.append('\t"%s": "%s",' % (stem, title.replace('"', '\\"')))
     lines.append("}")
     with open(os.path.join(ROOT, "scripts", "music_tracks.gd"), "w") as f:
         f.write("\n".join(lines) + "\n")
