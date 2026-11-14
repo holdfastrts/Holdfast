@@ -3480,8 +3480,13 @@ func _cc_labs_due() -> bool:
 	if labs >= want:
 		return false
 	var est := foe_reckon()
-	if float(game.army_value(team)) < est * CC_LABS_ARMY and not _ck_floor(labs, halls):
-		return false
+	if float(game.army_value(team)) < est * CC_LABS_ARMY:
+		if not _ck_floor_due():
+			return false
+		if game.clock - _cc_labs_said > 60.0:
+			_cc_labs_said = game.clock
+			say("the labourers keep coming: %d labourers for %d halls, though its army (%d) is far behind the %d it reckons" % [labs, halls, game.army_value(team), int(est)])
+		return true
 	if game.clock - _cc_labs_said > 60.0:
 		_cc_labs_said = game.clock
 		say("the Farms first: %d labourers for %d halls (it wants %d) while its army (%d) holds half the %d it reckons" % [labs, halls, want, game.army_value(team), int(est)])

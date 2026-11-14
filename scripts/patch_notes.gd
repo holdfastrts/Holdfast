@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.15", "items": [
+		"THE CROWN COMPUTER AGAINST THE CLOCKWORK (Hard and up; no unit, building or price changed): its Timing attack no longer sits on one hall. Once its Horse Breeder is laid it puts its second hall down behind the army (by 4:30 at the latest) and keeps training labourers for it; its attack goes only while its army is clearly bigger than the Clockwork army it expects, and if that has not happened by 6:40 the plan is called off and it plays on from two halls. From 8:00 its halls keep a few labourers coming even when its army is far behind. Its scout no longer calls an empty Clockwork base greedy before 2:30 (the Clockwork's normal opening has no Light Works yet).",
+	]},
 	{"v": "0.35.14", "items": [
 		"Watching a game: box select takes all the units of the side with the most in the box, a double click picks every one of that kind on screen, and each player's line shows income per minute, army value and workers (as in replays). The Spring Ballista's crew stand at its back in the north views. The Springer's screw is 30% smaller, the Pendulum drawn 30% bigger.",
 	]},

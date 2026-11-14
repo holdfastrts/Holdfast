@@ -967,8 +967,9 @@ func _evaluate() -> Dictionary:
 		out["verdict"] = "greedy"
 		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else nums
 		out["saw"] = "a second base and little army"
-	elif absence_on and _hall_seen and mil == 0 and value <= 0.0 and known <= 0.0 and clock >= _absent_from(fac) \
-			and cov >= (BROOD_LOOK_COV if fac == "brood" else ABSENT_COV) and not (fac == "brood" and brood_read_on and not _brood_seen_enough()):
+	elif absence_on and _hall_seen and mil == 0 and value <= 0.0 and known <= 0.0 and clock >= GREEDY_ABSENT_FROM \
+			and cov >= (BROOD_LOOK_COV if fac == "brood" else ABSENT_COV) and not (fac == "brood" and brood_read_on and not _brood_seen_enough()) \
+			and (clock >= _absent_from(fac) or _econ_open(out)):
 		# (THE ABSENCE IS INFORMATION, the owner 2026-11-05: its base looked at and no army and no production building, at a
 		# time a rush or a normal opening would have one: it is putting everything into its economy)
 		out["verdict"] = "greedy"
@@ -1013,6 +1014,17 @@ const GREEDY_ABSENT_FROM := 55.0
 ## for the labourers after it: pressure). The Crown's absence read of a Clockwork counts from GREEDY_ABSENT_CLOCK; before
 ## it an empty base is its standard opening. `-- cinder:off` as before.
 const GREEDY_ABSENT_CLOCK := 150.0
+
+
+## (cinder-crown-ai) An empty Clockwork base before GREEDY_ABSENT_CLOCK reads NORMAL ("a standard opening"), marked
+## "econ_open": its economy opening. The Crown's fixed Economy plan still races it then, as it did on the GREEDY read.
+var econ_open_t := -99.0
+
+
+func _econ_open(out: Dictionary) -> bool:
+	out["econ_open"] = true
+	econ_open_t = game.clock
+	return false
 
 
 func _absent_from(fac: String) -> float:
@@ -1109,7 +1121,11 @@ func _apply(v: String, why: String, seen := "") -> void:
 			if ai.strategy != ai._opened and ai._opened != "timing" and not ai.adaptive():
 				ai.strategy = ai._opened
 				pname = String(AI.STRATEGIES.get(ai.strategy, AI.STRATEGIES["balanced"])["name"])
-			_say("%s: %s" % [head, "OPTIMAL picks its build from this" if ai.adaptive() else "keeps to its %s plan" % pname])
+			if ai.strategy == "economy" and game.clock - econ_open_t < 2.0:
+				mod = {"expand": RACE_EXPAND, "halls": 4}      # (cinder-crown-ai: the Clockwork's economy opening is raced still)
+				_say("%s: its economy opening; races it: more bases sooner" % head)
+			else:
+				_say("%s: %s" % [head, "OPTIMAL picks its build from this" if ai.adaptive() else "keeps to its %s plan" % pname])
 		"rush":
 			mod = DEFEND_MOD.duplicate()
 			want_wall = true

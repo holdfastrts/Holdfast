@@ -4,8 +4,8 @@ extends SceneTree
 ##  [table]    the Timing attack's opening against the Clockwork ("bo_clock") is well formed: known steps, the second hall,
 ##             the Foundry before the second Barracks (the owner's rule)
 ##  [reckon]   the Clockwork reckons a Hard Crown's army at its real size (AICwArmy.TABLES["crown"]: 6:00 >= 450, 7:00 >= 750)
-##  [farms]    a Hard Crown on the Timing attack against a Hard Clockwork (the Springer timing): on one hall by default (the
-##             two-hall opening is `-- crcw:twohall`), LABS_MIN labourers at LABS_AT (the Farms before "the army first") and
+##  [farms]    a Hard Crown on the Timing attack against a Hard Clockwork (the Springer timing): on one hall by default,
+##             "bo_clock1" (cinder-crown-ai: its second hall behind the army; the two-hall opening is `-- crcw:twohall`), LABS_MIN labourers at LABS_AT (the Farms before "the army first") and
 ##             its natural's soil worked
 ##  [guns]     a Field Cannon by LABS_AT (the guns get the horses)
 ##  [bank]     the Clockwork's Springer timing keeps less than BANK_MAX cogs in the bank at 4:30-5:30 (before: 1,186 at 5:00)
@@ -135,7 +135,8 @@ func _two() -> void:
 	if OS.get_cmdline_user_args().has("log"):
 		for l in g.mlog.lines:
 			print("LOG ", l)
-	check(cr._cc_bo == "bo" or cr.cc_two, "[farms] the Timing attack opens on one hall by default (%s)" % cr._cc_bo)
+	# (cinder-crown-ai: the one-hall opening is "bo_clock1" now: the second hall behind the army by 4:30; `-- cinder:off` "bo")
+	check(cr._cc_bo == ("bo_clock1" if cr.ck_on else "bo") or cr.cc_two, "[farms] the Timing attack opens on one hall by default (%s)" % cr._cc_bo)
 	check(g.over or labs10 >= LABS_MIN, "[farms] %d labourers at %d:00 (wants %d; the Timing games had 19-22 at 10:00)" % [labs10, int(LABS_AT / 60.0), LABS_MIN])
 	check(nat == null or nat_t > LABS_AT - 180.0 or nat_soil < 0.995, "[farms] a natural standing by %d:00 is worked (stood at %d, %d%% left)" % [int(LABS_AT / 60.0) - 3, int(nat_t), int(nat_soil * 100.0)])
 	check(guns >= 1, "[guns] a Field Cannon by %d:00 (most %d)" % [int(LABS_AT / 60.0), guns])
