@@ -22,6 +22,7 @@ owner DESIGNED in ElevenLabs (Voice Design, 2026-11-14; no real person's voice).
 | refs/varenne_ref.wav | Etienne Varenne, rebel leader of the Free Assembly |
 | refs/fairleigh_ref.wav | Lord Edmund Fairleigh, Governor of Virginia |
 | refs/ruggieri_ref.wav | Captain Matteo Ruggieri, the guns |
+| refs/lindqvist_ref.wav | Dr. Lindqvist, the scientist (Brood storyline): elderly Oxford-educated Scandinavian professor, condescending atheist lecturer |
 
 Two ways to use one:
 
