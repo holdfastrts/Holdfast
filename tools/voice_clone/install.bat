@@ -1,7 +1,8 @@
 @echo off
 rem Run once. Needs Python 3.11 (with the Python install manager: open a command window and type  py install 3.11 ).
 cd /d "%~dp0"
-py -V:3.11 -m venv venv 2>nul || py -3.11 -m venv venv 2>nul || python -m venv venv
+py install 3.11
+py -V:3.11 -m venv venv || py -3.11 -m venv venv
 call venv\Scripts\activate
 python --version
 python -m pip install --upgrade pip
