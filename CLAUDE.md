@@ -25,6 +25,7 @@
 
 ## Current work
 
+- MERGED 2026-11-14: brood-rush-coach 0.36.1 (docs/brood_rush_coach.md: the Brood wave keeps at the wall v riders, the rebuild after a rush fills empty Rootmaw posts first; 10 Raptors lose to 2 Horsemen by the NUMBERS (two sabre blows kill a 36-hp Raptor); BALANCE PROPOSAL waiting: Raptor hp 36 -> 38), replay-render 0.36.2 (docs/replay_render.md: paused/jumped replays pose every unit; the owner's "unrendered" Raptors were drawn: seen from behind on olive moss, an art question). Flaky after: test_ai_expand [clockwork], test_ai_harass [raid] (pass alone); test_brood_v_riders, test_ai_worker_safety fail with the job's changes off too.
 - VOICES FOR THE CAMPAIGN (owner, 2026-11-14 02:55: Chatterbox results "very impressive"): new lines in the King's voice are made on the owner's PC with tools/voice_clone/ (Chatterbox, MIT; his RTX 3060, Python 3.11 venv; run.bat, lines.txt "name | text", --pitch -1.5 deeper, --lang pt/es; references king_ref.wav / king_ref_b.wav from his ElevenLabs King). ElevenLabs only to DESIGN a new character's voice (a 10-20 s sample), then Chatterbox for all its lines. Voice rights: only designed voices, his own or consenting people's, or CC0/CC-BY datasets; never a real famous person's.
 - RANKED ONLINE, PROTOTYPE (owner, DECIDED 2026-11-13 01:04; job online-ranked, 0.34.0, docs/online_ranked.md): our
   server runs every ranked match (tools/server/match_server.gd, headless, both players guests via the relay with signed
