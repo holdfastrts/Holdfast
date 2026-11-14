@@ -22,14 +22,14 @@ func _initialize() -> void:
 			missing.append(stem)
 	check(missing.is_empty(), "every piece in music_tracks.gd has its .ogg %s" % str(missing))
 	var all: Array = M.all_pieces("clock")
-	check(all.size() == 20, "the Clockwork has 20 pieces (%d)" % all.size())
+	check(all.size() == 24, "the Clockwork has 24 pieces: its 20 and the owner's 4 ElevenLabs ones (%d)" % all.size())
 	var want := {
-		"open": ["clock_battle_6", "clock_battle_7", "clock_peace"],
-		"skirmish": ["clock_battle_8", "clock_battle_9", "clock_battle_10"],
+		"open": ["clock_battle_6", "clock_battle_7", "clock_peace", "clock_battle_14"],
+		"skirmish": ["clock_battle_8", "clock_battle_9", "clock_battle_10", "clock_battle_15"],
 		"battle": ["clock_battle", "clock_battle_2", "clock_battle_3", "clock_battle_4", "clock_battle_5",
-			"clock_battle_11", "clock_battle_12", "clock_battle_13"],
+			"clock_battle_11", "clock_battle_12", "clock_battle_13", "clock_battle_16"],
 		"peace": ["clock_peace", "clock_peace_2", "clock_peace_3", "clock_peace_4", "clock_peace_5",
-			"clock_peace_6", "clock_peace_7"],
+			"clock_peace_6", "clock_peace_7", "clock_peace_8"],
 	}
 	for mood in want:
 		var got: Array = M.pieces("clock", mood)

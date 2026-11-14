@@ -31,8 +31,22 @@ const ROLES := {"crown_battle_6": "open", "crown_battle_7": "skirmish", "crown_b
 	"clock_battle_6": "open", "clock_battle_7": "open", "clock_battle_8": "skirmish", "clock_battle_9": "skirmish",
 	"clock_battle_10": "skirmish",
 	"brood_battle_6": "open", "brood_battle_7": "open", "brood_battle_8": "skirmish",
-	"brood_battle_9": "skirmish", "brood_battle_10": "skirmish"}
+	"brood_battle_9": "skirmish", "brood_battle_10": "skirmish",
+	# the owner's ElevenLabs pieces (job music-elevenlabs, tools/music/master_elevenlabs.py, docs/music_elevenlabs.md)
+	"crown_battle_12": "open", "crown_battle_13": "skirmish",
+	"clock_battle_14": "open", "clock_battle_15": "skirmish",
+	"brood_battle_14": "open", "brood_battle_15": "skirmish"}
 const OPEN_CALM := ["crown_peace", "crown_peace_4", "clock_peace", "brood_peace_4"]
+## FEATURED pieces (the owner's ElevenLabs Music, job music-elevenlabs) are picked WEIGHT times as often as a
+## generated piece and come back sooner: a featured piece is kept out only while it is among the last FEATURED_GAP
+## pieces of its pool (a generated one waits until most of the pool has played). The old pieces stay in rotation.
+## MENU_FIRST is the first overture heard at the main menu after the game starts.
+const FEATURED := ["crown_battle_12", "crown_battle_13", "crown_battle_14", "crown_peace_10",
+	"clock_battle_14", "clock_battle_15", "clock_battle_16", "clock_peace_8",
+	"brood_battle_14", "brood_battle_15", "brood_battle_16", "brood_peace_8", "menu_11"]
+const WEIGHT := 3.0
+const FEATURED_GAP := 2
+const MENU_FIRST := "menu_11"
 var _skirmish := false    # the battle piece playing is a skirmish piece, to be raised when the fight heats up
 var _piece_t := 0.0
 const FADE := 2.5
@@ -278,13 +292,22 @@ func _next_menu() -> String:
 	var all := menu_pieces()
 	if all.is_empty():
 		return ""
-	_menu_bag = _menu_bag.filter(func(m: String) -> bool: return all.has(m) and m != _last_menu)
-	if _menu_bag.is_empty():
-		_menu_bag = all.filter(func(m: String) -> bool: return m != _last_menu)
-		if _menu_bag.is_empty():
-			_menu_bag = all.duplicate()
+	if _last_menu == "" and all.has(MENU_FIRST):
+		_last_menu = MENU_FIRST            # the first overture of the session
+		return MENU_FIRST
+	_menu_bag = _menu_bag.filter(func(m: String) -> bool: return all.has(m))
+	if _menu_bag.filter(func(m: String) -> bool: return m != _last_menu).is_empty():
+		# a new round: every overture once, the featured ones WEIGHT times (never twice in a row: see below)
+		_menu_bag = all.duplicate()
+		for m in all:
+			if FEATURED.has(m):
+				for i in int(WEIGHT) - 1:
+					_menu_bag.append(m)
 		_menu_bag.shuffle()
-	var pick: String = _menu_bag.pop_back()
+	var at := _menu_bag.size() - 1
+	while at > 0 and _menu_bag[at] == _last_menu:
+		at -= 1
+	var pick: String = _menu_bag.pop_at(at)
 	_last_menu = pick
 	if not _menu_bag.is_empty():
 		_fetch.call_deferred(_menu_bag.back())   # on the web: the next overture downloads after this one
@@ -324,7 +347,7 @@ func _next(mood: String) -> String:
 		pool = _pool(mood)
 	if pool.is_empty():
 		return ""
-	var fresh := pool.filter(func(s: String) -> bool: return not _recent.has(s))
+	var fresh := pool.filter(func(s: String) -> bool: return not _played_lately(s))
 	if fresh.is_empty():
 		fresh = pool.filter(func(s: String) -> bool: return s != _current)
 		if fresh.is_empty():
@@ -335,11 +358,33 @@ func _next(mood: String) -> String:
 		var later: Array = fresh.filter(func(s: String) -> bool: return not is_ready(s))
 		_fetch(later[randi() % later.size()])
 		fresh = ready
-	var pick: String = fresh[randi() % fresh.size()]
+	var pick: String = _weighted(fresh)
 	_recent.append(pick)
 	while _recent.size() > maxi(1, pool.size() - 1):
 		_recent.pop_front()
 	return pick
+
+
+## Kept out of the next pick: a generated piece while it is anywhere in _recent, a FEATURED one only while it is
+## among the last FEATURED_GAP pieces played.
+func _played_lately(s: String) -> bool:
+	if not FEATURED.has(s):
+		return _recent.has(s)
+	var i := _recent.rfind(s)
+	return i >= 0 and i >= _recent.size() - FEATURED_GAP
+
+
+## A random piece, the FEATURED ones WEIGHT times as likely.
+static func _weighted(list: Array) -> String:
+	var total := 0.0
+	for s in list:
+		total += WEIGHT if FEATURED.has(s) else 1.0
+	var r := randf() * total
+	for s in list:
+		r -= WEIGHT if FEATURED.has(s) else 1.0
+		if r < 0.0:
+			return s
+	return list.back()
 
 
 # ------------------------------------------------------------------ playing

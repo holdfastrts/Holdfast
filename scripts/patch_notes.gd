@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.8", "items": [
+		"NEW MUSIC: 13 new pieces, one for every moment of each side. Crown: Campaign of the Crown (opening), Musketeer Charge (skirmish), March of the Iron Standard (full battle), Dawn Over the Colony (calm). Clockwork: Clockwork Awakening, Clockwork Skirmish, Forge of Iron Command, Clockmaker's Waltz. Brood: Swamp Queen Awakening, Swamp Hunt Frenzy, Stampede of the Ancients, Swamp After Dark. The new pieces come up more often than the old ones, and the main menu now opens with Crown of Ashes.",
+	]},
 	{"v": "0.37.7", "items": [
 		"SEE-THROUGH OVERLAYS: health bars, veterancy chevrons, band buff marks and percentages, stun stars and status marks over units and buildings are now see-through (60% by default) so they no longer hide the fight; the units you have selected or hover over keep them fully solid. Settings > DISPLAY > OVERLAY OPACITY (30-100%).",
 		"With the experiment NO FARM/PRESS LIMIT on, the Town Hall and Clocktower now say their district's soil or brass is the only limit (no more \"2 Farms\"). A Farm or Cog Press placed away from every hall with the GROUND SYSTEM on is refused with \"No soil here\", and the districts' edges show clearer while you place it.",

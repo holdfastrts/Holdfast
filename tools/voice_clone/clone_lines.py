@@ -8,6 +8,8 @@
   python clone_lines.py --pitch -1.5              lower the voice 1.5 semitones after generating (0 = off)
 
 lines.txt: one line each, "name | text", e.g.  king_06 | Rome did not fall in a day.
+A line "[ref refs/hollweg_ref.wav]" switches the voice for the lines after it (until the next [ref]); before the
+first one the voice is --ref (the King). The campaign characters' references are in refs/ (refs/README.txt).
 Each line becomes out/<name>.wav. The first run downloads the model (a few GB), later runs reuse it.
 It uses the NVIDIA graphics card if there is one (fast), otherwise the processor (slow: about a minute a line)."""
 import argparse
@@ -39,16 +41,22 @@ else:
 ref = a.ref if os.path.isabs(a.ref) else os.path.join(HERE, a.ref)
 os.makedirs(a.out, exist_ok=True)
 lines = []
+cur = ref
 for raw in open(a.lines, encoding="utf-8"):
     raw = raw.strip()
-    if raw and not raw.startswith("#") and "|" in raw:
+    if raw.lower().startswith("[ref ") and raw.endswith("]"):
+        r = raw[5:-1].strip()
+        cur = r if os.path.isabs(r) else os.path.join(HERE, r)
+        if not os.path.exists(cur):
+            sys.exit("lines.txt: no such voice reference: " + cur)
+    elif raw and not raw.startswith("#") and "|" in raw:
         name, text = raw.split("|", 1)
-        lines.append((name.strip(), text.strip()))
+        lines.append((name.strip(), text.strip(), cur))
 if not lines:
     sys.exit("lines.txt has no lines like:  king_06 | Your text here.")
-for i, (name, text) in enumerate(lines, 1):
-    print("[%d/%d] %s: %s" % (i, len(lines), name, text))
-    kw = {"audio_prompt_path": ref, "exaggeration": a.exaggeration, "cfg_weight": a.cfg}
+for i, (name, text, voice) in enumerate(lines, 1):
+    print("[%d/%d] %s (%s): %s" % (i, len(lines), name, os.path.basename(voice), text))
+    kw = {"audio_prompt_path": voice, "exaggeration": a.exaggeration, "cfg_weight": a.cfg}
     if a.lang != "en":
         kw["language_id"] = a.lang
     wav = model.generate(text, **kw)
