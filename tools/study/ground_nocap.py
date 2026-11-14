@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import qa_matches as Q
 
-ROOT = Q.ROOT
+ROOT = os.environ.get("NOCAP_ROOT", Q.ROOT)     # (a copy of the project to run from, so the tree can be edited meanwhile)
 MAPS = ["greenhold", "frostfang", "hollowfen", "dune_sea", "cinder_steps", "ashford_crossing"]
 PAIRS = ["crcw", "crbr", "brcw", "crcr", "cwcw"]
 ARMS = {"kept": ["ground:1"], "drop": ["ground:1", "groundcap:off"]}
@@ -19,8 +19,8 @@ ARMS = {"kept": ["ground:1"], "drop": ["ground:1", "groundcap:off"]}
 
 def queue(maps, pairs):
     out = []
-    for r in (0, 1):
-        for m in maps:
+    for m in maps:            # (map by map, both rounds: a cut run keeps whole maps with the sides swapped)
+        for r in (0, 1):
             for g in Q.base(r):
                 if g[1] == m and g[0].split("_")[-2] in pairs:
                     for arm in ("kept", "drop"):
@@ -110,6 +110,12 @@ def side_stats(d, p):
     for k in (2, 3):
         t = [x["t"] for x in mins if x["halls"] >= k]
         s["hall%d" % k] = t[0] if t else None
+    for m in (8, 10, 12, 15):
+        r = row(d, p, m * 60)
+        s["halls%d" % m] = r["halls"] if r else None
+        r0 = row(d, p, m * 60 - 60)
+        s["rate%d" % m] = (r["income"] - r0["income"]) if r and r0 else None
+    s["over3"] = 1.0 if any(x[3] >= 3 for x in [y.get("drink") for y in mins if y.get("drink")]) else 0.0
     s["bld_lost"] = mins[-1]["bld_lost"] if mins else 0
     s["lost"] = mins[-1]["lost"] if mins else 0
     dr = [x.get("drink") for x in mins if x.get("drink")]
@@ -167,9 +173,10 @@ def report(data):
     print("\n## Per faction (every side it played, pooled; medians unless said)\n")
     keys = [("inc5", "income 5:00"), ("inc8", "income 8:00"), ("inc10", "income 10:00"), ("inc12", "income 12:00"),
             ("inc15", "income 15:00"), ("army8", "army value 8:00"), ("army12", "army value 12:00"),
-            ("halls_max", "most halls held"), ("hall2", "2nd hall up (s)"), ("hall3", "3rd hall up (s)"),
+            ("rate8", "income in the 8th minute"), ("rate12", "income in the 12th minute"),
+            ("halls_max", "most halls held (mean)"), ("halls10", "halls at 10:00 (mean)"), ("halls15", "halls at 15:00 (mean)"), ("hall2", "2nd hall up (s)"), ("hall3", "3rd hall up (s)"),
             ("per_hall8", "Farms/Presses live a hall 8:00"), ("per_hall12", "Farms/Presses live a hall 12:00"),
-            ("most", "most in one district"), ("home", "army at home from 5:00 (share, mean)"),
+            ("most", "most in one district (mean)"), ("over3", "sides that ever had 3+ in a district (share)"), ("home", "army at home from 5:00 (share, mean)"),
             ("halls_lost", "halls lost (mean)"), ("bld_lost", "buildings lost (mean)")]
     for fac in ("crown", "clockwork", "brood"):
         S = {a: [] for a in arms}
@@ -189,7 +196,7 @@ def report(data):
             vals = []
             for a in ("kept", "drop"):
                 v = [s[k] for s in S[a] if s.get(k) is not None]
-                if k in ("home", "halls_lost", "bld_lost"):
+                if k in ("home", "halls_lost", "bld_lost", "halls_max", "halls10", "halls15", "most", "over3", "per_hall8", "per_hall12"):
                     vals.append(mean(v))
                 elif k in ("hall2", "hall3"):
                     vals.append((med(v), len(v)))

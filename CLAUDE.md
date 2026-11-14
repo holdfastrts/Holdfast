@@ -123,7 +123,8 @@
   (2026-11-13; docs/ground_system.md, scripts/ground_layer.gd, ground_view.gd, tools/test_ground_system.gd): Settings
   EXPERIMENTAL > GROUND SYSTEM, OFF by default; soil/brass in a district per hall, a 10-tile circle per Farm/Cog Press,
   the "2 a hall" limit made LOCAL with spent ones not counting; bench within 5% of off; 70 ground/AI/faction tests pass.
-  OWNER CHOICES WAITING (its doc): keep the local limit or drop it, saltpetre on the map too, the radii, when to default on. Flaky/stale after the merges: test_ai_cw_horse_raid
+  OWNER CHOICES WAITING (its doc): keep the local limit or drop it (MEASURED 2026-11-14, job ground-nocap-study 0.36.1,
+  docs/ground_nocap_study.md: switch NO FARM/PRESS LIMIT, off; a big Clockwork buff, no turtling; recommends keeping it), saltpetre on the map too, the radii, when to default on. Flaky/stale after the merges: test_ai_cw_horse_raid
   (different check each run), test_ai_scout_sentry (passes alone), test_ai_rush / _rush_followup (Crown v Brood, known),
   test_crown_dragoon_raid's [plan] check (fails before the Crown merge too).
   OWNER 2026-11-13 08:03 on the coaching's questions: (1) spent Farms/Presses counting against the limit: WAIT FOR THE

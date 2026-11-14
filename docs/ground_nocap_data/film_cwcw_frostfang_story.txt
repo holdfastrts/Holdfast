@@ -1,0 +1,67 @@
+[00:00] P1 Clockwork opens for its economy: Winders non-stop and a fast second Clocktower, no army before it without a reason.
+[00:00] P2 Clockwork opens for its economy: Winders non-stop and a fast second Clocktower, no army before it without a reason.
+[01:29] P2 Clockwork reads the enemy as GREEDY (no army and no production at its base).
+[01:29] P2 Clockwork reads the enemy as GREEDY (no army and no production at its base) and keeps Balanced: steady waves punish the greed.
+[01:39] P1 Clockwork reads the enemy as GREEDY (no army and no production at its base).
+[01:39] P1 Clockwork reads the enemy as GREEDY (no army and no production at its base) and keeps Balanced: steady waves punish the greed.
+[04:46] P1 Clockwork expands while its base is still rich: more ore, 27 tiles out.
+[04:51] P2 Clockwork expands while its base is still rich: more ore, 27 tiles out.
+[04:54] P1 Clockwork's whole army defends its base.
+[05:04] P2 Clockwork's scout saw too little (the scout was killed): that proves nothing, so it builds no army for it and looks again soon.
+[05:04] P2 Clockwork's whole army defends its base.
+[05:15] P1 Clockwork's scout saw too little (the scout was killed): that proves nothing, so it builds no army for it and looks again soon.
+[05:16] P1 Clockwork lays down a Heavy Works, for Pendulums and Spring Ballistas.
+[05:46] P2 Clockwork lays down a Heavy Works, for Pendulums and Spring Ballistas.
+[05:48] P2 Clockwork's push goes out: 10 units in one block.
+[06:07] P1 Clockwork's push goes out: 11 units in one block.
+[06:24] P1 Clockwork's whole army defends its base.
+[06:29] P2 Clockwork's whole army defends its base.
+[06:30] P2 Clockwork researches Shield Wall: it has met 4 enemy shooters.
+[06:34] P1 Clockwork reads the enemy as NORMAL (a standard opening).
+[06:34] P1 Clockwork reads the enemy as NORMAL (a standard opening) and keeps Balanced: what it plays already answers it.
+[06:36] P1 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[06:36] P2 Clockwork reads the enemy as NORMAL (a standard opening).
+[06:36] P2 Clockwork reads the enemy as NORMAL (a standard opening) and keeps Balanced: what it plays already answers it.
+[06:56] P1 Clockwork builds a Mainspring by its Light Works, so it can make Springers.
+[06:56] P2 Clockwork's push goes out: 10 units in one block.
+[06:58] P2 Clockwork builds a Mainspring by its Light Works, so it can make Springers.
+[07:01] P1 Clockwork researches Shield Wall: it has met 6 enemy shooters.
+[07:09] P1 Clockwork expands while its base is still rich: more ore, 42 tiles out.
+[07:10] P2 Clockwork's whole army defends its base.
+[07:12] P2 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[07:16] P2 Clockwork expands while its base is still rich: more ore, 42 tiles out.
+[07:33] P1 Clockwork's push goes out: 18 units in one block.
+[07:34] P1 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[07:41] P2 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[07:55] P1 Clockwork's push does not chase 1 fast rider(s) (125): the march goes on.
+[08:01] P1 Clockwork's push is clearly ahead (1900 against 638): it presses on to the enemy's halls to finish the game.
+[08:08] P2 Clockwork's push goes out: 19 units in one block.
+[08:10] P2 Clockwork's scout saw too little (the scout was killed): that proves nothing, so it builds no army for it and looks again soon.
+[08:23] P2 Clockwork's whole army defends its base.
+[08:32] P1 Clockwork's push is no longer clearly ahead: it marches on with care.
+[08:32] P1 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[09:09] P1 Clockwork's whole army defends its base.
+[09:10] P2 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[09:23] P2 Clockwork's push turns home: its Clocktower is about to fall.
+[09:24] P1 Clockwork's push does not chase 2 fast rider(s) (140): the march goes on.
+[09:25] P2 Clockwork reads the enemy as NORMAL (a standard opening).
+[09:25] P2 Clockwork reads the enemy as NORMAL (a standard opening) and keeps Balanced: what it plays already answers it.
+[09:34] P1 Clockwork's army gives up a chase out of its base and walks back.
+[09:57] P1 Clockwork's push is clearly ahead (3570 against 1690): it presses on to the enemy's halls to finish the game.
+[10:12] P1 Clockwork's scout saw too little (the scout was driven off): that proves nothing, so it builds no army for it and looks again soon.
+[10:22] P1 Clockwork expands while its base is still rich: more ore, 28 tiles out.
+[10:32] P2 Clockwork's whole army defends its base.
+[10:38] P2 Clockwork expands while its base is still rich: more ore, 22 tiles out.
+[10:41] P1 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[11:08] P2 Clockwork's whole army defends its base.
+[11:24] P2 Clockwork expands while its base is still rich: more ore, 58 tiles out.
+[11:28] P1 Clockwork reads the enemy as NORMAL (a standard opening).
+[11:28] P1 Clockwork reads the enemy as NORMAL (a standard opening) and keeps Balanced: what it plays already answers it.
+[11:30] P1 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[11:30] P2 Clockwork's whole army defends its base.
+[11:33] P1 Clockwork expands while its base is still rich: more ore, 59 tiles out.
+[11:59] P1 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[12:03] P2 Clockwork's whole army defends its base.
+[12:22] P1 Clockwork's push does not chase 1 fast rider(s) (70): the march goes on.
+[13:06] P1 Clockwork researches High Leap for its 5 Springers, to jump the enemy's cliffs and walls.
+[13:51] P1 Clockwork's whole army defends its base.

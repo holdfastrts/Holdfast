@@ -171,6 +171,9 @@ ballista.gd:328 `has_tag` on a target that died mid-splash, not touched by this 
    ones don't count, and a new one is refused only when its own district's two live ones are up. Dropping the limit
    entirely was the other option; the district's fixed ground already stops one hall feeding many drinkers, and the
    local limit keeps the rule the player knows. Say if you'd rather drop it.
+   MEASURED 2026-11-14 (job ground-nocap-study, docs/ground_nocap_study.md): dropping it is a switch now (Settings
+   EXPERIMENTAL > NO FARM/PRESS LIMIT, off by default); no turtling, no extra snowball, but +27-37% Clockwork income in
+   real games against +0-9% for the Crown computer: recommendation there, keep the local limit for now.
 2. **The secondary resources stay in the hall**: the Powder Mill still grinds its Town Hall's saltpetre and the Mainspring
    still winds its Clocktower's spring life (the 15% / 5% floors, docs/exhaust_economy.md). Only the PRIMARY resources
    (soil, brass) moved to the map; putting saltpetre on the map too (a circle for the Mill) is easy to add if you want it.
