@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.17", "items": [
+		"RELOAD (key R) on the card of every Crown unit with a gunpowder weapon (Musketeers, Guardsmen, Dragoons, Horsemen, Cuirassiers, Officers, Field Cannons, Mortars) while any of them is below a full load: each one walks to the nearest powder that can fill it now (a Powder Wagon, a dropped keg, or a Mill, Barracks or Town Hall while the bank has powder; a crowd spreads round it), waits until full, then walks back to where it was. If that source runs dry it tries the next; with none left it stops and tells you. A set-up gun limbers to go. Shift queues it after the other orders. The tooltip names the powder it would use.",
+	]},
 	{"v": "0.35.16", "items": [
 		"The RELOAD icon (a cartridge pouch refilled from a powder horn) is in, ready for the coming RELOAD command.",
 	]},

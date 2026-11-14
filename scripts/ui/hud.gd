@@ -1988,6 +1988,7 @@ func _ability_buttons(list: Array, units: Array) -> void:
 				toast("Hold fire: they keep their pistols loaded." if not held else "Pistols free: they fire by themselves.")
 			else:
 				toast("Hold fire: they shoot only at what you order them to attack." if not held else "Fire at will: they shoot by themselves."), true, "", ""])
+	ReloadOrder.card(self, list, units)     # RELOAD: every gunpowder unit below a full load (scripts/reload_order.gd)
 	# Ornithopter: COURIER (automatic) and OVERLOAD
 	var topters := units.filter(func(u: Unit) -> bool: return u.kind == "ornithopter")
 	if not topters.is_empty():
@@ -2067,7 +2068,7 @@ const FIXED_KEYS := {"MOVE": "V", "ATTACK": "A", "STOP": "S", "HOLD": "H", "PATR
 	"CANISTER": "C", "ROUND SHOT": "C",
 	"UNLIMBER": "D", "LIMBER": "D", "ROOT": "D", "UPROOT": "D", "STORM": "T", "FOG": "F", "TONGUE": "T", "MIASMA": "Q", "HARVEST": "Q", "SACRIFICE": "C", "START": "F", "END": "F",
 	"JUMP": "E", "HIGH LEAP": "E", "SCATTER COGS": "C","MORPH TO OWL": "E", "CANCEL MORPH": "X", "TICKING OWL": "E",
-	"LOAD": "F", "UNLOAD": "G", "DROP HERE": "G", "RESTOCK": "E", "COURIER": "C", "OVERLOAD": "V", "BRACE": "E", "SHIELD FORWARD": "F", "LAND": "D", "TAKE OFF": "D", "SUPPLY": "G",
+	"LOAD": "F", "UNLOAD": "G", "DROP HERE": "G", "RESTOCK": "E", "RELOAD": "R", "COURIER": "C", "OVERLOAD": "V", "BRACE": "E", "SHIELD FORWARD": "F", "LAND": "D", "TAKE OFF": "D", "SUPPLY": "G",
 	"ARMOUR": "E", "MATCHLOCK": "F", "FLINTLOCK": "F", "CAPLOCK": "F", "BAYONET": "W", "AUTO REFIT": "Q", "POUCH": "T",
 	"LEAD": "Q", "RELEASE": "W", "MOUNT": "T", "DISMOUNT": "T", "RELEASE HORSE": "W", "HARNESS": "Q",
 	"HOLD FIRE": "F",

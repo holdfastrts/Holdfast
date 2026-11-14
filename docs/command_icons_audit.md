@@ -129,6 +129,7 @@ Picture shown: the file under `assets/` the button really draws. "Crown style" o
 | POWDER WAGON | building foundry | `powder_wagon` | icons/powder_wagon.png | fine |
 | QUADRANT | building armoury | `research_quadrant` | icons/research_quadrant.png | fine |
 | RALLY | building town_hall | `rally` | icons/rally.png | fine |
+| RELOAD | unit musketeer (below a full load; every gunpowder unit) | `ab_reload` | icons/ab_reload.png | fine (the owner's ChatGPT drawing, 0.35.16; the command since 0.35.17, scripts/reload_order.gd) |
 | RELEASE | unit labourer (leading a horse) | `horse_release` | icons/horse_release.png | fine |
 | RELEASE HORSE | unit cannon | `horse_unhitch` | icons/horse_unhitch.png | fine |
 | REPAIR | unit labourer | `repair` | icons/repair.png | fine |

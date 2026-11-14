@@ -342,6 +342,7 @@ var powder := 0.0               # Musketeer / Cannon: shots carried; Powder Wago
 var _pmax := 0.0                # how many it can hold (0: it doesn't use personal powder)
 var _powder_t := 0.0
 var _auto_bayonet := false      # Musketeer: on the bayonet because it ran dry (the musket again once refilled)
+var rl: Dictionary = {}         # RELOAD: the trip (ReloadOrder: where it goes back to, sources found dry, the clock)
 var supplying := false          # Powder Wagon: SUPPLY on (labourers bring kegs from the Powder Mill)
 var _supply_t := 0.0
 var _dispense_t := 0.0          # Powder Wagon: handing out powder (plays its unload pose)
@@ -2886,7 +2887,7 @@ func cmd_build(site: Building) -> void:
 ## The orders that end by themselves: Shift-queued orders wait behind them. Behind anything
 ## else (idle, hold, working at a post...) a queued order starts at once.
 ## (BOMBARD never ends by itself: with orders queued behind it, it hands over after Defs.BOMBARD.queued shots.)
-const QUEUE_BUSY := ["move", "amove", "attack", "build", "repair", "d_amove", "d_attack", "lead", "mount", "dismount", "bombard", "nb_root", "nb_morph"]
+const QUEUE_BUSY := ["move", "amove", "attack", "build", "repair", "d_amove", "d_attack", "lead", "mount", "dismount", "bombard", "nb_root", "nb_morph", "reload"]
 
 
 ## Give an order ({"o": move/amove/attack/build/repair/gather/wall, "p", "e", "pieces"}): a
@@ -3037,6 +3038,9 @@ func _start(o: Dictionary) -> bool:
 			cmd_follow(e)
 		"bombard":
 			cmd_bombard(o["p"], o.get("a", Vector2.INF), o.get("b", Vector2.INF))
+		"reload":
+			if not ReloadOrder.start(self):      # (RELOAD: to the nearest powder and back; scripts/reload_order.gd)
+				return false
 	return order != "idle"
 
 
@@ -4039,6 +4043,8 @@ func _tick_unit(delta: float) -> void:
 			want = _unload(delta)
 		"restock":
 			want = _restock(delta)
+		"reload":
+			want = ReloadOrder.tick(self, delta)
 		"courier":
 			want = _courier(delta)
 		"overload":

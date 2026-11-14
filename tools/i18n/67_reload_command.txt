@@ -1,0 +1,61 @@
+# RELOAD (reload-command, the owner 2026-11-13): scripts/reload_order.gd
+
+> RELOAD
+pt RECARREGAR
+es RECARGAR
+
+> Reload
+pt Recarregar
+es Recargar
+
+> Each one below a full load walks to the nearest powder that can fill it now (a Powder Wagon, a keg, or a Mill, Barracks or Town Hall while the bank has powder), stays until full, then walks back to where it was. Shift: after its other orders.
+pt Cada um abaixo da carga cheia vai até a pólvora mais próxima que possa enchê-lo agora (uma Carroça de Pólvora, um barril, ou um Moinho, Quartel ou Prefeitura enquanto o banco tiver pólvora), fica até encher e volta para onde estava. Shift: depois das outras ordens.
+es Cada uno por debajo de la carga completa va a la pólvora más cercana que pueda llenarlo ahora (un Carro de pólvora, un barril, o un Molino, Cuartel o Ayuntamiento mientras el banco tenga pólvora), se queda hasta llenarse y vuelve a donde estaba. Mayús: después de sus otras órdenes.
+
+> No powder to reload from now.
+pt Nenhuma pólvora para recarregar agora.
+es No hay pólvora para recargar ahora.
+
+> Nearest powder: %s.
+pt Pólvora mais próxima: %s.
+es Pólvora más cercana: %s.
+
+> the Powder Mill
+pt o Moinho de Pólvora
+es el Molino de pólvora
+
+> the Barracks
+pt o Quartel
+es el Cuartel
+
+> the Town Hall
+pt a Prefeitura
+es el Ayuntamiento
+
+> the Powder Wagon
+pt a Carroça de Pólvora
+es el Carro de pólvora
+
+> a powder keg
+pt um barril de pólvora
+es un barril de pólvora
+
+> Off to reload: they come back once full.
+pt Indo recarregar: voltam quando estiverem cheios.
+es A recargar: vuelven cuando estén llenos.
+
+> No Powder Wagon, keg, or Mill, Barracks or Town Hall with powder to reload from.
+pt Sem Carroça de Pólvora, barril, ou Moinho, Quartel ou Prefeitura com pólvora para recarregar.
+es No hay Carro de pólvora, barril, ni Molino, Cuartel o Ayuntamiento con pólvora para recargar.
+
+> They are all full.
+pt Estão todos cheios.
+es Están todos llenos.
+
+> Couldn't reach the powder: stopped.
+pt Não conseguiu chegar à pólvora: parou.
+es No pudo llegar a la pólvora: se detuvo.
+
+> No more powder to reload from: the bank and the wagons are empty.
+pt Não há mais pólvora para recarregar: o banco e as carroças estão vazios.
+es No queda pólvora para recargar: el banco y los carros están vacíos.
