@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.2", "items": [
+		"Replays: watching a replay paused, or right after a jump on the timeline, every unit the camera comes to now shows what it is really doing and the way it really faces. Before, a unit only took its picture while the replay ran with it on screen, so a jump left everyone standing in their first picture, facing south, until you pressed play (Raptors running at a wall stood about facing you). The owner's Mirewood replay was looked at closely: the Raptors there are all drawn (their olive bodies in the painted colours), seen from behind as they climb the ramp, where only the pink crest stands out against the moss. A new test (tools/test_replay_render.gd) watches recorded games of all three factions in every recording mode and checks that every unit on screen has its body drawn and its pose right (docs/replay_render.md).",
+	]},
 	{"v": "0.36.1", "items": [
 		"THE BROOD COMPUTER'S RAPTOR RUSH AGAINST HORSEMEN (docs/brood_rush_coach.md; nothing about any unit changed): a wave at your wall no longer leaves it to chase Horsemen who ride out and off. A Raptor lets a rider go once he is out of its reach and goes back to the wall or building it was hitting, and bites a rider who comes within its reach there without leaving it; riders who ride back into the pack are bitten by every Raptor near them. With only riders about, the wave no longer walks home with its back to them while it still has a quarter of its strength.",
 		"After its rush ends the Brood computer rebuilds its economy first: while its Rootmaws have posts without a grub, the food goes to grubs before new Rootmaws and turtles on new ground. On Mirewood against the Crown computer it earns about 40% more a minute at 6:00 after a failed rush.",

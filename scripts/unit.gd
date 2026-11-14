@@ -976,11 +976,13 @@ func _pick_pistol() -> void:
 	if phase != "":
 		return
 	var want := _sabre_mode()
-	if pistol and not hold_fire and not (target is Building) and not (order_target is Building and order == "attack"):
+	var tb: bool = is_instance_valid(target) and target is Building           # (replay-render: a target freed this tick
+	var ob: bool = is_instance_valid(order_target) and order_target is Building    # was a script error here)
+	if pistol and not hold_fire and not tb and not (ob and order == "attack"):
 		want = "pistol"
 	if want != mode:
 		mode = want
-		if target and not _valid_target(target):
+		if target and (not is_instance_valid(target) or not _valid_target(target)):
 			target = null
 			phase = ""
 
@@ -1879,7 +1881,7 @@ func _work_sound(delta: float) -> void:
 	_work_snd_t = MILL_CYCLE if anim == "shovel" else randf_range(2.2, 3.2) if work == "manning" else 2.0
 	if kind == "winder" and work == "repairing":
 		# (the owner, 2026-11-03: his recordings) winding a soldier: a toy being wound; mending a building: a ratchet wrench
-		var wnd := order_target is Unit and is_instance_valid(order_target)
+		var wnd := is_instance_valid(order_target) and order_target is Unit
 		Sfx.play_any(["work/winder_wind" if wnd else "work/winder_repair", name], position, -3.0)
 		return
 	Sfx.play(name, position, -6.0 if work == "manning" else -3.0)
@@ -5301,7 +5303,7 @@ func _repair(delta: float) -> Vector2:
 		if _next_order():
 			return Vector2.ZERO
 		var next: Entity = null
-		if e is Building and is_instance_valid(e):
+		if is_instance_valid(e) and e is Building:      # (a freed one is not checked with `is`: replay-render)
 			next = game.repair_target_near((e as Building).center(), team, e)
 		if next and next is Building and can_repair(next):
 			cmd_repair(next)
@@ -6507,8 +6509,8 @@ func _heal(delta: float) -> Vector2:
 			pt._heal_back_on()
 			_heal_back_on()
 		return Vector2.ZERO
-	var p := order_target as Unit
-	if p == null or not is_instance_valid(p) or p.dead or p.off_field or p.cross_t > 0.0 or p.hp >= p.max_hp:
+	var p: Unit = order_target as Unit if is_instance_valid(order_target) else null     # (a patient freed meanwhile: replay-render)
+	if p == null or p.dead or p.off_field or p.cross_t > 0.0 or p.hp >= p.max_hp:
 		cmd_stop()
 		return Vector2.ZERO
 	if position.distance_to(p.position) < radius + p.radius + 10.0:
@@ -7239,6 +7241,23 @@ static func beat_frame(a: String, t: float, n: int, loop: bool) -> int:
 
 
 ## Animation runs at most 15 times a second, and not at all for units nobody can see.
+## Its picture as it stands now, without stepping its frames on (NetPuppet.pose_in_view: a replay paused or just
+## jumped): its strip for what it does and the way it faces, its frame kept within the strip.
+func refresh_pose() -> void:
+	if dead or sprite == null or powered_down():
+		return
+	if kind == "horse":
+		# (the mounting strip draws it; otherwise its own see-through look kept: a replay's greyed placeholder)
+		if _hidden_for_mount():
+			modulate.a = 0.0
+		elif modulate.a == 0.0:
+			modulate.a = 1.0
+	_set_anim(_anim_name(), false)
+	sprite.frame = clampi(frame_i, 0, maxi(sprite.hframes * sprite.vframes - 1, 0))
+	if _k_nb:
+		BroodNew.animate(self, _an_n)
+
+
 func _animate(delta: float) -> void:
 	if ride_n != _ride_seen:
 		# a blow struck in passing (scripts/ride_by.gd): the gallop goes on and a sabre arc sweeps (ride_n is streamed,

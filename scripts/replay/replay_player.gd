@@ -110,8 +110,17 @@ static func play(g: Game, d: Dictionary) -> ReplayPlayer:
 	return p
 
 
+var _pose_view := Rect2()       # (paused: the view the units were last posed for, NetPuppet.pose_in_view)
+
+
 func _process(_delta: float) -> void:
-	pass                         # (NetSession's: the link, pings, the countdown; a replay has none)
+	# (NetSession's: the link, pings, the countdown; a replay has none.) Paused, the world stands still: units the camera
+	# comes to take their pose as they are now (replay-render).
+	if not playing and game and game.camera:
+		var key := Rect2(game.camera.get_screen_center_position(), game.camera.zoom)
+		if key != _pose_view:
+			_pose_view = key
+			NetPuppet.pose_in_view(game)
 
 
 func _exit_tree() -> void:
@@ -165,6 +174,7 @@ func set_playing(on: bool) -> void:
 		seek(start_t)
 	playing = on
 	_freeze(not on)
+	_pose_view = Rect2()       # (paused: the units in view take their pose as they are, replay-render)
 	changed.emit()
 
 
@@ -216,6 +226,7 @@ func tick_rclk(delta: float) -> void:
 			at_end = true
 			playing = false
 			_freeze(true)
+			_pose_view = Rect2()       # (stopped at the end: the units in view take their last pose, replay-render)
 			changed.emit()
 	rclk = play_t
 	game.clock = play_t
@@ -512,6 +523,8 @@ func seek(t: float) -> void:
 		u.reset_physics_interpolation()
 	if cam_team >= 0:
 		_camera()
+	_pose_view = Rect2()
+	NetPuppet.pose_in_view(game)        # (the units the jump made stand in their first picture until stepped: replay-render)
 	changed.emit()
 
 

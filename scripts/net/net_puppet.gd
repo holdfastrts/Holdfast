@@ -53,6 +53,26 @@ static func tick_game(g: Game, delta: float) -> void:
 	# can't see an enemy's Winder out of sight nor anyone's Shift queue, and dropped the host's sites: playtest 0.24.34)
 
 
+## A REPLAY STANDING STILL (replay-render, docs/replay_render.md): a unit's picture is only stepped while it is on screen
+## and the world runs (Unit._animate). Paused, or just after a jump on the timeline, a unit the camera comes to kept the
+## picture it had when last stepped: one made by the jump stood in its first picture (standing, facing south) whatever
+## it was doing, a Raptor biting a gate or running stood about facing the viewer. Every unit in view takes the pose and
+## heading it has now (its strip, view and frame; Brood creatures their own look too). Pictures only.
+static func pose_in_view(g: Game) -> int:
+	if g == null or g.camera == null:
+		return 0
+	var vsz := g.get_viewport().get_visible_rect().size / g.camera.zoom
+	var vr := Rect2(g.camera.get_screen_center_position() - vsz * 0.5, vsz).grow(120.0)
+	g.view_rect = vr
+	var n := 0
+	for u in g.units:
+		if not is_instance_valid(u) or u.dead or u.sprite == null or not u.visible or not vr.has_point(u.position):
+			continue
+		u.refresh_pose()
+		n += 1
+	return n
+
+
 static func tick_unit(u: Unit, delta: float) -> void:
 	u._process_flash(delta)
 	if u.dead:
