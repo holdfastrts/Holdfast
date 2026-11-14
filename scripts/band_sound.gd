@@ -14,8 +14,10 @@ extends Node
 ##    (UNDER_DB). Further from the middle of the screen and zoomed out it is quieter; off past CUT px it is silent.
 ##  - The GAME MUSIC is ducked a little while music is heard (DUCK_DB), more during a heard solo (DUCK_SOLO_DB): an
 ##    Amplify effect on the "Music" bus, put back to 0 when the match ends.
-## NEW BAND MUSIC (the music job): change PARTS (one file per part: the always-on loop and the solo loop of each
-## instrument) and PHRASE / BPM below; every file must be exactly PHRASE s long, in one key and tempo. Nothing else.
+## THE MUSIC (job band-music, docs/band_music.md): Scotland the Brave in G, 16 bars of 4/4 at 98 beats a minute, rendered
+## from real samples by tools/audio/make_band_music.py. New music: change PARTS (one file per part: the always-on loop
+## and the solo loop of each instrument) and PHRASE / BPM / BARS below; every file must be exactly PHRASE s long, in one
+## key and tempo. Nothing else.
 
 ## One place for the band's files (res://assets/audio/<name>.ogg): instrument -> [always-on loop, solo loop].
 const PARTS := {
@@ -23,9 +25,9 @@ const PARTS := {
 	"fife": ["band/fife", "band/fife_lead"],
 	"pipes": ["band/pipes", "band/pipes_lead"],
 }
-const PHRASE := 4.0         # s: every loop's length (two bars of 4/4 at BPM)
-const BPM := 120.0          # (for the music job: the files' tempo; the engine only needs PHRASE)
-const BARS := 2
+const BPM := 98.0           # the files' tempo (quarter notes a minute)
+const BARS := 16            # bars of 4/4 in one loop (Scotland the Brave, Part 1 and Part 2)
+const PHRASE := BARS * 4 * 60.0 / BPM   # s: every loop's length (39.18 s = 1,728,000 samples at 44.1 kHz)
 const QUIET_DB := -15.0     # an instrument playing along (its +5%): quiet, under the fight
 const LEAD_DB := -1.0       # the instrument leading a SOLO: clearly heard
 const UNDER_DB := -19.0     # the others while one solos

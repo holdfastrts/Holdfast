@@ -421,7 +421,7 @@ const MARCHING_BAND := {
 	"old_hp_per": 15.0,
 	"leash": 224.0,         # px: with no orders a musician falls in behind the nearest moving soldier this close (7 tiles)
 	"gap": 56.0,            # px: how far behind the man he follows he keeps
-	"phrase": 4.0,          # s: the length of one phrase of the sound loops (assets/audio/band/; BandSound.PARTS)
+	"phrase": 39.18,        # s: the length of one phrase of the sound loops (Scotland the Brave, 16 bars at 98) (assets/audio/band/; BandSound.PARTS)
 	"drums": {"who": "Drummer", "label": "Drums", "unit": "band", "lead": 0.30, "second": 0.05,
 		"stat_text": "movement speed", "short": "speed", "col": Color(0.95, 0.35, 0.3), "solo_title": "Drum solo"},
 	"pipes": {"who": "Piper", "label": "Pipes", "research": "band_pipes", "unit": "band_piper", "lead": 0.30, "second": 0.05,

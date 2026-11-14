@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.1", "items": [
+		"THE MARCHING BAND HAS REAL MUSIC: Scotland the Brave, played by real instruments (a recorded bagpipe with its drones, a real snare and bass drum, a fife), all three parts in one key (G) and one tempo (98 a minute), so the Drummer, the Fifer and the Piper sound like one band in every combination. Each instrument has a quiet playing-along loop and a SOLO loop with the full tune (the pipes' gracenotes, the fife's cuts and rolls, the snare's rolls and flams); each loop is the whole 16-bar tune (39 s) instead of the old 4-second phrase.",
+	]},
 	{"v": "0.37.0", "items": [
 		"THE MARCHING BAND, NOW INDIVIDUAL MUSICIANS: there is no band unit any more. The Armoury trains the DRUMMER (50 gold), the FIFER (70 gold, no powder) and the PIPER (75 gold), 1 supply each. Each has his own ring (5 tiles), his own +5% (drum: speed, fife: reload, pipes: melee), his own SOLO (+30% for 8 s) and his own 45 s cooldown.",
 		"A BAND FORMS by itself when a Drummer, a Fifer and a Piper stand within each other's rings: one gold ring round the three with a BAND mark, +8% each, solos +40% for 10 s (one at a time), playing in step; its Fifer and Piper fall in beside the Drummer and march with him as a row. SELECT BAND picks all three. The same instrument never adds up (two drummers: one drum).",
