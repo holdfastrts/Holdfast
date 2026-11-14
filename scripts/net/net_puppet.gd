@@ -82,8 +82,8 @@ static func tick_unit(u: Unit, delta: float) -> void:
 		for p in u.passengers:
 			if is_instance_valid(p):
 				p.position = u.position
-	if u.kind == MarchingBand.KIND:
-		MarchingBand.look_tick(u, delta)      # (the Marching Band's music and ring, shown from its state)
+	if MarchingBand.is_musician(u):
+		MarchingBand.look_tick(u, delta)      # (a musician's ring, his band's, the buffs shown and the music, from his state)
 	_clocks(u, delta)
 	u._animate(delta)
 	if u.kind == "mist_toad":
@@ -96,6 +96,10 @@ static func tick_unit(u: Unit, delta: float) -> void:
 		var key := Vector4i(int(u.selected) + (2 if u.carrying > 0 else 0) + u.kills * 64, int(u.hp) + (ToadHop.draw_key(u) * 100000 if u.kind == "mist_toad" else 0),
 			int(u.wind * 40.0) + int(u.powder * 2.0) + (1000 if u.supplying else 0) + ((int(u.owl_t * 4.0) + 1) * 100000 if u.owl_t >= 0.0 else 0),
 			int(u.max_hp) + int(u.reload_frac() * 16.0) * 10000)      # (a morph under way: its bar and clock hand move)
+		var mk := MarchingBand.marks_key(u) if u.band_until > u.game.clock or u._marks_k != 0 else 0
+		if mk != u._marks_k:
+			u._marks_k = mk           # (the band's buff markers over him: MarchingBand.draw_marks)
+			u._draw_key = Vector4i(-1, -1, -1, -1)
 		if key != u._draw_key:
 			u._draw_key = key
 			u.queue_redraw()

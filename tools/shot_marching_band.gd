@@ -1,8 +1,8 @@
 extends SceneTree
-## Screenshots of THE MARCHING BAND (scripts/marching_band.gd, docs/marching_band.md, docs/band_v2.md): a new band (the
-## Drummer alone) and its card (RECRUIT FIFER / PIPER), a Fifer and a Piper walking over to join it (JOIN BAND), the
-## band side by side close up and walking west (mirrored), the full band (Drummer, Fifer, Piper) behind a Musketeer line with its ring and card, the fife's solo while the
-## line fires at Clock Soldiers coming in, the pipes' solo when they reach it, two bands (one soloing) side by side.
+## Screenshots of THE MARCHING BAND as individual musicians (0.37.0; scripts/marching_band.gd, docs/band_individuals.md):
+## a band (Drummer, Fifer, Piper side by side, its gold ring and BAND mark, its card), lone musicians spread out (their
+## own plain rings), a band soloing behind a line (the solo's markers), two lone musicians out of step (dashed rings, the
+## grey marker), the buff markers on a 20-man line at normal zoom (ALWAYS, and SELECTED with a few picked).
 ##   xvfb-run -a godot --rendering-driver opengl3 --resolution 1600x900 --fixed-fps 30 --script res://tools/shot_marching_band.gd -- <outdir>
 var main: Node
 var g: Game
@@ -60,11 +60,28 @@ func _open(p: Vector2) -> Vector2:
 	return g.cell_center(g.nearest_free(c, 8))
 
 
+func _men(k: String, at: Vector2) -> Unit:
+	var u: Unit = g._add_unit(k, 0, _open(at))
+	u.cmd_hold()
+	u.max_hp = 9999.0
+	u.hp = 9999.0
+	return u
+
+
+func _clear() -> void:
+	for u in g.units.duplicate():
+		if u.team == 0 and not u.is_worker():
+			u.queue_free()
+			g.units.erase(u)
+	g.set_selection([])
+	await _frames(12)
+
+
 func _run() -> void:
 	g.reveal = true
 	await _frames(10)
-	g.players[0]["gold"] = 3000
-	g.players[0]["res2"] = 300
+	var zoom0: Vector2 = g.camera.zoom
+	print("normal zoom ", zoom0)
 	var hall: Building = null
 	for b in g.buildings:
 		if b.team == 0 and b.kind == "town_hall":
@@ -75,108 +92,70 @@ func _run() -> void:
 			u.cmd_stop()
 			u.position = hall.center() + Vector2(-200, -60)
 	var dir := (Vector2(Game.W, Game.H) * 16.0 - hall.center()).normalized()
-	var mid := _open(hall.center() + dir * 420.0)
-	var perp := Vector2(-dir.y, dir.x)
-	# ---- 0. a new band: the Drummer alone, and its card
-	var band: Unit = g._add_unit("band", 0, _open(mid - dir * 70.0))
-	band.cmd_hold()
-	g.camera.position = band.position
-	g.camera.zoom = Vector2(3.0, 3.0)
-	g.set_selection([band])
-	await _frames(20)
-	await _snap("0_drummer_band_card")
-	# ---- 1a. band-v2: a Fifer and a Piper walk over from the Armoury's side and join (the Fifer selected: JOIN BAND)
-	var fifer: Unit = g._add_unit("band_fifer", 0, _open(band.position + perp * 110.0 - dir * 40.0))
-	var piper: Unit = g._add_unit("band_piper", 0, _open(band.position - perp * 120.0 - dir * 60.0))
-	fifer.give({"o": "join", "e": band})
-	piper.give({"o": "join", "e": band})
-	g.set_selection([fifer])
-	g.camera.position = band.position
-	g.camera.zoom = Vector2(2.6, 2.6)
-	await _frames(25)
-	await _snap("1a_fifer_walks_to_join", 0.0)
-	var c9 := g.clock
-	while g.clock - c9 < 15.0 and not (MarchingBand.has(band, "fife") and MarchingBand.has(band, "pipes")):
-		await physics_frame
-	g.set_selection([band])
-	g.camera.zoom = Vector2(3.4, 3.4)
-	await _frames(15)
-	await _snap("1b_side_by_side_close", 0.0)
-	# the same band walking west: the row mirrored
-	band.cmd_move(band.position - Vector2(200, 0))
-	await _frames(15)
-	g.camera.position = band.position
-	await _frames(2)
-	await _snap("1c_side_by_side_walking_west", 0.0)
-	band.cmd_hold()
-	band.position = _open(mid - dir * 70.0)
-	g.set_selection([band])
-	await _frames(10)
+	var mid := _open(hall.center() + dir * 430.0 + Vector2(dir.y, -dir.x) * 380.0)
+	var keep_marks := Settings.band_marks
+	# ---- 1. a band: the three side by side, selected, its gold ring and BAND mark; a line in front
 	var line: Array = []
-	for i in 12:
-		var rank := i / 6
-		var p: Vector2 = mid + perp * ((i % 6 - 2.5) * 24.0 + rank * 12.0) - dir * rank * 26.0
-		var u: Unit = g._add_unit("musketeer", 0, _open(p))
-		u.set_kit({"lock": "matchlock", "bayonet": true})
-		u.facing = dir
-		u.cmd_hold()
-		line.append(u)
-	g.camera.position = mid - dir * 40.0
-	g.camera.zoom = Vector2(1.6, 1.6)
-	await _frames(20)
-	await _snap("1_full_band_ring_and_card")
-	# ---- 2. Clock Soldiers come in; the fife's solo at the first shot
-	var foes: Array = []
-	for i in 10:
-		var p2: Vector2 = mid + dir * (430.0 + (i / 5) * 24.0) + perp * ((i % 5 - 2) * 26.0)
-		var e: Unit = g._add_unit("clock_soldier", 1, _open(p2))
-		foes.append(e)
-	for e in foes:
-		e.cmd_move(mid, true)
-	var c0 := g.clock
-	while g.clock - c0 < 20.0:
-		await physics_frame
-		var shot := false
-		for u in line:
-			if is_instance_valid(u) and u.powder < u._pmax:
-				shot = true
-		if shot:
-			break
-	band.band_solo("fife")
-	g.camera.position = mid + dir * 60.0
-	await _frames(25)
-	await _snap("2_fife_solo_volleys", 0.0)
-	# ---- 3. the pipes' solo when they reach the line
-	c0 = g.clock
-	while g.clock - c0 < 25.0:
-		await physics_frame
-		var close := false
-		for u in line:
-			if is_instance_valid(u) and not u.dead and u.mode == "bayonet":
-				close = true
-		if close and MarchingBand.lead(band) == "":
-			break
-	if MarchingBand.solo_problem(band, "pipes") == "":
-		band.band_solo("pipes")
-	await _frames(12)
-	g.camera.position = mid
-	await _frames(6)
-	await _snap("3_pipe_solo_bayonets", 0.0)
-	# ---- 4. two bands side by side, one soloing (the drums), the other not
-	var spot := _open(hall.center() - dir * 160.0 + perp * 120.0)
-	var b2: Unit = g._add_unit("band", 0, spot)
-	var b3: Unit = g._add_unit("band", 0, _open(spot + perp * 70.0))
-	for b in [b2, b3]:
-		b.cmd_hold()
-	for i in 6:
-		var u: Unit = g._add_unit("musketeer", 0, _open(spot + perp * (i * 22.0 - 20.0) + dir * 50.0))
-		u.cmd_hold()
+	for i in 20:
+		line.append(_men("musketeer", mid + Vector2(-190.0 + 20.0 * i, -70.0)))
+	var d: Unit = _men("band", mid + Vector2(0, 10))
+	var f: Unit = _men("band_fifer", mid + Vector2(24, 10))
+	var p: Unit = _men("band_piper", mid + Vector2(-24, 10))
+	f.position = d.position + Vector2(24, 0)       # (exactly beside him: the band's row)
+	p.position = d.position + Vector2(-24, 0)
+	await _frames(30)
+	g.set_selection([d, f, p])
+	g.camera.position = d.position + Vector2(0, -30)
+	g.camera.zoom = Vector2(2.4, 2.4)
 	await _frames(10)
-	b2.band_solo("drums")
-	g.set_selection([b2, b3])
-	g.camera.position = spot + perp * 35.0
-	g.camera.zoom = Vector2(2.2, 2.2)
-	await _frames(20)
-	await _snap("4_two_bands_one_solo", 0.0)
+	await _snap("1_band_close")
+	# ---- 5. the buff markers on a 20-man line at normal zoom (ALWAYS), then SELECTED with three men picked
+	Settings.band_marks = 0
 	g.set_selection([])
-	quit(0)
+	g.camera.zoom = zoom0
+	g.camera.position = mid + Vector2(0, -40)
+	await _frames(12)
+	await _snap("5a_markers_line_always")
+	Settings.band_marks = 1
+	g.set_selection([line[9], line[10], line[11]])
+	await _frames(12)
+	await _snap("5b_markers_line_selected")
+	g.set_selection([line[10]])
+	g.camera.zoom = Vector2(2.2, 2.2)
+	g.camera.position = line[10].position + Vector2(0, 30)
+	await _frames(8)
+	await _snap("5c_markers_close_and_card")
+	# ---- 3. the band soloing (the fife: +40%, the markers bigger, shown on everyone in the ring)
+	g.set_selection([])
+	f.band_solo("fife")
+	g.camera.zoom = zoom0 * 1.4
+	g.camera.position = mid + Vector2(0, -30)
+	await _frames(15)
+	await _snap("3_band_fife_solo")
+	await _clear()
+	# ---- 2. lone musicians spread along a line: each his own plain ring, not overlapping
+	var line2: Array = []
+	for i in 30:
+		line2.append(_men("musketeer", mid + Vector2(-450.0 + 30.0 * i, -60.0)))
+	_men("band", mid + Vector2(-330, 10))
+	_men("band_fifer", mid + Vector2(0, 10))
+	_men("band_piper", mid + Vector2(330, 10))
+	Settings.band_marks = 0
+	g.camera.zoom = zoom0 * 0.8
+	g.camera.position = mid
+	await _frames(20)
+	await _snap("2_lone_spread")
+	await _clear()
+	# ---- 4. out of step: a lone Fifer and a lone Piper whose rings overlap (no drummer): dashed rings, "out of step",
+	# and in the overlap a soldier's pipes marker greyed and struck through
+	for i in 12:
+		_men("musketeer", mid + Vector2(-120.0 + 20.0 * i, -60.0))
+	_men("band_fifer", mid + Vector2(-110, 10))
+	_men("band_piper", mid + Vector2(110, 10))
+	g.camera.zoom = zoom0 * 1.6
+	g.camera.position = mid + Vector2(0, -20)
+	await _frames(20)
+	await _snap("4_out_of_step")
+	Settings.band_marks = keep_marks
+	print("done")
+	quit()

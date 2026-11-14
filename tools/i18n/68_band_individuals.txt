@@ -1,0 +1,153 @@
+# THE MARCHING BAND as individual musicians (0.37.0; docs/band_individuals.md): a Drummer, a Fifer and a Piper standing together make a band
+
+> A Drummer: an unarmed musician. His drum always gives your soldiers within 5 tiles +5% movement speed, and his DRUM SOLO +30% for 8 s (then 45 s before he can solo again). With a Fifer and a Piper standing close (each within the others' rings) they make a BAND: +8% each, solos +40% for 10 s, but three men in one spot. Two drummers' rings don't add up.
+pt Um Tambor: um músico desarmado. O tambor dele sempre dá aos seus soldados a até 5 casas +5% de velocidade de movimento, e o SOLO DE TAMBOR +30% por 8 s (depois, 45 s até poder solar de novo). Com um Pifeiro e um Gaiteiro por perto (cada um dentro do círculo dos outros) eles formam uma BANDA: +8% cada, solos +40% por 10 s, mas três homens num só lugar. Os círculos de dois tambores não se somam.
+es Un Tambor: un músico desarmado. Su tambor siempre da a tus soldados a 5 casillas +5% de velocidad de movimiento, y su SOLO DE TAMBOR +30% durante 8 s (luego, 45 s hasta que pueda volver a hacer un solo). Con un Pifanero y un Gaitero cerca (cada uno dentro del círculo de los otros) forman una BANDA: +8% cada uno, solos +40% durante 10 s, pero tres hombres en un solo sitio. Los círculos de dos tambores no se suman.
+
+> A Fifer: an unarmed musician. His fife always gives your soldiers within 5 tiles +5% reload speed (muskets, pistols, cannons, mortars), and his FIFE SOLO +30% for 8 s. With a Drummer and a Piper standing close they make a BAND: +8% each, solos +40% for 10 s. Alone beside a lone musician of another instrument he plays out of step: where their rings meet, only the stronger buff counts.
+pt Um Pifeiro: um músico desarmado. O pífaro dele sempre dá aos seus soldados a até 5 casas +5% de velocidade de recarga (mosquetes, pistolas, canhões, morteiros), e o SOLO DE PÍFARO +30% por 8 s. Com um Tambor e um Gaiteiro por perto eles formam uma BANDA: +8% cada, solos +40% por 10 s. Sozinho ao lado de um músico sozinho de outro instrumento ele toca fora do compasso: onde os círculos se encontram, só o bônus mais forte conta.
+es Un Pifanero: un músico desarmado. Su pífano siempre da a tus soldados a 5 casillas +5% de velocidad de recarga (mosquetes, pistolas, cañones, morteros), y su SOLO DE PÍFANO +30% durante 8 s. Con un Tambor y un Gaitero cerca forman una BANDA: +8% cada uno, solos +40% durante 10 s. Solo junto a un músico solo de otro instrumento toca a destiempo: donde se juntan sus círculos, solo cuenta la mejora más fuerte.
+
+> A Piper: an unarmed musician. His bagpipes always give your soldiers within 5 tiles +5% melee damage (bayonets, sabres), and his PIPES SOLO +30% for 8 s. With a Drummer and a Fifer standing close they make a BAND: +8% each, solos +40% for 10 s. Alone beside a lone musician of another instrument he plays out of step: where their rings meet, only the stronger buff counts.
+pt Um Gaiteiro: um músico desarmado. A gaita de foles dele sempre dá aos seus soldados a até 5 casas +5% de dano corpo a corpo (baionetas, sabres), e o SOLO DE GAITA +30% por 8 s. Com um Tambor e um Pifeiro por perto eles formam uma BANDA: +8% cada, solos +40% por 10 s. Sozinho ao lado de um músico sozinho de outro instrumento ele toca fora do compasso: onde os círculos se encontram, só o bônus mais forte conta.
+es Un Gaitero: un músico desarmado. Su gaita siempre da a tus soldados a 5 casillas +5% de daño cuerpo a cuerpo (bayonetas, sables), y su SOLO DE GAITA +30% durante 8 s. Con un Tambor y un Pifanero cerca forman una BANDA: +8% cada uno, solos +40% durante 10 s. Solo junto a un músico solo de otro instrumento toca a destiempo: donde se juntan sus círculos, solo cuenta la mejora más fuerte.
+
+> Drummer: +5% movement speed to soldiers within 5 tiles; DRUM SOLO +30% for 8 s. With a Fifer and a Piper close by: a BAND (+8%, solos +40%). Unarmed.
+pt Tambor: +5% de velocidade de movimento aos soldados a até 5 casas; SOLO DE TAMBOR +30% por 8 s. Com um Pifeiro e um Gaiteiro por perto: uma BANDA (+8%, solos +40%). Desarmado.
+es Tambor: +5% de velocidad de movimiento a los soldados a 5 casillas; SOLO DE TAMBOR +30% durante 8 s. Con un Pifanero y un Gaitero cerca: una BANDA (+8%, solos +40%). Desarmado.
+
+> Fifer: +5% reload speed to soldiers within 5 tiles; FIFE SOLO +30% for 8 s. With a Drummer and a Piper close by: a BAND (+8%, solos +40%). Unarmed.
+pt Pifeiro: +5% de velocidade de recarga aos soldados a até 5 casas; SOLO DE PÍFARO +30% por 8 s. Com um Tambor e um Gaiteiro por perto: uma BANDA (+8%, solos +40%). Desarmado.
+es Pifanero: +5% de velocidad de recarga a los soldados a 5 casillas; SOLO DE PÍFANO +30% durante 8 s. Con un Tambor y un Gaitero cerca: una BANDA (+8%, solos +40%). Desarmado.
+
+> Piper: +5% melee damage to soldiers within 5 tiles; PIPES SOLO +30% for 8 s. With a Drummer and a Fifer close by: a BAND (+8%, solos +40%). Unarmed.
+pt Gaiteiro: +5% de dano corpo a corpo aos soldados a até 5 casas; SOLO DE GAITA +30% por 8 s. Com um Tambor e um Pifeiro por perto: uma BANDA (+8%, solos +40%). Desarmado.
+es Gaitero: +5% de daño cuerpo a cuerpo a los soldados a 5 casillas; SOLO DE GAITA +30% durante 8 s. Con un Tambor y un Pifanero cerca: una BANDA (+8%, solos +40%). Desarmado.
+
+> The drum: +5% speed nearby; with a Fifer and a Piper, a band.
+pt O tambor: +5% de velocidade por perto; com um Pifeiro e um Gaiteiro, uma banda.
+es El tambor: +5% de velocidad cerca; con un Pifanero y un Gaitero, una banda.
+
+> The fife: +5% reload nearby; with a Drummer and a Piper, a band.
+pt O pífaro: +5% de recarga por perto; com um Tambor e um Gaiteiro, uma banda.
+es El pífano: +5% de recarga cerca; con un Tambor y un Gaitero, una banda.
+
+> The pipes: +5% melee nearby; with a Drummer and a Fifer, a band.
+pt A gaita: +5% de corpo a corpo por perto; com um Tambor e um Pifeiro, uma banda.
+es La gaita: +5% de cuerpo a cuerpo cerca; con un Tambor y un Pifanero, una banda.
+
+> All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills and the Cavalry Charge. Trains the Marching Band's musicians: the Drummer, the Fifer and the Piper. Refits soldiers. Needs a Barracks.
+pt Todas as pesquisas da Coroa: Armadura, as fechaduras dos mosquetes, a baioneta, os exercícios dos canhões e a Carga de Cavalaria. Treina os músicos da Banda Marcial: o Tambor, o Pifeiro e o Gaiteiro. Reequipa soldados. Precisa de um Quartel.
+es Todas las investigaciones de la Corona: Armadura, las llaves de los mosquetes, la bayoneta, los ejercicios de los cañones y la Carga de Caballería. Entrena a los músicos de la Banda Militar: el Tambor, el Pifanero y el Gaitero. Reequipa soldados. Necesita un Cuartel.
+
+> The Marching Band (Armoury, needs a Barracks): three unarmed musicians, each trained on his own: the Drummer (movement speed), the Fifer (reload: muskets, pistols, cannons, mortars; not a man out of shots) and the Piper (melee damage). Each always gives your soldiers and guns within 5 tiles of him +5%, and his SOLO +30% for 8 s, then 45 s before he can solo again (a plain SOLO press: one musician; Ctrl: every selected one). The same instrument never adds up: under two drummers a soldier gets one drum. A Drummer, a Fifer and a Piper standing within each other's rings make a BAND: one gold ring round the three, +8% each and solos +40% for 10 s, one solo at a time, and they march side by side; SELECT BAND picks all three. Lone musicians of different instruments whose rings overlap play out of step: there only the stronger buff counts. Buffed soldiers show an icon and the percentage over their heads (Settings > BAND BUFF MARKS). Kill the musicians and the music stops.
+pt A Banda Marcial (Arsenal, precisa de um Quartel): três músicos desarmados, cada um treinado à parte: o Tambor (velocidade de movimento), o Pifeiro (recarga: mosquetes, pistolas, canhões, morteiros; não um homem sem tiros) e o Gaiteiro (dano corpo a corpo). Cada um sempre dá aos seus soldados e canhões a até 5 casas dele +5%, e o SOLO dele +30% por 8 s, depois 45 s até poder solar de novo (um toque simples em SOLO: um músico; Ctrl: todos os selecionados). O mesmo instrumento nunca se soma: sob dois tambores um soldado ganha um tambor só. Um Tambor, um Pifeiro e um Gaiteiro dentro dos círculos uns dos outros formam uma BANDA: um círculo dourado em volta dos três, +8% cada e solos +40% por 10 s, um solo de cada vez, e eles marcham lado a lado; SELECIONAR BANDA pega os três. Músicos sozinhos de instrumentos diferentes cujos círculos se sobrepõem tocam fora do compasso: ali só o bônus mais forte conta. Os soldados com bônus mostram um ícone e a porcentagem sobre a cabeça (Configurações > MARCAS DE BÔNUS DA BANDA). Mate os músicos e a música para.
+es La Banda Militar (Armería, necesita un Cuartel): tres músicos desarmados, cada uno entrenado por separado: el Tambor (velocidad de movimiento), el Pifanero (recarga: mosquetes, pistolas, cañones, morteros; no un hombre sin disparos) y el Gaitero (daño cuerpo a cuerpo). Cada uno siempre da a tus soldados y cañones a 5 casillas de él +5%, y su SOLO +30% durante 8 s, luego 45 s hasta que pueda volver a hacer un solo (una pulsación simple de SOLO: un músico; Ctrl: todos los seleccionados). El mismo instrumento nunca se suma: bajo dos tambores un soldado recibe un solo tambor. Un Tambor, un Pifanero y un Gaitero dentro de los círculos de los otros forman una BANDA: un círculo dorado alrededor de los tres, +8% cada uno y solos +40% durante 10 s, un solo cada vez, y marchan uno al lado del otro; SELECCIONAR BANDA elige a los tres. Los músicos solos de instrumentos distintos cuyos círculos se solapan tocan a destiempo: ahí solo cuenta la mejora más fuerte. Los soldados con mejoras muestran un icono y el porcentaje sobre la cabeza (Ajustes > MARCAS DE MEJORA DE LA BANDA). Mata a los músicos y la música se acaba.
+
+> BAND!
+pt BANDA!
+es ¡BANDA!
+
+> BAND
+pt BANDA
+es BANDA
+
+> out of step
+pt fora do compasso
+es a destiempo
+
+> %s, band
+pt %s, banda
+es %s, banda
+
+> %s SOLO
+pt SOLO de %s
+es SOLO de %s
+
+> %s (out of step: not counted)
+pt %s (fora do compasso: não conta)
+es %s (a destiempo: no cuenta)
+
+> speed
+pt velocidade
+es velocidad
+
+> melee
+pt corpo a corpo
+es cuerpo a cuerpo
+
+> reload
+pt recarga
+es recarga
+
+> A musician on his own plays +%d%% %s in his ring. A Drummer, a Fifer and a Piper standing together make a BAND: stronger (+%d%%, solos +%d%%) but in one spot.
+pt Um músico sozinho toca +%d%% de %s no círculo dele. Um Tambor, um Pifeiro e um Gaiteiro juntos formam uma BANDA: mais forte (+%d%%, solos +%d%%), mas num só lugar.
+es Un músico solo toca +%d%% de %s en su círculo. Un Tambor, un Pifanero y un Gaitero juntos forman una BANDA: más fuerte (+%d%%, solos +%d%%), pero en un solo sitio.
+
+> Plays: %s
+pt Toca: %s
+es Toca: %s
+
+> In a BAND: +%d%% %s (solo +%d%%) · in step · %d tiles
+pt Numa BANDA: +%d%% de %s (solo +%d%%) · no compasso · %d casas
+es En una BANDA: +%d%% de %s (solo +%d%%) · a compás · %d casillas
+
+> Alone: +%d%% %s (solo +%d%%) · %d tiles
+pt Sozinho: +%d%% de %s (solo +%d%%) · %d casas
+es Solo: +%d%% de %s (solo +%d%%) · %d casillas
+
+> OUT OF STEP with another musician: only the stronger buff counts where their rings meet
+pt FORA DO COMPASSO com outro músico: só o bônus mais forte conta onde os círculos se encontram
+es A DESTIEMPO con otro músico: solo cuenta la mejora más fuerte donde se juntan sus círculos
+
+> SOLO: %d s
+pt SOLO: %d s
+es SOLO: %d s
+
+> solo again in %d s
+pt solo de novo em %d s
+es solo de nuevo en %d s
+
+> One %s plays his solo (Ctrl: every selected %s): %s +%d%% to your soldiers in his ring (%d tiles) for %d s; in a BAND +%d%% for %d s. Then %d s before he can solo again; one solo at a time in a band.
+pt Um %s toca o solo dele (Ctrl: todo %s selecionado): %s +%d%% aos seus soldados no círculo dele (%d casas) por %d s; numa BANDA +%d%% por %d s. Depois, %d s até poder solar de novo; um solo de cada vez numa banda.
+es Un %s toca su solo (Ctrl: todo %s seleccionado): %s +%d%% a tus soldados en su círculo (%d casillas) durante %d s; en una BANDA +%d%% durante %d s. Luego, %d s hasta que pueda volver a hacer un solo; un solo cada vez en una banda.
+
+> Select the band
+pt Selecionar a banda
+es Seleccionar la banda
+
+> Selects the whole band (its Drummer, Fifer and Piper) of each selected musician, so you can order the three as one. A band forms by itself when a Drummer, a Fifer and a Piper stand within each other's rings.
+pt Seleciona a banda inteira (o Tambor, o Pifeiro e o Gaiteiro) de cada músico selecionado, para você dar ordens aos três como um só. Uma banda se forma sozinha quando um Tambor, um Pifeiro e um Gaiteiro ficam dentro dos círculos uns dos outros.
+es Selecciona la banda entera (su Tambor, Pifanero y Gaitero) de cada músico seleccionado, para que des órdenes a los tres como uno. Una banda se forma sola cuando un Tambor, un Pifanero y un Gaitero están dentro de los círculos de los otros.
+
+> Not in a band: stand a Drummer, a Fifer and a Piper together (each within the others' rings).
+pt Não está numa banda: ponha um Tambor, um Pifeiro e um Gaiteiro juntos (cada um dentro do círculo dos outros).
+es No está en una banda: pon un Tambor, un Pifanero y un Gaitero juntos (cada uno dentro del círculo de los otros).
+
+> SELECT BAND
+pt SELECIONAR BANDA
+es SELECCIONAR BANDA
+
+> BAND BUFF MARKS
+pt MARCAS DE BÔNUS DA BANDA
+es MARCAS DE MEJORA DE LA BANDA
+
+> SELECTED
+pt SELECIONADOS
+es SELECCIONADOS
+
+> The %s is playing his solo.
+pt O %s está tocando o solo dele.
+es El %s está tocando su solo.
+
+> FIFE SOLO
+pt SOLO DE PÍFARO
+es SOLO DE PÍFANO
+
+> PIPES SOLO
+pt SOLO DE GAITA
+es SOLO DE GAITA
+
+> Band
+pt Banda
+es Banda

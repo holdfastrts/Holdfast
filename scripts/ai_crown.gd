@@ -16,9 +16,9 @@ extends AI
 ##    plan's settings (PLANS[...]["s"], read through _s) and the owner's doctrine (AI.doctrine, docs/ai_crown_transitions.md
 ##    sections 7-11): expand, keep the army on the high ground, saturate then slowly wall, Musketeers on HOLD with a
 ##    cannon at the ramp, scout with Horsemen, kill workers, counter or expand at once after holding a rush.
-## THE MARCHING BAND (a real unit since 0.33.0): AI._band trains it at the Armoury (army 10+, a second at 30+) and
-## trains its Fifer and Piper there (they walk over and join it), keeping the gold back for them; MarchingBand.ai_tick keeps it behind the line and plays
-## its solos.
+## THE MARCHING BAND (individual musicians since 0.37.0): AI._band trains a Drummer, a Fifer and a Piper at the Armoury
+## (army 10+, a second set at 30+), keeping the gold back for them; MarchingBand.ai_tick forms them into a band behind
+## the line and plays their solos.
 ## `-- crownnew:off` on the command line plays the Crown as the 0.27.2 shared computer, for comparison games.
 
 var on := not OS.get_cmdline_user_args().has("crownnew:off")

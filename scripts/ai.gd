@@ -5051,12 +5051,13 @@ func _produce() -> void:
 			game.train(c, "missionary")
 
 
-## THE MARCHING BAND (scripts/marching_band.gd; docs/marching_band.md "The computer"): the Crown trains a band at the
-## Armoury once its army is BAND_ARMY strong, a second in a big army (BAND_ARMY2), and trains its musicians there (band-v2:
-## they walk to a band that wants them): the Fifer first in a musket army (half its soldiers or more with muskets, or
-## guns), else the Piper first. It SAVES for them: the band's price, or the musician's, is kept back from the soldiers (the gold returned: the caller
-## puts it back after _produce), so the musicians come even when every coin goes into men. Not with an enemy at home,
-## nor while the hall plan keeps its gold. Easy doesn't train the Piper.
+## THE MARCHING BAND (0.37.0: individual musicians, scripts/marching_band.gd): once its army is BAND_ARMY strong (and
+## it has an Armoury) the computer trains a Drummer, a Fifer and a Piper (a band: MarchingBand.ai_tick keeps the Fifer
+## and the Piper beside the Drummer and the band behind the line); a second set in a big army (BAND_ARMY2). The order:
+## the Drummer, then the Fifer first in a musket army (half its soldiers or more with muskets, or guns), else the Piper.
+## It SAVES for them: the musician's price is kept back from the soldiers (returned: the caller puts it back after
+## _produce). Not with an enemy at home, nor while the hall plan keeps its gold. Easy doesn't train the Piper.
+## (A lone drummer with its fast raiders: not done; he walks at 62 and can't keep up with riders.)
 const BAND_ARMY := 10
 const BAND_ARMY2 := 30
 
@@ -5064,57 +5065,40 @@ const BAND_ARMY2 := 30
 func _band() -> int:
 	if not _crown() or peaceful or _hall_reserve or _threat() != Vector2.INF:
 		return 0
+	if not _mine("armoury").any(func(a: Building) -> bool: return a.built):
+		return 0
 	var army := game.army(team)
-	var bands := 0
+	var have := {"drums": 0, "fife": 0, "pipes": 0}
 	var men := 0
 	var muskets := 0
 	for u in army:
-		if u.kind == MarchingBand.KIND:
-			bands += 1
-		elif not u.dead and MarchingBand.plays_for(u):
+		if u.dead:
+			continue
+		if MarchingBand.is_musician(u):
+			have[MarchingBand.ins_of(u)] += 1
+		elif MarchingBand.plays_for(u):
 			men += 1
 			if Defs.MUSKETS.has(u.kind) or u.kind in ["cannon", "mortar", "dragoon"]:
 				muskets += 1
 	for a in _mine("armoury"):
-		bands += a.queue.count(MarchingBand.KIND)
+		for ins in have:
+			have[ins] += a.queue.count(MarchingBand.unit_of(ins))
 	if men < BAND_ARMY:
 		return 0
 	var want := 2 if men >= BAND_ARMY2 else 1
-	if bands < want:
-		var price: int = game.unit_price(team, MarchingBand.KIND)[0]
-		for a in _mine("armoury"):
-			if a.built and game.can_train(a, MarchingBand.KIND) == "":
-				game.train(a, MarchingBand.KIND)
-				_band_say("trains a Marching Band (%d soldiers)" % men)
-				return 0
-		if bands == 0 and _mine("armoury").any(func(a: Building) -> bool: return a.built):
-			return _band_hold(price)      # (the first band: kept back from the soldiers until it can be trained)
-	if bands == 0:
-		return 0
-	# its musicians (band-v2: units now): one trained for each band that wants one and has none coming or queued; they
-	# walk over by themselves (MarchingBand.musician_tick)
-	var order := ["fife", "pipes"] if muskets * 2 >= men else ["pipes", "fife"]
+	var order := ["drums"] + (["fife", "pipes"] if muskets * 2 >= men else ["pipes", "fife"])
 	for ins in order:
 		if ins == "pipes" and difficulty == 0:
 			continue
-		var k := MarchingBand.unit_of(ins)
-		var wanting := 0
-		for u in army:
-			if u.kind == MarchingBand.KIND and MarchingBand.wants(u, ins):
-				wanting += 1
-		for u in army:
-			if u.kind == k and u.order != "join":
-				wanting -= 1          # (a loose one: he'll go)
-		for a in _mine("armoury"):
-			wanting -= a.queue.count(k)
-		if wanting <= 0:
+		if int(have[ins]) >= want:
 			continue
+		var k := MarchingBand.unit_of(ins)
 		var price: Array = game.unit_price(team, k)
 		if _gold() >= int(price[0]) and _res2() >= float(price[1]):
 			for a in _mine("armoury"):
 				if a.built and game.can_train(a, k) == "":
 					game.train(a, k)
-					_band_say("trains the band's %s" % String(Defs.UNITS[k]["name"]))
+					_band_say("trains a %s for its Marching Band (%d soldiers)" % [String(Defs.UNITS[k]["name"]), men])
 					return 0
 			return 0
 		return _band_hold(int(price[0]))

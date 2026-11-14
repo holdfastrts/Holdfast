@@ -1,9 +1,21 @@
-# The Marching Band (a real Crown unit since 0.33.0; v2 in 0.36.0: docs/band_v2.md; the experiment of 0.23.0 below)
+# The Marching Band (a real Crown unit since 0.33.0; v2 in 0.36.0: docs/band_v2.md; individual musicians in 0.37.0: docs/band_individuals.md; the experiment of 0.23.0 below)
 
 The owner's idea (2026-10-30, docs/idea_bucket.md "CROWN MARCHING BAND"), made a real Crown unit by his decisions of
 2026-11-05 (CLAUDE.md "MARCHING BAND AS A REAL UNIT"): a 17th-century band that follows the soldiers and gives AREA BUFFS
 by the music it plays. BAGPIPES melee, DRUMS movement speed, FIFE ranged (as reload speed). The experiment's write-up,
 its fight measurements and the answer to "strong or minor buffs?" are kept below ("The 0.23.0 experiment").
+
+## What changed in 0.37.0 (job band-individuals): read docs/band_individuals.md
+
+- **No band unit**: the Armoury trains the DRUMMER (the old `band` id), the FIFER (70 gold, no powder) and the PIPER,
+  1 supply each, each with his own ring, +5%, SOLO (+30%, 8 s) and 45 s cooldown. The same instrument never adds up.
+- **A BAND forms by itself** when one of each stand within each other's rings: one gold ring round the three, +8% each,
+  solos +40% for 10 s (one at a time), in step, marching as a row behind the Drummer; SELECT BAND picks the three.
+- **Lone musicians of different instruments overlapping are OUT OF STEP**: only the stronger buff counts there.
+- **SOLO**: a press plays ONE selected musician of that instrument, Ctrl every one. **Buff markers** over soldiers'
+  heads (an icon and "+8%"; Settings BAND BUFF MARKS, default SELECTED). **BandSound**: the nearest band in step, or
+  up to 3 lone musicians each out of step. Old saves' band units load as their musicians, standing together.
+- So, below: the band unit, its recruit / join walk (0.36.0) and the one-band-many-instruments rules are history.
 
 ## What changed in 0.36.0 (job band-v2): read docs/band_v2.md
 

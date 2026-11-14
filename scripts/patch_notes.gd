@@ -4,6 +4,14 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.0", "items": [
+		"THE MARCHING BAND, NOW INDIVIDUAL MUSICIANS: there is no band unit any more. The Armoury trains the DRUMMER (50 gold), the FIFER (70 gold, no powder) and the PIPER (75 gold), 1 supply each. Each has his own ring (5 tiles), his own +5% (drum: speed, fife: reload, pipes: melee), his own SOLO (+30% for 8 s) and his own 45 s cooldown.",
+		"A BAND FORMS by itself when a Drummer, a Fifer and a Piper stand within each other's rings: one gold ring round the three with a BAND mark, +8% each, solos +40% for 10 s (one at a time), playing in step; its Fifer and Piper fall in beside the Drummer and march with him as a row. SELECT BAND picks all three. The same instrument never adds up (two drummers: one drum).",
+		"Lone musicians of different instruments whose rings overlap play OUT OF STEP: there a soldier gets only the stronger of their buffs, and their rings are dashed and say \"out of step\". You hear it too: a band plays its parts together, lone musicians each a little out of time.",
+		"SOLO: a press makes ONE selected musician of that instrument play (the first free one); Ctrl + SOLO makes every selected one play.",
+		"Buffed soldiers show what they get over their heads: the instrument's icon and \"+8%\" (bigger and coloured in a solo, grey when out of step), and their card lists it (\"Band +8%: speed, reload, melee\"). Settings > BAND BUFF MARKS: ALWAYS, SELECTED (the default: selected units, the one under the cursor, and everyone in a ring during a solo) or OFF.",
+		"An old save's or replay's band loads as its Drummer, Fifer and Piper standing together (a band). The computer trains its three musicians, forms them into a band behind its line and solos as before.",
+	]},
 	{"v": "0.36.0", "items": [
 		"THE MARCHING BAND, NEW STRUCTURE: the Fifer and the Piper are no longer research. Train them at the Armoury one at a time (Fifer 60 gold and 10 powder, Piper 75 gold, 20 s each): each comes out, walks to a band without one and joins it (+15 health to the band, his instrument and its solo). RECRUIT FIFER / RECRUIT PIPER on a band's card sends one to THAT band; right-click a band with a Fifer or Piper selected (or JOIN BAND) to send him there. One of each a band; a band no longer costs more for its musicians. A musician with no band to join waits at the rally point.",
 		"The band's three musicians stand SIDE BY SIDE in a row, so each is clearly seen; its shadow, selection ring and click area are as wide as the row.",
