@@ -1,0 +1,5 @@
+# One line each:  name | text      (lines starting with # are ignored)
+# Test lines: compare them with the King's ElevenLabs recordings.
+king_test_01 | My son, sit with me a while. The pipe is lit, and the night is long.
+king_test_02 | They called it freedom. I have seen what their freedom burns.
+king_test_03 | Rome stood when every other crown had fallen. Remember why.
