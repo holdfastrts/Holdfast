@@ -1,9 +1,22 @@
-# The Marching Band (a real Crown unit since 0.33.0; the experiment of 0.23.0 below)
+# The Marching Band (a real Crown unit since 0.33.0; v2 in 0.36.0: docs/band_v2.md; the experiment of 0.23.0 below)
 
 The owner's idea (2026-10-30, docs/idea_bucket.md "CROWN MARCHING BAND"), made a real Crown unit by his decisions of
 2026-11-05 (CLAUDE.md "MARCHING BAND AS A REAL UNIT"): a 17th-century band that follows the soldiers and gives AREA BUFFS
 by the music it plays. BAGPIPES melee, DRUMS movement speed, FIFE ranged (as reload speed). The experiment's write-up,
 its fight measurements and the answer to "strong or minor buffs?" are kept below ("The 0.23.0 experiment").
+
+## What changed in 0.36.0 (job band-v2): read docs/band_v2.md
+
+- **The Fifer and the Piper are UNITS, not research**: trained at the Armoury one at a time (Fifer 60 gold + 10 powder,
+  Piper 75 gold, 20 s), each walks to a band and JOINS it, as an Officer walks to his horse (one of each a band; RECRUIT
+  FIFER / PIPER on the band's card sends one to that band; right-click or JOIN BAND; by default the nearest band that
+  wants him; none: he waits). The band costs 50 flat (no more "+25 a musician"). Old saves' research still fills every
+  band. The computer trains them after its band.
+- **The three stand side by side** in a row (MarchingBand.SPOT), the shadow, selection ring and click as wide as the row.
+- **The sound is BandSound** (scripts/band_sound.gd): one band heard at a time, on one shared clock, the always-on
+  playing quiet, the solo clear, the game music ducked a little. The band's music itself is still the 0.33.0 loops (a new
+  music job will replace them: the brief is in docs/band_v2.md; CC0 samples in art/audio_src/band/).
+- So, below: the 0.33.0 research, its price rule and the "every band gets the musician" rule are history.
 
 ## What changed in 0.33.0 (job marching-band)
 
@@ -72,9 +85,9 @@ assets/units/band (the Drummer), band_fifer, band_piper (cell 44 x 46, soles on 
   drummer 130-144, the piper 131-152), while A's feet come together in three of its four frames (50-70 px): A shuffles
   next to the other two, B marches with them.
 - **A group that grows** (`MarchingBand.group_look`, from Unit._animate): the Drummer is the unit's own sprite and leads in
-  the middle; the Fifer and the Piper are child sprites of it, behind him on either side (MarchingBand.SPOT, in the SE
-  picture's space: the Fifer behind his left shoulder, the Piper behind his right), drawn behind him, each only once
-  researched, so any research order works. They take his pose and view, one and two frames out of step so the three don't
+  the middle; the Fifer and the Piper are child sprites of it, since 0.36.0 SIDE BY SIDE with him in one row
+  (MarchingBand.SPOT, 22 px apart in the SE picture's space: the Fifer on his right, the Piper on his left; before, they
+  were tucked behind his shoulders), each only once he has joined. They take his pose and view, one and two frames out of step so the three don't
   march as one, and mirror with him.
 - **Every view uses the SE art** until the others are drawn (Unit falls back to the nearest drawn view; the west views are
   the east mirrored): logged in docs/art_style_inconsistency.md ("The Marching Band") and docs/art_redraw_queue.md (item

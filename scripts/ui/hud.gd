@@ -3758,7 +3758,7 @@ func _draw_panel(font: Font) -> void:
 				info = Ballista.card_line(uu)
 			elif uu.kind == Defs.GREAT_WINDER_KIND:
 				info = GreatWinder.card_line(uu)
-			elif uu.kind == MarchingBand.KIND:
+			elif uu.kind == MarchingBand.KIND or MarchingBand.MUSICIANS.has(uu.kind):
 				info = MarchingBand.card_line(uu)
 			elif uu.kind == Defs.PENDULUM:
 				info = "Its blade cuts every enemy in the arc in front of it (never your own units). It cannot reach flyers."
@@ -5053,8 +5053,8 @@ func _card_tip(it: Array) -> Dictionary:
 				parts.append("the Socket Bayonet")
 			if not parts.is_empty():
 				t["body"] += "  Comes out with %s (the refit fees are in the price)." % ", ".join(parts)
-		if kd == MarchingBand.KIND:
-			t["body"] += "  " + MarchingBand.train_note(game, game.human)      # (who comes in it; the price grows with them)
+		if kd == MarchingBand.KIND or MarchingBand.MUSICIANS.has(kd):
+			t["body"] += "  " + MarchingBand.train_note(game, game.human, kd)      # (who comes out; where a Fifer / Piper goes)
 		t["hint"] = ("Right-click" if Settings.pc() else "Hold") + ": train it automatically (glows while on)."
 	elif Defs.BUILDINGS.has(k) and page in ["build", "advanced"]:
 		var bd: Dictionary = Defs.BUILDINGS[k]

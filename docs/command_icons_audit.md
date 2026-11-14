@@ -252,6 +252,19 @@ Picture shown: the file under `assets/` the button really draws. "Crown style" o
   Wagon, Heavy Locomotive, Carrier Car, Tesla Locomotive, Storm Engine) and every command (SIDING, COUPLE, UNCOUPLE,
   CREW OUT, CREW IN, PLATES, SET UP, PACK, BOARD, DOCK, CARRY, DROP, THUNDER) is drawn in code by `CwArt.icon`.
 
+## The Marching Band (0.36.0, band-v2)
+
+The owner's ChatGPT icons arrived before the job (0.35.15, `tools/import_band_icons.py` from `art/ui/icons3/band_portraits.png`
+and `band_abilities.png`), so no code placeholders were needed:
+
+| button | where | picture shown | verdict |
+| --- | --- | --- | --- |
+| DRUMS / FIFE / PIPES SOLO | the band's card | `icons/ab_band_drums.png`, `ab_band_fife.png`, `ab_band_pipes.png` | the owner's |
+| RECRUIT FIFER / RECRUIT PIPER | the band's card | `icons/band_fifer.png`, `band_piper.png` (the musicians' portraits) | fine; a portrait with a small "+" would say RECRUIT better (optional) |
+| JOIN BAND | a Fifer's / Piper's card | `icons/ab_band_join.png` | the owner's |
+| Fifer / Piper (train) | the Armoury | `icons/band_fifer.png`, `band_piper.png` | the owner's |
+| Marching Band (train, portrait) | the Armoury, the card | `icons/band.png` | the owner's |
+
 ## The Clockwork's new roster: icons it will need
 
 | unit / idea | buttons | icons |

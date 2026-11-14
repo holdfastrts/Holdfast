@@ -1,8 +1,9 @@
 extends SceneTree
 ## THE MARCHING BAND in a whole match (docs/marching_band.md): a Hard Crown computer against a Hard computer of another
-## faction. The Crown computer's bands (AI._band: trained at the Armoury, the Fifer and the Piper researched;
-## MarchingBand.ai_tick: its place behind the line and its solos) are watched: when they are trained, when the musicians are
-## researched, the solos by instrument, how many soldiers its ring reaches in a solo, losses; the match must run.
+## faction. The Crown computer's bands (AI._band: trained at the Armoury, then its Fifer and Piper trained there, who walk
+## over and join (band-v2);
+## MarchingBand.ai_tick: its place behind the line and its solos) are watched: when they are trained, when a musician
+## first joins, the solos by instrument, how many soldiers its ring reaches in a solo, losses; the match must run.
 ##   godot --headless --fixed-fps 30 --script res://tools/test_marching_band_match.gd [-- map:<id> seed:<n> minutes:<m> vs:<faction> who:<level> plan:<strategy>]
 var main: Node
 var t := 0.0
@@ -73,10 +74,15 @@ func _process(delta: float) -> bool:
 			if u.team == 0 and not u.dead and u.kind == MarchingBand.KIND:
 				nb += 1
 		print("NOTE %3.0f s: Crown army %d, gold %d, bands %d" % [g.clock, g.army(0).size(), int(g.players[0]["gold"]), nb])
-	for key in ["band_fife", "band_pipes"]:
-		if not researched.has(key) and g.has_tech(0, key):
-			researched[key] = g.clock
-			print("RESEARCH %s done at %.0f s" % [key, g.clock])
+	for u in g.units:
+		if u.team == 0 and not u.dead and u.kind == MarchingBand.KIND:
+			for ins in ["fife", "pipes"]:
+				if not researched.has(ins) and MarchingBand.has(u, ins):
+					researched[ins] = g.clock
+					print("JOINED a %s at %.0f s" % [ins, g.clock])
+		elif u.team == 0 and not u.dead and MarchingBand.MUSICIANS.has(u.kind) and not hired.has(u):
+			hired[u] = g.clock
+			print("MUSICIAN %s out at %.0f s (%s)" % [u.kind, g.clock, u.order])
 	var alive := 0
 	for u in g.units:
 		if not is_instance_valid(u) or u.kind != MarchingBand.KIND or u.team != 0:
@@ -109,14 +115,14 @@ func _process(delta: float) -> bool:
 	if g.clock >= minutes * 60.0 or g.over:
 		check("the match ran (or ended)", true, "%.0f s, over %s" % [g.clock, g.over])
 		check("the Crown computer trained a band at the Armoury", band_at >= 0.0, "at %.0f s; bands %d, at most %d at once, lost %d" % [band_at, bands_seen, max_bands, deaths])
-		check("it researched a musician", not researched.is_empty(), str(researched))
+		check("a musician it trained walked over and joined a band", not researched.is_empty(), str(researched))
 		var avg := 0.0
 		for n in covered:
 			avg += n
 		avg = avg / maxf(covered.size(), 1.0)
 		check("it played solos", not solos.is_empty(), "%d solos %s (fife %d, pipes %d, drums %d), %.1f soldiers in the ring on average" % [solos.size(), str(solos.slice(0, 10)), by_ins["fife"], by_ins["pipes"], by_ins["drums"], avg])
 		print("SUMMARY vs %s (%s) %s seed %d: band %.0f s, fife %s, pipes %s, bands %d (max %d, lost %d), solos fife %d pipes %d drums %d, ring %.1f, ended %.0f s over %s winner %s" % [vs, foe_who, map, seed_, band_at,
-			str(researched.get("band_fife", -1)), str(researched.get("band_pipes", -1)), bands_seen, max_bands, deaths, by_ins["fife"], by_ins["pipes"], by_ins["drums"], avg, g.clock, g.over, str(g.get("winner"))])
+			str(researched.get("fife", -1)), str(researched.get("pipes", -1)), bands_seen, max_bands, deaths, by_ins["fife"], by_ins["pipes"], by_ins["drums"], avg, g.clock, g.over, str(g.get("winner"))])
 		print("RESULT %s (%d failed)" % ["PASS" if fails == 0 else "FAIL", fails])
 		quit(1 if fails > 0 else 0)
 	return false

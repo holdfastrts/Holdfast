@@ -8,7 +8,7 @@
   (1536 x 1024 each, one row of 4 figures on navy #001630, about 6 sheet pixels to a game pixel)
 
 The band is drawn as a GROUP THAT GROWS (scripts/marching_band.gd): the Drummer is the unit's own sprite (art "band"),
-the Fifer and the Piper (arts "band_fifer", "band_piper") are child sprites placed behind him on either side, each only
+the Fifer and the Piper (arts "band_fifer", "band_piper") are child sprites placed side by side with him in a row (band-v2), each only
 once researched. Each musician gets:
       walk_se   4 frames   (the sheet's row)
       idle_se   4 frames   (the same frames: Unit plays idle at 2 frames a second, marking time in place, still playing)

@@ -502,6 +502,7 @@ static func restore(game: Game, d: Dictionary) -> void:
 		b.kits = []
 		for qi in saved_q.size():
 			var x := String(saved_q[qi]) if String(saved_q[qi]).begins_with("@") else _kind(String(saved_q[qi]))
+			x = MarchingBand.OLD_QUEUE.get(x, x)       # (band-v2: the old Fifer / Piper research in a queue is the musician now)
 			if Defs.RESEARCH.has(x.substr(1)) if x.begins_with("@") else Defs.UNITS.has(x):
 				b.add_entry(x, saved_kits[qi] if qi < saved_kits.size() and saved_kits[qi] is Dictionary else {})
 		b.auto_refit = bool(bd.get("ar", false))

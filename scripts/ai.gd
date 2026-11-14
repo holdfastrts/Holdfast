@@ -5052,11 +5052,11 @@ func _produce() -> void:
 
 
 ## THE MARCHING BAND (scripts/marching_band.gd; docs/marching_band.md "The computer"): the Crown trains a band at the
-## Armoury once its army is BAND_ARMY strong, a second in a big army (BAND_ARMY2), and researches its musicians: the
-## Fifer first in a musket army (half its soldiers or more with muskets, or guns), else the Piper first. It SAVES for
-## them: the band's price, or the musician's research, is kept back from the soldiers (the gold returned: the caller
+## Armoury once its army is BAND_ARMY strong, a second in a big army (BAND_ARMY2), and trains its musicians there (band-v2:
+## they walk to a band that wants them): the Fifer first in a musket army (half its soldiers or more with muskets, or
+## guns), else the Piper first. It SAVES for them: the band's price, or the musician's, is kept back from the soldiers (the gold returned: the caller
 ## puts it back after _produce), so the musicians come even when every coin goes into men. Not with an enemy at home,
-## nor while the hall plan keeps its gold. Easy doesn't research the Piper.
+## nor while the hall plan keeps its gold. Easy doesn't train the Piper.
 const BAND_ARMY := 10
 const BAND_ARMY2 := 30
 
@@ -5091,21 +5091,33 @@ func _band() -> int:
 			return _band_hold(price)      # (the first band: kept back from the soldiers until it can be trained)
 	if bands == 0:
 		return 0
-	var order := ["band_fife", "band_pipes"] if muskets * 2 >= men else ["band_pipes", "band_fife"]
-	for key in order:
-		if game.has_tech(team, key) or game.researching(team, key):
+	# its musicians (band-v2: units now): one trained for each band that wants one and has none coming or queued; they
+	# walk over by themselves (MarchingBand.musician_tick)
+	var order := ["fife", "pipes"] if muskets * 2 >= men else ["pipes", "fife"]
+	for ins in order:
+		if ins == "pipes" and difficulty == 0:
 			continue
-		if key == "band_pipes" and difficulty == 0:
+		var k := MarchingBand.unit_of(ins)
+		var wanting := 0
+		for u in army:
+			if u.kind == MarchingBand.KIND and MarchingBand.wants(u, ins):
+				wanting += 1
+		for u in army:
+			if u.kind == k and u.order != "join":
+				wanting -= 1          # (a loose one: he'll go)
+		for a in _mine("armoury"):
+			wanting -= a.queue.count(k)
+		if wanting <= 0:
 			continue
-		var info: Dictionary = Defs.RESEARCH[key]
-		if _gold() >= int(info["cost"]) and _res2() >= float(info.get("cost2", 0)):
+		var price: Array = game.unit_price(team, k)
+		if _gold() >= int(price[0]) and _res2() >= float(price[1]):
 			for a in _mine("armoury"):
-				if game.research_problem(a, key) == "":
-					game.start_research(a, key)
-					_band_say("researches the band's %s" % String(info["name"]))
+				if a.built and game.can_train(a, k) == "":
+					game.train(a, k)
+					_band_say("trains the band's %s" % String(Defs.UNITS[k]["name"]))
 					return 0
 			return 0
-		return _band_hold(int(info["cost"]))
+		return _band_hold(int(price[0]))
 	return 0
 
 

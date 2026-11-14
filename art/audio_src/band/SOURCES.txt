@@ -1,0 +1,24 @@
+REAL INSTRUMENT SAMPLES FOR THE MARCHING BAND'S MUSIC (fetched 2026-11-14 by the job band-v2; not used by the game yet:
+the music job to come builds the band's loops from them; docs/band_v2.md has the brief). Source material only: this
+folder has a .gdignore, so Godot never imports it and nothing here goes into a build.
+
+bagpipe_freepats/   the FreePats "Bagpipe" set, version 2026-08-06 (SFZ + FLAC, 29 files as published)
+  licence: CC0 1.0 (public domain dedication), see bagpipe_freepats/LICENSE.txt
+  author:  Gilles Sadowski (recorded August 2020, on a bagpipe in G designed by Remy Dubois and built by Olle Geris)
+  link:    https://freepats.zenvoid.org/Ethnic/bagpipe.html
+           https://github.com/freepats/bagpipe/releases/download/2026-08-06/Bagpipe-SFZ+FLAC-20260806.7z
+  what:    chanter notes F4..G5 (two takes each, *_31 / *_32), and the two drones (drone_G2, drone_G3); the .sfz maps them.
+  note:    this is a bagpipe in G (a continental pipe), NOT a Highland pipe (Highland pipes sound near B-flat): see the
+           brief in docs/band_v2.md for what that means for the key.
+
+vcsl/               from the Versilian Community Sample Library (VCSL), converted WAV -> FLAC (lossless), folders kept
+  licence: CC0 1.0 (public domain dedication), see vcsl/LICENSE.txt
+  author:  Versilian Studios (Sam Gossner) and contributors
+  link:    https://github.com/sgossner/VCSL
+  what:    Membranophones/Struck Membranophones/Snare Drum, Rope Tension (Hi, Low): a rope-tension snare = the field drum
+             of the period, the best match for the Drummer
+           Membranophones/Struck Membranophones/Legacy Snares/drum3_marching: a marching snare
+           Membranophones/Struck Membranophones/Bass Drum 1: a bass drum (the beat under the snare in a pipe band)
+           Aerophones/Edge-blown Aerophones/Baroque Soprano Recorder (Sustain, Staccato): the nearest CC0 instrument to a
+             fife found on GitHub (no CC0 fife or piccolo set was found; the owner's earlier real fife notes are in
+             art/audio_src/fife/ and tools/audio/fife_sampler.py)
