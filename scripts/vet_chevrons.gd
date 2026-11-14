@@ -107,6 +107,10 @@ func _process(delta: float) -> void:
 	var all := not is_equal_approx(sz.x, _zoom) or Settings.overlay_alpha != _ov
 	_zoom = sz.x
 	_ov = Settings.overlay_alpha
+	# (OVERLAY OPACITY: the one under the mouse, and the one it just left, at once; the selected follow in their slice)
+	var hv = game.get("hover_target") if game != null else null
+	var was = _hov
+	_hov = hv
 	if all:
 		for u in _list:
 			place(u, sz)
@@ -115,12 +119,9 @@ func _process(delta: float) -> void:
 			place(_list[i], sz)
 		for u in _air.keys():
 			place(u, sz)
-		# (OVERLAY OPACITY: the one under the mouse, and the one it just left, at once; the selected follow in their slice)
-		var hv = game.get("hover_target") if game != null else null
-		if hv != _hov:
-			if _hov != null and is_instance_valid(_hov) and vets.has(_hov):
-				place(_hov, sz)
-			_hov = hv
+		if hv != was:
+			if was != null and is_instance_valid(was) and vets.has(was):
+				place(was, sz)
 			if hv != null and is_instance_valid(hv) and vets.has(hv):
 				place(hv, sz)
 	Prof.add("vet chevrons", _p0)

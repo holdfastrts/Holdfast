@@ -1005,7 +1005,7 @@ static func draw_marks(o: Unit, top: float) -> void:
 			col = (B[String(it[0][0])]["col"] as Color).lightened(0.25)
 		elif fl & F_BAND:
 			col = Color(1.0, 0.8, 0.25)
-		col.a *= oa
+		col.a *= sqrt(oa)        # (the number a little stronger than its icons: "+8%" must read on sand and snow too)
 		o.draw_rect(Rect2(Vector2(x - 0.5, y - ic - 0.5), Vector2(ic * float((it[0] as Array).size()) + 1.0, ic + 1.0)), Color(0, 0, 0, 0.55 * oa))
 		for ins in it[0]:
 			var tex: Texture2D = Game.tex("res://assets/icons/ab_band_%s.png" % ins)
