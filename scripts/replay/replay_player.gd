@@ -226,6 +226,7 @@ func tick_rclk(delta: float) -> void:
 			at_end = true
 			playing = false
 			_freeze(true)
+			_pose_view = Rect2()       # (stopped at the end: the units in view take their last pose, replay-render)
 			changed.emit()
 	rclk = play_t
 	game.clock = play_t

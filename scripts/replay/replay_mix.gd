@@ -173,6 +173,7 @@ func _physics_process(delta: float) -> void:
 		at_end = true
 		playing = false
 		get_tree().paused = true
+		_pose_view = Rect2()       # (stopped at the end: the units in view take their last pose, replay-render)
 		changed.emit()
 
 

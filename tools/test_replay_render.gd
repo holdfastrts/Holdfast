@@ -199,6 +199,17 @@ func _watch() -> void:
 				break
 			rp.set_playing(true)
 			rp.set_speed(8.0)
+	# paused, a jump, then the camera taken to the fight: every unit in view in its pose of that moment (not the first
+	# picture the jump made it with, standing and facing south), with no tick run
+	rp.set_playing(false)
+	rp.seek(float(rp.length) * 0.75)
+	await _frames(2)
+	g.camera.position = _busy_spot()
+	g.camera.zoom = Vector2(1.6, 1.6)
+	await _frames(3)
+	_check_units("paused_jump", drawn)
+	if drawn:
+		await _bodies("paused_jump")
 	# and after a jump back
 	rp.seek(float(rp.length) * 0.6)
 	rp.set_playing(true)
@@ -290,8 +301,8 @@ func _bodies(tag: String) -> void:
 			big.append((ct * BroodRoot.body_rect(u)).abs())
 	var cands: Array = []
 	for u in _units():
-		if BroodNew.rooted(u) or BroodRoot.in_cocoon(u):
-			continue          # (a rooted Brood creature is drawn in the building layer: BroodNew.draw)
+		if BroodNew.rooted(u) or BroodRoot.in_cocoon(u) or not u.sprite.visible or (u.kind == "horse" and u._hidden_for_mount()):
+			continue          # (a rooted Brood creature is drawn in the building layer: BroodNew.draw; an egg in her laying frames)
 		var r: Rect2 = ct * u.sprite.get_global_transform() * u.sprite.get_rect()
 		r = r.abs()
 		if Rect2(Vector2(8, 8), vis - Vector2(16, 16)).encloses(r) and not big.any(func(b: Rect2) -> bool: return b.intersects(r)):
@@ -308,7 +319,10 @@ func _bodies(tag: String) -> void:
 			groups.append([e])
 	var shown: Array = []
 	var alpha := {}
-	for n in g.units + g.buildings + g.world.get_children():
+	# (and the game's own layers over and under the world: the ground, rails, walls' lines, overlays, fog)
+	for n in g.units + g.buildings + g.world.get_children() + g.get_children():
+		if n == g.world:
+			continue
 		if is_instance_valid(n) and n is CanvasItem and (n as CanvasItem).visible and not shown.has(n):
 			shown.append(n)      # (trees and the other things standing on the map too)
 			alpha[n] = (n as CanvasItem).modulate.a
@@ -387,7 +401,9 @@ func _check_units(tag: String, drawn: bool) -> void:
 		var s: Sprite2D = u.sprite
 		var why := ""
 		var asc := float(u.d.get("art_scale", 1.0))
-		if s == null or not s.is_visible_in_tree():
+		if u.kind == BroodNew.EGG and float(u.nb.get("hold", 0.0)) > 0.0:
+			pass               # (an egg still in her laying frames: her picture draws it)
+		elif s == null or not s.is_visible_in_tree():
 			why = "sprite hidden"
 		elif s.texture == null:
 			why = "no texture"
@@ -395,7 +411,8 @@ func _check_units(tag: String, drawn: bool) -> void:
 			why = "strip %s" % s.texture.resource_path
 		elif absf(s.scale.x) < 0.5 * asc or s.scale.y < 0.5 * asc:
 			why = "scale %s" % str(s.scale)
-		elif u.modulate.a * s.modulate.a * s.self_modulate.a < 0.3 and not BroodNew.rooted(u):      # (rooting: cross-faded)
+		elif u.modulate.a * s.modulate.a * s.self_modulate.a < 0.3 and not BroodNew.rooted(u) \
+				and not (u.kind == "horse" and u._hidden_for_mount()):      # (rooting: cross-faded; a horse being got on: the rider's strip draws it)
 			why = "alpha %.2f" % (u.modulate.a * s.modulate.a * s.self_modulate.a)
 		else:
 			var sa := String(u._anim_art) if u._anim_art != "" else String(u.art)

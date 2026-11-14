@@ -1868,7 +1868,7 @@ func _work_sound(delta: float) -> void:
 	_work_snd_t = MILL_CYCLE if anim == "shovel" else randf_range(2.2, 3.2) if work == "manning" else 2.0
 	if kind == "winder" and work == "repairing":
 		# (the owner, 2026-11-03: his recordings) winding a soldier: a toy being wound; mending a building: a ratchet wrench
-		var wnd := order_target is Unit and is_instance_valid(order_target)
+		var wnd := is_instance_valid(order_target) and order_target is Unit
 		Sfx.play_any(["work/winder_wind" if wnd else "work/winder_repair", name], position, -3.0)
 		return
 	Sfx.play(name, position, -6.0 if work == "manning" else -3.0)
@@ -5251,7 +5251,7 @@ func _repair(delta: float) -> Vector2:
 		if _next_order():
 			return Vector2.ZERO
 		var next: Entity = null
-		if e is Building and is_instance_valid(e):
+		if is_instance_valid(e) and e is Building:      # (a freed one is not checked with `is`: replay-render)
 			next = game.repair_target_near((e as Building).center(), team, e)
 		if next and next is Building and can_repair(next):
 			cmd_repair(next)
@@ -7194,6 +7194,8 @@ static func beat_frame(a: String, t: float, n: int, loop: bool) -> int:
 func refresh_pose() -> void:
 	if dead or sprite == null or powered_down():
 		return
+	if kind == "horse":
+		modulate.a = 0.0 if _hidden_for_mount() else 1.0     # (the mounting strip draws it)
 	_set_anim(_anim_name(), false)
 	sprite.frame = clampi(frame_i, 0, maxi(sprite.hframes * sprite.vframes - 1, 0))
 	if _k_nb:
