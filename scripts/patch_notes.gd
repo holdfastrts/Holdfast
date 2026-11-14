@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.3", "items": [
+		"FIX: sound in big late battles no longer crackles and stutters. Each sound used to share one player with every other copy of itself, so a new Clock Soldier blow or musket shot cut the copies still ringing short and changed their pitch and loudness mid-sound (about two thirds of the fight sounds were cut off). Now every sound plays to its end on its own voice, at most 24 at once and 4 copies of one sound; when it is full the quietest, nearly finished sound gives way.",
+		"Web build: a bigger sound buffer (about 85 ms), so the sound no longer runs dry when a big battle slows the game to 20 frames a second.",
+	]},
 	{"v": "0.36.2", "items": [
 		"Replays: watching a replay paused, or right after a jump on the timeline, every unit the camera comes to now shows what it is really doing and the way it really faces. Before, a unit only took its picture while the replay ran with it on screen, so a jump left everyone standing in their first picture, facing south, until you pressed play (Raptors running at a wall stood about facing you). The owner's Mirewood replay was looked at closely: the Raptors there are all drawn (their olive bodies in the painted colours), seen from behind as they climb the ramp, where only the pink crest stands out against the moss. A new test (tools/test_replay_render.gd) watches recorded games of all three factions in every recording mode and checks that every unit on screen has its body drawn and its pose right (docs/replay_render.md).",
 	]},

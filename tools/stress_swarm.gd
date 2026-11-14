@@ -44,6 +44,8 @@ var secs := 30.0
 var map := "dune_sea"
 var device := "pc"
 var sound := false
+var _sfx0 := [0, 0, 0, 0, 0]
+var _sfx_t0 := 0.0
 var out_path := ""
 var shot_path := ""
 var _trace: FileAccess = null
@@ -108,6 +110,8 @@ func _initialize() -> void:
 			device = "mobile"
 		elif a == "sound":
 			sound = true
+		elif a == "sfxold":
+			Sfx.legacy = true          # (late-game-sound: the old shared player per sound, to compare)
 		elif a == "spikes":
 			spikes = true
 		elif a == "savecost":
@@ -175,6 +179,8 @@ func _process(delta: float) -> bool:
 	_ticked = false
 	var now := Time.get_ticks_usec()
 	t += delta
+	if sound:
+		Sfx.test_clock = int(t * 1000.0)     # (the sounds' own clock: game time, as a real device plays it)
 	if not begun:
 		if t > 0.2:
 			begun = true
@@ -223,6 +229,9 @@ func _process(delta: float) -> bool:
 	if not _measuring:
 		if _game_t >= 0.5:
 			_measuring = true
+			_sfx0 = [Sfx.n_started, Sfx.n_cut, Sfx.n_dropped, Sfx.n_stolen, Sfx.play_us]
+			_sfx_t0 = t
+			Sfx.live_max = 0
 			_take_frame()
 			_acc.clear()
 			_cpu0 = _cpu_ms()
@@ -630,6 +639,19 @@ func _report() -> void:
 	var cb_n := int(Prof.calls.get("hud/card build", 0))
 	if cb_n > 0:
 		print("SWARM command card: built %d times, %.2f ms each on average" % [cb_n, float(Prof.us.get("hud/card build", 0)) / 1000.0 / cb_n])
+	if sound:
+		var gs := maxf(t - _sfx_t0, 0.001)
+		row["sfx_started_per_s"] = (Sfx.n_started - _sfx0[0]) / gs
+		row["sfx_cut_per_s"] = (Sfx.n_cut - _sfx0[1]) / gs
+		row["sfx_dropped_per_s"] = (Sfx.n_dropped - _sfx0[2]) / gs
+		row["sfx_stolen_per_s"] = (Sfx.n_stolen - _sfx0[3]) / gs
+		row["sfx_us_per_play"] = float(Sfx.play_us - _sfx0[4]) / maxf(Sfx.n_started - _sfx0[0], 1)
+		var np := 0
+		if Sfx.me:
+			np = Sfx.me._players.size() + Sfx.me._pool.size()
+		print("SWARM sound (%s): %.1f started a s, %.1f copies cut short a s, %.1f dropped a s, %.1f players taken a s, %d sounding at once at most, %d sound players, %.0f us a play (%.3f ms a frame)" % [
+			"old shared players" if Sfx.legacy else "voice pool", row["sfx_started_per_s"], row["sfx_cut_per_s"], row["sfx_dropped_per_s"],
+			row["sfx_stolen_per_s"], Sfx.live_max, np, row["sfx_us_per_play"], float(Sfx.play_us - _sfx0[4]) / 1000.0 / nf])
 	print("SWARM ms a frame: ", ", ".join(zs))
 	print("SWARM ms a tick:  ", ", ".join(per_tick))
 	if out_path != "":

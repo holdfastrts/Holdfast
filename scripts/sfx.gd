@@ -21,6 +21,26 @@ var _announcer: AudioStreamPlayer
 var _starts: Array = []        # when the latest sounds began (the cap on the din)
 var _duck_until := 0
 var _said := {}             # announcer line -> time last said
+## THE VOICE POOL (late-game-sound, docs/late_game_sound.md). Every fight sound gets a player of its own from a
+## pool and nothing touches a player while it sounds: one player per sound name shared by up to 6 copies cut every
+## copy still ringing when the next one came (setting a stream stops the player) and pulled their pitch and volume to
+## the new one's, the crackle of a big late battle. A sound plays to its end; a full pool or too many copies of one
+## sound drop the quieter sound (or take the quietest, mostly-finished one's player).
+const POOL_MAX := 24           # fight sounds sounding at once (voices and the announcer have their own players)
+const SAME_MAX := 4            # copies of one sound sounding at once
+var _pool: Array = []          # AudioStreamPlayer
+var _pinfo: Array = []         # per pool player: [name, start ms, end ms, db]
+## Counters for the tools (tools/stress_swarm.gd "sound"): started, dropped by the pool, players taken from a
+## sound still sounding, the most sounding at once, microseconds spent in play().
+static var n_started := 0
+static var n_dropped := 0
+static var n_stolen := 0
+static var n_cut := 0            # (the old shared players only: copies cut short by a new copy)
+static var live_max := 0
+static var play_us := 0
+## Tools: the shared player per name as before 0.35.15 (to measure the old way), and a clock in ms (-1 = real time).
+static var legacy := false
+static var test_clock := -1
 
 
 func _ready() -> void:
@@ -195,7 +215,8 @@ static func play(name: String, pos := Vector2.INF, vol := 0.0) -> void:
 	var list := me._find(name)
 	if list.is_empty():
 		return
-	var now := Time.get_ticks_msec()
+	var t_us := Time.get_ticks_usec()
+	var now := _now()
 	if now - int(me._last.get(name, 0)) < int(GAP.get(name, 40)):
 		return   # don't stack dozens of identical sounds (a swarm's bites) on top of each other
 	# PRIORITIES (so a big fight is not a wall of noise, as in StarCraft II): voices, the
@@ -218,16 +239,100 @@ static func play(name: String, pos := Vector2.INF, vol := 0.0) -> void:
 		if dist > 1100.0:
 			return
 		db += -2.0 - dist / 110.0
-	if not me._players.has(name):
-		me._players[name] = me._new_player(6)
-	var p: AudioStreamPlayer = me._players[name]
 	var st: AudioStream = list[randi() % list.size()]
-	p.stream = prep(st)
-	p.volume_db = db + gain(st)
 	var j := float(JITTER.get(name, 0.07))
-	p.pitch_scale = randf_range(1.0 - j, 1.0 + j)
+	var pitch := randf_range(1.0 - j, 1.0 + j)
+	db += gain(st)
+	var p: AudioStreamPlayer = me._legacy_player(name, now) if legacy else me._take(name, db, tier, now)
+	if p == null:
+		n_dropped += 1
+		play_us += Time.get_ticks_usec() - t_us
+		return
+	p.stream = prep(st)
+	p.volume_db = db
+	p.pitch_scale = pitch
 	p.play()
+	n_started += 1
+	if not legacy:
+		var i := me._pool.find(p)
+		var len_ms := int(st.get_length() * 1000.0 / pitch) if st.get_length() > 0.0 else 1000
+		me._pinfo[i] = [name, now, now + len_ms + 20, db]
+		var live := 0
+		for x in me._pinfo:
+			if int(x[2]) > now:
+				live += 1
+		live_max = maxi(live_max, live)
+	else:
+		var ends: Array = me._legacy_end.get(name, [])
+		ends = ends.filter(func(e: int) -> bool: return e > now)
+		n_cut += ends.size()
+		var len_ms2 := int(st.get_length() * 1000.0 / pitch) if st.get_length() > 0.0 else 1000
+		me._legacy_end[name] = [now + len_ms2]
+	play_us += Time.get_ticks_usec() - t_us
 	MatchLog.sound(name)
+
+
+## Tools: every pool voice free again (tests that run faster than real time clear the limits between steps).
+func clear_voices() -> void:
+	for i in _pool.size():
+		(_pool[i] as AudioStreamPlayer).stop()
+		_pinfo[i] = ["", 0, 0, -80.0]
+
+
+static func _now() -> int:
+	return test_clock if test_clock >= 0 else Time.get_ticks_msec()
+
+
+var _legacy_end := {}
+
+func _legacy_player(name: String, _now_ms: int) -> AudioStreamPlayer:
+	if not _players.has(name):
+		_players[name] = _new_player(6)
+	return _players[name]
+
+
+## A free player for a new sound, or null (the sound is dropped). A free one if there is one (a new one while the
+## pool is under POOL_MAX); too many copies of this sound already: the quietest of them gives way only to a louder
+## copy; a full pool: the quietest sound gives way, counting a sound most of the way through as quieter (its tail).
+## A voice, horse call or bugle (tier 2) always gets one.
+func _take(name: String, db: float, tier: int, now: int) -> AudioStreamPlayer:
+	var same := 0
+	var q_same := -1
+	var q_same_v := INF
+	var free := -1
+	var q_all := -1
+	var q_all_v := INF
+	for i in _pool.size():
+		var x: Array = _pinfo[i]
+		if int(x[2]) <= now:
+			if free < 0:
+				free = i
+			continue
+		var done := clampf(float(now - int(x[1])) / maxf(float(int(x[2]) - int(x[1])), 1.0), 0.0, 1.0)
+		var v := float(x[3]) - 12.0 * done       # (how loud it still is, roughly)
+		if x[0] == name:
+			same += 1
+			if v < q_same_v:
+				q_same_v = v
+				q_same = i
+		if v < q_all_v:
+			q_all_v = v
+			q_all = i
+	if same >= SAME_MAX:
+		if tier >= 2 or db > q_same_v + 3.0:
+			n_stolen += 1
+			return _pool[q_same]
+		return null
+	if free >= 0:
+		return _pool[free]
+	if _pool.size() < POOL_MAX:
+		_pool.append(_new_player(1))
+		_pinfo.append(["", 0, 0, -80.0])
+		return _pool[_pool.size() - 1]
+	if tier >= 2 or db > q_all_v:
+		n_stolen += 1
+		return _pool[q_all]
+	return null
 
 
 ## SOUNDS THROUGH THE FOG (owner, 2026-10-30): a sound at a spot the player can't see (an
@@ -257,7 +362,7 @@ static func heard(name: String, pos: Vector2) -> bool:
 static func building_selected(kind: String, faction: String) -> void:
 	if me == null:
 		return
-	var now := Time.get_ticks_msec()
+	var now := _now()
 	if now - int(me._last.get("select/*", -99999)) < int(GAP.get("select/*", 40)):
 		return
 	me._last["select/*"] = now
@@ -318,7 +423,7 @@ static func voice(kind: String, what: String) -> void:
 		list = me._find("voice/%s/move" % kind)
 	if list.is_empty():
 		return
-	me._duck_until = Time.get_ticks_msec() + 1200
+	me._duck_until = _now() + 1200
 	var vs: AudioStream = list[randi() % list.size()]
 	me._voice.stream = prep(vs)
 	me._voice.volume_db = gain(vs)
