@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.4", "items": [
+		"THE CROWN COMPUTER AGAINST THE CLOCKWORK (Hard and up; no unit, building or price changed): its Timing attack no longer sits on one hall. Once its Horse Breeder is laid it puts its second hall down behind the army (by 4:30 at the latest) and keeps training labourers for it; its attack goes only while its army is clearly bigger than the Clockwork army it expects, and if that has not happened by 6:40 the plan is called off and it plays on from two halls. From 8:00 its halls keep a few labourers coming even when its army is far behind. Its scout no longer calls an empty Clockwork base greedy before 2:30 (the Clockwork's normal opening has no Light Works yet).",
+	]},
 	{"v": "0.36.3", "items": [
 		"FIX: sound in big late battles no longer crackles and stutters. Each sound used to share one player with every other copy of itself, so a new Clock Soldier blow or musket shot cut the copies still ringing short and changed their pitch and loudness mid-sound (about two thirds of the fight sounds were cut off). Now every sound plays to its end on its own voice, at most 24 at once and 4 copies of one sound; when it is full the quietest, nearly finished sound gives way.",
 		"Web build: a bigger sound buffer (about 85 ms), so the sound no longer runs dry when a big battle slows the game to 20 frames a second.",

@@ -28,6 +28,7 @@ const RULES := [
 	["^'s Clockwork: plays the (.+?) from here", "%s now plays the %s from where it stands.", 2, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): OPTIMAL picks its build from this", "%s reads the enemy as %s (%s).", 2, "scout"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; switches to a timing attack at (\\d+:\\d+) \\((\\d+) supply\\)", "%s reads the enemy as %s (%s): it is all economy, so it switches to a timing attack at %s with %s supply.", 3, "plan"],
+	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): its economy opening; races it", "%s reads the enemy as %s (%s): an economy opening, so its Economy plan races it, more bases sooner.", 3, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; races it", "%s reads the enemy as %s (%s): it is all economy, so its Economy plan races it, more bases sooner.", 3, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): it is all economy; keeps to its (.+) plan", "%s reads the enemy as %s (%s): it is all economy, and it keeps to its %s plan.", 2, "plan"],
 	["^(?:'s Brood: )?scouted: (\\w+) \\[(.+?)\\] \\(.*\\): a rush is coming", "%s reads the enemy as %s (%s): a rush is coming, so it defends first, then counter-attacks.", 3, "plan"],
@@ -70,6 +71,7 @@ const RULES := [
 	# ---- crown-v-clockwork-coach (docs/crown-v-clockwork-coach.md): the Crown against the Clockwork, the Clockwork against the Crown
 	["^'s plan: its wave stays out: only scouts", "%s's wave stays out: only scouts are by its buildings at home.", 1, "army"],
 	["^'s plan: its wave stays out: a raid worth (\\d+) at home is left to the soldiers there \\(the wave is worth (\\d+)\\)", "%s's wave stays out: a raid worth %s at home is left to the soldiers there (the wave is worth %s).", 2, "army"],
+	["^'s plan: the labourers keep coming: (\\d+) labourers for (\\d+) halls", "%s keeps training labourers (%s for %s halls) though its army is far behind the enemy's: more soldiers alone cannot catch up.", 2, "army"],
 	["^'s plan: the Farms first: (\\d+) labourers for (\\d+) halls \\(it wants (\\d+)\\)", "%s keeps training labourers for its Farms (%s for %s halls, it wants %s) while its army holds half the enemy's.", 2, "army"],
 	["^'s plan: milestone (.+?) waits: a rush is read", "%s holds its %s back: a rush is read, soldiers first.", 2, "army"],
 	["^'s Clockwork: the bank works: (\\d+) cogs no step was waiting for: (\\d+) Clock Soldiers", "%s puts %s idle cogs into %s Clock Soldiers (no step of its build was waiting for them).", 1, "army"],
@@ -88,6 +90,8 @@ const RULES := [
 	["^'s plan: the opening is over", "%s's opening is over: its milestones and its doctrine take over.", 2, "plan"],
 	["^'s plan: milestone: (.+?) \\(", "%s puts up its next milestone: %s.", 2, "tech"],
 	["^'s plan: the wave waits", "%s holds its wave back: the enemy army it knows is bigger.", 2, "attack"],
+	# (cinder-crown-ai: the Timing attack against the Clockwork goes only while it is ahead)
+	["^'s plan: the timing waits: (\\d+) of army against the (\\d+)", "%s holds its timing attack: its army (%s) is not clearly bigger than the %s it reckons the enemy has.", 2, "attack"],
 	# ---- the Crown's Dragoon raids (crown-builds-a, scripts/ai_dragoon_raid.gd)
 	["^'s Dragoon raid: group \\d+ rides for", "%s's Dragoons ride out to raid the enemy's workers.", 2, "raid"],
 	["^'s Dragoon raid: group \\d+ strikes", "%s's Dragoons get off their horses and shoot at the workers.", 2, "raid"],

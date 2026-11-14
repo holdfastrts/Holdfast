@@ -298,3 +298,8 @@ es expandirse más que él
 > out-expand it: its early ground is its usual opening
 pt expandir mais que ele: o seu terreno cedo é a sua abertura de costume
 es expandirse más que él: su terreno temprano es su apertura habitual
+
+# (cinder-crown-ai: the Clockwork's economy opening, read NORMAL before 2:30, still raced by the Crown's Economy plan)
+> %s reads the enemy as %s (%s): an economy opening, so its Economy plan races it, more bases sooner.
+pt %s lê o inimigo como %s (%s): uma abertura econômica, então o seu plano Economia corre contra ela, mais bases mais cedo.
+es %s lee al enemigo como %s (%s): una apertura económica, así que su plan Economía le hace la carrera, más bases antes.

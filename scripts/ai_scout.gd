@@ -968,7 +968,8 @@ func _evaluate() -> Dictionary:
 		out["reason"] = _brood_reason(halls, econ, mil, sup) if fac == "brood" and brood_read_on else nums
 		out["saw"] = "a second base and little army"
 	elif absence_on and _hall_seen and mil == 0 and value <= 0.0 and known <= 0.0 and clock >= GREEDY_ABSENT_FROM \
-			and cov >= (BROOD_LOOK_COV if fac == "brood" else ABSENT_COV) and not (fac == "brood" and brood_read_on and not _brood_seen_enough()):
+			and cov >= (BROOD_LOOK_COV if fac == "brood" else ABSENT_COV) and not (fac == "brood" and brood_read_on and not _brood_seen_enough()) \
+			and (clock >= _absent_from(fac) or _econ_open(out)):
 		# (THE ABSENCE IS INFORMATION, the owner 2026-11-05: its base looked at and no army and no production building, at a
 		# time a rush or a normal opening would have one: it is putting everything into its economy)
 		out["verdict"] = "greedy"
@@ -1007,6 +1008,29 @@ const DEF_WALLS_CROWN := 24
 const RUSH_READ_BY := 300.0     # (every Crown walls its ramp and each new hall: 8-12 pieces is its normal game)
 const ABSENT_COV := 0.4
 const GREEDY_ABSENT_FROM := 55.0
+## (cinder-crown-ai, docs/cinder_crown_ai.md) THE CLOCKWORK'S NORMAL OPENING HAS NO PRODUCTION YET at 1:20: its common
+## opening (Winders non-stop, the second Clocktower at ~1:50) lays its Light Works at ~2:00-2:10, its rushes at ~0:40. The
+## Crown read "no army and no production" at 1:21 on Cinder Steps as GREEDY (and kept 90% of the enemy's army as its bar
+## for the labourers after it: pressure). The Crown's absence read of a Clockwork counts from GREEDY_ABSENT_CLOCK; before
+## it an empty base is its standard opening. `-- cinder:off` as before.
+const GREEDY_ABSENT_CLOCK := 150.0
+
+
+## (cinder-crown-ai) An empty Clockwork base before GREEDY_ABSENT_CLOCK reads NORMAL ("a standard opening"), marked
+## "econ_open": its economy opening. The Crown's fixed Economy plan still races it then, as it did on the GREEDY read.
+var econ_open_t := -99.0
+
+
+func _econ_open(out: Dictionary) -> bool:
+	out["econ_open"] = true
+	econ_open_t = game.clock
+	return false
+
+
+func _absent_from(fac: String) -> float:
+	if fac == "clockwork" and _faction() == "crown" and not OS.get_cmdline_user_args().has("cinder:off"):
+		return GREEDY_ABSENT_CLOCK
+	return GREEDY_ABSENT_FROM
 ## (study switch: `-- absence:off` reads as 0.31: an empty base is no read, the scout looks again)
 var absence_on := not OS.get_cmdline_user_args().has("absence:off")
 ## The fixed phrase of the rush evidence last found (rush_evidence sets it).
@@ -1097,7 +1121,11 @@ func _apply(v: String, why: String, seen := "") -> void:
 			if ai.strategy != ai._opened and ai._opened != "timing" and not ai.adaptive():
 				ai.strategy = ai._opened
 				pname = String(AI.STRATEGIES.get(ai.strategy, AI.STRATEGIES["balanced"])["name"])
-			_say("%s: %s" % [head, "OPTIMAL picks its build from this" if ai.adaptive() else "keeps to its %s plan" % pname])
+			if ai.strategy == "economy" and game.clock - econ_open_t < 2.0:
+				mod = {"expand": RACE_EXPAND, "halls": 4}      # (cinder-crown-ai: the Clockwork's economy opening is raced still)
+				_say("%s: its economy opening; races it: more bases sooner" % head)
+			else:
+				_say("%s: %s" % [head, "OPTIMAL picks its build from this" if ai.adaptive() else "keeps to its %s plan" % pname])
 		"rush":
 			mod = DEFEND_MOD.duplicate()
 			want_wall = true

@@ -270,6 +270,26 @@ const PLANS := {
 			{"do": "attack", "n": 22, "at": {"army": 22}},
 		],
 		"labs_clock": 34,      # (two halls: four Farms of 8 hands and the Mill; 26 left the natural's Farms unworked, its soil at 100%)
+		# (cinder-crown-ai, docs/cinder_crown_ai.md: THE ONE-HALL TIMING, THE HALL BEHIND THE ARMY. The owner's Cinder Steps
+		# watch: the one-hall Timing kept 19-20 labourers and one hall to 8:05 while the Clockwork went to 39 Winders on three
+		# halls; the wave went at 7:15. Here the one hall's opening as before (the army's window: round 6), but once the
+		# Horse Breeder is laid the second hall goes down behind the army (at 17 labourers or by 4:30: they stall at 17-18
+		# behind the soldiers), the labourers go on to 30, the second Barracks follows, and the wave goes only while it is
+		# worth CK_EDGE of the Clockwork army it reckons (_ck_window))
+		"bo_clock1": [
+			{"do": "wall_cottage", "at": {"sup": 5}},
+			{"do": "wall_gate", "at": {"sup": 5}},
+			{"do": "build", "k": "barracks", "at": {"labs": 7}},
+			{"do": "build", "k": "powder_mill", "at": {"labs": 7}},
+			{"do": "build", "k": "farm", "n": 2, "at": {"labs": 9}},
+			{"do": "army", "k": "musketeer", "cap": 0},
+			{"do": "build", "k": "foundry", "at": {"labs": 13}},
+			{"do": "build", "k": "horse_breeder", "at": {"labs": 15}},
+			{"do": "hall", "n": 2, "at": {"labs": 17, "by": 270}},
+			{"do": "labs", "n": 30},
+			{"do": "build", "k": "barracks", "n": 2, "at": {"labs": 17, "by": 300}},
+			{"do": "attack", "n": 22, "at": {"army": 22}},
+		],
 		"mid": [["foundry", 1, {}], ["horse_breeder", 1, {}], ["barracks", 2, {}], ["armoury", 1, {"labs": 20}],
 			["church", 1, {"labs": 30, "halls": 2}], ["barracks", 3, {"labs": 28}], ["foundry", 2, {"labs": 40, "halls": 3}]],
 		"s": {"wave": 22, "step": 8, "timing": 0.0, "expand": 0.6}},
@@ -683,6 +703,8 @@ func _army_due() -> bool:
 		short = false           # (crown-owner-eco: labourers non-stop to two halls' worth; the Brood's reckoning below still counts)
 	if short and _posts_first():
 		short = false           # (econ-coach-crown: free Farm posts first; the survival checks below still count)
+	if short and _ck_floor_due():
+		short = false           # (cinder-crown-ai: a hall's few labourers before more soldiers, against the Clockwork)
 	if not short and army_lags():
 		short = true            # (ai-followups: far behind the enemy's army: the soldiers before more labourers)
 		if _cc_labs_due():
@@ -901,6 +923,9 @@ func _bo_tick() -> void:
 		return
 	if game.clock >= BO_LIMIT:
 		_bo_end("time: %d steps of %d done" % [bo_i, _bo_plan.size()])
+		return
+	if ck_timing() and game.clock >= CK_LATE and _halls().size() >= 2:
+		_bo_end("the timing's window is shut: the Clockwork's economy is paying off; its waves weigh what it reckons from here")
 		return
 	if _halls().filter(func(h: Building) -> bool: return h.built).is_empty():
 		return
@@ -1230,6 +1255,9 @@ func _st_ready(st: Dictionary) -> bool:
 	if String(st["do"]) == "hall" and tr.done and tr.choice == "expand":
 		return true             # (the rush held: the next hall at once, the doctrine)
 	var at: Dictionary = st.get("at", {})
+	if at.has("by") and game.clock >= float(at["by"]):
+		return true             # (cinder-crown-ai: "by" = ready at this time whatever the rest: the labourers stalled at 17-18
+		                        # behind the soldiers and a step at 19 never came, Cinder Steps)
 	if at.has("sup") and game.supply_used(team) < int(at["sup"]):
 		return false
 	if at.has("labs") and game.workers(team).size() < int(at["labs"]):
@@ -1248,6 +1276,8 @@ func _st_ready(st: Dictionary) -> bool:
 ## The trigger is a moment away: its gold is set aside already (the hall trains a labourer every 12 s).
 func _st_near(st: Dictionary) -> bool:
 	var at: Dictionary = st.get("at", {})
+	if at.has("by") and game.clock >= float(at["by"]) - 20.0 and not (String(st["do"]) == "hall" and _defending()):
+		return true             # (cinder-crown-ai: its gold set aside a little before its time)
 	if at.has("army") or at.has("has"):
 		return false
 	if at.has("halls") and _halls().size() < int(at["halls"]):
@@ -1314,7 +1344,7 @@ func _st_do(st: Dictionary) -> String:
 			bo_army_cap = 0
 			if _att_ready_t < 0.0:
 				_att_ready_t = game.clock
-			elif game.clock - _att_ready_t > ATTACK_WAIT and not _attacking:
+			elif game.clock - _att_ready_t > (CK_WAIT if ck_timing() else ATTACK_WAIT) and not _attacking:
 				# (the wave was held back: their army is bigger than ours, _wave_worth; the plan expands instead)
 				_attack_at = int(_s("wave"))
 				_bo_end("the timing was called off: the enemy army it knows is bigger")
@@ -1339,6 +1369,8 @@ func _wave_worth(ready: Array) -> bool:
 		return false              # (the siege plan: its push goes, AICrownSiege._maybe_go)
 	if not super(ready):
 		return false
+	if ck_timing() and not _first_wave and not _ck_window(ready):
+		return false            # (cinder-crown-ai: the Timing's wave against the Clockwork only while it is ahead)
 	if not on or difficulty < 1 or strategy == "rush" or not doctrine():
 		return true
 	var mine := 0.0
@@ -3300,6 +3332,8 @@ var cc_two := OS.get_cmdline_user_args().has("crcw:twohall")     # (`-- crcw:two
 func _cc_bo_key(key: String) -> String:
 	if cc_on and cc_two and key == "bo" and plan.has("bo_clock") and cc_vs_clock():
 		return "bo_clock"
+	if ck_on and key == "bo" and plan.has("bo_clock1") and cc_vs_clock() and difficulty >= 1:
+		return "bo_clock1"      # (cinder-crown-ai: the one-hall Timing with the hall behind the army)
 	return key
 
 
@@ -3328,7 +3362,7 @@ var _cc_bo := ""        # the opening key in play ("bo_clock" for the Timing att
 
 
 func _cc_two_halls() -> bool:
-	return _cc_bo == "bo_clock" and not bo_done
+	return (_cc_bo == "bo_clock" or _cc_bo == "bo_clock1") and not bo_done     # (cinder-crown-ai: and the hall behind the army's)
 
 
 ## SOLDIERS BEFORE THE MILESTONES WHEN A RUSH IS READ. Greenhold (seed 1138, the Crown on the Economy plan): the scout read
@@ -3447,7 +3481,12 @@ func _cc_labs_due() -> bool:
 		return false
 	var est := foe_reckon()
 	if float(game.army_value(team)) < est * CC_LABS_ARMY:
-		return false
+		if not _ck_floor_due():
+			return false
+		if game.clock - _cc_labs_said > 60.0:
+			_cc_labs_said = game.clock
+			say("the labourers keep coming: %d labourers for %d halls, though its army (%d) is far behind the %d it reckons" % [labs, halls, game.army_value(team), int(est)])
+		return true
 	if game.clock - _cc_labs_said > 60.0:
 		_cc_labs_said = game.clock
 		say("the Farms first: %d labourers for %d halls (it wants %d) while its army (%d) holds half the %d it reckons" % [labs, halls, want, game.army_value(team), int(est)])
@@ -3462,3 +3501,59 @@ func _cc_tech_hold(k: String) -> bool:
 		return false
 	var halls := _halls().filter(func(h: Building) -> bool: return h.built and _land(h) > 0.0).size()
 	return game.workers(team).size() < mini(CC_LABS_MAX, CC_LABS_HALL * halls)
+
+
+# ------------------------------------------------------------------ cinder-crown-ai (docs/cinder_crown_ai.md)
+
+## The owner's Cinder Steps watch (2026-11-13, Hard Crown OPTIMAL v Hard Clockwork OPTIMAL): OPTIMAL picked the Timing
+## attack, which held 19-20 labourers on one hall until 8:05 and sent its wave at 7:15 into a Clockwork on three halls; the
+## Crown ended at 7,845 earned against 31,217. Against the Clockwork the Timing attack's one-hall opening ("bo_clock1")
+## now lays the second hall behind the army once the main is saturated, its wave goes only while it is worth CK_EDGE of the
+## Clockwork army it reckons (foe_reckon: what it saw lately, never under the coached games' lowest at that time), it is
+## called off after CK_WAIT s held, and the opening ends at CK_LATE whatever (the milestones expand and the labourers come).
+## `-- cinder:off` plays as before the job.
+var ck_on := not OS.get_cmdline_user_args().has("cinder:off")
+const CK_EDGE := 1.15
+const CK_WAIT := 20.0           # (s) the wave held this long at the attack step: called off
+const CK_LATE := 400.0          # (s) the timing's window (the Clockwork's third Clocktower at ~6:30-7:00 in the games)
+const CK_LABS_FLOOR := 12       # labourers a built hall with land keeps coming whatever the army lags ...
+const CK_FLOOR_FROM := 480.0    # (s) ... from 8:00 (earlier the army's share rules: the window of the first fights)
+var ck_held_t := 0.0            # (the report) seconds the first wave waited for its edge
+var _ck_said := -99.0
+var _ck_last := -1.0
+
+
+func ck_timing() -> bool:
+	return ck_on and on and difficulty >= 1 and strategy == "timing" and _cc_bo == "bo_clock1" and cc_vs_clock()
+
+
+## THE WAVE GOES WHILE IT IS AHEAD: its worth against the Clockwork army it reckons (seen lately, or the coached games'
+## lowest at this time, less half what it has killed).
+func _ck_window(ready: Array) -> bool:
+	var mine := 0.0
+	for u in ready:
+		mine += float(Game.unit_value(u))
+	var est := foe_reckon()
+	if mine >= est * CK_EDGE:
+		return true
+	if _ck_last >= 0.0 and game.clock - _ck_last < 2.0:
+		ck_held_t += game.clock - _ck_last
+	_ck_last = game.clock
+	if game.clock - _ck_said > 30.0:
+		_ck_said = game.clock
+		say("the timing waits: %d of army against the %d it reckons the Clockwork has (it wants %.2f times)" % [int(mine), int(est), CK_EDGE])
+	return false
+
+
+## THE LABOURERS NEVER STOP FOR GOOD: an army far behind the Clockwork's cannot catch up on the income it has; while a built
+## hall with land has fewer than CK_LABS_FLOOR labourers (round 6's rule asks for the army at half the reckoning first) the
+## hall keeps training them (the watch: 16-22 labourers from 9:00, 385 gold idle at 12:00).
+func _ck_floor_due() -> bool:
+	if not ck_on or not cc_on or difficulty < 1 or not bo_done or game.clock < CK_FLOOR_FROM or not cc_vs_clock() or _defending():
+		return false
+	var halls := _halls().filter(func(h: Building) -> bool: return h.built and _land(h) > 0.0).size()
+	return _ck_floor(game.workers(team).size(), halls)
+
+
+func _ck_floor(labs: int, halls: int) -> bool:
+	return ck_on and halls > 0 and labs < mini(CC_LABS_MAX, CK_LABS_FLOOR * halls)

@@ -20,3 +20,12 @@ es %s levanta su siguiente hito: %s.
 > %s holds its wave back: the enemy army it knows is bigger.
 pt %s segura a sua onda: o exército inimigo que ele conhece é maior.
 es %s retiene su oleada: el ejército enemigo que conoce es mayor.
+
+# (cinder-crown-ai, docs/cinder_crown_ai.md)
+> %s holds its timing attack: its army (%s) is not clearly bigger than the %s it reckons the enemy has.
+pt %s segura o seu ataque cronometrado: o seu exército (%s) não é claramente maior que os %s que calcula para o inimigo.
+es %s retiene su ataque programado: su ejército (%s) no es claramente mayor que los %s que calcula para el enemigo.
+
+> %s keeps training labourers (%s for %s halls) though its army is far behind the enemy's: more soldiers alone cannot catch up.
+pt %s continua treinando trabalhadores (%s para %s centros) mesmo com o exército muito atrás do inimigo: só mais soldados não o alcançam.
+es %s sigue entrenando trabajadores (%s para %s centros) aunque su ejército va muy por detrás del enemigo: solo más soldados no lo alcanzan.
