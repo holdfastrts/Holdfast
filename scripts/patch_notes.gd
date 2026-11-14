@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.15", "items": [
+		"The Marching Band has real icons: portraits of the Drummer, the Fifer and the Piper, and the three SOLO buttons.",
+	]},
 	{"v": "0.35.14", "items": [
 		"Watching a game: box select takes all the units of the side with the most in the box, a double click picks every one of that kind on screen, and each player's line shows income per minute, army value and workers (as in replays). The Spring Ballista's crew stand at its back in the north views. The Springer's screw is 30% smaller, the Pendulum drawn 30% bigger.",
 	]},
