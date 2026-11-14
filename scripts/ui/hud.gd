@@ -3855,14 +3855,14 @@ func _draw_panel(font: Font) -> void:
 			elif bb.kind == "town_hall" and (e.team == game.human or game.demo):
 				var soil := bb.soil_left()
 				var salt := bb.lode_left()
-				info = "Haulers %d/%d · Soil: %d%% (%d gold)%s · Saltpetre: %d%% (%d powder)%s · allows 2 Farms and 1 Powder Mill nearby" % [bb.haulers_free(), bb.haulers().size(), int(round(soil * 100)), int(bb.soil),
+				info = Defs.nocap_text("Haulers %d/%d · Soil: %d%% (%d gold)%s · Saltpetre: %d%% (%d powder)%s · allows 2 Farms and 1 Powder Mill nearby") % [bb.haulers_free(), bb.haulers().size(), int(round(soil * 100)), int(bb.soil),
 					" spent: its farms pay nothing" if soil <= 0.0 else (" running low" if soil < Defs.SOIL_LOW else ""),
 					int(round(salt * 100)), int(bb.lode), (" spent: the Mill grinds at %d%%" % int(round(Defs.POWDER_FLOOR * 100.0))) if salt <= 0.0 else (" running low" if salt < Defs.SOIL_LOW else "")]
 			elif bb.kind == "clocktower" and (e.team == game.human or game.demo):
 				var coal := bb.soil_left()
 				if Defs.gear_mode:
 					# (no power in gear mode: no batteries, no Boilers, no coal; its `soil` is its Mainspring's SPRING LIFE)
-					info = "Brass: %d left%s · Spring life: %d left%s · allows 2 Cog Presses and 1 Mainspring nearby" % [int(bb.lode),
+					info = Defs.nocap_text("Brass: %d left%s · Spring life: %d left%s · allows 2 Cog Presses and 1 Mainspring nearby") % [int(bb.lode),
 						" (spent: its presses yield nothing; expand)" if bb.lode <= 0.0 else (" (running low)" if bb.lode_left() < Defs.SOIL_LOW else ""),
 						int(ceil(bb.soil)), " (spent: its Mainspring is FATIGUED; expand)" if bb.soil <= 0.0 else (" (running low)" if bb.soil_left() < Defs.SOIL_LOW else "")]
 				else:

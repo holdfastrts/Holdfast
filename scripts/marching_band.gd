@@ -994,6 +994,7 @@ static func draw_marks(o: Unit, top: float) -> void:
 		w += iw + tw + 3.0
 	var x := -w * 0.5
 	var y := top - 5.0
+	var oa := o.ov_a(true)      # (OVERLAY OPACITY: the marks see-through, full on the selected and hovered: Entity.ov_a)
 	for it in items:
 		var fl: int = it[1]
 		var ic: float = it[3]
@@ -1004,18 +1005,19 @@ static func draw_marks(o: Unit, top: float) -> void:
 			col = (B[String(it[0][0])]["col"] as Color).lightened(0.25)
 		elif fl & F_BAND:
 			col = Color(1.0, 0.8, 0.25)
-		o.draw_rect(Rect2(Vector2(x - 0.5, y - ic - 0.5), Vector2(ic * float((it[0] as Array).size()) + 1.0, ic + 1.0)), Color(0, 0, 0, 0.55))
+		col.a *= oa
+		o.draw_rect(Rect2(Vector2(x - 0.5, y - ic - 0.5), Vector2(ic * float((it[0] as Array).size()) + 1.0, ic + 1.0)), Color(0, 0, 0, 0.55 * oa))
 		for ins in it[0]:
 			var tex: Texture2D = Game.tex("res://assets/icons/ab_band_%s.png" % ins)
 			if tex:
-				o.draw_texture_rect(tex, Rect2(Vector2(x, y - ic), Vector2(ic, ic)), false, Color(1, 1, 1, 0.45) if fl & F_OOS else Color(1, 1, 1))
+				o.draw_texture_rect(tex, Rect2(Vector2(x, y - ic), Vector2(ic, ic)), false, Color(1, 1, 1, 0.45 * oa) if fl & F_OOS else Color(1, 1, 1, oa))
 			x += ic
 		x += 1.0
 		var p := Vector2(x, y - 1.0)
-		o.draw_string_outline(font, p, it[4], HORIZONTAL_ALIGNMENT_LEFT, -1, it[2], 5, Color(0, 0, 0, 0.95))
+		o.draw_string_outline(font, p, it[4], HORIZONTAL_ALIGNMENT_LEFT, -1, it[2], 5, Color(0, 0, 0, 0.95 * sqrt(oa)))     # (the outline stronger: the number reads on snow and sand)
 		o.draw_string(font, p, it[4], HORIZONTAL_ALIGNMENT_LEFT, -1, it[2], col)
 		if fl & F_OOS:
-			o.draw_line(Vector2(x - float(it[6]), y - ic * 0.5), Vector2(x + float(it[5]), y - ic * 0.5), Color(0.85, 0.3, 0.25, 0.9), 1.2)
+			o.draw_line(Vector2(x - float(it[6]), y - ic * 0.5), Vector2(x + float(it[5]), y - ic * 0.5), Color(0.85, 0.3, 0.25, 0.9 * oa), 1.2)
 		x += float(it[5]) + 3.0
 
 

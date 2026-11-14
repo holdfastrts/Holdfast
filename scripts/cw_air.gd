@@ -255,8 +255,9 @@ static func draw_morph(u: Unit, top: float, bw: float) -> void:
 	u.draw_line(Vector2.ZERO, hand, col, 1.5)
 	u.draw_set_transform(Vector2.ZERO)
 	var y := top - 7.0
-	u.draw_rect(Rect2(-bw * 0.5, y, bw, 3).grow(0.5), Color(0, 0, 0, 0.7))
-	u.draw_rect(Rect2(-bw * 0.5, y, bw * fr, 3), col)
+	var a := u.ov_a()         # (OVERLAY OPACITY on the bar: Entity.ov_a; the ring on the ground is a guide)
+	u.draw_rect(Rect2(-bw * 0.5, y, bw, 3).grow(0.5), Color(0, 0, 0, 0.7 * a))
+	u.draw_rect(Rect2(-bw * 0.5, y, bw * fr, 3), Entity.ova(col, a))
 
 
 ## A dead flyer's shadow while it falls (fading as it comes down onto it).

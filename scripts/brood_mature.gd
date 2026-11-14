@@ -196,8 +196,9 @@ static func draw(u: Unit, top: float, bw: float) -> void:
 
 static func _bar(u: Unit, top: float, bw: float, p: float) -> void:
 	var y := top - 7.0
-	u.draw_rect(Rect2(-bw * 0.5, y, bw, 3).grow(0.5), Color(0, 0, 0, 0.7))
-	u.draw_rect(Rect2(-bw * 0.5, y, bw * p, 3), Color(0.75, 1.0, 0.35))
+	var a := u.ov_a()         # (OVERLAY OPACITY: Entity.ov_a)
+	u.draw_rect(Rect2(-bw * 0.5, y, bw, 3).grow(0.5), Color(0, 0, 0, 0.7 * a))
+	u.draw_rect(Rect2(-bw * 0.5, y, bw * p, 3), Color(0.75, 1.0, 0.35, a))
 
 
 # ------------------------------------------------------------------ a "venom" unit's glob

@@ -32,6 +32,8 @@ var _air := {}                   # veterans in a leap now: placed every frame
 var _scan_t := 0.0
 var _frame := 0
 var _zoom := -1.0
+var _ov := -1.0                  # (the OVERLAY OPACITY they were last placed with: Settings.overlay_alpha)
+var _hov = null                  # (the unit under the mouse when last looked)
 const SLICE := 10                # a tenth of the chevrons placed again each frame (each 6 times a second)
 
 static var _tex := {}            # rank -> true once the atlas is made (load_tex)
@@ -102,8 +104,9 @@ func _process(delta: float) -> void:
 	if _list.is_empty():
 		return
 	var sz := world_size()
-	var all := not is_equal_approx(sz.x, _zoom)
+	var all := not is_equal_approx(sz.x, _zoom) or Settings.overlay_alpha != _ov
 	_zoom = sz.x
+	_ov = Settings.overlay_alpha
 	if all:
 		for u in _list:
 			place(u, sz)
@@ -112,6 +115,14 @@ func _process(delta: float) -> void:
 			place(_list[i], sz)
 		for u in _air.keys():
 			place(u, sz)
+		# (OVERLAY OPACITY: the one under the mouse, and the one it just left, at once; the selected follow in their slice)
+		var hv = game.get("hover_target") if game != null else null
+		if hv != _hov:
+			if _hov != null and is_instance_valid(_hov) and vets.has(_hov):
+				place(_hov, sz)
+			_hov = hv
+			if hv != null and is_instance_valid(hv) and vets.has(hv):
+				place(hv, sz)
 	Prof.add("vet chevrons", _p0)
 
 
@@ -165,6 +176,10 @@ func place(u, sz: Vector2) -> void:
 	var np := Vector2(0.0, bottom_of(u, GAP * sz.x / SCREEN_W) - sz.y * 0.5)
 	if spr.position != np:
 		spr.position = np
+	# OVERLAY OPACITY (docs/overlay_alpha.md): see-through as the bars, full on the selected and the one under the mouse
+	var oa: float = u.ov_a() if not u.dead else Settings.overlay_alpha
+	if spr.self_modulate.a != oa:
+		spr.self_modulate = Color(1, 1, 1, oa)
 	if u.jump.is_empty():
 		_air.erase(u)
 	else:

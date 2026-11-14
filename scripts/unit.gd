@@ -421,6 +421,7 @@ var band_mul := Vector3.ONE
 var band_until := -1.0
 var band_show: Array = []        # (what its buffs are, for the markers over its head and its card: [instrument, percent, flags]; MarchingBand.mix)
 var _k_band := false             # (a musician: the Drummer, the Fifer or the Piper)
+var _ov_k := 0                   # (OVERLAY OPACITY last drawn with: the setting and whether the mouse is on him)
 var _marks_k := 0                # (the band's buff markers last drawn over him: MarchingBand.marks_key)
 var _band_t := 0.0
 var _band_scan := 0.0
@@ -446,8 +447,9 @@ func _draw_number(v: int, at: Vector2) -> void:
 	var tex: Texture2D = Game.tex("res://assets/effects/digits.png")
 	var txt := str(v)
 	var x := at.x - txt.length() * 4.0
+	var mc := Color(1, 1, 1, ov_a(true))     # (OVERLAY OPACITY: a number over a body)
 	for ch in txt:
-		draw_texture_rect_region(tex, Rect2(x, at.y, 7, 9), Rect2(int(ch) * 7, 0, 7, 9))
+		draw_texture_rect_region(tex, Rect2(x, at.y, 7, 9), Rect2(int(ch) * 7, 0, 7, 9), mc)
 		x += 8.0
 
 
@@ -4146,6 +4148,10 @@ func _tick_unit(delta: float) -> void:
 		var key := Vector4i(Settings.health_bars * 536870912 + int(selected) + (2 if carrying > 0 else 0) + (4 if cross_t > 0.0 else 0) + (8 if work == "feeding" else 0) + (16 if carry_empty else 0) + (32 if cocoon > 0 else 0) + kills * 64,
 			int(hp), int(wind * 40.0) + (int(carry_t * 4.0) * 100 if carrying > 0 else 0) + (5000 if charge_winding() else 0) + (10000 if Settings.charge_bars else 0) if _k_fac == "clockwork" else int(powder * 2.0) + (1000 if supplying else 0),
 			int(max_hp) + extra + (int((1.0 if phase == "" and cooldown <= 0.0 else reload_frac()) * 16.0) + 17 * int(tesla_t * 4.0) + 850 * TESLA_MODES.find(tesla_mode)) * 10000 if has_attack() else int(max_hp) + extra)
+		var ok := int(Settings.overlay_alpha * 100.0) * 2 + (1 if game.hover_target == self else 0)
+		if ok != _ov_k:
+			_ov_k = ok             # (OVERLAY OPACITY: the setting changed, or the mouse came onto him or left him)
+			_draw_key = Vector4i(-1, -1, -1, -1)
 		var mk := MarchingBand.marks_key(self) if band_until > game.clock or _marks_k != 0 else 0
 		if mk != _marks_k:
 			_marks_k = mk          # (the band's buff markers over his head changed: MarchingBand.draw_marks)
@@ -8112,9 +8118,10 @@ func _draw() -> void:
 ## crown-ammo: the small NO AMMO mark beside a firearm unit's health bar (a red "no" sign: a ring with a slash), drawn in
 ## code (docs/art_style_inconsistency.md).
 func _draw_no_ammo(c: Vector2) -> void:
-	draw_circle(c, 4.6, Color(0, 0, 0, 0.55))
-	draw_arc(c, 3.6, 0, TAU, 14, Color(0.95, 0.2, 0.15), 1.6)
-	draw_line(c + Vector2(-2.5, -2.5), c + Vector2(2.5, 2.5), Color(0.95, 0.2, 0.15), 1.6)
+	var a := ov_a(true)          # (OVERLAY OPACITY: a status mark)
+	draw_circle(c, 4.6, Color(0, 0, 0, 0.55 * a))
+	draw_arc(c, 3.6, 0, TAU, 14, Color(0.95, 0.2, 0.15, a), 1.6)
+	draw_line(c + Vector2(-2.5, -2.5), c + Vector2(2.5, 2.5), Color(0.95, 0.2, 0.15, a), 1.6)
 
 
 ## A campaign mission's marks (scripts/campaign/rebels.gd): a named man's name over his bar, a torch-bearer's flame.
@@ -8122,8 +8129,9 @@ func _draw_mission_marks(top: float) -> void:
 	if has_meta("mission_name"):
 		var nm := Loc.t(String(get_meta("mission_name")))
 		var f := UiStyle.bold_font()
-		draw_string_outline(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, 3, Color(0, 0, 0, 0.85))
-		draw_string(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, Color(0.75, 1.0, 0.7))
+		var na := ov_a(true)     # (OVERLAY OPACITY: a label over him)
+		draw_string_outline(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, 3, Color(0, 0, 0, 0.85 * na))
+		draw_string(f, Vector2(-70, top - 4), nm, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, Color(0.75, 1.0, 0.7, na))
 	if has_meta("torch") and art != "rebel_torch":       # (the owner's drawn torch-bearer holds his own: docs/rebel_art.md)
 		var t := Time.get_ticks_msec() / 1000.0 + float(serial) * 0.37
 		var p := Vector2(9, -30) * Vector2(-1.0 if anim_flip else 1.0, 1.0)
@@ -8227,7 +8235,7 @@ func _draw_unit() -> void:
 			pk.set("unit", self)
 			sprite.add_child(pk)
 	if carrying > 0 and kind == "labourer" and anim != "carry" and anim != "idle_carry":
-		draw_circle(Vector2(6, -14), 3, Color(1, 0.85, 0.2))      # (a gold dot where no strip shows the sack)
+		draw_circle(Vector2(6, -14), 3, Color(1, 0.85, 0.2, ov_a(true)))      # (a gold dot where no strip shows the sack)
 	if carry_empty and carrying == 0 and kind == "winder":
 		var et: Texture2D = Game.tex("res://assets/effects/battery_charge.png")
 		draw_texture_rect_region(et, Rect2(-14, top + 10, 10, 22), Rect2(0, 0, 10, 22))
@@ -8252,9 +8260,10 @@ func _draw_unit() -> void:
 			else:
 				draw_sub_bar(py, pw, 1.0, Color(0.75, 0.15, 0.12))     # empty: all red
 			var hx := -pw * 0.5 - 6.0
-			draw_colored_polygon(PackedVector2Array([Vector2(hx, py - 2), Vector2(hx + 4, py - 1), Vector2(hx + 4, py + ph + 1), Vector2(hx + 1, py + ph)]), Color(0.86, 0.78, 0.6))
+			var wa := ov_a()
+			draw_colored_polygon(PackedVector2Array([Vector2(hx, py - 2), Vector2(hx + 4, py - 1), Vector2(hx + 4, py + ph + 1), Vector2(hx + 1, py + ph)]), Color(0.86, 0.78, 0.6, wa))
 			if kind == "powder_wagon" and supplying:
-				draw_rect(Rect2(pw * 0.5 + 2.0, py - 1.0, 3, 3), Color(1, 0.85, 0.35))   # SUPPLY on
+				draw_rect(Rect2(pw * 0.5 + 2.0, py - 1.0, 3, 3), Color(1, 0.85, 0.35, wa))   # SUPPLY on
 	if cocoon > 0 and not ArtData.UNITS["grub"]["frames"].has("carry_cocoon_e"):
 		# the cocoon on its back (drawn by hand when there's no sheet)
 		draw_set_transform(Vector2(0, -17), 0.0, Vector2(1.0, 0.7))
@@ -8264,12 +8273,13 @@ func _draw_unit() -> void:
 		draw_line(Vector2(-5, 2), Vector2(5, -2), Color(0.6, 0.5, 0.4), 1.0)
 		draw_set_transform(Vector2.ZERO)
 	if carrying > 0 and kind == "grub":
-		draw_circle(Vector2(0, -16), 3.5, Color(0.55, 0.85, 0.3))
-		draw_circle(Vector2(0, -16), 3.5, Color(0.2, 0.3, 0.1), false, 1.0)
+		var ga := ov_a(true)
+		draw_circle(Vector2(0, -16), 3.5, Color(0.55, 0.85, 0.3, ga))
+		draw_circle(Vector2(0, -16), 3.5, Color(0.2, 0.3, 0.1, ga), false, 1.0)
 	if cross_t > 0.0:
 		# just bandaged: a little cross over his head
 		var y := top - 12.0
-		var a := minf(cross_t, 1.0)
+		var a := minf(cross_t, 1.0) * ov_a(true)
 		draw_texture(Game.tex("res://assets/effects/cross.png"), Vector2(-6, y - 6), Color(1, 1, 1, a))
 
 

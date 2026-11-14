@@ -1186,6 +1186,20 @@ func settings_rows(tab: String) -> Array:
 				Settings.band_marks = (Settings.band_marks + 1) % 3      # (the Marching Band's buffs over soldiers' heads: MarchingBand.draw_marks)
 				Settings.save_all()
 				show_settings()), "band_marks"))
+			# OVERLAY OPACITY (docs/overlay_alpha.md): how solid the bars, chevrons and marks over the units are
+			var oo := _row("OVERLAY OPACITY")
+			var oos := HSlider.new()
+			oos.min_value = 0.3
+			oos.max_value = 1.0
+			oos.step = 0.05
+			oos.value = Settings.overlay_alpha
+			oos.custom_minimum_size = Vector2(220, 44)
+			oos.value_changed.connect(func(x: float) -> void:
+				Settings.overlay_alpha = x          # (Entity.ov_a: units redraw when it changes, the chevrons too)
+				Settings.save_all())
+			oo.add_child(oos)
+			rows.append(_tag(oo, "overlay_alpha"))
+			rows.append(_hint("Bars, chevrons and marks over the units are see-through so they don't hide the men; the selected units and the one under the mouse show them at full strength."))
 			rows.append(_tag(_toggle_row("SHOW CHARGE BARS", func() -> bool: return Settings.charge_bars, func() -> void:
 				Settings.charge_bars = not Settings.charge_bars       # (the thin charge bar over own Clockwork units)
 				Settings.save_all()), "charge_bars"))

@@ -2026,14 +2026,15 @@ static func draw(u: Unit, top: float) -> void:
 		var bw := u.radius * 2.4
 		var f := clampf(float(u.nb.get("food", 0.0)) / float(Defs.NB["maw_cap"]), 0.0, 1.0)
 		var y := float(st["food"])
-		u.draw_rect(Rect2(-bw * 0.5, y, bw, 3).grow(0.5), Color(0, 0, 0, 0.6))
-		u.draw_rect(Rect2(-bw * 0.5, y, bw * f, 3), Color(0.75, 0.9, 0.25))
+		var fa := u.ov_a()     # (OVERLAY OPACITY: Entity.ov_a)
+		u.draw_rect(Rect2(-bw * 0.5, y, bw, 3).grow(0.5), Color(0, 0, 0, 0.6 * fa))
+		u.draw_rect(Rect2(-bw * 0.5, y, bw * f, 3), Color(0.75, 0.9, 0.25, fa))
 		if rooted(u) and bool(u.nb.get("dry", false)):
 			var font := ThemeDB.fallback_font
 			var dw := font.get_string_size(Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
 			var dp := Vector2(-dw * 0.5, float(st.get("dry", y - 6.0)))
-			u.draw_string_outline(font, dp, Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.8))
-			u.draw_string(font, dp, Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1.0, 0.6, 0.4))
+			u.draw_string_outline(font, dp, Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.8 * sqrt(fa)))
+			u.draw_string(font, dp, Loc.t("dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1.0, 0.6, 0.4, fa))
 		if u.selected and rooted(u):
 			var gl := ground_left(g, u) / float(Defs.PIT_GROUND)
 			var gy := float(st.get("ground", y - 4.0))
@@ -2070,13 +2071,14 @@ static func draw(u: Unit, top: float) -> void:
 			var font3 := ThemeDB.fallback_font
 			var bw3 := maxf(60.0, look_r(u) * 2.0)
 			var y3 := float(st["prog"])
-			u.draw_rect(Rect2(-bw3 * 0.5, y3, bw3, 5).grow(1.0), Color(0, 0, 0, 0.7))
-			u.draw_rect(Rect2(-bw3 * 0.5, y3, bw3 * float(pg["f"]), 5), pg["col"])
+			var pa := u.ov_a()     # (OVERLAY OPACITY: Entity.ov_a)
+			u.draw_rect(Rect2(-bw3 * 0.5, y3, bw3, 5).grow(1.0), Color(0, 0, 0, 0.7 * pa))
+			u.draw_rect(Rect2(-bw3 * 0.5, y3, bw3 * float(pg["f"]), 5), Entity.ova(pg["col"], pa))
 			var lt := Loc.t(String(pg["label"]))
 			var lw := font3.get_string_size(lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
 			var lp := Vector2(-lw * 0.5, float(st["prog_text"]))
-			u.draw_string_outline(font3, lp, lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.85))
-			u.draw_string(font3, lp, lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, (pg["col"] as Color).lightened(0.3))
+			u.draw_string_outline(font3, lp, lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0, 0, 0, 0.85 * sqrt(pa)))
+			u.draw_string(font3, lp, lt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Entity.ova((pg["col"] as Color).lightened(0.3), pa))
 	if u.nb.has("coc") and mine:
 		# the cocoon's morph, as a building going up
 		var cp := clampf(float(u.nb["coc"]) / maxf(BroodRoot.cocoon_time(u), 0.1), 0.0, 1.0)
