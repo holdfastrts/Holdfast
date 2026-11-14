@@ -32,7 +32,7 @@ Each faction builds its own economy. Every Town Hall or Clocktower allows only s
 
 Efficiency: over each of your economy buildings a small bar shows how well it's working right now, as a %: its workers against its full crew, times what's left of its base's reserve (soil, saltpetre, brass or spring life: 100% fresh; spent soil and brass pay nothing, spent saltpetre 15% and spring life 5%). Green is 80% or more, then yellow, then red. Select the building to see the breakdown.
 
-Veterancy: every kill gives a unit +1% damage (up to +50%), and it shows on the unit. A Crown soldier's hat or helmet trim is black, turns silver at 25 kills and gold at 50; a Brood creature's skin turns amber at 25 kills and obsidian black at 50.
+Veterancy: every kill gives a unit +1% damage (up to +50%). A chevron over the unit shows its rank, for every faction: bronze from 15 kills, silver from 30, gold from 50. A fallen veteran's body shows its chevron too.
 
 Area damage (canister, round shot, steam, spit blobs, storms, exploding powder) hurts your own units too: keep your men out of the blast.
 

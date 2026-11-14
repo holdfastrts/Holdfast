@@ -1978,11 +1978,11 @@ const SKYWING_SWITCH := 1.2       # landing / taking off
 ## Ornithopter: winding a construct from a carried battery, and overloading one with it.
 const TOPTER := {"load": 0.8, "wind": 0.8, "low": 0.5, "reach": 22.0}
 const OVERLOAD := {"time": 12.0, "damage": 1.5, "speed": 1.3, "cooldown": 0.75, "after": 0.25, "reach": 30.0}
-## Veterancy: every kill adds damage (to a cap); a fallen unit's body holds essence for the
-## Brood: a little for its size, more for every kill it made. It shows on the sprite
-## (VetLook): a Crown soldier's trim is black, silver from `silver` kills, gold from `gold`;
-## a Brood creature's skin as painted, amber-ochre, then obsidian.
-const VET := {"per_kill": 0.01, "max": 0.5, "silver": 25, "gold": 50}
+## Veterancy: every kill adds damage (to a cap); a fallen unit's body holds spoils for the
+## Brood: a little for its size, more for every kill it made. It shows as ONE CHEVRON over the
+## unit and over its body (VetChevrons; the owner, 2026-11-14): bronze from `bronze` kills,
+## silver from `silver`, gold from `gold`; nothing under bronze. Only a label: the bonus is fluid.
+const VET := {"per_kill": 0.01, "max": 0.5, "bronze": 15, "silver": 30, "gold": 50}
 ## A horse's own veterancy: every `tiles` it travels under a rider or in harness (a gun's,
 ## mortar's or wagon's team) it's a rank more seasoned, up to `max`: each rank +`hp` health
 ## (its share of a rider's too) and +`body` supply's worth of essence in its carcass.

@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.1", "items": [
+		"VETERANCY CHEVRONS: a unit with 15 or more kills wears ONE CHEVRON over it, in every faction (Crown, Clockwork, Brood, guns, workers, flyers, the campaign's rebels): BRONZE from 15 kills, SILVER from 30, GOLD from 50. It sits centred just above where the health bar is drawn and always shows, whether the bar does or not, so veterans are easy to find for micro and focus fire. It keeps the same size on screen at every zoom (a little smaller zoomed far out). The bonus is unchanged: +1% damage a kill, up to +50% at 50 kills.",
+		"The old veterancy colours are gone: a Crown soldier's hat trim stays black and a Brood creature's skin stays as painted at every rank (the venom line keeps its belly and stripe colours). The unit card names the rank: \"Veteran (bronze): 17 kills, +17% damage\".",
+		"Bodies show their chevron too, for everyone. The spoils NUMBER on a body now shows only to a Brood player (the side that harvests bodies) and to those who watch (spectators, computer games, replays).",
+	]},
 	{"v": "0.36.0", "items": [
 		"THE MARCHING BAND, NEW STRUCTURE: the Fifer and the Piper are no longer research. Train them at the Armoury one at a time (Fifer 60 gold and 10 powder, Piper 75 gold, 20 s each): each comes out, walks to a band without one and joins it (+15 health to the band, his instrument and its solo). RECRUIT FIFER / RECRUIT PIPER on a band's card sends one to THAT band; right-click a band with a Fifer or Piper selected (or JOIN BAND) to send him there. One of each a band; a band no longer costs more for its musicians. A musician with no band to join waits at the rally point.",
 		"The band's three musicians stand SIDE BY SIDE in a row, so each is clearly seen; its shadow, selection ring and click area are as wide as the row.",

@@ -3967,8 +3967,7 @@ func _draw_panel(font: Font) -> void:
 			# veterancy: kills and the damage they've earned
 			var ku := e as Unit
 			var bonus := minf(ku.kills * float(Defs.VET["per_kill"]), float(Defs.VET["max"]))
-			var vt := "%s%d kill%s · +%d%% damage" % ["Veteran · " if not ku.is_worker() else "", ku.kills, "" if ku.kills == 1 else "s", int(round(bonus * 100.0))]
-			vt = Loc.t(vt)
+			var vt := VetChevrons.rank_text(ku.kills)      # ("Veteran (bronze): 17 kills, +17% damage": the chevron's rank in words)
 			var vx := hb.position.x + hb.size.x + 22 + font.get_string_size(hpt, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
 			vx += ammo_w           # (after the ammo icon)
 			var room := r.end.x - 36 - vx

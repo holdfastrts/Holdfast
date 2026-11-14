@@ -140,11 +140,12 @@ python3 tools/import_spitter_redo.py     # the Spitter from the owner's ChatGPT 
                                          # every view and its straight glob missile (replaces import_art's; after fix_brood, before the masks)
 python3 tools/import_storm_line.py      # the Storm line (Hatchlings, Storm Challenger) from the owner's ChatGPT sheets (docs/storm_line.md;
                                          # before the masks)
-python3 tools/import_vet_trim.py         # veterancy trim masks (hat lace / band, helmet comb and brim)
-                                         # for the Crown's soldiers: after every strip they read,
-                                         # mount strips included
-python3 tools/import_vet_skin.py         # veterancy skin masks for the Brood's fighting creatures
-python3 tools/import_venom_colours.py     # the venom line's belly and flank stripe masks (docs/venom_belly.md): after the skin masks
+python3 tools/import_vet_trim.py         # trim masks (hat lace / band, helmet comb and brim: drawn black) for the
+                                         # Crown's soldiers: after every strip they read, mount strips included
+# (import_vet_skin.py is no longer run: veterancy is the chevron over the unit since vet-chevrons, docs/vet_chevrons.md;
+#  the venom pass below still uses its skin finder)
+python3 tools/import_venom_colours.py     # the venom line's belly and flank stripe masks (docs/venom_belly.md)
+python3 tools/import_vet_chevrons.py     # the veterancy chevrons (art/ui/vet_chevrons_chatgpt.png -> assets/ui/vet_*.png)
 python3 tools/import_cursors.py          # the mouse cursors (art/ui/cursors.png) and their hotspots
 python3 tools/press_anim/escapement_work.py          # the Escapement's tick-tock from its painted cell (art/redraws/escapement.png):
                                                      # art/clockwork/gear/escapement_built.png and _work_0..23.png (wheel and anchor in code)

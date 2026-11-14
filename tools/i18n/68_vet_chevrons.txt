@@ -1,0 +1,21 @@
+# VETERANCY CHEVRONS (docs/vet_chevrons.md): the unit card names the chevron's rank
+
+> Veteran (gold): %d kills, +%d%% damage
+pt Veterano (ouro): %d mortes, +%d%% de dano
+es Veterano (oro): %d bajas, +%d%% de daño
+
+> Veteran (silver): %d kills, +%d%% damage
+pt Veterano (prata): %d mortes, +%d%% de dano
+es Veterano (plata): %d bajas, +%d%% de daño
+
+> Veteran (bronze): %d kills, +%d%% damage
+pt Veterano (bronze): %d mortes, +%d%% de dano
+es Veterano (bronce): %d bajas, +%d%% de daño
+
+> 1 kill, +1% damage
+pt 1 morte, +1% de dano
+es 1 baja, +1% de daño
+
+> %d kills, +%d%% damage
+pt %d mortes, +%d%% de dano
+es %d bajas, +%d%% de daño

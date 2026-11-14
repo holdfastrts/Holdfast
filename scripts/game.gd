@@ -307,6 +307,9 @@ func _ready() -> void:
 	occluded_layer = OccludedLook.new()      # units hidden behind a bigger picture, drawn as silhouettes (scripts/occluded_look.gd)
 	occluded_layer.game = self
 	add_child(occluded_layer)
+	vet_layer = VetChevrons.new()        # the veterancy chevrons over units and bodies (scripts/vet_chevrons.gd)
+	vet_layer.game = self
+	add_child(vet_layer)
 	stun_layer = StunMark.new()          # the stars over stunned units' heads (scripts/stun_mark.gd)
 	stun_layer.game = self
 	add_child(stun_layer)
@@ -9659,6 +9662,7 @@ var _human_vis := PackedByteArray()
 var body_bars: Node2D
 var occluded_layer: OccludedLook = null
 var stun_layer: StunMark = null        # the stun marks (StunMark)
+var vet_layer: VetChevrons = null      # the veterancy chevrons (VetChevrons)
 var cog_layer: CogScatter = null       # SCATTER COGS' litter and the pieces in the air (made when first needed: CogScatter.layer)
 var bodies: Array = []                   # the fallen still lying there (Unit._rest_in_peace)
 var _body_bar_t := 0.0
