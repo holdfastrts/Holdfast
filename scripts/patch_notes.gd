@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.5", "items": [
+		"The Clockwork computer: its scouting Winder and its sentry at a walled ramp run from enemy workers that come for them (two Labourers used to kill them while they traded blows). Its army rushes enemy guns that have only a thin guard, everything at once with the Springers jumping in, instead of standing off under round shot and canister; guns that are too well guarded it steps back out of their reach (it used to stay inside it). Against the Crown, a push that has lost a lot but still clearly wins where it is finishes the job instead of pulling back.",
+	]},
 	{"v": "0.36.4", "items": [
 		"THE CROWN COMPUTER AGAINST THE CLOCKWORK (Hard and up; no unit, building or price changed): its Timing attack no longer sits on one hall. Once its Horse Breeder is laid it puts its second hall down behind the army (by 4:30 at the latest) and keeps training labourers for it; its attack goes only while its army is clearly bigger than the Clockwork army it expects, and if that has not happened by 6:40 the plan is called off and it plays on from two halls. From 8:00 its halls keep a few labourers coming even when its army is far behind. Its scout no longer calls an empty Clockwork base greedy before 2:30 (the Clockwork's normal opening has no Light Works yet).",
 	]},

@@ -229,6 +229,8 @@ func tick() -> void:
 		return
 	if _siege_tick():
 		return
+	if _gun_rush_tick():
+		return
 	var foes := _foes_near(anchor, LOOK) + _foes_near(_front_centre(), LOOK * 0.7).filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) >= LOOK)
 	if not foes.is_empty() and riders_only(foes):
 		# (ai-followups) A FEW FAST RIDERS round the push are no reason to stop: it does not chase them, the march goes on and
@@ -702,8 +704,16 @@ func _fight(foes: Array) -> void:
 	var close: Array = foes.filter(func(o: Unit) -> bool: return o.position.distance_to(anchor) < SCREEN_R and not above.has(o))
 	if close.is_empty() and not above.is_empty():
 		var ac := _centre(above)
-		if ac.distance_to(anchor) < 300.0:
-			anchor = anchor + (anchor - ac).normalized() * 90.0
+		# (cinder-clockwork-ai: guns up there reach 430 px: 90 px back from 300 left the line under round shot for minutes,
+		# Cinder Steps 10:14 and 13:55; it steps back out of the guns' reach. With a thin guard it rushes them instead:
+		# _gun_rush_tick)
+		var need := 300.0
+		if Guns.on:
+			for o in above:
+				if Guns.is_gun(o):
+					need = maxf(need, float(o.d["range"]) + 40.0)
+		if ac.distance_to(anchor) < need:
+			anchor = anchor + (anchor - ac).normalized() * (90.0 if need <= 300.0 else minf(200.0, need - ac.distance_to(anchor)))
 			_note_once("cliff", "enemies shoot down from high ground: the line steps back out of their reach", 30.0)
 	var ccen := _centre(close) if not close.is_empty() else Vector2.INF
 	var dir := _dir()
@@ -883,6 +893,11 @@ func _should_retreat() -> bool:
 	var now := _value(units)
 	var foes := _foes_near(_front_centre(), LOOK + 120.0)
 	var fv := _value(foes)
+	# (cinder-clockwork-ai) A PUSH THAT STILL WINS FINISHES THE JOB: rushing guns with a thin guard, or against the Crown
+	# worth FINISH_K times all it knows of near it, its losses alone no longer turn it round
+	var lossy := now < value_in * GRIND or (now < value_in * (1.0 - LOST_SHARE) and now < fv * RETREAT_K)
+	if lossy and _finishing(now, fv):
+		return false
 	if now < value_in * GRIND:
 		_retreat("it has lost %d of the %d that went out and joined" % [int(value_in - now), int(value_in)])
 		return true
@@ -909,6 +924,80 @@ func _should_retreat() -> bool:
 			if b.hp < b.max_hp * KEY_LOW and not _foes_near(b.center(), 260.0).is_empty():
 				_retreat("its %s at %s is about to fall" % [String(b.d["name"]), _where(b.center())])
 				return true
+	return false
+
+
+## (cinder-clockwork-ai, docs/cinder_clockwork_ai.md) GUNS WITH A THIN GUARD: rush them (scripts/ai_cw_guns.gd). On while
+## the push is worth Guns.K times the guard and half the guns (Guns.K_KEEP once it has begun); the front goes straight in,
+## the Springers jump, the Ballistas shoot the guns; the Great Winder keeps behind.
+const Guns := preload("res://scripts/ai_cw_guns.gd")
+var _gun_rush := false
+var _gun_rush_t := -99.0
+var _gun_mem := {}
+var _guard_mem := {}
+
+
+func _gun_rush_tick() -> bool:
+	if not Guns.on:
+		return false
+	var fc := _front_centre()
+	var guns: Array = Guns.guns_near(game, team, fc, Guns.LOOK)
+	for g in Guns.guns_near(game, team, anchor, Guns.LOOK):
+		if not guns.has(g):
+			guns.append(g)
+	guns = Guns.with_mem(game, _gun_mem, guns).filter(func(g: Unit) -> bool: return g.position.distance_to(fc) < Guns.LOOK + 200.0)
+	if guns.is_empty():
+		if _gun_rush:
+			say("the guns are gone: the push goes on")
+		_gun_rush = false
+		return false
+	var guard: Array = Guns.with_mem(game, _guard_mem, Guns.guard_of(ai, game, team, guns))
+	var front: Array = units.filter(func(u: Unit) -> bool: return u.kind != Defs.GREAT_WINDER_KIND)
+	var mine := _value(front)
+	if not Guns.worth(ai, mine, guns, guard, _gun_rush, Guns.uphill(game, guns, fc)) \
+			and not (_gun_rush and Guns.keep_on(ai, mine, front, guns, guard)):
+		if _gun_rush:
+			say("stops rushing the guns: worth %d against a guard of %d and %d guns (%d)" % [int(mine), int(_value(guard)), guns.size(), int(_value(guns))])
+		_gun_rush = false
+		return false
+	if not _gun_rush:
+		stats["gun_rush"] = int(stats.get("gun_rush", 0)) + 1
+		say("rushes %d enemy gun%s (%d value) guarded by %d (%d value) with all it has (%d): close in fast, never stand off" \
+			% [guns.size(), "" if guns.size() == 1 else "s", int(_value(guns)), guard.size(), int(_value(guard)), int(mine)])
+	_gun_rush = true
+	_gun_rush_t = game.clock
+	calm_t = game.clock
+	if phase != "fight":
+		fight_from = anchor
+		_phase("fight")
+	Guns.rush(ai, front, guns, guard)
+	var gc := _centre(guns)
+	for h in units:
+		if h.kind == Defs.GREAT_WINDER_KIND and h.order != "cast" and h.order != "mend" and h.order != "sweep" and not _gw_busy(h):
+			_order(h, anchor + (anchor - gc).normalized() * BACK_GW, false, 70.0)
+	return true
+
+
+const FINISH_K := 2.5
+var finish_on := not OS.get_cmdline_user_args().has("cwfinish:off")
+
+
+func _finishing(now: float, fv: float) -> bool:
+	if not finish_on:
+		return false
+	if _gun_rush and game.clock - _gun_rush_t < 3.0:
+		return true
+	if foe < 0 or game.faction_of(foe) != "crown" or fv <= 0.0:
+		return false
+	# all it knows of: what it sees near it, and every armed enemy it saw in the last minute that it does not see now
+	var known := fv
+	for id in _mem:
+		var e: Array = _mem[id]
+		if is_instance_valid(e[0]) and not e[0].dead and game.clock - float(e[2]) < 60.0 and not game.is_visible_to(team, e[0].position):
+			known += float(e[1])
+	if now >= known * FINISH_K:
+		_note_once("finish", "has lost a lot but still wins here (worth %d against %d it knows of near it): it finishes the job" % [int(now), int(known)], 30.0)
+		return true
 	return false
 
 

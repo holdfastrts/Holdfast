@@ -739,7 +739,7 @@ func _threats() -> Array:
 	for e in cands:
 		if not (e is Unit) or e.dead or e.off_field or e.aboard != null or not game.hostile(e.team, ai.team):
 			continue
-		if not e.has_attack() or e.kind == "horse" or not e.can_hit(unit):
+		if (not e.has_attack() and not _worker_after(e, unit)) or e.kind == "horse" or not e.can_hit(unit):
 			continue
 		if AIHarass.is_static(e):
 			continue             # (a rooted Mound Turtle or Rootmaw does not chase: walked past, never fought; ai_harass.gd)
@@ -751,6 +751,47 @@ func _threats() -> Array:
 			out.append(e)
 			_learn(e)
 	return out
+
+
+## (cinder-clockwork-ai, docs/cinder_clockwork_ai.md) A WORKER IS A THREAT TOO when it comes for ours. Unit.has_attack() is
+## false for every worker, so the threat lists above never counted one: the owner's Cinder Steps game (0.35.10, 2:36-2:49)
+## lost the Clockwork's scout (trip 2) and its sentry peeking up the walled ramp to two Crown Labourers each, the Winders
+## trading blows on their hold or move orders (a Winder is no better than a Labourer, and two beat it). A worker scout or
+## sentry now flees from an enemy worker that is after it: one that hit it lately, or whose target (or order) is it, within
+## WORKER_R. Workers going about their work are not threats (a scout walks past the enemy's workers to see the base).
+## The Clockwork only (the Crown's own scouting is another job's); `-- cwscoutflee:off` plays it as before.
+const WORKER_R := 200.0
+var worker_flee_on := not OS.get_cmdline_user_args().has("cwscoutflee:off")
+
+
+## Workers after it (no soldier): a stand-off spot by the ramp would be among them; it runs straight away from them, home-
+## ward, RUN_FROM px (they give up once it is out of their base).
+const RUN_FROM := 320.0
+
+
+func _run_from_workers(me: Unit, thr: Array) -> Vector2:
+	var c := Vector2.ZERO
+	for e in thr:
+		c += e.position
+	c /= maxf(1.0, float(thr.size()))
+	var away := (me.position - c).normalized()
+	var home := (game.center_of_team(ai.team) - me.position).normalized()
+	var dir := (away * 1.0 + home * 0.6).normalized()
+	if dir == Vector2.ZERO:
+		dir = home
+	var cc := _free_near(Vector2i((me.position + dir * RUN_FROM) / Defs.TILE))
+	return (Vector2(cc) + Vector2(0.5, 0.5)) * Defs.TILE if cc.x >= 0 else me.position + dir * RUN_FROM
+
+
+func _worker_after(e: Unit, me: Unit) -> bool:
+	if not worker_flee_on or me == null or not me.is_worker() or not e.is_worker() or float(e.d.get("damage", 0.0)) <= 0.0 \
+			or _faction() != "clockwork":
+		return false
+	if e.position.distance_to(me.position) > WORKER_R:
+		return false
+	if e == me.last_hitter and game.clock - me.hit_clock < 4.0:
+		return true
+	return e.target == me or e.order_target == me
 
 
 func _reach_of(e: Unit) -> float:
@@ -845,7 +886,7 @@ func _avoid() -> bool:
 		_mode = "flee"
 		if game.clock - _flee_t >= 1.0:
 			_flee_t = game.clock
-			_watch_pt = _standoff_point(thr)
+			_watch_pt = _run_from_workers(unit, thr) if thr.all(func(e: Unit) -> bool: return e.is_worker()) else _standoff_point(thr)
 			standoff_log.append(_watch_pt)
 			unit.cmd_move(_watch_pt)
 		return true
@@ -1334,7 +1375,7 @@ func _sentry_tick() -> void:
 			sentry_flees += 1
 			_say("the sentry backs away from a %s" % String(Defs.UNITS[thr[0].kind]["name"]))
 			_sentry_log("fled")
-		_sentry_pt = _sentry_spot(sentry, thr)
+		_sentry_pt = _run_from_workers(sentry, thr) if thr.all(func(e: Unit) -> bool: return e.is_worker()) else _sentry_spot(sentry, thr)
 		sentry.cmd_move(_sentry_pt)
 		return
 	if _sentry_fleeing:
@@ -1372,6 +1413,9 @@ func _sentry_peek() -> bool:
 	if _peek_on:
 		var seen := _sentry_sees_armed()
 		var hit := sentry.hp < _peek_hp - 0.1 or sentry.hp < sentry.max_hp * 0.5
+		# (cinder-clockwork-ai: an enemy worker coming for it ends the peek too, before it lands a blow)
+		if not hit and _sentry_threats().any(func(e: Unit) -> bool: return e.is_worker()):
+			hit = true
 		if seen or game.clock - _peek_t > SENTRY_PEEK_T or hit:
 			_peek_on = false
 			if hit:
@@ -1419,7 +1463,7 @@ func _sentry_threats() -> Array:
 	for e in game.units_near(sentry.position, 520.0):
 		if not (e is Unit) or e.dead or e.off_field or e.aboard != null or not game.hostile(e.team, ai.team):
 			continue
-		if not e.has_attack() or e.kind == "horse" or not e.can_hit(sentry) or not game.is_visible_to(ai.team, e.position):
+		if (not e.has_attack() and not _worker_after(e, sentry)) or e.kind == "horse" or not e.can_hit(sentry) or not game.is_visible_to(ai.team, e.position):
 			continue
 		var rng := float(e.d["range"])
 		if e.position.distance_to(sentry.position) <= rng + e.radius + sentry.radius + (SENTRY_MARGIN if rng > 40.0 else MELEE_MARGIN):

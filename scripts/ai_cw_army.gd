@@ -712,6 +712,12 @@ func tick(army: Array) -> void:
 		ai._follow_with_escort(ai.push.units)  # (out: the escort goes with the push, AIClockwork._follow_with_escort)
 
 
+const Guns := preload("res://scripts/ai_cw_guns.gd")
+var _gun_t := -99.0
+var _gun_mem := {}
+var _guard_mem := {}
+
+
 ## REINFORCEMENTS WALK TOGETHER (an experiment, off: see muster_on): a unit made far from the gathering point (more than MUSTER_FAR) first waits at the
 ## MUSTER, in front of the main hall, and they walk to the army as a group of GROUP_MIN or more (or MUSTER_SUPPLY supply).
 ## (One at a time across the base from the main's Works to a third Clocktower, they met the Raptor raids alone: 16 times in
@@ -876,6 +882,21 @@ func _defend(home: Array, g: Vector2) -> bool:
 			else:
 				say("the whole army (%d units, %d) meets a raid worth %d at %s" % [home.size(), int(mine), int(bv), _where(big["spot"])], "whole", 20.0)
 		phase = "defend"
+		# (cinder-clockwork-ai) enemy guns with a thin guard at the raid: the whole army rushes them (scripts/ai_cw_guns.gd)
+		if Guns.on:
+			var guns: Array = Guns.with_mem(game, _gun_mem, Guns.guns_near(game, team, big["spot"], Guns.LOOK)) \
+				.filter(func(x: Unit) -> bool: return x.position.distance_to(big["spot"]) < Guns.LOOK + 200.0)
+			var gd: Array = Guns.with_mem(game, _guard_mem, Guns.guard_of(ai, game, team, guns))
+			var keep := game.clock - _gun_t < 3.0
+			if Guns.worth(ai, mine, guns, gd, keep, Guns.uphill(game, guns, _centre(home))) or (keep and Guns.keep_on(ai, mine, home, guns, gd)):
+				if game.clock - _gun_t >= 3.0:
+					stats["gun_rush"] = int(stats.get("gun_rush", 0)) + 1
+					say("rushes %d enemy gun%s (%d) guarded by %d (%d) at %s with the whole army (%d): close in fast, never stand off" \
+						% [guns.size(), "" if guns.size() == 1 else "s", int(_value(guns)), gd.size(), int(_value(gd)), _where(big["spot"]), int(mine)], "guns", 20.0)
+				_gun_t = game.clock
+				Guns.rush(ai, home, guns, gd)
+				defenders.clear()
+				return true
 		var c := _centre(home)
 		for u in home:
 			if ai._home_dist(u.position) > LEASH and u.target != null and is_instance_valid(u.target) and u.target is Unit \
