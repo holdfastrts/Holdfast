@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.16": ["El icono de RECARGAR (una cartuchera rellenada desde un cuerno de pólvora) ya está, listo para el próximo comando RECARGAR."],
 	"0.35.15": ["La Banda de Marcha tiene iconos de verdad: retratos del Tambor, el Pífano y el Gaitero, y los tres botones de SOLO."],
 	"0.35.14": ["Viendo una partida: la selección con recuadro toma todas las unidades del bando con más unidades dentro, un doble clic toma todas las de ese tipo en pantalla, y la línea de cada jugador muestra los ingresos por minuto, el valor del ejército y los trabajadores (como en las repeticiones). La tripulación de la Balista de Resorte se pone detrás de ella en las vistas al norte. El tornillo del Springer es un 30% más pequeño y el Péndulo se dibuja un 30% más grande."],
 	"0.35.13": ["Como espectador: los iconos de PRODUCCIÓN y EJÉRCITO Y ESTRUCTURAS tienen descripciones, y un clic los selecciona y lleva la cámara a uno (clic otra vez para el siguiente)."],

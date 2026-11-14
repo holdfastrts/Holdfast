@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.16", "items": [
+		"The RELOAD icon (a cartridge pouch refilled from a powder horn) is in, ready for the coming RELOAD command.",
+	]},
 	{"v": "0.35.15", "items": [
 		"The Marching Band has real icons: portraits of the Drummer, the Fifer and the Piper, and the three SOLO buttons.",
 	]},
