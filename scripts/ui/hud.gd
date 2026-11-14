@@ -3820,6 +3820,9 @@ func _draw_panel(font: Font) -> void:
 				info = "Leading %d horse%s · " % [uu.led.size(), "" if uu.led.size() == 1 else "s"] + info
 			if uu.auto_mount and uu.kind == "musketeer" and uu.steed and is_instance_valid(uu.steed):
 				info = "Dragoon on foot (remounts to move) · " + info
+			var bt := MarchingBand.buff_text(uu)      # (the Marching Band's buffs on him, with their numbers and source)
+			if bt != "":
+				info = (info + "  ·  " if info != "" else "") + bt
 			if Defs.ARMOURED.has(uu.kind) and e.team == game.human:
 				# his own refits first: "Armour · Flintlock"
 				var kt := uu.kit_text()

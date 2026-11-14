@@ -257,8 +257,8 @@ static func capture(game: Game, cfg: Dictionary, replay := false) -> Dictionary:
 			ud["rl"] = snappedf(u.cooldown, 0.01)    # (a Spring Ballista's spring still being wound)
 		if u.crew_of != null and ids.has(u.crew_of):
 			ud["crew"] = ids[u.crew_of]              # (a Winder crewing a Spring Ballista: scripts/ballista.gd)
-		if u.kind == MarchingBand.KIND and not u.band.is_empty():
-			ud["band"] = MarchingBand.save(u)        # (the Marching Band: musicians, solo, cooldowns: scripts/marching_band.gd)
+		if MarchingBand.is_musician(u) and not u.band.is_empty():
+			ud["band"] = MarchingBand.save(u)        # (a musician: his number, solo, cooldown, band: scripts/marching_band.gd)
 		if u.auto_harvest:
 			ud["ah"] = true          # (a grub's HARVEST autocast)
 		if u.kind == Defs.GREAT_WINDER_KIND:
@@ -628,8 +628,8 @@ static func restore(game: Game, d: Dictionary) -> void:
 		if ud.get("mref") is Array and u.team >= 0 and u.team < game.players.size():
 			game.players[u.team]["gold"] += int(ud["mref"][0])
 			game.add_res2(u.team, float(ud["mref"][1]))
-		if ud.get("band") is Dictionary and u.kind == MarchingBand.KIND:
-			MarchingBand.load_state(u, ud["band"])
+		if ud.get("band") is Dictionary and MarchingBand.is_musician(u):
+			MarchingBand.load_state(u, ud["band"], true, float(ud["hp"]))      # (an old 0.33-0.36 band unit: its musicians, standing together)
 		u.carrying = int(ud["carry"])
 		u.load_f = float(ud.get("lf", 0.0))
 		u.auto_work = bool(ud["auto"])

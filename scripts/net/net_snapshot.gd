@@ -57,7 +57,7 @@ static func unit_vals(u: Unit) -> Array:
 		snappedf(u.self_wind_t, 0.01), u.tongue_stage, snappedf(u.tesla_t, 0.01), snappedf(u.haul_t, 0.01), u.auto_work,
 		snappedf(u.owl_t, 0.01), snappedf(u.net_t, 0.01), u.arm, u.shield_up, snappedf(u.shield_t, 0.01), u.loaded, u.auto_sweep, u.ride_n,
 		BroodNew.unit_save(u) if u._k_nb else u.nb, snappedf(u.stun_end, 0.01), snappedf(u.moult_t, 0.01),
-		MarchingBand.save(u) if u.kind == MarchingBand.KIND else u.band,
+		MarchingBand.save(u) if MarchingBand.is_musician(u) else u.band,
 		u.jump if u.jump.is_empty() else u.jump.duplicate(),
 		snappedf(u.scatter_ready, 0.01), u.littered]
 
@@ -790,9 +790,9 @@ static func _set_unit_vals(u: Unit, row: Array, o: int) -> void:
 		u.moult_t = float(row[o + 47])        # (a young Brood unit maturing: its shimmer and bar, scripts/brood_mature.gd)
 		if was_m < 0.0 and u.moult_t >= 0.0:
 			NetPuppet.moult_began(u)
-	if row.size() > o + 48 and row[o + 48] is Dictionary and u.kind == MarchingBand.KIND:
+	if row.size() > o + 48 and row[o + 48] is Dictionary and MarchingBand.is_musician(u) and not (row[o + 48] as Dictionary).is_empty():
 		var mhp := u.max_hp
-		MarchingBand.load_state(u, row[o + 48])      # (the Marching Band: its musicians, solo and cooldowns, for its ring and card)
+		MarchingBand.load_state(u, row[o + 48], false)      # (a musician: his solo, cooldown and band; an old replay's band unit as it was)
 		u.max_hp = mhp
 	if row.size() > o + 49 and row[o + 49] is Dictionary:
 		NetPuppet.set_jump(u, row[o + 49])           # (a Springer's leap: its clock goes on here between pictures)

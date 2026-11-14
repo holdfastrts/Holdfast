@@ -285,6 +285,12 @@
   fifer options). BUILT by the cloud job marching-band (0.33.0, branch marching-band, docs/marching_band.md: Armoury, research
   musicians, several bands, fifer art option B, Toad FOG/MIASMA research); MERGE IT WITH A SQUASH (the branch carries an
   old rewritten history by an "ours" merge); open questions in its doc.
+  INDIVIDUAL MUSICIANS (owner, DECIDED 2026-11-14 02:01-02:08; job band-individuals, 0.37.0, docs/band_individuals.md):
+  NO band unit; the Drummer ("band"), Fifer and Piper are units trained at the Armoury, each with his own ring, +5%, solo
+  and cooldown; one of each standing within each other's rings FORM A BAND (+8%, solos +40% 10 s, in step, a row);
+  lone musicians of different instruments overlapping are OUT OF STEP (only the stronger buff); the same instrument
+  never adds up; SOLO = one, Ctrl+SOLO = all; buff markers over soldiers (Settings BAND BUFF MARKS); the Fife costs no
+  powder; BandSound: the nearest band in step or up to 3 lone musicians out of step (files untouched).
 - MAP VARIETY (owner, DECIDED 2026-11-04 15:50): no single map rule; a pool with variety (some POCKET naturals sharing
   the main's choke, some open naturals, some between; mains hugging the corner is the milder option). He weighed turning
   every ramp toward a corner pocket and rejected it as a global rule (one point of defence = Crown turtling too strong).

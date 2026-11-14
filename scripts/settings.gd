@@ -16,6 +16,7 @@ static var area_marks := true         # area attacks lay their shape on the grou
 static var powder_smoke := -1         # black powder smoke (PowderSmoke): -1 = not chosen (THICK for now), 0 off, 1 light, 2 full, 3 thick
 static var expansion_spots := true    # the best expansion spots tinted on the ground (ExpansionSpots; Crown and Clockwork)
 static var health_bars := 0           # BARS: 0 = ONLY WHEN NOT FULL (the default: health when hurt, charge and powder when not full), 1 = ALWAYS (every bar)
+static var band_marks := 1            # BAND BUFF MARKS: 0 ALWAYS, 1 SELECTED (selected units, the one under the cursor, everyone in a ring during a solo), 2 OFF (MarchingBand.draw_marks)
 static var charge_bars := true        # SHOW CHARGE BARS: a thin charge bar over own Clockwork units not fully wound (Unit._draw_unit)
 static var gear_turn := true          # TURNING GEARS (experiment, on for now): a Clockwork ring's band carries units round (GearTurn); from the next match
 static var ground_system := false     # THE GROUND SYSTEM (experiment, off by default): soil and brass on the map round each hall (GroundLayer); from the next match
@@ -54,6 +55,7 @@ static func load_all() -> void:
 		expansion_spots = bool(cfg.get_value("ui", "expansion_spots", true))
 		charge_bars = bool(cfg.get_value("ui", "charge_bars", true))
 		health_bars = clampi(int(cfg.get_value("ui", "health_bars", 0)), 0, 1)
+		band_marks = clampi(int(cfg.get_value("ui", "band_marks", 1)), 0, 2)
 		gear_turn = bool(cfg.get_value("ui", "gear_turn", true))
 		ground_system = bool(cfg.get_value("ui", "ground_system", false))
 		ground_alpha = clampf(float(cfg.get_value("ui", "ground_alpha", 0.35)), 0.1, 1.0)
@@ -93,6 +95,7 @@ static func save_all() -> void:
 	cfg.set_value("ui", "expansion_spots", expansion_spots)
 	cfg.set_value("ui", "charge_bars", charge_bars)
 	cfg.set_value("ui", "health_bars", health_bars)
+	cfg.set_value("ui", "band_marks", band_marks)
 	cfg.set_value("ui", "gear_turn", gear_turn)
 	cfg.set_value("ui", "ground_system", ground_system)
 	cfg.set_value("ui", "ground_alpha", ground_alpha)
@@ -163,6 +166,7 @@ static func reset() -> void:
 	expansion_spots = true
 	charge_bars = true
 	health_bars = 0
+	band_marks = 1
 	gear_turn = true
 	ground_system = false
 	ground_alpha = 0.35

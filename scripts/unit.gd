@@ -318,18 +318,16 @@ func band_hire(_ins: String) -> void:
 	pass
 
 
-## THE MARCHING BAND: RECRUIT FIFER / PIPER on its card (band-v2): one is queued at the nearest Armoury and walks to
-## THIS band.
-func band_recruit(ins: String) -> void:
-	if game.net_forward(self, "band_recruit", [ins]): return
-	if kind == MarchingBand.KIND:
-		MarchingBand.recruit(self, ins)
+## (0.36.0's RECRUIT FIFER / PIPER on a band's card: gone with the band unit in 0.37.0. Kept as a no-op so an old
+## replay's or an old guest's command finds it.)
+func band_recruit(_ins: String) -> void:
+	pass
 
 
-## THE MARCHING BAND: an instrument's SOLO.
+## THE MARCHING BAND: a musician's SOLO (scripts/marching_band.gd; the card picks which musicians: MarchingBand.solo_pick).
 func band_solo(ins: String) -> void:
 	if game.net_forward(self, "band_solo", [ins]): return
-	if kind == MarchingBand.KIND:
+	if MarchingBand.is_musician(self):
 		MarchingBand.solo(self, ins)
 
 
@@ -422,7 +420,9 @@ var _feather: Node2D             # (a dismounted horseman) the plume on his hat 
 var band := {}
 var band_mul := Vector3.ONE
 var band_until := -1.0
-var band_src := {}               # (each band reaching it: its instance id -> [multipliers, until]; MarchingBand.mix)
+var band_show: Array = []        # (what its buffs are, for the markers over its head and its card: [instrument, percent, flags]; MarchingBand.mix)
+var _k_band := false             # (a musician: the Drummer, the Fifer or the Piper)
+var _marks_k := 0                # (the band's buff markers last drawn over him: MarchingBand.marks_key)
 var _band_t := 0.0
 var _band_scan := 0.0
 var _sound_t := 0.0
@@ -1965,9 +1965,11 @@ func _ready() -> void:
 		_rein.draw.connect(_draw_rein)
 		add_child(_rein)
 	_update_feather()
-	if kind == MarchingBand.KIND:
-		MarchingBand.sync(self, true)    # (a new band: the Drummer and every musician researched, +15 health each)
-		_band_fx = Node2D.new()          # (the notes over the band during a solo: code-drawn)
+	_k_band = MarchingBand.is_musician(self)
+	if _k_band:
+		if band.is_empty():
+			band = MarchingBand.fresh()
+		_band_fx = Node2D.new()          # (the notes over a musician in his solo: code-drawn)
 		_band_fx.draw.connect(func() -> void: MarchingBand.draw_kit(self, _band_fx))
 		add_child(_band_fx)
 	if kind == "cannon" and not ArtData.UNITS["cannon"]["frames"].has("walk_e"):
@@ -3040,9 +3042,8 @@ func _start(o: Dictionary) -> bool:
 			if e == null or not is_instance_valid(e) or not cmd_mount(e):
 				return false
 		"join":
-			# a Fifer / Piper to a Marching Band (band-v2: scripts/marching_band.gd)
-			if e == null or not is_instance_valid(e) or not (e is Unit) or not MarchingBand.start_join(self, e, true):
-				return false
+			# (0.36.0's JOIN of a Fifer / Piper to a band unit: gone in 0.37.0; an old replay's order does nothing)
+			return false
 		"revive":
 			if e == null or not is_instance_valid(e):
 				return false
@@ -3701,10 +3702,8 @@ func _tick_unit(delta: float) -> void:
 	littered = litter_t > 0.0
 	if band_until > game.clock:
 		speed *= band_mul.x                # (the band's DRUMS: scripts/marching_band.gd)
-	if kind == MarchingBand.KIND:
-		MarchingBand.tick(self, delta)
-	elif MarchingBand.MUSICIANS.has(kind):
-		MarchingBand.musician_tick(self, delta)     # (a loose Fifer / Piper: off to a band to join it)
+	if _k_band:
+		MarchingBand.tick(self, delta)     # (a musician: his ring, his band, the pass over every ring: scripts/marching_band.gd)
 	if Defs.cw_roster and _k_cw:
 		CwUnits.pre_tick(self, delta)
 	if shield_up or shield_t > 0.0:
@@ -4029,7 +4028,7 @@ func _tick_unit(delta: float) -> void:
 			var fe = order_target
 			if fe == null or not is_instance_valid(fe) or fe.dead or (fe as Unit).aboard != null:
 				cmd_stop()
-			elif position.distance_to(fe.position) > radius + fe.radius + (float(Defs.MARCHING_BAND["gap"]) if kind == MarchingBand.KIND else 26.0):
+			elif position.distance_to(fe.position) > radius + fe.radius + (float(Defs.MARCHING_BAND["gap"]) if _k_band else 26.0):
 				want = _walk_to(fe.position, delta)
 			else:
 				path = PackedVector2Array()
@@ -4081,7 +4080,7 @@ func _tick_unit(delta: float) -> void:
 		"mount":
 			want = _mount_run(delta)
 		"join":
-			want = MarchingBand.join_run(self, delta)
+			cmd_stop()          # (0.36.0's walk to join a band unit: an old save's musician stays a lone musician)
 		"dismount":
 			want = _dismount_run(delta)
 		"lead":
@@ -4142,6 +4141,10 @@ func _tick_unit(delta: float) -> void:
 		var key := Vector4i(Settings.health_bars * 536870912 + int(selected) + (2 if carrying > 0 else 0) + (4 if cross_t > 0.0 else 0) + (8 if work == "feeding" else 0) + (16 if carry_empty else 0) + (32 if cocoon > 0 else 0) + kills * 64,
 			int(hp), int(wind * 40.0) + (int(carry_t * 4.0) * 100 if carrying > 0 else 0) + (5000 if charge_winding() else 0) + (10000 if Settings.charge_bars else 0) if _k_fac == "clockwork" else int(powder * 2.0) + (1000 if supplying else 0),
 			int(max_hp) + extra + (int((1.0 if phase == "" and cooldown <= 0.0 else reload_frac()) * 16.0) + 17 * int(tesla_t * 4.0) + 850 * TESLA_MODES.find(tesla_mode)) * 10000 if has_attack() else int(max_hp) + extra)
+		var mk := MarchingBand.marks_key(self) if band_until > game.clock or _marks_k != 0 else 0
+		if mk != _marks_k:
+			_marks_k = mk          # (the band's buff markers over his head changed: MarchingBand.draw_marks)
+			_draw_key = Vector4i(-1, -1, -1, -1)
 		if key != _draw_key:
 			_draw_key = key
 			queue_redraw()
@@ -7468,8 +7471,12 @@ func _animate(delta: float) -> void:
 	var sf := clampi(shown, 0, sprite.hframes - 1)
 	if sprite.frame != sf:
 		sprite.frame = sf          # (only when it changes: perf_units)
+	if _k_band and not dead and (anim == "walk" or anim == "idle") and not MarchingBand.legacy(self):
+		var fs := MarchingBand.frame_in_step(self, sprite.hframes, _an_wfps if anim == "walk" else 2.0)      # (a band's three IN STEP; a lone man on his own beat)
+		if sprite.frame != fs:
+			sprite.frame = fs
 	if kind == MarchingBand.KIND:
-		MarchingBand.group_look(self)     # (the Fifer and the Piper behind the Drummer, once researched)
+		MarchingBand.group_look(self)     # (an old FULL replay's band: its Fifer and Piper as child sprites)
 	if not team_horses.is_empty() or not _team_sprites.is_empty():
 		_update_team(delta, fps)
 	if _front:
@@ -7519,8 +7526,8 @@ func _animate(delta: float) -> void:
 		sprite.position = Vector2(0.0, Ballista.crew_bob(self))     # (a Ballista's pusher: a step bob, scripts/ballista.gd)
 	elif kind == "mist_toad":
 		sprite.position = _hop_off.round()      # (held on the ground frames, carried in the air: ToadHop.track every tick)
-	elif kind == MarchingBand.KIND:
-		var bob := Vector2(0.0, -MarchingBand.lead_bob(self, "drums"))      # (the Drummer bobs in his solo)
+	elif _k_band:
+		var bob := Vector2(0.0, -MarchingBand.lead_bob(self))      # (a musician bobs in his solo)
 		if sprite.position != bob:
 			sprite.position = bob
 	elif kind != "cannon" and sprite.position != Vector2.ZERO:
@@ -8136,8 +8143,8 @@ func _draw_unit() -> void:
 		_draw_aim()
 	if selected and kind == Defs.GREAT_WINDER_KIND:
 		GreatWinder.draw_area(self)      # (its winding ring on the ground)
-	if kind == MarchingBand.KIND:
-		MarchingBand.draw_ring(self)     # (the band's ring on the ground, for everyone who sees it)
+	if _k_band:
+		MarchingBand.draw_ring(self)     # (his ring, or his band's, on the ground, for everyone who sees it)
 	# (a Springer in the air: its shadow stays on the ground under it, a little smaller and darker so the leap reads)
 	var lifted := Springer.lift(self) if not jump.is_empty() else 0.0
 	var shade := 1.0 - clampf(lifted / 160.0, 0.0, 0.3)
@@ -8149,11 +8156,7 @@ func _draw_unit() -> void:
 		# (a rooted Brood creature is drawn in the building layer, under this: no shadow on its body; selected, its
 		# footprint is outlined: BroodNew.draw)
 		var lr := BroodNew.look_r(self) if _k_nb else radius      # (the Mother: her drawn size)
-		if kind == MarchingBand.KIND:
-			var sp := MarchingBand.ring_span(self)      # (the band's row of musicians: a wider shadow and ring under all of them)
-			draw_set_transform(ring_at + Vector2(sp.x, 0.0), 0.0, Vector2(sp.y / (lr + 5.0), 0.45))
-		else:
-			draw_set_transform(ring_at, 0.0, Vector2(1.0, 0.45))
+		draw_set_transform(ring_at, 0.0, Vector2(1.0, 0.45))
 		draw_circle(Vector2.ZERO, (lr + 2.0) * shade, Color(0, 0, 0, 0.25 + 0.3 * clampf(lifted / 30.0, 0.0, 1.0)))
 		if selected:
 			draw_arc(Vector2.ZERO, lr + 5.0, 0, TAU, 24, Color(0.4, 1.0, 0.4, 0.9), 2.0)
@@ -8191,6 +8194,8 @@ func _draw_unit() -> void:
 		sy = _draw_charge_bar(sy, bw)
 	else:
 		sy = _draw_charge_bar(sy, bw)
+	if band_until > game.clock and not band_show.is_empty():
+		MarchingBand.draw_marks(self, top)      # (the band's buffs over his head: an icon and "+8%" each)
 	if work == "feeding":
 		return
 	if (_k_ammo or kind == "cannon" or kind == "mortar") and ammo_shots() <= 0 and team >= 0 and (team == game.human or game.demo or game.allied(team, game.human)):
