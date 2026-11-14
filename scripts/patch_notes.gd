@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.6", "items": [
+		"RELOAD with a big selection: a man only works out the walk to the powder sources that are about as near as the nearest one, so sending a hundred at once doesn't stall the game.",
+	]},
 	{"v": "0.36.5", "items": [
 		"The Clockwork computer: its scouting Winder and its sentry at a walled ramp run from enemy workers that come for them (two Labourers used to kill them while they traded blows). Its army rushes enemy guns that have only a thin guard, everything at once with the Springers jumping in, instead of standing off under round shot and canister; guns that are too well guarded it steps back out of their reach (it used to stay inside it). Against the Crown, a push that has lost a lot but still clearly wins where it is finishes the job instead of pulling back.",
 	]},

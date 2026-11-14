@@ -301,6 +301,8 @@ static func capture(game: Game, cfg: Dictionary, replay := false) -> Dictionary:
 				snappedf(u.rb_head.x, 0.001), snappedf(u.rb_head.y, 0.001)]
 		if u.patrol_a != Vector2.INF:
 			ud["pat"] = [_v2(u.patrol_a), _v2(u.patrol_b)]
+		if u.order == "reload" and u.rl.get("back") is Vector2:
+			ud["rld"] = _v2(u.rl["back"])        # RELOAD: on its way to the powder; where it goes back to (scripts/reload_order.gd)
 		if u.order == "bombard":
 			ud["bomb"] = _v2(u.order_point)      # BOMBARD: the spot it keeps firing at (it goes on after a load)
 			if u.gnd_a.distance_to(u.gnd_b) >= 1.0:
@@ -800,6 +802,11 @@ static func restore(game: Game, d: Dictionary) -> void:
 	if d.has("trains"):
 		game.line_net.rails.load_rows(d["trains"])
 	_restore_groups(game, d, made)
+	for i in made.size():
+		var ru = made[i]
+		if ru != null and (d["units"][i] as Dictionary).get("rld") is Array:
+			ReloadOrder.start(ru, _to_v2(d["units"][i]["rld"]))      # (RELOAD on its way: given again, everyone being back)
+
 	if game.mlog:
 		game.mlog.lines = PackedStringArray(d.get("log", []))
 		game.mlog.add("(match continued after it was closed)")
