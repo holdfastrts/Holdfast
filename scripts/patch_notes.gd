@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.1", "items": [
+		"EXPERIMENT, NO FARM/PRESS LIMIT (Settings > EXPERIMENTAL, only with the GROUND SYSTEM on, off by default): a Town Hall no longer limits its Farms and a Clocktower its Cog Presses; the ground is the only limit. More of them drain the same district faster and overlapping circles share it; the placing view still shows each circle's share. The Powder Mill and the Mainspring stay one a hall. The computers build one more only where the district's ground left still pays for it and its crew. Being measured (docs/ground_nocap_study.md).",
+	]},
 	{"v": "0.36.0", "items": [
 		"THE MARCHING BAND, NEW STRUCTURE: the Fifer and the Piper are no longer research. Train them at the Armoury one at a time (Fifer 60 gold and 10 powder, Piper 75 gold, 20 s each): each comes out, walks to a band without one and joins it (+15 health to the band, his instrument and its solo). RECRUIT FIFER / RECRUIT PIPER on a band's card sends one to THAT band; right-click a band with a Fifer or Piper selected (or JOIN BAND) to send him there. One of each a band; a band no longer costs more for its musicians. A musician with no band to join waits at the rally point.",
 		"The band's three musicians stand SIDE BY SIDE in a row, so each is clearly seen; its shadow, selection ring and click area are as wide as the row.",

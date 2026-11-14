@@ -2884,7 +2884,7 @@ func owner_lab_cap() -> int:
 		return 999
 	var built := _halls().filter(func(h: Building) -> bool: return h.built).size()
 	var going := _hall_reserve or _busy_building(_f()["hall"])
-	var top := OWNER_LAB_MAX + OWNER_LAB_PER_HALL * maxi(0, built - 2) + (SAT_PRETRAIN if going and built >= 2 else 0)
+	var top := OWNER_LAB_MAX + OWNER_LAB_PER_HALL * maxi(0, built - 2) + (SAT_PRETRAIN if going and built >= 2 else 0) + nocap_hands()
 	var cap := _posts() + OWNER_SPARE_LABS + (SAT_PRETRAIN if going else 0)
 	return mini(cap, top)
 

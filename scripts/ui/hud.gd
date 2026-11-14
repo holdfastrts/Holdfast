@@ -1081,11 +1081,13 @@ func _build_card() -> Array:
 					why = "Not enough %s." % _res()[0].to_lower()
 				elif game.tension_problem(game.human, Defs.tension_cost(d)) != "":
 					why = game.tension_problem(game.human, Defs.tension_cost(d))      # (a Tension price: the Clock Aviary)
-				elif Defs.is_econ(k) and game.econ_count(game.human, k) >= game.econ_limit(game.human, k):
+				elif Defs.is_econ(k) and game.econ_capped(k) and game.econ_count(game.human, k) >= game.econ_limit(game.human, k):
 					why = "Limit reached: expand with another %s." % Defs.BUILDINGS[game.faction_hall(game.human)]["name"]
 				var kk: String = k
 				var label: String = d["name"].to_upper()
-				if Defs.is_econ(k):
+				if Defs.is_econ(k) and not game.econ_capped(k):
+					label = "%s %d" % [label.split(" ")[0], game.econ_count(game.human, k)]      # (NO FARM/PRESS LIMIT: only the ground limits them)
+				elif Defs.is_econ(k):
 					label = "%s %d/%d" % [label.split(" ")[0], game.econ_count(game.human, k), game.econ_limit(game.human, k)]
 				list.append([k, label, func() -> void:
 					page = ""
@@ -5062,7 +5064,9 @@ func _card_tip(it: Array) -> Dictionary:
 		var st := "%s  ·  %d s" % [_cost_text(int(bd["cost"]), int(bd.get("cost2", 0)) + Defs.tension_cost(bd)), int(bd["time"])]
 		if int(bd.get("supply", 0)) > 0 and k != game.faction_hall(game.human):
 			st += "  ·  +%d supply" % int(bd["supply"])
-		if Defs.is_econ(k):
+		if Defs.is_econ(k) and not game.econ_capped(k):
+			st += "  ·  %d, no limit: the ground decides" % game.econ_count(game.human, k)
+		elif Defs.is_econ(k):
 			st += "  ·  %d of %d here" % [game.econ_count(game.human, k), game.econ_limit(game.human, k)]
 		t["stats"] = st
 		t["body"] = Defs.tip(k)

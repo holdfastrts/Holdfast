@@ -391,13 +391,23 @@ static var gear_turn := true
 ## (yield = the share of its circle's ground still there). Set per match from the setting (Settings.ground_system) and kept
 ## in the match's setup (cfg "ground"); off by default (the game as before).
 static var ground_on := false
+## NO FARM/PRESS LIMIT (the owner's open ground-system choice, 2026-11-14; job ground-nocap-study, docs/ground_nocap_study.md):
+## with the ground system on, a hall no longer limits its Farms (Crown) / Cog Presses (Clockwork): the ground is the only
+## limit (more of them drain the same district faster, overlapping circles share it). The Powder Mill and the Mainspring
+## stay 1 a hall; the Brood has no such limit to drop. Set per match from Settings.ground_nocap, kept in the match's setup
+## (cfg "ground_nocap"); only meaningful with ground_on; off by default.
+static var ground_nocap := false
 ## The ground system's numbers (docs/ground_system.md "The numbers"; LAND, as GROUND is ATTACK GROUND): tiles unless the key says otherwise.
 ##   district: radius of a Town Hall's district (its soil; the economy buildings stand within ECON_RANGE of a hall);
 ##   district_brass: a Clocktower's (its brass: the presses mesh near the tower, so its district is a little tighter);
 ##   soil / brass: what a fresh district holds (the old hall reserve, SOIL_RESERVE / LODE "clocktower");
 ##   r: the circle each drinker drinks from; bite: a Cog Press's draws are paid in chunks of this much.
 static var LAND := {"district": 11.0, "soil": 9000.0, "brass": 9000.0, "r": {"farm": 10.0, "cog_press": 10.0}, "bite": 2.0,
-	"spot_w": 40.0, "spot_min": 0.1, "local": true, "district_brass": 9.0}
+	"spot_w": 40.0, "spot_min": 0.1, "local": true, "district_brass": 9.0,
+	# NO FARM/PRESS LIMIT (ground_nocap), the computers' own rule for one more Farm / Cog Press by a hall that already has
+	# its usual 2: at most nocap_max more a district; only while the district's ground left, shared by them all, pays
+	# nocap_pay times the new one's price and its crew's; and only on a spot whose circle holds extra_min of a fresh one
+	"nocap_max": 2.0, "nocap_pay": 3.0, "extra_min": 0.35}
 ## THE MARCHING BAND (the owner's idea 2026-10-30, a real Crown unit since 0.33.0 (the owner, 2026-11-05);
 ## scripts/marching_band.gd, docs/marching_band.md): the Crown's band of drums, pipes and fife that plays area buffs.
 ## Trained at the Armoury; a new band is a Drummer. Since 0.36.0 (job band-v2, the owner 2026-11-13) the FIFER and the

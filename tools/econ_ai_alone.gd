@@ -7,7 +7,7 @@ extends SceneTree
 ## scout reads.
 ##
 ##   godot --headless --fixed-fps 30 --script res://tools/econ_ai_alone.gd -- <faction> [plan=optimal] [minutes=15]
-##       [map=greenhold] [seed=1] [foe=clockwork] [who=hard] [out=<file.json>] [switch=<AI switch>] [ground=0|1]
+##       [map=greenhold] [seed=1] [foe=clockwork] [who=hard] [out=<file.json>] [switch=<AI switch>] [ground=0|1] [groundcap=off]
 ##
 ## Prints a line a minute and a final RESULT line (JSON), the bench's row (p, s, p_cum, s_cum, value, value_cum, workers,
 ## working, econ, halls, left, bank, supply, cap) plus what the computer wastes: idle workers (seconds a minute summed over
@@ -60,7 +60,7 @@ func _process(delta: float) -> bool:
 	t += delta
 	if t > 0.2 and main.game == null:
 		seed(int(opts["seed"]))
-		var cfg := {"map": opts["map"], "seed": int(opts["seed"]), "ground": String(opts.get("ground", "0")) == "1", "slots": [
+		var cfg := {"map": opts["map"], "seed": int(opts["seed"]), "ground": String(opts.get("ground", "0")) == "1", "ground_nocap": String(opts.get("groundcap", "on")) == "off", "slots": [
 			{"who": opts["who"], "faction": fac, "colour": 0, "side": 0, "strategy": opts["plan"]},
 			{"who": "you", "faction": opts["foe"], "colour": 1, "side": 1, "strategy": "balanced"}]}
 		main.start(cfg)

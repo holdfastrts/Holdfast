@@ -2348,7 +2348,7 @@ func _start_flood(hall: Building, block: Rect2i, ring: Dictionary) -> Array:
 ## gets, with its own room to walk and the hall's room kept clear. (-1, -1): no such spot.
 ## `placed`: the starting buildings already standing, which the next one packs up against.
 func find_start_spot(t: int, kind: String, hall: Building, placed: Array) -> Vector2i:
-	if Defs.is_econ(kind) and econ_count(t, kind) >= econ_limit(t, kind):
+	if Defs.is_econ(kind) and (econ_capped(kind) or is_ai_team(t)) and econ_count(t, kind) >= econ_limit(t, kind):
 		return Vector2i(-1, -1)
 	_spot_halls = halls_of(t)
 	_spot_all_halls = halls_of(t, false)
@@ -2474,7 +2474,7 @@ func _start_room(cell: Vector2i, size: Vector2i) -> bool:
 ## nearest the middle of the map. `ground`: only on the building's own ground (its height:
 ## the computer keeps its buildings up on its main's plateau, inside its walls).
 func find_spot(t: int, kind: String, around: Building, min_d: int, max_d: int, prefer := "near", ground := false, anchor := Vector2.INF) -> Vector2i:
-	if Defs.is_econ(kind) and econ_count(t, kind) >= econ_limit(t, kind):
+	if Defs.is_econ(kind) and (econ_capped(kind) or is_ai_team(t)) and econ_count(t, kind) >= econ_limit(t, kind):
 		return Vector2i(-1, -1)
 	_spot_halls = halls_of(t)
 	_spot_all_halls = halls_of(t, false)
@@ -3024,7 +3024,73 @@ func econ_count(t: int, kind: String) -> int:
 
 
 func econ_limit(t: int, kind: String) -> int:
+	if not econ_capped(kind):
+		return _nocap_limit(t, kind)
 	return Defs.econ_per_hall(faction_of(t), kind) * maxi(1, halls_of(t).size())
+
+
+## Does a hall limit this economy building? Not a Farm / Cog Press with NO FARM/PRESS LIMIT on (Defs.ground_nocap, with the
+## ground system on: docs/ground_nocap_study.md): the player may build as many as the ground will feed.
+func econ_capped(kind: String) -> bool:
+	return not (Defs.ground_nocap and GroundLayer.drinks(kind))
+
+
+## A computer's side (Game.ais)? NO FARM/PRESS LIMIT: the computers keep their own rule (nocap_allow); the player has none.
+func is_ai_team(t: int) -> bool:
+	for a in ais:
+		if a.team == t:
+			return true
+	return false
+
+
+## NO FARM/PRESS LIMIT: what econ_limit says (the computers read it): each hall's usual number, or one more than its district
+## feeds now where one more is worth it (nocap_allow). Looked at again every 2 s.
+var _nocap_cache := {}
+
+
+func _nocap_limit(t: int, kind: String) -> int:
+	var key := "%d:%s" % [t, kind]
+	var c = _nocap_cache.get(key)
+	if c != null and clock - float(c[0]) < 2.0:
+		return int(c[1])
+	var hs := halls_of(t)
+	var n := 0
+	for h in hs:
+		n += nocap_allow(t, kind, h)
+	n = maxi(n, Defs.econ_per_hall(faction_of(t), kind))
+	_nocap_cache[key] = [clock, n]
+	return n
+
+
+## NO FARM/PRESS LIMIT, the computers' rule for one district: its usual number (2); one more than it feeds now while it has
+## fewer than nocap_max extra and the ground its district has left, shared out among them all, pays nocap_pay times the
+## new one's price and its crew's (Defs.LAND); else what it feeds now.
+func nocap_allow(t: int, kind: String, hall: Building) -> int:
+	var base := Defs.econ_per_hall(faction_of(t), kind)
+	var live := _district_live(t, kind, hall)
+	if live < base:
+		return base
+	if live >= base + int(Defs.LAND["nocap_max"]) or land() == null or not hall.built:
+		return live
+	var d: Array = ground_layer.district(hall)
+	var worker: String = Defs.FACTIONS[faction_of(t)]["worker"] if Defs.FACTIONS[faction_of(t)].has("worker") else ""
+	var w_cost := int(Defs.UNITS[worker]["cost"]) if Defs.UNITS.has(worker) else 50
+	var price := int(Defs.BUILDINGS[kind]["cost"]) + int(Defs.BUILDINGS[kind].get("crew", 0)) * w_cost
+	if float(d[0]) / float(live + 1) >= float(Defs.LAND["nocap_pay"]) * price:
+		return live + 1
+	return live
+
+
+## NO FARM/PRESS LIMIT: the Farms / Cog Presses a side has beyond its halls' usual number (counted district by district):
+## the computers' worker caps make room for their crews.
+func nocap_extra(t: int, kind: String) -> int:
+	if econ_capped(kind):
+		return 0
+	var base := Defs.econ_per_hall(faction_of(t), kind)
+	var n := 0
+	for h in halls_of(t):
+		n += maxi(0, _district_live(t, kind, h) - base)
+	return n
 
 
 func add_res2(t: int, v: float) -> void:
@@ -5127,7 +5193,7 @@ func placement_problem(t: int, k: String, c: Vector2i, ai := false, limits_check
 			if h.center().distance_to(mid0) < spacing * T:
 				return "Too close to your other %s: it needs its own ground." % Defs.BUILDINGS[k]["name"]
 	if Defs.is_econ(k):
-		if not limits_checked and econ_count(t, k) >= econ_limit(t, k):
+		if not limits_checked and (econ_capped(k) or is_ai_team(t)) and econ_count(t, k) >= econ_limit(t, k):
 			return "Each %s allows %d %s. Expand for more." % [Defs.BUILDINGS[faction_hall(t)]["name"],
 				Defs.econ_per_hall(faction_of(t), k), Defs.BUILDINGS[k]["name"] + ("s" if Defs.econ_per_hall(faction_of(t), k) > 1 else "")]
 		var mid := (Vector2(c) + Vector2(size) * 0.5) * T
@@ -5138,7 +5204,17 @@ func placement_problem(t: int, k: String, c: Vector2i, ai := false, limits_check
 				break
 		if not near:
 			return "Must be near your %s." % Defs.BUILDINGS[faction_hall(t)]["name"]
-		if GroundLayer.drinks(k) and bool(Defs.LAND["local"]):
+		if not econ_capped(k):
+			# NO FARM/PRESS LIMIT (docs/ground_nocap_study.md): no limit for the player, only the ground; a computer keeps its
+			# own rule: one more by a hall only where it is worth it (nocap_allow), on a spot whose circle still holds enough
+			var hall0 := nearest_hall(mid, t)
+			if hall0 and is_ai_team(t):
+				var live0 := _district_live(t, k, hall0)
+				if live0 >= nocap_allow(t, k, hall0):
+					return "This district's ground is fed well enough."
+				if live0 >= Defs.econ_per_hall(faction_of(t), k) and land() != null and ground_layer.quick(k, c) < float(Defs.LAND["extra_min"]):
+					return "Too little ground left here for one more."
+		elif GroundLayer.drinks(k) and bool(Defs.LAND["local"]):
 			# THE GROUND SYSTEM: the limit is the DISTRICT's (its nearest hall's), and spent ones don't count
 			var hall := nearest_hall(mid, t)
 			if hall and _district_live(t, k, hall) >= Defs.econ_per_hall(faction_of(t), k):

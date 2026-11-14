@@ -20,6 +20,7 @@ extends SceneTree
 ##   godot --headless --fixed-fps 30 --script res://tools/econ_bench.gd -- <faction> [minutes=20] [map=greenhold]
 ##       [seed=1] [exp=240,480] [press=big|small] [ground=0|1] [out=<file.json>]
 ## ground=1: THE GROUND SYSTEM on (docs/ground_system.md); spent Farms / Presses still come down (_recycle).
+## groundcap=off drink=N (ground-nocap-study, docs/ground_nocap_study.md): no hall limit on Farms / Presses, N of them a hall.
 ##
 ## Prints a line a minute and a final RESULT line (JSON): per minute the primary and secondary earned that minute and
 ## cumulative, workers, workers at work, halls / Rootmaws, the primary resource left (soil, brass, ground), spending.
@@ -75,7 +76,7 @@ func _process(delta: float) -> bool:
 	if t > 0.2 and main.game == null:
 		seed(int(opts["seed"]))
 		var other := "crown" if fac != "crown" else "clockwork"
-		main.start({"map": opts["map"], "seed": int(opts["seed"]), "ground": String(opts["ground"]) == "1", "slots": [
+		main.start({"map": opts["map"], "seed": int(opts["seed"]), "ground": String(opts["ground"]) == "1", "ground_nocap": String(opts.get("groundcap", "on")) == "off", "slots": [
 			{"who": "hard", "faction": fac, "colour": 0, "side": 0, "strategy": "balanced"},
 			{"who": "you", "faction": other, "colour": 1, "side": 1, "strategy": "balanced"}]})
 		g = main.game
@@ -240,7 +241,10 @@ func _think() -> void:
 		if _fresh(h) <= 0.05:
 			continue
 		for k in order:
-			if _of_hall(k, h) >= Defs.econ_per_hall(fac, k) or g.econ_count(0, k) >= g.econ_limit(0, k):
+			var per := Defs.econ_per_hall(fac, k)
+			if not g.econ_capped(k) and opts.has("drink"):
+				per = int(opts["drink"])     # (ground-nocap-study: NO FARM/PRESS LIMIT, drink=N Farms / Presses a hall)
+			if _of_hall(k, h) >= per or (g.econ_capped(k) and g.econ_count(0, k) >= g.econ_limit(0, k)):
 				continue
 			var big: bool = fac == "clockwork" and k == Defs.GEAR_PRESS and String(opts["press"]) == "big"
 			if GearNet.pickable(k):
