@@ -32,9 +32,12 @@ def load(root, cfg, rnd=None):
             res = "D"
             lead = "w" if sc[c] > 1.1 * sc[w] else ("l" if sc[w] > 1.1 * sc[c] else "=")
         halls = [0, 0]
+        first_lost = [None, None]
         for e in g["events"]:
             if e.get("ev") == "hall_lost" and e.get("built"):
                 halls[e["p"]] += 1
+                if first_lost[e["p"]] is None:
+                    first_lost[e["p"]] = e["t"]
         reads = [x for x in g.get("reads", []) if x["p"] == c and "read" in x]
         picks = [x for x in g.get("reads", []) if x["p"] == c and "pick" in x]
         cw_picks = [x for x in g.get("reads", []) if x["p"] == w and "pick" in x]
@@ -60,7 +63,9 @@ def load(root, cfg, rnd=None):
                "w_after": ">".join(w_after), "picks": [x["pick"] for x in picks], "cw_picks": [x["pick"] for x in cw_picks],
                "cw_greedy_read": "GREEDY" in cw_reads, "cw_aggr_read": "AGGRESSIVE" in cw_reads,
                "cw_plans_picked": [x["pick"].split("->")[1].strip().split(" ")[0] for x in sorted(cw_picks, key=lambda x: x["t"])],
-               "cw_final_plan": g["final"][w].get("plan", "")}
+               "cw_final_plan": g["final"][w].get("plan", ""),
+               "first_hall_lost_c": first_lost[c], "score_ratio": sc[c] / max(1, sc[w]),
+               "units_lost_c": g["final"][c].get("lost", 0), "units_lost_w": g["final"][w].get("lost", 0)}
         for m in (5, 8, 10, 12, 15):
             for k, p in (("c", c), ("w", w)):
                 r = at.get((p, m))
@@ -126,6 +131,29 @@ def table(root, rnd):
         a, n = mean([r["halls10_c"] for r in rs]); b, _ = mean([r["halls10_w"] for r in rs])
         cells.append("%.1f / %.1f" % (a, b) if n else "-")
         print("| %s | %s |" % (c, " | ".join(cells)))
+    print("\n## Continuous measures (the results are all at the floor)\n")
+    print("| run | Crown score / CW score at the end (income + 2 x army; mean, median) | Crown's first hall lost (games, median time) | units lost Crown / CW (mean) |")
+    print("|---|---|---|---|")
+    for c, rows in data.items():
+        rs = list(rows.values())
+        sr = [r["score_ratio"] for r in rs]
+        fl = [r["first_hall_lost_c"] for r in rs if r["first_hall_lost_c"] is not None]
+        print("| %s | %.2f, %.2f | %d, %s | %d / %d |" % (c, st.mean(sr), st.median(sr), len(fl), mmss(st.median(fl)) if fl else "-",
+              st.mean([r["units_lost_c"] for r in rs]), st.mean([r["units_lost_w"] for r in rs])))
+    # paired: the same game (map, seed, sides) in two runs
+    base = data.get("default")
+    if base:
+        print("\n## Paired with the default run (the same map, seed and sides)\n")
+        print("| run | games paired | better result / same / worse (L < D- < D < D+ < W) | score ratio higher in |")
+        print("|---|---|---|---|")
+        rank = lambda r: {"L": 0, "l": 1, "=": 2, "w": 3, "W": 4}[r["lead"]]
+        for c, rows in data.items():
+            if c == "default":
+                continue
+            pr = [(base[t], rows[t]) for t in rows if t in base]
+            b = sum(rank(y) > rank(x) for x, y in pr); e = sum(rank(y) == rank(x) for x, y in pr); wo = sum(rank(y) < rank(x) for x, y in pr)
+            hi = sum(y["score_ratio"] > x["score_ratio"] for x, y in pr)
+            print("| %s | %d | %d / %d / %d | %d of %d |" % (c, len(pr), b, e, wo, hi, len(pr)))
     print("\n## What the Clockwork did: its reads of the Crown and its OPTIMAL picks\n")
     print("| run | CW read the Crown GREEDY | read it AGGRESSIVE | CW plans picked (all picks) | CW plan at the end |")
     print("|---|---|---|---|---|")
