@@ -4520,8 +4520,6 @@ func unit_price(t: int, key: String) -> Array:
 		var f := kit_fee(kit_for_new(t, key), k)
 		p[0] += f[0]
 		p[1] += f[1]
-	if k == MarchingBand.KIND and t >= 0 and t < players.size():
-		p[0] += MarchingBand.price_extra(self, t)      # (+25 gold for each musician researched: they all come with it)
 	return p
 
 
@@ -4662,6 +4660,9 @@ func refit_done(u: Unit, what: Array) -> void:
 
 ## Train a unit kind, or a Barracks train button (Defs.TRAIN_AS): the soldier goes in the
 ## queue as his kind, with the kit he was paid to come out with beside it.
+var train_band_id := 0       # (MarchingBand.recruit: the band a Fifer / Piper being queued is for, for train's kit)
+
+
 func train(b: Building, key: String) -> String:
 	var why := can_train(b, key)
 	if why != "":
@@ -4695,9 +4696,9 @@ func train(b: Building, key: String) -> String:
 	if k == "horse":
 		kit = kit.duplicate()
 		kit["coat"] = HorseCoat.pick()      # (decided now: the paddock shows it, the horse comes out in it)
-	if k == MarchingBand.KIND and price[0] > int(Defs.UNITS[k]["cost"]):
+	if MarchingBand.MUSICIANS.has(k) and train_band_id != 0:
 		kit = kit.duplicate()
-		kit["bandx"] = price[0] - int(Defs.UNITS[k]["cost"])      # (its musicians' share of the price: paid back if cancelled)
+		kit["band"] = train_band_id      # (RECRUIT on a band's card: the musician walks to THAT band; MarchingBand.recruit)
 	b.add_entry(k, kit)
 	return ""
 
@@ -4839,6 +4840,9 @@ func spawn_trained(b: Building, k: String, kit: Dictionary = {}) -> void:
 		var u := _add_unit(sk, b.team, spawn_at + Vector2(randf_range(-6, 6), randf_range(-6, 6)))
 		if Defs.AMMO.has(sk):
 			arm_recruit(u, b)        # (crown-ammo: the powder in the bank buys his shots as he comes out)
+		if MarchingBand.MUSICIANS.has(sk):
+			MarchingBand.on_spawn(u, b, kit)      # (a Fifer / Piper: off to his band, else to the rally to wait)
+			continue
 		if sk != k:
 			u.set_kit(kit)
 			u.horse_rid = rid
@@ -6844,11 +6848,14 @@ func entity_at(p: Vector2, _any := true) -> Entity:
 	# (the mouse asks this whenever it moves: a unit more than 26 px away on either axis can't
 	# be the nearest within 26 px, so it's passed over before anything else is asked of it)
 	for u in units:
-		if absf(u.position.x - p.x) >= 26.5 or absf(u.position.y - 12.0 - p.y) >= 26.5:
+		var wide: bool = u.kind == MarchingBand.KIND      # (the band's three musicians stand in a row: picked along it, band-v2)
+		if absf(u.position.x - p.x) >= (40.5 if wide else 26.5) or absf(u.position.y - 12.0 - p.y) >= 26.5:
 			continue
 		if u.dead or not shown_to_commander(u):
 			continue
 		var dd: float = (u.position + Vector2(0, -12)).distance_to(p)
+		if wide:
+			dd = Vector2((u.position.x - p.x) * 0.62, u.position.y - 12.0 - p.y).length()
 		if dd < bd:
 			var rider := Unit.mounting_onto(u)
 			if rider != null and (rider.dead or not shown_to_commander(rider)):
@@ -10340,6 +10347,15 @@ func smart_command(list: Array, p: Vector2, force_move := false, queued := false
 				u.give({"o": "move", "p": p}, queued)
 		_ping(p, Color(1, 0.85, 0.3))
 		return
+	# a Fifer / Piper right-clicked onto a band of ours: he walks over and joins it (band-v2: scripts/marching_band.gd)
+	if e is Unit and e.kind == MarchingBand.KIND and e.team == us[0].team and us.any(func(u: Unit) -> bool: return MarchingBand.MUSICIANS.has(u.kind)):
+		for u in us:
+			if MarchingBand.MUSICIANS.has(u.kind):
+				u.give({"o": "join", "e": e}, queued)
+			elif u != e:
+				u.give({"o": "follow", "e": e}, queued)
+		_ping(p, Color(0.4, 1, 0.4))
+		return
 	# the Marching Band sent to one of ours: it follows him (an escort: scripts/marching_band.gd)
 	if e is Unit and e.team == us[0].team and us.all(func(u: Unit) -> bool: return u.kind == MarchingBand.KIND):
 		for u in us:
@@ -10400,6 +10416,8 @@ func _smart_choice(us: Array, p: Vector2, force_move: bool) -> Array:
 			return [Color(0.9, 0.8, 0.5), "other"]
 		if e is Unit and Defs.HARNESSED.has(e.kind) and e.team_room() and us.any(func(u: Unit) -> bool: return not u.led.is_empty()):
 			return [Color(0.9, 0.8, 0.5), "other"]
+	if e is Unit and e.kind == MarchingBand.KIND and e.team == us[0].team and us.any(func(u: Unit) -> bool: return MarchingBand.MUSICIANS.has(u.kind)):
+		return [Color(0.4, 1, 0.4), "other"]
 	if e is Unit and Unit.carrier(e.kind) and e.team == us[0].team and us.any(func(u: Unit) -> bool: return u.can_board(e)):
 		return [Color(0.4, 1, 0.4), "other"]
 	if e is Building and e.team == us[0].team and e.built and Defs.crew_cap(e.d) > 0 \

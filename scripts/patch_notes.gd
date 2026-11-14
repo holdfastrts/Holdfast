@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.0", "items": [
+		"THE MARCHING BAND, NEW STRUCTURE: the Fifer and the Piper are no longer research. Train them at the Armoury one at a time (Fifer 60 gold and 10 powder, Piper 75 gold, 20 s each): each comes out, walks to a band without one and joins it (+15 health to the band, his instrument and its solo). RECRUIT FIFER / RECRUIT PIPER on a band's card sends one to THAT band; right-click a band with a Fifer or Piper selected (or JOIN BAND) to send him there. One of each a band; a band no longer costs more for its musicians. A musician with no band to join waits at the rally point.",
+		"The band's three musicians stand SIDE BY SIDE in a row, so each is clearly seen; its shadow, selection ring and click area are as wide as the row.",
+		"The band's sound: only the band nearest the middle of the screen is heard, every part on one shared clock (never two copies of a loop out of step), the always-on playing much quieter, a solo clearly heard, and the game music a little lower while a band plays. New band music will come later, built on real instrument samples.",
+	]},
 	{"v": "0.35.18", "items": [
 		"Sound sources: real drum recordings (MuldjordKit by Lars Muldjord, CC BY 4.0) kept for the band's new music; the audio credits are listed in docs/audio_credits.md.",
 	]},

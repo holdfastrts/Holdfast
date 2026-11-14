@@ -313,6 +313,14 @@ func band_hire(_ins: String) -> void:
 	pass
 
 
+## THE MARCHING BAND: RECRUIT FIFER / PIPER on its card (band-v2): one is queued at the nearest Armoury and walks to
+## THIS band.
+func band_recruit(ins: String) -> void:
+	if game.net_forward(self, "band_recruit", [ins]): return
+	if kind == MarchingBand.KIND:
+		MarchingBand.recruit(self, ins)
+
+
 ## THE MARCHING BAND: an instrument's SOLO.
 func band_solo(ins: String) -> void:
 	if game.net_forward(self, "band_solo", [ins]): return
@@ -2886,7 +2894,7 @@ func cmd_build(site: Building) -> void:
 ## The orders that end by themselves: Shift-queued orders wait behind them. Behind anything
 ## else (idle, hold, working at a post...) a queued order starts at once.
 ## (BOMBARD never ends by itself: with orders queued behind it, it hands over after Defs.BOMBARD.queued shots.)
-const QUEUE_BUSY := ["move", "amove", "attack", "build", "repair", "d_amove", "d_attack", "lead", "mount", "dismount", "bombard", "nb_root", "nb_morph"]
+const QUEUE_BUSY := ["move", "amove", "attack", "build", "repair", "d_amove", "d_attack", "lead", "mount", "dismount", "bombard", "nb_root", "nb_morph", "join"]
 
 
 ## Give an order ({"o": move/amove/attack/build/repair/gather/wall, "p", "e", "pieces"}): a
@@ -3022,6 +3030,10 @@ func _start(o: Dictionary) -> bool:
 				return false
 		"mount":
 			if e == null or not is_instance_valid(e) or not cmd_mount(e):
+				return false
+		"join":
+			# a Fifer / Piper to a Marching Band (band-v2: scripts/marching_band.gd)
+			if e == null or not is_instance_valid(e) or not (e is Unit) or not MarchingBand.start_join(self, e, true):
 				return false
 		"revive":
 			if e == null or not is_instance_valid(e):
@@ -3680,6 +3692,8 @@ func _tick_unit(delta: float) -> void:
 		speed *= band_mul.x                # (the band's DRUMS: scripts/marching_band.gd)
 	if kind == MarchingBand.KIND:
 		MarchingBand.tick(self, delta)
+	elif MarchingBand.MUSICIANS.has(kind):
+		MarchingBand.musician_tick(self, delta)     # (a loose Fifer / Piper: off to a band to join it)
 	if Defs.cw_roster and _k_cw:
 		CwUnits.pre_tick(self, delta)
 	if shield_up or shield_t > 0.0:
@@ -4051,6 +4065,8 @@ func _tick_unit(delta: float) -> void:
 			want = _dragoon_tick(delta)
 		"mount":
 			want = _mount_run(delta)
+		"join":
+			want = MarchingBand.join_run(self, delta)
 		"dismount":
 			want = _dismount_run(delta)
 		"lead":
@@ -8071,8 +8087,12 @@ func _draw_unit() -> void:
 	if not (_k_nb and nb.has("fpx")):
 		# (a rooted Brood creature is drawn in the building layer, under this: no shadow on its body; selected, its
 		# footprint is outlined: BroodNew.draw)
-		draw_set_transform(ring_at, 0.0, Vector2(1.0, 0.45))
 		var lr := BroodNew.look_r(self) if _k_nb else radius      # (the Mother: her drawn size)
+		if kind == MarchingBand.KIND:
+			var sp := MarchingBand.ring_span(self)      # (the band's row of musicians: a wider shadow and ring under all of them)
+			draw_set_transform(ring_at + Vector2(sp.x, 0.0), 0.0, Vector2(sp.y / (lr + 5.0), 0.45))
+		else:
+			draw_set_transform(ring_at, 0.0, Vector2(1.0, 0.45))
 		draw_circle(Vector2.ZERO, (lr + 2.0) * shade, Color(0, 0, 0, 0.25 + 0.3 * clampf(lifted / 30.0, 0.0, 1.0)))
 		if selected:
 			draw_arc(Vector2.ZERO, lr + 5.0, 0, TAU, 24, Color(0.4, 1.0, 0.4, 0.9), 2.0)

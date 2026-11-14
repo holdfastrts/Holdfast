@@ -400,8 +400,11 @@ static var LAND := {"district": 11.0, "soil": 9000.0, "brass": 9000.0, "r": {"fa
 	"spot_w": 40.0, "spot_min": 0.1, "local": true, "district_brass": 9.0}
 ## THE MARCHING BAND (the owner's idea 2026-10-30, a real Crown unit since 0.33.0 (the owner, 2026-11-05);
 ## scripts/marching_band.gd, docs/marching_band.md): the Crown's band of drums, pipes and fife that plays area buffs.
-## Trained at the Armoury; a new band is a Drummer; the FIFER and the PIPER are Armoury research (RESEARCH "band_fife",
-## "band_pipes") that joins EVERY band of the player. Several bands allowed; their rings don't stack (the strongest).
+## Trained at the Armoury; a new band is a Drummer. Since 0.36.0 (job band-v2, the owner 2026-11-13) the FIFER and the
+## PIPER are UNITS ("band_fifer", "band_piper", from the Armoury, one at a time, each paid for): each walks to a band of
+## its side and joins it (one of each a band). The old research "band_fife" / "band_pipes" of an old save or replay
+## still gives every band of that side the musician (MarchingBand.available). Several bands allowed; their rings don't
+## stack (the strongest).
 ## (The old experiment switch "marching_band" in a saved setup, a replay or an online cfg is ignored.)
 ## Each instrument always plays its "second" (+5%); its SOLO gives "lead" (+30%) for "solo" s, then "cooldown" s before
 ## that instrument may solo again; one solo at a time per band. "area" in px. The owner's numbers (2026-11-05).
@@ -412,15 +415,15 @@ const MARCHING_BAND := {
 	"solo": 8.0,            # s a solo lasts: about one exchange of volleys (two or three reloads)
 	"cooldown": 45.0,       # s from a solo's start before that instrument may solo again (about one fight per solo)
 	"hp_per": 15.0,         # health each musician adds to the band (60 + 15: a new Drummer band has 75, 105 with all three)
-	"per_musician": 25,     # gold: a band's price grows by this for each musician researched (50, 75, 100)
+	"join": 1.0,            # s between a loose musician's looks for a band to join (MarchingBand.musician_tick)
 	"leash": 224.0,         # px: with no orders it falls in behind the nearest moving soldier this close (7 tiles)
 	"gap": 56.0,            # px: how far behind the man it follows it keeps
-	"phrase": 4.0,          # s: the length of one phrase of its sound loop (assets/audio/band/)
+	"phrase": 4.0,          # s: the length of one phrase of its sound loop (assets/audio/band/; BandSound.PARTS)
 	"drums": {"who": "Drummer", "label": "Drums", "research": "", "lead": 0.30, "second": 0.05,
 		"stat_text": "movement speed", "col": Color(0.95, 0.35, 0.3), "solo_title": "Drum solo"},
-	"pipes": {"who": "Piper", "label": "Pipes", "research": "band_pipes", "lead": 0.30, "second": 0.05,
+	"pipes": {"who": "Piper", "label": "Pipes", "research": "band_pipes", "unit": "band_piper", "lead": 0.30, "second": 0.05,
 		"stat_text": "melee damage", "col": Color(0.45, 0.85, 0.45), "solo_title": "Pipe solo"},
-	"fife": {"who": "Fifer", "label": "Fife", "research": "band_fife", "lead": 0.30, "second": 0.05,
+	"fife": {"who": "Fifer", "label": "Fife", "research": "band_fife", "unit": "band_fifer", "lead": 0.30, "second": 0.05,
 		"stat_text": "reload speed", "col": Color(0.55, 0.75, 1.0), "solo_title": "Fife solo"},
 }
 
@@ -1200,14 +1203,29 @@ const UNITS := {
 		"requires": "charging_pylon", "anti_air": true, "faction": "clockwork",
 		"about": "Fragile lightning caster. STORM stuns everything inside it for 2.5 s, friends too, but does no damage; it burns 2 stored batteries. Its charge only fills inside a Clockwork field.",
 	},
-	# THE MARCHING BAND (scripts/marching_band.gd): from the Armoury; its price grows with the musicians researched
-	# (Game.unit_price: + MARCHING_BAND "per_musician" each), its health with the musicians in it (+ "hp_per" each)
+	# THE MARCHING BAND (scripts/marching_band.gd): from the Armoury, a Drummer; its health grows with the musicians in it
+	# (+ MARCHING_BAND "hp_per" each). The Fifer and the Piper (band-v2) come out of the Armoury on their own and walk to a
+	# band to join it ("band": the instrument they bring); unarmed, no supply of their own (the band has it).
 	"band": {
 		"tags": ["light"],
 		"name": "Marching Band", "hp": 60, "armor": 0, "speed": 62, "cost": 50, "time": 15.0, "supply": 1,
-		"sight": 8, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 12, "from": "armoury",
+		"sight": 8, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 16, "from": "armoury",
 		"no_attack": true, "faction": "crown",
-		"about": "Unarmed musicians who march behind your soldiers. A new band is a Drummer; research the Fifer and the Piper at the Armoury and they join every band. Each instrument always gives your soldiers within 5 tiles +5% (drums: speed, fife: reload, pipes: melee damage); its SOLO gives +30% for 8 s. Several bands may play, but their rings don't add up. Fragile: kill it and the music stops.",
+		"about": "Unarmed musicians who march behind your soldiers. A new band is a Drummer; train a Fifer and a Piper at the Armoury and they walk over and join it (one of each a band). Each instrument always gives your soldiers within 5 tiles +5% (drums: speed, fife: reload, pipes: melee damage); its SOLO gives +30% for 8 s. Several bands may play, but their rings don't add up. Fragile: kill it and the music stops.",
+	},
+	"band_fifer": {
+		"tags": ["light"],
+		"name": "Fifer", "hp": 30, "armor": 0, "speed": 62, "cost": 60, "cost2": 10, "time": 20.0, "supply": 0,
+		"sight": 7, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 10, "from": "armoury", "band": "fife",
+		"no_attack": true, "faction": "crown",
+		"about": "A Fifer walks to a Marching Band and joins it (+15 health to the band): the fife always gives soldiers in its ring +5% reload speed (muskets, pistols, cannons, mortars), and its FIFE SOLO +30% for 8 s. One Fifer a band. Right-click a band to send him to it.",
+	},
+	"band_piper": {
+		"tags": ["light"],
+		"name": "Piper", "hp": 30, "armor": 0, "speed": 62, "cost": 75, "time": 20.0, "supply": 0,
+		"sight": 7, "range": 0, "damage": 0, "cooldown": 1.0, "radius": 10, "from": "armoury", "band": "pipes",
+		"no_attack": true, "faction": "crown",
+		"about": "A Piper walks to a Marching Band and joins it (+15 health to the band): the bagpipes always give soldiers in its ring +5% melee damage (bayonets, sabres), and the PIPES SOLO +30% for 8 s. One Piper a band. Right-click a band to send him to it.",
 	},
 	"missionary": {
 		"tags": ["light"],
@@ -1448,8 +1466,8 @@ const BUILDINGS := {
 	},
 	"armoury": {
 		"name": "Armoury", "hp": 1000, "armor": 2, "cost": 150, "time": 40.0, "size": Vector2i(4, 3),
-		"supply": 0, "sight": 7, "trains": ["band"], "requires": "barracks", "faction": "crown",
-		"about": "All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills, the Cavalry Charge and the band's Fifer and Piper. Trains the Marching Band. Refits soldiers. Needs a Barracks.",
+		"supply": 0, "sight": 7, "trains": ["band", "band_fifer", "band_piper"], "requires": "barracks", "faction": "crown",
+		"about": "All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills and the Cavalry Charge. Trains the Marching Band, its Fifer and its Piper. Refits soldiers. Needs a Barracks.",
 	},
 	"foundry": {
 		"name": "Foundry", "hp": 900, "armor": 2, "cost": 200, "time": 45.0, "size": Vector2i(4, 3),
@@ -1631,14 +1649,8 @@ const RESEARCH := {
 	"charge": {"name": "Cavalry Charge", "label": "CHARGE", "at": "armoury", "faction": "crown", "cost": 60, "cost2": 0, "time": 25.0,
 		"icon": "research_charge", "drill": true, "kinds": ["cuirassier"],
 		"about": "Drilled to charge: after about 2 s at the gallop a Horseman's or Cuirassier's next sabre blow hits double and throws the enemy back."},
-	# THE MARCHING BAND's musicians (scripts/marching_band.gd): each joins every band of the player, those on the field at
-	# once and every new one; any order. Each makes a band 25 gold dearer (MARCHING_BAND "per_musician").
-	"band_fife": {"name": "Fifer", "label": "FIFER", "at": "armoury", "faction": "crown", "cost": 60, "cost2": 10, "time": 25.0,
-		"icon": "ab_band_fife", "band": "fife",
-		"about": "A Fifer joins every Marching Band (+15 health each): the fife always gives soldiers in a band's ring +5% reload speed (muskets, pistols, cannons, mortars), and its FIFE SOLO +30% for 8 s. New bands cost 25 gold more."},
-	"band_pipes": {"name": "Piper", "label": "PIPER", "at": "armoury", "faction": "crown", "cost": 75, "cost2": 0, "time": 25.0,
-		"icon": "ab_band_pipes", "band": "pipes",
-		"about": "A Piper joins every Marching Band (+15 health each): the bagpipes always give soldiers in a band's ring +5% melee damage (bayonets, sabres), and the PIPES SOLO +30% for 8 s. New bands cost 25 gold more."},
+	# (THE MARCHING BAND's old research "band_fife" / "band_pipes" is gone since 0.36.0: the Fifer and the Piper are
+	# units now (UNITS "band_fifer", "band_piper"); an old save's flag still gives every band the musician.)
 	# the Clockwork's Tension research (gear mode), at the Escapement (it must be working: meshed with a Mainspring)
 	"high_leap": {"name": "High Leap", "label": "HIGH LEAP", "at": "escapement", "faction": "clockwork", "cost": 150, "cost2": 0, "tension": 100,
 		"time": 60.0, "icon": "research_high_leap",
@@ -2314,7 +2326,9 @@ const TIPS := {
 	"dismounted_cuirassier": "Armoured Officer: a Cuirassier on foot, pistol and sabre, in his cuirass; reloads on foot. Needs Armour. MOUNT a horse: a Cuirassier.",
 	"balloon": "Carries 4 Musketeers or Labourers anywhere, over cliffs too. Musketeers aboard shoot 35% further. Slow and fragile.",
 	"missionary": "Bandages the wounded and raises fallen Crown soldiers. Can't be hurt away from enemy buildings. One per Church.",
-	"band": "Marching Band: a Drummer (speed), and the Fifer (reload) and Piper (melee damage) once researched at the Armoury. Each instrument gives +5% within 5 tiles; its SOLO +30% for 8 s, one solo at a time. Unarmed and fragile.",
+	"band": "Marching Band: a Drummer (speed); train a Fifer (reload) and a Piper (melee damage) at the Armoury and they walk over and join it. Each instrument gives +5% within 5 tiles; its SOLO +30% for 8 s, one solo at a time. Unarmed and fragile.",
+	"band_fifer": "Fifer: walks to a Marching Band and joins it (one a band): +5% reload speed in its ring, FIFE SOLO +30%. Right-click a band to send him there.",
+	"band_piper": "Piper: walks to a Marching Band and joins it (one a band): +5% melee damage in its ring, PIPES SOLO +30%. Right-click a band to send him there.",
 	# Brood units
 	"grub": "Carries food from Rootmaws and food piles to the Brood Mother (longer trips pay more). BUILD turns it into a Rootmaw, a Mound Turtle or a Sire.",
 	"raptor": "Fast, flimsy claws. Two hatch from each egg (three with BIGGER CLUTCH).",
@@ -2371,6 +2385,8 @@ const SHORT := {
 	"dismounted": "A Horseman on foot: pistol and sabre. MOUNT a horse to ride.",
 	"balloon": "Carries 4 men over anything; Musketeers aboard shoot farther.",
 	"band": "Plays buffs to your soldiers within 5 tiles; SOLOS for big ones. Unarmed.",
+	"band_fifer": "Walks to a Marching Band and joins it: the fife (reload).",
+	"band_piper": "Walks to a Marching Band and joins it: the pipes (melee).",
 	"missionary": "Bandages the wounded and raises fallen soldiers. One per Church.",
 	"mounted_missionary": "A Missionary on a horse: fast and unarmed; gets off to heal.",
 	# Brood

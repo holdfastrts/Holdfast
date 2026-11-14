@@ -1,0 +1,129 @@
+# THE MARCHING BAND v2 (0.36.0; docs/band_v2.md): the Fifer and the Piper are units that walk to a band and join it
+
+> Unarmed musicians who march behind your soldiers. A new band is a Drummer; train a Fifer and a Piper at the Armoury and they walk over and join it (one of each a band). Each instrument always gives your soldiers within 5 tiles +5% (drums: speed, fife: reload, pipes: melee damage); its SOLO gives +30% for 8 s. Several bands may play, but their rings don't add up. Fragile: kill it and the music stops.
+pt Músicos desarmados que marcham atrás dos seus soldados. Uma banda nova é um Tambor; treine um Pifeiro e um Gaiteiro no Arsenal e eles vão até ela e entram nela (um de cada por banda). Cada instrumento sempre dá +5% aos seus soldados a até 5 casas (tambores: velocidade, pífaro: recarga, gaita: dano corpo a corpo); o SOLO dele dá +30% por 8 s. Várias bandas podem tocar, mas os círculos delas não se somam. Frágil: mate-a e a música para.
+es Músicos desarmados que marchan tras tus soldados. Una banda nueva es un Tambor; entrena un Pifanero y un Gaitero en la Armería y van hasta ella y se unen (uno de cada por banda). Cada instrumento siempre da +5% a tus soldados a 5 casillas (tambores: velocidad, pífano: recarga, gaita: daño cuerpo a cuerpo); su SOLO da +30% durante 8 s. Pueden tocar varias bandas, pero sus círculos no se suman. Frágil: mátala y la música se acaba.
+
+> A Fifer walks to a Marching Band and joins it (+15 health to the band): the fife always gives soldiers in its ring +5% reload speed (muskets, pistols, cannons, mortars), and its FIFE SOLO +30% for 8 s. One Fifer a band. Right-click a band to send him to it.
+pt Um Pifeiro vai até uma Banda Marcial e entra nela (+15 de vida para a banda): o pífaro sempre dá aos soldados no círculo dela +5% de velocidade de recarga (mosquetes, pistolas, canhões, morteiros), e o SOLO DE PÍFARO +30% por 8 s. Um Pifeiro por banda. Clique com o botão direito numa banda para mandá-lo até ela.
+es Un Pifanero va hasta una Banda Militar y se une a ella (+15 de vida para la banda): el pífano siempre da a los soldados en su círculo +5% de velocidad de recarga (mosquetes, pistolas, cañones, morteros), y el SOLO DE PÍFANO +30% durante 8 s. Un Pifanero por banda. Haz clic derecho en una banda para enviarlo a ella.
+
+> A Piper walks to a Marching Band and joins it (+15 health to the band): the bagpipes always give soldiers in its ring +5% melee damage (bayonets, sabres), and the PIPES SOLO +30% for 8 s. One Piper a band. Right-click a band to send him to it.
+pt Um Gaiteiro vai até uma Banda Marcial e entra nela (+15 de vida para a banda): a gaita de foles sempre dá aos soldados no círculo dela +5% de dano corpo a corpo (baionetas, sabres), e o SOLO DE GAITA +30% por 8 s. Um Gaiteiro por banda. Clique com o botão direito numa banda para mandá-lo até ela.
+es Un Gaitero va hasta una Banda Militar y se une a ella (+15 de vida para la banda): la gaita siempre da a los soldados en su círculo +5% de daño cuerpo a cuerpo (bayonetas, sables), y el SOLO DE GAITA +30% durante 8 s. Un Gaitero por banda. Haz clic derecho en una banda para enviarlo a ella.
+
+> Marching Band: a Drummer (speed); train a Fifer (reload) and a Piper (melee damage) at the Armoury and they walk over and join it. Each instrument gives +5% within 5 tiles; its SOLO +30% for 8 s, one solo at a time. Unarmed and fragile.
+pt Banda Marcial: um Tambor (velocidade); treine um Pifeiro (recarga) e um Gaiteiro (dano corpo a corpo) no Arsenal e eles vão até ela e entram nela. Cada instrumento dá +5% a até 5 casas; o SOLO dele, +30% por 8 s, um solo de cada vez. Desarmada e frágil.
+es Banda Militar: un Tambor (velocidad); entrena un Pifanero (recarga) y un Gaitero (daño cuerpo a cuerpo) en la Armería y van hasta ella y se unen. Cada instrumento da +5% a 5 casillas; su SOLO, +30% durante 8 s, un solo cada vez. Desarmada y frágil.
+
+> Fifer: walks to a Marching Band and joins it (one a band): +5% reload speed in its ring, FIFE SOLO +30%. Right-click a band to send him there.
+pt Pifeiro: vai até uma Banda Marcial e entra nela (um por banda): +5% de velocidade de recarga no círculo dela, SOLO DE PÍFARO +30%. Clique com o botão direito numa banda para mandá-lo até lá.
+es Pifanero: va hasta una Banda Militar y se une a ella (uno por banda): +5% de velocidad de recarga en su círculo, SOLO DE PÍFANO +30%. Haz clic derecho en una banda para enviarlo allí.
+
+> Piper: walks to a Marching Band and joins it (one a band): +5% melee damage in its ring, PIPES SOLO +30%. Right-click a band to send him there.
+pt Gaiteiro: vai até uma Banda Marcial e entra nela (um por banda): +5% de dano corpo a corpo no círculo dela, SOLO DE GAITA +30%. Clique com o botão direito numa banda para mandá-lo até lá.
+es Gaitero: va hasta una Banda Militar y se une a ella (uno por banda): +5% de daño cuerpo a cuerpo en su círculo, SOLO DE GAITA +30%. Haz clic derecho en una banda para enviarlo allí.
+
+> Walks to a Marching Band and joins it: the fife (reload).
+pt Vai até uma Banda Marcial e entra nela: o pífaro (recarga).
+es Va hasta una Banda Militar y se une a ella: el pífano (recarga).
+
+> Walks to a Marching Band and joins it: the pipes (melee).
+pt Vai até uma Banda Marcial e entra nela: a gaita (corpo a corpo).
+es Va hasta una Banda Militar y se une a ella: la gaita (cuerpo a cuerpo).
+
+> All the Crown's research: Armour, the musket locks, the bayonet, the guns' drills and the Cavalry Charge. Trains the Marching Band, its Fifer and its Piper. Refits soldiers. Needs a Barracks.
+pt Toda a pesquisa da Coroa: Armadura, os fechos dos mosquetes, a baioneta, os exercícios dos canhões e a Carga de Cavalaria. Treina a Banda Marcial, o Pifeiro e o Gaiteiro dela. Reequipa soldados. Precisa de um Quartel.
+es Toda la investigación de la Corona: Armadura, las llaves de los mosquetes, la bayoneta, los ejercicios de los cañones y la Carga de Caballería. Entrena la Banda Militar, su Pifanero y su Gaitero. Reequipa soldados. Necesita un Cuartel.
+
+> Fifer
+pt Pifeiro
+es Pifanero
+
+> Piper
+pt Gaiteiro
+es Gaitero
+
+> No %s in the band yet. Train one at the Armoury (RECRUIT on the band's card).
+pt Ainda não há %s na banda. Treine um no Arsenal (RECRUTAR no cartão da banda).
+es Aún no hay %s en la banda. Entrena uno en la Armería (RECLUTAR en la tarjeta de la banda).
+
+> That band has a %s already (or one on his way).
+pt Essa banda já tem um %s (ou um a caminho).
+es Esa banda ya tiene un %s (o uno en camino).
+
+> This band has its %s.
+pt Esta banda já tem o seu %s.
+es Esta banda ya tiene su %s.
+
+> A %s is on his way to this band.
+pt Um %s está a caminho desta banda.
+es Un %s está en camino a esta banda.
+
+> Build an Armoury: the %s is trained there.
+pt Construa um Arsenal: o %s é treinado lá.
+es Construye una Armería: el %s se entrena allí.
+
+> He walks to a band without a %s and joins it; none wants one now, so he waits at the rally point.
+pt Ele vai até uma banda sem %s e entra nela; nenhuma quer um agora, então ele espera no ponto de encontro.
+es Va hasta una banda sin %s y se une a ella; ninguna quiere uno ahora, así que espera en el punto de reunión.
+
+> He walks to the nearest band without a %s and joins it (%d want one).
+pt Ele vai até a banda mais próxima sem %s e entra nela (%d querem um).
+es Va hasta la banda más cercana sin %s y se une a ella (%d quieren uno).
+
+> Comes out as a Drummer. Train a Fifer and a Piper here too: they walk to a band and join it.
+pt Sai como um Tambor. Treine também um Pifeiro e um Gaiteiro aqui: eles vão até uma banda e entram nela.
+es Sale como un Tambor. Entrena también un Pifanero y un Gaitero aquí: van hasta una banda y se unen a ella.
+
+> Walking to a Marching Band to join it (%s).
+pt Indo até uma Banda Marcial para entrar nela (%s).
+es Yendo hasta una Banda Militar para unirse a ella (%s).
+
+> No band to join: every band has a %s. Waiting.
+pt Nenhuma banda para entrar: todas já têm um %s. Esperando.
+es Ninguna banda a la que unirse: todas tienen un %s. Esperando.
+
+> Off to join a Marching Band.
+pt Indo entrar numa Banda Marcial.
+es En camino a unirse a una Banda Militar.
+
+> JOIN BAND
+pt ENTRAR NA BANDA
+es UNIRSE A LA BANDA
+
+> Join a band
+pt Entrar numa banda
+es Unirse a una banda
+
+> He walks to the nearest Marching Band of yours without his instrument and joins it (+15 health to the band, his instrument and its solo). Or right-click a band to send him to that one.
+pt Ele vai até a sua Banda Marcial mais próxima sem o instrumento dele e entra nela (+15 de vida para a banda, o instrumento dele e o solo). Ou clique com o botão direito numa banda para mandá-lo até ela.
+es Va hasta tu Banda Militar más cercana sin su instrumento y se une a ella (+15 de vida para la banda, su instrumento y su solo). O haz clic derecho en una banda para enviarlo a ella.
+
+> No band wants him: every band has one already, or you have none (train a Marching Band at the Armoury).
+pt Nenhuma banda o quer: todas já têm um, ou você não tem nenhuma (treine uma Banda Marcial no Arsenal).
+es Ninguna banda lo quiere: todas tienen uno ya, o no tienes ninguna (entrena una Banda Militar en la Armería).
+
+> RECRUIT FIFER
+pt RECRUTAR PIFEIRO
+es RECLUTAR PIFANERO
+
+> RECRUIT PIPER
+pt RECRUTAR GAITEIRO
+es RECLUTAR GAITERO
+
+> Recruit a %s
+pt Recrutar um %s
+es Reclutar un %s
+
+> A %s is trained at your nearest Armoury (%s, %d s) and walks to THIS band to join it (+15 health to the band, +5%% %s in its ring and the %s SOLO). One %s a band.
+pt Um %s é treinado no seu Arsenal mais próximo (%s, %d s) e vai até ESTA banda para entrar nela (+15 de vida para a banda, +5%% de %s no círculo dela e o SOLO DE %s). Um %s por banda.
+es Un %s se entrena en tu Armería más cercana (%s, %d s) y va hasta ESTA banda para unirse a ella (+15 de vida para la banda, +5%% de %s en su círculo y el SOLO DE %s). Un %s por banda.
+
+> %d gold, %d powder
+pt %d de ouro, %d de pólvora
+es %d de oro, %d de pólvora
+
+> The Marching Band (Armoury, needs a Barracks): unarmed musicians who march behind your soldiers. A new band is a Drummer; train a Fifer and a Piper at the Armoury, one at a time: each walks to a band without one and joins it (RECRUIT on a band's card sends him to that band; right-click a band to send one there). Every instrument always gives your soldiers and guns within 5 tiles +5%: drums movement speed, fife reload (muskets, pistols, cannons, mortars; not a man out of shots), pipes melee damage. Its SOLO gives +30% for 8 s, then 45 s before that instrument may solo again; one solo at a time in a band. Several bands may play, but their rings don't add up. The ring changes colour in a solo, so the enemy sees it coming: kill the band and the music stops.
+pt A Banda Marcial (Arsenal, precisa de um Quartel): músicos desarmados que marcham atrás dos seus soldados. Uma banda nova é um Tambor; treine um Pifeiro e um Gaiteiro no Arsenal, um de cada vez: cada um vai até uma banda sem ele e entra nela (RECRUTAR no cartão de uma banda o manda para essa banda; clique com o botão direito numa banda para mandar um até lá). Cada instrumento sempre dá +5% aos seus soldados e canhões a até 5 casas: tambores, velocidade de movimento; pífaro, recarga (mosquetes, pistolas, canhões, morteiros; não um homem sem tiros); gaita, dano corpo a corpo. O SOLO dele dá +30% por 8 s, depois 45 s até aquele instrumento poder solar de novo; um solo de cada vez numa banda. Várias bandas podem tocar, mas os círculos delas não se somam. O círculo muda de cor num solo, então o inimigo o vê chegando: mate a banda e a música para.
+es La Banda Militar (Armería, necesita un Cuartel): músicos desarmados que marchan tras tus soldados. Una banda nueva es un Tambor; entrena un Pifanero y un Gaitero en la Armería, uno cada vez: cada uno va hasta una banda sin él y se une a ella (RECLUTAR en la tarjeta de una banda lo envía a esa banda; haz clic derecho en una banda para enviar uno allí). Cada instrumento siempre da +5% a tus soldados y cañones a 5 casillas: tambores, velocidad de movimiento; pífano, recarga (mosquetes, pistolas, cañones, morteros; no un hombre sin disparos); gaita, daño cuerpo a cuerpo. Su SOLO da +30% durante 8 s, luego 45 s hasta que ese instrumento pueda volver a hacer un solo; un solo cada vez en una banda. Pueden tocar varias bandas, pero sus círculos no se suman. El círculo cambia de color en un solo, así que el enemigo lo ve venir: mata la banda y la música se acaba.

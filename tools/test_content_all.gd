@@ -815,6 +815,11 @@ func _train_one(b: Building, key: String) -> void:
 		return
 	tracked.append(out)
 	await wait(1.5)
+	if not is_instance_valid(out) or out.dead:
+		# (band-v2: a Fifer / Piper may walk straight into a band of this test and join it: he is gone from the field)
+		ok_rec(e, "make", MarchingBand.MUSICIANS.has(kind), "came out of the %s as a %s and is gone 1.5 s later%s" % [b.kind, kind, " (joined a band)" if MarchingBand.MUSICIANS.has(kind) else ""])
+		b.rally = Vector2.INF
+		return
 	var sup1 := g.supply_used(0)
 	var want_sup := int(d["supply"]) * int(d.get("spawn", 1))
 	ok_rec(e, "make", true, "came out of the %s as a %s after %.1f s%s" % [b.kind, out.kind, n / 30.0, (" (+%d supply, %d expected)" % [sup1 - sup0, want_sup])])
@@ -1932,7 +1937,12 @@ func _crown_rules() -> void:
 	await wait(1.5)
 	var m1: Vector3 = sol.band_mul if sol.band_until > g.clock else Vector3.ONE
 	ok_rec("unit:band", "ability", m1.x > 1.0 or m1.z > 1.0, "a Musketeer beside the band: speed x%.2f, melee x%.2f, reload x%.2f" % [m1.x, m1.y, m1.z])
-	var why := MarchingBand.solo(band, "fife") if g.has_tech(0, "band_fife") else "no Fifer researched"
+	# (band-v2: a Fifer is a unit that walks over and joins it)
+	var fif := _spawn_ready("band_fifer", bat + Vector2(-70, 30))
+	fif.give({"o": "join", "e": band})
+	var joined: bool = await wait_for(func() -> bool: return MarchingBand.has(band, "fife"), 10.0)
+	ok_rec("unit:band_fifer", "ability", joined, "JOIN: a Fifer walks to the band and joins it (%s)" % str(band.band.get("m", [])))
+	var why := MarchingBand.solo(band, "fife") if MarchingBand.has(band, "fife") else "no Fifer in the band"
 	await wait(1.0)
 	var m2: Vector3 = sol.band_mul if sol.band_until > g.clock else Vector3.ONE
 	ok_rec("unit:band", "ability", why == "" and m2.z > m1.z + 0.1, "FIFE SOLO: reload x%.2f -> x%.2f %s" % [m1.z, m2.z, why])

@@ -1,6 +1,7 @@
 extends SceneTree
-## Screenshots of THE MARCHING BAND (scripts/marching_band.gd, docs/marching_band.md): a new band (the Drummer alone) and
-## its card, the full band (Drummer, Fifer, Piper) behind a Musketeer line with its ring and card, the fife's solo while the
+## Screenshots of THE MARCHING BAND (scripts/marching_band.gd, docs/marching_band.md, docs/band_v2.md): a new band (the
+## Drummer alone) and its card (RECRUIT FIFER / PIPER), a Fifer and a Piper walking over to join it (JOIN BAND), the
+## band side by side close up and walking west (mirrored), the full band (Drummer, Fifer, Piper) behind a Musketeer line with its ring and card, the fife's solo while the
 ## line fires at Clock Soldiers coming in, the pipes' solo when they reach it, two bands (one soloing) side by side.
 ##   xvfb-run -a godot --rendering-driver opengl3 --resolution 1600x900 --fixed-fps 30 --script res://tools/shot_marching_band.gd -- <outdir>
 var main: Node
@@ -84,9 +85,32 @@ func _run() -> void:
 	g.set_selection([band])
 	await _frames(20)
 	await _snap("0_drummer_band_card")
-	# ---- 1. the Fifer and the Piper researched: the full band behind a line, selected
-	g.players[0]["tech"]["band_fife"] = true
-	g.players[0]["tech"]["band_pipes"] = true
+	# ---- 1a. band-v2: a Fifer and a Piper walk over from the Armoury's side and join (the Fifer selected: JOIN BAND)
+	var fifer: Unit = g._add_unit("band_fifer", 0, _open(band.position + perp * 110.0 - dir * 40.0))
+	var piper: Unit = g._add_unit("band_piper", 0, _open(band.position - perp * 120.0 - dir * 60.0))
+	fifer.give({"o": "join", "e": band})
+	piper.give({"o": "join", "e": band})
+	g.set_selection([fifer])
+	g.camera.position = band.position
+	g.camera.zoom = Vector2(2.6, 2.6)
+	await _frames(25)
+	await _snap("1a_fifer_walks_to_join", 0.0)
+	var c9 := g.clock
+	while g.clock - c9 < 15.0 and not (MarchingBand.has(band, "fife") and MarchingBand.has(band, "pipes")):
+		await physics_frame
+	g.set_selection([band])
+	g.camera.zoom = Vector2(3.4, 3.4)
+	await _frames(15)
+	await _snap("1b_side_by_side_close", 0.0)
+	# the same band walking west: the row mirrored
+	band.cmd_move(band.position - Vector2(200, 0))
+	await _frames(15)
+	g.camera.position = band.position
+	await _frames(2)
+	await _snap("1c_side_by_side_walking_west", 0.0)
+	band.cmd_hold()
+	band.position = _open(mid - dir * 70.0)
+	g.set_selection([band])
 	await _frames(10)
 	var line: Array = []
 	for i in 12:

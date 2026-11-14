@@ -137,7 +137,7 @@ func _labels_for(units: Array) -> Array:
 
 func _card() -> void:
 	var at := g.cell_center(_free_cell(1, 1, Vector2i(g.W / 2, g.H / 2 + 6)))
-	for k in ["powder_wagon", "messenger", "balloon", "band", "missionary", "mounted_missionary"]:
+	for k in ["powder_wagon", "messenger", "balloon", "band", "band_fifer", "band_piper", "missionary", "mounted_missionary"]:
 		if not Defs.UNITS.has(k):
 			continue
 		var u: Unit = g._add_unit(k, 0, at)

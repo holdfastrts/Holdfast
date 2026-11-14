@@ -1,10 +1,11 @@
 ## THE MARCHING BAND, a real Crown unit since 0.33.0 (the owner, 2026-11-05; scripts/marching_band.gd,
-## docs/marching_band.md): no experiment switch (an old cfg's "marching_band" is ignored); trained at the ARMOURY (not
-## the Barracks); a new band is a DRUMMER (75 health); the FIFER and the PIPER are Armoury research in any order, joining
-## every band (on the field and new ones); the price grows by 25 gold a researched musician (paid back in full when
-## cancelled); several bands allowed, their rings don't stack; one solo at a time per band, two bands may solo at once;
-## +5% always, +30% in a solo, for speed (drums), melee (pipes) and reload (fife: muskets, guns, the Officer's pistol;
-## not a man with no shots); the save, the online snapshot and a replay's fields carry it; the command funnel.
+## docs/marching_band.md; band-v2 0.36.0: docs/band_v2.md): no experiment switch; trained at the ARMOURY; a new band is a
+## DRUMMER (75 health); the FIFER and the PIPER are UNITS trained at the Armoury that walk to a band and JOIN it (one of
+## each a band; RECRUIT on the band's card sends one to THAT band; a right-click / JOIN order; the nearest band by
+## default; a band dying on the way: he picks another or waits; no band: he waits); the price is flat (no more per
+## musician); several bands allowed, their rings don't stack; one solo at a time per band; +5% always, +30% in a solo;
+## the group drawn SIDE BY SIDE; an old save's research still fills every band; the save, the online snapshot and a
+## replay's fields carry it; the command funnel; the sound engine (one band heard, one clock).
 ##   godot --headless --fixed-fps 30 --script res://tools/test_marching_band.gd
 extends SceneTree
 var fails := 0
@@ -69,8 +70,10 @@ func _run() -> void:
 	check("no experiment switch in Settings", not FileAccess.get_file_as_string("res://scripts/settings.gd").contains("marching_band"))
 	check("the Barracks no longer trains the band", not (Defs.BUILDINGS["barracks"]["trains"] as Array).has(MarchingBand.KIND))
 	check("the Armoury trains it", Defs.train_keys(Defs.BUILDINGS["armoury"]["trains"], false).has(MarchingBand.KIND))
-	check("the Fifer and the Piper are Armoury research", String(Defs.RESEARCH["band_fife"]["at"]) == "armoury" and String(Defs.RESEARCH["band_pipes"]["at"]) == "armoury")
-	check("the Fifer keeps a little powder", int(Defs.RESEARCH["band_fife"].get("cost2", 0)) > 0)
+	check("the Fifer and the Piper are trained at the Armoury (band-v2)", Defs.train_keys(Defs.BUILDINGS["armoury"]["trains"], false).has("band_fifer") and Defs.train_keys(Defs.BUILDINGS["armoury"]["trains"], false).has("band_piper"))
+	check("no band research any more", not Defs.RESEARCH.has("band_fife") and not Defs.RESEARCH.has("band_pipes"))
+	check("the Fifer keeps a little powder", int(Defs.UNITS["band_fifer"].get("cost2", 0)) > 0)
+	check("the old research prices", int(Defs.UNITS["band_fifer"]["cost"]) == 60 and int(Defs.UNITS["band_piper"]["cost"]) == 75)
 	var g := make(["crown", "clockwork"])
 	await process_frame
 	await process_frame
@@ -84,8 +87,8 @@ func _run() -> void:
 	check("a Barracks refuses a band", g.can_train(bk, MarchingBand.KIND) != "", g.can_train(bk, MarchingBand.KIND))
 	check("the Armoury can train a band", g.can_train(ar, MarchingBand.KIND) == "", g.can_train(ar, MarchingBand.KIND))
 	check("the Clockwork can't have one", not MarchingBand.on(g, 1))
-	# ---- price: 50 with no musician researched
-	check("a band costs 50 with no musician researched", g.unit_price(0, MarchingBand.KIND)[0] == 50, str(g.unit_price(0, MarchingBand.KIND)))
+	# ---- price: 50, flat
+	check("a band costs 50", g.unit_price(0, MarchingBand.KIND)[0] == 50, str(g.unit_price(0, MarchingBand.KIND)))
 	var gold0 := int(g.players[0]["gold"])
 	g.train(ar, MarchingBand.KIND)
 	g.train(ar, MarchingBand.KIND)
@@ -109,30 +112,86 @@ func _run() -> void:
 	check("a new band has 75 health", is_equal_approx(b1.max_hp, 75.0) and is_equal_approx(b1.hp, 75.0), "%.0f/%.0f" % [b1.hp, b1.max_hp])
 	check("the drums play +5% from the start", is_equal_approx(MarchingBand.muls(b1).x, 1.05), str(MarchingBand.muls(b1)))
 	check("no fife or pipes solo yet", MarchingBand.solo_problem(b1, "fife") != "" and MarchingBand.solo_problem(b1, "pipes") != "")
+	check("the band has a number", MarchingBand.band_id(b1) > 0)
 	b1.cmd_hold()
 	b1.position = at
-	# ---- research: the PIPER first (any order), at the Armoury's queue
-	var pw := g.research_problem(ar, "band_pipes")
-	check("the Piper can be researched at the Armoury", pw == "", pw)
-	g.start_research(ar, "band_pipes")
-	await step(g, float(Defs.RESEARCH["band_pipes"]["time"]) + 1.0)
-	check("the Piper research finishes", g.has_tech(0, "band_pipes"))
-	await step(g, 0.2)
-	check("the Piper joins the band on the field", MarchingBand.has(b1, "pipes") and not MarchingBand.has(b1, "fife"), str(b1.band.get("m")))
-	check("+15 health with him", is_equal_approx(b1.max_hp, 90.0), str(b1.max_hp))
-	check("the price grows to 75 with one musician", g.unit_price(0, MarchingBand.KIND)[0] == 75, str(g.unit_price(0, MarchingBand.KIND)))
-	g.players[0]["tech"]["band_fife"] = true          # (the Fifer second: research order doesn't matter)
-	await step(g, 0.2)
-	check("then the Fifer joins too", MarchingBand.has(b1, "fife") and is_equal_approx(b1.max_hp, 105.0), "%s %.0f" % [str(b1.band.get("m")), b1.max_hp])
-	check("the price is 100 with both", g.unit_price(0, MarchingBand.KIND)[0] == 100, str(g.unit_price(0, MarchingBand.KIND)))
+	# ---- RECRUIT PIPER on the band's card: queued at the Armoury for THIS band, walks over, joins
+	check("RECRUIT PIPER can be pressed", MarchingBand.recruit_problem(b1, "pipes") == "", MarchingBand.recruit_problem(b1, "pipes"))
 	gold0 = int(g.players[0]["gold"])
-	g.train(ar, MarchingBand.KIND)
-	check("a band is paid 100 now", int(g.players[0]["gold"]) == gold0 - 100)
-	g.cancel_train(ar)
-	check("and paid back 100 when cancelled", int(g.players[0]["gold"]) == gold0, "%d vs %d" % [int(g.players[0]["gold"]), gold0])
+	b1.band_recruit("pipes")
+	check("a Piper is queued at the Armoury", ar.queue.has("band_piper"), str(ar.queue))
+	check("paid 75", int(g.players[0]["gold"]) == gold0 - 75, "%d -> %d" % [gold0, int(g.players[0]["gold"])])
+	check("a second RECRUIT PIPER for the same band is refused", MarchingBand.recruit_problem(b1, "pipes") != "", MarchingBand.recruit_problem(b1, "pipes"))
+	# (a second band near the Armoury: the recruit still goes to the band he was recruited for, not the nearest)
+	var decoy := g._add_unit(MarchingBand.KIND, 0, ar.center() + Vector2(0, 300))
+	decoy.cmd_hold()
+	await step(g, float(Defs.UNITS["band_piper"]["time"]) + 0.5)
+	var piper: Unit = null
+	for u in g.units:
+		if u.kind == "band_piper" and u.team == 0 and not u.dead:
+			piper = u
+	check("the Piper comes out of the Armoury as a walking unit", piper != null)
+	check("he walks to the band he was recruited for (not the nearer one)", piper != null and piper.order == "join" and piper.order_target == b1,
+		"%s %s" % [piper.order if piper else "-", str(piper.order_target) if piper else "-"])
+	await step(g, 25.0)
+	check("the Piper joins the band", MarchingBand.has(b1, "pipes") and not MarchingBand.has(b1, "fife"), str(b1.band.get("m")))
+	check("he is gone from the field (the band draws him)", piper == null or not is_instance_valid(piper) or piper.dead)
+	check("+15 health with him", is_equal_approx(b1.max_hp, 90.0), str(b1.max_hp))
+	check("the decoy band got no Piper", not MarchingBand.has(decoy, "pipes"))
+	check("the band's price stays 50", g.unit_price(0, MarchingBand.KIND)[0] == 50)
+	# ---- a Fifer trained plainly: he goes to the nearest band without one (the decoy, by the Armoury)
+	var fw := g.train(ar, "band_fifer")
+	check("a Fifer can be trained plainly", fw == "", fw)
+	await step(g, float(Defs.UNITS["band_fifer"]["time"]) + 0.5)
+	var fifer: Unit = null
+	for u in g.units:
+		if u.kind == "band_fifer" and u.team == 0 and not u.dead:
+			fifer = u
+	check("a Fifer trained plainly walks to the nearest band without one", fifer != null and fifer.order == "join" and fifer.order_target == decoy,
+		"%s" % [fifer.order if fifer else "none"])
+	# ---- the JOIN order (a right-click on a band) sends him to that one instead
+	if fifer:
+		g.smart_command([fifer], b1.position + Vector2(0, -12))
+		await step(g, 0.1)
+		check("right-click on a band: JOIN that band", fifer.order == "join" and fifer.order_target == b1, fifer.order)
+		# ---- the band dies on the way: he picks another (the decoy)
+		b1.position = at
+		var keep_hp := b1.hp
+		var bx := g._add_unit(MarchingBand.KIND, 0, at + Vector2(900, 0))
+		bx.cmd_hold()
+		g.smart_command([fifer], bx.position + Vector2(0, -12))
+		await step(g, 0.1)
+		check("sent to a far band", fifer.order_target == bx)
+		bx.take_damage(99999.0, null, Entity.BLOW_RANGED)
+		await step(g, 1.5)
+		check("his band killed on the way: he goes to another that wants him", is_instance_valid(fifer) and fifer.order == "join" and fifer.order_target != bx,
+			"%s %s" % [fifer.order, str(fifer.order_target)])
+		g.smart_command([fifer], b1.position + Vector2(0, -12))
+		await step(g, 30.0)
+		check("then he joins the band he was sent to", MarchingBand.has(b1, "fife") and is_equal_approx(b1.max_hp, 105.0), "%s %.0f" % [str(b1.band.get("m")), b1.max_hp])
+		check("a second Fifer for that band is refused", MarchingBand.recruit_problem(b1, "fife") != "")
+		b1.hp = keep_hp + 15.0
+	# ---- no band wants him: he waits (at the rally), then goes when one does
+	decoy.take_damage(99999.0, null, Entity.BLOW_RANGED)
+	await step(g, 0.5)
+	var loose := g._add_unit("band_piper", 0, ar.center() + Vector2(0, 90))
+	await step(g, 2.0)
+	check("a Piper with no band to join waits", loose.order != "join", loose.order)
+	var b3 := g._add_unit(MarchingBand.KIND, 0, ar.center() + Vector2(160, 160))
+	b3.cmd_hold()
+	await step(g, 2.0)
+	check("a new band without a Piper: the waiting one goes to it", loose.order == "join" and loose.order_target == b3, loose.order)
+	await step(g, 15.0)
+	check("and joins it", MarchingBand.has(b3, "pipes"))
+	b3.position = at + Vector2(-800, 600)
+	# ---- an OLD SAVE's research: every band has the musician
+	g.players[0]["tech"]["band_fife"] = true
 	var b2 := g._add_unit(MarchingBand.KIND, 0, at + Vector2(0, 260))
-	check("a new band comes out with every researched musician", MarchingBand.has(b2, "fife") and MarchingBand.has(b2, "pipes") and MarchingBand.has(b2, "drums") and is_equal_approx(b2.max_hp, 105.0),
-		"%s %.0f" % [str(b2.band.get("m")), b2.max_hp])
+	check("an old save's research: a band comes out with that musician", MarchingBand.has(b2, "fife") and not MarchingBand.has(b2, "pipes"), str(b2.band.get("m")))
+	g.players[0]["tech"]["band_pipes"] = true
+	await step(g, 0.2)
+	check("... and every band on the field gets it", MarchingBand.has(b2, "pipes") and MarchingBand.has(b3, "pipes") and is_equal_approx(b2.max_hp, 105.0), "%s %.0f" % [str(b2.band.get("m")), b2.max_hp])
+	check("an old save's queued research is the musician now", MarchingBand.OLD_QUEUE["@band_fife"] == "band_fifer" and MarchingBand.OLD_QUEUE["@band_pipes"] == "band_piper")
 	b2.cmd_hold()
 	b1 = tough(b1)
 	b2 = tough(b2)
@@ -245,8 +304,56 @@ func _run() -> void:
 	var fsp: Sprite2D = b1.sprite.get_node_or_null("band_fife")
 	var psp: Sprite2D = b1.sprite.get_node_or_null("band_pipes")
 	check("the drawn group: the Drummer's own sprite", b1.sprite.texture != null and b1.sprite.texture.resource_path.contains("/band/"), str(b1.sprite.texture.resource_path if b1.sprite.texture else ""))
-	check("the drawn group: the Fifer and the Piper behind him", fsp != null and fsp.visible and psp != null and psp.visible)
-	check("a Drummer band shows no Fifer or Piper", true)
+	check("the drawn group: the Fifer and the Piper with him", fsp != null and fsp.visible and psp != null and psp.visible)
+	if fsp and psp:
+		var gap := absf(fsp.position.x - psp.position.x)
+		check("SIDE BY SIDE: one row, no two bodies overlapping", absf(fsp.position.y - psp.position.y) < 3.0 and absf(fsp.position.x) >= 20.0 and absf(psp.position.x) >= 20.0 and gap >= 40.0,
+			"fife %s pipes %s" % [str(fsp.position), str(psp.position)])
+	var lone := g._add_unit(MarchingBand.KIND, 0, at + Vector2(-300, 0))
+	g.players[0]["tech"].erase("band_fife")
+	g.players[0]["tech"].erase("band_pipes")
+	lone.band = MarchingBand.fresh()
+	lone.max_hp = float(lone.d["hp"])
+	MarchingBand.sync(lone, true)
+	lone._animate(0.2)
+	var lf: Sprite2D = lone.sprite.get_node_or_null("band_fife")
+	check("a Drummer band shows no Fifer or Piper", lf == null or not lf.visible)
+	g.players[0]["tech"]["band_fife"] = true
+	g.players[0]["tech"]["band_pipes"] = true
+	lone.take_damage(99999.0, null, Entity.BLOW_RANGED)
+	# the wider pick: a click on the Fifer at the end of the row picks the band
+	var pick := g.entity_at(b1.position + Vector2(30, -14))
+	check("a click on a musician at the end of the row picks the band", pick == b1, str(pick))
+	# ---- the sound engine: one band heard, one clock
+	var bs := BandSound.need(g)
+	check("one BandSound a match", BandSound.need(g) == bs and bs.get_parent() == g)
+	check("every part's file is listed in one place and exists", BandSound.PARTS.keys().all(func(k) -> bool: return (BandSound.PARTS[k] as Array).all(func(f) -> bool: return ResourceLoader.exists("res://assets/audio/%s.ogg" % f))))
+	var lv := bs.levels()
+	var on := 0
+	for f in lv:
+		if float(lv[f]) > -79.0:
+			on += 1
+	var fb: Unit = bs.focus
+	check("several bands on the field: ONE band is heard (its parts only)", fb != null and on == (fb.band.get("m", []) as Array).size(), "%d parts on, focus %s %s" % [on, str(fb), str(lv)])
+	if fb:
+		var placed := bs.level(fb)
+		var q0 := -80.0
+		for ins in BandSound.PARTS:
+			if MarchingBand.has(fb, ins) and MarchingBand.lead(fb) != ins:
+				q0 = float(lv[BandSound.PARTS[ins][0]])
+		check("the always-on playing is quiet", q0 <= (BandSound.UNDER_DB if MarchingBand.lead(fb) != "" else BandSound.QUIET_DB) + placed + 0.01 and q0 > -60.0, "%.1f (place %.1f)" % [q0, placed])
+		var cdk: Dictionary = fb.band["cd"]
+		cdk.erase("pipes")
+		var kept_s := String(fb.band["s"])
+		var kept_se := float(fb.band["se"])
+		fb.band["s"] = ""
+		MarchingBand.solo(fb, "pipes")
+		lv = bs.levels()
+		check("a SOLO is clearly heard: its solo loop 18 dB over the others", float(lv[BandSound.PARTS["pipes"][1]]) - float(lv[BandSound.PARTS["drums"][0]]) >= 17.9
+			and float(lv[BandSound.PARTS["pipes"][0]]) <= -79.0, str(lv))
+		fb.band["s"] = kept_s
+		fb.band["se"] = kept_se
+	check("one shared clock: the phase is inside the phrase", bs.phase() >= 0.0 and bs.phase() < BandSound.PHRASE)
 	# ---- save
 	var keep := MarchingBand.save(b1)
 	g.demo = false
@@ -264,7 +371,7 @@ func _run() -> void:
 				back = u
 	check("a save keeps the band, its musicians, solo and cooldowns", back != null and MarchingBand.save(back) == keep and is_equal_approx(back.max_hp, 105.0),
 		str(MarchingBand.save(back)) if back else "none")
-	check("a save keeps the research", g.has_tech(0, "band_fife") and g.has_tech(0, "band_pipes"))
+	check("a save keeps an old save's research flags", g.has_tech(0, "band_fife") and g.has_tech(0, "band_pipes"))
 	var old := g._add_unit(MarchingBand.KIND, 0, at + Vector2(-200, 200))
 	MarchingBand.load_state(old, {"m": [], "h": "pipes", "he": 99.0, "s": "", "se": 0.0, "cd": {}})
 	await step(g, 0.1)

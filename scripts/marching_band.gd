@@ -4,12 +4,17 @@ extends RefCounted
 ## 2026-11-05; docs/marching_band.md).
 ##
 ## A 17th-century band that follows the soldiers and plays them into battle. Trained at the ARMOURY; a new band is a
-## DRUMMER. The FIFER and the PIPER are Armoury RESEARCH (Defs.RESEARCH "band_fife", "band_pipes"), in any order: done,
-## the musician joins EVERY band of the player (those on the field at once, every new one comes out with him), and every
-## new band costs Defs.MARCHING_BAND "per_musician" more. SEVERAL bands may play (like cannons); their rings don't add
-## up (each stat takes the strongest). Every instrument it has always plays its SECONDARY (+5%); an instrument's SOLO (8 s,
-## then 45 s before it may solo again) puts it in the LEAD (+30%). ONE SOLO AT A TIME PER BAND (two bands may solo at
-## once). Mechanical, not magic: a drum sets the pace, the pipes stir the blood, the fife keeps time for the loading drill.
+## DRUMMER. The FIFER and the PIPER (band-v2, the owner 2026-11-13) are UNITS of their own (Defs.UNITS "band_fifer",
+## "band_piper"), trained one at a time at the Armoury: each comes out, walks to a band of its side that has no such
+## musician yet and JOINS it (as an Officer walks to his horse and gets on): from then he is part of the band (its art,
+## +15 health, his instrument and its solo). One of each a band. Which band: the one RECRUIT FIFER / PIPER on a band's
+## card was pressed on, a band he is right-clicked onto (JOIN), else the nearest that wants him; with none he waits at the
+## Armoury's rally point and goes as soon as a band wants him. A band that dies drops nothing (its musicians die with it).
+## (An old save's or replay's research "band_fife" / "band_pipes" still gives every band of that side the musician.)
+## SEVERAL bands may play (like cannons); their rings don't add up (each stat takes the strongest). Every instrument it
+## has always plays its SECONDARY (+5%); an instrument's SOLO (8 s, then 45 s before it may solo again) puts it in the
+## LEAD (+30%). ONE SOLO AT A TIME PER BAND (two bands may solo at once). Mechanical, not magic: a drum sets the pace, the
+## pipes stir the blood, the fife keeps time for the loading drill.
 ##   DRUMS: movement speed    PIPES: melee damage (bayonets, sabres)    FIFE: reload speed (muskets, pistols, guns)
 ## Everything inside its RING (Defs.MARCHING_BAND "area") of its own side and its allies is covered (soldiers and guns,
 ## not workers, horses, wagons, medics or the band). The ring is drawn on the ground for everyone who sees the band
@@ -17,19 +22,25 @@ extends RefCounted
 ## fragile (60 + 15 health a musician): kill it and the music stops (the risk that pays for the buffs).
 ##
 ## Drawn as a GROUP THAT GROWS (group_look): the Drummer is the unit's sprite (art "band"), the Fifer and the Piper are
-## child sprites (arts "band_fifer", "band_piper", tools/import_band.py) that fall in behind him, each once he is in.
+## child sprites (arts "band_fifer", "band_piper", tools/import_band.py) standing SIDE BY SIDE with him in a row (SPOT),
+## each once he is in. Its sound: BandSound (scripts/band_sound.gd: one band heard at a time, on one shared clock).
 ##
 ## The state lives on the band unit in `Unit.band` (saved, sent online and recorded in replays as one field):
 ##   "m": the instruments it has; "s": the instrument playing a solo ("" none), "se": the clock it ends; "cd":
-##   {instrument: the clock it may solo again}. Clocks are the game clock (Game.clock). (Old saves' "h"/"he", a
-##   musician being taken on in the 0.23 experiment, are ignored: research decides the musicians now.)
+##   {instrument: the clock it may solo again}; "id": the band's number on its side (a RECRUIT's musician finds it by it).
+##   Clocks are the game clock (Game.clock). (Old saves' "h"/"he", of the 0.23 experiment, are ignored.)
 ## The buff a covered unit gets is on that unit: `band_mul` (speed, melee, reload multipliers) until `band_until`.
 
 const KIND := "band"
 const INSTRUMENTS := ["drums", "pipes", "fife"]
-## Where each musician marches in the group, in the sprite's own (SE, unmirrored) space: the Drummer leads, the Fifer and
-## the Piper behind him on either side (a SE view: behind is up-left).
-const SPOT := {"fife": Vector2(8, -7), "pipes": Vector2(-11, -3)}
+## Where each musician stands in the group, in the sprite's own (SE, unmirrored) space: SIDE BY SIDE in a row with the
+## Drummer in the middle (the owner, 2026-11-13: "put the sprites side by side ... so we can see the musicians
+## together"): the figures are ~20 px wide, 22 px apart, so no two bodies overlap. Mirrored with the sprite.
+const SPOT := {"fife": Vector2(22, 0), "pipes": Vector2(-22, 0)}
+## The musicians as units (band-v2): kind -> the instrument he brings.
+const MUSICIANS := {"band_fifer": "fife", "band_piper": "pipes"}
+## An old save's queued research -> the musician it is now (SaveGame.restore).
+const OLD_QUEUE := {"@band_fife": "band_fifer", "@band_pipes": "band_piper"}
 const ART := {"drums": "band", "fife": "band_fifer", "pipes": "band_piper"}
 const B := Defs.MARCHING_BAND
 
@@ -42,49 +53,71 @@ static func fresh() -> Dictionary:
 	return {"m": [], "s": "", "se": 0.0, "cd": {}}
 
 
-## The research that brings this musician ("" for the Drummer: every band has him).
+## The old research that brought this musician ("" for the Drummer: every band has him).
 static func research_of(ins: String) -> String:
 	return String(B[ins].get("research", ""))
 
 
-## Is this musician in this side's bands (the Drummer always; the others once researched)?
+## The musician unit that brings this instrument ("" for the drums).
+static func unit_of(ins: String) -> String:
+	return String(B[ins].get("unit", ""))
+
+
+## Is this musician in EVERY band of this side by itself: the Drummer always; the others only for an old save's or
+## replay's research (band-v2: they are trained and walk over now).
 static func available(g: Game, t: int, ins: String) -> bool:
 	var rk := research_of(ins)
 	return rk == "" or (t >= 0 and t < g.players.size() and g.has_tech(t, rk))
 
 
-## How many musicians this side has researched (each makes a band dearer).
-static func researched(g: Game, t: int) -> int:
-	var n := 0
-	for ins in INSTRUMENTS:
-		if research_of(ins) != "" and available(g, t, ins):
-			n += 1
-	return n
-
-
-## A new band's extra price in gold: Defs.MARCHING_BAND "per_musician" for each musician researched (Game.unit_price).
-static func price_extra(g: Game, t: int) -> int:
-	return int(B["per_musician"]) * researched(g, t)
-
-
-## The musicians researched join the band (each +15 health); the Drummer is in every band. True if one joined.
+## The Drummer (and an old save's researched musicians) are in the band (each +15 health). True if one joined.
 static func sync(u: Unit, quiet := false) -> bool:
 	var g := u.game
 	if u.band.is_empty():
 		u.band = fresh()
+	band_id(u)
 	var joined := false
 	for ins in ["drums", "fife", "pipes"]:
 		if has(u, ins) or not available(g, u.team, ins):
 			continue
-		(u.band["m"] as Array).append(ins)
-		u.max_hp += float(B["hp_per"])
-		u.hp = minf(u.max_hp, u.hp + float(B["hp_per"]))
+		_add(u, ins, 1.0, quiet)
 		joined = true
-		if not quiet and ins != "drums" and u.team == g.human and u.visible:
-			g.float_text(u.position + Vector2(0, -40), Loc.t("+ %s") % Loc.t(String(B[ins]["who"])), Color(1.0, 0.9, 0.5))
-	if joined:
-		u.queue_redraw()
 	return joined
+
+
+## A musician in the band: +15 health (the share of it he walked in with), his instrument.
+static func _add(u: Unit, ins: String, hp_share: float, quiet: bool) -> void:
+	var g := u.game
+	(u.band["m"] as Array).append(ins)
+	u.max_hp += float(B["hp_per"])
+	u.hp = minf(u.max_hp, u.hp + float(B["hp_per"]) * clampf(hp_share, 0.0, 1.0))
+	if not quiet and ins != "drums" and u.team == g.human and u.visible:
+		g.float_text(u.position + Vector2(0, -40), Loc.t("+ %s") % Loc.t(String(B[ins]["who"])), Color(1.0, 0.9, 0.5))
+	u.queue_redraw()
+
+
+## The band's number on its side (given once; saved in its state): a RECRUIT's musician walks to the band with it.
+static func band_id(u: Unit) -> int:
+	if u.band.is_empty():
+		u.band = fresh()
+	var id := int(u.band.get("id", 0))
+	if id != 0:
+		return id
+	var top := 0
+	for o in u.game.units:
+		if o.kind == KIND and o != u and not o.band.is_empty():
+			top = maxi(top, int(o.band.get("id", 0)))
+	u.band["id"] = top + 1
+	return top + 1
+
+
+static func by_id(g: Game, t: int, id: int) -> Unit:
+	if id == 0:
+		return null
+	for o in g.units:
+		if o.kind == KIND and o.team == t and not o.dead and not o.band.is_empty() and int(o.band.get("id", 0)) == id:
+			return o
+	return null
 
 
 static func has(u: Unit, ins: String) -> bool:
@@ -129,7 +162,7 @@ static func covers(band: Unit, o: Unit) -> bool:
 
 ## The kinds the music is for: a fighting unit or a gun (not workers, horses, medics, wagons, a band, flyers).
 static func plays_for(o: Unit) -> bool:
-	if o.is_worker() or o.kind == KIND or o.kind == "horse" or o.d.get("medic", false):
+	if o.is_worker() or o.kind == KIND or MUSICIANS.has(o.kind) or o.kind == "horse" or o.d.get("medic", false):
 		return false
 	if o.is_air():
 		return false
@@ -142,7 +175,7 @@ static func tick(u: Unit, delta: float) -> void:
 	var g := u.game
 	if u.band.is_empty():
 		u.band = fresh()
-	# the musicians researched join it (a new band: the Drummer and every one researched)
+	# the Drummer (and an old save's researched musicians) are in it
 	sync(u)
 	if String(u.band.get("s", "")) != "" and g.clock >= float(u.band.get("se", 0.0)):
 		u.band["s"] = ""
@@ -230,13 +263,200 @@ static func reload_mul(o: Unit) -> float:
 	return o.band_mul.z if o.band_until > o.game.clock else 1.0
 
 
+# ------------------------------------------------------------------ the musicians (band-v2): recruit, walk, join
+
+## Does this band want this musician: of the side, alive, without one, nobody else (but `except`) walking to it with one.
+static func wants(band: Unit, ins: String, except: Unit = null) -> bool:
+	if band == null or not is_instance_valid(band) or band.dead or band.kind != KIND or band.off_field:
+		return false
+	if has(band, ins):
+		return false
+	return coming(band, ins, except) == null
+
+
+## The musician of `ins` walking to this band now (null none).
+static func coming(band: Unit, ins: String, except: Unit = null) -> Unit:
+	for o in band.game.units:
+		if o != except and not o.dead and MUSICIANS.get(o.kind, "") == ins and o.order == "join" and o.order_target == band:
+			return o
+	return null
+
+
+## The band a musician goes to: the one asked for (`prefer`: a band's id) if it still wants him, else the nearest of
+## his side that does (null: none, he waits).
+static func pick_band(m: Unit, prefer := 0) -> Unit:
+	var ins := String(MUSICIANS.get(m.kind, ""))
+	if ins == "":
+		return null
+	var g := m.game
+	var asked := by_id(g, m.team, prefer)
+	if asked != null and wants(asked, ins, m):
+		return asked
+	var best: Unit = null
+	var bd := INF
+	for o in g.units:
+		if o.kind != KIND or o.team != m.team or not wants(o, ins, m):
+			continue
+		var dd: float = o.position.distance_squared_to(m.position)
+		if dd < bd:
+			bd = dd
+			best = o
+	return best
+
+
+## Send musician `m` to `band` (the JOIN order; `tell`: the player hears why not).
+static func start_join(m: Unit, band: Unit, tell := false) -> bool:
+	var ins := String(MUSICIANS.get(m.kind, ""))
+	if ins == "" or m.dead or band.team != m.team or not wants(band, ins, m):
+		if tell and ins != "" and band.kind == KIND and band.team == m.team and m.team == m.game.human:
+			m.game.tell(m.team, "That band has a %s already (or one on his way)." % String(B[ins]["who"]), true)
+		return false
+	m._reset_work()
+	m.order = "join"
+	m.order_target = band
+	m.target = null
+	m.repath_t = 0.0
+	return true
+
+
+## Walking to his band; there, he joins it. A band gone (dead, or it got one meanwhile): he stops and looks again.
+static func join_run(m: Unit, delta: float) -> Vector2:
+	var band := m.order_target as Unit
+	var ins := String(MUSICIANS.get(m.kind, ""))
+	if band == null or not is_instance_valid(band) or not wants(band, ins, m):
+		m.cmd_stop()
+		m._band_scan = 0.0        # (straight on to another band, if one wants him)
+		return Vector2.ZERO
+	if m.position.distance_to(band.position) < m.radius + band.radius + 12.0:
+		join(m, band)
+		return Vector2.ZERO
+	return m._walk_to(band.position, delta)
+
+
+## He is in the band: his instrument, +15 health (as hale as he was), and he is taken off the field (the band draws him).
+static func join(m: Unit, band: Unit) -> void:
+	var g := m.game
+	var ins := String(MUSICIANS[m.kind])
+	var was_sel := g.selection.has(m)
+	_add(band, ins, m.hp / maxf(m.max_hp, 1.0), false)
+	if g.mlog:
+		g.mlog.add("%s's band #%d: a %s joined" % [g.mlog.who(band.team), band_id(band), String(B[ins]["who"])])
+	if band.team == g.human and band.visible:
+		Sfx.play_any(["ui/click", "click"], band.position)
+	g.consume_unit(m)
+	if was_sel and not g.selection.has(band):
+		g.selection.append(band)
+
+
+## A loose musician (no order): every "join" s he looks for a band that wants him and walks to it. The computer's
+## musicians go whatever they were told (its army's orders sweep them along).
+static func musician_tick(m: Unit, delta: float) -> void:
+	if m.order == "join":
+		return
+	m._band_scan -= delta
+	if m._band_scan > 0.0:
+		return
+	m._band_scan = float(B["join"])
+	var idle := m.order == "idle" and m.queue.is_empty()
+	if not idle and not m.game.ais.any(func(a) -> bool: return a.team == m.team):
+		return
+	var band := pick_band(m, int(m.band.get("to", 0)) if not m.band.is_empty() else 0)
+	if band != null:
+		start_join(m, band)
+
+
+## Out of the Armoury: to the band asked for (RECRUIT), else the nearest that wants him, else to the rally to wait.
+static func on_spawn(m: Unit, b: Building, kit: Dictionary) -> void:
+	var to := int(kit.get("band", 0))
+	if to != 0:
+		m.band = {"to": to}      # (a musician's own note: the band he was recruited for)
+	var band := pick_band(m, to)
+	if band != null and start_join(m, band):
+		return
+	if is_instance_valid(b.rally_target) and b.rally_target is Unit and (b.rally_target as Unit).kind == KIND \
+			and start_join(m, b.rally_target):
+		return
+	if b.rally != Vector2.INF:
+		m.cmd_move(b.rally + Vector2(randf_range(-20, 20), randf_range(-20, 20)), true)
+
+
+## The Armoury a RECRUIT queues at: the nearest built one of the side that may train him now (null none).
+static func armoury_for(band: Unit, ins: String) -> Building:
+	var g := band.game
+	var best: Building = null
+	var bd := INF
+	for b in g.buildings:
+		if b.team != band.team or b.dead or not b.built or not (b.d.get("trains", []) as Array).has(unit_of(ins)):
+			continue
+		if g.can_train(b, unit_of(ins)) != "":
+			continue
+		var dd: float = b.center().distance_squared_to(band.position) + 4000.0 * b.queue.size()
+		if dd < bd:
+			bd = dd
+			best = b
+	return best
+
+
+## Is a musician of `ins` already queued for this band (by its id) somewhere?
+static func queued_for(band: Unit, ins: String) -> bool:
+	var id := band_id(band)
+	var k := unit_of(ins)
+	for b in band.game.buildings:
+		if b.team != band.team or b.dead:
+			continue
+		for i in b.queue.size():
+			if String(b.queue[i]) == k and i < b.kits.size() and int((b.kits[i] as Dictionary).get("band", 0)) == id:
+				return true
+	return false
+
+
+## Why RECRUIT FIFER / PIPER can't be pressed on this band now ("" it can).
+static func recruit_problem(band: Unit, ins: String) -> String:
+	var who := String(B[ins]["who"])
+	if has(band, ins):
+		return "This band has its %s." % who
+	if coming(band, ins) != null or queued_for(band, ins):
+		return "A %s is on his way to this band." % who
+	var g := band.game
+	var any := false
+	for b in g.buildings:
+		if b.team == band.team and not b.dead and b.built and (b.d.get("trains", []) as Array).has(unit_of(ins)):
+			any = true
+			var why := g.can_train(b, unit_of(ins))
+			if why != "":
+				return why
+	if not any:
+		return "Build an Armoury: the %s is trained there." % who
+	return ""
+
+
+## RECRUIT FIFER / PIPER: one queued at the nearest Armoury, for THIS band (it walks to it when it comes out).
+static func recruit(band: Unit, ins: String) -> String:
+	if not ["fife", "pipes"].has(ins):
+		return "?"
+	var why := recruit_problem(band, ins)
+	if why != "":
+		band.game.tell(band.team, why, true)
+		return why
+	var a := armoury_for(band, ins)
+	if a == null:
+		return "no armoury"
+	var g := band.game
+	g.train_band_id = band_id(band)
+	why = g.train(a, unit_of(ins))
+	g.train_band_id = 0
+	if why != "":
+		g.tell(band.team, why, true)
+	return why
+
+
 # ------------------------------------------------------------------ orders (Unit.band_solo: the net funnel)
 
 static func solo_problem(u: Unit, ins: String) -> String:
 	if not INSTRUMENTS.has(ins):
 		return "?"
 	if not has(u, ins):
-		return "No %s in the band yet: research him at the Armoury." % String(B[ins]["who"])
+		return "No %s in the band yet. Train one at the Armoury (RECRUIT on the band's card)." % String(B[ins]["who"])
 	if lead(u) != "":
 		return "The band is already playing a solo."
 	var cd := cooldown_left(u, ins)
@@ -266,7 +486,7 @@ static func solo(u: Unit, ins: String) -> String:
 
 # ------------------------------------------------------------------ the computer
 
-## The computer's bands (AI: its army ~10 strong for the first, 30+ for a second; the research in AI._band_research):
+## The computer's bands (AI._band: its army ~10 strong for the first, 30+ for a second; then their Fifer and Piper):
 ## each keeps behind the line (its escort) and plays its solos where they pay:
 ##  - FIFE when 3 or more of the soldiers in its ring are shooting;
 ##  - PIPES when half or more of the fighting ones are at the bayonet or the sabre;
@@ -378,16 +598,10 @@ static func ai_place(g: Game, t: int, u: Unit) -> void:
 
 # ------------------------------------------------------------------ the look and the sound (host, guest, replay)
 
-## The sound loops and the redraw while the ring pulses (also on an online guest and in a replay: NetPuppet).
+## The sound and the redraw while the ring pulses (also on an online guest and in a replay: NetPuppet). The sound is the
+## match's BandSound (scripts/band_sound.gd): one band heard at a time, every part on one shared clock.
 static func look_tick(u: Unit, delta: float) -> void:
-	u._sound_t -= delta
-	if u._sound_t <= 0.0:
-		u._sound_t = float(B["phrase"])
-		var g := u.game
-		if u.visible and g.view_rect.grow(200.0).has_point(u.position) and not Sfx.hush:
-			var ld := lead(u)
-			for ins in u.band.get("m", []):
-				Sfx.play("band/%s%s" % [ins, "_lead" if ins == ld else ""], u.position, 0.0 if ins == ld else -7.0)
+	BandSound.need(u.game)
 	u._band_draw_t -= delta
 	if u._band_draw_t <= 0.0 and u.visible and u.game.view_rect.has_point(u.position):
 		u._band_draw_t = 0.1
@@ -450,8 +664,8 @@ static func lead_bob(u: Unit, ins: String) -> float:
 	return absf(sin(u.game.clock * 9.0)) * 2.0
 
 
-## THE GROUP (the art: tools/import_band.py): the Fifer and the Piper as child sprites of the Drummer's, behind him on
-## either side, each only once he is in the band, in the same pose and frame (they mirror with him: children of the
+## THE GROUP (the art: tools/import_band.py): the Fifer and the Piper as child sprites of the Drummer's, SIDE BY SIDE with
+## him in a row (SPOT), each only once he is in the band, in the same pose and frame (they mirror with him: children of the
 ## sprite). Called by Unit._animate after the Drummer's frame is set. The leader of a solo bobs and stands a little
 ## bigger.
 static func group_look(u: Unit) -> void:
@@ -505,23 +719,48 @@ static func group_look(u: Unit) -> void:
 static var _strips := {}
 
 
+## The row's middle (x, from the Drummer) and half its width, in px, for its shadow and selection ring (Unit._draw).
+static func ring_span(u: Unit) -> Vector2:
+	var lo := -12.0
+	var hi := 12.0
+	var fl := -1.0 if u.anim_flip else 1.0
+	for ins in ["fife", "pipes"]:
+		if has(u, ins):
+			var x: float = SPOT[ins].x * fl
+			lo = minf(lo, x - 12.0)
+			hi = maxf(hi, x + 12.0)
+	return Vector2((lo + hi) * 0.5, (hi - lo) * 0.5 + 3.0)
+
+
 ## A number that changes when the drawing should (Unit's redraw key).
 static func draw_key(u: Unit) -> int:
 	var ld := lead(u)
 	return (u.band.get("m", []) as Array).size() + (8 if ld != "" else 0) + (int(u.game.clock * 6.0) % 97) * 16
 
 
-## The train button's note: who comes out in a new band and why it costs what it does.
-static func train_note(g: Game, t: int) -> String:
-	var who := PackedStringArray()
-	for ins in ["drums", "fife", "pipes"]:
-		if available(g, t, ins):
-			who.append(Loc.t(String(B[ins]["who"])))
-	return Loc.t("Comes out with: %s. Each musician researched at the Armoury adds %d gold to its price.") % [", ".join(who), int(B["per_musician"])]
+## The train button's note: who comes out and where he goes.
+static func train_note(g: Game, t: int, k := KIND) -> String:
+	if MUSICIANS.has(k):
+		var ins := String(MUSICIANS[k])
+		var n := 0
+		for o in g.units:
+			if o.kind == KIND and o.team == t and not o.dead and wants(o, ins):
+				n += 1
+		var who := Loc.t(String(B[ins]["who"]))
+		if n == 0:
+			return Loc.t("He walks to a band without a %s and joins it; none wants one now, so he waits at the rally point.") % who
+		return Loc.t("He walks to the nearest band without a %s and joins it (%d want one).") % [who, n]
+	return Loc.t("Comes out as a Drummer. Train a Fifer and a Piper here too: they walk to a band and join it.")
 
 
 ## The selection card's line.
 static func card_line(u: Unit) -> String:
+	if MUSICIANS.has(u.kind):
+		var ins := String(MUSICIANS[u.kind])
+		if u.order == "join" and is_instance_valid(u.order_target):
+			return Loc.t("Walking to a Marching Band to join it (%s).") % Loc.t(String(B[ins]["label"]))
+		return Loc.t("No band to join: every band has a %s. Waiting.") % Loc.t(String(B[ins]["who"])) if pick_band(u) == null \
+			else Loc.t("Off to join a Marching Band.")
 	var ins: Array = u.band.get("m", [])
 	var a := int(round(float(B["area"]) / Defs.TILE))
 	var parts := PackedStringArray()
@@ -534,9 +773,19 @@ static func card_line(u: Unit) -> String:
 	return line
 
 
-## Its command card (HUD._ability_buttons): each instrument's SOLO (the Fifer's and the Piper's only once researched:
-## shown locked with where to research them). Several bands selected: a SOLO plays on the first of them that can.
+## Its command card (HUD._ability_buttons): each instrument's SOLO, and RECRUIT FIFER / PIPER (one queued at the nearest
+## Armoury for this band). Several bands selected: a SOLO plays on the first of them that can, a RECRUIT is for the first
+## that wants him. A loose Fifer / Piper: JOIN BAND (the nearest band that wants him; or right-click a band).
 static func card(hud, list: Array, units: Array) -> void:
+	var men := units.filter(func(o: Unit) -> bool: return MUSICIANS.has(o.kind) and o.team == hud.game.human and not o.dead)
+	if not men.is_empty():
+		hud._tip_for["JOIN BAND"] = ["Join a band", "He walks to the nearest Marching Band of yours without his instrument and joins it (+15 health to the band, his instrument and its solo). Or right-click a band to send him to that one."]
+		var any := men.any(func(m: Unit) -> bool: return pick_band(m) != null)
+		list.append(["ab_band_join", "JOIN BAND", func() -> void:
+			for m in men:
+				var bd := pick_band(m)
+				if bd != null:
+					m.give({"o": "join", "e": bd}), any, "" if any else "No band wants him: every band has one already, or you have none (train a Marching Band at the Armoury).", ""])
 	var bands := units.filter(func(o: Unit) -> bool: return o.kind == KIND and o.team == hud.game.human and not o.dead)
 	if bands.is_empty():
 		return
@@ -554,12 +803,27 @@ static func card(hud, list: Array, units: Array) -> void:
 				u = o
 				break
 		var why2 := solo_problem(u, ins)
-		if not available(hud.game, u.team, ins):
-			why2 = "Research the %s at the Armoury first." % String(info["who"])
 		var cd := cooldown_left(u, ins)
 		var corner := ("%ds" % int(ceil(solo_left(u)))) if lead(u) == ins else (("%ds" % int(ceil(cd))) if cd > 0.0 else "")
 		list.append(["ab_band_" + ins, ("~ " if lead(u) == ins else "") + lab2, func() -> void:
 			u.band_solo(ins), why2 == "", why2, corner])
+	# RECRUIT FIFER / PIPER (band-v2): for the first selected band that has none and none coming
+	for ins in ["fife", "pipes"]:
+		var info: Dictionary = B[ins]
+		var k := unit_of(ins)
+		var lab := "RECRUIT " + String(info["who"]).to_upper()
+		var price := hud.game.unit_price(hud.game.human, k) as Array
+		var cost := (Loc.t("%d gold, %d powder") % [int(price[0]), int(price[1])]) if int(price[1]) > 0 else (Loc.t("%d gold") % int(price[0]))
+		hud._tip_for[lab] = [Loc.t("Recruit a %s") % Loc.t(String(info["who"])), Loc.t("A %s is trained at your nearest Armoury (%s, %d s) and walks to THIS band to join it (+15 health to the band, +5%% %s in its ring and the %s SOLO). One %s a band.") % [
+			Loc.t(String(info["who"])), cost, int(Defs.UNITS[k]["time"]), Loc.t(String(info["stat_text"])), Loc.upper(Loc.t(String(info["label"]))), Loc.t(String(info["who"]))]]
+		var u: Unit = bands[0]
+		for o in bands:
+			if recruit_problem(o, ins) == "":
+				u = o
+				break
+		var why := recruit_problem(u, ins)
+		list.append([k, lab, func() -> void:
+			u.band_recruit(ins), why == "", why, ""])
 
 
 # ------------------------------------------------------------------ save / net
@@ -570,10 +834,11 @@ static func save(u: Unit) -> Dictionary:
 	var cd := {}
 	for k in u.band.get("cd", {}):
 		cd[k] = snappedf(float(u.band["cd"][k]), 0.01)
-	return {"m": (u.band.get("m", []) as Array).duplicate(), "s": String(u.band.get("s", "")), "se": snappedf(float(u.band.get("se", 0.0)), 0.01), "cd": cd}
+	return {"m": (u.band.get("m", []) as Array).duplicate(), "s": String(u.band.get("s", "")), "se": snappedf(float(u.band.get("se", 0.0)), 0.01), "cd": cd,
+		"id": int(u.band.get("id", 0))}
 
 
-## (an old save's "h"/"he", a musician being taken on in the 0.23 experiment, are dropped: the research decides now)
+## (an old save's "h"/"he", a musician being taken on in the 0.23 experiment, are dropped; one without "id" gets one)
 static func load_state(u: Unit, d: Dictionary) -> void:
 	u.band = fresh()
 	for k in d.get("m", []):
@@ -584,4 +849,6 @@ static func load_state(u: Unit, d: Dictionary) -> void:
 	var cd: Dictionary = d.get("cd", {})
 	for k in cd:
 		u.band["cd"][String(k)] = float(cd[k])
+	if int(d.get("id", 0)) != 0:
+		u.band["id"] = int(d["id"])
 	u.max_hp = float(u.d["hp"]) + float(B["hp_per"]) * (u.band["m"] as Array).size()

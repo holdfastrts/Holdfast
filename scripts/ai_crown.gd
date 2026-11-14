@@ -17,7 +17,7 @@ extends AI
 ##    sections 7-11): expand, keep the army on the high ground, saturate then slowly wall, Musketeers on HOLD with a
 ##    cannon at the ramp, scout with Horsemen, kill workers, counter or expand at once after holding a rush.
 ## THE MARCHING BAND (a real unit since 0.33.0): AI._band trains it at the Armoury (army 10+, a second at 30+) and
-## researches its Fifer and Piper, keeping the gold back for them; MarchingBand.ai_tick keeps it behind the line and plays
+## trains its Fifer and Piper there (they walk over and join it), keeping the gold back for them; MarchingBand.ai_tick keeps it behind the line and plays
 ## its solos.
 ## `-- crownnew:off` on the command line plays the Crown as the 0.27.2 shared computer, for comparison games.
 
