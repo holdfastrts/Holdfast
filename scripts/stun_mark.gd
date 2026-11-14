@@ -65,7 +65,7 @@ func _draw() -> void:
 		if vr.size != Vector2.ZERO and not vr.has_point(u.position):
 			continue
 		var left: float = u.stun_left()
-		var a := minf(clampf(left / FADE_OUT, 0.0, 1.0), clampf((clk - float(marked[u])) / FADE_IN, 0.0, 1.0))
+		var a: float = minf(clampf(left / FADE_OUT, 0.0, 1.0), clampf((clk - float(marked[u])) / FADE_IN, 0.0, 1.0)) * u.ov_a()     # (OVERLAY OPACITY: Entity.ov_a)
 		if a <= 0.01:
 			continue
 		var lifted: float = Springer.lift(u) if not u.jump.is_empty() else 0.0

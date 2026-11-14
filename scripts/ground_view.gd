@@ -12,6 +12,7 @@ const FRESH := Color(0.36, 0.86, 0.32)
 const SPENT := Color(0.92, 0.22, 0.16)
 const COVER := Color(0.55, 0.55, 0.55)
 const NOGROUND := Color(0.08, 0.08, 0.1)
+const DISTRICT_EDGE := {GroundLayer.SOIL: Color(0.98, 0.86, 0.5), GroundLayer.BRASS: Color(1.0, 0.72, 0.3)}   # (placing a drinker: its districts' edges)
 const REDRAW := 0.5                  # seconds between looks at the layer while placing
 
 var game: Game
@@ -182,7 +183,14 @@ func _draw() -> void:
 			if GroundLayer.drink_res(b.kind) != GroundLayer.NONE:
 				draw_arc(b.center(), GroundLayer.radius(b.kind) * T, 0, TAU, 64, Color(tint(b.soil_left() if b.kind == "farm" else b.lode_left()), 0.5 * a + 0.15), 2.0)
 			elif GroundLayer.hall_res(b.kind) != GroundLayer.NONE:
-				draw_arc(b.center(), GroundLayer.district_r(GroundLayer.hall_res(b.kind)) * T, 0, TAU, 96, Color(1, 1, 1, 0.25 * a + 0.08), 1.5)
+				var dr := GroundLayer.district_r(GroundLayer.hall_res(b.kind)) * T
+				if placing_drinker() and GroundLayer.hall_res(b.kind) == GroundLayer.drink_res(place_kind):
+					# placing a Farm / Cog Press: its kind of districts' edges clearer (docs/overlay_alpha.md part C: the
+					# owner tried a Farm far from any hall; ground lies only in these circles)
+					draw_arc(b.center(), dr, 0, TAU, 96, Color(0, 0, 0, 0.3), 4.0)
+					draw_arc(b.center(), dr, 0, TAU, 96, Color(DISTRICT_EDGE[GroundLayer.hall_res(b.kind)], 0.3 * a + 0.4), 2.0)
+				else:
+					draw_arc(b.center(), dr, 0, TAU, 96, Color(1, 1, 1, 0.25 * a + 0.08), 1.5)
 		if placing_drinker():
 			_draw_ghost_circle(gl, T, a)
 			if _best_shows():

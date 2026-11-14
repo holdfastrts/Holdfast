@@ -1784,17 +1784,18 @@ func _draw_building() -> void:
 		for i in batteries:
 			draw_texture_rect_region(bt, Rect2(-r.size.x * 0.5 + 2 + i * 8, -18, 8, 16), Rect2(0, 0, fw, 22))
 	var wy := float(slots.get("work", slots["hp"]))
+	var wa := ov_a()       # (OVERLAY OPACITY: the work bar see-through, full when selected or hovered: Entity.ov_a)
 	if not built:
-		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7))
-		draw_rect(Rect2(-w * 0.5, wy, w * progress, WORK_H), Color(0.95, 0.8, 0.3))
+		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7 * wa))
+		draw_rect(Rect2(-w * 0.5, wy, w * progress, WORK_H), Color(0.95, 0.8, 0.3, wa))
 	elif kind == "farm" and (team == game.human or game.spectating()):
-		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7))
-		draw_rect(Rect2(-w * 0.5, wy, w * growth, WORK_H), Color(0.95, 0.85, 0.3))
+		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7 * wa))
+		draw_rect(Rect2(-w * 0.5, wy, w * growth, WORK_H), Color(0.95, 0.85, 0.3, wa))
 	elif not queue.is_empty() and team == game.human:
 		var k: String = queue[0]
 		var f: float = prod_t / entry_time(k)
-		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7))
-		draw_rect(Rect2(-w * 0.5, wy, w * f, WORK_H), Color(0.75, 0.55, 1.0) if is_research(k) else Color(0.4, 0.75, 1.0))
+		draw_rect(Rect2(-w * 0.5, wy, w, WORK_H).grow(1), Color(0, 0, 0, 0.7 * wa))
+		draw_rect(Rect2(-w * 0.5, wy, w * f, WORK_H), Color(0.75, 0.55, 1.0, wa) if is_research(k) else Color(0.4, 0.75, 1.0, wa))
 	if slots.has("coil") and built and coil_shown():
 		# (eased by _tick_building; an online guest's buildings are not ticked: the pool as it is)
 		var eased := _coil_f >= 0.0 and Engine.get_process_frames() - _coil_frame < 30

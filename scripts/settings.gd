@@ -23,6 +23,8 @@ static var ground_nocap := false      # NO FARM/PRESS LIMIT (experiment, with th
 static var ground_system := false     # THE GROUND SYSTEM (experiment, off by default): soil and brass on the map round each hall (GroundLayer); from the next match
 static var ground_alpha := 0.35       # how strongly the ground layer is drawn while placing any building (0.1 to 1)
 static var mini_alpha := 0.6          # how solid the minimap is drawn (0.2 to 1)
+const OVERLAY_DEFAULT := 0.6
+static var overlay_alpha := OVERLAY_DEFAULT   # OVERLAY OPACITY (docs/overlay_alpha.md): how solid the bars, chevrons and marks over units and buildings are (0.3 to 1; selected and hovered: full)
 static var relay_url := "wss://pocketrts-relay.salgarellius-rts.workers.dev"   # online: the relay (tools/relay/README.md)
 static var ladder_url := ""           # RANKED: the ladder service (tools/ladder/ladder.mjs); "" = not set up (docs/online_ranked.md)
 static var ranked_dev_id := ""        # RANKED with the DEV sign-in (a test server only): a made-up SteamID64, kept
@@ -62,6 +64,7 @@ static func load_all() -> void:
 		ground_nocap = bool(cfg.get_value("ui", "ground_nocap", false))
 		ground_alpha = clampf(float(cfg.get_value("ui", "ground_alpha", 0.35)), 0.1, 1.0)
 		mini_alpha = clampf(float(cfg.get_value("input", "mini_alpha", 0.6)), 0.2, 1.0)
+		overlay_alpha = clampf(float(cfg.get_value("ui", "overlay_alpha", OVERLAY_DEFAULT)), 0.3, 1.0)
 		relay_url = String(cfg.get_value("online", "relay_url", relay_url))
 		if relay_url.contains("YOURNAME") or relay_url.strip_edges() == "":
 			relay_url = "wss://pocketrts-relay.salgarellius-rts.workers.dev"     # (an old placeholder saved earlier)
@@ -103,6 +106,7 @@ static func save_all() -> void:
 	cfg.set_value("ui", "ground_nocap", ground_nocap)
 	cfg.set_value("ui", "ground_alpha", ground_alpha)
 	cfg.set_value("input", "mini_alpha", mini_alpha)
+	cfg.set_value("ui", "overlay_alpha", overlay_alpha)
 	cfg.set_value("online", "relay_url", relay_url)
 	cfg.set_value("online", "ladder_url", ladder_url)
 	cfg.set_value("online", "ranked_dev_id", ranked_dev_id)
@@ -175,6 +179,7 @@ static func reset() -> void:
 	ground_nocap = false
 	ground_alpha = 0.35
 	mini_alpha = 0.6
+	overlay_alpha = OVERLAY_DEFAULT
 	cw_lab = false
 	replays_keep = 30
 	replay_rec = ""

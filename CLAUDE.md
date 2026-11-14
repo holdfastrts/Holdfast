@@ -25,6 +25,14 @@
 
 ## Current work
 
+- OVERLAY OPACITY (owner's playtest 2026-11-14 13:18; job overlay-alpha, docs/overlay_alpha.md, tools/test_overlay_alpha.gd,
+  pictures docs/shots/overlay_alpha/): the bars, chevrons, band buff marks, stun stars and status marks over units and
+  buildings are see-through (Entity.ov_a / ova: Settings.overlay_alpha, default 60%, marks x0.85, a band's "+8%" sqrt of
+  that; selected and hovered units full; a hurt health bar stronger), slider OVERLAY OPACITY in Settings > DISPLAY
+  (30-100%); guides (selection circles, rings, rally lines) kept. With NO FARM/PRESS LIMIT on the Town Hall / Clocktower
+  texts say the district's soil / brass is the limit (Defs.nocap_text); a Farm / Cog Press away from every hall with the
+  ground system on is refused with "No soil here: ..." (Game.NO_GROUND_MSG) and its districts' edges show clearer while
+  placing (GroundView). New code drawing over units: take its alpha from ov_a.
 - MUSIC STUDY v CLASSICAL PIECES (owner, 2026-11-14: the book of 50 famous pieces; job music-study, docs/music_study_classical.md, charts and per-piece numbers in docs/music_study/, tools tools/music/study_*.py, NO game music changed): the game's 73 pieces measured from their notes and .ogg files against the reference table (docs/music_classical_refs.md). Found: 0% of notes outside the key (real ~12%), loudness range 6.9 LU (real ~12), climax at the last chord, 80% of bars repeat the bar before's rhythm, almost no counter-melodies, too much sub-bass in the battles; the chord speed is fine and the phrases are not too square (less regular than the real pieces); the sides are told apart (Crown most). A demo rewrite of The Queen Stirs in docs/music_study/demos/. OWNER DECISIONS WAITING: which proposals to build (mix pass first?), a loudness-range target (8-10 LU proposed), the Clockwork winding down at the end, the Brood's irregular phrases, the drum-bed marches.
 - BAND MUSIC V2 (owner 2026-11-14 09:57-09:58; job band-music-v2, 0.37.4, branch band-music-v2, docs/band_music.md): Scotland
   the Brave note for note from the owner's reference score (not in the repo), 110 (109.91, whole drone cycles), in E; the

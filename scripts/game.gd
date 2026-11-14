@@ -5199,6 +5199,10 @@ func placement_problem(t: int, k: String, c: Vector2i, ai := false, limits_check
 				near = true
 				break
 		if not near:
+			if GroundLayer.drinks(k):
+				# THE GROUND SYSTEM (docs/overlay_alpha.md part C): ground lies only in a district round each hall, so the
+				# refusal says why (the districts' edges show while placing: GroundView)
+				return NO_GROUND_MSG[GroundLayer.drink_res(k)]
 			return "Must be near your %s." % Defs.BUILDINGS[faction_hall(t)]["name"]
 		if not econ_capped(k):
 			# NO FARM/PRESS LIMIT (docs/ground_nocap_study.md): no limit for the player, only the ground; a computer keeps its
@@ -5217,6 +5221,11 @@ func placement_problem(t: int, k: String, c: Vector2i, ai := false, limits_check
 				return "This %s's ground already feeds %d %s (spent ones don't count). Build by another one." % [Defs.BUILDINGS[faction_hall(t)]["name"],
 					Defs.econ_per_hall(faction_of(t), k), Defs.BUILDINGS[k]["name"] + ("s" if Defs.econ_per_hall(faction_of(t), k) > 1 else "")]
 	return ""
+
+
+## THE GROUND SYSTEM: a Farm / Cog Press laid away from every hall (placement_problem): no ground there to drink.
+const NO_GROUND_MSG := {GroundLayer.SOIL: "No soil here: Farms draw on the soil of a Town Hall's district.",
+	GroundLayer.BRASS: "No brass here: Cog Presses draw on the brass of a Clocktower's district."}
 
 
 ## THE GROUND SYSTEM: a side's Farms / Cog Presses of kind k whose nearest hall is `hall`, going up or still drinking

@@ -179,6 +179,32 @@ func health_bar_shown() -> bool:
 	return hp < max_hp or Settings.health_bars == 1
 
 
+## OVERLAY OPACITY (the owner's playtest, 2026-11-14; docs/overlay_alpha.md): what is drawn over the battlefield that is
+## not a picture of a unit, building or effect (the bars, the veterancy chevron, the band's buff marks, status marks,
+## labels) is see-through by Settings.overlay_alpha, so it never hides the men under it; the SELECTED ones and the one
+## under the mouse at full strength (what is being microed reads clearly). Marks (buffs, debuffs, numbers, status
+## icons) a little fainter still (MARK_K). Only the colours' alpha changes: no extra draw call.
+const MARK_K := 0.85
+const HURT_K := 0.35             # a hurt health bar drawn up to this share of the way back to full strength (nearly dead)
+
+
+## The opacity of this one's overlays now: full when selected or hovered, else the setting (x MARK_K for marks).
+func ov_a(mark := false) -> float:
+	if selected or (game != null and game.hover_target == self):
+		return 1.0
+	return Settings.overlay_alpha * (MARK_K if mark else 1.0)
+
+
+## The health bar's opacity: ov_a, and the more hurt the stronger (HURT_K: a dying man's bar reads first).
+func health_a() -> float:
+	return lerpf(ov_a(), 1.0, HURT_K * (1.0 - clampf(hp / maxf(max_hp, 0.001), 0.0, 1.0)))
+
+
+## A colour with its alpha times `a` (the overlays' see-through).
+static func ova(c: Color, a: float) -> Color:
+	return Color(c.r, c.g, c.b, c.a * a)
+
+
 ## The health bar (when health_bar_shown); `always` is kept for the callers (unused). Returns where the secondary bars
 ## go: flush under the drawn bar, or `top` itself when no bar was drawn.
 func draw_health(top: float, width: float, always := false) -> float:
@@ -187,9 +213,10 @@ func draw_health(top: float, width: float, always := false) -> float:
 	var w := width
 	var h := BAR_H_BIG if w > BAR_BIG_W else BAR_H
 	var r := Rect2(-w * 0.5, top, w, h)
-	draw_rect(r.grow(1), BAR_EDGE)
 	var f := clampf(hp / max_hp, 0.0, 1.0)
-	var col := Color(0.3, 0.9, 0.3) if f > 0.5 else (Color(0.95, 0.8, 0.2) if f > 0.25 else Color(0.95, 0.3, 0.2))
+	var a := health_a()
+	draw_rect(r.grow(1), ova(BAR_EDGE, a))
+	var col := Color(0.3, 0.9, 0.3, a) if f > 0.5 else (Color(0.95, 0.8, 0.2, a) if f > 0.25 else Color(0.95, 0.3, 0.2, a))
 	draw_rect(Rect2(r.position, Vector2(w * f, h)), col)
 	# the boxes: a thin dark gap every hp_box() health
 	var box := hp_box(max_hp, w)
@@ -200,10 +227,10 @@ func draw_health(top: float, width: float, always := false) -> float:
 			var x := -w * 0.5 + w * float(k) * box / max_hp
 			pts.append(Vector2(x, top))
 			pts.append(Vector2(x, top + h))
-		draw_multiline(pts, BAR_EDGE, 1.0)
+		draw_multiline(pts, ova(BAR_EDGE, a), 1.0)
 	if acid_t > 0.0:
 		# (above the bar: under it units show their reload)
-		draw_rect(Rect2(r.position + Vector2(0, -3), Vector2(w, 2)), Color(0.75, 0.95, 0.2))
+		draw_rect(Rect2(r.position + Vector2(0, -3), Vector2(w, 2)), Color(0.75, 0.95, 0.2, a))
 	return top + h + 1.0
 
 
@@ -211,6 +238,7 @@ func draw_health(top: float, width: float, always := false) -> float:
 ## with the bar above it. Returns the y for the next one.
 func draw_sub_bar(y: float, w: float, f: float, col: Color) -> float:
 	var r := Rect2(-w * 0.5, y, w, SUB_H)
-	draw_rect(r.grow(1), BAR_EDGE)
-	draw_rect(Rect2(r.position, Vector2(w * clampf(f, 0.0, 1.0), SUB_H)), col)
+	var a := ov_a()
+	draw_rect(r.grow(1), ova(BAR_EDGE, a))
+	draw_rect(Rect2(r.position, Vector2(w * clampf(f, 0.0, 1.0), SUB_H)), ova(col, a))
 	return y + SUB_H + 1.0

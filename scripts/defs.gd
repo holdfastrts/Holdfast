@@ -2466,7 +2466,7 @@ static func short_of(kind: String, armoured := false) -> String:
 	if armoured and SHORT_ARMOURED.has(kind):
 		return SHORT_ARMOURED[kind]
 	if SHORT.has(kind):
-		return SHORT[kind]
+		return nocap_text(SHORT[kind])
 	for d in [UNITS, BUILDINGS]:
 		if (d as Dictionary).has(kind):
 			var a := String(d[kind].get("about", ""))
@@ -2481,8 +2481,37 @@ static func about_of(kind: String, armoured := false) -> String:
 		return String(ARMOURED[kind]["about"])
 	for d in [UNITS, BUILDINGS]:
 		if (d as Dictionary).has(kind):
-			return String(d[kind].get("about", ""))
+			return nocap_text(String(d[kind].get("about", "")))
 	return ""
+
+
+## NO FARM/PRESS LIMIT (ground_nocap with the ground system on; docs/overlay_alpha.md part B): a Town Hall no longer
+## allows "2 Farms", nor a Clocktower "2 Cog Presses": the soil / brass of its district is the only limit (the Mill and
+## the Mainspring stay 1). The hall texts say so then (English: each result is a key of its own in tools/i18n/
+## 69_overlay_alpha.txt); with the experiment off they are as before.
+const NOCAP_SUB := [
+	["Each Town Hall allows 2 Farms and 1 Powder Mill nearby.", "Its Farms are limited only by the soil of its district; 1 Powder Mill nearby."],
+	["Allows 2 Farms and 1 Powder Mill nearby;", "Farms limited only by its district's soil; 1 Powder Mill nearby;"],
+	["Allows 2 Farms and 1 Powder Mill.", "Farms: as its soil allows; 1 Powder Mill."],
+	["allows 2 Farms and 1 Powder Mill nearby", "Farms limited only by its district's soil, 1 Powder Mill nearby"],
+	["Allows 2 Cog Presses and 1 Mainspring nearby.", "Its Cog Presses are limited only by the brass of its district; 1 Mainspring nearby."],
+	["allows 2 Cog Presses and 1 Mainspring nearby", "Cog Presses limited only by its district's brass, 1 Mainspring nearby"],
+]
+
+
+## Is the hall limit on Farms / Cog Presses off (the experiment, in this match or set for the next)?
+static func nocap_now() -> bool:
+	return ground_on and ground_nocap
+
+
+## A hall text as it reads now (nocap_now: NOCAP_SUB applied; else unchanged).
+static func nocap_text(t: String) -> String:
+	if not nocap_now():
+		return t
+	for e in NOCAP_SUB:
+		if t.contains(String(e[0])):
+			t = t.replace(String(e[0]), String(e[1]))
+	return t
 
 
 ## The short tooltip text for a unit, building or research ("about" when it has none).
@@ -2494,12 +2523,12 @@ const GEAR_TIPS := {
 
 static func tip(kind: String) -> String:
 	if gear_mode and GEAR_TIPS.has(kind):
-		return GEAR_TIPS[kind]
+		return nocap_text(GEAR_TIPS[kind])
 	if TIPS.has(kind):
-		return TIPS[kind]
+		return nocap_text(TIPS[kind])
 	if train_armoured(kind):
 		return String(ARMOURED[train_kind(kind)]["about"])
 	for d in [UNITS, BUILDINGS, RESEARCH]:
 		if (d as Dictionary).has(kind):
-			return String(d[kind].get("about", ""))
+			return nocap_text(String(d[kind].get("about", "")))
 	return ""

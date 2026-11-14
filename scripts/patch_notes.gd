@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.7", "items": [
+		"SEE-THROUGH OVERLAYS: health bars, veterancy chevrons, band buff marks and percentages, stun stars and status marks over units and buildings are now see-through (60% by default) so they no longer hide the fight; the units you have selected or hover over keep them fully solid. Settings > DISPLAY > OVERLAY OPACITY (30-100%).",
+		"With the experiment NO FARM/PRESS LIMIT on, the Town Hall and Clocktower now say their district's soil or brass is the only limit (no more \"2 Farms\"). A Farm or Cog Press placed away from every hall with the GROUND SYSTEM on is refused with \"No soil here\", and the districts' edges show clearer while you place it.",
+	]},
 	{"v": "0.37.6", "items": [
 		"MAIN MENU: the studio's logo in the bottom-right corner, beside the version, and the credit now reads \"Made by Salgarellius Catholic Games with the help of AI\".",
 	]},
