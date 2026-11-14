@@ -7,3 +7,8 @@ es Versión %s
 > This game was made with the help of AI
 pt Este jogo foi feito com a ajuda de IA
 es Este juego se hizo con la ayuda de IA
+
+# 0.37.6: the owner's studio in the credit, his logo beside it
+> Made by Salgarellius Catholic Games with the help of AI
+pt Feito por Salgarellius Catholic Games com a ajuda de IA
+es Hecho por Salgarellius Catholic Games con la ayuda de IA
