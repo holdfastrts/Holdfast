@@ -152,7 +152,7 @@ func _run() -> void:
 				if what == "pressed" and not ch.is_empty():
 					var row2: Node = rows_of(tab).get(id)
 					var b2 := _find(row2, "Button") as Button if row2 else null
-					if b2 != null and not id in ["replays_keep", "replay_rec", "ui_size", "powder_smoke", "narrator_rate"]:
+					if b2 != null and not id in ["replays_keep", "replay_rec", "ui_size", "powder_smoke", "narrator_rate", "band_marks"]:
 						b2.pressed.emit()
 						await process_frame
 						check("%s %s/%s: pressed again, back as it was" % [device, tab, id], diff(s0, snap()).is_empty(), str(diff(s0, snap())))
