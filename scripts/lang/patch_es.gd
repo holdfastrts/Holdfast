@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.18": ["Fuentes de sonido: grabaciones reales de batería (MuldjordKit de Lars Muldjord, CC BY 4.0) guardadas para la nueva música de la banda; los créditos de audio están en docs/audio_credits.md."],
 	"0.35.17": ["Fuentes de sonido: las grabaciones de gaita de FreePats que envió el dueño (CC0, Gilles Sadowski) se guardan para la nueva música de la banda."],
 	"0.35.16": ["El icono de RECARGAR (una cartuchera rellenada desde un cuerno de pólvora) ya está, listo para el próximo comando RECARGAR."],
 	"0.35.15": ["La Banda de Marcha tiene iconos de verdad: retratos del Tambor, el Pífano y el Gaitero, y los tres botones de SOLO."],

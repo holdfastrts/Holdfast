@@ -1,0 +1,13 @@
+MuldjordKit (FreePats version 2020-10-18), a real drum kit recorded by Lars Muldjord (www.muldjord.com, www.drumgizmo.org),
+assembled for FreePats by roberto@zenvoid.org. Supplied by the owner on 2026-11-14.
+Licence: Creative Commons Attribution 4.0 International (LICENSE.txt). CREDIT REQUIRED: "MuldjordKit drum samples by
+Lars Muldjord, CC BY 4.0" in the game's credits (and kept with any file made from them).
+Kept here for the Marching Band (a pipe band's / fife-and-drum corps' drums), converted losslessly to FLAC:
+  Snare1/      the snare, 56 hits (velocity layers: MuldjordKit.sfz maps them)
+  SnareRest1/  the snare's rim / rest hits
+  KdrumL/      a kick drum (the band's bass drum)
+  Tom4/        the floor tom (a deeper tenor-drum colour)
+  CrashL/      a crash cymbal (a pipe band's cymbals, used sparingly)
+Not kept (the full kit is in the owner's archive MuldjordKit-SFZ_WAV-20201018.7z): Snare2, the other kick, toms 1-3,
+hi-hats, the other crash, rides, china. MuldjordKit.sfz is the kit's own map with .wav renamed .flac (it lists every
+part; only the folders above are here). Not in the game's assets: the band's music is rendered from these (tools/audio/).

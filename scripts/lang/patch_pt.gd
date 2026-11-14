@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.18": ["Fontes de som: gravações reais de bateria (MuldjordKit de Lars Muldjord, CC BY 4.0) guardadas para a nova música da banda; os créditos de áudio estão em docs/audio_credits.md."],
 	"0.35.17": ["Fontes de som: as gravações de gaita de fole do FreePats enviadas pelo dono (CC0, Gilles Sadowski) ficam guardadas para a nova música da banda."],
 	"0.35.16": ["O ícone de RECARREGAR (uma cartucheira reabastecida por um polvorinho) chegou, pronto para o comando RECARREGAR que vem aí."],
 	"0.35.15": ["A Banda Marcial tem ícones de verdade: retratos do Tambor, do Pífaro e do Gaiteiro, e os três botões de SOLO."],

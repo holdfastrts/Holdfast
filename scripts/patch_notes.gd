@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.18", "items": [
+		"Sound sources: real drum recordings (MuldjordKit by Lars Muldjord, CC BY 4.0) kept for the band's new music; the audio credits are listed in docs/audio_credits.md.",
+	]},
 	{"v": "0.35.17", "items": [
 		"Sound sources: the owner's FreePats bagpipe recordings (CC0, Gilles Sadowski) are kept for the band's new music.",
 	]},
