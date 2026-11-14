@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.4", "items": [
+		"MUSIC STUDY (no music changed yet): all 73 pieces of the game's music measured from their notes and their sound and compared with fifty famous classical pieces and six real MIDI files. Found: the music never leaves its key, the loudness hardly moves, the climax always comes on the last chord, the accompaniment repeats the same rhythm almost every bar and counter-melodies are missing; the chords change at the right speed and the three sides do sound different. Proposals and a demo rewrite of The Queen Stirs are in docs/music_study_classical.md.",
+	]},
 	{"v": "0.37.3", "items": [
 		"EXPERIMENT, NO FARM/PRESS LIMIT (Settings > EXPERIMENTAL, only with the GROUND SYSTEM on, off by default): a Town Hall no longer limits its Farms and a Clocktower its Cog Presses; the ground is the only limit. More of them drain the same district faster and overlapping circles share it; the placing view still shows each circle's share. The Powder Mill and the Mainspring stay one a hall. The computers build one more only where the district's ground left still pays for it and its crew. Being measured (docs/ground_nocap_study.md).",
 	]},

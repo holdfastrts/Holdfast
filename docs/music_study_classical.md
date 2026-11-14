@@ -361,3 +361,28 @@ python3 tools/music/study_analyse.py /tmp/ex /tmp/sym.json
 python3 tools/music/study_audio.py /tmp/audio.json          # about 15 minutes
 python3 tools/music/study_compare.py /tmp/sym.json /tmp/audio.json docs/music_study
 ```
+
+## Addendum: six real pieces measured from MIDI (2026-11-14, after the job)
+
+The owner downloaded six piano MIDI files from MuseScore (user arrangements; they stay out of the repository). Only
+summary numbers were kept: `docs/music_study/real_midi_features.json`, made by `tools/music/study_midi_feats.py`.
+They check three of the study's estimates with real notes instead of descriptions.
+
+| Piece | Key found | Notes outside the 7 main pitch classes | Tempo changes written in the file | Loudness levels |
+|---|---|---|---|---|
+| Für Elise | A minor | 13% | 7 (48-72) | one fixed level |
+| Clair de Lune | D-flat major | 6% | 56 (9-102) | 81 levels, 16-96 |
+| Nocturne Op. 9 No. 2 | E-flat major | 12% | 12 (20-80) | 54 levels, 55-127 |
+| Gymnopédie No. 1 | D major | 9% | 3 (34-54) | 32 levels, 33-64 |
+| Chopin's Waltz in A minor | A minor | 10% | none | one fixed level |
+| Pachelbel's Canon | D major | 1% | none | 10 levels, 49-96 |
+
+- **Colour outside the key: confirmed.** Five of the six use 6-13% notes outside the key (the estimate was about
+  12%); only the Canon, a strict ground bass, sits near the game's 0%. Proposal 3 stands.
+- **Tempo that breathes: confirmed for the slow pieces.** The arrangers wrote the rubato into the files: Clair de
+  Lune changes tempo 56 times, the Nocturne 12 times, Für Elise 7. The game's calm pieces keep one tempo (the Brood's
+  breathing curve is the exception). Proposal 8 (a ritardando into cadences) should reach every side's calm pieces.
+- **Dynamics:** where the arranger wrote dynamics, the range is wide (16-96, 55-127); two files carry no dynamics at
+  all, so they say nothing.
+- The step and leap shares of the "top note" are not reliable for piano writing (the accompaniment often sits above
+  the tune), so they are left out.

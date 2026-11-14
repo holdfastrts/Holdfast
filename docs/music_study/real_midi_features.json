@@ -1,0 +1,218 @@
+[
+ {
+  "file": "waltz-in-a-minorchopin.mid",
+  "metre": "1/4",
+  "tempo_bpm_first": 120.0,
+  "tempo_changes": 1,
+  "tempo_range": [
+   120.0,
+   120.0
+  ],
+  "length_beats": 240.0,
+  "notes": 937,
+  "notes_per_beat": 3.9,
+  "key_estimate": "A minor",
+  "key_fit": 0.85,
+  "chromatic_share": 0.1,
+  "pitch_range": [
+   33,
+   100
+  ],
+  "top_line_range": [
+   40,
+   100
+  ],
+  "top_step_share": 0.67,
+  "top_mean_leap": 3.68,
+  "top_big_leaps_share(>=5)": 0.25,
+  "distinct_durations": 7,
+  "velocity_range": [
+   64,
+   64
+  ],
+  "velocity_layers": 1,
+  "mean_polyphony_at_onset": 2.13,
+  "repeated_4beat_rhythm_share": 0.97,
+  "tracks": 2
+ },
+ {
+  "file": "gymnopedie-no-1-satie.mid",
+  "metre": "3/4",
+  "tempo_bpm_first": 54.0,
+  "tempo_changes": 3,
+  "tempo_range": [
+   34.0,
+   54.0
+  ],
+  "length_beats": 233.8,
+  "notes": 455,
+  "notes_per_beat": 1.95,
+  "key_estimate": "D major",
+  "key_fit": 0.95,
+  "chromatic_share": 0.086,
+  "pitch_range": [
+   33,
+   81
+  ],
+  "top_line_range": [
+   38,
+   81
+  ],
+  "top_step_share": 0.34,
+  "top_mean_leap": 10.32,
+  "top_big_leaps_share(>=5)": 0.53,
+  "distinct_durations": 7,
+  "velocity_range": [
+   33,
+   64
+  ],
+  "velocity_layers": 32,
+  "mean_polyphony_at_onset": 2.42,
+  "repeated_4beat_rhythm_share": 0.97,
+  "tracks": 2
+ },
+ {
+  "file": "fur-elise-beethoven.mid",
+  "metre": "1/8",
+  "tempo_bpm_first": 72.0,
+  "tempo_changes": 7,
+  "tempo_range": [
+   48.0,
+   72.0
+  ],
+  "length_beats": 187.0,
+  "notes": 1040,
+  "notes_per_beat": 5.56,
+  "key_estimate": "A minor",
+  "key_fit": 0.87,
+  "chromatic_share": 0.132,
+  "pitch_range": [
+   33,
+   100
+  ],
+  "top_line_range": [
+   44,
+   100
+  ],
+  "top_step_share": 0.37,
+  "top_mean_leap": 7.05,
+  "top_big_leaps_share(>=5)": 0.46,
+  "distinct_durations": 6,
+  "velocity_range": [
+   33,
+   33
+  ],
+  "velocity_layers": 1,
+  "mean_polyphony_at_onset": 1.32,
+  "repeated_4beat_rhythm_share": 0.78,
+  "tracks": 2
+ },
+ {
+  "file": "canon-in-d-johann-pachelbel.mid",
+  "metre": "4/4",
+  "tempo_bpm_first": 100.0,
+  "tempo_changes": 1,
+  "tempo_range": [
+   100.0,
+   100.0
+  ],
+  "length_beats": 407.8,
+  "notes": 1589,
+  "notes_per_beat": 3.9,
+  "key_estimate": "D major",
+  "key_fit": 0.95,
+  "chromatic_share": 0.011,
+  "pitch_range": [
+   38,
+   86
+  ],
+  "top_line_range": [
+   38,
+   86
+  ],
+  "top_step_share": 0.46,
+  "top_mean_leap": 7.73,
+  "top_big_leaps_share(>=5)": 0.42,
+  "distinct_durations": 8,
+  "velocity_range": [
+   49,
+   96
+  ],
+  "velocity_layers": 10,
+  "mean_polyphony_at_onset": 1.73,
+  "repeated_4beat_rhythm_share": 0.98,
+  "tracks": 2
+ },
+ {
+  "file": "chopin-nocturne-op-9-no-2-e-flat-major.mid",
+  "metre": "1/8",
+  "tempo_bpm_first": 60.0,
+  "tempo_changes": 12,
+  "tempo_range": [
+   20.0,
+   80.0
+  ],
+  "length_beats": 212.3,
+  "notes": 1299,
+  "notes_per_beat": 6.12,
+  "key_estimate": "Eb major",
+  "key_fit": 0.95,
+  "chromatic_share": 0.12,
+  "pitch_range": [
+   32,
+   99
+  ],
+  "top_line_range": [
+   45,
+   99
+  ],
+  "top_step_share": 0.45,
+  "top_mean_leap": 6.34,
+  "top_big_leaps_share(>=5)": 0.4,
+  "distinct_durations": 11,
+  "velocity_range": [
+   55,
+   127
+  ],
+  "velocity_layers": 54,
+  "mean_polyphony_at_onset": 2.09,
+  "repeated_4beat_rhythm_share": 0.58,
+  "tracks": 2
+ },
+ {
+  "file": "clair-de-lune-debussy.mid",
+  "metre": "9/8",
+  "tempo_bpm_first": 48.0,
+  "tempo_changes": 56,
+  "tempo_range": [
+   9.0,
+   102.0
+  ],
+  "length_beats": 322.5,
+  "notes": 1491,
+  "notes_per_beat": 4.62,
+  "key_estimate": "Db major",
+  "key_fit": 0.89,
+  "chromatic_share": 0.061,
+  "pitch_range": [
+   27,
+   97
+  ],
+  "top_line_range": [
+   37,
+   97
+  ],
+  "top_step_share": 0.13,
+  "top_mean_leap": 9.55,
+  "top_big_leaps_share(>=5)": 0.61,
+  "distinct_durations": 20,
+  "velocity_range": [
+   16,
+   96
+  ],
+  "velocity_layers": 81,
+  "mean_polyphony_at_onset": 1.83,
+  "repeated_4beat_rhythm_share": 0.51,
+  "tracks": 2
+ }
+]
