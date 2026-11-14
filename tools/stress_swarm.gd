@@ -3,7 +3,7 @@ extends SceneTree
 ## split by the Prof parts (scripts/prof.gd) as tools/perf_bench.gd does.
 ##
 ##   godot --headless --fixed-fps 60 --script res://tools/stress_swarm.gd -- <scenario> [n:200] [secs:30] [map:dune_sea]
-##       [mobile] [sound] [spikes] [trace:/abs/file.txt] [out:/abs/file.json] [shot:/abs/file.png] [linger:s]
+##       [mobile] [sound] [spikes] [vets] [trace:/abs/file.txt] [out:/abs/file.json] [shot:/abs/file.png] [linger:s]
 ##   xvfb-run -a godot --rendering-driver opengl3 --resolution 1600x900 --fixed-fps 60 --script res://tools/stress_swarm.gd -- melee
 ##   tools/stress_swarm.sh <outdir> [render] [mobile] [secs:30] [scenarios...]     (all of them, and a table)
 ##
@@ -43,6 +43,7 @@ var n := 200
 var secs := 30.0
 var map := "dune_sea"
 var device := "pc"
+var vets := false                 # vets: every man spawned a veteran (15 to 64 kills: a chevron over each, VetChevrons)
 var sound := false
 var _sfx0 := [0, 0, 0, 0, 0]
 var _sfx_t0 := 0.0
@@ -81,7 +82,7 @@ var savecost := false           # ("savecost": at the end, the autosave's parts 
 var spikes := false              # ("spikes": every frame over 50 ms printed, with what it spent its time on)
 
 const ZONES := ["units", "buildings", "game", "game/unit grid", "game/paths", "game/pathfinder", "game/path smoothing", "game/fog",
-	"effects", "projectiles", "unit draw", "building draw", "overlay draw", "hud", "hud draw", "hud/minimap", "hud/selection", "ai", "smoke", "silhouettes", "silhouettes/scan", "autosave", "replay/record"]
+	"effects", "projectiles", "unit draw", "building draw", "overlay draw", "hud", "hud draw", "hud/minimap", "hud/selection", "ai", "smoke", "silhouettes", "silhouettes/scan", "autosave", "replay/record", "vet chevrons"]
 
 
 class SilentSfx extends Sfx:
@@ -116,6 +117,8 @@ func _initialize() -> void:
 			spikes = true
 		elif a == "savecost":
 			savecost = true
+		elif a == "vets":
+			vets = true
 		elif a.begins_with("trace:"):
 			_trace = FileAccess.open(a.substr(6), FileAccess.WRITE)
 		elif a.begins_with("out:"):
@@ -302,6 +305,8 @@ func _army(team: int, at: Vector2, set: Array) -> Array:
 			# (an army made over minutes: its men don't all shove, or look round for a target, on the same tick)
 			u._sep_n = i % 3
 			u.scan_t = float(i % 10) / 30.0
+			if vets:
+				u.kills = 15 + i % 50
 			i += 1
 			out.append(u)
 	return out

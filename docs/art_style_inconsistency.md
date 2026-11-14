@@ -648,3 +648,12 @@ tools/import_hub_nuremberg.py / import_hub_station.py (tools/hub_key.py). CODE o
 | --- | --- | --- | --- |
 | The dismounted Officer's reload | scripts/unit.gd `_anim_name` (`_anim_or("reload", "idle")`) | no strip: he stands on his idle frames between pistol shots | draw dismounted/reload_* (art_redraw_queue.md item 63) |
 | The uprooted Mound Turtle's attack | scripts/brood_new.gd `anim` (`has_strip(fr, "attack")`) | no strip: it fights on its walk/idle frames | draw mound_turtle/attack_se (art_redraw_queue.md item 64) |
+
+## The veterancy chevrons (0.36.x; scripts/vet_chevrons.gd, docs/vet_chevrons.md)
+
+The three chevrons over a veteran (bronze 15 kills, silver 30, gold 50) are the OWNER'S ChatGPT art
+(art/ui/vet_chevrons_chatgpt.png, cut by tools/import_vet_chevrons.py into assets/ui/vet_bronze.png, vet_silver.png,
+vet_gold.png at their own 15 x 11 pixels): no code art in the game. A CODE-DRAWN STAND-IN stays in the code
+(VetChevrons.chevron_image: a 15 x 11 V, a dark outline, a three-tone metal ramp lit on the upper left) and is used only
+if those files are missing. The old veterancy colours on the sprites (the Crown's silver / gold hat trim, the Brood's
+amber / obsidian skin) are gone; the Crown's trim mask still draws the hat lace black as every soldier's was.

@@ -175,12 +175,11 @@ var auto_repair := false        # REPAIR autocast: idle, it fixes damaged buildi
 var _cold := false
 var cw := {}                 # Clockwork roster prototype state (scripts/cw_units.gd)
 var slow_t := 0.0              # slowed (acid clouds: the Storm Engine's)
-var kills := 0:                 # veterancy: enemy kills only (it shows on the sprite: VetLook)
+var kills := 0:                 # veterancy: enemy kills only (a chevron over it from bronze: VetChevrons)
 	set(v):
-		var was := VetLook.level(kills)
 		kills = v
-		if sprite and VetLook.level(v) != was:
-			VetLook.apply(self)
+		if VetChevrons.rank(v) > 0:
+			VetChevrons.note(self)
 var patrol_a := Vector2.INF     # PATROL: the two ends he walks between (INF: not patrolling)
 var patrol_b := Vector2.INF
 var friendly_kills := 0         # our own men his blows finished off (splash): just for the card
@@ -436,6 +435,10 @@ func is_unit() -> bool:
 
 ## How long a Winder's spent battery lies on the field before it fades. (Bodies rot instead: Defs.ROT.)
 const CORPSE_TIME := 30.0
+
+
+## Where a body's spoils number is drawn (its top edge, unit space): the chevron goes over it (VetChevrons.bottom_of).
+const NUMBER_Y := -26.0
 
 
 ## A number drawn with the pixel digits (centred on `at`).
@@ -1853,7 +1856,7 @@ func _gunner_material(g: Sprite2D, p: Unit) -> void:
 		gm = ShaderMaterial.new()
 		gm.shader = src.shader
 		g.material = gm
-	for k in ["team", "tint", "flash", "vet_style", "vet_level"]:
+	for k in ["team", "tint", "flash", "vet_style"]:
 		gm.set_shader_parameter(k, src.get_shader_parameter(k))
 	gm.set_shader_parameter("vet_mask", VetLook.mask_for(g.texture, VetLook.style_of(p)))
 
@@ -1955,10 +1958,12 @@ func _ready() -> void:
 		# each strip of the horse's sprites has its own coat mask (any Crown man may get a horse)
 		sprite.texture_changed.connect(func() -> void: HorseCoat.update_mask(self))
 		HorseCoat.apply(self)
-	if VetLook.style_of(self) > 0:
-		# veterancy on the sprite: each strip has its own trim or skin mask
+	if VetLook.style_of(self) > 0 or VetLook.venom(self):
+		# a Crown soldier's black hat trim, the venom line's colours: each strip has its own mask
 		sprite.texture_changed.connect(func() -> void: VetLook.update_mask(self))
 		VetLook.apply(self)
+	if VetChevrons.rank(kills) > 0:
+		VetChevrons.note(self)
 	_apply_tint()
 	if kind == "horse":
 		_rein = Node2D.new()
@@ -8133,11 +8138,11 @@ func _draw_unit() -> void:
 	if dead and CwAir.falling(self):
 		CwAir.draw_fall_shadow(self)
 	if dead:
-		# a veteran's body (or a seasoned horse's carcass, or a rider's on one): how much
-		# essence it holds, for the Brood to see
+		# a veteran's body (or a seasoned horse's carcass, or a rider's on one): how much spoils it holds, for the
+		# Brood player to see (and those who watch: VetChevrons.number_shown); its chevron is VetChevrons'
 		var seasoned := (kind == "horse" or is_mounted()) and horse_rank(horse_miles) > 0
-		if (kills > 0 or seasoned) and game.corpses.has(self):
-			_draw_number(int(game.corpse_value(self)), Vector2(0, -26))
+		if (kills > 0 or seasoned) and game.corpses.has(self) and VetChevrons.number_shown(game):
+			_draw_number(int(game.corpse_value(self)), Vector2(0, NUMBER_Y))
 		return
 	if selected and (kind == "cannon" or kind == "mortar") and team == game.human and aboard == null:
 		_draw_aim()

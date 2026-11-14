@@ -13,20 +13,17 @@ uniform vec4 wash = vec4(1.0, 1.0, 1.0, 0.0);
 uniform int coat = -1;           // 0 dark, 1 bay, 2 grey, 3 white, 4 spotted (white + patches)
 uniform sampler2D horse_mask : filter_nearest, repeat_disable, hint_default_black;
 uniform sampler2D coat_ramps : filter_linear, repeat_disable;
-// Veterancy on the sprite (scripts/vet_look.gd): a mask beside each strip marks the pixels
-// that show it (R) and their tone (G, dark 0 .. light 1). vet_style 1: a Crown soldier's trim
-// (tools/import_vet_trim.py: hat lace, hat band, helmet comb and brim), black / silver / gold
-// by vet_level 0 / 1 / 2. vet_style 2: a Brood creature's skin (tools/import_vet_skin.py),
-// as painted / amber-ochre / obsidian. 0: no veterancy shown.
+// A Crown soldier's small trim (scripts/vet_look.gd, tools/import_vet_trim.py: hat lace, hat band, helmet comb and
+// brim): a mask beside each strip marks its pixels (R) and their tone (G, dark 0 .. light 1); vet_style 1 draws them
+// black (veterancy itself is the chevron over the unit since 0.36.x, scripts/vet_chevrons.gd). 0: as painted.
 uniform int vet_style = 0;
-uniform int vet_level = 0;
 uniform sampler2D vet_mask : filter_nearest, repeat_disable, hint_default_black;
 // a Powder Wagon whose horse was released (RELEASE HORSE): its painted horse isn't drawn
 uniform bool hide_horse = false;
 // THE VENOM LINE (the Spitter, the Venom Challenger, the Venom Sire; tools/import_venom_colours.py, docs/venom_belly.md):
 // the spikes and the frill in the team colour as the rest of the Brood (the key reds), the scales olive as painted, and
 // the BELLY and a STRIPE along the flank in the team colour. A mask beside each strip: R = a belly or stripe pixel and G
-// its tone (dark 0 .. light 1). A veteran's belly and stripe mix half of the veterancy skin into the team colour.
+// its tone (dark 0 .. light 1).
 uniform bool venom_swap = false;
 uniform sampler2D venom_mask : filter_nearest, repeat_disable, hint_default_black;
 
@@ -34,21 +31,9 @@ vec3 coat_ramp(int row, float t) {
 	return texture(coat_ramps, vec2(t * (63.0 / 64.0) + 0.5 / 64.0, (float(row) + 0.5) / 5.0)).rgb;
 }
 
-// (keep the colours in step with tools/import_vet_trim.py and tools/import_vet_skin.py)
-vec3 vet_trim(int level, float t) {
-	if (level >= 2) return mix(vec3(0.50, 0.30, 0.04), vec3(1.00, 0.88, 0.36), t);   // gold
-	if (level == 1) return mix(vec3(0.42, 0.45, 0.50), vec3(0.96, 0.97, 1.00), t);   // silver
+// (keep the colours in step with tools/import_vet_trim.py)
+vec3 vet_trim(float t) {
 	return mix(vec3(0.05, 0.05, 0.06), vec3(0.22, 0.22, 0.24), t);                   // black
-}
-
-vec3 vet_skin(int level, float t) {
-	if (level == 1) {      // amber-ochre
-		vec3 c = mix(vec3(0.20, 0.10, 0.03), vec3(0.66, 0.42, 0.12), smoothstep(0.0, 0.6, t));
-		return mix(c, vec3(0.93, 0.74, 0.38), smoothstep(0.6, 1.0, t));
-	}
-	// obsidian: near black, a dark violet sheen on the highlights
-	vec3 c = mix(vec3(0.025, 0.025, 0.035), vec3(0.12, 0.11, 0.16), smoothstep(0.0, 0.8, t));
-	return mix(c, vec3(0.48, 0.45, 0.64), smoothstep(0.86, 1.0, t));
 }
 
 // (keep the ramp in step with tools/import_venom_colours.py)
@@ -76,23 +61,15 @@ void fragment() {
 		vec4 nm = texture(venom_mask, UV);
 		if (nm.r > 0.5) {
 			vec3 sc = team_ramp(team.rgb, nm.g);
-			if (vet_style == 2 && vet_level > 0) sc = mix(sc, vet_skin(vet_level, nm.g), 0.5);
 			// the outline darks stay as painted
 			float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
 			o = mix(c.rgb, sc, smoothstep(0.035, 0.10, l));
 			venom_scale = true;
 		}
 	}
-	if (vet_style > 0 && !venom_scale) {
+	if (vet_style == 1 && !venom_scale) {
 		vec4 vm = texture(vet_mask, UV);
-		if (vm.r > 0.5) {
-			if (vet_style == 1) o = vet_trim(vet_level, vm.g);
-			else if (vet_level > 0) {
-				// the skin's outline darks stay as painted
-				float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
-				o = mix(o, vet_skin(vet_level, vm.g), smoothstep(0.035, 0.10, l));
-			}
-		}
+		if (vm.r > 0.5) o = vet_trim(vm.g);
 	}
 	if (wash.a > 0.0) {
 		vec3 lw = vec3(0.299, 0.587, 0.114);

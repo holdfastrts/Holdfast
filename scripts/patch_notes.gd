@@ -4,6 +4,11 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.2", "items": [
+		"VETERANCY CHEVRONS: a unit with 15 or more kills wears ONE CHEVRON over it, in every faction (Crown, Clockwork, Brood, guns, workers, flyers, the campaign's rebels): BRONZE from 15 kills, SILVER from 30, GOLD from 50. It sits centred just above where the health bar is drawn and always shows, whether the bar does or not, so veterans are easy to find for micro and focus fire. It keeps the same size on screen at every zoom (a little smaller zoomed far out). The bonus is unchanged: +1% damage a kill, up to +50% at 50 kills.",
+		"The old veterancy colours are gone: a Crown soldier's hat trim stays black and a Brood creature's skin stays as painted at every rank (the venom line keeps its belly and stripe colours). The unit card names the rank: \"Veteran (bronze): 17 kills, +17% damage\".",
+		"Bodies show their chevron too, for everyone. The spoils NUMBER on a body now shows only to a Brood player (the side that harvests bodies) and to those who watch (spectators, computer games, replays).",
+	]},
 	{"v": "0.37.1", "items": [
 		"THE MARCHING BAND HAS REAL MUSIC: Scotland the Brave, played by real instruments (a recorded bagpipe with its drones, a real snare and bass drum, a fife), all three parts in one key (G) and one tempo (98 a minute), so the Drummer, the Fifer and the Piper sound like one band in every combination. Each instrument has a quiet playing-along loop and a SOLO loop with the full tune (the pipes' gracenotes, the fife's cuts and rolls, the snare's rolls and flams); each loop is the whole 16-bar tune (39 s) instead of the old 4-second phrase.",
 	]},
