@@ -282,9 +282,20 @@ class Piece:
                 continue
             if not seq or seq[-1][1] != l:
                 seq.append((i, l))
-        changes = max(0, len(seq) - 1)
+        # harmonic rhythm counts changes of the chord ROOT only (maj -> maj7 or a sus is colour, not a new chord),
+        # after a 3-pulse majority filter so one passing note does not make a chord
+        roots = [l[0] if l else None for l in labels]
+        sm = list(roots)
+        for i in range(1, len(roots) - 1):
+            a, b, c = roots[i - 1], roots[i], roots[i + 1]
+            if b is not None and a is not None and a == c and b != a:
+                sm[i] = a
+        rseq = [r for i, r in enumerate(sm) if r is not None and (i == 0 or sm[i - 1] != r)]
+        changes = max(0, len(rseq) - 1)
+        f["harm_label_changes"] = max(0, len(seq) - 1)
         sounding_bars = max(1, sum(1 for l in labels if l is not None) * self.pulse / self.bar)
         f["harm_rhythm"] = changes / sounding_bars
+        f["harm_label_rate"] = f.pop("harm_label_changes") / sounding_bars
         tot = len(seq) or 1
         qual = Counter(l[1] for _, l in seq)
         f["chord_sevenths"] = sum(qual[q] for q in SEVENTHS) / tot
@@ -307,17 +318,29 @@ class Piece:
         f["chord_diatonic"] = diat / tot
         f["chord_borrowed"] = borrowed / tot
         f["chord_secdom"] = sec_dom / tot
-        # chromaticism: share of note-time outside the score's mode
+        # chromaticism: per 8 bars, the share of note-time outside the 7-note scale that fits those bars best
+        # (any major / natural minor collection, any harmonic minor, or the score's own mode), so that a change of
+        # key, or a score whose declared mode is not the one it uses, does not count as chromatic
+        scales = [set((t + i) % 12 for i in MODES["ionian"]) for t in range(12)] + \
+                 [set((t + i) % 12 for i in MODES["harmonic"]) for t in range(12)] + \
+                 [set((t + i) % 12 for i in MODES["phrygian_dom"]) for t in range(12)] + [self.scale]
         w_in = w_out = 0.0
+        win = 8 * self.bar
+        nwin = int(math.ceil(self.length / win))
+        pcw = np.zeros((nwin, 12))
         for e in self.notes:
             if self.roles.get(e[2]) == "perc":
                 continue
-            w = e[4] * e[5]
-            if e[3] % 12 in self.scale:
-                w_in += w
-            else:
-                w_out += w
+            pcw[min(nwin - 1, int(e[0] // win)), e[3] % 12] += e[4] * e[5]
+        for row in pcw:
+            if row.sum() <= 0:
+                continue
+            best = max(sum(row[i] for i in sc) for sc in scales)
+            w_in += best
+            w_out += row.sum() - best
         f["chromatic"] = w_out / max(1e-6, w_in + w_out)
+        decl_out = sum(pcw[:, i].sum() for i in range(12) if i not in self.scale)
+        f["outside_declared_mode"] = float(decl_out / max(1e-6, pcw.sum()))
         # roots relative to the tonic
         rel = Counter((l[0] - tpc) % 12 for _, l in seq)
         f["root_tonic_share"] = rel[0] / tot
@@ -402,17 +425,37 @@ class Piece:
 
     # -------------------------------------------------- rhythm sameness
     def rhythm(self):
+        """How often a bar has the same rhythm (all onsets, every instrument and drum) as the bar before.
+        Two bars count as the same when they have the same number of onsets and each lies within 45 ms of its
+        partner (the Brood's timing is humanised by up to 20 ms, so exact grid matching would hide repeats)."""
         f = {}
-        sig = defaultdict(set)
+        sig = defaultdict(list)
         for e in self.notes + self.drums:
             b = int((e[0] + 0.03) // self.bar)
-            sig[b].add(int(round((e[0] - b * self.bar) / self.beat * 12)))
-        bars = [b for b in range(self.nbars) if sig.get(b)]
-        same_prev = sum(1 for b in bars if b - 1 in sig and sig[b] == sig[b - 1])
+            sig[b].append(e[0] - b * self.bar)
+        for b in sig:     # merge onsets closer than 30 ms (a chord, a doubled line)
+            xs = sorted(sig[b])
+            out = [xs[0]]
+            for x in xs[1:]:
+                if x - out[-1] > 0.03:
+                    out.append(x)
+            sig[b] = np.array(out)
+
+        def same(a, c):
+            return len(a) == len(c) and (len(a) == 0 or float(np.max(np.abs(a - c))) < 0.045)
+        bars = [b for b in range(self.nbars) if b in sig]
+        same_prev = sum(1 for b in bars if b - 1 in sig and same(sig[b], sig[b - 1]))
         f["bar_rhythm_same_prev"] = same_prev / max(1, len(bars) - 1)
-        cnt = Counter(frozenset(sig[b]) for b in bars)
-        f["bar_rhythm_top_share"] = cnt.most_common(1)[0][1] / max(1, len(bars)) if cnt else 0
-        f["bar_rhythm_distinct"] = len(cnt) / max(1, len(bars))
+        reps = []
+        for b in bars:
+            for r in reps:
+                if same(sig[b], sig[r[0]]):
+                    r.append(b)
+                    break
+            else:
+                reps.append([b])
+        f["bar_rhythm_top_share"] = max(len(r) for r in reps) / max(1, len(bars)) if reps else 0
+        f["bar_rhythm_distinct"] = len(reps) / max(1, len(bars))
         return f
 
     # -------------------------------------------------- phrases
@@ -601,6 +644,24 @@ class Piece:
             if all(len(onsets[i] & onsets[j]) / max(1, len(onsets[i] | onsets[j])) < 0.5 for j in chosen):
                 chosen.append(i)
         f["indep_lines"] = len(chosen)
+        # a counter-line: in a bar, a second tune-carrying instrument with 2+ notes whose rhythm differs from the
+        # top line's (onset Jaccard < 0.5) and whose notes are not the top line's notes moved in parallel
+        if m:
+            top = defaultdict(set)
+            for e in m:
+                top[int((e[0] + 0.03) // self.bar)].add(int(round(e[0] / self.beat * 4)))
+            per = defaultdict(lambda: defaultdict(set))
+            for e in self.notes:
+                if e[2] in self.cands:
+                    per[int((e[0] + 0.03) // self.bar)][e[2]].add(int(round(e[0] / self.beat * 4)))
+            bars = [b for b in top]
+            cl = 0
+            for b in bars:
+                for inst, ons in per[b].items():
+                    if len(ons) >= 2 and len(ons & top[b]) / len(ons | top[b]) < 0.5:
+                        cl += 1
+                        break
+            f["counter_line_share"] = cl / max(1, len(bars))
         bl = getattr(self, "bass_line", None)
         if m and bl and len(m) > 8:
             bt = np.array([e[0] for e in bl])
@@ -639,6 +700,8 @@ class Piece:
                  length_s=round(self.length, 1), bpm_score=self.bpm, meter_score=self.meter, pulse_bpm=round(pulse, 1),
                  metre=metre, metre_class=metre_class(self.bpm, self.meter), bars=self.nbars,
                  tonic=NAMES[self.tonic_pc], mode=self.mode, majorish=self.mode in MAJORISH)
+        tc = d.get("tempo_curve") or []
+        f["tempo_var"] = float((np.percentile(tc, 95) - np.percentile(tc, 5)) / np.median(tc)) if len(tc) > 3 else 0.0
         self.layers()
         f["roles"] = self.roles
         mf, m = self.melody_feats()
