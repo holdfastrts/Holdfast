@@ -4,6 +4,10 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.1", "items": [
+		"THE BROOD COMPUTER'S RAPTOR RUSH AGAINST HORSEMEN (docs/brood_rush_coach.md; nothing about any unit changed): a wave at your wall no longer leaves it to chase Horsemen who ride out and off. A Raptor lets a rider go once he is out of its reach and goes back to the wall or building it was hitting, and bites a rider who comes within its reach there without leaving it; riders who ride back into the pack are bitten by every Raptor near them. With only riders about, the wave no longer walks home with its back to them while it still has a quarter of its strength.",
+		"After its rush ends the Brood computer rebuilds its economy first: while its Rootmaws have posts without a grub, the food goes to grubs before new Rootmaws and turtles on new ground. On Mirewood against the Crown computer it earns about 40% more a minute at 6:00 after a failed rush.",
+	]},
 	{"v": "0.36.0", "items": [
 		"THE MARCHING BAND, NEW STRUCTURE: the Fifer and the Piper are no longer research. Train them at the Armoury one at a time (Fifer 60 gold and 10 powder, Piper 75 gold, 20 s each): each comes out, walks to a band without one and joins it (+15 health to the band, his instrument and its solo). RECRUIT FIFER / RECRUIT PIPER on a band's card sends one to THAT band; right-click a band with a Fifer or Piper selected (or JOIN BAND) to send him there. One of each a band; a band no longer costs more for its musicians. A musician with no band to join waits at the rally point.",
 		"The band's three musicians stand SIDE BY SIDE in a row, so each is clearly seen; its shadow, selection ring and click area are as wide as the row.",
