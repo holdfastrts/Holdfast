@@ -353,14 +353,13 @@ static func join(m: Unit, band: Unit) -> void:
 static func musician_tick(m: Unit, delta: float) -> void:
 	if m.order == "join":
 		return
-	var idle := m.order == "idle" and m.queue.is_empty()
-	var ai := m.game.ais.any(func(a) -> bool: return a.team == m.team)
-	if not idle and not ai:
-		return
 	m._band_scan -= delta
 	if m._band_scan > 0.0:
 		return
 	m._band_scan = float(B["join"])
+	var idle := m.order == "idle" and m.queue.is_empty()
+	if not idle and not m.game.ais.any(func(a) -> bool: return a.team == m.team):
+		return
 	var band := pick_band(m, int(m.band.get("to", 0)) if not m.band.is_empty() else 0)
 	if band != null:
 		start_join(m, band)

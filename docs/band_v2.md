@@ -142,13 +142,26 @@ drum alone (quietest) with the fife and pipes only in their solos.
   an old save's research fills every band; the side-by-side row; the click along the row; BandSound (one band heard,
   only its parts, the always-on quiet, a solo 18 dB over the others, one clock); and everything from 0.33.0 (buffs,
   solos, rings, save, snapshot, replay field, the funnel).
-- `tools/test_content_all.gd -- only=crown` (0 FAIL, 1 WARN fixed after): the Fifer and the Piper are trained, paid,
+- `tools/test_content_all.gd -- only=crown` (52 of 52 entries pass; one run had the Farm's build check time out, which passed on the next run and does not touch the band): the Fifer and the Piper are trained, paid,
   cancelled, come out; JOIN BAND on their cards; a Fifer joins and the FIFE SOLO works.
 - `tools/test_rules_fixes.gd`: the Fifer's and the Piper's cards have no ATTACK. test_i18n, test_files, test_replay,
   test_save_job pass.
 - `tools/test_marching_band_match.gd` (a Hard Crown computer, whole matches): see the table below.
 
-MATCH_TABLE
+| map, seed | against | how it went | the band |
+|---|---|---|---|
+| red_coast 7 | Easy Clockwork | Crown won at 13:35 | **band 9:26; Fifer out 10:51, joined 11:51; Piper out 11:11, joined 12:08; FIFE SOLO 11:52 (6 soldiers in the ring), PIPES SOLO 12:08 (5); never lost. All checks pass.** |
+| ashford_crossing 4242 | Easy Clockwork | Crown won at 14:36 | band 10:09, a second 13:44; Fifer out 12:44, joined 14:04 (an 80 s walk to the front); Piper joined 14:35; no solo before the end (no fight in its ring) |
+| ashford_crossing 4242 | Hard Brood | Crown lost at 11:18 | none (no 10 soldiers with an Armoury) |
+| ashford_crossing 4242 | Easy Brood | Crown lost at 12:11 | none |
+| ashford_crossing 7 | Normal Clockwork | Crown lost at 12:22 | none |
+| greenhold 4242 | Easy Brood | Crown lost at 11:25 | none |
+| red_coast 7 | Hard Clockwork | Crown lost at 15:15 | none |
+
+As in 0.33.0, the Hard Crown computer rarely reaches 10 soldiers with an Armoury standing (it lost every game against
+a Brood or a Normal/Hard Clockwork here: the known weakness of the Crown computer, docs/winrate_2026_11_12.md), so the
+band only shows up when it is ahead. When it does, the new chain works: band, then Fifer and Piper trained, walking
+over, joining, soloing.
 
 ## Claude's choices (say if wrong)
 
