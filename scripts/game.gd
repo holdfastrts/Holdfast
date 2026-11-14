@@ -3668,6 +3668,7 @@ func remove_ghost(b: Building) -> void:
 	b.crate_obj = null
 	b.visible = false
 	b.rubble_t = 25.0           # (freed a few seconds on, like a wrecked site)
+	_forget_site(b)             # (out of the builders' lists: a dead piece there broke the rest of its wall)
 	_recount_supply(b.team)
 	if Defs.BUILDINGS[b.kind].get("line", false):
 		relink_walls(b.cell)
@@ -5019,7 +5020,7 @@ func _crown_chain() -> Dictionary:
 		if u.dead or u.kind != "labourer":
 			continue
 		var mine: Array = []
-		if u.order == "build" and u.order_target is Building:
+		if u.order == "build" and is_instance_valid(u.order_target) and u.order_target is Building:
 			var cur: Building = u.order_target
 			if cur.built and not cur.dead and cur.d["faction"] == "crown":
 				# just finished, not yet moved on (the sweep can run between the two):
@@ -5028,12 +5029,12 @@ func _crown_chain() -> Dictionary:
 			mine.append(u.order_target)
 		mine.append_array(u.line_rest)
 		for o in u.queue:
-			if String(o["o"]) == "build" and o.get("e") is Building:
+			if String(o["o"]) == "build" and is_instance_valid(o.get("e")) and o.get("e") is Building:
 				mine.append(o["e"])
 			elif String(o["o"]) == "wall":
 				mine.append_array(o["pieces"])
 		for b in mine:
-			if b is Building and is_instance_valid(b) and not b.dead and not b.built \
+			if is_instance_valid(b) and b is Building and not b.dead and not b.built \
 					and b.d["faction"] == "crown" and not kept.has(b):
 				kept[b] = true
 				todo.append(b)
@@ -9766,6 +9767,11 @@ func _tick_game(delta: float) -> void:
 	anim_crowd = anim_steps > (55 if anim_crowd else 80)
 	anim_steps = 0
 	if over or edit_mode:
+		if map_view and gear_net:
+			# VIEW MAP after the match (owner 2026-11-13: "the clockwork gears disappear"): the tick stops, so the view
+			# rect and the rings it draws followed the camera no more; keep them following it (the rings stand still)
+			update_view_rect()
+			gear_net.held()
 		return
 	if Defs.cw_roster:
 		CwUnits.tick_game(self, delta)
@@ -10170,6 +10176,18 @@ func train_any(list: Array, k: String) -> String:
 	if best == null:
 		return why
 	return train(best, k)
+
+
+## A cancelled piece out of every builder's lists (the rest of its wall stays theirs: the owner 2026-11-13, cancelling one
+## stretch of a three-stretch wall lost all three, as the dead piece left in the lists broke the "who is coming" check).
+func _forget_site(b: Building) -> void:
+	for u in units:
+		if u.team != b.team or u.dead:
+			continue
+		u.line_rest.erase(b)
+		for o in u.queue:
+			if String(o["o"]) == "wall":
+				(o["pieces"] as Array).erase(b)
 
 
 ## Cancel a building that isn't finished: most of its cost comes back.

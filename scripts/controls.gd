@@ -600,7 +600,7 @@ func _left_pc(e: InputEventMouseButton) -> void:
 		return          # a click on a worker label ("FARMERS 3/8"): its workers (Shift: added)
 	var ent := game.entity_at(p)
 	var now := Time.get_ticks_msec()
-	if ent and ent.team == game.human:
+	if ent and (ent.team == game.human or (game.spectating() and ent.team >= 0 and ent is Unit)):     # (watching: any side's, the SC2 observer's way)
 		var double: bool = now - _last_click_t < 350 and _last_click_kind == ent.kind
 		map_click(ent, e.ctrl_pressed or e.meta_pressed, e.shift_pressed, double)
 		_last_click_t = now
@@ -991,9 +991,9 @@ func map_click(ent: Entity, ctrl: bool, shift: bool, double := false) -> void:
 		if rest.size() < sel.size():
 			game.set_selection(rest)
 		else:
-			_select_type_on_screen(ent.kind, true)
+			_select_type_on_screen(ent.kind, true, ent.team)
 	elif ctrl or double:
-		_select_type_on_screen(ent.kind, shift)
+		_select_type_on_screen(ent.kind, shift, ent.team)
 	elif shift:
 		var sel: Array = game.selection.duplicate()
 		if sel.has(ent):
@@ -1005,15 +1005,17 @@ func map_click(ent: Entity, ctrl: bool, shift: bool, double := false) -> void:
 		game.set_selection([ent])
 
 
-func _select_type_on_screen(kind: String, add := false) -> void:
+func _select_type_on_screen(kind: String, add := false, team := -1) -> void:
+	if team < 0:
+		team = game.human
 	var view := Rect2(Vector2.ZERO, game.get_viewport().get_visible_rect().size)
 	var xf := game.get_viewport().get_canvas_transform()
 	var list: Array = []
 	for u in game.units:
-		if u.team == game.human and u.kind == kind and not u.dead and not u.off_field and view.has_point(xf * u.position):
+		if u.team == team and u.kind == kind and not u.dead and not u.off_field and view.has_point(xf * u.position):
 			list.append(u)
 	for b in game.buildings:
-		if b.team == game.human and b.kind == kind and not b.dead and view.intersects(Rect2(xf * b.rect().position, b.rect().size * xf.get_scale())):
+		if b.team == team and b.kind == kind and not b.dead and view.intersects(Rect2(xf * b.rect().position, b.rect().size * xf.get_scale())):
 			list.append(b)
 	if add:
 		for x in game.selection:
@@ -1022,23 +1024,44 @@ func _select_type_on_screen(kind: String, add := false) -> void:
 	game.set_selection(list)
 
 
+## Whose things a box takes: your own; while watching a game or a replay (owner, 2026-11-13: "if I box select I
+## don't select all things, only 1") the side with the most units in the box, else the most buildings.
+func _box_team(r: Rect2, xf: Transform2D) -> int:
+	if not game.spectating():
+		return game.human
+	var n := {}
+	for u in game.units:
+		if not u.dead and not u.off_field and u.visible and u.team >= 0 and r.has_point(xf * (u.position + Vector2(0, -10))):
+			n[u.team] = int(n.get(u.team, 0)) + 1000
+	if n.is_empty():
+		for bb in game.buildings:
+			if not bb.dead and bb.visible and bb.team >= 0 and r.intersects(Rect2(xf * bb.rect().position, bb.rect().size * xf.get_scale())):
+				n[bb.team] = int(n.get(bb.team, 0)) + 1
+	var best := -1
+	for t in n:
+		if best < 0 or int(n[t]) > int(n[best]):
+			best = int(t)
+	return best if best >= 0 else game.human
+
+
 func _finish_box(add := false) -> void:
 	var r := box_rect()
 	_box_from = Vector2.INF
 	var xf := game.get_viewport().get_canvas_transform()
 	var list: Array = []
+	var me: int = _box_team(r, xf)
 	for u in game.units:
-		if u.team == game.human and not u.dead and not u.off_field and r.has_point(xf * (u.position + Vector2(0, -10))):
+		if u.team == me and not u.dead and not u.off_field and r.has_point(xf * (u.position + Vector2(0, -10))):
 			var rider := Unit.mounting_onto(u)      # (a horse a man is getting on: the strip drawn there is him)
 			var who: Unit = u if rider == null else rider
-			if who.team == game.human and not who.dead and not list.has(who):
+			if who.team == me and not who.dead and not list.has(who):
 				list.append(who)
 	# no units in the box: your buildings in it (walls and gates only if that's all there is)
 	if list.is_empty():
 		var main: Array = []
 		var lines: Array = []
 		for bb in game.buildings:
-			if bb.team != game.human or bb.dead:
+			if bb.team != me or bb.dead:
 				continue
 			var br: Rect2 = bb.rect()
 			if r.intersects(Rect2(xf * br.position, br.size * xf.get_scale())):
@@ -1062,7 +1085,7 @@ func _finish_box(add := false) -> void:
 		var best: Entity = null
 		var bd := INF
 		for u in game.units:
-			if u.team == game.human or u.dead or u.off_field or not u.visible:
+			if u.team == me or u.dead or u.off_field or not u.visible:
 				continue
 			var sp: Vector2 = xf * (u.position + Vector2(0, -10))
 			if r.has_point(sp) and sp.distance_to(mid) < bd:
@@ -1070,7 +1093,7 @@ func _finish_box(add := false) -> void:
 				best = u
 		if best == null:
 			for bb in game.buildings:
-				if bb.team == game.human or bb.dead or not bb.visible or game.hidden_ghost(bb, game.controlled_team()):
+				if bb.team == me or bb.dead or not bb.visible or game.hidden_ghost(bb, game.controlled_team()):
 					continue
 				var br2: Rect2 = bb.rect()
 				if r.intersects(Rect2(xf * br2.position, br2.size * xf.get_scale())):

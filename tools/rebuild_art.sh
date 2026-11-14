@@ -150,6 +150,7 @@ python3 tools/press_anim/escapement_work.py          # the Escapement's tick-toc
                                                      # art/clockwork/gear/escapement_built.png and _work_0..23.png (wheel and anchor in code)
 python3 tools/gear_art/import_buildings.py escapement   # ... and its game sprites (assets/buildings/escapement_*, assets/icons/escapement.png)
 python3 tools/import_round13.py          # round 13 icons (art/ui/icons3/: Clockwork portraits, the Clockwork's and the
+python3 tools/import_band_icons.py      # the Marching Band's icons (art/ui/icons3/band_*.png: the three portraits, the solos, JOIN)
                                          # Brood's own command icons in their frame, Crown commands, the Tension picture):
                                          # last of the icon passes (it replaces portraits written by import_winder_v2,
                                          # import_clock_soldier, import_cuckoo and the round 11 placeholders)

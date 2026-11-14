@@ -4,8 +4,35 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
-	{"v": "0.35.8", "items": [
+	{"v": "0.35.17", "items": [
 		"Replays: watching a replay paused, or right after a jump on the timeline, every unit the camera comes to now shows what it is really doing and the way it really faces. Before, a unit only took its picture while the replay ran with it on screen, so a jump left everyone standing in their first picture, facing south, until you pressed play (Raptors running at a wall stood about facing you). The owner's Mirewood replay was looked at closely: the Raptors there are all drawn (their olive bodies in the painted colours), seen from behind as they climb the ramp, where only the pink crest stands out against the moss. A new test (tools/test_replay_render.gd) watches recorded games of all three factions in every recording mode and checks that every unit on screen has its body drawn and its pose right (docs/replay_render.md).",
+	]},
+	{"v": "0.35.16", "items": [
+		"The RELOAD icon (a cartridge pouch refilled from a powder horn) is in, ready for the coming RELOAD command.",
+	]},
+	{"v": "0.35.15", "items": [
+		"The Marching Band has real icons: portraits of the Drummer, the Fifer and the Piper, and the three SOLO buttons.",
+	]},
+	{"v": "0.35.14", "items": [
+		"Watching a game: box select takes all the units of the side with the most in the box, a double click picks every one of that kind on screen, and each player's line shows income per minute, army value and workers (as in replays). The Spring Ballista's crew stand at its back in the north views. The Springer's screw is 30% smaller, the Pendulum drawn 30% bigger.",
+	]},
+	{"v": "0.35.13", "items": [
+		"Spectating: the PRODUCTION and ARMY & STRUCTURES icons have tooltips, and a click selects them and moves the camera to one (click again for the next one).",
+	]},
+	{"v": "0.35.12", "items": [
+		"FIX (web build): the little arrows and symbols that showed as empty boxes (before AI STORY, PRODUCTION, ARMY & STRUCTURES, \"All players\", and the replay's pause button) are drawn again: the game now carries its own symbol font, as the browser has none to borrow.",
+	]},
+	{"v": "0.35.11", "items": [
+		"FIX: cancelling part of a planned wall (one piece, or one stretch of a wall with bends) cancels only that part: the rest stays planned and your Labourers keep building it (it used to drop the whole wall).",
+	]},
+	{"v": "0.35.10", "items": [
+		"FIX: VIEW MAP after a match keeps the Clockwork's gear rings drawn wherever you move the camera (they vanished outside the spot where the match ended).",
+	]},
+	{"v": "0.35.9", "items": [
+		"The factions are just CROWN, CLOCKWORK and BROOD everywhere (no \"The\" in front): lobbies, the game screen, the battle report, the help pages and the match log.",
+	]},
+	{"v": "0.35.8", "items": [
+		"The faction buttons in the skirmish and online lobbies show each faction's new emblem: the Crown's gold crown, the Clockwork's brass gear and the Brood's green eye (no longer their hall buildings).",
 	]},
 	{"v": "0.35.7", "items": [
 		"The game's name is now just TRIUMVIWAR (the subtitle \"Is All Lost?\" is gone), and its new home is https://triumviwar.github.io/ (the Android app Triumviwar.apk and the Windows program Triumviwar_windows.zip are there). On the web build your settings and saves start fresh, because the address changed; on a computer or phone they carry over.",

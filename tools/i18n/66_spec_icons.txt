@@ -1,0 +1,37 @@
+# The spectator's PRODUCTION and ARMY & STRUCTURES icons: tooltips and a click to find them (owner, 2026-11-13).
+
+> None left.
+pt Não resta nenhum.
+es No queda ninguno.
+
+> %d%% done
+pt %d%% pronto
+es %d%% hecho
+
+> waiting in the queue
+pt esperando na fila
+es esperando en la cola
+
+> At: %s
+pt Em: %s
+es En: %s
+
+> Click: show it on the map.
+pt Clique: mostra no mapa.
+es Clic: lo muestra en el mapa.
+
+> %d standing
+pt %d de pé
+es %d en pie
+
+> %d going up
+pt %d sendo construídos
+es %d en construcción
+
+> %d of them
+pt %d no total
+es %d en total
+
+> Click: select them and show one on the map; click again for the next one.
+pt Clique: seleciona todos e mostra um no mapa; clique de novo para o próximo.
+es Clic: los selecciona y muestra uno en el mapa; vuelve a hacer clic para el siguiente.

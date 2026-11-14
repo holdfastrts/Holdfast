@@ -284,6 +284,12 @@ func has_point(pt: Vector2) -> bool:
 
 
 func press(pt: Vector2) -> bool:
+	if drop == "":
+		var h := hit(pt)
+		if not h.is_empty():
+			go_to(h)
+			Sfx.play_any(["ui/click", "click"])
+			return true
 	if drop != "":
 		var was := drop
 		for r in drop_rows():
@@ -429,6 +435,7 @@ func _draw_drop() -> void:
 
 ## PRODUCTION: each player's queues (hud.prod_items), one row each: "P1" and its icons.
 func _draw_prod(br: Rect2) -> void:
+	_hits["prod"] = []
 	var per := maxi(1, int((br.size.x - 16.0 - LABEL_W) / (P_ICON + 4.0)))
 	var y := br.position.y + 5.0
 	var shown := 0
@@ -450,6 +457,8 @@ func _draw_prod(br: Rect2) -> void:
 			if r.end.y + 5 > br.end.y:
 				break
 			hud._ci.draw_rect(r, Color(0, 0, 0, 0.35))
+			if it.size() > 4:
+				(_hits["prod"] as Array).append([r, {"panel": "prod", "t": t, "key": String(it[4]), "e": it[3], "f": float(it[1])}])
 			var ic: Texture2D = hud._icon(String(it[0]))
 			if ic:
 				hud._ci.draw_texture_rect(ic, r, false, Color.WHITE if float(it[1]) >= 0.0 else Color(1, 1, 1, 0.55))
@@ -560,6 +569,7 @@ func _army_h(t: int, w: float) -> float:
 
 
 func _draw_army(br: Rect2) -> void:
+	_hits["army"] = []
 	var y := br.position.y + 5.0
 	var teams := teams_of("army")
 	var shown := 0
@@ -593,6 +603,7 @@ func _draw_army(br: Rect2) -> void:
 			if String(e[4]) != last_k and last_k != "" and float(e[0]) > 0.0:
 				hud._ci.draw_rect(Rect2(r.position.x - SEP * 0.5 - 2, r.position.y + 4, 1, ICON - 8), Color(1, 1, 1, 0.25))
 			last_k = String(e[4])
+			(_hits["army"] as Array).append([r, {"panel": "army", "t": t, "key": String(e[2][0]), "bld": bool(e[3]), "it": e[2]}])
 			_icon_count(r, e[2], bool(e[3]))
 		y += (0.0 if fl.is_empty() else float(fl.back()[1]) + ICON_ROW) + 6.0
 		shown += 1
@@ -701,3 +712,91 @@ static func _fit(font: Font, s: String, sz: int, max_w: float) -> String:
 		_cut.clear()
 	_cut[key] = t
 	return t
+
+
+# ------------------------------------------------------------------ the icons: tooltips and a click to find them
+# (the owner, 2026-11-13: "these icons on the tabs do not have tooltips, also, it's not clickable, we should be able to
+# click to select it to see where it is")
+
+var _hits := {"prod": [], "army": []}      # [rect, info] of the icons last drawn in each panel
+var _cycle := {}                           # "t:key" -> the index of the one shown last (each click: the next one)
+
+
+## The icon of PRODUCTION or ARMY & STRUCTURES under pt (HUD coordinates), {} if none.
+func hit(pt: Vector2) -> Dictionary:
+	for p in ["prod", "army"]:
+		if not open.get(p, false):
+			continue
+		for h in _hits[p]:
+			if (h[0] as Rect2).has_point(pt):
+				return h[1]
+	return {}
+
+
+## What a key is called: a unit, a building or a research ("!key").
+static func name_of(key: String) -> String:
+	if key.begins_with("!") and Defs.RESEARCH.has(key.substr(1)):
+		return String(Defs.RESEARCH[key.substr(1)]["name"])
+	var k := Defs.train_kind(key)
+	if Defs.UNITS.has(k):
+		return String(Defs.UNITS[k]["name"])
+	if Defs.BUILDINGS.has(key):
+		return String(Defs.BUILDINGS[key]["name"])
+	return key.capitalize()
+
+
+## The ones a click finds: the creature or building a production item comes from; else every one of that kind.
+func _found(h: Dictionary) -> Array:
+	if h.has("e") and is_instance_valid(h["e"]) and not (h["e"] as Entity).dead:
+		return [h["e"]]
+	var t := int(h["t"])
+	var key := String(h["key"])
+	var out: Array = []
+	if bool(h.get("bld", false)):
+		for b in game.buildings:
+			if b.team == t and not b.dead and not b.ghost and b.kind == key:
+				out.append(b)
+	else:
+		for u in game.units:
+			if u.team == t and not u.dead and u.kind == key:
+				out.append(u)
+	return out
+
+
+## A click on an icon: they are selected and the camera goes to one of them (each click on the same icon: the next one).
+func go_to(h: Dictionary) -> void:
+	var list := _found(h)
+	if list.is_empty():
+		hud.toast(Loc.t("None left."))
+		return
+	var ck := "%d:%s" % [int(h["t"]), String(h["key"])]
+	var i := (int(_cycle.get(ck, -1)) + 1) % list.size()
+	_cycle[ck] = i
+	game.set_selection(list)
+	var e: Entity = list[i]
+	game.camera.position = e.center() if e is Building else e.position
+
+
+## The tooltip for an icon: what it is, how many, and what a click does.
+func tip(h: Dictionary) -> Dictionary:
+	var t := int(h["t"])
+	var who := Loc.t("P%d") % (t + 1) + " " + Loc.t(String(Defs.FACTIONS[game.faction_of(t)]["name"]))
+	var name := Loc.t(name_of(String(h["key"])))
+	if String(h["panel"]) == "prod":
+		var e = h.get("e")
+		var where := ""
+		if is_instance_valid(e):
+			where = Loc.t(String((e as Entity).d["name"]))
+		var f := float(h.get("f", -1.0))
+		var state := (Loc.t("%d%% done") % int(round(f * 100.0))) if f >= 0.0 else Loc.t("waiting in the queue")
+		var line := (Loc.t("At: %s") % where + ". " if where != "" else "") + state + "."
+		return {"title": name, "stats": who, "body": line, "hint": Loc.t("Click: show it on the map.")}
+	var it: Array = h["it"]
+	var n := int(it[1])
+	var body := ""
+	if bool(h.get("bld", false)):
+		var going := int(it[2])
+		body = Loc.t("%d standing") % n + ((", " + Loc.t("%d going up") % going) if going > 0 else "") + "."
+	else:
+		body = Loc.t("%d of them") % n + "."
+	return {"title": name, "stats": who, "body": body, "hint": Loc.t("Click: select them and show one on the map; click again for the next one.")}

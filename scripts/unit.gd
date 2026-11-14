@@ -2967,7 +2967,7 @@ func site_gone() -> void:
 
 
 func _site_open(b) -> bool:
-	return b is Building and is_instance_valid(b) and not b.dead and not b.built \
+	return is_instance_valid(b) and b is Building and not b.dead and not b.built \
 		and not (b.seeded and kind != "labourer")
 
 

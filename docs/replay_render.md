@@ -1,4 +1,4 @@
-# Replays: units not rendering? (job replay-render, 0.35.8)
+# Replays: units not rendering? (job replay-render, 0.35.17)
 
 The owner, 2026-11-13 (v0.35.6, the web build, Mirewood, Crown against a Hard Brood on RUSH, the replay watched after
 surrendering): "in the replay there are characters that are not rendering". His pictures are in
@@ -68,7 +68,7 @@ then once more after a jump while paused, and after a jump back. At each stop:
   that fails is looked at again alone. (Without the clearing, units behind the Brood Mother, a Tyrannosaur's nest, a
   balloon, a tree or a HUD panel looked "missing".)
 
-Results on 0.35.8 (each run about 4 minutes on this 2-CPU machine):
+Results on 0.35.17 (each run about 4 minutes on this 2-CPU machine):
 
 | matchup | FULL | LIGHT | MIXED |
 |---|---|---|---|
