@@ -11,9 +11,26 @@
 05_drummer_and_piper.mp3  a band of Drummer + Piper, always-on
 05_drummer_and_fifer.mp3  a band of Drummer + Fifer, always-on
 06_two_bands_one_clock.mp3  two bands at once on the one clock (left a pipe solo, right playing along): they stay in step (in a match BandSound plays only the band nearest the middle of the screen)
-07_over_crown_battle_music.mp3  the band over the crown's battle music (crown_battle_7.ogg) as the game mixes it: playing along, then the pipes' solo halfway
-07_over_clockwork_battle_music.mp3  the band over the clockwork's battle music (clock_battle_7.ogg) as the game mixes it: playing along, then the pipes' solo halfway
-07_over_brood_battle_music.mp3  the band over the brood's battle music (brood_battle_7.ogg) as the game mixes it: playing along, then the pipes' solo halfway
+07_over_crown_battle_music.mp3  the band over the crown's battle music (crown_battle_7.ogg) as the game mixes it now: the band centred on the screen, the music ducked 12 dB under it, 16 dB under the pipes' solo (from halfway)
+07_over_clockwork_battle_music.mp3  the band over the clockwork's battle music (clock_battle_7.ogg) as the game mixes it now: the band centred on the screen, the music ducked 12 dB under it, 16 dB under the pipes' solo (from halfway)
+07_over_brood_battle_music.mp3  the band over the brood's battle music (brood_battle_7.ogg) as the game mixes it now: the band centred on the screen, the music ducked 12 dB under it, 16 dB under the pipes' solo (from halfway)
+07b_camera_comes_and_goes.mp3  the Crown's battle music; the camera comes to a band playing along for the middle third (15 s to 30 s) and leaves: the music ducks 12 dB in about 1.2 s and comes back up the same way
+09_PREVIOUS_01_drums_solo_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 01_drums_solo_alone
+09_PREVIOUS_01_fife_solo_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 01_fife_solo_alone
+09_PREVIOUS_01_pipes_solo_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 01_pipes_solo_alone
+09_PREVIOUS_02_drums_always_on_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 02_drums_always_on_alone
+09_PREVIOUS_02_fife_always_on_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 02_fife_always_on_alone
+09_PREVIOUS_02_pipes_always_on_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 02_pipes_always_on_alone
+09_PREVIOUS_03_full_band_always_on.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 03_full_band_always_on
+09_PREVIOUS_04_full_band_drums_solo.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 04_full_band_drums_solo
+09_PREVIOUS_04_full_band_fife_solo.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 04_full_band_fife_solo
+09_PREVIOUS_04_full_band_pipes_solo.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 04_full_band_pipes_solo
+09_PREVIOUS_05_drummer_and_fifer.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 05_drummer_and_fifer
+09_PREVIOUS_05_drummer_and_piper.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 05_drummer_and_piper
+09_PREVIOUS_06_two_bands_one_clock.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 06_two_bands_one_clock
+09_PREVIOUS_07_over_brood_battle_music.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 07_over_brood_battle_music
+09_PREVIOUS_07_over_clockwork_battle_music.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 07_over_clockwork_battle_music
+09_PREVIOUS_07_over_crown_battle_music.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 07_over_crown_battle_music
 08_OLD_full_band_always_on.mp3  BEFORE: the old 4 s loops, all three playing along
 08_OLD_full_band_pipes_solo.mp3  BEFORE: the old loops, the pipes' solo
 08_OLD_full_band_fife_solo.mp3  BEFORE: the old loops, the fife's solo

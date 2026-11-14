@@ -12,11 +12,17 @@ extends Node
 ##    at the quiet level, so it is never loud chaos.
 ##  - The ALWAYS-ON playing is quiet (QUIET_DB); a SOLO is clearly heard (LEAD_DB) with the others under it
 ##    (UNDER_DB). Further from the middle of the screen and zoomed out it is quieter; off past CUT px it is silent.
-##  - The GAME MUSIC is ducked a little while music is heard (DUCK_DB), more during a heard solo (DUCK_SOLO_DB): an
-##    Amplify effect on the "Music" bus, put back to 0 when the match ends.
-## THE MUSIC (job band-music, docs/band_music.md): Scotland the Brave in G, 16 bars of 4/4 at 98 beats a minute, rendered
-## from real samples by tools/audio/make_band_music.py. New music: change PARTS (one file per part: the always-on loop
-## and the solo loop of each instrument) and PHRASE / BPM / BARS below; every file must be exactly PHRASE s long, in one
+##  - THE GAME MUSIC GIVES WAY TO THE BAND (band-music-v2, owner 2026-11-14: "if we are hovering our camera near the
+##    band the game music has to drop down so the main piece is the band's music"): while a band (or lone musicians) is
+##    heard the faction/battle music is ducked STRONGLY: DUCK_DB with the band in the middle of the screen, DUCK_SOLO_DB
+##    during a heard solo, less the further from the middle (duck_for: none past 640 px) and a little more
+##    zoomed in (ZOOM_IN_DB); it moves DUCK_RATE dB a second (about 1.2 s down, 1.2-1.6 s back up when the camera
+##    leaves). An Amplify effect on the "Music" bus, so the players' MUSIC and SOUND volume sliders still set the
+##    balance; put back to 0 when the match ends.
+## THE MUSIC (jobs band-music and band-music-v2, docs/band_music.md): Scotland the Brave in E, 16 bars of 4/4 at 110
+## beats a minute (109.91: the loop is exactly 1,540,800 samples, a whole number of drone cycles), rendered from real
+## samples by tools/audio/make_band_music.py. New music: change PARTS (one file per part: the always-on loop and the
+## solo loop of each instrument) and PHRASE / BARS below (BPM follows); every file must be exactly PHRASE s long, in one
 ## key and tempo. Nothing else.
 
 ## One place for the band's files (res://assets/audio/<name>.ogg): instrument -> [always-on loop, solo loop].
@@ -25,17 +31,19 @@ const PARTS := {
 	"fife": ["band/fife", "band/fife_lead"],
 	"pipes": ["band/pipes", "band/pipes_lead"],
 }
-const BPM := 98.0           # the files' tempo (quarter notes a minute)
-const BARS := 16            # bars of 4/4 in one loop (Scotland the Brave, Part 1 and Part 2)
-const PHRASE := BARS * 4 * 60.0 / BPM   # s: every loop's length (39.18 s = 1,728,000 samples at 44.1 kHz)
+const BARS := 16            # bars of 4/4 in one loop (Scotland the Brave: A A' B A')
+const PHRASE := 1540800.0 / 44100.0     # s: every loop's length (34.94 s = 1,540,800 samples at 44.1 kHz)
+const BPM := BARS * 4 * 60.0 / PHRASE   # the files' tempo (quarter notes a minute): 109.91 (the score: 110)
 const QUIET_DB := -15.0     # an instrument playing along (its +5%): quiet, under the fight
 const LEAD_DB := -1.0       # the instrument leading a SOLO: clearly heard
 const UNDER_DB := -19.0     # the others while one solos
 const CUT := 760.0          # screen px from the middle of the screen past which a band is not heard
 const NEAR := 160.0         # screen px within which it is at full level
 const ZOOM_OUT := 0.85      # zoomed out further than this: quieter (a band is small on the screen)
-const DUCK_DB := -2.5       # the game music while a band is heard
-const DUCK_SOLO_DB := -6.0  # ... while its solo is heard
+const DUCK_DB := -12.0      # the game music while a band is heard in the middle of the screen (the band leads)
+const DUCK_SOLO_DB := -16.0 # ... while its solo is heard
+const ZOOM_IN_DB := -2.0    # ... and up to this much more zoomed in (zoom 1 -> 2)
+const DUCK_RATE := 10.0     # dB a second the music's duck moves by (-12 dB in 1.2 s; smooth, no pumping)
 const FADE := 6.0           # dB a tenth of a second the levels move by (no clicks, no jumps)
 const SWITCH := 90.0        # px: another band (or lone group) must be this much nearer to take over (no flip-flopping)
 const LONE_MAX := 3         # lone musicians heard at once at most (the nearest)
@@ -159,7 +167,7 @@ func targets() -> Dictionary:
 		solo_on = ld != ""
 		for i in LONE_MAX:
 			_lone[i] = null
-		_duck_target = (DUCK_SOLO_DB if solo_on else DUCK_DB) * clampf(1.0 + lvl / 20.0, 0.0, 1.0)
+		_duck_target = duck_for(lvl, solo_on)
 		return out
 	# lone musicians: each his own part, off the shared clock
 	var keep := {}
@@ -195,8 +203,25 @@ func targets() -> Dictionary:
 			solo_on = true
 		else:
 			out["L%d/a" % i] = QUIET_DB + lvl2
-	_duck_target = (DUCK_SOLO_DB if solo_on else DUCK_DB) * clampf(1.0 + best_lvl / 20.0, 0.0, 1.0)
+	_duck_target = duck_for(best_lvl, solo_on)
 	return out
+
+
+## How far the game music is ducked (dB) under music heard at level `lvl` (level(): 0 in the middle of the screen,
+## down to -30 at CUT, less zoomed out): the full DUCK_DB / DUCK_SOLO_DB near the middle, fading out by lvl -24 (640 px
+## from the middle), plus up to ZOOM_IN_DB zoomed in.
+func duck_for(lvl: float, solo: bool) -> float:
+	var near := clampf(1.0 + lvl / 24.0, 0.0, 1.0)
+	var d := (DUCK_SOLO_DB if solo else DUCK_DB) * near
+	var cam: Camera2D = game.camera if game != null and game.get("camera") != null else null
+	if cam != null and is_instance_valid(cam) and cam.zoom.x > 1.0:
+		d += ZOOM_IN_DB * clampf(cam.zoom.x - 1.0, 0.0, 1.0) * near
+	return d
+
+
+## (tests) the game music's duck now and where it is moving to (dB).
+func duck_now() -> Vector2:
+	return Vector2(_duck, _duck_target)
 
 
 ## Who is heard: the nearest BAND (its members) or the nearest LONE_MAX lone musicians, whichever is nearest the middle
@@ -288,7 +313,7 @@ func _process(delta: float) -> void:
 			p.play(ph)               # (a band's parts on the shared clock; a lone musician on his own offset from it)
 		elif absf(p.get_playback_position() - ph) > 0.08 and absf(p.get_playback_position() - ph) < PHRASE - 0.08:
 			p.seek(ph)               # (drifted: back where it should be)
-	_duck = move_toward(_duck, _duck_target if any else 0.0, step * 0.5)
+	_duck = move_toward(_duck, _duck_target if any else 0.0, DUCK_RATE * delta)
 	_set_duck(_duck)
 
 
