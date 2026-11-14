@@ -432,16 +432,36 @@ func show_menu() -> void:
 	flags.offset_right = -14
 	flags.offset_top = 12
 	root.add_child(flags)
-	# bottom-right corner (the owner, 2026-10-31): "Version X" (a click opens the patch notes) and the AI credit
+	# bottom-right corner (the owner, 2026-10-31): "Version X" (a click opens the patch notes) and the AI credit;
+	# (the owner, 2026-11-14) his studio's logo beside them and "Made by Salgarellius Catholic Games with the help of AI"
+	var corner := HBoxContainer.new()
+	corner.add_theme_constant_override("separation", 10)
+	corner.alignment = BoxContainer.ALIGNMENT_END
+	corner.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	corner.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	corner.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	corner.offset_right = -12
+	corner.offset_bottom = -6
+	corner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(corner)
 	var foot := VBoxContainer.new()
 	foot.add_theme_constant_override("separation", 0)
 	foot.alignment = BoxContainer.ALIGNMENT_END
-	foot.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	foot.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	foot.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	foot.offset_right = -12
-	foot.offset_bottom = -6
-	root.add_child(foot)
+	foot.size_flags_vertical = Control.SIZE_SHRINK_END
+	corner.add_child(foot)
+	var logo_tex: Texture2D = load("res://assets/ui/logo_salgarellius.png")
+	if logo_tex != null:
+		var logo := TextureRect.new()
+		logo.texture = logo_tex
+		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		var lh := 96.0 if pc else 110.0
+		logo.custom_minimum_size = Vector2(lh * logo_tex.get_width() / float(logo_tex.get_height()), lh)
+		logo.size_flags_vertical = Control.SIZE_SHRINK_END
+		logo.modulate = Color(1, 1, 1, 0.92)
+		logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		logo.tooltip_text = "Salgarellius Catholic Games"
+		corner.add_child(logo)
 	var fs := 13 if pc else 15
 	var ver := Button.new()
 	ver.flat = true
@@ -460,7 +480,7 @@ func show_menu() -> void:
 		ver.add_theme_stylebox_override(st, StyleBoxEmpty.new())
 	ver.pressed.connect(func() -> void: show_patch_notes(true))
 	foot.add_child(ver)
-	var ai := UiStyle.text(Loc.t("This game was made with the help of AI"), fs - 1, Color(1, 0.96, 0.85, 0.75), HORIZONTAL_ALIGNMENT_RIGHT)
+	var ai := UiStyle.text(Loc.t("Made by Salgarellius Catholic Games with the help of AI"), fs - 1, Color(1, 0.96, 0.85, 0.75), HORIZONTAL_ALIGNMENT_RIGHT)
 	ai.add_theme_constant_override("outline_size", 4)
 	ai.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	foot.add_child(ai)

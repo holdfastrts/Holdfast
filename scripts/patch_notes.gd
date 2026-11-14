@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.6", "items": [
+		"MAIN MENU: the studio's logo in the bottom-right corner, beside the version, and the credit now reads \"Made by Salgarellius Catholic Games with the help of AI\".",
+	]},
 	{"v": "0.37.5", "items": [
 		"THE BAND'S MUSIC, AGAIN: Scotland the Brave note for note as the full score has it (the owner sent one): the tune's real second half (it climbs above the pipes' high A), the dotted figures, the half notes at the end of each phrase, the leading notes where they belong. At the score's tempo, 110 a minute, in E (where the recorded bagpipe's own notes fit the tune best). The Piper's SOLO has a second piper in unison (resting in the second half, as in the score) and the harmony line quietly under it; the drums play the score's pipe band pattern (flams on 1 and 3, the flam-flam-rest cadence at the end of each phrase, the bass drum on 1 and 3).",
 		"THE GAME MUSIC GIVES WAY TO THE BAND: with a band (or musicians) near the middle of the screen the battle music drops by 12 dB (16 dB during a solo), so the band is the main piece; less the further the band is from the middle, a little more zoomed in. It fades down and back up over about a second and a half as the camera comes and goes. The MUSIC and SOUND volume sliders still set the balance.",
