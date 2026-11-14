@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.18": ["RECARREGAR com uma seleção grande: cada homem só calcula o caminho até as fontes de pólvora que estão quase tão perto quanto a mais próxima, então mandar cem de uma vez não trava o jogo."],
 	"0.35.17": ["RECARREGAR (tecla R) no cartão de toda unidade da Coroa com arma de pólvora (Mosqueteiros, Guardas, Dragões, Cavaleiros, Couraceiros, Oficiais, Canhões de Campanha, Morteiros) enquanto algum estiver abaixo da carga cheia: cada um vai até a pólvora mais próxima que possa enchê-lo agora (uma Carroça de Pólvora, um barril largado, ou um Moinho, Quartel ou Prefeitura enquanto o banco tiver pólvora; um grupo se espalha em volta), espera até encher e volta para onde estava. Se essa fonte secar ele tenta a próxima; sem nenhuma, para e avisa. Um canhão montado se atrela para ir. Shift coloca na fila depois das outras ordens. A dica diz a pólvora que ele usaria."],
 	"0.35.16": ["O ícone de RECARREGAR (uma cartucheira reabastecida por um polvorinho) chegou, pronto para o comando RECARREGAR que vem aí."],
 	"0.35.15": ["A Banda Marcial tem ícones de verdade: retratos do Tambor, do Pífaro e do Gaiteiro, e os três botões de SOLO."],

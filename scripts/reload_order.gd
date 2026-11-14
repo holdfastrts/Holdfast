@@ -20,6 +20,7 @@ const DRY_T := 3.0           # (s) standing in reach and no shot came in: that s
 const TRIP_T := 120.0        # (s) at most this long on the trip there (a source it can't reach: it gives up)
 const BACK_MIN := 40.0       # (px) nearer than this to where it started: no walk back
 const PATH_TRIES := 3        # the sources nearest in a line that are pathed to find the nearest by walking
+const PATH_SPAN := 1.6       # ... only those within this many times the nearest's distance in a line
 const RING_GAP := 22.0       # (px) between two men round a source
 
 
@@ -84,10 +85,14 @@ static func nearest(u: Unit, skip: Array = []) -> Variant:
 	all.sort_custom(func(a, b) -> bool: return _spot(a).distance_squared_to(u.position) < _spot(b).distance_squared_to(u.position))
 	if u.is_air():
 		return all[0]
+	# (only the ones not much farther in a line than the nearest are worth a path: a button press may send a hundred)
+	var d0 := _spot(all[0]).distance_to(u.position)
+	var tries: Array = all.slice(0, PATH_TRIES).filter(func(s) -> bool: return _spot(s).distance_to(u.position) <= d0 * PATH_SPAN + 64.0)
+	if tries.size() <= 1:
+		return all[0]
 	var best = null
 	var bd := INF
-	for i in mini(PATH_TRIES, all.size()):
-		var s = all[i]
+	for s in tries:
 		var to: Vector2 = u.game.approach_point(s, u.position) if s is Building else _spot(s)
 		var p := u.game.find_path(u.position, to, false, u._path_margin(), u.team)
 		if p.is_empty():

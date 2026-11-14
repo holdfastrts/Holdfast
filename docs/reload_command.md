@@ -25,8 +25,9 @@ Each unit that is below full, on the press:
 
 1. **Picks the nearest powder that can fill it now**: a Powder Mill, a Barracks (with ARM WITH POWDER on) or a Town Hall
    while the bank holds at least one shot's powder; a Powder Wagon holding a shot; a powder keg on the ground. One already
-   in reach is taken at once; otherwise the three nearest in a straight line are pathed and the shortest walk wins (so a
-   Mill across a cliff loses to a wagon up the ramp).
+   in reach is taken at once; otherwise the (up to) three nearest in a straight line that are not much farther than the
+   nearest (1.6 times) are pathed and the shortest walk wins (so a Mill across a cliff loses to a wagon up the ramp); a
+   source with no rival that close is taken without pathing (a press may send a hundred men).
 2. **Walks there.** A crowd spreads round the source: each man takes the next place on a ring around it (alternating sides
    from the first man's side; a second ring after 8). A set-up Field Cannon or a deployed Mortar limbers up first. A
    wagon that rolls on is followed.

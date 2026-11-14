@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in es: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.18": ["RECARGAR con una selección grande: cada hombre solo calcula el camino hasta las fuentes de pólvora que están casi tan cerca como la más cercana, así que mandar cien a la vez no atasca el juego."],
 	"0.35.17": ["RECARGAR (tecla R) en la tarjeta de toda unidad de la Corona con arma de pólvora (Mosqueteros, Guardias, Dragones, Jinetes, Coraceros, Oficiales, Cañones de campaña, Morteros) mientras alguno esté por debajo de la carga completa: cada uno va a la pólvora más cercana que pueda llenarlo ahora (un Carro de pólvora, un barril dejado en el suelo, o un Molino, Cuartel o Ayuntamiento mientras el banco tenga pólvora; un grupo se reparte alrededor), espera hasta llenarse y vuelve a donde estaba. Si esa fuente se agota prueba la siguiente; sin ninguna, se detiene y avisa. Un cañón emplazado se engancha para ir. Mayús lo pone en cola tras las demás órdenes. La ayuda dice qué pólvora usaría."],
 	"0.35.16": ["El icono de RECARGAR (una cartuchera rellenada desde un cuerno de pólvora) ya está, listo para el próximo comando RECARGAR."],
 	"0.35.15": ["La Banda de Marcha tiene iconos de verdad: retratos del Tambor, el Pífano y el Gaitero, y los tres botones de SOLO."],
