@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.17", "items": [
+		"Sound sources: the owner's FreePats bagpipe recordings (CC0, Gilles Sadowski) are kept for the band's new music.",
+	]},
 	{"v": "0.35.16", "items": [
 		"The RELOAD icon (a cartridge pouch refilled from a powder horn) is in, ready for the coming RELOAD command.",
 	]},

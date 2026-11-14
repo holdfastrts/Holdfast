@@ -4,6 +4,7 @@ extends RefCounted
 ## Patch notes in pt: version -> items in the order of scripts/patch_notes.gd ('' = show the English).
 
 const N := {
+	"0.35.17": ["Fontes de som: as gravações de gaita de fole do FreePats enviadas pelo dono (CC0, Gilles Sadowski) ficam guardadas para a nova música da banda."],
 	"0.35.16": ["O ícone de RECARREGAR (uma cartucheira reabastecida por um polvorinho) chegou, pronto para o comando RECARREGAR que vem aí."],
 	"0.35.15": ["A Banda Marcial tem ícones de verdade: retratos do Tambor, do Pífaro e do Gaiteiro, e os três botões de SOLO."],
 	"0.35.14": ["Assistindo uma partida: a seleção em caixa pega todas as unidades do lado com mais unidades dentro dela, um duplo clique pega todas daquele tipo na tela, e a linha de cada jogador mostra a renda por minuto, o valor do exército e os operários (como nos replays). A tripulação da Balista de Mola fica na traseira dela nas vistas para o norte. O parafuso do Springer está 30% menor e o Pêndulo é desenhado 30% maior."],

@@ -1,0 +1,10 @@
+FreePats Bagpipe sample set (a bagpipe in G, two drones recorded separately), recorded by Gilles Sadowski, August 2020.
+Licence: Creative Commons CC0 1.0 (public domain dedication): free for any use, including commercial, no credit required
+(credited anyway in the game's credits).
+Page: https://freepats.zenvoid.org/Ethnic/bagpipe.html  (downloads on GitHub: https://github.com/freepats/bagpipe)
+Supplied by the owner on 2026-11-14 as single WAV files (44.1 kHz). Names: <note><octave>_<layer>.wav; a name with a
+_<hash> suffix is a second file the owner sent under the same name (a different take or pitch: measured pitches below).
+Measured pitch (pyin, median of the first 2 s), Hz: F4 341, G4 383, A4 432, A4_x 456 (B-flat), B4 483, C5 511, C5_x 539
+(C-sharp), D5 581, D5_x ~600, E5 637, F5_x 679 (F), F5 719 (F-sharp), G5 771, drones G2 98 and G3 196. The chanter reads
+about a third of a semitone under concert pitch against its drones: tune by ear/measurement when rendering.
+Not in the game's assets: the band's music will be rendered from these (tools/audio/) into assets/audio/band/.
