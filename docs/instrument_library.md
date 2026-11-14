@@ -30,7 +30,7 @@ nothing; CC BY (the drum kit) needs the credit line.
 | Kind | Where | Source and licence |
 |---|---|---|
 | Clockwork machines: bells, alarm clock, crank loop, spring scrape, clangs, typewriter, stamps, ratchet, winding | art/audio_src/clockwork/ (SOURCES.txt) | **Pixabay** (freesound_community and named authors) |
-| Creatures: venom, tyrant, storm, calls, bites, chomps, squelches, splats, insects, wings | art/audio_src/brood/ (SOURCES.txt) | the owner's recordings and **Pixabay** (check the few freesound names) |
+| Creatures: venom, tyrant, storm, calls, bites, chomps, squelches, splats, insects, wings | art/audio_src/brood/ (SOURCES.txt) | the owner's recordings and **Pixabay** |
 | Work: digging, shovels, hammering | art/audio_src/work/ | Pixabay |
 | Town and horses: neighs, gallop, medieval city ambience | art/audio_src/city/ | Pixabay |
 | Voices: the King, the Crown herald, the Brood scientist | art/audio_src/king/, crown_herald/, brood_scientist/ | the owner's ElevenLabs recordings (his voices) |
