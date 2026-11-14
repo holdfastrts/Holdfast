@@ -644,8 +644,9 @@ class Piece:
             if all(len(onsets[i] & onsets[j]) / max(1, len(onsets[i] | onsets[j])) < 0.5 for j in chosen):
                 chosen.append(i)
         f["indep_lines"] = len(chosen)
-        # a counter-line: in a bar, a second tune-carrying instrument with 2+ notes whose rhythm differs from the
-        # top line's (onset Jaccard < 0.5) and whose notes are not the top line's notes moved in parallel
+        # a counter-line: in a bar, a second tune-carrying instrument (not the lead's) whose rhythm differs from the
+        # top line's (onset Jaccard < 0.6), so a doubling of the tune in octaves or thirds does not count, but a slow
+        # line of long notes under a moving tune does
         if m:
             top = defaultdict(set)
             for e in m:
@@ -658,7 +659,7 @@ class Piece:
             cl = 0
             for b in bars:
                 for inst, ons in per[b].items():
-                    if len(ons) >= 2 and len(ons & top[b]) / len(ons | top[b]) < 0.5:
+                    if inst != self.lead and len(ons | top[b]) and len(ons & top[b]) / len(ons | top[b]) < 0.6:
                         cl += 1
                         break
             f["counter_line_share"] = cl / max(1, len(bars))

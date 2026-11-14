@@ -6,49 +6,49 @@
     "Scherzo focoso"
    ],
    [
-    1.2,
+    1.19,
     "Rondo alla Turca"
    ],
    [
-    1.27,
+    1.26,
     "Tarantelle Op.25"
    ]
   ],
   "brood_battle_10": [
    [
-    0.92,
+    0.91,
     "Badinerie"
    ],
    [
-    0.99,
+    0.98,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.08,
+    1.07,
     "Fantaisie-Impromptu"
    ]
   ],
   "brood_battle_11": [
    [
-    1.02,
+    0.99,
     "Rondo alla Turca"
    ],
    [
-    1.19,
+    1.16,
     "Scherzo focoso"
    ],
    [
-    1.2,
+    1.18,
     "Fantaisie-Impromptu"
    ]
   ],
   "brood_battle_12": [
    [
-    1.33,
+    1.32,
     "Scherzo focoso"
    ],
    [
-    1.34,
+    1.33,
     "Rondo alla Turca"
    ],
    [
@@ -66,13 +66,13 @@
     "Scherzo focoso"
    ],
    [
-    1.15,
+    1.14,
     "Fantaisie-Impromptu"
    ]
   ],
   "brood_battle_2": [
    [
-    1.07,
+    1.06,
     "Rondo alla Turca"
    ],
    [
@@ -86,49 +86,49 @@
   ],
   "brood_battle_3": [
    [
-    0.96,
+    0.95,
     "Scherzo focoso"
    ],
    [
-    1.08,
+    1.07,
     "Rondo alla Turca"
    ],
    [
-    1.15,
+    1.14,
     "Tarantelle Op.25"
    ]
   ],
   "brood_battle_4": [
    [
-    1.03,
+    1.02,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.08,
+    1.07,
     "Rondo alla Turca"
    ],
    [
-    1.09,
+    1.08,
     "Fantaisie-Impromptu"
    ]
   ],
   "brood_battle_5": [
    [
-    1.06,
+    1.05,
     "Rondo alla Turca"
    ],
    [
-    1.07,
+    1.06,
     "Scherzo focoso"
    ],
    [
-    1.23,
+    1.22,
     "Fantaisie-Impromptu"
    ]
   ],
   "brood_battle_6": [
    [
-    1.19,
+    1.18,
     "Fantaisie-Impromptu"
    ],
    [
@@ -150,41 +150,41 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.6,
+    1.59,
     "Fantaisie-Impromptu"
    ]
   ],
   "brood_battle_8": [
    [
-    1.38,
+    1.37,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.43,
+    1.42,
     "Badinerie"
    ],
    [
-    1.47,
+    1.46,
     "Moonlight III"
    ]
   ],
   "brood_battle_9": [
    [
-    1.17,
+    1.15,
     "Scherzo focoso"
    ],
    [
-    1.21,
+    1.19,
     "Badinerie"
    ],
    [
-    1.22,
+    1.21,
     "Tarantelle Op.25"
    ]
   ],
   "brood_peace": [
    [
-    1.24,
+    1.23,
     "Prelude in C minor (WTC I)"
    ],
    [
@@ -198,7 +198,7 @@
   ],
   "brood_peace_2": [
    [
-    1.42,
+    1.41,
     "Prelude in C minor (WTC I)"
    ],
    [
@@ -212,11 +212,11 @@
   ],
   "brood_peace_3": [
    [
-    0.91,
+    0.9,
     "Rondo alla Turca"
    ],
    [
-    0.97,
+    0.96,
     "Fantaisie-Impromptu"
    ],
    [
@@ -226,21 +226,21 @@
   ],
   "brood_peace_4": [
    [
-    1.03,
+    1.02,
     "Prelude in C minor (WTC I)"
+   ],
+   [
+    1.28,
+    "Fantaisie-Impromptu"
    ],
    [
     1.29,
     "Prelude in C (WTC I)"
-   ],
-   [
-    1.29,
-    "Fantaisie-Impromptu"
    ]
   ],
   "brood_peace_5": [
    [
-    1.4,
+    1.39,
     "Badinerie"
    ],
    [
@@ -248,7 +248,7 @@
     "Gymnop\u00e9die 1"
    ],
    [
-    1.56,
+    1.55,
     "Impromptu D.899/3"
    ]
   ],
@@ -258,17 +258,17 @@
     "Gymnop\u00e9die 1"
    ],
    [
-    1.16,
+    1.15,
     "The Swan"
    ],
    [
-    1.24,
+    1.23,
     "Fantaisie-Impromptu"
    ]
   ],
   "brood_peace_7": [
    [
-    1.24,
+    1.23,
     "Prelude in C minor (WTC I)"
    ],
    [
@@ -276,27 +276,27 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.3,
+    1.29,
     "Prelude Op.28/1"
    ]
   ],
   "clock_battle": [
    [
-    1.38,
+    1.53,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.48,
+    1.53,
     "New World Sym. I"
    ],
    [
-    1.57,
+    1.7,
     "Ouverture Op.39/11"
    ]
   ],
   "clock_battle_10": [
    [
-    1.15,
+    1.14,
     "Tarantelle Op.25"
    ],
    [
@@ -304,106 +304,106 @@
     "Scherzo focoso"
    ],
    [
-    1.32,
+    1.31,
     "Moonlight III"
    ]
   ],
   "clock_battle_11": [
    [
-    1.34,
+    1.36,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.42,
+    1.43,
     "Ouverture Op.39/11"
    ],
    [
-    1.46,
+    1.48,
     "Moonlight III"
    ]
   ],
   "clock_battle_12": [
    [
-    1.21,
+    1.2,
     "Tarantelle Op.25"
    ],
    [
-    1.27,
+    1.26,
     "Badinerie"
    ],
    [
-    1.33,
+    1.32,
     "Scherzo focoso"
    ]
   ],
   "clock_battle_13": [
    [
-    0.94,
+    0.95,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.1,
+    1.11,
     "Moonlight III"
    ],
    [
-    1.16,
+    1.17,
     "New World Sym. I"
    ]
   ],
   "clock_battle_2": [
    [
-    0.93,
+    0.89,
     "Moonlight III"
    ],
    [
-    0.96,
+    0.92,
     "Badinerie"
    ],
    [
-    1.09,
+    1.06,
     "Prelude in C minor (WTC I)"
    ]
   ],
   "clock_battle_3": [
    [
-    1.22,
+    1.21,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.27,
+    1.26,
     "Scherzo focoso"
    ],
    [
-    1.28,
+    1.27,
     "Moonlight III"
    ]
   ],
   "clock_battle_4": [
    [
-    1.0,
+    0.97,
     "Moonlight III"
    ],
    [
-    1.02,
+    0.99,
     "Rondo alla Turca"
    ],
    [
-    1.04,
+    1.02,
     "Fantaisie-Impromptu"
    ]
   ],
   "clock_battle_5": [
    [
-    0.9,
+    0.91,
     "Prelude in C minor (WTC I)"
    ],
    [
     1.09,
-    "Moonlight III"
+    "New World Sym. I"
    ],
    [
     1.1,
-    "Badinerie"
+    "Moonlight III"
    ]
   ],
   "clock_battle_6": [
@@ -423,11 +423,11 @@
   "clock_battle_7": [
    [
     1.37,
-    "Wanderer Fantasy"
+    "Prelude in C (WTC I)"
    ],
    [
-    1.38,
-    "Prelude in C (WTC I)"
+    1.37,
+    "Wanderer Fantasy"
    ],
    [
     1.44,
@@ -436,16 +436,16 @@
   ],
   "clock_battle_8": [
    [
-    0.86,
+    0.8,
     "Moonlight III"
    ],
    [
-    1.0,
+    0.95,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.1,
-    "New World Sym. I"
+    1.05,
+    "Badinerie"
    ]
   ],
   "clock_battle_9": [
@@ -454,7 +454,7 @@
     "Badinerie"
    ],
    [
-    1.23,
+    1.24,
     "Moonlight III"
    ],
    [
@@ -468,11 +468,11 @@
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.05,
+    1.04,
     "Fantaisie-Impromptu"
    ],
    [
-    1.06,
+    1.05,
     "Rondo alla Turca"
    ]
   ],
@@ -486,13 +486,13 @@
     "The Swan"
    ],
    [
-    1.1,
+    1.09,
     "Minute Waltz"
    ]
   ],
   "clock_peace_3": [
    [
-    1.41,
+    1.43,
     "Prelude in C minor (WTC I)"
    ],
    [
@@ -500,13 +500,13 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.81,
+    1.83,
     "Badinerie"
    ]
   ],
   "clock_peace_4": [
    [
-    1.02,
+    1.01,
     "Toreador March"
    ],
    [
@@ -514,27 +514,27 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.11,
+    1.1,
     "Prelude Op.28/1"
    ]
   ],
   "clock_peace_5": [
    [
-    1.0,
+    1.05,
     "Polonaise"
    ],
    [
-    1.02,
+    1.06,
     "The Swan"
    ],
    [
-    1.1,
+    1.14,
     "Voices of Spring"
    ]
   ],
   "clock_peace_6": [
    [
-    1.11,
+    1.09,
     "Prelude in C minor (WTC I)"
    ],
    [
@@ -542,21 +542,21 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.26,
+    1.25,
     "Badinerie"
    ]
   ],
   "clock_peace_7": [
    [
-    0.85,
+    0.93,
     "Toreador March"
    ],
    [
-    0.94,
+    1.01,
     "Radetzky March"
    ],
    [
-    0.96,
+    1.04,
     "Etude Op.76/2"
    ]
   ],
@@ -566,7 +566,7 @@
     "Rondo alla Turca"
    ],
    [
-    1.03,
+    1.02,
     "Badinerie"
    ],
    [
@@ -576,7 +576,7 @@
   ],
   "crown_battle_10": [
    [
-    1.1,
+    1.09,
     "Figaro Overture"
    ],
    [
@@ -584,17 +584,17 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.12,
+    1.11,
     "Prelude Op.28/1"
    ]
   ],
   "crown_battle_11": [
    [
-    0.97,
+    0.96,
     "Rondo alla Turca"
    ],
    [
-    1.07,
+    1.06,
     "Ocean Etude"
    ],
    [
@@ -604,53 +604,53 @@
   ],
   "crown_battle_2": [
    [
-    1.03,
+    1.02,
     "Badinerie"
    ],
    [
-    1.11,
+    1.1,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.25,
+    1.24,
     "Fantaisie-Impromptu"
    ]
   ],
   "crown_battle_3": [
    [
-    1.26,
+    1.24,
     "Scherzo focoso"
    ],
    [
-    1.35,
+    1.33,
     "Tarantelle Op.25"
    ],
    [
-    1.42,
+    1.41,
     "Badinerie"
    ]
   ],
   "crown_battle_4": [
    [
-    0.83,
+    0.82,
     "Rondo alla Turca"
    ],
    [
-    0.97,
+    0.96,
     "Fantaisie-Impromptu"
    ],
    [
-    1.03,
+    1.02,
     "Prelude in C minor (WTC I)"
    ]
   ],
   "crown_battle_5": [
    [
-    1.22,
+    1.21,
     "Rondo alla Turca"
    ],
    [
-    1.23,
+    1.22,
     "Minute Waltz"
    ],
    [
@@ -660,29 +660,29 @@
   ],
   "crown_battle_6": [
    [
-    1.03,
+    1.02,
     "Toreador March"
    ],
    [
-    1.04,
+    1.03,
     "Trepak"
    ],
    [
-    1.06,
+    1.05,
     "Figaro Overture"
    ]
   ],
   "crown_battle_7": [
    [
-    0.91,
+    0.9,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.17,
+    1.16,
     "Ocean Etude"
    ],
    [
-    1.25,
+    1.24,
     "Fantaisie-Impromptu"
    ]
   ],
@@ -692,7 +692,7 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.11,
+    1.1,
     "Prelude Op.28/1"
    ],
    [
@@ -702,11 +702,11 @@
   ],
   "crown_battle_9": [
    [
-    0.91,
+    0.9,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.17,
+    1.16,
     "Ocean Etude"
    ],
    [
@@ -716,7 +716,7 @@
   ],
   "crown_peace": [
    [
-    0.86,
+    0.85,
     "Impromptu D.899/3"
    ],
    [
@@ -730,7 +730,7 @@
   ],
   "crown_peace_2": [
    [
-    0.64,
+    0.63,
     "Gymnop\u00e9die 1"
    ],
    [
@@ -744,81 +744,81 @@
   ],
   "crown_peace_3": [
    [
-    0.74,
+    0.73,
     "Fantaisie-Impromptu"
    ],
    [
-    0.91,
+    0.9,
     "Rondo alla Turca"
    ],
    [
-    1.01,
+    1.0,
     "Ocean Etude"
    ]
   ],
   "crown_peace_4": [
    [
-    0.89,
+    0.88,
     "Toreador March"
    ],
    [
-    1.01,
+    1.0,
     "Radetzky March"
    ],
    [
-    1.02,
+    1.01,
     "Eine kleine Nachtmusik I"
    ]
   ],
   "crown_peace_5": [
    [
-    1.19,
+    1.54,
     "The Swan"
    ],
    [
-    1.2,
+    1.6,
     "Flaxen Hair"
    ],
    [
-    1.39,
+    1.7,
     "Polonaise"
    ]
   ],
   "crown_peace_6": [
    [
-    1.11,
+    1.19,
     "Voices of Spring"
    ],
    [
-    1.12,
+    1.19,
     "Polonaise"
    ],
    [
-    1.15,
+    1.22,
     "Minute Waltz"
    ]
   ],
   "crown_peace_7": [
    [
-    1.21,
+    1.24,
     "Voices of Spring"
    ],
    [
-    1.22,
+    1.25,
     "Minute Waltz"
    ],
    [
-    1.36,
+    1.39,
     "Waltz Op.70/1"
    ]
   ],
   "crown_peace_8": [
    [
-    1.04,
+    1.03,
     "Rondo alla Turca"
    ],
    [
-    1.18,
+    1.17,
     "Fantaisie-Impromptu"
    ],
    [
@@ -828,39 +828,39 @@
   ],
   "crown_peace_9": [
    [
-    0.87,
+    0.86,
     "Fantaisie-Impromptu"
    ],
    [
-    0.96,
+    0.95,
     "Rondo alla Turca"
    ],
    [
-    1.03,
+    1.02,
     "Ocean Etude"
    ]
   ],
   "menu": [
    [
-    1.15,
+    1.18,
     "Wanderer Fantasy"
    ],
    [
-    1.19,
+    1.21,
     "Prelude in C (WTC I)"
    ],
    [
-    1.22,
+    1.25,
     "Prelude in C minor (WTC I)"
    ]
   ],
   "menu_10": [
    [
-    1.02,
+    1.01,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.31,
+    1.3,
     "Moonlight I"
    ],
    [
@@ -874,54 +874,54 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.18,
+    1.17,
     "Prelude Op.28/1"
    ],
    [
-    1.25,
+    1.24,
     "Prelude in C minor (WTC I)"
    ]
   ],
   "menu_3": [
    [
-    1.17,
+    1.16,
     "Rondo alla Turca"
    ],
    [
-    1.19,
+    1.18,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.19,
+    1.18,
     "Fantaisie-Impromptu"
    ]
   ],
   "menu_4": [
    [
-    1.05,
+    1.11,
     "Prelude Op.28/1"
    ],
    [
-    1.1,
+    1.17,
     "Prelude in C (WTC I)"
    ],
    [
-    1.12,
+    1.18,
     "Etude Op.76/2"
    ]
   ],
   "menu_5": [
    [
-    0.93,
+    0.9,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.27,
+    1.25,
     "Fantaisie-Impromptu"
    ],
    [
     1.27,
-    "Prelude in C (WTC I)"
+    "Hungarian Rhapsody 2"
    ]
   ],
   "menu_7": [
@@ -934,13 +934,13 @@
     "Radetzky March"
    ],
    [
-    1.2,
+    1.19,
     "Prelude Op.28/1"
    ]
   ],
   "menu_8": [
    [
-    0.92,
+    0.91,
     "Prelude in C minor (WTC I)"
    ],
    [
@@ -948,7 +948,7 @@
     "Moonlight I"
    ],
    [
-    1.27,
+    1.26,
     "Ocean Etude"
    ]
   ],
@@ -958,11 +958,11 @@
     "Prelude in C (WTC I)"
    ],
    [
-    1.23,
+    1.22,
     "Prelude in C minor (WTC I)"
    ],
    [
-    1.25,
+    1.24,
     "Prelude Op.28/1"
    ]
   ]
@@ -1027,7 +1027,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.0
+     0.09
     ]
    ]
   },
@@ -1053,7 +1053,7 @@
    ]
   },
   "brood_battle_13": {
-   "score": 10,
+   "score": 11,
    "failed": [
     [
      "some colour outside the key (3-25%)",
@@ -1062,10 +1062,6 @@
     [
      "rhythm changes bar to bar (< 50% same)",
      0.76
-    ],
-    [
-     "a counter-melody in 15%+ of bars",
-     0.04
     ],
     [
      "motifs moved or varied, not only repeated (>= 40%)",
@@ -1237,7 +1233,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.0
+     0.02
     ]
    ]
   },
@@ -1546,7 +1542,7 @@
    ]
   },
   "clock_battle_2": {
-   "score": 9,
+   "score": 10,
    "failed": [
     [
      "melody mostly steps (40-85%)",
@@ -1563,15 +1559,11 @@
     [
      "rhythm changes bar to bar (< 50% same)",
      0.87
-    ],
-    [
-     "a counter-melody in 15%+ of bars",
-     0.0
     ]
    ]
   },
   "clock_battle_3": {
-   "score": 9,
+   "score": 10,
    "failed": [
     [
      "some colour outside the key (3-25%)",
@@ -1588,10 +1580,6 @@
     [
      "rhythm changes bar to bar (< 50% same)",
      0.77
-    ],
-    [
-     "a counter-melody in 15%+ of bars",
-     0.05
     ]
    ]
   },
@@ -1612,7 +1600,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.0
+     0.09
     ],
     [
      "cadences 2+ a minute",
@@ -1642,7 +1630,7 @@
    ]
   },
   "clock_battle_6": {
-   "score": 9,
+   "score": 10,
    "failed": [
     [
      "melody range 12-36",
@@ -1659,10 +1647,6 @@
     [
      "rhythm changes bar to bar (< 50% same)",
      0.68
-    ],
-    [
-     "a counter-melody in 15%+ of bars",
-     0.12
     ]
    ]
   },
@@ -1729,7 +1713,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.09
+     0.05
     ],
     [
      "motifs moved or varied, not only repeated (>= 40%)",
@@ -1825,7 +1809,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.0
+     0.02
     ]
    ]
   },
@@ -1867,7 +1851,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.0
+     0.03
     ]
    ]
   },
@@ -2005,7 +1989,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.02
+     0.12
     ]
    ]
   },
@@ -2474,7 +2458,7 @@
     ],
     [
      "a counter-melody in 15%+ of bars",
-     0.02
+     0.13
     ]
    ]
   },
@@ -2597,7 +2581,7 @@
     "mel_range": 28.75,
     "lra": 8.368181592088032,
     "climax_pos": 0.9103171833174908,
-    "counter_line_share": 0.0055147058823529415
+    "counter_line_share": 0.04296875
    },
    "rmeans": {
     "beat_bpm": 115.80952380952381,
@@ -2746,8 +2730,8 @@
      "harm_rhythm"
     ],
     [
-     1.19,
-     "counter_line_share"
+     1.1,
+     "phrase_square"
     ]
    ]
   },
@@ -2871,7 +2855,7 @@
     "mel_range": 26.0,
     "lra": 8.322806288146515,
     "climax_pos": 0.8253678521045896,
-    "counter_line_share": 0.0
+    "counter_line_share": 0.0070921985815602835
    },
    "rmeans": {
     "beat_bpm": 131.11111111111111,
@@ -2948,11 +2932,11 @@
      6
     ],
     [
-     "Badinerie",
+     "New World Sym. I",
      3
     ],
     [
-     "New World Sym. I",
+     "Ouverture Op.39/11",
      2
     ]
    ],
@@ -2968,7 +2952,7 @@
     "mel_range": 31.125,
     "lra": 8.653554447946728,
     "climax_pos": 0.9277103933415614,
-    "counter_line_share": 0.17990652365652365
+    "counter_line_share": 0.286995211995212
    },
    "rmeans": {
     "beat_bpm": 115.80952380952381,
@@ -3067,7 +3051,7 @@
     "mel_range": 28.142857142857142,
     "lra": 6.947936500614226,
     "climax_pos": 0.7838669013819198,
-    "counter_line_share": 0.17757629367536487
+    "counter_line_share": 0.25180078127572914
    },
    "rmeans": {
     "beat_bpm": 63.666666666666664,
@@ -3142,7 +3126,7 @@
      1
     ],
     [
-     "Wanderer Fantasy",
+     "Prelude in C (WTC I)",
      1
     ]
    ],
@@ -3158,7 +3142,7 @@
     "mel_range": 40.5,
     "lra": 9.94346986974315,
     "climax_pos": 0.9760879621392734,
-    "counter_line_share": 0.14903846153846154
+    "counter_line_share": 0.17067307692307693
    },
    "rmeans": {
     "beat_bpm": 113.2,
@@ -3222,11 +3206,11 @@
      2
     ],
     [
-     "Scherzo focoso",
-     1
+     "Badinerie",
+     2
     ],
     [
-     "Prelude in C minor (WTC I)",
+     "Scherzo focoso",
      1
     ]
    ],
@@ -3242,7 +3226,7 @@
     "mel_range": 39.666666666666664,
     "lra": 7.562965155075855,
     "climax_pos": 0.7398692283817981,
-    "counter_line_share": 0.15151515151515152
+    "counter_line_share": 0.10606060606060606
    },
    "rmeans": {
     "beat_bpm": 131.11111111111111,
@@ -3338,7 +3322,7 @@
     "mel_range": 26.142857142857142,
     "lra": 6.3222408349566015,
     "climax_pos": 0.908692074099414,
-    "counter_line_share": 0.0021645021645021645
+    "counter_line_share": 0.017316017316017316
    },
    "rmeans": {
     "beat_bpm": 115.80952380952381,
@@ -3387,12 +3371,12 @@
      "lra"
     ],
     [
-     1.29,
-     "counter_line_share"
-    ],
-    [
      1.23,
      "phrase_square"
+    ],
+    [
+     1.15,
+     "mel_repeat"
     ]
    ]
   },
@@ -3439,7 +3423,7 @@
     "mel_range": 32.44444444444444,
     "lra": 5.3689217137985095,
     "climax_pos": 0.8291379402416779,
-    "counter_line_share": 0.13859283689855326
+    "counter_line_share": 0.22814773833464283
    },
    "rmeans": {
     "beat_bpm": 63.666666666666664,
@@ -3567,7 +3551,7 @@
      "chromatic"
     ],
     [
-     1.23,
+     1.06,
      "counter_line_share"
     ]
    ]
@@ -3679,12 +3663,12 @@
    ],
    "closest": [
     [
-     "Prelude in C (WTC I)",
+     "Prelude in C minor (WTC I)",
      7
     ],
     [
-     "Prelude in C minor (WTC I)",
-     7
+     "Prelude in C (WTC I)",
+     6
     ],
     [
      "Prelude Op.28/1",
@@ -3707,7 +3691,7 @@
     "mel_range": 27.88888888888889,
     "lra": 7.037352195709575,
     "climax_pos": 0.9414075624682593,
-    "counter_line_share": 0.08322335344394168
+    "counter_line_share": 0.12280040221216693
    },
    "rmeans": {
     "beat_bpm": 84.28571428571429,
@@ -4204,7 +4188,7 @@
    "game": {
     "med": 0.0,
     "p25": 0.0,
-    "p75": 0.05970149253731343,
+    "p75": 0.16216216216216217,
     "n": 69
    },
    "ref": {
@@ -4217,13 +4201,13 @@
     "crown": {
      "med": 0.0,
      "p25": 0.0,
-     "p75": 0.02628900949796472,
+     "p75": 0.07507914970601538,
      "n": 20
     },
     "clock": {
-     "med": 0.10795454545454546,
-     "p25": 0.0,
-     "p75": 0.285427807486631,
+     "med": 0.16996996996997,
+     "p25": 0.0253723110865968,
+     "p75": 0.37799043062200954,
      "n": 20
     },
     "brood": {
@@ -4235,7 +4219,7 @@
     "menu": {
      "med": 0.0,
      "p25": 0.0,
-     "p75": 0.019230769230769232,
+     "p75": 0.1346153846153846,
      "n": 9
     }
    }
