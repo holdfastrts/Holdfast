@@ -1,36 +1,16 @@
-01_pipes_solo_alone.mp3  the pipes' solo loop alone
-01_fife_solo_alone.mp3  the fife's solo loop alone
-01_drums_solo_alone.mp3  the drums' solo loop alone
-02_pipes_always_on_alone.mp3  the pipes' always-on loop alone (quieter and plainer)
-02_fife_always_on_alone.mp3  the fife's always-on loop alone (quieter and plainer)
-02_drums_always_on_alone.mp3  the drums' always-on loop alone (quieter and plainer)
-03_full_band_always_on.mp3  all three playing along (the always-on loops together)
-04_full_band_pipes_solo.mp3  all three, the pipes soloing over the others
-04_full_band_fife_solo.mp3  all three, the fife soloing over the others
-04_full_band_drums_solo.mp3  all three, the drums soloing over the others
-05_drummer_and_piper.mp3  a band of Drummer + Piper, always-on
-05_drummer_and_fifer.mp3  a band of Drummer + Fifer, always-on
-06_two_bands_one_clock.mp3  two bands at once on the one clock (left a pipe solo, right playing along): they stay in step (in a match BandSound plays only the band nearest the middle of the screen)
-07_over_crown_battle_music.mp3  the band over the crown's battle music (crown_battle_7.ogg) as the game mixes it now: the band centred on the screen, the music ducked 12 dB under it, 16 dB under the pipes' solo (from halfway)
-07_over_clockwork_battle_music.mp3  the band over the clockwork's battle music (clock_battle_7.ogg) as the game mixes it now: the band centred on the screen, the music ducked 12 dB under it, 16 dB under the pipes' solo (from halfway)
-07_over_brood_battle_music.mp3  the band over the brood's battle music (brood_battle_7.ogg) as the game mixes it now: the band centred on the screen, the music ducked 12 dB under it, 16 dB under the pipes' solo (from halfway)
-07b_camera_comes_and_goes.mp3  the Crown's battle music; the camera comes to a band playing along for the middle third (15 s to 30 s) and leaves: the music ducks 12 dB in about 1.2 s and comes back up the same way
-09_PREVIOUS_01_drums_solo_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 01_drums_solo_alone
-09_PREVIOUS_01_fife_solo_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 01_fife_solo_alone
-09_PREVIOUS_01_pipes_solo_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 01_pipes_solo_alone
-09_PREVIOUS_02_drums_always_on_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 02_drums_always_on_alone
-09_PREVIOUS_02_fife_always_on_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 02_fife_always_on_alone
-09_PREVIOUS_02_pipes_always_on_alone.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 02_pipes_always_on_alone
-09_PREVIOUS_03_full_band_always_on.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 03_full_band_always_on
-09_PREVIOUS_04_full_band_drums_solo.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 04_full_band_drums_solo
-09_PREVIOUS_04_full_band_fife_solo.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 04_full_band_fife_solo
-09_PREVIOUS_04_full_band_pipes_solo.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 04_full_band_pipes_solo
-09_PREVIOUS_05_drummer_and_fifer.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 05_drummer_and_fifer
-09_PREVIOUS_05_drummer_and_piper.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 05_drummer_and_piper
-09_PREVIOUS_06_two_bands_one_clock.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 06_two_bands_one_clock
-09_PREVIOUS_07_over_brood_battle_music.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 07_over_brood_battle_music
-09_PREVIOUS_07_over_clockwork_battle_music.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 07_over_clockwork_battle_music
-09_PREVIOUS_07_over_crown_battle_music.mp3  BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): 07_over_crown_battle_music
-08_OLD_full_band_always_on.mp3  BEFORE: the old 4 s loops, all three playing along
-08_OLD_full_band_pipes_solo.mp3  BEFORE: the old loops, the pipes' solo
-08_OLD_full_band_fife_solo.mp3  BEFORE: the old loops, the fife's solo
+01_lone_drummer_background.mp3  a lone drummer playing along (his background part), the end of The British Grenadiers, the roll-off and into Scotland the Brave
+01_lone_fifer_background.mp3  a lone fifer playing along (his background part), the end of The British Grenadiers, the roll-off and into Scotland the Brave
+01_lone_piper_background.mp3  a lone piper playing along (his background part), the end of The British Grenadiers, the roll-off and into Scotland the Brave
+02_full_band_background.mp3  the full band playing along: the end of The British Grenadiers, the roll-off, Scotland the Brave
+03_playlist_two_changes.mp3  the playlist across two tune changes: the end of Scotland the Brave, the roll-off, all of Garry Owen, the roll-off, the start of The Minstrel Boy
+04_fife_solo_over_battle_music.mp3  The British Grenadiers over the Crown's battle music, the band centred (the music ducked 12 dB); the fife SOLOS from 15 s to 30 s: the same tune, the fife's solo part forward and the music 16 dB down, then back
+04_drums_solo_over_battle_music.mp3  The British Grenadiers over the Crown's battle music, the band centred (the music ducked 12 dB); the drums SOLOS from 15 s to 30 s: the same tune, the drums's solo part forward and the music 16 dB down, then back
+04_pipes_solo_over_battle_music.mp3  The British Grenadiers over the Crown's battle music, the band centred (the music ducked 12 dB); the pipes SOLOS from 15 s to 30 s: the same tune, the pipes's solo part forward and the music 16 dB down, then back
+05a_BEFORE_full_band_over_battle_music.mp3  BEFORE (0.37.5): the full band playing along over the Crown's battle music: the drums and the fife barely heard
+05b_BEFORE_lone_drummer_over_battle_music.mp3  BEFORE (0.37.5): a lone Drummer over the Crown's battle music: next to nothing
+05c_AFTER_full_band_over_battle_music.mp3  AFTER: the same scene now (Scotland the Brave): the snare and the fife's tune clear, the pipes a little back
+05d_AFTER_lone_drummer_over_battle_music.mp3  AFTER: a lone Drummer over the battle music: his background beating
+06_grenadiers_full_band.mp3  The British Grenadiers, the full band playing along (100 a minute, march)
+06_garryowen_full_band.mp3  Garry Owen, the full band playing along (118 a minute, quick)
+06_minstrel_full_band.mp3  The Minstrel Boy, the full band playing along (70 a minute, air)
+06_godsave_full_band.mp3  God Save the King, the full band playing along (72 a minute, anthem)

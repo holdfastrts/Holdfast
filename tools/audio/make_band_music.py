@@ -1,41 +1,47 @@
-"""THE MARCHING BAND's MUSIC (jobs band-music and band-music-v2, docs/band_music.md): renders the six loops BandSound
-plays (scripts/band_sound.gd: PARTS, PHRASE, BPM, BARS) from real instrument samples, and the owner's listening files.
+"""THE MARCHING BAND's MUSIC (jobs band-music, band-music-v2 and band-repertoire, docs/band_music.md): renders the
+band's REPERTOIRE (scripts/band_sound.gd: TUNES, PARTS, ORDER) from real instrument samples, and the owner's listening
+files.
 
-The tune: SCOTLAND THE BRAVE (traditional, public domain as a melody), note for note as a reference score the owner
-supplied (band-music-v2; the score itself is someone else's arrangement and is not in the repo): 16 bars of 4/4,
-A (1-4) A' (5-8) B (9-12) A' (13-16), no pick-up. The score is written in D; we play it in E (every note a whole
-tone up), the key where the FreePats chanter's own notes fit the tune's range (C#4..F#5 written, D#4..G#5 here) with
-the smallest retuning (all chanter notes within 1.6 semitones of a recorded take; in G the top notes needed +4).
-Tempo: 110 quarter notes a minute as the score has it (109.91 exactly: the loop is 1,540,800 samples = 2,880 cycles
-of the low drone, so the drones run through the loop point without a seam).
+Since band-repertoire (owner's playtest 2026-11-14 13:18) the band plays a PLAYLIST, not one loop: every tune is one
+file per part (drums, fife, pipes; a quiet "always-on" file and a "solo" file of each), each file
+
+    [the roll-off] [the tune once, start to end] [a short tail]
+
+all six files of a tune exactly the same length, so a band's parts stay in step and the next tune follows the last:
+the drums' ROLL-OFF (two rolls into the tune's first beat, in the new tune's tempo) links one tune to the next.
+
+The tunes (traditional melodies, public domain; see TUNES): The British Grenadiers (2/4, from the owner's score),
+Scotland the Brave (4/4, from the owner's score, as band-music-v2 made it), Garry Owen (6/8 quickstep), The Minstrel Boy
+(4/4 slow air), God Save the King (3/4, an extra). The drum beatings are OUR OWN, written in the style of rudimental
+fife-and-drum corps parts (flams on the accents, 5-, 7- and 9-stroke rolls, drags, sixteenth runs at phrase ends; the
+slow air with a muffled drum only), and Scotland the Brave keeps the pipe band pattern of band-music-v2.
 
   pipes   FreePats bagpipe (Gilles Sadowski, CC0): the chanter notes retuned to just intonation over the two drones
-          (E2, E3: the recorded G drones moved down three semitones), played as one unbroken sound (a bagpipe never
-          stops), with the pipe gracenotes (G, D and E gracenotes, doublings, grips) on the long and repeated notes.
-          Always-on: the plain melody with single gracenotes. Solo: every gracenote, a second pipe in unison (resting
-          in Part B, as in the score), the score's lower voice quietly under it, the chanter forward.
-  fife    VCSL Baroque Soprano Recorder (Versilian Studios, CC0), made fife-like (brighter, breath noise, tongued):
-          the melody an octave over the pipes. Always-on: plain and a little detached. Solo: cuts and rolls.
-  drums   MuldjordKit (Lars Muldjord, CC BY 4.0): the snare tuned up and tightened into a marching snare, the kick
-          tuned down into a parade bass drum, the floor tom as the tenor drum, the crash as the cymbal. The snare plays
-          the score's pattern (constant eighths, flams on 1 and 3, sixteenth pairs and drags at bar ends, the
-          "flam, flam, rest" cadence closing each 4-bar phrase, quarters in Part B); the bass drum on 1 and 3 (a flam
-          into 1 in Part B). Velocity layers chosen by the stroke's force, never the same hit twice in a row.
+          (the recorded G drones moved to the tune's tonic), played as one unbroken sound with the pipe gracenotes.
+          Always-on: the plain melody with single gracenotes. Solo: every gracenote and a second pipe in unison (and in
+          Scotland the Brave the score's lower voice). The pipes STRIKE IN during the roll-off (the drones, then the
+          chanter on the fifth for the last beat before the tune, as a pipe band does).
+  fife    VCSL Baroque Soprano Recorder (Versilian Studios, CC0), made fife-like: the melody an octave over the pipes.
+  drums   MuldjordKit (Lars Muldjord, CC BY 4.0): a marching snare, a parade bass drum, a tenor drum, a cymbal.
 
-Every note and stroke is a little off the grid and a little uneven in force (seeded: the same files each run).
-The loops are rendered "folded": anything that rings past the end comes back in at the start, so each file loops
-seamlessly (rooms and long notes included).
+LEVELS (band-repertoire): every file is levelled by its INTEGRATED LOUDNESS (LUFS, ITU-R BS.1770: pyloudnorm), not by
+its loudest moment, so the drums (short loud strokes) are no longer far quieter than the pipes (a steady sound): the
+always-on files at ON_LUFS, the solo files at SOLO_LUFS, each part moved by PART_LU (the pipes a little back, they mask
+the others). Peaks are held under 0.97 by a soft limiter with a little look-ahead.
 
 Run:  python3 tools/audio/make_band_music.py            (writes assets/audio/band/*.ogg and docs/band_sound/*.mp3)
-      python3 tools/audio/make_band_music.py --no-docs  (only the game's loops)
-      python3 tools/audio/make_band_music.py --docs-only  (only the listening files, from the loops as they are)
-Needs numpy, scipy, soundfile, soxr, ffmpeg."""
+      python3 tools/audio/make_band_music.py --no-docs  (only the game's files)
+      python3 tools/audio/make_band_music.py --docs-only  (only the listening files, from the files as they are)
+      python3 tools/audio/make_band_music.py --only grenadiers,minstrel   (only these tunes)
+Needs numpy, scipy, soundfile, soxr, pyloudnorm, ffmpeg."""
+import json
 import os
 import re
 import subprocess
 import sys
 
 import numpy as np
+import pyloudnorm as pyln
 import soundfile as sf
 import soxr
 from scipy import signal
@@ -46,12 +52,11 @@ OUT = os.path.join(ROOT, "assets", "audio", "band")
 DOCS = os.path.join(ROOT, "docs", "band_sound")
 
 SR = 44100
-DRONE_P = 535                                   # samples a cycle of the low drone (E2 = 82.43 Hz)
-L = DRONE_P * 2880                              # 1,540,800 samples = 34.94 s: 16 bars, a whole number of drone cycles
-BARS = 16
-BEAT = L / SR / (BARS * 4)
-BPM = 60.0 / BEAT                               # 109.91 (the score: 110)
-EIGHTH = BEAT / 2
+METER = pyln.Meter(SR)
+ON_LUFS = -27.0            # the always-on files
+SOLO_LUFS = -23.0          # the solo files (4 LU over: the soloist's part forward)
+PART_LU = {"pipes": -2.0, "fife": 0.5, "drums": 1.0}     # the pipes a little back (they mask the others)
+AIR_DRUMS_LU = -5.0        # the slow air's drums: a muffled drum, not a beating (on top of PART_LU)
 
 rng = np.random.default_rng(1707)
 
@@ -73,29 +78,23 @@ def shift(x, ratio):
     return soxr.resample(x, SR, SR / ratio, quality="HQ")
 
 
-class Loop:
-    """A buffer of L samples; anything added past the end wraps to the start (and before the start to the end)."""
+class Buf:
+    """A buffer of n samples; anything added past the end is cut (the files are not loops any more)."""
 
-    def __init__(self):
-        self.y = np.zeros(L)
+    def __init__(self, n):
+        self.n = n
+        self.y = np.zeros(n)
 
     def add(self, sig, t):
-        i = int(round(t * SR)) % L
-        n = len(sig)
-        pos = 0
-        while pos < n:
-            k = min(n - pos, L - i)
-            self.y[i:i + k] += sig[pos:pos + k]
-            pos += k
-            i = 0
+        i = int(round(t * SR))
+        a, b = max(0, i), min(self.n, i + len(sig))
+        if b > a:
+            self.y[a:b] += sig[a - i:b - i]
 
 
-def circ_conv(x, ir):
-    """Circular convolution (a room on a loop: the tail of the last bar rings into the first)."""
-    n = len(x)
-    h = np.zeros(n)
-    h[:len(ir)] = ir[:n]
-    return np.fft.irfft(np.fft.rfft(x) * np.fft.rfft(h), n)
+def conv(x, ir):
+    """A room on a file (linear convolution, cut to the file's length)."""
+    return signal.fftconvolve(x, ir)[:len(x)]
 
 
 def room(seconds, tau, bright=6000.0, seed=0):
@@ -105,7 +104,7 @@ def room(seconds, tau, bright=6000.0, seed=0):
     ir = r.standard_normal(n) * np.exp(-t / tau)
     b, a = signal.butter(2, bright / (SR / 2), "low")
     ir = signal.lfilter(b, a, ir)
-    ir[:int(0.006 * SR)] *= np.linspace(0, 1, int(0.006 * SR))    # early reflections start after the direct sound
+    ir[:int(0.006 * SR)] *= np.linspace(0, 1, int(0.006 * SR))
     return ir / np.sqrt(np.sum(ir ** 2))
 
 
@@ -130,7 +129,7 @@ def lp(x, f, order=2):
 
 
 def fades(n, fin, fout):
-    """Equal-power fade in over fin samples and out over fout samples (sin/cos)."""
+    """Equal-power fade in over fin samples and out over fout samples."""
     e = np.ones(n)
     if fin > 0:
         e[:fin] = np.sin(np.linspace(0, np.pi / 2, fin))
@@ -139,22 +138,168 @@ def fades(n, fin, fout):
     return e
 
 
-def loud(x, win=0.3):
-    """The loudest `win` seconds (RMS, dB): the same measure tools/audio/make_mix.py levels game sounds with."""
-    w = int(SR * win)
-    e = [np.sqrt(np.mean(x[i:i + w] ** 2)) for i in range(0, len(x) - w, w // 3)]
-    return 20 * np.log10(max(e) + 1e-9)
+def lufs(x):
+    v = METER.integrated_loudness(x)
+    return float(v) if np.isfinite(v) else -70.0
 
 
 def jit(ms):
     return rng.normal(0.0, ms / 1000.0)
 
 
-# ------------------------------------------------------------------ the tune
-# Scotland the Brave as the reference score has it, WRITTEN IN D (the score's pitches; we sound them a tone higher).
-# One note: name+octave and its length in eighths (1 = eighth, 2 = quarter, 1.5 = dotted eighth, .5 = sixteenth,
-# 4 = half); "'" after a note = staccato (bar 12). Bar 1 as the score plays it: D q, D e., E s, F# e, D e, F# e, A e.
-BAR = {
+# ------------------------------------------------------------------ the tunes
+
+NAMES = {"C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11}
+
+
+def midi_of(name):
+    m = re.match(r"([A-G]#?)(\d)", name)
+    return 12 * (int(m.group(2)) + 1) + NAMES[m.group(1)]
+
+
+def abc(text, sharps=("F",)):
+    """A small ABC reader (L:1/8; enough for these tunes): notes C-B (octave 4), c-b (octave 5), ' and , octaves,
+    lengths (2, 3, /, 3/2), the broken rhythm A>B, ties A2-A2 (merged), z rests, | bar lines (checked by the caller).
+    -> [(length in sixteenths, written midi or None for a rest, staccato)] with a "|" between bars."""
+    out = []
+    toks = re.findall(r"\||-|>|z[\d/]*|[\^_=]?[A-Ga-g][',]*[\d/]*'?", text)
+    pend_tie = False
+    broken = False
+    for tk in toks:
+        if tk == "|":
+            out.append("|")
+            continue
+        if tk == "-":
+            pend_tie = True
+            continue
+        if tk == ">":
+            broken = True
+            continue
+        m = re.match(r"([\^_=]?)([A-Ga-gz])([',]*)([\d/]*)", tk)
+        acc, letter, octs, ln = m.groups()
+        if ln == "":
+            f = 1.0
+        elif ln == "/":
+            f = 0.5
+        elif "/" in ln:
+            a, b = ln.split("/")
+            f = float(a or 1) / float(b or 2)
+        else:
+            f = float(ln)
+        six = f * 2.0
+        if letter == "z":
+            note = None
+        else:
+            up = letter.upper()
+            o = 5 if letter.islower() else 4
+            o += octs.count("'") - octs.count(",")
+            semis = NAMES[up] + (1 if (up in sharps and acc == "") or acc == "^" else 0) - (1 if acc == "_" else 0)
+            note = 12 * (o + 1) + semis
+        if broken:                     # A>B: the note before dotted, this one halved
+            ln0, n0, s0 = out[-1]
+            out[-1] = (ln0 * 1.5, n0, s0)
+            six *= 0.5
+            broken = False
+        if pend_tie and note is not None:
+            out.append(("tie", six))           # (the note before goes on: read() lengthens it)
+            pend_tie = False
+            continue
+        out.append((six, note, False))
+    return out
+
+
+class Tune:
+    """One tune: its notes from bar 1's downbeat (in sixteenths; a pick-up before it is negative), its metre, tempo,
+    key, how it is sounded, and the drum beating."""
+
+    def __init__(self, tid, title, grid, beat_six, bpm, transpose, tonic, scale, text=None, events=None, pickup=0,
+                 kind="march", n_bars=None):
+        self.id, self.title, self.grid, self.beat_six = tid, title, grid, beat_six
+        self.pickup = pickup
+        self.bpm, self.transpose, self.kind = bpm, transpose, kind
+        self.six = 60.0 / bpm / beat_six             # seconds a sixteenth
+        self.tonic_w = tonic                          # the tonic, written (midi)
+        self.scale = scale                            # semitones of the mode over the tonic, with just ratios
+        if events is None:
+            events = self.read(text, pickup)
+        self.ev = events                              # [(start six, length six, written midi, staccato, bar)]
+        self.n_bars = n_bars or getattr(self, "read_bars", max(e[4] for e in self.ev) + 1)
+        notes = sorted(set(e[2] for e in self.ev))
+        self.lo, self.hi = notes[0], notes[-1]
+        self.notes = notes
+        self.lower = {}                               # (Scotland) the score's lower voice
+        self.second_rest = []                         # bars the solo's second pipe rests (Scotland: Part B)
+
+    def read(self, text, pickup):
+        """Events from ABC text: bar lengths are checked (the pick-up and the last bar may be short)."""
+        items = abc(text)
+        ev = []
+        t = -pickup
+        bar = -1 if pickup > 0 else 0
+        bar_t = 0.0
+        bars = []
+        for it in items:
+            if it == "|":
+                bars.append(bar_t)
+                bar += 1
+                bar_t = 0.0
+                continue
+            if it[0] == "tie":
+                a, b, c, d, e = ev[-1]
+                ev[-1] = (a, b + it[1], c, d, e)
+                bar_t += it[1]
+                t += it[1]
+                continue
+            six, n, st = it
+            if n is not None:
+                ev.append((t, six, n, st, max(bar, 0)))
+            t += six
+            bar_t += six
+        if bar_t > 0:
+            bars.append(bar_t)
+        inner = bars[1:-1] if pickup > 0 else bars[:-1]
+        bad = [i for i, b in enumerate(inner) if abs(b - self.grid) > 1e-6]
+        assert not bad, (self.id, "bars of the wrong length", [(i, inner[i]) for i in bad])
+        self.end_six = t
+        self.read_bars = len(bars) - (1 if pickup > 0 else 0)
+        return [(float(a), float(b), c, d, e) for (a, b, c, d, e) in ev]
+
+    # sound
+    def ratio(self, semis):
+        o, s = divmod(semis, 12)
+        return 2.0 ** o * self.scale[s]
+
+    def freq(self, written):
+        """The pipes' sounding pitch of a written note: just intonation over the drones (the tonic)."""
+        return self.tonic_hz * self.ratio(written - self.tonic_w)
+
+    @property
+    def tonic_hz(self):
+        return 440.0 * 2 ** ((self.tonic_w + self.transpose - 69) / 12)
+
+    def scale_notes(self):
+        """The mode's notes (written) from a fifth under the tune's lowest to a third over its highest."""
+        out = []
+        for m in range(self.lo - 7, self.hi + 5):
+            if (m - self.tonic_w) % 12 in self.scale:
+                out.append(m)
+        return out
+
+    def step(self, n, k):
+        sc = self.scale_notes()
+        i = min(range(len(sc)), key=lambda j: abs(sc[j] - n))
+        return sc[max(0, min(len(sc) - 1, i + k))]
+
+    def t(self, six):
+        """Seconds from bar 1's downbeat."""
+        return six * self.six
+
+
+MAJOR = {0: 1.0, 2: 9 / 8, 4: 5 / 4, 5: 4 / 3, 7: 3 / 2, 9: 5 / 3, 11: 15 / 8}
+DORIAN = {0: 1.0, 2: 9 / 8, 3: 6 / 5, 5: 4 / 3, 7: 3 / 2, 9: 5 / 3, 10: 9 / 5}
+
+# ---- Scotland the Brave: as band-music-v2 made it from the owner's score (written in D, sounding in E)
+SCOT_BAR = {
     1: "D4 2, D4 1.5, E4 .5, F#4 1, D4 1, F#4 1, A4 1",
     2: "D5 2, D5 1.5, C#5 .5, D5 1, A4 1, F#4 2",
     3: "G4 2, B4 1.5, G4 .5, F#4 1, A4 1, F#4 1, D4 1",
@@ -165,100 +310,183 @@ BAR = {
     11: "D5 2, D5 2, C#5 2, D5 1.5, C#5 .5",
     12: "B4 1, D5 1, C#5' 2, A4' 2, F#4 1, E4 1",
 }
-FORM = [1, 2, 3, 4, 1, 2, 3, 8, 9, 10, 11, 12, 1, 2, 3, 8]      # A A' B A'
-# The score's lower voice (the second pipes' harmony line), two half notes a bar, written in D.
-LOWER = {1: "D4 F#4", 2: "F#4 D4", 3: "D4 D4", 4: "C#4 E4", 8: "C#4 D4",
-         9: "A4 E4", 10: "F#4 D4", 11: "F#4 A4", 12: "E4 D4"}
-TRANSPOSE = 2                                   # semitones: written D -> sounding E
-NAMES = {"C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11}
+SCOT_FORM = [1, 2, 3, 4, 1, 2, 3, 8, 9, 10, 11, 12, 1, 2, 3, 8]
+SCOT_LOWER = {1: "D4 F#4", 2: "F#4 D4", 3: "D4 D4", 4: "C#4 E4", 8: "C#4 D4",
+              9: "A4 E4", 10: "F#4 D4", 11: "F#4 A4", 12: "E4 D4"}
 
 
-def midi_of(name):
-    m = re.match(r"([A-G]#?)(\d)", name)
-    return 12 * (int(m.group(2)) + 1) + NAMES[m.group(1)]
-
-
-D4 = midi_of("D4")
-# Just intonation over the drones (the tonic = the drones' note), by semitones above the written tonic D4: the score's
-# C#s are leading notes (15/8), its D# (bar 9) the leading note into E5.
-JUST = {-1: 15 / 16, 0: 1.0, 2: 9 / 8, 4: 5 / 4, 5: 4 / 3, 7: 3 / 2, 9: 5 / 3, 11: 15 / 8, 12: 2.0, 13: 135 / 64,
-        14: 9 / 4, 16: 5 / 2}
-TONIC = 4 * SR / DRONE_P                         # E4 = 329.72 Hz, exactly two octaves over the low drone
-
-
-def freq_of(written):
-    return TONIC * JUST[written - D4]
-
-
-def parse_tune():
-    """[(start s, length s, written midi, staccato, bar)]: the 16 bars from bar 1's downbeat."""
-    out = []
+def scotland():
+    ev = []
     t = 0.0
-    for bi, b in enumerate(FORM):
-        tot = 0.0
-        for tok in BAR[b].split(","):
+    for bi, b in enumerate(SCOT_FORM):
+        for tok in SCOT_BAR[b].split(","):
             n, d = tok.split()
-            st = n.endswith("'")
-            out.append((t * EIGHTH, float(d) * EIGHTH, midi_of(n.rstrip("'")), st, bi))
+            ev.append((t * 2, float(d) * 2, midi_of(n.rstrip("'")), n.endswith("'"), bi))
             t += float(d)
-            tot += float(d)
-        assert abs(tot - 8) < 1e-6, (b, tot)
-    assert abs(t - BARS * 8) < 1e-6
-    return out
+    # D#5 (the score's chromatic note) over E: its own just ratio (the leading note into E5)
+    scale = dict(MAJOR)
+    scale[1] = 135 / 128               # (D#5 = 2 x 135/128 over D4: the leading note into E5)
+    tu = Tune("scotland", "Scotland the Brave", 16, 4, 110.0, 2, midi_of("D4"), scale, events=ev, n_bars=16)
+    tu.end_six = 16 * 16
+    tu.lower = SCOT_LOWER
+    tu.second_rest = list(range(8, 12))
+    tu.form = SCOT_FORM
+    return tu
 
 
-TUNE_EV = parse_tune()
+GRENADIERS = """D2|G2 D2|G2 A2|B4|A2 B>c|d2 G2|B>A G>F|G4-|G2 D2|
+G2 D2|G2 A2|B4|A2 B>c|d2 G2|B>A G>F|G4-|G2 B>c|
+d3 e|d2 c2|B3 c|d2 G2|G2 A>B|c2 B2|A4|z2 D>D|
+G2 D2|G2 A2|B4|A2 Bc|d2 G2|B>A G>F|G4-|G2 z2|"""
+
+GARRYOWEN = """g/f/|edc BAG|B>cB B2 g/f/|edc BAG|A>BA A2 g/f/|edc BAG|B>cB B2 c|def gdB|A>BA A2 g/f/|
+edc BAG|B>cB B2 g/f/|edc BAG|A>BA A2 g/f/|edc BAG|B>cB B2 c|def gdB|A>BA A2 B/c/|
+d2B d2B|d2B dgf|e2c e2c|e2c e2f|g2a b2a|gfe d2B|def gdB|A>BA A2 B/c/|
+d2B d2B|d2B dgf|e2c e2c|e2c e2f|g2a b2a|gfe d2B|def gdB|A>BA A2 z|"""
+
+# The B part's last bar as the brief has it (e>d ef gf e) is seven eighths: a D (the pick-up back into the A part)
+# fills it. The A part is played once more at the end, ending on a held G.
+MINSTREL = """d|G3 A cBAG|B2 d2 g2 fg|e2 d2 B>c dB|A4 G3 d|
+G3 A cBAG|B2 d2 g2 fg|e2 d2 B>c dB|A4 G3 d|
+g2 f2 e2 fg|f2 e2 d3 d|e3 B B3 d|e>d ef gf ed|
+G3 A cBAG|B2 d2 g2 fg|e2 d2 B>c dB|A4 G4|"""
+
+GODSAVE = """G2 G2 A2|F3 G A2|B2 B2 c2|B3 A G2|A2 G2 F2|G6|d2 d2 d2|d3 c B2|c2 c2 c2|c3 B A2|B2 cB AG|B3 c d2|ed c2 B2|A2 G4|"""
 
 
-# Pipe gracenotes, by the written note (the pipe names: D4 = low A, E4 = B, F#4 = C, G4 = D, A4 = E, B4 = F,
-# C#5 = high G, D5 = high A; C#4 = low G). G = the high G gracenote (written C#5), D = the D gracenote (G4), E = the
-# E gracenote (A4). The tune's notes over high A (D#5, E5, F#5: the score's Part B) take the note above or a strike.
-G_, D_, E_, LG = midi_of("C#5"), midi_of("G4"), midi_of("A4"), midi_of("C#4")
-DOUBLING = {midi_of("D4"): [G_, midi_of("D4"), D_], midi_of("E4"): [G_, midi_of("E4"), D_],
-            midi_of("F#4"): [G_, midi_of("F#4"), D_], midi_of("G4"): [G_, midi_of("G4"), E_],
-            midi_of("A4"): [G_, midi_of("A4"), midi_of("B4")], midi_of("B4"): [G_, midi_of("B4"), G_],
-            midi_of("C#5"): [midi_of("D5"), midi_of("C#5"), midi_of("D5")], midi_of("D5"): [G_],
-            midi_of("D#5"): [], midi_of("E5"): [midi_of("F#5")], midi_of("F#5"): [midi_of("D5")]}
+def all_tunes():
+    return {
+        # 2/4, crotchet 100 (the owner's score: half note = 50); written in G, sounding in A
+        "grenadiers": Tune("grenadiers", "The British Grenadiers", 8, 4, 100.0, 2, midi_of("G4"), MAJOR,
+                           GRENADIERS, pickup=4),
+        "scotland": scotland(),
+        # 6/8 quickstep, dotted crotchet 118; A dorian written (one sharp), sounding in F# dorian
+        "garryowen": Tune("garryowen", "Garry Owen", 12, 6, 118.0, -3, midi_of("A4"), DORIAN, GARRYOWEN,
+                          pickup=2, kind="quick"),
+        # 4/4 slow air, crotchet 70; in G
+        "minstrel": Tune("minstrel", "The Minstrel Boy", 16, 4, 70.0, 0, midi_of("G4"), MAJOR, MINSTREL,
+                         pickup=2, kind="air"),
+        # 3/4, crotchet 72; in G
+        "godsave": Tune("godsave", "God Save the King", 12, 4, 72.0, 0, midi_of("G4"), MAJOR, GODSAVE,
+                        kind="anthem"),
+    }
 
 
-def single(n):
-    """The one gracenote of a plain embellishment: high G on the low notes, high A on high G, the note above higher."""
-    if n <= midi_of("B4"):
-        return [G_]
-    if n == midi_of("C#5"):
-        return [midi_of("D5")]
-    if n == midi_of("D5"):
-        return [G_]
-    if n == midi_of("E5"):
-        return [midi_of("F#5")]
-    if n == midi_of("F#5"):
-        return [midi_of("D5")]
-    return []
+# ------------------------------------------------------------------ the drum beatings (our own)
+# One character a sixteenth, the whole piece as one string (the roll-off first):
+#   F flam accent   A accent   t tap   g ghost   D drag accent   R 5-stroke roll ending here (over the sixteenth
+#   before)   S 7-stroke roll ending here (over the two before)   N 9-stroke roll ending here (over the three before)
+#   z a buzz roll from here, - it goes on (swelling into what follows)   . rest
+# Scotland the Brave keeps band-music-v2's pattern after the reference score.
+
+SC_A1 = "F.t.t.t.F.t.t.tt"
+SC_A2 = "F.t.t.t.F.t.t.D."
+SC_CAD = "F.t.F.t........."
+SC_B1 = "F...t...F.t....."
+SC_B2 = "A.t.t.t.A.t.t.t."
+SC_ON = [SC_A1, SC_A2, SC_A1, SC_CAD, SC_A1, SC_A2, SC_A1, SC_CAD, SC_B1, SC_B1, SC_B2, SC_B2, SC_A1, SC_A2, SC_A1, SC_CAD]
+SC_SOLO = ["F.tgt.ttF.tgR.tt", "F.tgt.tgF.ttt.D.", "F.ttR.ttF.tgt.tt", "F.t.F.t.z-----S.",
+           "F.tgt.ttF.tgR.tt", "F.tgt.tgF.ttt.D.", "F.ttR.ttF.tgt.tt", "F.t.F.t.z-----S.",
+           "F...t.t.F.t.z---", "F...t.t.F.t.z-S.", "A.ttt.ttA.ttR.tt", "A.ttt.tgA.ttz-S.",
+           "F.tgt.ttF.tgR.tt", "F.tgt.tgF.ttt.D.", "F.ttR.ttF.tgt.tt", "F.t.F.t........."]
+
+# The British Grenadiers, 2/4 (8 a bar): flams on the beats, 5- and 7-stroke rolls, drags at phrase ends.
+GR_A = ["F.t.A.t.", "F.t.A.tt", "F...S.t.", "F.t.A.t.", "F.t.A.t.", "F.ttA.t.", "F.t.F.t.", "F...D.t."]
+GR_A2 = GR_A[:7] + ["F...R.t."]
+GR_B = ["F.t.R.t.", "F.t.A.t.", "F...S.t.", "F.t.A.tt", "F.t.R.t.", "F.t.A.t.", "F...S...", "z---A.t."]
+GR_END = GR_A[:6] + ["F.t.F.t.", "A......."]
+GR_ON = GR_A + GR_A2 + GR_B + GR_END
+GR_SOLO = ["F.tgA.tg", "F.tgA.tt", "F...S.tg", "F.t.R.tt", "F.tgA.tg", "F.ttA.tt", "F.tgF.tg", "F...N.tt",
+           "F.tgA.tg", "F.tgA.tt", "F...S.tg", "F.t.R.tt", "F.tgA.tg", "F.ttA.tt", "F.tgF.tg", "F...S.t.",
+           "F.t.R.tg", "F.ttA.tg", "F...S.tt", "F.tgA.tt", "F.t.R.tg", "F.ttA.tg", "F...N...", "z---A.tt",
+           "F.tgA.tg", "F.tgA.tt", "F...S.tg", "F.t.R.tt", "F.tgA.tg", "F.ttA.tt", "F.tgF.t.", "A......."]
+GR_ROLL = "z-----------A...z-----------A..."      # two rolls; the second's accent is the pick-up's beat
+
+# Garry Owen, 6/8 (12 a bar): a 7-stroke roll into bar 1's accent; straight quavers accented on the dotted-crotchet
+# beats; at the 2-bar phrase ends a 6-note sixteenth run into an accented dotted crotchet (or two 7-stroke rolls);
+# the second strain more rolls and flams; the last bar an accented crotchet and rest.
+GO_A = ["S.t.t.F.t.t.", "ttttttF.....", "F.t.t.F.t.t.", "ttttttF.....",
+        "F.t.t.F.t...", "S.....S.....", "F.t.t.F.t.t.", "F.t.t.A....."]
+GO_B = ["S.t.t.F.t.F.", "F.t...S.....", "F.t.t.F.t.t.", "ttttttF.....",
+        "F.t.t.F.t.F.", "F.t...S.....", "F.t.t.F.t.t.", "F.t.t.A....."]
+GO_ON = GO_A + GO_A + GO_B + GO_B
+GO_SOLO_A = ["S.tgt.F.tgt.", "ttttttF.t.tg", "F.tgt.F.tgt.", "ttttttF...R.",
+             "F.tgt.F.t...", "S.....S...R.", "F.tgt.F.tgt.", "F.tgt.A....."]
+GO_SOLO_B = ["S.tgt.F.tgF.", "F.t...S...R.", "F.tgt.F.tgt.", "ttttttF.ttt.",
+             "F.tgt.F.tgF.", "F.t...S...R.", "F.tgt.F.tgt.", "F.tgt.A....."]
+GO_SOLO = GO_SOLO_A + GO_SOLO_A + GO_SOLO_B + GO_SOLO_B
+GO_ROLL = "z-------A...z-------A..."
+
+# God Save the King, 3/4 (12 a bar): flams on beat 1, a roll swelling into the next bar's first beat at phrase ends.
+GS_ON = ["F...t...t...", "F...t...t...", "F...t...t...", "F...t...z---", "F...t...t...", "F...t...z---",
+         "F...t...t...", "F...t...t...", "F...t...t...", "F...t...z---", "F...t...t...", "F...t...z---",
+         "F...t...t...", "F.....A....."]
+GS_SOLO = ["F...t.t.t.t.", "F.t.t...t.t.", "F...t.t.R...", "F...t...z---", "F...t.t.t.t.", "F...t...z---",
+           "F...t.t.t.t.", "F.t.t...t.t.", "F...t.t.R...", "F...t...z---", "F...t.t.t.t.", "F...t...z---",
+           "F.t.t...t.t.", "F.....A....."]
+GS_ROLL = "z-----------------------"
+
+SC_ROLL = "z-----------A...z-----------A..."
 
 
-def graces(i, solo):
-    """The gracenotes before note i (written midi), as a piper plays this tune: on the beat's long notes, repeated
-    notes and the half notes; the plain (always-on) part keeps a single gracenote on the long and repeated notes."""
-    t, d, n, st, _ = TUNE_EV[i]
-    prev = TUNE_EV[i - 1][2]
-    on_beat = abs((t / BEAT) - round(t / BEAT)) < 1e-6
-    long_ = d >= 2 * EIGHTH - 1e-6
-    rep = prev == n
-    if not solo:
-        return single(n) if (rep or (long_ and on_beat)) else []
-    if rep and n <= midi_of("A4"):
-        return [LG, D_, LG] if n != midi_of("G4") else [LG, E_, LG]   # a grip between repeated notes
-    if rep:
-        return single(n)
-    if long_ and on_beat:
-        return DOUBLING.get(n, single(n))
-    if d >= 1.5 * EIGHTH - 1e-6:
-        return single(n)
-    if on_beat:
-        return single(n)
-    if n < prev and n <= midi_of("E4"):
-        return [E_]                                   # stepping down to low A or B: the E gracenote
-    return []
+def score_of(tu, solo):
+    """[roll-off string, tune string, bass {sixteenth in the piece: force}, tenor {...}, cymbal [six]]"""
+    g = tu.grid
+    bass, tenor, cym = {}, {}, []
+    if tu.id == "scotland":
+        roll, bars = SC_ROLL, (SC_SOLO if solo else SC_ON)
+        for b in range(16):
+            part_b = 8 <= b < 12
+            bass[b * g] = 0.9 if part_b else 0.78
+            bass[b * g + 8] = 0.6
+        if solo:
+            for b, extra in enumerate([{}, {14: .4}, {}, {4: .55}, {}, {14: .4}, {}, {4: .55}, {12: .4}, {12: .4}, {},
+                                       {14: .45}, {}, {14: .4}, {}, {4: .55}]):
+                for k, v in extra.items():
+                    bass[b * g + k] = v
+            for b in range(16):
+                tenor[b * g] = 0.7
+                tenor[b * g + 8] = 0.55
+            cym = [0, 8 * g]
+    elif tu.id == "grenadiers":
+        roll, bars = GR_ROLL, (GR_SOLO if solo else GR_ON)
+        for b in range(tu.n_bars):
+            bass[b * g] = 0.8 if b % 4 == 0 else 0.7
+            bass[b * g + 4] = 0.55
+            if solo and b % 2 == 1:
+                tenor[b * g] = 0.6
+                tenor[b * g + 4] = 0.5
+        if solo:
+            cym = [0, 16 * g]
+    elif tu.id == "garryowen":
+        roll, bars = GO_ROLL, (GO_SOLO if solo else GO_ON)
+        for b in range(tu.n_bars):
+            bass[b * g] = 0.8
+            bass[b * g + 6] = 0.6
+            if solo:
+                for k in (2, 4, 8, 10):
+                    if b % 2 == 0:
+                        bass[b * g + k] = 0.35        # the bass doubling the quavers now and then
+                tenor[b * g] = 0.6
+        if solo:
+            cym = [0, 16 * g]
+    elif tu.id == "godsave":
+        roll, bars = GS_ROLL, (GS_SOLO if solo else GS_ON)
+        for b in range(tu.n_bars):
+            bass[b * g] = 0.85
+            if solo:
+                bass[b * g + 4] = 0.4
+                bass[b * g + 8] = 0.4
+        if solo:
+            cym = [0, 6 * g]
+    else:            # the slow air: no snare beating (drum_air below)
+        return None
+    s = "".join(bars)
+    assert len(roll) % g == 0 and len(s) == tu.n_bars * g, (tu.id, len(roll), len(s), tu.n_bars * g)
+    return roll, s, bass, tenor, cym
+
+
+ROLL_BARS = {"scotland": 2, "grenadiers": 4, "garryowen": 2, "minstrel": 1, "godsave": 2}
 
 
 # ------------------------------------------------------------------ pipes
@@ -271,7 +499,6 @@ def pitch_of(x, lo=80, hi=1000):
     c = np.fft.irfft(np.abs(np.fft.rfft(s, 2 * len(s))) ** 2)[:len(s)]
     a, b = int(SR / hi), int(SR / lo)
     k = a + int(np.argmax(c[a:b]))
-    # the first peak near the strongest one that is nearly as strong (not an octave too low)
     for div in (4, 3, 2):
         kk = int(round(k / div))
         if kk > a:
@@ -284,13 +511,12 @@ def pitch_of(x, lo=80, hi=1000):
     return SR / (k + p)
 
 
-_takes = []          # [(measured midi, steady recording)] of every chanter take in the owner's set
+_takes = []
 _chanter = {}
 
 
-def chanter(written):
-    """The takes nearest this note's pitch (by their MEASURED pitch: the set's file names are not all right), each
-    retuned to the note's just pitch over the drones (steady part only)."""
+def chanter(freq):
+    """The takes nearest this pitch (by their MEASURED pitch), each retuned to it (steady part only)."""
     if not _takes:
         d = os.path.join(SRC, "freepats_bagpipe")
         for f in sorted(os.listdir(d)):
@@ -298,55 +524,130 @@ def chanter(written):
                 x = load(os.path.join(d, f))
                 f0 = pitch_of(x, 250, 900)
                 _takes.append((69 + 12 * np.log2(f0 / 440.0), f0, x, f))
-    if written not in _chanter:
-        want = freq_of(written)
-        wm = 69 + 12 * np.log2(want / 440.0)
+    key = round(freq, 2)
+    if key not in _chanter:
+        wm = 69 + 12 * np.log2(freq / 440.0)
         best = min(abs(t[0] - wm) for t in _takes)
         near = [t for t in _takes if abs(t[0] - wm) <= best + 0.35]
         out = []
         for (m, f0, x, f) in near:
-            y = shift(x, want / f0)
+            y = shift(x, freq / f0)
             out.append(y[int(0.3 * SR):len(y) - int(0.25 * SR)])
-            print("  chanter %-4s %-22s %.1f Hz -> %.1f Hz (%+.0f cents)" % (
-                [k for k, v in NAMES.items() if v == (written + TRANSPOSE) % 12][0], f, f0, want, 1200 * np.log2(want / f0)))
-        _chanter[written] = out
-    return _chanter[written]
+        _chanter[key] = (out, 1200 * np.log2(freq / near[0][1]))
+    return _chanter[key][0]
 
 
-def drone_loop(fname, period, n_loop):
-    """A seamless loop of n_loop samples (a whole number of cycles of `period` samples) from a drone recording,
-    retuned to SR / period (the recorded G drones down to E)."""
+_drones = {}
+
+
+def drone_loop(fname, freq, cycles):
+    """A seamless loop of `cycles` cycles of a drone recording retuned to freq (the recorded G drones to the tonic)."""
+    k = (fname, round(freq, 3))
+    if k in _drones:
+        return _drones[k]
     x = load(os.path.join(SRC, "freepats_bagpipe", fname))
     f0 = pitch_of(x, 60, 300)
-    want = SR / period
-    expect = int(round(n_loop * want / f0))       # the loop's length before retuning
+    expect = int(round(cycles * SR / f0))
     a = int(0.25 * SR)
     xf = int(0.08 * SR)
     ref = x[a:a + xf]
     best, bk = -1e9, expect
-    for k in range(expect - 300, expect + 301):
-        if a + k + xf >= len(x):
+    for kk in range(expect - 300, expect + 301):
+        if a + kk + xf >= len(x):
             break
-        c = np.dot(ref, x[a + k:a + k + xf]) / (np.linalg.norm(x[a + k:a + k + xf]) + 1e-9)
+        c = np.dot(ref, x[a + kk:a + kk + xf]) / (np.linalg.norm(x[a + kk:a + kk + xf]) + 1e-9)
         if c > best:
-            best, bk = c, k
+            best, bk = c, kk
     seg = x[a:a + bk + xf].copy()
     lo = seg[:bk].copy()
     w = np.linspace(0, 1, xf)
     lo[:xf] = seg[bk:bk + xf] * np.cos(w * np.pi / 2) + seg[:xf] * np.sin(w * np.pi / 2)
+    n_loop = int(round(cycles * SR / freq))
     out = soxr.resample(lo, SR, SR * n_loop / bk, quality="VHQ")[:n_loop]
     if len(out) < n_loop:
         out = np.pad(out, (0, n_loop - len(out)), mode="edge")
-    print("  drone %s %.2f Hz -> %.2f Hz (%.2f semitones), loop %d samples (%.0f cycles)" % (
-        fname, f0, want, 12 * np.log2(want / f0), n_loop, n_loop / period))
+    _drones[k] = out
     return out
 
 
-def chanter_line(notes, gl, crossfade_ms=6, wobble=4):
-    """One chanter playing `notes` [(t, written midi, [graces])] as one unbroken sound: each note runs until the
-    next begins (a finger change: a short crossfade), the gracenotes just before the beat, taking their time from the
-    note before."""
-    tr = Loop()
+def graces_scotland(tu, i, solo):
+    """band-music-v2's gracenotes for Scotland the Brave (written in D: D4 = the pipes' low A)."""
+    G_, D_, E_, LG = midi_of("C#5"), midi_of("G4"), midi_of("A4"), midi_of("C#4")
+    DOUBLING = {midi_of("D4"): [G_, midi_of("D4"), D_], midi_of("E4"): [G_, midi_of("E4"), D_],
+                midi_of("F#4"): [G_, midi_of("F#4"), D_], midi_of("G4"): [G_, midi_of("G4"), E_],
+                midi_of("A4"): [G_, midi_of("A4"), midi_of("B4")], midi_of("B4"): [G_, midi_of("B4"), G_],
+                midi_of("C#5"): [midi_of("D5"), midi_of("C#5"), midi_of("D5")], midi_of("D5"): [G_],
+                midi_of("D#5"): [], midi_of("E5"): [midi_of("F#5")], midi_of("F#5"): [midi_of("D5")]}
+
+    def single(n):
+        if n <= midi_of("B4"):
+            return [G_]
+        return {midi_of("C#5"): [midi_of("D5")], midi_of("D5"): [G_], midi_of("E5"): [midi_of("F#5")],
+                midi_of("F#5"): [midi_of("D5")]}.get(n, [])
+    t, d, n, st, _ = tu.ev[i]
+    prev = tu.ev[i - 1][2]
+    on_beat = abs(t / 4 - round(t / 4)) < 1e-6
+    long_ = d >= 4 - 1e-6
+    rep = prev == n
+    if not solo:
+        return single(n) if (rep or (long_ and on_beat)) else []
+    if rep and n <= midi_of("A4"):
+        return [LG, D_, LG] if n != midi_of("G4") else [LG, E_, LG]
+    if rep:
+        return single(n)
+    if long_ and on_beat:
+        return DOUBLING.get(n, single(n))
+    if d >= 3 - 1e-6 or on_beat:
+        return single(n)
+    if n < prev and n <= midi_of("E4"):
+        return [E_]
+    return []
+
+
+def graces(tu, i, solo):
+    """The pipe gracenotes before note i, as a piper ornaments a tune: a high gracenote (the "high G": the mode's
+    note just under the tune's top) on long notes on the beat and on repeated notes, doublings and grips in the solo.
+    The tune's top notes take the note above (or a strike from below at the very top)."""
+    if tu.id == "scotland":
+        return graces_scotland(tu, i, solo)
+    t, d, n, st, _ = tu.ev[i]
+    if i == 0:
+        return [tu.step(tu.hi, -1)] if n < tu.step(tu.hi, -1) else []
+    prev = tu.ev[i - 1][2]
+    on_beat = abs(t / tu.beat_six - round(t / tu.beat_six)) < 1e-6
+    long_ = d >= 4 - 1e-6
+    rep = prev == n
+    hig = tu.step(tu.hi, -1)                       # the "high G" gracenote
+
+    def single(m):
+        if m < hig:
+            return [hig]
+        if m == hig:
+            return [tu.hi]
+        return [tu.step(m, -2)]                    # the top note: a strike from under it
+    low = tu.lo
+    mid = tu.step(low, 3)
+    if not solo:
+        return single(n) if (rep or (long_ and on_beat)) else []
+    if rep and n <= mid:
+        return [low, mid if n != mid else tu.step(low, 4), low]       # a grip between repeated low notes
+    if rep:
+        return single(n)
+    if long_ and on_beat:
+        if n < hig:
+            return [hig, n, tu.step(n, 2) if tu.step(n, 2) < hig else tu.step(n, 1)]    # a doubling
+        return single(n)
+    if d >= 3 - 1e-6 or on_beat:
+        return single(n)
+    if n < prev and n <= tu.step(low, 1):
+        return [tu.step(low, 4)]                   # stepping down to the bottom: the "E" gracenote
+    return []
+
+
+def chanter_line(tu, notes, gl, end_t, crossfade_ms=6, wobble=4):
+    """One chanter playing `notes` [(t s, written midi, [graces])] as one unbroken sound: each note runs until the
+    next begins (a finger change: a short crossfade), the last one until end_t; gracenotes just before the beat."""
+    tr = Buf(tu.N)
     xf = int(crossfade_ms / 1000 * SR)
     take_i = {}
     segs = []
@@ -359,49 +660,74 @@ def chanter_line(notes, gl, crossfade_ms=6, wobble=4):
         segs.append((t, n))
     segs.sort(key=lambda s: s[0])
     for i, (t, n) in enumerate(segs):
-        nxt = segs[(i + 1) % len(segs)][0] + (L / SR if i + 1 == len(segs) else 0)
+        last = i + 1 == len(segs)
+        nxt = end_t if last else segs[i + 1][0]
         d = nxt - t
-        takes = chanter(n)
-        take = takes[take_i.get(n, 0) % len(takes)]
-        take_i[n] = take_i.get(n, 0) + 1
-        n_s = int(round(d * SR)) + xf
+        f = tu.freq(n)
+        takes = chanter(f)
+        take = takes[take_i.get(f, 0) % len(takes)]
+        take_i[f] = take_i.get(f, 0) + 1
+        fo = int(0.09 * SR) if last else xf
+        n_s = int(round(d * SR)) + (0 if last else xf)
         off = int(rng.uniform(0, max(1, len(take) - n_s - 1)))
         s = take[off:off + n_s]
-        if len(s) < n_s:                                 # (a note longer than the take: loop its steady part)
+        if len(s) < n_s:
             s = np.resize(take[len(take) // 4:], n_s)
-        tr.add(s * fades(n_s, xf, xf), t - xf / 2 / SR)
+        tr.add(s * fades(n_s, xf, min(fo, n_s)), t - xf / 2 / SR)
     return tr.y
 
 
-def render_pipes(solo):
-    gl = 0.028 if solo else 0.032        # a gracenote's length (s)
-    lead = [(t, n, graces(i, solo)) for i, (t, d, n, st, b) in enumerate(TUNE_EV)]
-    chan = chanter_line(lead, gl)
-    chan = chan / np.sqrt(np.mean(chan ** 2))
+def render_pipes(tu, solo):
+    gl = 0.028 if solo else 0.032
+    t0 = tu.roll_s
+    ev = tu.ev
+    end_t = t0 + tu.t(ev[-1][0] + ev[-1][1])
+    # the strike-in: the chanter on the fifth for the last beat before the tune's first note
+    first = t0 + tu.t(ev[0][0])
+    fifth = tu.step(tu.tonic_w, 4) if tu.step(tu.tonic_w, 4) >= tu.lo else tu.step(tu.tonic_w + 12, 4)
+    strike = [(first - tu.t(tu.beat_six), fifth, [tu.step(tu.hi, -1)] if fifth < tu.step(tu.hi, -1) else [])]
+    lead = strike + [(t0 + tu.t(t), n, graces(tu, i, solo)) for i, (t, d, n, st, b) in enumerate(ev)]
+    chan = chanter_line(tu, lead, gl, end_t)
+    chan = chan / np.sqrt(np.mean(chan[chan != 0] ** 2))
     mix = (1.0 if solo else 0.75) * chan
     if solo:
-        # the second pipes in unison (another take, a few ms behind, plainer), resting in Part B as the score has it
-        sec = [(t + 0.008, n, graces(i, False)) for i, (t, d, n, st, b) in enumerate(TUNE_EV)]
-        s2 = chanter_line(sec, 0.032, wobble=6)
-        b0, b1 = 8 * 4 * BEAT, 12 * 4 * BEAT
-        tt = np.arange(L) / SR
-        gate = np.where((tt >= b0) & (tt < b1), 0.0, 1.0)
+        # the second pipe in unison (another take, a few ms behind, plainer); in Scotland it rests in Part B
+        sec = strike + [(t0 + tu.t(t) + 0.008, n, graces(tu, i, False)) for i, (t, d, n, st, b) in enumerate(ev)]
+        s2 = chanter_line(tu, sec, 0.032, end_t, wobble=6)
+        tt = np.arange(tu.N) / SR
+        gate = np.ones(tu.N)
+        for b in tu.second_rest:
+            gate[(tt >= t0 + tu.t(b * tu.grid)) & (tt < t0 + tu.t((b + 1) * tu.grid))] = 0.0
         gate = np.convolve(gate, np.ones(int(0.04 * SR)) / int(0.04 * SR), mode="same")
-        mix += 0.42 * s2 / np.sqrt(np.mean(s2 ** 2)) * gate
-        # the score's lower voice, quietly: half notes
-        low = []
-        for bi, b in enumerate(FORM):
-            for k, nm in enumerate(LOWER[b].split()):
-                low.append((bi * 4 * BEAT + k * 2 * BEAT, midi_of(nm), [G_] if k == 0 else []))
-        s3 = chanter_line(low, 0.03, wobble=5)
-        mix += 0.3 * s3 / np.sqrt(np.mean(s3 ** 2))
-    # the drones: the recorded G drones moved down three semitones to E (E3 and E2), whole cycles in the loop
-    t3 = np.tile(drone_loop("drone_G3_3.wav", DRONE_P / 2, L // 10), 10)
-    t2 = np.tile(drone_loop("drone_G2_1.wav", DRONE_P, L // 20), 20)
-    drones = 0.55 * t3 / np.sqrt(np.mean(t3 ** 2)) + 0.5 * t2 / np.sqrt(np.mean(t2 ** 2))
-    mix = mix + (0.42 if solo else 0.5) * drones
-    mix = peq(mix, 2800, 1.5 if solo else -1.5, 0.8)
-    return circ_conv(mix, room(1.2, 0.18, 7000, 3)) * 0.22 + mix
+        mix += 0.42 * s2 / np.sqrt(np.mean(s2[s2 != 0] ** 2)) * gate
+        if tu.lower:
+            low = []
+            for bi, b in enumerate(tu.form):
+                for k, nm in enumerate(tu.lower[b].split()):
+                    low.append((t0 + tu.t(bi * 16 + k * 8), midi_of(nm), [midi_of("C#5")] if k == 0 else []))
+            s3 = chanter_line(tu, low, 0.03, end_t, wobble=5)
+            mix += 0.3 * s3 / np.sqrt(np.mean(s3[s3 != 0] ** 2))
+    # the drones (the recorded G drones moved to the tonic: two octaves and one octave under it), struck in at the
+    # second half of the roll-off, dying with the last note
+    f1 = tu.tonic_hz / 2
+    while f1 > 240:
+        f1 /= 2
+    t3 = drone_loop("drone_G3_3.wav", f1, 400)
+    t2 = drone_loop("drone_G2_1.wav", f1 / 2, 200)
+    dr = np.zeros(tu.N)
+    for x, g in ((t3, 0.55), (t2, 0.5)):
+        dr += g * np.resize(x, tu.N) / np.sqrt(np.mean(x ** 2))
+    on = int(max(0.0, first - tu.t(tu.beat_six) - min(1.4, t0 * 0.5)) * SR)
+    off = int(end_t * SR)
+    env = np.zeros(tu.N)
+    a = int(0.25 * SR)
+    env[on:on + a] = np.linspace(0, 1, a) ** 2
+    env[on + a:off] = 1.0
+    r = int(0.22 * SR)
+    env[off:off + r] = np.linspace(1, 0, len(env[off:off + r]))
+    mix = mix + (0.42 if solo else 0.35) * dr * env     # (the background part's drones further back: they cover the fife)
+    mix = peq(mix, 2800, 1.5, 0.8) if solo else peq(mix, 3300, -4.0, 0.7)     # (background: the top back, the snare's room)
+    return conv(mix, room(1.2, 0.18, 7000, 3)) * 0.22 + mix
 
 
 # ------------------------------------------------------------------ fife
@@ -424,23 +750,17 @@ def recorder():
     return _rec
 
 
-def fife_note(freq):
-    """The nearest recorder note retuned to freq."""
-    rec = recorder()
-    midi = 69 + 12 * np.log2(freq / 440.0)
-    k = min(rec, key=lambda m: abs(m - midi))
-    x, f0 = rec[k]
-    return shift(x[:int(4.0 * SR)], freq / f0)
-
-
 _fife_cache = {}
 
 
 def fife_tone(freq):
     key = round(freq, 2)
     if key not in _fife_cache:
-        y = fife_note(freq)
-        # the fife's edge: a touch of saturation (upper harmonics) and a brighter top
+        rec = recorder()
+        midi = 69 + 12 * np.log2(freq / 440.0)
+        k = min(rec, key=lambda m: abs(m - midi))
+        x, f0 = rec[k]
+        y = shift(x[:int(4.0 * SR)], freq / f0)
         y = y / (np.abs(y).max() + 1e-9)
         y = np.tanh(2.2 * y) / np.tanh(2.2) * 0.7 + y * 0.3
         y = peq(y, 3500, 4.0, 0.9)
@@ -454,53 +774,62 @@ def breath(n, level):
     return b * level
 
 
-ORDER = sorted(set(midi_of(n) for n in ["C#4", "D4", "E4", "F#4", "G4", "A4", "B4", "C#5", "D5", "D#5", "E5", "F#5"]))
-
-
-def render_fife(solo):
-    tr = Loop()
-    for i, (t, d, n, st, b) in enumerate(TUNE_EV):
-        t += jit(5)
-        f = 2 * freq_of(n)
+def render_fife(tu, solo):
+    tr = Buf(tu.N)
+    t0 = tu.roll_s
+    air = tu.kind == "air"
+    order = tu.scale_notes()
+    for i, (ts, ds, n, st, b) in enumerate(tu.ev):
+        t = t0 + tu.t(ts) + jit(5)
+        d = tu.t(ds)
+        f = 2 * tu.freq(n)
         tone = fife_tone(f)
         vel = (0.92 + 0.12 * rng.random()) * (1.0 if solo else 0.85)
-        dur = d * (0.93 if solo else 0.82)          # tongued: a little gap between notes (more when plain)
+        dur = d * ((0.97 if air else 0.93) if solo else (0.95 if air else 0.82))
         if st:
-            dur = d * 0.5                           # the score's staccato quarters (bar 12)
-        # ornaments (solo): a cut (the note above, very short) where the pipes have gracenotes; a roll on long notes
+            dur = d * 0.5
         orn = []
-        gr = graces(i, True)
-        k = ORDER.index(n)
-        if solo and gr and n != TUNE_EV[i - 1][2] or (solo and d >= 4 * EIGHTH - 1e-6):
-            up = ORDER[min(k + 1, len(ORDER) - 1)]
-            if d >= 2 * EIGHTH - 1e-6 and not st:
-                lo = ORDER[max(k - 1, 0)]
+        gr = graces(tu, i, True)
+        k = order.index(n)
+        long_ = ds >= 4 - 1e-6
+        if solo and (gr and (i == 0 or n != tu.ev[i - 1][2]) or ds >= 8 - 1e-6):
+            up = order[min(k + 1, len(order) - 1)]
+            if long_ and not st:
+                lo = order[max(k - 1, 0)]
                 orn = [(up, 0.035), (n, 0.04), (lo, 0.035)]     # a roll (turn) into the long note
             else:
                 orn = [(up, 0.032)]                              # a cut
         elif solo and gr:
-            orn = [(ORDER[min(k + 1, len(ORDER) - 1)], 0.03)]    # a cut between repeated notes
+            orn = [(order[min(k + 1, len(order) - 1)], 0.03)]
+        elif air and not solo and long_ and gr:
+            orn = [(order[min(k + 1, len(order) - 1)], 0.04)]   # the air: a cut on the long notes even when plain
         ot = t - sum(o[1] for o in orn)
         for (on, od) in orn:
-            ft = fife_tone(2 * freq_of(on))
+            ft = fife_tone(2 * tu.freq(on))
             ns = int(od * SR) + int(0.004 * SR)
             seg = ft[int(0.15 * SR):int(0.15 * SR) + ns] * fades(ns, int(0.003 * SR), int(0.004 * SR))
             tr.add(seg * vel * 0.8, ot)
             ot += od
         ns = int(dur * SR)
-        start = int(0.12 * SR) if orn else 0          # after an ornament the note is slurred, not tongued again
+        start = int(0.12 * SR) if orn else 0
         seg = tone[start:start + ns].copy()
-        if len(seg) < ns:
-            seg = np.pad(seg, (0, ns - len(seg)))
-        env = fades(ns, int(0.004 * SR) if orn else 0, int(0.025 * SR))
+        if len(seg) < ns:                                 # a note longer than the recording: loop its steady part
+            body = tone[int(0.5 * SR):int(3.5 * SR)]
+            seg = np.concatenate([seg, np.resize(body, ns - len(seg))])
+        env = fades(ns, int(0.004 * SR) if orn else 0, int(0.04 * SR) if air else int(0.025 * SR))
         a = int(0.05 * SR)
         if not orn:
-            env[:a] *= 1.0 + 0.35 * np.linspace(1, 0, a)    # tongued attack: a little accent and a puff of air
+            env[:a] *= 1.0 + (0.15 if air else 0.35) * np.linspace(1, 0, a)
+        if air and ns > SR // 2:                          # a slow air's long notes: a gentle vibrato in the swell
+            tt = np.arange(ns) / SR
+            env *= 1.0 + 0.06 * np.clip(tt - 0.4, 0, None) / max(0.4, tt[-1]) * np.sin(2 * np.pi * 5.2 * tt)
         bb = breath(ns, 0.035) * np.exp(-np.arange(ns) / (0.06 * SR))
         tr.add((seg * env + bb) * vel, t)
-    y = tr.y + breath(L, 0.006)                        # the player's breath under it all
+    on = int((t0 + tu.t(tu.ev[0][0]) - 0.3) * SR)
+    y = tr.y
+    y[on:] += breath(tu.N - on, 0.006)
     y = hp(y, 300)
-    return y + circ_conv(y, room(1.0, 0.15, 9000, 5)) * 0.25
+    return y + conv(y, room(1.0, 0.15, 9000, 5)) * 0.25
 
 
 # ------------------------------------------------------------------ drums
@@ -516,7 +845,6 @@ def layers(folder):
 class Kit:
     def __init__(self):
         sn = layers("Snare1")
-        # the marching snare: tuned up (tighter head), the boom cut, the crack and wires brought up, a short decay
         self.snare = []
         for x in sn:
             y = shift(x, 2 ** (2.5 / 12))
@@ -527,15 +855,18 @@ class Kit:
             t = np.arange(len(y)) / SR
             y *= np.where(t < 0.03, 1.0, np.exp(-(t - 0.03) / 0.10))
             self.snare.append(y[:int(0.7 * SR)])
-        self.rim = [shift(x, 2 ** (2 / 12))[:int(0.5 * SR)] for x in layers("SnareRest1")]
-        # the parade bass drum: the kick tuned down five semitones (a bigger shell), the beater softened (felt)
         self.bass = []
         for x in layers("KdrumL"):
             y = shift(x, 2 ** (-5 / 12))
             y = lp(y, 1400, 2)
             y = peq(y, 70, 3.0, 0.9)
             self.bass.append(y[:int(1.6 * SR)])
+        # the muffled bass of the slow air: a cloth on the head (duller, shorter)
+        self.muffled = [lp(x, 500, 2)[:int(0.9 * SR)] * np.exp(-np.arange(int(0.9 * SR)) / (0.25 * SR))[:len(x[:int(0.9 * SR)])]
+                        for x in self.bass]
         self.tenor = [peq(lp(shift(x, 2 ** (3 / 12)), 5000), 180, 3.0)[:int(1.4 * SR)] for x in layers("Tom4")]
+        # snares off (the slow air's soft rolls): the tenor drum's head, higher and shorter
+        self.soft = [lp(shift(x, 2 ** (7 / 12)), 3500)[:int(0.6 * SR)] for x in layers("Tom4")]
         self.crash = [hp(x, 400)[:int(5 * SR)] for x in layers("CrashL")]
         self.last = {}
 
@@ -561,123 +892,150 @@ def wire(vel):
     n = int(0.12 * SR)
     b = rng.standard_normal(n)
     b = lp(hp(b, 3000), 11000)
-    return b * np.exp(-np.arange(n) / (0.035 * SR)) * 0.09 * vel
+    return b * np.exp(-np.arange(n) / (0.035 * SR)) * 0.12 * vel
 
 
-# The snare score, after the reference score's pattern. One character a sixteenth (16 a bar):
-#   F flam accent   A accent   t tap (an eighth or a sixteenth)   g ghost   r rim click   D drag (a ruff) accent
-#   R a 5-stroke roll ending here   S a 7-stroke roll ending here   z a buzz roll from here, - it goes on   . rest
-# Part A bars: constant eighths, a flam on 1 and 3, a sixteenth pair or a drag at the bar's end; the last bar of each
-# 4-bar phrase: "flam eighth, flam eighth, rest". Part B (bars 9-10): quarter, quarter, eighth eighth, rest, flams on
-# 1 and on the first eighth of beat 3; bars 11-12: straight eighths.
-A1 = "F.t.t.t.F.t.t.tt"          # 8th 8th 8th 8th | flam 8th 8th 16 16
-A2 = "F.t.t.t.F.t.t.D."          # ... a drag into the next bar
-CAD = "F.t.F.t........."         # flam 8th, flam 8th, rest (the phrase's last bar)
-B1 = "F...t...F.t....."          # quarter, quarter, 8th 8th, rest
-B2 = "A.t.t.t.A.t.t.t."          # straight eighths
-SNARE_ON = [A1, A2, A1, CAD, A1, A2, A1, CAD, B1, B1, B2, B2, A1, A2, A1, CAD]
-# The solo: the same pattern, filled out the way a lead tip plays it (rolls into the accents, ghost notes between the
-# eighths, a buzz roll through Part B's rests, a 7-stroke roll into each new phrase).
-SNARE_SOLO = ["F.tgt.ttF.tgR.tt", "F.tgt.tgF.ttt.D.", "F.ttR.ttF.tgt.tt", "F.t.F.t.z-----S.",
-              "F.tgt.ttF.tgR.tt", "F.tgt.tgF.ttt.D.", "F.ttR.ttF.tgt.tt", "F.t.F.t.z-----S.",
-              "F...t.t.F.t.z---", "F...t.t.F.t.z-S.", "A.ttt.ttA.ttR.tt", "A.ttt.tgA.ttz-S.",
-              "F.tgt.ttF.tgR.tt", "F.tgt.tgF.ttt.D.", "F.ttR.ttF.tgt.tt", "F.t.F.t.z-----S."]
-# Bass: on 1 and 3 throughout; in Part B a grace (flam) into beat 1, accented. Per bar: sixteenth -> force.
-BASS_ON = {0: 0.78, 8: 0.6}
-BASS_B = {0: 0.9, 8: 0.6}
-BASS_SOLO_EXTRA = [{}, {14: 0.4}, {}, {4: 0.55}, {}, {14: 0.4}, {}, {4: 0.55},
-                   {12: 0.4}, {12: 0.4}, {}, {14: 0.45}, {}, {14: 0.4}, {}, {4: 0.55}]
-TENOR_SOLO = [{0: .7, 8: .55}, {0: .6, 6: .5, 8: .6}, {0: .7, 8: .55}, {0: .7, 4: .6},
-              {0: .7, 8: .55}, {0: .6, 6: .5, 8: .6}, {0: .7, 8: .55}, {0: .7, 4: .6},
-              {0: .8, 4: .5, 8: .7}, {0: .7, 4: .5, 8: .6}, {0: .7, 8: .55}, {0: .7, 4: .5, 8: .6, 12: .5},
-              {0: .7, 8: .55}, {0: .6, 6: .5, 8: .6}, {0: .7, 8: .55}, {0: .7, 4: .6}]
+_KIT = None
 
 
-def render_drums(solo):
-    kit = Kit()
-    sn, bd, tn, cy = Loop(), Loop(), Loop(), Loop()
-    six = BEAT / 4
-    score = SNARE_SOLO if solo else SNARE_ON
-    lvl = 1.0 if solo else 0.8
+def kit():
+    global _KIT
+    if _KIT is None:
+        _KIT = Kit()
+    _KIT.last = {}
+    return _KIT
+
+
+def play_snare(k, buf, s, t_of, six, lvl):
+    """The snare string s (one character a sixteenth) into buf; t_of(i) = the time of sixteenth i."""
     hand = [0]
 
-    def stroke(t, v, kind="snare"):
+    def stroke(t, v):
         v = float(np.clip(v * (1 + rng.normal(0, 0.05)), 0.03, 1.0))
         t += jit(3)
-        s = kit.hit(kind, v)
-        sn.add(s, t)
-        if kind == "snare":
-            sn.add(wire(v), t)
+        buf.add(k.hit("snare", v), t)
+        buf.add(wire(v), t)
         hand[0] ^= 1
 
-    for b, bar in enumerate(score):
-        assert len(bar) == 16, (b, bar)
-        t0 = b * 4 * BEAT
-        i = 0
-        while i < 16:
-            c = bar[i]
-            t = t0 + i * six
-            if c in "FADtgr":
-                v = {"F": 0.88, "A": 0.82, "D": 0.86, "t": 0.46, "g": 0.24, "r": 0.5}[c] * lvl
-                v *= 1.0 if hand[0] == 0 else 0.93          # the lead hand a touch stronger
-                if c == "F":
-                    stroke(t - 0.026, 0.22 * lvl)
-                if c == "D":
-                    stroke(t - 0.062, 0.26 * lvl)
-                    stroke(t - 0.040, 0.24 * lvl)
-                stroke(t, v, "rim" if c == "r" else "snare")
-            elif c in "RS":
-                strokes = 4 if c == "R" else 6
-                span = six if c == "R" else 2 * six
-                for k in range(strokes):
-                    vv = (0.30 + 0.22 * k / strokes) * lvl * (1.0 if k % 2 == 0 else 0.86)
-                    stroke(t - span + k * span / strokes, vv)
-                stroke(t, 0.84 * lvl)
-            elif c == "z":
-                j = i + 1
-                while j < 16 and bar[j] == "-":
-                    j += 1
-                end = t0 + j * six
-                n = int((end - t) / (BEAT / 12))
-                for k in range(n):
-                    tk = t + k * BEAT / 12
-                    vv = (0.30 + 0.28 * k / max(1, n)) * lvl * (1.0 if k % 2 == 0 else 0.88)
-                    stroke(tk, vv)
-                    stroke(tk + 0.012, vv * 0.38)           # the press: the stick buzzes on the head
-                    stroke(tk + 0.024, vv * 0.16)
-                i = j
-                continue
-            i += 1
-        part_b = 8 <= b < 12
-        for k, v in (BASS_B if part_b else BASS_ON).items():
-            tt = t0 + k * six + jit(3)
-            if part_b and k == 0:
-                bd.add(kit.hit("bass", 0.3 * lvl), tt - 0.03)        # the grace into beat 1
-            bd.add(kit.hit("bass", v * lvl * (1 + rng.normal(0, 0.04))), tt)
+    i = 0
+    n = len(s)
+    while i < n:
+        c = s[i]
+        t = t_of(i)
+        if c in "FADtg":
+            v = {"F": 0.88, "A": 0.82, "D": 0.86, "t": 0.46, "g": 0.24}[c] * lvl
+            v *= 1.0 if hand[0] == 0 else 0.93
+            if c == "F":
+                stroke(t - 0.026, 0.22 * lvl)
+            if c == "D":
+                stroke(t - 0.062, 0.26 * lvl)
+                stroke(t - 0.040, 0.24 * lvl)
+            stroke(t, v)
+        elif c in "RSN":
+            strokes, span = {"R": (4, 1), "S": (6, 2), "N": (8, 3)}[c]
+            span = span * six
+            for kk in range(strokes):
+                vv = (0.30 + 0.22 * kk / strokes) * lvl * (1.0 if kk % 2 == 0 else 0.86)
+                stroke(t - span + kk * span / strokes, vv)
+            stroke(t, 0.84 * lvl)
+        elif c == "z":
+            j = i + 1
+            while j < n and s[j] == "-":
+                j += 1
+            end = t_of(j)
+            step = 0.05                            # a buzz stroke every 50 ms, each pressed into the head
+            m = int((end - t) / step)
+            for kk in range(m):
+                tk = t + kk * step
+                vv = (0.26 + 0.34 * kk / max(1, m)) * lvl * (1.0 if kk % 2 == 0 else 0.88)
+                stroke(tk, vv)
+                stroke(tk + 0.012, vv * 0.38)
+                stroke(tk + 0.024, vv * 0.16)
+            i = j
+            continue
+        i += 1
+
+
+def render_drums(tu, solo):
+    k = kit()
+    sn, bd, tn, cy = Buf(tu.N), Buf(tu.N), Buf(tu.N), Buf(tu.N)
+    six = tu.six
+    lvl = 1.0 if solo else 0.8
+    t0 = tu.roll_s
+    nroll = ROLL_BARS[tu.id] * tu.grid
+    if tu.kind == "air":
+        return render_drums_air(tu, solo, k, t0)
+    roll, s, bass, tenor, cym = score_of(tu, solo)
+    whole = roll + s
+    play_snare(k, sn, whole, lambda i: (i - nroll) * six + t0, six, lvl)
+    # the roll-off's bass: on each roll's accent
+    for i, c in enumerate(roll):
+        if c == "A":
+            bd.add(k.hit("bass", 0.75 * lvl), (i - nroll) * six + t0 + jit(3))
+    for p, v in bass.items():
+        bd.add(k.hit("bass", v * lvl * (1 + rng.normal(0, 0.04))), t0 + p * six + jit(3))
+    for p, v in tenor.items():
+        tn.add(k.hit("tenor", v * (1 + rng.normal(0, 0.05))), t0 + p * six + jit(4))
+    for p in cym:
+        cy.add(k.hit("crash", 0.55) * 0.55, t0 + p * six + jit(2))
+    s_ = sn.y + conv(sn.y, room(0.6, 0.07, 9000, 11)) * 0.22
+    bdy = bd.y + conv(bd.y, room(2.0, 0.28, 2500, 12)) * 0.35
+    tny = tn.y + conv(tn.y, room(1.5, 0.2, 4000, 13)) * 0.3
+    return s_ + bdy * (0.9 if solo else 1.0) + tny * 0.55 + cy.y * 0.35
+
+
+def render_drums_air(tu, solo, k, t0):
+    """The slow air: no snare beating. A muffled bass drum on beat 1 of every bar (and softly on 3 in the solo), a soft
+    roll (snares off) swelling over the last two beats of each phrase into the next; the roll-off one soft roll."""
+    six = tu.six
+    bd, sf_ = Buf(tu.N), Buf(tu.N)
+    lvl = 1.0 if solo else 0.85
+
+    def soft_roll(a, b, v0, v1):
+        step = 0.055
+        m = int((b - a) / step)
+        for kk in range(m):
+            v = (v0 + (v1 - v0) * kk / max(1, m)) * lvl * (1.0 if kk % 2 == 0 else 0.85)
+            sf_.add(k.hit("soft", v), a + kk * step + jit(4))
+    first = t0 + tu.t(tu.ev[0][0])
+    soft_roll(0.05, first - 0.05, 0.12, 0.42)
+    bd.add(k.hit("muffled", 0.6 * lvl), first - tu.t(4) + jit(3))
+    for b in range(tu.n_bars):
+        bt = t0 + tu.t(b * tu.grid)
+        bd.add(k.hit("muffled", (0.7 if b % 4 == 0 else 0.55) * lvl), bt + jit(4))
         if solo:
-            for k, v in BASS_SOLO_EXTRA[b].items():
-                bd.add(kit.hit("bass", v * (1 + rng.normal(0, 0.04))), t0 + k * six + jit(3))
-            for k, v in TENOR_SOLO[b].items():
-                tn.add(kit.hit("tenor", v * (1 + rng.normal(0, 0.05))), t0 + k * six + jit(4))
-    if solo:
-        cy.add(kit.hit("crash", 0.45) * 0.5, 0.0 + jit(2))
-        cy.add(kit.hit("crash", 0.7) * 0.6, 8 * 4 * BEAT + jit(2))
-    s = sn.y
-    s = s + circ_conv(s, room(0.6, 0.07, 9000, 11)) * 0.22     # a small room: crisp, close
-    bdy = bd.y + circ_conv(bd.y, room(2.0, 0.28, 2500, 12)) * 0.35   # the bass drum in a big space
-    tny = tn.y + circ_conv(tn.y, room(1.5, 0.2, 4000, 13)) * 0.3
-    return s * 1.0 + bdy * (0.9 if solo else 1.0) + tny * 0.55 + cy.y * 0.35
+            bd.add(k.hit("muffled", 0.35), bt + tu.t(8) + jit(4))
+            if b % 2 == 1:
+                sf_.add(k.hit("soft", 0.3), bt + tu.t(12) + jit(4))
+        if b % 4 == 3 and b + 1 < tu.n_bars:
+            soft_roll(bt + tu.t(8), bt + tu.t(16) - 0.03, 0.12, 0.40 if solo else 0.32)
+    bdy = bd.y + conv(bd.y, room(2.0, 0.3, 2000, 12)) * 0.4
+    sfy = sf_.y + conv(sf_.y, room(1.4, 0.2, 4000, 13)) * 0.35
+    return bdy + sfy * 0.8
 
 
 # ------------------------------------------------------------------ levels and files
 
-def music_target():
-    """The game sounds' loudness (make_mix.py: the music's median loudness + music.gd VOL)."""
-    vals = []
-    for f in sorted(os.listdir(os.path.join(ROOT, "assets", "music"))):
-        if f.endswith(".ogg"):
-            vals.append(loud(decode(os.path.join(ROOT, "assets", "music", f)), 3.0))
-    return float(np.median(vals)) - 8.0
+def limit(y, ceil=0.97):
+    """A soft limiter with 3 ms look-ahead: the gain follows the peaks (down before them, ~60 ms back up), so a drum
+    stroke is turned down for a moment instead of being clipped."""
+    from scipy.ndimage import maximum_filter1d, minimum_filter1d
+    la = int(0.003 * SR)
+    pk = maximum_filter1d(np.abs(y), size=2 * la + 1)
+    want = np.minimum(1.0, ceil * 0.95 / np.maximum(pk, 1e-9))
+    g = minimum_filter1d(want, size=4 * la + 1)
+    b, a = signal.butter(1, 1.0 / (0.06 * SR * np.pi), "low")
+    g = np.minimum(g, signal.filtfilt(b, a, g))
+    return np.clip(y * g, -ceil, ceil)
+
+
+def level_to(y, target):
+    y = y * 10 ** ((target - lufs(y)) / 20)
+    if np.abs(y).max() > 0.97:
+        y = limit(y)
+        y = y * 10 ** ((target - lufs(y)) / 20)
+        y = np.clip(y, -0.985, 0.985)
+    return y
 
 
 def decode(path, sr=SR):
@@ -686,85 +1044,109 @@ def decode(path, sr=SR):
     return np.frombuffer(raw, dtype=np.float32).astype(float)
 
 
-def level(y, target):
-    y = y * 10 ** ((target - loud(y)) / 20)
-    pk = np.abs(y).max()
-    if pk > 0.97:                       # a soft limiter on the loudest peaks (drum hits)
-        y = np.tanh(y / 0.97 * 1.2) / np.tanh(1.2) * 0.97
-    return y
-
-
-def write_ogg(path, y, q=4):
+def write_ogg(path, y, q=3):
     subprocess.run(["ffmpeg", "-y", "-v", "quiet", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "-",
                     "-c:a", "libvorbis", "-q:a", str(q), path], input=y.astype(np.float32).tobytes(), check=True)
 
 
-def write_mp3(path, y, stereo=False):
+def write_mp3(path, y, stereo=False, rate="96k"):
     ch = 2 if stereo else 1
     pk = np.abs(y).max()
     if pk > 0.98:
         y = y * 0.98 / pk
     subprocess.run(["ffmpeg", "-y", "-v", "quiet", "-f", "f32le", "-ar", str(SR), "-ac", str(ch), "-i", "-",
-                    "-c:a", "libmp3lame", "-b:a", "128k", path], input=y.astype(np.float32).tobytes(), check=True)
+                    "-c:a", "libmp3lame", "-b:a", rate, path], input=y.astype(np.float32).tobytes(), check=True)
 
 
 def db(x):
     return 10 ** (x / 20)
 
 
+def prepare(tu):
+    """The file's timeline: the roll-off, the tune, a tail; N samples."""
+    tu.roll_s = ROLL_BARS[tu.id] * tu.grid * tu.six
+    end = tu.roll_s + tu.t(max(e[0] + e[1] for e in tu.ev))
+    tu.N = int(round((end + 0.9) * SR))
+    tu.length = tu.N / SR
+    # phrase ends (4 bars; the slow air and the anthem too): where the band may change tune early
+    # (at a phrase's pick-up, if it has one: the cut comes before the next phrase's first note)
+    tu.phrases = []
+    for b in range(4, tu.n_bars, 4):
+        at = b * tu.grid
+        pick = [e[0] for e in tu.ev if at - tu.pickup <= e[0] < at]
+        tu.phrases.append(round(tu.roll_s + tu.t(min(pick) if pick else at), 4))
+    return tu
+
+
+PARTS = ["drums", "fife", "pipes"]
+
+
 def main():
     docs = "--no-docs" not in sys.argv
     os.makedirs(OUT, exist_ok=True)
-    if "--docs-only" in sys.argv:              # the listening files from the loops already in assets/audio/band/
-        parts = {k: decode(os.path.join(OUT, k + ".ogg"))[:L] for k in
-                 ("pipes", "pipes_lead", "fife", "fife_lead", "drums", "drums_lead")}
-        listening(parts, None)
+    tunes = {k: prepare(v) for k, v in all_tunes().items()}
+    only = None
+    if "--only" in sys.argv:
+        only = sys.argv[sys.argv.index("--only") + 1].split(",")
+    if "--docs-only" in sys.argv:
+        listening(tunes)
         return
-    target = music_target()
-    print("the game sounds' loudness: %.1f dB" % target)
-    parts = {}
-    for name, fn in [("pipes", render_pipes), ("fife", render_fife), ("drums", render_drums)]:
-        for solo in (False, True):
-            print("rendering %s %s" % (name, "solo" if solo else "always-on"))
-            y = fn(solo)
-            # the always-on loop is the quieter, plainer one; the solo loop sits at the game sounds' loudness
-            y = level(y, target - (3.0 if not solo else 0.0))
-            key = name + ("_lead" if solo else "")
-            parts[key] = y
-            write_ogg(os.path.join(OUT, key + ".ogg"), y)
-            print("  %s.ogg: %.2f s, loudest %.1f dB, peak %.2f" % (key, len(y) / SR, loud(y), np.abs(y).max()))
+    meta = {}
+    for tid, tu in tunes.items():
+        meta[tid] = {"title": tu.title, "n": tu.N, "len": round(tu.length, 4), "roll": round(tu.roll_s, 4),
+                     "phrases": tu.phrases, "kind": tu.kind, "bpm": tu.bpm,
+                     "key": [k for k, v in NAMES.items() if v == (tu.tonic_w + tu.transpose) % 12][0]}
+        if only and tid not in only:
+            continue
+        print("%s: %d bars, %.2f s (roll-off %.2f s), %s" % (tu.title, tu.n_bars, tu.length, tu.roll_s, meta[tid]["key"]))
+        for name, fn in (("pipes", render_pipes), ("fife", render_fife), ("drums", render_drums)):
+            for solo in (False, True):
+                y = fn(tu, solo)[:tu.N]
+                tgt = (SOLO_LUFS if solo else ON_LUFS) + PART_LU[name]
+                if name == "drums" and tu.kind == "air":
+                    tgt += AIR_DRUMS_LU
+                y = level_to(y, tgt)
+                key = "%s_%s%s" % (tid, name, "_lead" if solo else "")
+                write_ogg(os.path.join(OUT, key + ".ogg"), y)
+                print("  %-26s %.3f s  %.1f LUFS  peak %.2f" % (key, len(y) / SR, lufs(y), np.abs(y).max()))
+    with open(os.path.join(ROOT, "tools", "audio", "band_repertoire.json"), "w") as fh:
+        json.dump(meta, fh, indent=1)
     if docs:
-        listening(parts, target)
+        listening(tunes)
 
 
 # ------------------------------------------------------------------ the owner's listening files
 
-QUIET, LEAD, UNDER = -15.0, -1.0, -19.0          # BandSound.QUIET_DB / LEAD_DB / UNDER_DB
+QUIET, LEAD, UNDER = -9.0, -3.0, -10.0           # BandSound.QUIET_DB / LEAD_DB / UNDER_DB
 MUSIC_VOL, DUCK, DUCK_SOLO = -8.0, -12.0, -16.0   # music.gd VOL, BandSound.DUCK_DB / DUCK_SOLO_DB (a band centred)
-MUSIC_SLIDER = 20 * np.log10(0.5)                # the Music bus at the MUSIC slider's default (0.5: -6 dB); SOUND 1.0 (0 dB)
-DUCK_RATE, FADE_RATE = 10.0, 60.0                 # dB a second: BandSound.DUCK_RATE (the music), FADE x 10 (the band)
+MUSIC_SLIDER = 20 * np.log10(0.5)
+DUCK_RATE, FADE_RATE = 10.0, 60.0
+OLD_QUIET, OLD_LEAD, OLD_UNDER = -15.0, -1.0, -19.0     # before band-repertoire
+LISTEN_GAIN = 3.0          # dB added to the listening files of the game's mix (04, 05), all alike
 
 
-def band(parts, lead="", have=("drums", "fife", "pipes"), base=0.0):
-    """One band as BandSound plays it: the lead's solo loop at LEAD_DB, the others' always-on loops under it."""
-    y = np.zeros(L)
-    for ins in have:
-        if ins == lead:
-            y += parts[ins + "_lead"] * db(LEAD + base)
-        else:
-            y += parts[ins] * db((UNDER if lead else QUIET) + base)
-    return y
+def load_parts(tunes):
+    out = {}
+    for tid in tunes:
+        for p in PARTS:
+            for suf in ("", "_lead"):
+                k = "%s_%s%s" % (tid, p, suf)
+                out[k] = decode(os.path.join(OUT, k + ".ogg"))[:tunes[tid].N]
+    return out
 
 
-def seconds(y, s, start=0.0):
-    """s seconds of a loop from `start` (wrapping)."""
-    i = int(start * SR) % L
-    n = int(s * SR)
-    return np.take(y, np.arange(i, i + n) % L)
+def seq(parts, tunes, order, part, start=0.0, secs=50.0, lead_from=None, lead_to=None, lead=False):
+    """A part playing a playlist from `start` s into the first tune: secs s of it."""
+    y = []
+    for tid in order:
+        y.append(parts["%s_%s%s" % (tid, part, "_lead" if lead else "")])
+    y = np.concatenate(y)
+    a = int(start * SR)
+    return y[a:a + int(secs * SR)]
 
 
 def fade_out(y, s=2.0):
-    n = int(s * SR)
+    n = min(len(y), int(s * SR))
     y = y.copy()
     y[-n:] *= np.linspace(1, 0, n)
     return y
@@ -782,139 +1164,118 @@ def music_bit(f, s, start=20.0):
     return mus
 
 
-def game_mix(mus, parts, state, duck0=0.0, band0=-80.0):
-    """BandSound's mix over time: state(t) -> (band on screen, the pipes soloing). The music at MUSIC_VOL and the
-    sliders' defaults (MUSIC_SLIDER) plus the duck
-    (moving to DUCK / DUCK_SOLO at DUCK_RATE dB a second while the band is heard, back to 0 when not); the band's
-    parts move to their levels at FADE_RATE dB a second (-80 = off). Worked out every 10 ms, smoothed in between."""
-    n = len(mus)
+def env_curve(n, points, rate):
+    """A level curve (dB) over n samples moving toward targets [(t, dB)] at `rate` dB a second."""
     k = 441
     steps = n // k + 1
-    duck, lv = duck0, {p: (band0 if p in ("drums", "fife", "pipes") else -80.0) for p in parts}
-    gm = np.zeros(steps)
-    gp = {p: np.zeros(steps) for p in parts}
-    dt = k / SR
+    out = np.zeros(steps)
+    cur = points[0][1]
+    j = 0
     for i in range(steps):
-        on, solo = state(i * dt)
-        want = {p: -80.0 for p in parts}
-        if on:
-            for ins in ("drums", "fife", "pipes"):
-                if solo and ins == "pipes":
-                    want["pipes_lead"] = LEAD
-                else:
-                    want[ins] = UNDER if solo else QUIET
-        dw = (DUCK_SOLO if solo else DUCK) if on else 0.0
-        duck += np.clip(dw - duck, -DUCK_RATE * dt, DUCK_RATE * dt)
-        for p in parts:
-            lv[p] += np.clip(want[p] - lv[p], -FADE_RATE * dt, FADE_RATE * dt)
-            gp[p][i] = db(lv[p]) if lv[p] > -79.0 else 0.0
-        gm[i] = db(MUSIC_VOL + MUSIC_SLIDER + duck)
-    x = np.arange(n) / k
-    y = mus * np.interp(x, np.arange(steps), gm)
-    for p in parts:
-        y += seconds(parts[p], n / SR) * np.interp(x, np.arange(steps), gp[p])
-    return y
+        t = i * k / SR
+        while j + 1 < len(points) and points[j + 1][0] <= t:
+            j += 1
+        want = points[j][1]
+        cur += np.clip(want - cur, -rate * k / SR, rate * k / SR)
+        out[i] = cur
+    return np.interp(np.arange(n) / k, np.arange(steps), db(out))
 
 
-def listening(parts, target):
+def listening(tunes):
     os.makedirs(DOCS, exist_ok=True)
     for f in os.listdir(DOCS):
-        if f.endswith(".mp3") and not f.startswith("09_PREVIOUS_"):
+        if f.endswith(".mp3"):
             os.remove(os.path.join(DOCS, f))
+    parts = load_parts(tunes)
     out = []
 
-    def put(name, y, stereo=False, what=""):
+    def put(name, y, what, stereo=False, game=False):
+        # to hear: a file of one scene at -18 LUFS; the game's mixes (04, 05) all by the same LISTEN_GAIN, so they
+        # compare with each other as the game plays them
+        y = y * db(LISTEN_GAIN) if game else y * db(-18.0 - lufs(y))
         write_mp3(os.path.join(DOCS, name + ".mp3"), y, stereo)
         out.append((name, what))
-        print("  docs/band_sound/%s.mp3" % name)
+        print("  docs/band_sound/%s.mp3 (%.0f KB)" % (name, os.path.getsize(os.path.join(DOCS, name + ".mp3")) / 1024))
 
     S = 45.0
-    # 1. each solo loop alone (the instrument by itself, at its solo level)
-    POSS = {"pipes": "the pipes'", "fife": "the fife's", "drums": "the drums'"}
-    for ins in ("pipes", "fife", "drums"):
-        put("01_%s_solo_alone" % ins, norm(fade_out(seconds(parts[ins + "_lead"], S))),
-            what="%s solo loop alone" % POSS[ins])
-    # 2. each always-on loop alone
-    for ins in ("pipes", "fife", "drums"):
-        put("02_%s_always_on_alone" % ins, norm(fade_out(seconds(parts[ins], S)), 0.6),
-            what="%s always-on loop alone (quieter and plainer)" % POSS[ins])
-    # 3. the full band, always-on (as heard in a match: all three at QUIET_DB)
-    put("03_full_band_always_on", norm(fade_out(seconds(band(parts), S)), 0.6),
-        what="all three playing along (the always-on loops together)")
-    # 4. the full band with each solo
-    for ins in ("pipes", "fife", "drums"):
-        put("04_full_band_%s_solo" % ins, norm(fade_out(seconds(band(parts, ins), S))),
-            what="all three, the %s soloing over the others" % ins)
-    # 5. smaller bands
-    put("05_drummer_and_piper", norm(fade_out(seconds(band(parts, have=("drums", "pipes")), S)), 0.6),
-        what="a band of Drummer + Piper, always-on")
-    put("05_drummer_and_fifer", norm(fade_out(seconds(band(parts, have=("drums", "fife")), S)), 0.6),
-        what="a band of Drummer + Fifer, always-on")
-    # 6. two bands at once on the one clock (left: a full band with the pipes soloing; right: a full band playing along)
-    a = band(parts, "pipes")
-    b = band(parts)
-    st = np.zeros((int(S * SR), 2))
-    st[:, 0] = seconds(a, S) * 0.85 + seconds(b, S) * 0.25
-    st[:, 1] = seconds(b, S) * 0.85 + seconds(a, S) * 0.25
-    st = norm(st)
-    n = int(2 * SR)
-    st[-n:] *= np.linspace(1, 0, n)[:, None]
-    put("06_two_bands_one_clock", st.reshape(-1), stereo=True,
-        what="two bands at once on the one clock (left a pipe solo, right playing along): they stay in step "
-             "(in a match BandSound plays only the band nearest the middle of the screen)")
-    # 7. over each faction's battle music, as the game mixes it NOW (band-music-v2): the band centred on the screen the
-    # whole file, so the music is ducked DUCK dB under the band playing along and DUCK_SOLO under the pipes' solo (the
-    # second half), moving at DUCK_RATE dB a second; 07b: the camera comes to the band for the middle third only.
-    for fac, f in [("crown", "crown_battle_7"), ("clockwork", "clock_battle_7"), ("brood", "brood_battle_7")]:
-        mus = music_bit(f, S)
-        half = S / 2
-        y = game_mix(mus, parts, lambda t: (True, t >= half), duck0=DUCK, band0=QUIET)
-        put("07_over_%s_battle_music" % fac, fade_out(y),
-            what="the band over the %s's battle music (%s.ogg) as the game mixes it now: the band centred on the "
-                 "screen, the music ducked %.0f dB under it, %.0f dB under the pipes' solo (from halfway)"
-                 % (fac, f, -DUCK, -DUCK_SOLO))
-    mus = music_bit("crown_battle_7", S)
-    y = game_mix(mus, parts, lambda t: (S / 3 <= t < 2 * S / 3, False), duck0=0.0, band0=-80.0)
-    put("07b_camera_comes_and_goes", fade_out(y),
-        what="the Crown's battle music; the camera comes to a band playing along for the middle third (15 s to 30 s) "
-             "and leaves: the music ducks %.0f dB in about %.1f s and comes back up the same way" % (-DUCK, -DUCK / DUCK_RATE))
-    for f in sorted(os.listdir(DOCS)):
-        if f.startswith("09_PREVIOUS_"):
-            out.append((f[:-4], "BEFORE (0.37.1, Scotland the Brave in G at 98, the music ducked only 2.5 / 6 dB): " + f[12:-4]))
-    # 8. the old sounds (the 4 s loops before this job), the same combinations
-    old = old_parts()
+    order = ["grenadiers", "scotland", "garryowen", "minstrel"]
+    # 1. each lone musician in the background (his always-on part at QUIET_DB), through a tune change
+    st = tunes["grenadiers"].length - 15.0
+    for p, who in (("drums", "drummer"), ("fife", "fifer"), ("pipes", "piper")):
+        y = seq(parts, tunes, order, p, st, S) * db(QUIET)
+        put("01_lone_%s_background" % who, fade_out(y),
+            "a lone %s playing along (his background part), the end of The British Grenadiers, the "
+            "roll-off and into Scotland the Brave" % who)
+    # 2. the full band playing along
+    y = sum(seq(parts, tunes, order, p, st, S) * db(QUIET) for p in PARTS)
+    put("02_full_band_background", fade_out(y), "the full band playing along: the end of The British Grenadiers, "
+        "the roll-off, Scotland the Brave")
+    # 3. a playlist run across two tune changes: Scotland's end -> Garry Owen -> The Minstrel Boy's beginning
+    st2 = tunes["grenadiers"].length + tunes["scotland"].length - 12.0
+    y = sum(seq(parts, tunes, order, p, st2, 60.0) * db(QUIET) for p in PARTS)
+    put("03_playlist_two_changes", fade_out(y), "the playlist across two tune changes: the end of Scotland the Brave, "
+        "the roll-off, all of Garry Owen, the roll-off, the start of The Minstrel Boy")
+    # 4. a solo over a tune with the game music under it (the band centred on the screen; the fife solos 15-30 s;
+    # the tune does not change: its fife part comes forward, the music goes down further)
+    for ins in ("fife", "drums", "pipes"):
+        mus = music_bit("crown_battle_7", S)
+        n = len(mus)
+        sol = lambda t, ins=ins: 15.0 <= t < 30.0
+        gm = env_curve(n, [(0, DUCK), (15, DUCK_SOLO), (30, DUCK)], DUCK_RATE) * db(MUSIC_VOL + MUSIC_SLIDER)
+        y = mus * gm
+        for p in PARTS:
+            a = seq(parts, tunes, ["grenadiers"], p, 0.0, S)
+            b = seq(parts, tunes, ["grenadiers"], p, 0.0, S, lead=True)
+            a = np.pad(a, (0, n - len(a)))
+            b = np.pad(b, (0, n - len(b)))
+            if p == ins:
+                y += a * env_curve(n, [(0, QUIET), (15, -80), (30, QUIET)], FADE_RATE)
+                y += b * env_curve(n, [(0, -80), (15, LEAD), (30, -80)], FADE_RATE)
+            else:
+                y += a * env_curve(n, [(0, QUIET), (15, UNDER), (30, QUIET)], FADE_RATE)
+        put("04_%s_solo_over_battle_music" % ins, fade_out(y),
+            "The British Grenadiers over the Crown's battle music, the band centred (the music ducked %d dB); the %s "
+            "SOLOS from 15 s to 30 s: the same tune, the %s's solo part forward and the music %d dB down, then back"
+            % (-DUCK, ins, ins, -DUCK_SOLO), game=True)
+    # 5. the same scene before and after the rebalance: the full band playing along over the battle music
+    old = {}
+    for k in ("drums", "fife", "pipes"):
+        p = os.path.join("/tmp", "old_band_%s.ogg" % k)
+        r = subprocess.run(["git", "-C", ROOT, "show", "%s:assets/audio/band/%s.ogg" % (OLD_REV, k)], capture_output=True)
+        if r.returncode == 0:
+            open(p, "wb").write(r.stdout)
+            old[k] = decode(p)
     if old:
-        n4 = len(old["drums"])
-        reps = int(np.ceil(S * SR / n4))
-        def oband(lead=""):
-            y = np.zeros(n4)
-            for ins in ("drums", "fife", "pipes"):
-                y += old[ins + ("_lead" if ins == lead else "")] * db(LEAD if ins == lead else (UNDER if lead else QUIET))
-            return np.tile(y, reps)[:int(S * SR)]
-        put("08_OLD_full_band_always_on", norm(fade_out(oband()), 0.6), what="BEFORE: the old 4 s loops, all three playing along")
-        put("08_OLD_full_band_pipes_solo", norm(fade_out(oband("pipes"))), what="BEFORE: the old loops, the pipes' solo")
-        put("08_OLD_full_band_fife_solo", norm(fade_out(oband("fife"))), what="BEFORE: the old loops, the fife's solo")
+        mus = music_bit("crown_battle_7", S)
+        n = len(mus)
+        bm = mus * db(MUSIC_VOL + MUSIC_SLIDER + DUCK)
+        yo = bm + sum(np.resize(old[p], n) * db(OLD_QUIET) for p in PARTS)
+        put("05a_BEFORE_full_band_over_battle_music", fade_out(yo),
+            "BEFORE (0.37.5): the full band playing along over the Crown's battle music: the drums and the fife barely heard",
+            game=True)
+        lone_d = mus * db(MUSIC_VOL + MUSIC_SLIDER + DUCK) + np.resize(old["drums"], n) * db(OLD_QUIET)
+        put("05b_BEFORE_lone_drummer_over_battle_music", fade_out(lone_d),
+            "BEFORE (0.37.5): a lone Drummer over the Crown's battle music: next to nothing", game=True)
+        yn = bm + sum(np.resize(parts["scotland_%s" % p], n) * db(QUIET) for p in PARTS)
+        put("05c_AFTER_full_band_over_battle_music", fade_out(yn),
+            "AFTER: the same scene now (Scotland the Brave): the snare and the fife's tune clear, the pipes a little back",
+            game=True)
+        lone_n = mus * db(MUSIC_VOL + MUSIC_SLIDER + DUCK) + np.resize(parts["scotland_drums"], n) * db(QUIET)
+        put("05d_AFTER_lone_drummer_over_battle_music", fade_out(lone_n),
+            "AFTER: a lone Drummer over the battle music: his background beating", game=True)
+    # 6. every tune, the full band with each solo once (a short taste of each)
+    for tid in ("grenadiers", "garryowen", "minstrel", "godsave"):
+        tu = tunes[tid]
+        n = tu.N
+        y = sum(parts["%s_%s" % (tid, p)] * db(QUIET) for p in PARTS)
+        put("06_%s_full_band" % tid, fade_out(y[:int(min(S + 15, tu.length) * SR)]),
+            "%s, the full band playing along (%s, %s)" % (tu.title, "%g a minute" % tu.bpm, tu.kind))
     with open(os.path.join(DOCS, "LIST.txt"), "w") as fh:
         for name, what in out:
             fh.write("%s.mp3  %s\n" % (name, what))
 
 
-def old_parts():
-    """The band's loops before this job (from git: the commit before band-music changed them)."""
-    out = {}
-    for k in ("drums", "drums_lead", "fife", "fife_lead", "pipes", "pipes_lead"):
-        r = subprocess.run(["git", "-C", ROOT, "show", "%s:assets/audio/band/%s.ogg" % (OLD_REV, k)], capture_output=True)
-        if r.returncode != 0:
-            return {}
-        p = os.path.join("/tmp", "old_band_%s.ogg" % k)
-        with open(p, "wb") as fh:
-            fh.write(r.stdout)
-        out[k] = decode(p)
-    n = min(len(v) for v in out.values())
-    return {k: v[:n] for k, v in out.items()}
-
-
-OLD_REV = "2b182020"     # main before band-music
+OLD_REV = "f015e851"     # main with band-music-v2 (0.37.5), before band-repertoire
 
 if __name__ == "__main__":
     main()

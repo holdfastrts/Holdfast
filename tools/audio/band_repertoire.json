@@ -1,0 +1,80 @@
+{
+ "grenadiers": {
+  "title": "The British Grenadiers",
+  "n": 1918350,
+  "len": 43.5,
+  "roll": 4.8,
+  "phrases": [
+   9.0,
+   13.8,
+   18.6,
+   23.4,
+   28.2,
+   33.0,
+   37.8
+  ],
+  "kind": "march",
+  "bpm": 100.0,
+  "key": "A"
+ },
+ "scotland": {
+  "title": "Scotland the Brave",
+  "n": 1771617,
+  "len": 40.1727,
+  "roll": 4.3636,
+  "phrases": [
+   13.0909,
+   21.8182,
+   30.5455
+  ],
+  "kind": "march",
+  "bpm": 110.0,
+  "key": "E"
+ },
+ "garryowen": {
+  "title": "Garry Owen",
+  "n": 1557029,
+  "len": 35.3068,
+  "roll": 2.0339,
+  "phrases": [
+   5.9322,
+   10.0,
+   14.0678,
+   18.1356,
+   22.2034,
+   26.2712,
+   30.339
+  ],
+  "kind": "quick",
+  "bpm": 118.0,
+  "key": "F#"
+ },
+ "minstrel": {
+  "title": "The Minstrel Boy",
+  "n": 2610090,
+  "len": 59.1857,
+  "roll": 3.4286,
+  "phrases": [
+   16.7143,
+   30.4286,
+   44.1429
+  ],
+  "kind": "air",
+  "bpm": 70.0,
+  "key": "G"
+ },
+ "godsave": {
+  "title": "God Save the King",
+  "n": 1803690,
+  "len": 40.9,
+  "roll": 5.0,
+  "phrases": [
+   15.0,
+   25.0,
+   35.0
+  ],
+  "kind": "anthem",
+  "bpm": 72.0,
+  "key": "G"
+ }
+}

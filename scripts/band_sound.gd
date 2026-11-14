@@ -1,42 +1,62 @@
 class_name BandSound
 extends Node
 ## THE MARCHING BAND's SOUND ENGINE (job band-v2, docs/band_v2.md; WHO IS HEARD redone for individual musicians in
-## 0.37.0, docs/band_individuals.md). One node per match (made by the first musician that ticks: BandSound.need), its own
-## players on the SFX bus, so the shared sound player (Sfx) is left alone. The rules:
+## 0.37.0, docs/band_individuals.md; the REPERTOIRE and the PLAYLIST in band-repertoire, docs/band_music.md). One node
+## per match (made by the first musician that ticks: BandSound.need), its own players on the SFX bus, so the shared
+## sound player (Sfx) is left alone. The rules:
 ##  - EITHER THE NEAREST BAND OR THE NEAREST FEW LONE MUSICIANS are heard, never both: whichever is nearest the middle
 ##    of the screen (a solo first), on screen or just off it, seen by your side (Sfx.heard: no music through the fog).
-##  - A BAND plays IN STEP: its parts on one shared clock (the real time since the node was made, wrapped at the phrase),
-##    so they start together, and the music does not restart when the heard band changes.
-##  - LONE MUSICIANS play OUT OF STEP: each his own part, a little off the shared clock (his own offset: STEP_OFF), so
-##    two of them together sound like what they are, a cacophony; at most LONE_MAX of them (the nearest) at once, each
-##    at the quiet level, so it is never loud chaos.
-##  - The ALWAYS-ON playing is quiet (QUIET_DB); a SOLO is clearly heard (LEAD_DB) with the others under it
-##    (UNDER_DB). Further from the middle of the screen and zoomed out it is quieter; off past CUT px it is silent.
+##  - THE MUSICIANS GO THROUGH A PLAYLIST (owner's playtest 2026-11-14 13:18: "no single tune on loop"): one whole tune,
+##    then the next, linked by the drums' roll-off (each tune's files begin with it), never the same tune twice in a
+##    row. The list is ORDER, in turn; the situation only shapes it (next_tune): while the band's men are FIGHTING the
+##    slow air (The Minstrel Boy) is skipped, and if it is playing it stops at its next phrase end (TUNES "phrases",
+##    a quick fade) for a march or the quickstep; standing IDLE a while (IDLE_AIR s) the slow air may come next.
+##  - A BAND plays IN STEP: all bands share one playlist on one clock (`_band`), so their parts start together and the
+##    music does not restart when the heard band changes.
+##  - LONE MUSICIANS play OUT OF STEP: each has his own playlist (`_lone_pl`), started a little off the band's clock
+##    (STEP_OFF), so two of them together sound like what they are; at most LONE_MAX of them (the nearest) at once,
+##    each at the quiet level, so it is never loud chaos. Each plays his own part of whatever tune his playlist is on.
+##  - Every instrument has a BACKGROUND part (the always-on file: the Drummer a march beating, snare and bass) played at
+##    QUIET_DB, and a SOLO part of the same tune. A SOLO DOES NOT CHANGE THE TUNE: the soloist's part comes forward
+##    (LEAD_DB, his solo file at the same place in the same tune), the others stay under it (UNDER_DB) and the game
+##    music goes down further (DUCK_SOLO_DB); afterwards both come back smoothly (FADE, DUCK_RATE).
+##    Further from the middle of the screen and zoomed out it is quieter; off past CUT px it is silent.
 ##  - THE GAME MUSIC GIVES WAY TO THE BAND (band-music-v2, owner 2026-11-14: "if we are hovering our camera near the
 ##    band the game music has to drop down so the main piece is the band's music"): while a band (or lone musicians) is
 ##    heard the faction/battle music is ducked STRONGLY: DUCK_DB with the band in the middle of the screen, DUCK_SOLO_DB
 ##    during a heard solo, less the further from the middle (duck_for: none past 640 px) and a little more
-##    zoomed in (ZOOM_IN_DB); it moves DUCK_RATE dB a second (about 1.2 s down, 1.2-1.6 s back up when the camera
-##    leaves). An Amplify effect on the "Music" bus, so the players' MUSIC and SOUND volume sliders still set the
-##    balance; put back to 0 when the match ends.
-## THE MUSIC (jobs band-music and band-music-v2, docs/band_music.md): Scotland the Brave in E, 16 bars of 4/4 at 110
-## beats a minute (109.91: the loop is exactly 1,540,800 samples, a whole number of drone cycles), rendered from real
-## samples by tools/audio/make_band_music.py. New music: change PARTS (one file per part: the always-on loop and the
-## solo loop of each instrument) and PHRASE / BARS below (BPM follows); every file must be exactly PHRASE s long, in one
-## key and tempo. Nothing else.
+##    zoomed in (ZOOM_IN_DB); it moves DUCK_RATE dB a second. An Amplify effect on the "Music" bus, so the players'
+##    MUSIC and SOUND volume sliders still set the balance; put back to 0 when the match ends.
+## THE MUSIC (tools/audio/make_band_music.py renders it from real samples; docs/band_music.md): every file of a tune is
+## [the roll-off][the tune once][a short tail], all six of a tune exactly TUNES[t]["n"] samples long; every file levelled
+## by its integrated loudness (always-on -27 LUFS, solo -23, the pipes 1.5 LU back). New tunes: add them to TUNES (the
+## numbers the script prints in tools/audio/band_repertoire.json) and to ORDER. Nothing else.
 
-## One place for the band's files (res://assets/audio/<name>.ogg): instrument -> [always-on loop, solo loop].
-const PARTS := {
-	"drums": ["band/drums", "band/drums_lead"],
-	"fife": ["band/fife", "band/fife_lead"],
-	"pipes": ["band/pipes", "band/pipes_lead"],
+## The repertoire (traditional melodies; our own drum beatings): length in samples at 44.1 kHz, where the tune itself
+## starts after the roll-off (s), the phrase ends where it may be cut short (s), its kind.
+const TUNES := {
+	"grenadiers": {"title": "The British Grenadiers", "n": 1918350, "roll": 4.8, "kind": "march",
+		"phrases": [9.0, 13.8, 18.6, 23.4, 28.2, 33.0, 37.8]},
+	"scotland": {"title": "Scotland the Brave", "n": 1771617, "roll": 4.3636, "kind": "march",
+		"phrases": [13.0909, 21.8182, 30.5455]},
+	"garryowen": {"title": "Garry Owen", "n": 1557029, "roll": 2.0339, "kind": "quick",
+		"phrases": [5.9322, 10.0, 14.0678, 18.1356, 22.2034, 26.2712, 30.339]},
+	"minstrel": {"title": "The Minstrel Boy", "n": 2610090, "roll": 3.4286, "kind": "air",
+		"phrases": [16.7143, 30.4286, 44.1429]},
+	"godsave": {"title": "God Save the King", "n": 1803690, "roll": 5.0, "kind": "anthem",
+		"phrases": [15.0, 25.0, 35.0]},
 }
-const BARS := 16            # bars of 4/4 in one loop (Scotland the Brave: A A' B A')
-const PHRASE := 1540800.0 / 44100.0     # s: every loop's length (34.94 s = 1,540,800 samples at 44.1 kHz)
-const BPM := BARS * 4 * 60.0 / PHRASE   # the files' tempo (quarter notes a minute): 109.91 (the score: 110)
-const QUIET_DB := -15.0     # an instrument playing along (its +5%): quiet, under the fight
-const LEAD_DB := -1.0       # the instrument leading a SOLO: clearly heard
-const UNDER_DB := -19.0     # the others while one solos
+## The playlist, in turn (God Save the King is in the files, not in the list: an extra for later).
+const ORDER := ["grenadiers", "scotland", "garryowen", "minstrel"]
+## instrument -> [the background (always-on) file's part, the solo file's part]: res://assets/audio/band/<tune>_<part>.ogg
+const PARTS := {
+	"drums": ["drums", "drums_lead"],
+	"fife": ["fife", "fife_lead"],
+	"pipes": ["pipes", "pipes_lead"],
+}
+const QUIET_DB := -9.0      # an instrument playing along (its +5%): its background part (files at -27 LUFS)
+const LEAD_DB := -3.0       # the instrument leading a SOLO: its solo part (files at -23 LUFS), clearly forward
+const UNDER_DB := -10.0     # the others while one solos (the tune goes on as it was, a touch under)
 const CUT := 760.0          # screen px from the middle of the screen past which a band is not heard
 const NEAR := 160.0         # screen px within which it is at full level
 const ZOOM_OUT := 0.85      # zoomed out further than this: quieter (a band is small on the screen)
@@ -45,24 +65,45 @@ const DUCK_SOLO_DB := -16.0 # ... while its solo is heard
 const ZOOM_IN_DB := -2.0    # ... and up to this much more zoomed in (zoom 1 -> 2)
 const DUCK_RATE := 10.0     # dB a second the music's duck moves by (-12 dB in 1.2 s; smooth, no pumping)
 const FADE := 6.0           # dB a tenth of a second the levels move by (no clicks, no jumps)
+const CUT_FADE := 0.18      # s: a tune cut short at a phrase end fades out over this before the roll-off
 const SWITCH := 90.0        # px: another band (or lone group) must be this much nearer to take over (no flip-flopping)
 const LONE_MAX := 3         # lone musicians heard at once at most (the nearest)
-const STEP_OFF := [0.23, 0.41, 0.62, 0.79]      # s off the shared clock a lone musician plays (by his number): out of step
+const STEP_OFF := [0.23, 0.41, 0.62, 0.79]      # s off the band's clock a lone musician plays (by his number): out of step
+const IDLE_AIR := 30.0      # s standing still: the slow air may come next
+const FIGHT_FOR := 6.0      # s since a musician was last hit: still fighting
+const FIGHT_NEAR := 7.0     # tiles: an enemy this near the musicians = fighting
+const SR := 44100.0
+
+## One playlist: the tune it is on, when that tune started (ms, Time.get_ticks_msec), where it is cut short (s; -1
+## played to its end), the tune before, and what it knows of its men (fighting, still since).
+class Playlist:
+	var tune := "grenadiers"
+	var start := 0
+	var cut := -1.0
+	var prev := ""
+	var fighting := false
+	var still_since := 0
+	var where := Vector2.INF
+	var played := 0          # tunes played through (tests)
 
 static var me: BandSound
 
 var game: Game
 var focus: Unit = null       # the band heard now (its Drummer), or the nearest lone musician heard (null none)
 var heard: Array = []        # the musicians heard now
-var t0 := 0                  # the shared clock's start (ms)
-var _players := {}           # key -> AudioStreamPlayer (looping): a band's parts by file name, the lone slots "L<i>/a" (always-on) "L<i>/b" (solo)
+var t0 := 0                  # the band's clock's start (ms)
+var _band: Playlist          # every band's playlist (one: bands are in step with each other)
+var _lone_pl := {}           # musician instance id -> his own Playlist
+var _players := {}           # key -> AudioStreamPlayer: a band's parts "B/<ins>/a" (background) "B/<ins>/b" (solo), the lone slots "L<i>/a" "L<i>/b"
 var _target := {}            # key -> the level it is moving to (dB; -80 silent)
-var _off := {}               # key -> its offset from the shared clock (s; 0 for a band's parts)
+var _src := {}               # key -> [Playlist, instrument, solo?]: what the player plays
+var _off := {}               # key -> its offset from the band's clock (s; 0 for a band's parts)
 var _lone := []              # lone slot i -> [musician, instrument] (or null)
-var _streams := {}           # file -> its looping stream
+var _streams := {}           # file -> its stream (decoded once, shared)
 var _duck := 0.0
 var _duck_target := 0.0
 var _fx_idx := -1
+var _sit_t := 0              # ms: the situation was last looked at (once a second)
 
 
 ## The match's band sound, made on first use (MarchingBand.look_tick; host, online guest and replay alike).
@@ -80,13 +121,27 @@ static func need(g: Game) -> BandSound:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	t0 = Time.get_ticks_msec()
+	_band = Playlist.new()
+	_band.tune = ORDER[0]
+	_band.start = t0
+	_band.still_since = t0
 	for ins in PARTS:
-		for f in PARTS[ins]:
-			_add_player(f, _stream(f))
+		_add_player("B/%s/a" % ins)
+		_add_player("B/%s/b" % ins)
 	for i in LONE_MAX:
 		_lone.append(null)
-		_add_player("L%d/a" % i, null)
-		_add_player("L%d/b" % i, null)
+		_add_player("L%d/a" % i)
+		_add_player("L%d/b" % i)
+
+
+## The file of an instrument's part of a tune (res://assets/audio/<file>.ogg).
+static func file(tune: String, ins: String, solo: bool) -> String:
+	return "band/%s_%s" % [tune, PARTS[ins][1 if solo else 0]]
+
+
+## A tune's length (s).
+static func length(tune: String) -> float:
+	return float(TUNES[tune]["n"]) / SR
 
 
 func _stream(f: String) -> AudioStream:
@@ -97,20 +152,16 @@ func _stream(f: String) -> AudioStream:
 	if ResourceLoader.exists(path):
 		st = (load(path) as AudioStream).duplicate()
 		if st is AudioStreamOggVorbis:
-			(st as AudioStreamOggVorbis).loop = true
-		elif st is AudioStreamWAV:
-			(st as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
-			(st as AudioStreamWAV).loop_end = int(PHRASE * (st as AudioStreamWAV).mix_rate)
+			(st as AudioStreamOggVorbis).loop = false
 	_streams[f] = st
 	return st
 
 
-func _add_player(key: String, st: AudioStream) -> void:
+func _add_player(key: String) -> void:
 	var p := AudioStreamPlayer.new()
 	p.bus = "SFX" if AudioServer.get_bus_index("SFX") >= 0 else "Master"
 	if OS.has_feature("web"):
 		p.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
-	p.stream = st
 	p.volume_db = -80.0
 	add_child(p)
 	_players[key] = p
@@ -124,18 +175,119 @@ func _exit_tree() -> void:
 		me = null
 
 
-## Where the shared clock is in the phrase now (s); `off`: a lone musician's offset from it.
+# ---------------------------------------------------------------- the playlist
+
+## The tune after `cur`: the next in ORDER, never `cur` again; FIGHTING skips the slow air; standing IDLE a while
+## brings the slow air next (unless it was just played).
+static func next_tune(cur: String, fighting: bool, idle: bool, prev := "") -> String:
+	if idle and not fighting and cur != "minstrel" and prev != "minstrel" and ORDER.has("minstrel"):
+		return "minstrel"
+	var i := ORDER.find(cur)
+	for k in range(1, ORDER.size() + 1):
+		var c: String = ORDER[(i + k) % ORDER.size()] if i >= 0 else ORDER[(k - 1) % ORDER.size()]
+		if c == cur:
+			continue
+		if fighting and String(TUNES[c]["kind"]) == "air":
+			continue
+		return c
+	return ORDER[0] if cur != ORDER[0] else ORDER[1]
+
+
+## Where a playlist is in its tune now (s).
+func pos(pl: Playlist) -> float:
+	return float(Time.get_ticks_msec() - pl.start) / 1000.0
+
+
+## Where its tune ends (s): its length, or the phrase end it is cut short at.
+static func end_of(pl: Playlist) -> float:
+	return pl.cut if pl.cut > 0.0 else length(pl.tune)
+
+
+## Moves a playlist on: at its tune's end the next tune (next_tune, by what its men are doing). While they fight the
+## slow air is cut short at its next phrase end.
+func advance(pl: Playlist) -> void:
+	var idle := float(Time.get_ticks_msec() - pl.still_since) / 1000.0 >= IDLE_AIR
+	if pl.fighting and pl.cut < 0.0 and String(TUNES[pl.tune]["kind"]) == "air":
+		var p := pos(pl)
+		for ph in TUNES[pl.tune]["phrases"]:
+			if float(ph) > p + CUT_FADE + 0.05:
+				pl.cut = float(ph)
+				break
+	var guard := 0
+	while pos(pl) >= end_of(pl) and guard < 64:
+		pl.start += int(round(end_of(pl) * 1000.0))
+		var nx := next_tune(pl.tune, pl.fighting, idle, pl.prev)
+		pl.prev = pl.tune
+		pl.tune = nx
+		pl.cut = -1.0
+		pl.played += 1
+		guard += 1
+
+
+## dB to add for a playlist cut short: down to -60 over its last CUT_FADE s (no click at the phrase end).
+func env_db(pl: Playlist) -> float:
+	if pl.cut <= 0.0:
+		return 0.0
+	var left := pl.cut - pos(pl)
+	return 0.0 if left >= CUT_FADE else -60.0 * clampf(1.0 - left / CUT_FADE, 0.0, 1.0)
+
+
+## What the musicians `ms` are doing: hit lately, or an enemy near them = fighting; standing still since when.
+func look(pl: Playlist, ms: Array) -> void:
+	if ms.is_empty() or game == null:
+		return
+	var c := MarchingBand.centre(ms)
+	var now := Time.get_ticks_msec()
+	if pl.where == Vector2.INF or c.distance_to(pl.where) > 6.0:
+		pl.where = c
+		pl.still_since = now
+	var f := false
+	for m in ms:
+		if is_instance_valid(m) and game.clock - float((m as Unit).hit_clock) < FIGHT_FOR:
+			f = true
+	if not f:
+		var team := int((ms[0] as Unit).team)
+		for o in game.units_near(c, FIGHT_NEAR * Defs.TILE):
+			if o is Unit and not (o as Unit).dead and game.hostile((o as Unit).team, team):
+				f = true
+				break
+	pl.fighting = f
+
+
+## A lone musician's own playlist (made the first time he is heard: on the band's tune, a little off its clock).
+func lone_list(u: Unit) -> Playlist:
+	var k := u.get_instance_id()
+	if not _lone_pl.has(k):
+		var pl := Playlist.new()
+		pl.tune = _band.tune
+		pl.start = _band.start - int(offset_of(u) * 1000.0)
+		pl.prev = _band.prev
+		pl.still_since = Time.get_ticks_msec()
+		_lone_pl[k] = pl
+		if _lone_pl.size() > 64:        # (forget the long gone)
+			for kk in _lone_pl.keys():
+				if not is_instance_valid(instance_from_id(kk)):
+					_lone_pl.erase(kk)
+	return _lone_pl[k]
+
+
+## Where the band's clock is in its tune now (s); `off`: a lone musician's offset from it. (tests)
 func phase(off := 0.0) -> float:
-	return fmod(float(Time.get_ticks_msec() - t0) / 1000.0 + off, PHRASE)
+	return pos(_band) + off
 
 
-## A lone musician's offset from the shared clock (s): out of step, by his number.
+## A lone musician's offset from the band's clock (s): out of step, by his number.
 static func offset_of(u: Unit) -> float:
 	return float(STEP_OFF[int(u.band.get("id", 0)) % STEP_OFF.size()])
 
 
-## The level each player should play at now (all -80 when nothing is heard). Also the music duck. Lone slots are
-## (re)assigned to the musicians heard.
+## (tests) the band's playlist / a lone musician's.
+func band_list() -> Playlist:
+	return _band
+
+
+## The level each player should play at now (all -80 when nothing is heard), and what it plays (_src). Also the music
+## duck. Lone slots are (re)assigned to the musicians heard.
 func targets() -> Dictionary:
 	var out := {}
 	for k in _players:
@@ -143,13 +295,24 @@ func targets() -> Dictionary:
 	_duck_target = 0.0
 	heard = pick()
 	focus = heard[0] if not heard.is_empty() else null
+	var now := Time.get_ticks_msec()
+	var looking := now - _sit_t >= 1000
+	if looking:
+		_sit_t = now
+	if heard.is_empty() or not MarchingBand.in_band(heard[0]):
+		if looking:
+			_band.fighting = false
+			_band.still_since = now      # (idle means a band heard standing still, not a band nobody hears)
+			_band.where = Vector2.INF
 	if heard.is_empty():
 		for i in LONE_MAX:
 			_lone[i] = null
 		return out
 	var solo_on := false
 	if MarchingBand.in_band(heard[0]):
-		# the band: its parts in step
+		# the band: its parts in step, on the band's playlist
+		if looking:
+			look(_band, heard)
 		var lvl := level(MarchingBand.centre(heard))
 		if lvl <= -60.0:
 			return out
@@ -159,17 +322,18 @@ func targets() -> Dictionary:
 				ld = MarchingBand.lead(m)
 		for m in heard:
 			var ins := MarchingBand.ins_of(m)
-			var files: Array = PARTS[ins]
+			_src["B/%s/a" % ins] = [_band, ins, false]
+			_src["B/%s/b" % ins] = [_band, ins, true]
 			if ins == ld:
-				out[files[1]] = LEAD_DB + lvl
+				out["B/%s/b" % ins] = LEAD_DB + lvl
 			else:
-				out[files[0]] = (UNDER_DB if ld != "" else QUIET_DB) + lvl
+				out["B/%s/a" % ins] = (UNDER_DB if ld != "" else QUIET_DB) + lvl
 		solo_on = ld != ""
 		for i in LONE_MAX:
 			_lone[i] = null
 		_duck_target = duck_for(lvl, solo_on)
 		return out
-	# lone musicians: each his own part, off the shared clock
+	# lone musicians: each his own part, on his own playlist
 	var keep := {}
 	for i in LONE_MAX:
 		var sl = _lone[i]
@@ -188,14 +352,11 @@ func targets() -> Dictionary:
 		var lvl2 := level(m.position)
 		best_lvl = maxf(best_lvl, lvl2)
 		var ins2 := MarchingBand.ins_of(m)
-		var pa: AudioStreamPlayer = _players["L%d/a" % i]
-		var pb: AudioStreamPlayer = _players["L%d/b" % i]
-		var fa: AudioStream = _stream(String(PARTS[ins2][0]))
-		if pa.stream != fa:
-			pa.stop()
-			pa.stream = fa
-			pb.stop()
-			pb.stream = _stream(String(PARTS[ins2][1]))
+		var pl := lone_list(m)
+		if looking:
+			look(pl, [m])
+		_src["L%d/a" % i] = [pl, ins2, false]
+		_src["L%d/b" % i] = [pl, ins2, true]
 		_off["L%d/a" % i] = offset_of(m)
 		_off["L%d/b" % i] = offset_of(m)
 		if MarchingBand.lead(m) != "":
@@ -292,26 +453,43 @@ func _process(delta: float) -> void:
 		for f in _players:
 			_target[f] = -80.0
 		_duck_target = 0.0
+	advance(_band)
 	var step := FADE * delta * 10.0
 	var any := false
+	var moved := {}
 	for f in _players:
 		var p: AudioStreamPlayer = _players[f]
-		if p.stream == null:
-			continue
-		var ph := phase(float(_off.get(f, 0.0)))
 		var want := float(_target.get(f, -80.0))
 		var gain := Sfx.gain(p.stream)
 		var cur := p.volume_db - gain if p.playing else -80.0
-		var nv := move_toward(cur, want, step)
-		if nv <= -79.0:
+		var src = _src.get(f)
+		if src == null:
 			if p.playing:
 				p.stop()
 			continue
+		var pl: Playlist = src[0]
+		if not moved.has(pl):
+			advance(pl)
+			moved[pl] = true
+		var nv := move_toward(cur, want, step)
+		if nv <= -79.0 and want <= -79.0:
+			if p.playing:
+				p.stop()
+			continue
+		var st := _stream(file(pl.tune, String(src[1]), bool(src[2])))
+		if st == null:
+			continue
+		var ph := pos(pl)
+		if p.stream != st:
+			p.stop()
+			p.stream = st
 		any = true
-		p.volume_db = nv + gain
+		p.volume_db = nv + env_db(pl) + Sfx.gain(st)
+		if ph >= length(pl.tune) - 0.02:
+			continue                 # (the tune's last moment: the next one starts when the playlist moves on)
 		if not p.playing:
-			p.play(ph)               # (a band's parts on the shared clock; a lone musician on his own offset from it)
-		elif absf(p.get_playback_position() - ph) > 0.08 and absf(p.get_playback_position() - ph) < PHRASE - 0.08:
+			p.play(ph)               # (a band's parts on the band's clock; a lone musician on his own playlist)
+		elif absf(p.get_playback_position() - ph) > 0.08:
 			p.seek(ph)               # (drifted: back where it should be)
 	_duck = move_toward(_duck, _duck_target if any else 0.0, DUCK_RATE * delta)
 	_set_duck(_duck)
@@ -344,6 +522,15 @@ func levels() -> Dictionary:
 	return targets()
 
 
-## (tests) the offset from the shared clock each player plays at now.
+## (tests) the offset from the band's clock each player plays at now.
 func offsets() -> Dictionary:
 	return _off.duplicate()
+
+
+## (tests) the tune each player plays now ("" none).
+func tunes_now() -> Dictionary:
+	var out := {}
+	for k in _players:
+		var s = _src.get(k)
+		out[k] = (s[0] as Playlist).tune if s != null else ""
+	return out

@@ -312,7 +312,7 @@ func _run() -> void:
 	await process_frame
 	var bs := BandSound.need(g)
 	check("one BandSound a match", BandSound.need(g) == bs)
-	check("every part's file is listed in one place and exists", BandSound.PARTS.keys().all(func(k) -> bool: return (BandSound.PARTS[k] as Array).all(func(f) -> bool: return ResourceLoader.exists("res://assets/audio/%s.ogg" % f))))
+	check("every part's file of every tune is listed in one place and exists", BandSound.TUNES.keys().all(func(t) -> bool: return BandSound.PARTS.keys().all(func(k) -> bool: return [false, true].all(func(so) -> bool: return ResourceLoader.exists("res://assets/audio/%s.ogg" % BandSound.file(t, k, so))))))
 	var sd := man(g, "band", at + Vector2(0, 0))
 	var sf := man(g, "band_fifer", at + Vector2(24, 0))
 	var sp := man(g, "band_piper", at + Vector2(-24, 0))
@@ -330,7 +330,10 @@ func _run() -> void:
 			else:
 				band_on += 1
 	check("a band near the middle: the BAND is heard (its three parts, in step), no lone musician", band_on == 3 and lone_on == 0 and bs.heard.size() == 3, "%d band, %d lone %s" % [band_on, lone_on, str(lv)])
-	check("a band's parts on the shared clock (no offset)", BandSound.PARTS.keys().all(func(k) -> bool: return is_equal_approx(float(bs.offsets()[BandSound.PARTS[k][0]]), 0.0)))
+	check("a band's parts on the shared clock (no offset)", BandSound.PARTS.keys().all(func(k) -> bool: return is_equal_approx(float(bs.offsets()["B/%s/a" % k]), 0.0)))
+	var tn := bs.tunes_now()
+	var band_tune := bs.band_list().tune
+	check("... all three on the band's playlist, the same tune", ["drums", "fife", "pipes"].all(func(k) -> bool: return String(tn["B/%s/a" % k]) == band_tune), str(tn))
 	# THE GAME MUSIC GIVES WAY TO THE BAND (band-music-v2): ducked strongly while the band is centred, smoothly
 	if AudioServer.get_bus_index("Music") < 0:          # (the Music node makes the bus in a real game)
 		AudioServer.add_bus()
@@ -341,10 +344,16 @@ func _run() -> void:
 	dn = bs.duck_now()
 	check("... reached smoothly within 1.6 s (%.0f dB a second, no jump)" % BandSound.DUCK_RATE, absf(dn.x - dn.y) < 0.3, str(dn))
 	check("... on the Music bus (an Amplify effect: the volume sliders untouched)", music_duck() < -10.0, "%.1f dB" % music_duck())
+	var before := bs.levels()
+	var tune_before := bs.band_list().tune
 	sf.band_solo("fife")
 	await frames(2)
 	dn = bs.duck_now()
 	check("... more during a solo (%.0f dB)" % BandSound.DUCK_SOLO_DB, absf(dn.y - BandSound.DUCK_SOLO_DB) < 0.8, str(dn))
+	var during := bs.levels()
+	tn = bs.tunes_now()
+	check("a SOLO does not change the tune: the fife's solo part of the tune playing comes forward", bs.band_list().tune == tune_before and String(tn["B/fife/b"]) == tune_before and float(during["B/fife/b"]) > float(before["B/fife/a"]) + 4.0 and float(during["B/fife/a"]) < -79.0, "%s -> %s, %s" % [str(before), str(during), str(tn)])
+	check("... the others go on under it (the drums' and the pipes' background parts still heard)", float(during["B/drums/a"]) > -30.0 and float(during["B/pipes/a"]) > -30.0, str(during))
 	sf.band["se"] = 0.0
 	sf.band["cd"] = 0.0
 	cam.position = at + Vector2(360, 0)
@@ -390,6 +399,21 @@ func _run() -> void:
 		if float(lv[k]) > -79.0:
 			lone_on += 1
 	check("the cap: never more than %d lone musicians heard" % BandSound.LONE_MAX, lone_on <= BandSound.LONE_MAX, str(lone_on))
+	# a LONE DRUMMER plays his own background part (owner's playtest 2026-11-14: he used to be next to silent)
+	for u in g.units.duplicate():
+		if MarchingBand.is_musician(u) and not u.dead:
+			u.take_damage(99999.0, null, Entity.BLOW_RANGED)
+	await step(g, 0.5)
+	var ldr := man(g, "band", at)
+	ldr.visible = true
+	await step(g, 0.5)
+	lv = bs.levels()
+	tn = bs.tunes_now()
+	var dk := ""
+	for i in BandSound.LONE_MAX:
+		if float(lv.get("L%d/a" % i, -80.0)) > -79.0:
+			dk = "L%d/a" % i
+	check("a LONE DRUMMER is heard: his background beating, at the background level, on a tune of the list", dk != "" and absf(float(lv[dk]) - BandSound.QUIET_DB) < 0.5 and BandSound.ORDER.has(String(tn[dk])) and ResourceLoader.exists("res://assets/audio/%s.ogg" % BandSound.file(String(tn[dk]), "drums", false)), "%s %s" % [str(lv), str(tn)])
 	g.camera = cam0
 	cam.queue_free()
 
