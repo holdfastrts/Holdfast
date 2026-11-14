@@ -25,6 +25,7 @@
 
 ## Current work
 
+- VOICES FOR THE CAMPAIGN (owner, 2026-11-14 02:55: Chatterbox results "very impressive"): new lines in the King's voice are made on the owner's PC with tools/voice_clone/ (Chatterbox, MIT; his RTX 3060, Python 3.11 venv; run.bat, lines.txt "name | text", --pitch -1.5 deeper, --lang pt/es; references king_ref.wav / king_ref_b.wav from his ElevenLabs King). ElevenLabs only to DESIGN a new character's voice (a 10-20 s sample), then Chatterbox for all its lines. Voice rights: only designed voices, his own or consenting people's, or CC0/CC-BY datasets; never a real famous person's.
 - RANKED ONLINE, PROTOTYPE (owner, DECIDED 2026-11-13 01:04; job online-ranked, 0.34.0, docs/online_ranked.md): our
   server runs every ranked match (tools/server/match_server.gd, headless, both players guests via the relay with signed
   tickets: LadderTicket), Steam players only (SteamID64 = account; Identity: Steam via GodotSteam, not in the repo, or a
