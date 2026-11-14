@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.8", "items": [
+		"Replays: watching a replay paused, or right after a jump on the timeline, every unit the camera comes to now shows what it is really doing and the way it really faces. Before, a unit only took its picture while the replay ran with it on screen, so a jump left everyone standing in their first picture, facing south, until you pressed play (Raptors running at a wall stood about facing you). The owner's Mirewood replay was looked at closely: the Raptors there are all drawn (their olive bodies in the painted colours), seen from behind as they climb the ramp, where only the pink crest stands out against the moss. A new test (tools/test_replay_render.gd) watches recorded games of all three factions in every recording mode and checks that every unit on screen has its body drawn and its pose right (docs/replay_render.md).",
+	]},
 	{"v": "0.35.7", "items": [
 		"The game's name is now just TRIUMVIWAR (the subtitle \"Is All Lost?\" is gone), and its new home is https://triumviwar.github.io/ (the Android app Triumviwar.apk and the Windows program Triumviwar_windows.zip are there). On the web build your settings and saves start fresh, because the address changed; on a computer or phone they carry over.",
 	]},

@@ -7195,7 +7195,11 @@ func refresh_pose() -> void:
 	if dead or sprite == null or powered_down():
 		return
 	if kind == "horse":
-		modulate.a = 0.0 if _hidden_for_mount() else 1.0     # (the mounting strip draws it)
+		# (the mounting strip draws it; otherwise its own see-through look kept: a replay's greyed placeholder)
+		if _hidden_for_mount():
+			modulate.a = 0.0
+		elif modulate.a == 0.0:
+			modulate.a = 1.0
 	_set_anim(_anim_name(), false)
 	sprite.frame = clampi(frame_i, 0, maxi(sprite.hframes * sprite.vframes - 1, 0))
 	if _k_nb:
