@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.35.15", "items": [
+		"The Clockwork computer: its scouting Winder and its sentry at a walled ramp run from enemy workers that come for them (two Labourers used to kill them while they traded blows). Its army rushes enemy guns that have only a thin guard, everything at once with the Springers jumping in, instead of standing off under round shot and canister; guns that are too well guarded it steps back out of their reach (it used to stay inside it). Against the Crown, a push that has lost a lot but still clearly wins where it is finishes the job instead of pulling back.",
+	]},
 	{"v": "0.35.14", "items": [
 		"Watching a game: box select takes all the units of the side with the most in the box, a double click picks every one of that kind on screen, and each player's line shows income per minute, army value and workers (as in replays). The Spring Ballista's crew stand at its back in the north views. The Springer's screw is 30% smaller, the Pendulum drawn 30% bigger.",
 	]},
