@@ -130,7 +130,9 @@ the match into the result screen, where the band's sound engine is not running; 
 - `tools/test_marching_band.gd` (now 95 checks, all pass; new ones): a band's three parts on the band's playlist, the
   same tune; a SOLO does not change the tune (the fife's solo part of the tune playing comes forward, its background
   part off, the others still heard, the music -16 dB); a LONE DRUMMER is heard, his background beating at the
-  background level on a tune of the list. `test_marching_band_match.gd`, `test_files.gd`: pass.
+  background level on a tune of the list. `test_files.gd`: pass. `test_marching_band_match.gd` FAILS, on main
+  too (checked with main's band scripts): the Hard Crown computer trains no musicians at all in the match (v the Brood
+  it loses first; `vs:crown` 12 min, none either), so its band checks find nothing: an AI matter, not the sound.
 - Pitch (tools: the fife and the pipes' solo files, every note of every tune, at its middle): within 50 cents of the
   note, all but Garry Owen's top B where the tracker reads the octave (the spectrum shows the right note).
 
