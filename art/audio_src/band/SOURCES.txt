@@ -22,3 +22,10 @@ vcsl/               from the Versilian Community Sample Library (VCSL), converte
            Aerophones/Edge-blown Aerophones/Baroque Soprano Recorder (Sustain, Staccato): the nearest CC0 instrument to a
              fife found on GitHub (no CC0 fife or piccolo set was found; the owner's earlier real fife notes are in
              art/audio_src/fife/ and tools/audio/fife_sampler.py)
+
+USED (job band-music, 0.36.6; tools/audio/make_band_music.py, docs/band_music.md): the FreePats chanter notes and both
+drones (bagpipe_freepats/ is the same set as freepats_bagpipe/: the owner's WAVs in freepats_bagpipe/ were used), the
+MuldjordKit snare, rim, kick, floor tom and crash (muldjord_drums/, CC BY 4.0: credit kept in docs/audio_credits.md), and
+the VCSL Baroque Soprano Recorder's Sustain notes as the fife. The VCSL snares and bass drum are not used (the job
+brief picked the MuldjordKit, with its 56 snare layers). Not used: the owner's fife notes in art/audio_src/fife/notes/
+(cut from a band recording: the other fifes and the drums are in every note, see docs/band_music.md).

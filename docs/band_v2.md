@@ -111,6 +111,8 @@ remain the better fife).
 
 ## 4. A brief for the music job to come
 
+(DONE by the job band-music, 0.36.6: docs/band_music.md.)
+
 What the files must be (they replace assets/audio/band/*.ogg, named in BandSound.PARTS):
 
 - **Six loops**: for each instrument (drums, fife, pipes) an **always-on** loop (steady, plain, could play for minutes

@@ -418,7 +418,7 @@ const MARCHING_BAND := {
 	"join": 1.0,            # s between a loose musician's looks for a band to join (MarchingBand.musician_tick)
 	"leash": 224.0,         # px: with no orders it falls in behind the nearest moving soldier this close (7 tiles)
 	"gap": 56.0,            # px: how far behind the man it follows it keeps
-	"phrase": 4.0,          # s: the length of one phrase of its sound loop (assets/audio/band/; BandSound.PARTS)
+	"phrase": 39.18,        # s: the length of its sound loop (assets/audio/band/; BandSound.PHRASE is the one used)
 	"drums": {"who": "Drummer", "label": "Drums", "research": "", "lead": 0.30, "second": 0.05,
 		"stat_text": "movement speed", "col": Color(0.95, 0.35, 0.3), "solo_title": "Drum solo"},
 	"pipes": {"who": "Piper", "label": "Pipes", "research": "band_pipes", "unit": "band_piper", "lead": 0.30, "second": 0.05,

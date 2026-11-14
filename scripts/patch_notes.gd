@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.36.6", "items": [
+		"THE MARCHING BAND HAS REAL MUSIC: Scotland the Brave, played by real instruments (a recorded bagpipe with its drones, a real snare and bass drum, a fife), all three parts in one key (G) and one tempo (98 a minute), so the Drummer, the Fifer and the Piper sound like one band in every combination. Each instrument has a quiet playing-along loop and a SOLO loop with the full tune (the pipes' gracenotes, the fife's cuts and rolls, the snare's rolls and flams); each loop is the whole 16-bar tune (39 s) instead of the old 4-second phrase.",
+	]},
 	{"v": "0.36.5", "items": [
 		"The Clockwork computer: its scouting Winder and its sentry at a walled ramp run from enemy workers that come for them (two Labourers used to kill them while they traded blows). Its army rushes enemy guns that have only a thin guard, everything at once with the Springers jumping in, instead of standing off under round shot and canister; guns that are too well guarded it steps back out of their reach (it used to stay inside it). Against the Crown, a push that has lost a lot but still clearly wins where it is finishes the job instead of pulling back.",
 	]},
