@@ -4,6 +4,9 @@ extends RefCounted
 ## the running version first). Add an entry for every pushed version (see CLAUDE.md).
 
 const NOTES := [
+	{"v": "0.37.3", "items": [
+		"EXPERIMENT, NO FARM/PRESS LIMIT (Settings > EXPERIMENTAL, only with the GROUND SYSTEM on, off by default): a Town Hall no longer limits its Farms and a Clocktower its Cog Presses; the ground is the only limit. More of them drain the same district faster and overlapping circles share it; the placing view still shows each circle's share. The Powder Mill and the Mainspring stay one a hall. The computers build one more only where the district's ground left still pays for it and its crew. Being measured (docs/ground_nocap_study.md).",
+	]},
 	{"v": "0.37.2", "items": [
 		"VETERANCY CHEVRONS: a unit with 15 or more kills wears ONE CHEVRON over it, in every faction (Crown, Clockwork, Brood, guns, workers, flyers, the campaign's rebels): BRONZE from 15 kills, SILVER from 30, GOLD from 50. It sits centred just above where the health bar is drawn and always shows, whether the bar does or not, so veterans are easy to find for micro and focus fire. It keeps the same size on screen at every zoom (a little smaller zoomed far out). The bonus is unchanged: +1% damage a kill, up to +50% at 50 kills.",
 		"The old veterancy colours are gone: a Crown soldier's hat trim stays black and a Brood creature's skin stays as painted at every rank (the venom line keeps its belly and stripe colours). The unit card names the rank: \"Veteran (bronze): 17 kills, +17% damage\".",

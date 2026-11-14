@@ -1,0 +1,22 @@
+# NO FARM/PRESS LIMIT (ground-nocap-study, docs/ground_nocap_study.md): the experiment's Settings row and hint, the build
+# card's line, and the computers' placing messages.
+
+> NO FARM/PRESS LIMIT (with the ground system)
+pt SEM LIMITE DE FAZENDAS/PRENSAS (com o sistema do solo)
+es SIN LÍMITE DE GRANJAS/PRENSAS (con el sistema del suelo)
+
+> With the ground system on, a hall no longer limits its Farms or Cog Presses: build as many as you like, the ground is the only limit. More of them drain the same ground faster; watch each circle's share while you place.
+pt Com o sistema do solo ligado, uma sede não limita mais as suas Fazendas ou Prensas de Engrenagens: construa quantas quiser, o solo é o único limite. Mais delas esgotam o mesmo solo mais depressa; veja a parte de cada círculo ao construir.
+es Con el sistema del suelo activado, una sede ya no limita sus Granjas o Prensas de Engranajes: construye cuantas quieras, el suelo es el único límite. Más de ellas agotan el mismo suelo más deprisa; mira la parte de cada círculo al construir.
+
+> %d, no limit: the ground decides
+pt %d, sem limite: o solo decide
+es %d, sin límite: el suelo decide
+
+> This district's ground is fed well enough.
+pt O solo deste distrito já está bem aproveitado.
+es El suelo de este distrito ya está bien aprovechado.
+
+> Too little ground left here for one more.
+pt Resta pouco solo aqui para mais uma.
+es Queda poco suelo aquí para una más.

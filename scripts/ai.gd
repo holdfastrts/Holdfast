@@ -1757,12 +1757,13 @@ func _workers() -> void:
 		extra = 1 + (2 if game.army(team).size() >= 4 else 0)   # builder + escorts
 		if Defs.gear_mode:
 			extra = 1 + _escort_want(game.army(team))          # (the Winders that go with the army are extra hands, not taken from the presses)
-	var want := mini(int((cap * fill + extra) * float(_s("workers"))), 46 if difficulty >= 3 else _lv([16, 30, 40]))
+	var more := nocap_hands()        # (NO FARM/PRESS LIMIT: the crews of the Farms / Presses beyond the usual 2 a hall)
+	var want := mini(int((cap * fill + extra) * float(_s("workers"))), (46 if difficulty >= 3 else _lv([16, 30, 40])) + more)
 	if _clock():
 		# a base is saturated at ~13 Winders (Clocktower 4, 4-5 a Boiler; gear mode since 0.24.0: two Cog Presses of 5 and a
 		# Mainspring of 3): the rest of the supply is for the army
-		want = mini(want, (13 if Defs.gear_mode else 14) * _halls().size() + extra + 2 + _big_press_room())
-		want = mini(want, 36 if difficulty >= 3 else _lv([16, 26, 32]))
+		want = mini(want, (13 if Defs.gear_mode else 14) * _halls().size() + extra + 2 + _big_press_room() + more)
+		want = mini(want, (36 if difficulty >= 3 else _lv([16, 26, 32])) + more)
 	if doctrine():
 		saturated()             # (the match log notes when the economy is saturated on 1 and on 2 halls)
 	if doctrine() and (_hall_reserve or _busy_building(_f()["hall"]) or _bare_hall()):
@@ -1812,6 +1813,18 @@ func _workers() -> void:
 	_unpark()
 	if _clock():
 		_tend_sites(labs)
+
+
+## NO FARM/PRESS LIMIT (Defs.ground_nocap, docs/ground_nocap_study.md): the posts of the Farms / Cog Presses this side has
+## beyond its halls' usual 2 (Game.nocap_extra): the worker caps grow by them. 0 with the switch off.
+func nocap_hands() -> int:
+	if not Defs.ground_nocap:
+		return 0
+	var k: String = "farm" if _crown() else (Defs.GEAR_PRESS if _clock() else "")
+	if k == "":
+		return 0
+	var crew := int(Defs.GEAR["press"]["small"]["crew"]) if (k == Defs.GEAR_PRESS and Defs.gear_mode) else int(Defs.BUILDINGS[k].get("crew", 0))
+	return game.nocap_extra(team, k) * crew
 
 
 ## (AICrown: the owner's plans cap the labourers at the saturation of their halls, AICrown.owner_lab_cap)

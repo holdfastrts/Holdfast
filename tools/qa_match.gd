@@ -40,6 +40,7 @@ var _idle_w: Array = []         # (clockwork-ai-v2) per player: [sum of idle wor
 
 
 var ground := false
+var nocap := false      # (ground-nocap-study: NO FARM/PRESS LIMIT, `groundcap:off`, docs/ground_nocap_study.md)
 
 func _initialize() -> void:
 	var spec := "crown/optimal/0,brood/optimal/1"
@@ -55,6 +56,7 @@ func _initialize() -> void:
 			"diff": diff = kv[1]
 			"slots": spec = kv[1]
 			"ground": ground = kv[1] == "1"     # (THE GROUND SYSTEM on: docs/ground_system.md)
+			"groundcap": nocap = kv[1] == "off"   # (NO FARM/PRESS LIMIT: docs/ground_nocap_study.md)
 	for s in spec.split(","):
 		var p := s.split("/")
 		slots.append([p[0], p[1] if p.size() > 1 else "optimal", int(p[2]) if p.size() > 2 else slots.size()])
@@ -87,7 +89,7 @@ func _process(delta: float) -> bool:
 		var sl: Array = []
 		for i in n:
 			sl.append({"who": diff, "faction": slots[i][0], "colour": i, "side": slots[i][2], "strategy": slots[i][1]})
-		main.start({"map": map, "seed": seed_, "slots": sl, "ground": ground})
+		main.start({"map": map, "seed": seed_, "slots": sl, "ground": ground, "ground_nocap": nocap})
 		return false
 	if main.game == null:
 		return false
@@ -171,7 +173,60 @@ func _side(tm: int) -> Dictionary:
 		"res2": int(st.get("res2_in", 0.0)), "out": not _alive(tm), "gw_cogs": _gw_sum(tm),
 		"idle_w": g.workers(tm).filter(func(w: Unit) -> bool: return w.order == "idle").size(),
 		"idle_w_avg": snappedf(float(_idle_w[tm][0]) / maxf(1.0, float(_idle_w[tm][1])), 0.1),
-		"push": _push_phase(tm), "crown": _crown_econ(tm, a)}
+		"push": _push_phase(tm), "crown": _crown_econ(tm, a), "drink": _drinkers(tm), "home": _home_share(tm)}
+
+
+## (ground-nocap-study) the side's Farms / Cog Presses: [live built, spent, going up, the most in one district]
+func _drinkers(tm: int) -> Array:
+	var k := "farm" if g.faction_of(tm) == "crown" else ("cog_press" if g.faction_of(tm) == "clockwork" else "")
+	if k == "":
+		return []
+	var live := 0
+	var spent := 0
+	var going := 0
+	var per := {}
+	for b in g.buildings:
+		if b.team != tm or b.dead or b.kind != k:
+			continue
+		if not b.built:
+			going += 1
+		elif b.barren():
+			spent += 1
+			continue
+		else:
+			live += 1
+		var h = g.nearest_hall(b.center(), tm)
+		if h:
+			per[h] = int(per.get(h, 0)) + 1
+	var most := 0
+	for h in per:
+		most = maxi(most, int(per[h]))
+	return [live, spent, going, most]
+
+
+## (ground-nocap-study, the TURTLE measure) the share of the side's army value standing within 24 tiles of one of its own
+## halls (the Brood: its Mother); -1 with no army
+func _home_share(tm: int) -> float:
+	var homes: Array = []
+	if g.faction_of(tm) == "brood":
+		var q := BroodNew.queen(g, tm)
+		if q:
+			homes.append(q.position)
+	else:
+		for h in g.halls_of(tm, false):
+			homes.append(h.center())
+	var tot := 0
+	var at := 0
+	for u in g.army(tm):
+		if u._k_nb and (u.kind == BroodNew.QUEEN or BroodNew.rooted(u)):
+			continue
+		var v := Game.unit_value(u)
+		tot += v
+		for p in homes:
+			if u.position.distance_to(p) <= 24.0 * Defs.TILE:
+				at += v
+				break
+	return snappedf(float(at) / float(tot), 0.01) if tot > 0 else -1.0
 
 
 ## (econ-coach-crown) every 5 s, when built Farms have 2+ free posts and a built hall trains nothing: why (the gold under a

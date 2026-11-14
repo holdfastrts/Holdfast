@@ -1230,6 +1230,10 @@ func settings_rows(tab: String) -> Array:
 				Settings.ground_system = not Settings.ground_system
 				Settings.save_all())), "ground_system"))
 			rows.append(_hint("The Crown's soil and the Clockwork's brass lie on the map round each hall. A Farm or Cog Press drinks from a circle round it: spent ground shows red while you place, and a circle over spent ground pays less."))
+			rows.append(_tag(_next_match(_toggle_row("NO FARM/PRESS LIMIT (with the ground system)", func() -> bool: return Settings.ground_nocap, func() -> void:
+				Settings.ground_nocap = not Settings.ground_nocap
+				Settings.save_all())), "ground_nocap"))
+			rows.append(_hint("With the ground system on, a hall no longer limits its Farms or Cog Presses: build as many as you like, the ground is the only limit. More of them drain the same ground faster; watch each circle's share while you place."))
 			var gal := _row("GROUND LAYER WHILE PLACING")
 			var gas := HSlider.new()
 			gas.min_value = 0.1
@@ -2820,6 +2824,10 @@ func start(cfg: Dictionary = {}) -> void:
 	if not cfg.has("ground") and not watching and not cfg.has("resume"):
 		cfg["ground"] = Settings.ground_system
 	Defs.ground_on = bool(cfg.get("ground", false))
+	# NO FARM/PRESS LIMIT (docs/ground_nocap_study.md): the same way, and only with the ground on
+	if not cfg.has("ground_nocap") and not watching and not cfg.has("resume"):
+		cfg["ground_nocap"] = Settings.ground_nocap
+	Defs.ground_nocap = Defs.ground_on and bool(cfg.get("ground_nocap", false))
 	# (THE MARCHING BAND was an experiment with its own switch until 0.33.0: an old setup's "marching_band" is ignored, the
 	# band is always the Crown's now)
 	# a random map is picked here (among the pool's maps that hold everyone), so colours can

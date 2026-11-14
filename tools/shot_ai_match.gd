@@ -37,6 +37,8 @@ var next_raid := 0.0
 var status_lines: Array = []
 var _next_stat := 15.0      # (clockwork-v-brood-coach) with every:N, a stats line per side every 15 s (stats.txt)
 var stat_lines: Array = []
+var ground := false
+var nocap := false
 var minwave := 0             # minwave:N only a siege by a wave of at least N units is watched (the flags start with it)
 var siege_end := false       # siege_end:1 stop once the first siege has played out, writing siege.txt
 var _siege_t0 := -1.0
@@ -91,6 +93,8 @@ func _initialize() -> void:
 			"coach": coach = kv[1] == "1"
 			"gap": gap_n = float(kv[1])
 			"from": gap_from = float(kv[1])
+			"ground": ground = kv[1] == "1"          # (THE GROUND SYSTEM on, docs/ground_system.md)
+			"groundcap": nocap = kv[1] == "off"      # (NO FARM/PRESS LIMIT, docs/ground_nocap_study.md)
 	DirAccess.make_dir_recursive_absolute(out)
 	Settings.load_all()
 	Settings.device = "pc"
@@ -112,7 +116,7 @@ func _process(delta: float) -> bool:
 		var slots: Array = []
 		for i in 2:
 			slots.append({"who": whos[i], "faction": facs[i], "colour": i, "side": i, "strategy": plans[i]})
-		main.start({"map": map, "seed": seed_, "slots": slots})
+		main.start({"map": map, "seed": seed_, "slots": slots, "ground": ground, "ground_nocap": nocap})
 		return false
 	if main.game == null:
 		return false
